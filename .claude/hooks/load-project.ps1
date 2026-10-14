@@ -2,7 +2,13 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $root = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 $activeFile = Join-Path $root "projects\.active"
-$project = if (Test-Path $activeFile) { (Get-Content $activeFile -Raw).Trim() } else { "" }
+# Tolerante: ignora BOM, linhas vazias e maiúsculas; vale a última linha preenchida.
+$project = ""
+if (Test-Path $activeFile) {
+    $wanted = (Get-Content $activeFile -Encoding UTF8 | ForEach-Object { $_.Trim([char]0xFEFF).Trim() } | Where-Object { $_ } | Select-Object -Last 1)
+    $match = Get-ChildItem (Join-Path $root "projects") -Directory | Where-Object { $_.Name -ieq $wanted } | Select-Object -First 1
+    if ($match) { $project = $match.Name }
+}
 
 function Show($title, $path) {
     if (Test-Path $path) {

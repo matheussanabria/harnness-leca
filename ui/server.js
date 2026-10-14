@@ -11,7 +11,11 @@ const PORT = process.env.PORT || 4321;
 const read = (p) => { try { return fs.readFileSync(p, "utf8").replace(/^﻿/, ""); } catch { return ""; } };
 const slugs = () => fs.readdirSync(PROJECTS, { withFileTypes: true })
   .filter((d) => d.isDirectory() && d.name !== "_template").map((d) => d.name);
-const active = () => read(path.join(PROJECTS, ".active")).trim();
+// Mesma regra do hook: última linha preenchida, sem diferenciar maiúsculas.
+const active = () => {
+  const want = read(path.join(PROJECTS, ".active")).split(/\r?\n/).map((l) => l.trim()).filter(Boolean).pop() || "";
+  return slugs().find((s) => s.toLowerCase() === want.toLowerCase()) || "";
+};
 
 function listDir(dir) {
   try {
