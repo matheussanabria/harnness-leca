@@ -22,6 +22,7 @@ function listDir(dir) {
     return fs.readdirSync(dir, { withFileTypes: true })
       .filter((f) => f.isFile() && f.name !== ".gitkeep")
       .map((f) => {
+        const st = fs.statSync(path.join(dir, f.name));
         const head = read(path.join(dir, f.name)).slice(0, 600);
         const t = head.match(/^titulo: "(.*)"$/m);
         const ag = head.match(/^agente: "(.*)"$/m);
