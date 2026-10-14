@@ -68,7 +68,9 @@ harness-leca/
 │   ├── instructions.example.md  # copie para instructions.md (local)
 │   └── memory.example.md        # copie para memory.md (local)
 ├── tools/
-│   └── import-claude-code-chats.js   # importa conversas do Claude Code
+│   ├── import-claude-code-chats.js   # importa conversas do Claude Code
+│   ├── extract-artifacts.js          # extrai regras, memórias e documentos das conversas
+│   └── lib/redact.js                 # redação de segredos (compartilhada)
 ├── ui/                          # interface web local (Node, sem dependências)
 └── projects/                     # LOCAL: só o _template é versionado
     ├── .active                  # slug do projeto ativo (uma linha)
@@ -112,6 +114,33 @@ node tools/import-claude-code-chats.js --from nome-da-pasta --project meu-projet
 Cada conversa vira um `.md` em `projects/<projeto>/chats/` com título, datas e origem. As chamadas de ferramenta (entrada e resultado, cortados em 1.500 caracteres) ficam em blocos `:::tool` que a interface mostra recolhidos.
 
 > Conversas podem conter dados sensíveis (logs, senhas coladas, dados de clientes). Elas ficam só no seu computador. Revise antes de compartilhar qualquer arquivo de `chats/`. O importador redige por heurística padrões comuns de segredo (chaves de API, `Bearer`, `senha=`/`token=`, senhas em URLs, chaves privadas), mas isso não garante cobertura total.
+
+## Extrair regras, memórias e documentos das conversas
+
+Depois de importar, `tools/extract-artifacts.js` lê as conversas do projeto e separa o que vale reaproveitar. Tudo vai para `projects/<projeto>/context/` como **sugestão para revisar**: nada é copiado automaticamente para `memory.md` ou `instructions.md`.
+
+```bash
+# sem custo, roda local: regras, documentos, arquivos tocados
+node tools/extract-artifacts.js --project meu-projeto
+
+# opcional: memórias, regras e decisões destiladas pelo Claude (usa sua cota)
+node tools/extract-artifacts.js --project meu-projeto --llm --limit 5
+```
+
+| Saída | Conteúdo |
+|---|---|
+| `extraido-indice.md` | resumo e lista do que foi extraído |
+| `extraido-regras.md` | frases suas com cara de regra ("sempre", "nunca", "prefiro"...). Heurística: revise |
+| `extraido-arquivos.md` | arquivos que o Claude criou ou editou, por conversa |
+| `extraido-memorias.md` | (`--llm`) memórias, regras, decisões e termos do domínio por conversa |
+| `extraidos/documentos/` | documentos `.md`/`.txt`/`.html` que o Claude gravou, com o conteúdo completo |
+| `extraidos/respostas/` | respostas longas e estruturadas do Claude (planos, análises, tabelas) |
+
+- Os arquivos `extraido-*.md` aparecem no cartão **Contexto** da interface e na lista que o hook entrega ao Claude. A pasta `extraidos/` fica no disco.
+- Rodar de novo regrava os arquivos derivados. Sem `--llm`, o `extraido-memorias.md` anterior é preservado.
+- `--limit N|all` (padrão 10, as mais recentes) e `--model nome` controlam o modo `--llm`.
+- O modo `--llm` envia um resumo de cada conversa (com segredos já redigidos) ao modelo via `claude -p`, **sem ferramentas habilitadas**, e é opcional por isso. Evite em projetos com dados de terceiros, como saúde, sem necessidade.
+- Para promover algo à memória, copie manualmente a linha revisada para `memory.md`.
 
 ## Interface web
 
