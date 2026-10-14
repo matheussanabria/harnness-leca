@@ -1,7 +1,14 @@
-# Dados do cliente (contabilidade) ficam só locais
-projects/*/context/*
-projects/*/chats/*
-!projects/*/context/.gitkeep
-!projects/*/chats/.gitkeep
+# Só o processo é versionado (hook, interface, importador, template, docs).
+# Tudo que é dado pessoal/de cliente fica local.
+
+# Projetos: apenas o _template sobe; cada pessoa cria os seus.
+projects/*
+!projects/_template/
+
+# Memória e instruções globais são pessoais depois de preenchidas.
+# (os arquivos de exemplo ficam em global/*.example.md)
+global/instructions.md
+global/memory.md
+
 .claude/settings.local.json
 node_modules/
