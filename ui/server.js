@@ -42,14 +42,40 @@ function project(slug) {
   };
 }
 
+const HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "Cache-Control": "no-store",
+  "Referrer-Policy": "no-referrer",
+  "Cross-Origin-Resource-Policy": "same-origin",
+  "X-Frame-Options": "DENY",
+  // A interface usa script/estilo inline; bloqueia todo o resto (sem rede externa, sem frames).
+  "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+};
+
 function send(res, code, body, type = "application/json; charset=utf-8") {
-  res.writeHead(code, { "Content-Type": type });
+  res.writeHead(code, { "Content-Type": type, ...HEADERS });
   res.end(typeof body === "string" || Buffer.isBuffer(body) ? body : JSON.stringify(body));
 }
 
-http.createServer((req, res) => {
+// Defesa contra DNS rebinding: só aceita Host local (e Origin local, quando enviado).
+const LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i;
+const hostOk = (req) => LOCAL.test(req.headers.host || "") &&
+  (!req.headers.origin || LOCAL.test(req.headers.origin.replace(/^https?:\/\//i, "")));
+
+// Só serve arquivos regulares cujo caminho real fica dentro de `base` (bloqueia symlinks que escapam).
+function inside(base, target) {
+  try {
+    const real = fs.realpathSync(target), b = fs.realpathSync(base);
+    return real.startsWith(b + path.sep) && fs.statSync(real).isFile();
+  } catch { return false; }
+}
+
+const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon" };
+
+function handle(req, res) {
   const url = new URL(req.url, "http://x");
   const p = decodeURIComponent(url.pathname);
+  if (p.includes("\0")) return send(res, 400, { error: "requisição inválida" });
 
   if (p === "/api/state") {
     return send(res, 200, {
@@ -66,14 +92,26 @@ http.createServer((req, res) => {
   if (m && slugs().includes(m[1])) return send(res, 200, project(m[1]));
 
   if (p === "/api/file") {
-    const target = path.resolve(PROJECTS, url.searchParams.get("path") || "");
-    if (!target.startsWith(PROJECTS + path.sep) || !fs.existsSync(target)) return send(res, 404, { error: "não encontrado" });
+    // Só <slug>/<chats|context|scheduled>/<arquivo> ou <slug>/<instructions|memory>.md, sem sair de projects/.
+    const rel = url.searchParams.get("path") || "";
+    const target = path.resolve(PROJECTS, rel);
+    const ok = /^[\w-]+\/(chats|context|scheduled)\/[^\/\\]+$|^[\w-]+\/(instructions|memory)\.md$/.test(rel);
+    if (!ok || !target.startsWith(PROJECTS + path.sep) || !inside(PROJECTS, target)) return send(res, 404, { error: "não encontrado" });
     return send(res, 200, { content: read(target) });
   }
 
-  const file = path.join(PUBLIC, p === "/" ? "index.html" : p);
-  if (file.startsWith(PUBLIC) && fs.existsSync(file) && fs.statSync(file).isFile()) {
-    return send(res, 200, fs.readFileSync(file), "text/html; charset=utf-8");
+  const file = path.resolve(PUBLIC, "." + path.sep + (p === "/" ? "index.html" : p.replace(/^[\/\\]+/, "")));
+  const type = TYPES[path.extname(file).toLowerCase()];
+  if (type && file.startsWith(PUBLIC + path.sep) && inside(PUBLIC, file)) {
+    return send(res, 200, fs.readFileSync(file), type);
   }
   send(res, 404, "404", "text/plain");
+}
+
+http.createServer((req, res) => {
+  try {
+    if (req.method !== "GET" && req.method !== "HEAD") return send(res, 405, { error: "método não permitido" });
+    if (!hostOk(req)) return send(res, 403, { error: "host não permitido" });
+    handle(req, res);
+  } catch { send(res, 400, { error: "requisição inválida" }); }
 }).listen(PORT, "127.0.0.1", () => console.log(`Harness UI: http://localhost:${PORT}`));

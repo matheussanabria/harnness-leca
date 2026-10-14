@@ -111,7 +111,7 @@ node tools/import-claude-code-chats.js --from nome-da-pasta --project meu-projet
 
 Cada conversa vira um `.md` em `projects/<projeto>/chats/` com título, datas e origem. As chamadas de ferramenta (entrada e resultado, cortados em 1.500 caracteres) ficam em blocos `:::tool` que a interface mostra recolhidos.
 
-> Conversas podem conter dados sensíveis (logs, senhas coladas, dados de clientes). Elas ficam só no seu computador. Revise antes de compartilhar qualquer arquivo de `chats/`.
+> Conversas podem conter dados sensíveis (logs, senhas coladas, dados de clientes). Elas ficam só no seu computador. Revise antes de compartilhar qualquer arquivo de `chats/`. O importador redige por heurística padrões comuns de segredo (chaves de API, `Bearer`, `senha=`/`token=`, senhas em URLs, chaves privadas), mas isso não garante cobertura total.
 
 ## Interface web
 

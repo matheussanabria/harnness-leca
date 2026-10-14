@@ -19,6 +19,18 @@ const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE_ROOT = path.join(os.homedir(), ".claude", "projects");
 const MAX_IO = 1500; // limite de caracteres por entrada/resultado de ferramenta
+const MAX_FILE = 200 * 1024 * 1024; // jsonl maiores que isso são ignorados (evita estourar memória)
+
+// Redação simples de segredos comuns (heurística: não garante cobertura total; revise os .md antes de compartilhar).
+const SECRET_RULES = [
+  [/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?(-----END [A-Z ]*PRIVATE KEY-----|$)/g, "[REDIGIDO:chave-privada]"],
+  [/\b(sk-ant-|sk-|ghp_|gho_|ghs_|github_pat_|glpat-|xox[abprs]-|AIza|AKIA|ASIA)[A-Za-z0-9_\-]{16,}/g, "[REDIGIDO:chave-api]"],
+  [/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/g, "[REDIGIDO:jwt]"],
+  [/\b(Bearer|Basic)\s+[A-Za-z0-9._~+\/=-]{12,}/gi, "$1 [REDIGIDO]"],
+  [/(\b[a-z][a-z0-9+.-]*:\/\/[^\s:\/@]+:)[^\s@\/]+@/gi, "$1[REDIGIDO]@"],
+  [/((?:password|passwd|pwd|senha|secret|token|api[_-]?key|access[_-]?key|authorization)["']?\s*[:=]\s*["']?)[^\s"',;&]{4,}/gi, "$1[REDIGIDO]"],
+];
+const redact = (s) => SECRET_RULES.reduce((t, [re, to]) => t.replace(re, to), s);
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(`--${n}`);
@@ -143,6 +155,14 @@ if (!from || !slug) {
   process.exit(1);
 }
 
+if (!/^[a-z0-9][a-z0-9_-]{0,59}$/i.test(slug) || slug === "_template") {
+  console.error("--project inválido: use apenas letras, números, '-' e '_' (sem barras ou '..').");
+  process.exit(1);
+}
+
+// --from só pode apontar para dentro de ~/.claude/projects (caminho fora dele é recusado).
+const insideSource = (d) => { const r = path.relative(SOURCE_ROOT, path.resolve(d)); return r && !r.startsWith("..") && !path.isAbsolute(r); };
+if (fs.existsSync(from) && !insideSource(from)) { console.error("--from fora de ~/.claude/projects não é permitido."); process.exit(1); }
 const dirName = fs.existsSync(from) ? from : (() => {
   const m = sourceDirs().filter((d) => d.toLowerCase().includes(from.toLowerCase()));
   if (m.length !== 1) { console.error(m.length ? `Ambíguo, use um nome mais específico:\n  ${m.join("\n  ")}` : `Nenhuma pasta contém "${from}".`); process.exit(1); }
@@ -159,15 +179,17 @@ if (!flag("dry-run")) fs.mkdirSync(chatsDir, { recursive: true });
 
 let ok = 0, skipped = 0;
 for (const f of fs.readdirSync(dirName).filter((n) => n.endsWith(".jsonl"))) {
-  const sessionId = f.replace(/\.jsonl$/, "");
-  const c = convert(path.join(dirName, f), !flag("no-tools"));
+  const sessionId = slugify(f.replace(/\.jsonl$/, "")); // só [a-z0-9-] no nome do arquivo gerado
+  const src = path.join(dirName, f), st = fs.lstatSync(src);
+  if (!st.isFile() || st.size > MAX_FILE) { console.log(`ignorado (symlink ou > 200 MB): ${f}`); skipped++; continue; }
+  const c = convert(src, !flag("no-tools"));
   if (!c.turns.length) { skipped++; continue; }
   const date = (c.first || "").slice(0, 10) || "sem-data";
   const name = `${date}-${slugify(c.title)}-${sessionId.slice(0, 8)}.md`;
   console.log(`${flag("dry-run") ? "[dry-run] " : ""}${name}  (${c.turns.length} turnos)`);
   if (!flag("dry-run")) {
     const out = path.join(chatsDir, name);
-    fs.writeFileSync(out, render(c, sessionId));
+    fs.writeFileSync(out, redact(render(c, sessionId)));
     if (c.last) fs.utimesSync(out, new Date(c.last), new Date(c.last)); // a interface ordena/data pelo mtime
   }
   ok++;

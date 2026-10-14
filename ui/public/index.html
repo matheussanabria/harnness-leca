@@ -99,7 +99,7 @@ const fmt = ms => new Date(ms).toLocaleDateString("pt-BR", {day:"numeric", month
 // Markdown básico: blocos de código, títulos, listas, tabelas, negrito, itálico e código inline.
 function md(t) {
   const code = [];
-  t = t.replace(/```[^\n]*\n([\s\S]*?)```/g, (_, c) => { code.push(c); return `\u0000${code.length - 1}\u0000`; });
+  t = t.replace(/\u0000/g, "").replace(/```[^\n]*\n([\s\S]*?)```/g, (_, c) => { code.push(c); return `\u0000${code.length - 1}\u0000`; });
   const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|\W)_(.+?)_(?=\W|$)/g, "$1<i>$2</i>").replace(/`(.+?)`/g, "<code>$1</code>");
   const lines = t.split("\n"), out = [];
   for (let i = 0; i < lines.length; i++) {
@@ -217,7 +217,7 @@ const showMem = () => openDlg("Memória", "## Global\n" + clean(S.global.memory)
 
 (async () => {
   S = await (await fetch("/api/state")).json();
-  $("sel").innerHTML = S.projects.map(p => `<option ${p === S.active ? "selected" : ""}>${p}</option>`).join("");
+  $("sel").innerHTML = S.projects.map(p => `<option ${p === S.active ? "selected" : ""}>${esc(p)}</option>`).join("");
   $("sel").onchange = e => load(e.target.value);
   if (!S.projects.length) {
     $("title").textContent = "Nenhum projeto ainda";
