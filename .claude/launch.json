@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "harness-ui",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["ui/server.js"],
+      "port": 4321
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# Dados do cliente (contabilidade) ficam só locais
+projects/*/context/*
+projects/*/chats/*
+!projects/*/context/.gitkeep
+!projects/*/chats/.gitkeep
+.claude/settings.local.json
+node_modules/

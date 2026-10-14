@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harness Leca</title>
+<style>
+:root{--bg:#1f1e1d;--panel:#262624;--panel2:#30302e;--line:#3a3937;--text:#f0eee6;--mute:#9a978e;--accent:#d97757}
+@media (prefers-color-scheme: light){:root{--bg:#faf9f5;--panel:#fff;--panel2:#f0eee6;--line:#e3e0d5;--text:#1f1e1d;--mute:#6f6c63}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"Segoe UI",system-ui,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:14px 28px;border-bottom:1px solid var(--line)}
+header .logo{font-weight:600;color:var(--accent)}
+select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:inherit}
+.badge{font-size:12px;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+main{max-width:1180px;margin:0 auto;padding:32px 28px;display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+h1{font-family:Georgia,serif;font-weight:500;font-size:30px;margin:0 0 4px}
+.sub{color:var(--mute);margin-bottom:24px}
+h3.sech{font-size:13px;color:var(--mute);font-weight:500;margin:28px 0 8px;display:flex;justify-content:space-between;gap:12px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:14px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.row:hover{background:var(--panel)}
+.row b{font-weight:500}.row span{color:var(--mute);white-space:nowrap}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.sec{padding:16px 18px;border-bottom:1px solid var(--line)}.sec:last-child{border:0}
+.sec h4{margin:0 0 6px;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.tag{font-size:11px;font-weight:400;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:1px 7px}
+.preview{color:var(--mute);font-size:13px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
+.empty{color:var(--mute);font-size:13px;font-style:italic}
+.files{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.file{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;width:150px;font-size:12px;word-break:break-all;cursor:pointer}
+.file i{display:inline-block;margin-top:8px;font-style:normal;font-size:10px;border:1px solid var(--mute);border-radius:4px;padding:0 4px;color:var(--mute)}
+.more{color:var(--accent);cursor:pointer;font-size:12px;margin-top:6px}
+dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:14px;width:min(720px,92vw);max-height:80vh;padding:0}
+dialog::backdrop{background:#0008}
+.dh{display:flex;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);font-weight:600}
+.dh button{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer}
+.db{padding:6px 20px 20px;overflow:auto;max-height:65vh}
+.db h1,.db h2,.db h3{font-family:inherit;color:var(--text);font-size:17px;margin:16px 0 6px}
+.db pre{background:var(--panel2);padding:12px;border-radius:8px;overflow:auto;white-space:pre-wrap}
+.db code{background:var(--panel2);padding:1px 5px;border-radius:4px}
+.db li{margin:2px 0;margin-left:18px}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">✱ Harness Leca</span>
+  <select id="sel"></select>
+  <span class="badge" id="act"></span>
+</header>
+<main>
+  <section>
+    <h1 id="title"></h1>
+    <div class="sub">Projeto local · <span id="meta"></span></div>
+    <h3 class="sech">Atividade <span>🔒 Chats ficam apenas neste computador</span></h3>
+    <div id="chats"></div>
+  </section>
+  <aside class="card" id="side"></aside>
+</main>
+<dialog id="dlg"><div class="dh"><span id="dt"></span><button onclick="dlg.close()">×</button></div><div class="db" id="dbody"></div></dialog>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clean = t => t.replace(/<!--[\s\S]*?-->/g, "").replace(/^# .*\n?/, "").trim();
+const fmt = ms => new Date(ms).toLocaleDateString("pt-BR", {day:"numeric", month:"short"}).replace(".", "");
+
+function md(t) {
+  const h = esc(t).replace(/```([\s\S]*?)```/g, (_, c) => "<pre>" + c + "</pre>").split("\n").map(l => {
+    if (/^### /.test(l)) return "<h3>" + l.slice(4) + "</h3>";
+    if (/^## /.test(l)) return "<h2>" + l.slice(3) + "</h2>";
+    if (/^# /.test(l)) return "<h1>" + l.slice(2) + "</h1>";
+    if (/^\s*[-*] /.test(l)) return "<li>" + l.replace(/^\s*[-*] /, "") + "</li>";
+    return l.trim() ? "<p>" + l + "</p>" : "";
+  }).join("");
+  return h.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`(.+?)`/g, "<code>$1</code>");
+}
+function openDlg(title, text) {
+  $("dt").textContent = title;
+  $("dbody").innerHTML = text.trim() ? md(text) : '<p class="empty">Vazio</p>';
+  $("dlg").showModal();
+}
+async function openFile(dir, name) {
+  const r = await (await fetch("/api/file?path=" + encodeURIComponent(`${P.slug}/${dir}/${name}`))).json();
+  openDlg(name, r.content || "");
+}
+const section = (title, tag, body, more) =>
+  `<div class="sec"><h4>${title}${tag ? `<span class="tag">${tag}</span>` : ""}</h4>${body}${more ? `<div class="more" onclick="${more}()">Ver tudo</div>` : ""}</div>`;
+
+let S, P;
+async function load(slug) {
+  P = await (await fetch("/api/project/" + slug)).json();
+  $("title").textContent = slug.charAt(0).toUpperCase() + slug.slice(1);
+  $("meta").textContent = `${P.chats.length} chats · ${P.context.length} arquivos`;
+  $("act").textContent = S.active === slug ? "ativo no harness" : "inativo (edite projects/.active)";
+  $("chats").innerHTML = P.chats.length
+    ? P.chats.map((c, i) => `<div class="row" data-i="${i}"><b>${esc(c.name.replace(/\.md$/, ""))}</b><span>${fmt(c.mtime)}</span></div>`).join("")
+    : '<p class="empty">Nenhum chat salvo ainda. O Claude grava resumos em chats/.</p>';
+  document.querySelectorAll("#chats .row").forEach(r => r.onclick = () => openFile("chats", P.chats[r.dataset.i].name));
+
+  const ins = clean(P.instructions), mem = clean(P.memory);
+  $("side").innerHTML =
+    section("Instruções", "Projeto + global", ins ? `<div class="preview">${esc(ins)}</div>` : '<div class="empty">Adicione em instructions.md</div>', "showIns") +
+    section("Memória", "Apenas você", mem ? `<div class="preview">${esc(mem)}</div>` : '<div class="empty">Sem memórias ainda</div>', "showMem") +
+    section("Contexto", `${P.context.length} arquivos`, P.context.length
+      ? `<div class="files">${P.context.map((f, i) => `<div class="file" data-i="${i}">${esc(f.name)}<br><i>${esc(f.name.split(".").pop().toUpperCase())}</i></div>`).join("")}</div>`
+      : '<div class="empty">Coloque arquivos em context/</div>') +
+    section("Programado", "", P.scheduled.length
+      ? P.scheduled.map((f, i) => `<div class="row" data-s="${i}">${esc(f.name)}</div>`).join("")
+      : '<div class="empty">Nenhuma tarefa recorrente</div>');
+  document.querySelectorAll(".file").forEach(r => r.onclick = () => openFile("context", P.context[r.dataset.i].name));
+  document.querySelectorAll("[data-s]").forEach(r => r.onclick = () => openFile("scheduled", P.scheduled[r.dataset.s].name));
+}
+const showIns = () => openDlg("Instruções", "## Globais\n" + clean(S.global.instructions) + "\n\n## Do projeto\n" + clean(P.instructions));
+const showMem = () => openDlg("Memória", "## Global\n" + clean(S.global.memory) + "\n\n## Do projeto\n" + clean(P.memory));
+
+(async () => {
+  S = await (await fetch("/api/state")).json();
+  $("sel").innerHTML = S.projects.map(p => `<option ${p === S.active ? "selected" : ""}>${p}</option>`).join("");
+  $("sel").onchange = e => load(e.target.value);
+  load(S.active || S.projects[0]);
+})();
+</script>
+</body>
+</html>
