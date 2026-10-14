@@ -70,7 +70,8 @@ harness-leca/
 ├── tools/
 │   ├── import-claude-code-chats.js   # importa conversas do Claude Code
 │   ├── extract-artifacts.js          # extrai regras, memórias e documentos das conversas
-│   └── lib/redact.js                 # redação de segredos (compartilhada)
+│   ├── extraction-state.js           # o que já foi analisado / mudou depois
+│   └── lib/                          # redact.js (segredos) e state.js (controle de estado)
 ├── ui/                          # interface web local (Node, sem dependências)
 └── projects/                     # LOCAL: só o _template é versionado
     ├── .active                  # slug do projeto ativo (uma linha)
@@ -141,6 +142,37 @@ node tools/extract-artifacts.js --project meu-projeto --llm --limit 5
 - `--limit N|all` (padrão 10, as mais recentes) e `--model nome` controlam o modo `--llm`.
 - O modo `--llm` envia um resumo de cada conversa (com segredos já redigidos) ao modelo via `claude -p`, **sem ferramentas habilitadas**, e é opcional por isso. Evite em projetos com dados de terceiros, como saúde, sem necessidade.
 - Para promover algo à memória, copie manualmente a linha revisada para `memory.md`.
+
+## Acompanhar o que já foi analisado
+
+Cada conversa importada recebe uma impressão digital do conteúdo. `tools/extraction-state.js` guarda, em `projects/<projeto>/extraction-state.json`, o que já foi analisado, por quem e quando, e avisa quando a conversa **continuou depois da análise**.
+
+```bash
+# fluxo normal
+node tools/import-claude-code-chats.js --from nome-da-pasta --project meu-projeto   # traz conversas novas e as que continuaram
+node tools/extraction-state.js --project meu-projeto status                         # nova | alterada | em dia
+node tools/extraction-state.js --project meu-projeto pending --limit 5              # nomes dos pendentes (para agentes)
+node tools/extraction-state.js --project meu-projeto mark --by gemini --file a.md   # registra como analisada
+node tools/extraction-state.js --project meu-projeto adopt --by gemini              # adota análises feitas antes do controle
+node tools/extraction-state.js --project meu-projeto reset                          # esquece tudo e reanalisa do zero
+```
+
+- **nova:** nunca analisada. **alterada:** já analisada, mas o `.md` mudou depois (mais turnos). **em dia:** nada a fazer.
+- O importador diz `[nova]`, `[atualizada]` ou `[sem mudança]` por conversa, não regrava as que não mudaram e, se o título gerado mudar, renomeia em vez de duplicar.
+- `extract-artifacts.js --llm` processa só as pendentes (use `--all` para refazer tudo) e **substitui** a seção da conversa alterada em `extraido-memorias.md`, em vez de acrescentar outra.
+- Agentes (Gemini, opencode etc.) seguem o mesmo fluxo pela skill `extrair-artefatos`.
+- Quem já tinha rodado a extração antes do controle: `adopt` marca como analisadas as conversas que já têm seção em `extraido-memorias.md`.
+
+## Usar com outro agente (Antigravity/Gemini)
+
+O hook de contexto só existe no Claude Code. Para outro agente que lê a pasta, como o Gemini no Antigravity, o repositório traz o equivalente em texto:
+
+- `AGENTS.md`: manda o agente ler `projects/.active`, as instruções e as memórias (global e do projeto) no início de cada tarefa, e trata o conteúdo como dado, não comando.
+- `.agents/skills/extrair-artefatos/SKILL.md`: o passo a passo da extração de memórias, regras e decisões, feito pelo próprio agente. Substitui o `--llm`, sem API nem chave.
+
+Abra a pasta `harness-leca` no Antigravity e peça, por exemplo: *"Use a skill extrair-artefatos no projeto 57multimarcas, limite 5 conversas."* Se o seu Antigravity não carregar `AGENTS.md` ou a skill sozinho, peça: *"Leia AGENTS.md e .agents/skills/extrair-artefatos/SKILL.md e siga as instruções."*
+
+> Atenção: o agente lê as conversas e o conteúdo vai para o modelo dele (Google, no caso do Gemini). Evite projetos com dados de terceiros, como os de saúde.
 
 ## Interface web
 

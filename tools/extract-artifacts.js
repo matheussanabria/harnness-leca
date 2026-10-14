@@ -23,6 +23,8 @@ const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
 const { redact } = require("./lib/redact");
+const S = require("./lib/state");
+let pendingMarks = []; // conversas resumidas com sucesso neste run (marcadas como analisadas ao gravar)
 
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE_ROOT = path.join(os.homedir(), ".claude", "projects");
@@ -56,9 +58,9 @@ function parseChat(file) {
   const get = (k) => { const m = fm.match(new RegExp(`^${k}: (.*)$`, "m")); return m ? m[1].replace(/^"|"$/g, "") : ""; };
   const body = raw.replace(/^---\n[\s\S]*?\n---\n/, "").replace(/^:::(tool|thinking)[^\n]*\n[\s\S]*?^:::$/gm, "");
   const turns = [];
-  for (const part of body.split(/^## (Você|Claude)\s*$/m).slice(1).reduce((a, x, i, arr) => (i % 2 ? a : a.concat([[x, arr[i + 1]]])), [])) {
+  for (const part of body.split(/^## (Você|Claude|Gemini|Antigravity)\s*$/im).slice(1).reduce((a, x, i, arr) => (i % 2 ? a : a.concat([[x, arr[i + 1]]])), [])) {
     const text = (part[1] || "").trim();
-    if (text) turns.push({ who: part[0] === "Você" ? "user" : "claude", text });
+    if (text) turns.push({ who: /^Você$/i.test(part[0]) ? "user" : "claude", text });
   }
   return { file, titulo: get("titulo") || path.basename(file), sessao: get("sessao"), data: get("inicio").slice(0, 10), turns };
 }
@@ -181,17 +183,31 @@ for (const d of docs) docFiles.set(`documentos/${d.c.data}-${slugify(path.basena
 for (const a of answers) ansFiles.set(`respostas/${a.c.data}-${slugify(a.c.titulo)}-${a.c.sessao.slice(0, 8)}-${a.i + 1}.md`, `<!-- conversa: ${a.c.titulo} (${a.c.data}) -->\n${a.text}\n`);
 
 if (flag("llm")) {
+  // Só o que está pendente (nova ou alterada desde a última análise); --all reanalisa tudo.
   const lim = opt("limit") || "10";
-  const pick = lim === "all" ? chats : chats.slice(0, Math.max(1, parseInt(lim, 10) || 10));
-  console.log(`Modo --llm: ${pick.length} conversa(s) serão resumidas pelo modelo (${lim === "all" ? "todas" : "mais recentes"}).`);
-  let md = head("Memórias, regras e decisões sugeridas (destiladas por LLM)");
+  const byName = new Map(chats.map((c) => [path.basename(c.file), c]));
+  const todo = S.scan(slug).filter((r) => flag("all") || r.status !== "ok").map((r) => byName.get(r.name)).filter(Boolean);
+  const pick = lim === "all" ? todo : todo.slice(0, Math.max(1, parseInt(lim, 10) || 10));
+  console.log(`Modo --llm: ${pick.length} conversa(s) pendente(s) serão resumidas pelo modelo (de ${todo.length} pendentes).`);
+
+  // Mescla com o arquivo existente: uma seção por sessão, marcada por <!-- sessao: ID | data -->.
+  const memFile = path.join(ctxDir, "extraido-memorias.md");
+  const prev = fs.existsSync(memFile) ? fs.readFileSync(memFile, "utf8") : "";
+  const chunks = prev.split(/^(?=<!-- sessao: )/m);
+  const header = chunks[0].trim() ? chunks[0].trimEnd() + "\n\n" : head("Memórias, regras e decisões sugeridas");
+  const sections = new Map(chunks.slice(1).map((s) => [s.match(/^<!-- sessao: (\S+)/)[1], s.trimEnd() + "\n\n"]));
+  const done = [];
   for (const c of pick) {
     process.stdout.write(`  ${c.titulo.slice(0, 60)} … `);
     if (DRY) { console.log("[dry-run]"); continue; }
-    try { md += `## ${c.titulo} (${c.data})\n\n${redact(askClaude(PROMPT(c), opt("model")))}\n\n`; console.log("ok"); }
-    catch (e) { md += `## ${c.titulo} (${c.data})\n\n_Falha ao extrair: ${String(e.message).replace(/\s+/g, " ")}_\n\n`; console.log("falhou"); }
+    try {
+      sections.set(c.sessao, `<!-- sessao: ${c.sessao} | ${c.data} -->\n## ${c.titulo} (${c.data})\n\n${redact(askClaude(PROMPT(c), opt("model")))}\n\n`);
+      done.push(path.basename(c.file)); console.log("ok");
+    } catch (e) { console.log(`falhou: ${String(e.message).replace(/\s+/g, " ").slice(0, 120)}`); } // não marca: continua pendente
   }
-  out["extraido-memorias.md"] = md;
+  const key = (s) => (s.match(/^<!-- sessao: \S+ \| (\S+)/) || [])[1] || "";
+  out["extraido-memorias.md"] = header + [...sections.values()].sort((a, b) => key(b).localeCompare(key(a))).join("");
+  if (!DRY && done.length) { pendingMarks = done; }
 }
 
 out["extraido-indice.md"] = head(`Extração do projeto ${slug}`) +
@@ -215,4 +231,5 @@ for (const [f, t] of [...docFiles, ...ansFiles]) {
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.writeFileSync(dest, t);
 }
+if (pendingMarks.length) S.mark(slug, pendingMarks, "claude");
 console.log(`Gravado em projects/${slug}/context/`);

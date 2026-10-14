@@ -22,9 +22,10 @@ function listDir(dir) {
     return fs.readdirSync(dir, { withFileTypes: true })
       .filter((f) => f.isFile() && f.name !== ".gitkeep")
       .map((f) => {
-        const st = fs.statSync(path.join(dir, f.name));
-        const t = read(path.join(dir, f.name)).slice(0, 400).match(/^titulo: "(.*)"$/m);
-        return { name: f.name, title: t ? t[1] : "", size: st.size, mtime: st.mtimeMs };
+        const head = read(path.join(dir, f.name)).slice(0, 600);
+        const t = head.match(/^titulo: "(.*)"$/m);
+        const ag = head.match(/^agente: "(.*)"$/m);
+        return { name: f.name, title: t ? t[1] : "", agent: ag ? ag[1] : "", size: st.size, mtime: st.mtimeMs };
       })
       .sort((a, b) => b.mtime - a.mtime);
   } catch { return []; }

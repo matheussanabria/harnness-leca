@@ -168,7 +168,7 @@ if (!fs.existsSync(dest) && !flag("dry-run")) {
 const chatsDir = path.join(dest, "chats");
 if (!flag("dry-run")) fs.mkdirSync(chatsDir, { recursive: true });
 
-let ok = 0, skipped = 0;
+let ok = 0, skipped = 0, changed = 0;
 for (const f of fs.readdirSync(dirName).filter((n) => n.endsWith(".jsonl"))) {
   const sessionId = slugify(f.replace(/\.jsonl$/, "")); // só [a-z0-9-] no nome do arquivo gerado
   const src = path.join(dirName, f), st = fs.lstatSync(src);
@@ -177,12 +177,24 @@ for (const f of fs.readdirSync(dirName).filter((n) => n.endsWith(".jsonl"))) {
   if (!c.turns.length) { skipped++; continue; }
   const date = (c.first || "").slice(0, 10) || "sem-data";
   const name = `${date}-${slugify(c.title)}-${sessionId.slice(0, 8)}.md`;
-  console.log(`${flag("dry-run") ? "[dry-run] " : ""}${name}  (${c.turns.length} turnos)`);
-  if (!flag("dry-run")) {
-    const out = path.join(chatsDir, name);
-    fs.writeFileSync(out, redact(render(c, sessionId)));
+  const out = path.join(chatsDir, name);
+  const text = redact(render(c, sessionId));
+  const before = fs.existsSync(out) ? fs.readFileSync(out, "utf8") : null;
+  const state = before === null ? "nova" : before === text ? "sem mudança" : "atualizada";
+  console.log(`${flag("dry-run") ? "[dry-run] " : ""}[${state}] ${name}  (${c.turns.length} turnos)`);
+  if (!flag("dry-run") && state !== "sem mudança") {
+    // O título (gerado pelo Claude) pode mudar quando a conversa cresce: remove o arquivo antigo da mesma sessão.
+    for (const old of fs.readdirSync(chatsDir)) {
+      if (old !== name && old.endsWith(`-${sessionId.slice(0, 8)}.md`) && fs.readFileSync(path.join(chatsDir, old), "utf8").includes(`sessao: ${sessionId}\n`)) {
+        fs.rmSync(path.join(chatsDir, old));
+        console.log(`  (renomeada; removido ${old})`);
+      }
+    }
+    fs.writeFileSync(out, text);
     if (c.last) fs.utimesSync(out, new Date(c.last), new Date(c.last)); // a interface ordena/data pelo mtime
   }
+  if (state !== "sem mudança") changed++;
   ok++;
 }
-console.log(`\n${ok} conversas importadas, ${skipped} vazias ignoradas.`);
+console.log(`\n${ok} conversas processadas (${changed} novas ou atualizadas), ${skipped} vazias ignoradas.`);
+console.log(`Para ver o que ainda precisa de extração: node tools/extraction-state.js --project ${slug} status`);

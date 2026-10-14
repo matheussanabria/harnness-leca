@@ -50,18 +50,19 @@ dialog.wide{width:min(900px,94vw);height:min(86vh,900px);max-height:none}
 .clip{position:relative;max-height:240px;overflow:hidden}
 .clip.open{max-height:none}
 .clip.fade::after{content:"";position:absolute;left:0;right:0;bottom:0;height:56px;background:linear-gradient(transparent,var(--fade))}
-.msg.user{--fade:var(--accent)}.msg.claude{--fade:var(--panel2)}
+.msg.user{--fade:var(--accent)}.msg.claude,.msg.gemini{--fade:var(--panel2)}
 .clip.open::after{display:none}
 .toggle{background:none;border:0;color:inherit;opacity:.85;cursor:pointer;font:inherit;font-size:12px;text-decoration:underline;padding:6px 0 0}
 .msg.user .bubble p{margin:0}
 .chat{display:flex;flex-direction:column;gap:14px;padding-top:14px}
 .msg .who{font-size:11px;color:var(--mute);margin-bottom:3px}
+.msg.gemini .who{color:#7ca5f5}
 .msg .bubble{border-radius:14px;padding:10px 14px;max-width:88%;overflow-wrap:anywhere}
 .msg .bubble p{margin:4px 0}.msg .bubble h2,.msg .bubble h3,.msg .bubble h4{font-size:15px;margin:10px 0 4px}
 .msg.user{align-items:flex-end;display:flex;flex-direction:column}
 .msg.user .bubble{background:var(--accent);color:#fff;border-bottom-right-radius:4px}
 .msg.user .bubble code{background:#0003;color:#fff}
-.msg.claude .bubble{background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.claude .bubble,.msg.gemini .bubble{background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}
 details.internal{border:1px dashed var(--line);border-radius:10px;font-size:13px;color:var(--mute);background:transparent}
 details.internal>summary{padding:7px 12px;cursor:pointer;display:flex;gap:10px;align-items:baseline}
 details.internal>summary .names{opacity:.7;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -129,7 +130,11 @@ function parseChat(src) {
   const lines = src.split("\n");
   for (let i = 0; i < lines.length; i++) {
     const l = lines[i];
-    if (/^## (Você|Claude)\s*$/.test(l)) { flush(); who = l.includes("Você") ? "user" : "claude"; continue; }
+    if (/^## (Você|Claude|Gemini|Antigravity)\s*$/i.test(l)) {
+      flush();
+      who = /^## Você\s*$/i.test(l) ? "user" : /Claude/i.test(l) ? "claude" : "gemini";
+      continue;
+    }
     const m = l.match(/^:::(tool|thinking)\s*(.*)$/);
     if (m && who) {
       flush();
@@ -153,6 +158,7 @@ function renderChat(src) {
   return '<div class="chat">' + parseChat(src).map(it => {
     if (it.who === "user") return `<div class="msg user"><div class="who">Você</div><div class="bubble"><div class="clip">${md(it.text.replace(/<\/?pasted_content[^>]*>/g, ""))}</div></div></div>`;
     if (it.who === "claude") return `<div class="msg claude"><div class="who">✱ Claude</div><div class="bubble"><div class="clip">${md(it.text)}</div></div></div>`;
+    if (it.who === "gemini") return `<div class="msg gemini"><div class="who">✦ Gemini</div><div class="bubble"><div class="clip">${md(it.text)}</div></div></div>`;
     const n = it.tools.length, errs = it.tools.filter(t => t.error).length;
     const names = [...new Set(it.tools.map(t => t.name))].slice(0, 4).join(", ");
     return `<details class="internal"><summary>⚙ Processamento interno · ${n} ${n === 1 ? "etapa" : "etapas"}${errs ? ` · ${errs} com erro` : ""}<span class="names">${esc(names)}</span></summary>` +
@@ -195,8 +201,11 @@ async function load(slug) {
   $("meta").textContent = `${P.chats.length} chats · ${P.context.length} arquivos`;
   $("act").textContent = S.active === slug ? "ativo no harness" : "inativo (edite projects/.active)";
   $("chats").innerHTML = P.chats.length
-    ? P.chats.map((c, i) => `<div class="row" data-i="${i}"><b>${esc(c.title || c.name.replace(/\.md$/, ""))}</b><span>${fmt(c.mtime)}</span></div>`).join("")
-    : '<p class="empty">Nenhum chat salvo ainda. O Claude grava resumos em chats/.</p>';
+    ? P.chats.map((c, i) => {
+        const ag = c.agent === "gemini" ? '<span class="tag" style="margin-right:6px;color:#7ca5f5;border-color:#7ca5f544">✦ Gemini</span>' : '<span class="tag" style="margin-right:6px">✱ Claude</span>';
+        return `<div class="row" data-i="${i}"><b>${ag}${esc(c.title || c.name.replace(/\.md$/, ""))}</b><span>${fmt(c.mtime)}</span></div>`;
+      }).join("")
+    : '<p class="empty">Nenhum chat salvo ainda. Importe com tools/import-claude-code-chats.js ou tools/import-gemini-chats.js.</p>';
   document.querySelectorAll("#chats .row").forEach(r => r.onclick = () => openFile("chats", P.chats[r.dataset.i].name));
 
   const ins = clean(P.instructions), mem = clean(P.memory);
