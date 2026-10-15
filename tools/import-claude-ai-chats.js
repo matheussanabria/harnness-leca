@@ -21,22 +21,13 @@ const fs = require("fs");
 const path = require("path");
 
 const { ROOT } = require("./lib/root");
-const MAX_IO = 1500;
-const MAX_FILE = 200 * 1024 * 1024;
 const { redact } = require("./lib/redact");
+const { slugify, safe } = require("./lib/text");
+const { flag, opt } = require("./lib/cli");
+const { MAX_FILE } = require("./lib/limits");
 
-const args = process.argv.slice(2);
-const flag = (n) => args.includes(`--${n}`);
-const opt = (n) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : undefined; };
 const fail = (m) => { console.error(m); process.exit(1); };
 
-const slugify = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
-  .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "sem-titulo";
-const clip = (s) => {
-  s = String(s ?? "").trim();
-  return s.length > MAX_IO ? `${s.slice(0, MAX_IO)}\n… (+${s.length - MAX_IO} caracteres)` : s;
-};
-const safe = (s) => clip(s).replace(/^:::/gm, "::​:");
 const oneLine = (s, n = 120) => String(s || "").replace(/\s+/g, " ").slice(0, n);
 const strip = (t) => String(t || "")
   .replace(/<(system-reminder|ide_[a-z_]+|command-[a-z-]+|local-command-[a-z-]+|project-harness|task-notification)>[\s\S]*?<\/\1>/g, "").trim();

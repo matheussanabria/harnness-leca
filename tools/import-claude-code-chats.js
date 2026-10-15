@@ -18,24 +18,14 @@ const path = require("path");
 
 const { ROOT } = require("./lib/root");
 const SOURCE_ROOT = path.join(os.homedir(), ".claude", "projects");
-const MAX_IO = 1500; // limite de caracteres por entrada/resultado de ferramenta
-const MAX_FILE = 200 * 1024 * 1024; // jsonl maiores que isso são ignorados (evita estourar memória)
 
 const { redact } = require("./lib/redact"); // redação de segredos comuns (heurística)
+const { slugify, safe } = require("./lib/text");
+const { flag, opt } = require("./lib/cli");
+const { MAX_FILE } = require("./lib/limits");
 
-const args = process.argv.slice(2);
-const flag = (n) => args.includes(`--${n}`);
-const opt = (n) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : undefined; };
 
-const slugify = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
-  .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "sem-titulo";
 
-const clip = (s) => {
-  s = String(s ?? "").trim();
-  return s.length > MAX_IO ? `${s.slice(0, MAX_IO)}\n… (+${s.length - MAX_IO} caracteres)` : s;
-};
-// Linhas ":::" no conteúdo quebrariam o formato.
-const safe = (s) => clip(s).replace(/^:::/gm, "::​:");
 
 // Remove blocos injetados pelo IDE/harness que não fazem parte da fala do usuário.
 function cleanUser(text) {

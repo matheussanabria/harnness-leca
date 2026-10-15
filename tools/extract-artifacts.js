@@ -33,9 +33,7 @@ const MAX_FILE = 200 * 1024 * 1024;
 const DOC_EXT = new Set([".md", ".txt", ".html"]);
 const MIN_ANSWER = Number(process.env.MIN_ANSWER || 2500); // tamanho mínimo de uma resposta longa
 
-const args = process.argv.slice(2);
-const flag = (n) => args.includes(`--${n}`);
-const opt = (n) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : undefined; };
+const { flag, opt } = require("./lib/cli");
 const DRY = flag("dry-run");
 
 const slugify = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()

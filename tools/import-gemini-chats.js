@@ -26,25 +26,15 @@ process.stdout.on("error", (err) => {
 
 const { ROOT } = require("./lib/root");
 const BRAIN_ROOT = path.join(os.homedir(), ".gemini", "antigravity-ide", "brain");
-const MAX_IO = 1500; // limite de caracteres por entrada/resultado de ferramenta
-const MAX_FILE = 200 * 1024 * 1024; // arquivos maiores são ignorados
 
 const { redact } = require("./lib/redact");
+const { slugify, safe } = require("./lib/text");
+const { flag, opt } = require("./lib/cli");
+const { MAX_FILE } = require("./lib/limits");
 
-const args = process.argv.slice(2);
-const flag = (n) => args.includes(`--${n}`);
-const opt = (n) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : undefined; };
 
-const slugify = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
-  .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "sem-titulo";
 
-const clip = (s) => {
-  s = String(s ?? "").trim();
-  return s.length > MAX_IO ? `${s.slice(0, MAX_IO)}\n… (+${s.length - MAX_IO} caracteres)` : s;
-};
 
-// Linhas ":::" no conteúdo quebrariam os blocos da interface.
-const safe = (s) => clip(s).replace(/^:::/gm, "::​:");
 
 function cleanUserText(text) {
   if (!text) return "";

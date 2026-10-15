@@ -26,9 +26,7 @@ const CLAUDE_ROOT = path.join(os.homedir(), ".claude", "projects");
 const GEMINI_ROOT = path.join(os.homedir(), ".gemini", "antigravity-ide", "brain");
 const OPENCODE_DB = path.join(os.homedir(), ".local", "share", "opencode", "opencode.db");
 
-const args = process.argv.slice(2);
-const flag = (n) => args.includes(`--${n}`);
-const opt = (n) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : undefined; };
+const { flag, opt } = require("./lib/cli");
 const DRY = flag("dry-run");
 const fail = (m) => { console.error(m); process.exit(1); };
 

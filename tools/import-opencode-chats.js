@@ -22,23 +22,13 @@ const { DatabaseSync } = require("node:sqlite");
 
 const { ROOT } = require("./lib/root");
 const SOURCE_DB = path.join(os.homedir(), ".local", "share", "opencode", "opencode.db");
-const MAX_IO = 1500; // limite de caracteres por entrada/resultado de ferramenta
 
 const { redact } = require("./lib/redact"); // redação de segredos comuns (heurística)
+const { slugify, safe } = require("./lib/text");
+const { flag, opt } = require("./lib/cli");
 
-const args = process.argv.slice(2);
-const flag = (n) => args.includes(`--${n}`);
-const opt = (n) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : undefined; };
 
-const slugify = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
-  .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "sem-titulo";
 
-const clip = (s) => {
-  s = String(s ?? "").trim();
-  return s.length > MAX_IO ? `${s.slice(0, MAX_IO)}\n… (+${s.length - MAX_IO} caracteres)` : s;
-};
-// Linhas ":::" no conteúdo quebrariam o formato.
-const safe = (s) => clip(s).replace(/^:::/gm, "::​:");
 
 const iso = (ms) => (ms ? new Date(ms).toISOString() : "");
 
