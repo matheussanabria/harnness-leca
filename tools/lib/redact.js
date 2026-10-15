@@ -13,6 +13,20 @@ const SECRET_RULES = [
   [/((?:password|passwd|pwd|senha|secret|token|api[_-]?key|access[_-]?key|authorization)["']?\s*[:=]\s*["']?)[^\s"',;&]{4,}/gi, "$1[REDIGIDO]"],
 ];
 
-const redact = (s) => SECRET_RULES.reduce((t, [re, to]) => t.replace(re, to), s);
+// Dados pessoais (LGPD): e-mail, CPF e telefone brasileiro. Os formatos exigem marcas de formatação (pontos, hífen,
+// parênteses, +55) para não pegar números soltos como timestamps, ids ou intervalos de anos ("2025-2026").
+// CPF sem formatação só vale quando vem rotulado ("CPF 12345678901").
+const PII_RULES = [
+  [/(?<![\w.%+-])[A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}\b/g, "[REDIGIDO:email]"],
+  [/(?<!\d)\d{3}\.\d{3}\.\d{3}-\d{2}(?!\d)/g, "[REDIGIDO:cpf]"],
+  [/(\bcpf\b[^\d\n]{0,12})\d{11}(?!\d)/gi, "$1[REDIGIDO:cpf]"],
+  [/(?<![\w+])(?:\+55[\s.-]?)?\(\d{2}\)[\s.-]?9?\d{4}[-\s.]?\d{4}(?!\d)/g, "[REDIGIDO:telefone]"],
+  [/(?<![\w+])\+55[\s.-]?\d{2}[\s.-]?9?\d{4}[-\s.]?\d{4}(?!\d)/g, "[REDIGIDO:telefone]"],
+  [/(?<![\d.-])\d{2}\s9?\d{4}[-\s]\d{4}(?![\d-])/g, "[REDIGIDO:telefone]"],
+  [/(?<![\d.\-+])9\d{4}-\d{4}(?![\d-])/g, "[REDIGIDO:telefone]"],
+];
 
-module.exports = { SECRET_RULES, redact };
+const apply = (rules, s) => rules.reduce((t, [re, to]) => t.replace(re, to), s);
+const redact = (s) => apply(PII_RULES, apply(SECRET_RULES, s));
+
+module.exports = { SECRET_RULES, PII_RULES, redact };

@@ -255,6 +255,29 @@ test("loadEnv: lê global/.env sob demanda e não sobrescreve o que já veio do 
   delete process.env.HARNESS_T_NOVA; delete process.env.HARNESS_T_SISTEMA;
 });
 
+test("redact: remove e-mail, CPF e telefone, mas deixa números comuns em paz", () => {
+  const gone = [
+    ["fale com maria.silva+x@empresa.com.br hoje", "maria.silva"],
+    ["CPF: 123.456.789-09", "123.456.789"],
+    ["cpf 12345678909", "12345678909"],
+    ["(61) 99876-5432", "99876"],
+    ["(61)3322-1100", "3322"],
+    ["+55 61 99876-5432", "99876"],
+    ["+5561998765432", "998765432"],
+    ["61 99876-5432", "99876"],
+    ["99876-5432", "99876"],
+  ];
+  for (const [text, secret] of gone) assert.ok(!redact(text).includes(secret), `vazou: ${text}`);
+  assert.match(redact("a@b.com"), /\[REDIGIDO:email\]/);
+  assert.match(redact("CPF 123.456.789-09"), /\[REDIGIDO:cpf\]/);
+
+  const kept = [
+    "versão 2025-2026 do plano", "timestamp 1760000000000", "id 12345678909 do pedido", "2026-10-15T01:56:50",
+    "commit 3565b03 em 15/10/2026", "porta 4321 e 63186", "@angular/core 18.2.1", "SELECT 1234-5678 FROM x",
+  ];
+  for (const text of kept) assert.equal(redact(text), text, `não devia mexer: ${text}`);
+});
+
 test("redact remove segredos comuns", () => {
   assert.match(redact("token=abcdef123456"), /\[REDIGIDO\]/);
   assert.doesNotMatch(redact("Authorization: Bearer abcdefghijklmnop"), /abcdefghijklmnop/);
