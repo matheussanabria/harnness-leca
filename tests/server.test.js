@@ -104,7 +104,8 @@ test("POST /api/chat/save: valida, grava no projeto e não vaza erro interno", a
   assert.match((await bad.json()).error, /detalhe está no terminal/);
 });
 
-test("POST /api/chat: no máximo 2 respostas ao mesmo tempo, e fechar a conexão cancela o motor", async (t) => {
+test("POST /api/chat: limite de respostas ao mesmo tempo, e fechar a conexão cancela o motor", async (t) => {
+  const { MAX_CHATS } = require("../ui/server");
   const signals = [];
   E.engines.set("fake", { id: "fake", status: async () => ({}), stream: ({ signal, onChunk }) => { signals.push(signal); onChunk({ type: "text", text: "oi" }); } });
   t.after(() => E.engines.delete("fake"));
@@ -120,18 +121,21 @@ test("POST /api/chat: no máximo 2 respostas ao mesmo tempo, e fechar a conexão
     return ac;
   };
 
-  const a = await hang();
-  const b = await hang();
-  const third = await post("/api/chat", { engine: "fake", prompt: "oi", slug: "demo" });
-  assert.equal(third.status, 429);
-  assert.equal(signals.length, 2);
+  const holders = [];
+  for (let i = 0; i < MAX_CHATS; i++) {
+    holders.push(await hang());
+  }
+  const overflow = await post("/api/chat", { engine: "fake", prompt: "oi", slug: "demo" });
+  assert.equal(overflow.status, 429);
+  assert.equal(signals.length, MAX_CHATS);
 
-  a.abort();
+  holders[0].abort();
   assert.ok(await until(() => signals[0].aborted), "o motor recebe o cancelamento quando o cliente sai");
   assert.equal(signals[1].aborted, false, "a outra conversa segue");
 
-  const c = await hang(); // a vaga foi liberada
-  b.abort(); c.abort();
+  const extra = await hang(); // a vaga foi liberada
+  holders.slice(1).forEach(h => h.abort());
+  extra.abort();
   assert.ok(await until(() => signals.every((s) => s.aborted)));
 });
 
@@ -143,4 +147,32 @@ test("POST /api/chat: validações e motor desconhecido (inclusive __proto__)", 
     assert.equal(res.status, 200);
     assert.match(await res.text(), /não suportado/);
   }
+});
+
+test("revisão de memória: lista pendentes, promove/descarta, valida e não vaza erro", async () => {
+  fs.writeFileSync(path.join(proj, "context", "extraido-memorias.md"),
+    "<!-- sessao: s1 | 2026-10-15 -->\n## Conversa A (2026-10-15)\n\n## Memórias\n- Fato um.\n- Fato dois.\n\n## Decisões\n- Decisão um.\n");
+
+  assert.equal((await (await get("/api/project/demo")).json()).review.pendentes, 3, "o resumo do projeto traz a contagem");
+
+  const list = await (await get("/api/project/demo/review")).json();
+  assert.deepEqual(list.pendentes.map((s) => [s.categoria, s.texto]), [["memoria", "Fato um."], ["memoria", "Fato dois."], ["decisao", "Decisão um."]]);
+  assert.equal(typeof list.memoriaBytes, "number");
+  assert.equal((await get("/api/project/nao-existe/review")).status, 404);
+
+  const [um, dois] = list.pendentes;
+  const applied = await (await post("/api/project/demo/review", { acoes: [
+    { id: um.id, acao: "promover", texto: "Fato um, editado." }, { id: dois.id, acao: "descartar" }, { id: "nada", acao: "promover" },
+  ] })).json();
+  assert.deepEqual([applied.promovidas, applied.descartadas, applied.ignoradas.length, applied.pendentes], [1, 1, 1, 1]);
+  assert.ok(applied.memoriaBytes > 0);
+  assert.match(fs.readFileSync(path.join(proj, "memory.md"), "utf8"), /^- \[\d{4}-\d{2}-\d{2}\] Fato um, editado\.$/m);
+
+  const bad = await post("/api/project/demo/review", { acoes: "x" });
+  assert.equal(bad.status, 400);
+  assert.match((await bad.json()).error, /lista com até/);
+  assert.equal((await post("/api/project/demo/review", "nao-json-valido")).status, 400, "corpo que não é um objeto de ações");
+  assert.equal((await post("/api/project/nao-existe/review", { acoes: [] })).status, 404);
+  assert.equal((await fetch(base + "/api/project/demo/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })).status, 403, "POST sem Origin continua barrado");
+  assert.equal((await get("/api/project/demo/review", { method: "DELETE" })).status, 405);
 });

@@ -70,6 +70,7 @@ async function streamGemini({ prompt, slug, sessionId, history, model, effort, s
     }
 
     let accumulatedText = "";
+    let accumulatedThinking = "";
     const reader = res.body.getReader();
     const decoder = new TextDecoder("utf-8");
     let buffer = "";
@@ -90,7 +91,10 @@ async function streamGemini({ prompt, slug, sessionId, history, model, effort, s
           const cand = parsed.candidates && parsed.candidates[0];
           if (cand && cand.content && Array.isArray(cand.content.parts)) {
             for (const part of cand.content.parts) {
-              if (part.text) {
+              if (part.thought) {
+                accumulatedThinking += (part.text || "");
+                onChunk({ type: "thinking", text: part.text, sessionId: sid });
+              } else if (part.text) {
                 accumulatedText += part.text;
                 onChunk({ type: "text", text: part.text, sessionId: sid });
               }
@@ -100,7 +104,7 @@ async function streamGemini({ prompt, slug, sessionId, history, model, effort, s
       }
     }
 
-    onDone({ sessionId: sid, fullText: accumulatedText });
+    onDone({ sessionId: sid, fullText: accumulatedText, thinking: accumulatedThinking });
   } catch (err) {
     onError(err);
   }

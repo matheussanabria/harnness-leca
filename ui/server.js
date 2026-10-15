@@ -19,6 +19,7 @@ const active = () => {
 
 const S = require("../tools/lib/state");
 const E = require("../tools/lib/engines");
+const MR = require("../tools/lib/memory-review");
 
 function listDir(dir) {
   try {
@@ -33,6 +34,11 @@ function listDir(dir) {
       })
       .sort((a, b) => b.mtime - a.mtime);
   } catch { return []; }
+}
+
+// Quantas sugestões de memória esperam revisão (a lista completa só sai em /api/project/:slug/review).
+function reviewSummary(slug) {
+  try { return { pendentes: MR.pending(slug).length }; } catch { return { pendentes: 0 }; }
 }
 
 function project(slug) {
@@ -80,11 +86,13 @@ function project(slug) {
     chats,
     scheduled: listDir(path.join(dir, "scheduled")),
     extraction,
+    review: reviewSummary(slug),
   };
 }
 
 // Respostas de chat em andamento ao mesmo tempo (cada uma pode ser um processo do Claude com MCPs e comandos).
-const MAX_CHATS = 2;
+// Por padrão permite até 6 respostas em paralelo para suportar o modo comparação entre múltiplos motores.
+const MAX_CHATS = Number(process.env.HARNESS_MAX_CHATS) || 6;
 let runningChats = 0;
 
 const HEADERS = {
@@ -162,6 +170,27 @@ const apiEngines = async ({ res }) => send(res, 200, await E.getEnginesStatus())
 
 const apiProject = ({ res, params: [slug] }) =>
   slugs().includes(slug) ? send(res, 200, project(slug)) : send(res, 404, { error: "projeto não encontrado" });
+
+// Revisão das sugestões de memória (tools/lib/memory-review.js): lista o que falta revisar e aplica promover/descartar.
+const apiReviewList = ({ res, params: [slug] }) => {
+  if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
+  const memoriaBytes = Buffer.byteLength(read(path.join(PROJECTS, slug, "memory.md")));
+  return send(res, 200, { pendentes: MR.pending(slug), memoriaBytes });
+};
+
+async function apiReviewApply({ req, res, params: [slug] }) {
+  if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
+  let body;
+  try { body = await readJsonBody(req); } catch { return send(res, 400, { error: "JSON inválido" }); }
+  try {
+    const result = MR.apply(slug, body && body.acoes);
+    return send(res, 200, { ...result, pendentes: MR.pending(slug).length, memoriaBytes: Buffer.byteLength(read(path.join(PROJECTS, slug, "memory.md"))) });
+  } catch (err) {
+    if (err instanceof MR.ReviewError) return send(res, 400, { error: err.message });
+    console.error("[review]", (err && err.stack) || err);
+    return send(res, 500, { error: "Não foi possível aplicar a revisão. O detalhe está no terminal do servidor." });
+  }
+}
 
 // Só <slug>/<chats|context|scheduled>/<arquivo> ou <slug>/<instructions|memory>.md, sem sair de projects/.
 function apiFile({ res, url }) {
@@ -245,6 +274,8 @@ const ROUTES = [
   { method: "GET", path: "/api/state", handler: apiState },
   { method: "GET", path: "/api/engines", handler: apiEngines },
   { method: "GET", path: /^\/api\/project\/([\w-]+)$/, handler: apiProject },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/review$/, handler: apiReviewList },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/review$/, handler: apiReviewApply },
   { method: "GET", path: "/api/file", handler: apiFile },
   { method: "POST", path: "/api/chat", handler: apiChat },
   { method: "POST", path: "/api/chat/save", handler: apiChatSave },
@@ -286,5 +317,5 @@ function createServer() {
   });
 }
 
-module.exports = { createServer };
+module.exports = { createServer, MAX_CHATS };
 if (require.main === module) createServer().listen(PORT, "127.0.0.1", () => console.log(`Harness UI: http://localhost:${PORT}`));

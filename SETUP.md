@@ -178,6 +178,16 @@ node tools/extract-artifacts.js --project meu-projeto --llm --limit 5
 - O modo `--llm` envia um resumo de cada conversa (com segredos já redigidos) ao modelo via `claude -p`, **sem ferramentas habilitadas**, e é opcional por isso. Evite em projetos com dados de terceiros, como saúde, sem necessidade.
 - Para promover algo à memória, copie manualmente a linha revisada para `memory.md`.
 
+## Revisar as sugestões de memória
+
+A extração (`extract-artifacts.js --llm` ou a skill `extrair-artefatos`) só **sugere** memórias, regras, decisões e termos em `context/extraido-memorias.md`. Quem decide o que entra na memória é você, na interface: no cartão **Memória** aparece "🧠 Revisar N sugestões".
+
+- **✅ Promover** acrescenta `- [AAAA-MM-DD] texto` em `projects/<projeto>/memory.md` (regras, decisões e termos ganham o prefixo `Regra:`, `Decisão:`, `Termo:`). **✏️ Editar** promove com o texto ajustado. **❌ Descartar** só registra; descartar uma página inteira pede confirmação.
+- Filtros por categoria, busca e paginação (25 por página). A mesma sugestão vinda de várias conversas aparece uma vez.
+- O que já foi revisado (ou já está na `memory.md`) não volta, nem quando a conversa é reanalisada. O estado fica em `projects/<projeto>/memory-review.json`.
+- O texto promovido passa pelo mesmo `redact` dos chats (segredos, e-mail, CPF, telefone) e vira uma linha só (até 600 caracteres).
+- **Cuidado com o tamanho:** a `memory.md` vai junto em **toda mensagem**. A tela mostra o tamanho atual e avisa acima de 8 KB. Promova o que realmente vale; descarte o resto.
+
 ## Sincronizar os 3 motores (um comando)
 
 `tools/sync.js` atualiza de uma vez as conversas do **Claude Code**, do **Gemini/Antigravity** e do **opencode** nos projetos que já existem em `projects/`. Nunca cria projeto novo.

@@ -90,7 +90,7 @@ export interface Io { log(line: string): void }
 
 export interface EngineSink {
   onChunk(data: { type: "text" | "thinking"; text: string; sessionId?: string | null }): void;
-  onDone(data: { sessionId?: string | null; fullText?: string }): void;
+  onDone(data: { sessionId?: string | null; fullText?: string; thinking?: string }): void;
   onError(err: Error): void;
 }
 
