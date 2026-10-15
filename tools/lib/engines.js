@@ -10,6 +10,8 @@ const cp = require("child_process");
 const crypto = require("crypto");
 const state = require("./state");
 const { redact } = require("./redact");
+const { resolveClaudeBin } = require("./claude-bin");
+const { loadProjectConfig } = require("./project-mcp");
 
 const ROOT = path.resolve(__dirname, "../..");
 const OPENCODE_DEFAULT_URL = process.env.OPENCODE_URL || "http://localhost:63186";
@@ -70,7 +72,6 @@ function getProjectContext(slug) {
 // ----------------------------------------------------
 function streamClaude({ prompt, slug, sessionId, model, effort, onChunk, onDone, onError }) {
   const projDir = path.join(ROOT, "projects", slug);
-  const cwd = fs.existsSync(projDir) ? projDir : ROOT;
   const args = ["-p", "-", "--output-format", "stream-json", "--verbose"];
   const isClaudeUuid = sessionId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId);
   if (isClaudeUuid) {
@@ -81,6 +82,14 @@ function streamClaude({ prompt, slug, sessionId, model, effort, onChunk, onDone,
     args.push("--model", model);
   }
   args.push("--effort", safeEffort(effort));
+  let cwd;
+  try {
+    const session = claudeSession(projDir);
+    cwd = session.cwd;
+    args.push(...session.args);
+  } catch (err) {
+    return onError(err);
+  }
 
   let fullPrompt = prompt;
   // Se for início de sessão, injeta o contexto do projeto junto ao primeiro prompt
@@ -89,8 +98,12 @@ function streamClaude({ prompt, slug, sessionId, model, effort, onChunk, onDone,
     if (ctx) fullPrompt = `${ctx}\nPergunta do usuário:\n${fullPrompt}`;
   }
 
-  const child = cp.spawn("claude", args, {
-    shell: true,
+  const bin = resolveClaudeBin();
+  if (!bin) return onError(new Error("Claude Code não encontrado no PATH (defina CLAUDE_BIN em global/.env)."));
+  // shell:false com caminho absoluto: os argumentos não passam pelo cmd.exe e nada é buscado na pasta atual.
+  const child = cp.spawn(bin, args, {
+    shell: false,
+    windowsHide: true,
     cwd,
     stdio: ["pipe", "pipe", "pipe"],
   });
@@ -120,6 +133,31 @@ function streamClaude({ prompt, slug, sessionId, model, effort, onChunk, onDone,
   });
 
   child.on("error", onError);
+}
+
+const READ_TOOLS = ["Read", "Glob", "Grep"];
+const EDIT_TOOLS = ["Edit", "Write", "NotebookEdit"];
+const COMMAND_TOOLS = ["Bash", "PowerShell"];
+
+// Onde e com que permissões o Claude roda no chat da interface (ver tools/lib/project-mcp.js).
+// - Pasta de trabalho: o repo do projeto (com projects/<slug> junto, para chats e contexto) ou só projects/<slug>.
+// - --restricted: ferramentas de arquivo presas às pastas de trabalho, settings do usuário e do repo ignorados,
+//   bypassPermissions recusado, e escrita em configs/git/ferramentas nunca aprovada sozinha.
+// - Modo "completo" (padrão): edita (acceptEdits) e roda comandos. Modo "leitura": só Read/Glob/Grep.
+// - --strict-mcp-config: só os MCPs declarados no mcp.json do projeto; os do usuário e de outros ficam de fora.
+function claudeSession(projDir) {
+  const cfg = loadProjectConfig(projDir);
+  const full = cfg.modo === "completo";
+  const tools = [...READ_TOOLS, ...(full ? [...EDIT_TOOLS, ...COMMAND_TOOLS] : [])];
+  const args = ["--restricted", "--tools", tools.join(","), "--strict-mcp-config"];
+  if (cfg.repo) args.push("--add-dir", projDir);
+  if (full) args.push("--permission-mode", "acceptEdits");
+
+  // No -p ninguém responde a pedidos de permissão: o que não estiver liberado aqui é negado.
+  const allowed = [...(full ? COMMAND_TOOLS : []), ...cfg.names.map((n) => `mcp__${n}`)];
+  if (cfg.names.length) args.push("--mcp-config", JSON.stringify({ mcpServers: cfg.mcpServers }));
+  if (allowed.length) args.push("--allowedTools", allowed.join(","));
+  return { cwd: cfg.repo || projDir, args };
 }
 
 // Interpreta as linhas do `claude --output-format stream-json` e repassa só o trecho novo de cada bloco.
@@ -473,7 +511,8 @@ async function getEnginesStatus() {
   loadEnv();
   let claudeOk = false;
   try {
-    const res = cp.spawnSync("claude", ["-v"], { shell: true, timeout: 3000 });
+    const bin = resolveClaudeBin();
+    const res = bin ? cp.spawnSync(bin, ["-v"], { shell: false, windowsHide: true, timeout: 3000 }) : { status: 1 };
     claudeOk = res.status === 0;
   } catch {}
 
@@ -602,4 +641,5 @@ module.exports = {
   safeModel,
   safeEffort,
   createClaudeStreamParser,
+  claudeSession,
 };

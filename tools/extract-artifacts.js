@@ -22,6 +22,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
+const { resolveClaudeBin } = require("./lib/claude-bin");
 const { redact } = require("./lib/redact");
 const S = require("./lib/state");
 let pendingMarks = []; // conversas resumidas com sucesso neste run (marcadas como analisadas ao gravar)
@@ -139,9 +140,12 @@ Seja conservador: só inclua o que continuará válido depois desta conversa e q
 
 function askClaude(prompt, model) {
   if (model && !/^[\w.\-]+$/.test(model)) throw new Error("--model inválido");
-  // Comando montado como string (sem args + shell) e com --model validado acima; o prompt vai por stdin.
-  const cmd = `claude -p --tools "" --no-session-persistence --output-format text${model ? ` --model ${model}` : ""}`;
-  const r = spawnSync(cmd, { input: prompt, encoding: "utf8", shell: true, cwd: os.tmpdir(), timeout: 300000, maxBuffer: 16 * 1024 * 1024 });
+  // Caminho absoluto e shell:false: nada passa pelo cmd.exe nem é buscado na pasta atual (%TEMP%, gravável por todos).
+  // O prompt vai por stdin; --model continua validado acima como defesa extra.
+  const bin = resolveClaudeBin();
+  if (!bin) throw new Error("Claude Code não encontrado no PATH (defina CLAUDE_BIN)");
+  const args = ["-p", "--tools", "", "--no-session-persistence", "--output-format", "text", ...(model ? ["--model", model] : [])];
+  const r = spawnSync(bin, args, { input: prompt, encoding: "utf8", shell: false, windowsHide: true, cwd: os.tmpdir(), timeout: 300000, maxBuffer: 16 * 1024 * 1024 });
   if (r.status !== 0) throw new Error((r.stderr || r.error || "falha").toString().slice(0, 300));
   return r.stdout.trim();
 }

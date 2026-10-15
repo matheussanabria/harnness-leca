@@ -90,6 +90,96 @@ test("saveChatToProject: sessionId estranho não entra no nome do arquivo", (t) 
   assert.match(s.fileName, /^\d{4}-\d{2}-\d{2}-x-[0-9a-f]{8}\.md$/);
 });
 
+test("resolveClaudeBin ignora claude.cmd plantado na pasta atual e entradas relativas do PATH", (t) => {
+  const B = require("../tools/lib/claude-bin");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "harness-bin-"));
+  const real = path.join(dir, "real"), trap = path.join(dir, "trap");
+  fs.mkdirSync(real); fs.mkdirSync(trap);
+  const exe = process.platform === "win32" ? "claude.exe" : "claude";
+  fs.writeFileSync(path.join(real, exe), "");
+  fs.writeFileSync(path.join(trap, "claude.cmd"), "@echo pwned");
+  fs.writeFileSync(path.join(trap, exe), "");
+  const env = { PATH: process.env.PATH, CLAUDE_BIN: process.env.CLAUDE_BIN, cwd: process.cwd() };
+  t.after(() => {
+    process.env.PATH = env.PATH;
+    if (env.CLAUDE_BIN === undefined) delete process.env.CLAUDE_BIN; else process.env.CLAUDE_BIN = env.CLAUDE_BIN;
+    process.chdir(env.cwd); B.resetClaudeBin();
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  delete process.env.CLAUDE_BIN;
+  process.chdir(trap);
+  process.env.PATH = [".", "", real].join(path.delimiter);
+  B.resetClaudeBin();
+  assert.equal(B.resolveClaudeBin(), path.join(real, exe));
+
+  process.env.CLAUDE_BIN = "claude-relativo";
+  B.resetClaudeBin();
+  assert.equal(B.resolveClaudeBin(), path.join(real, exe), "CLAUDE_BIN relativo é ignorado");
+});
+
+const argOf = (args, flag) => args[args.indexOf(flag) + 1];
+
+test("claudeSession: sem mcp.json, roda na pasta do projeto, edita e roda comandos, sem MCP", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "harness-mcp-"));
+  try {
+    const { cwd, args } = E.claudeSession(dir);
+    assert.equal(cwd, dir);
+    assert.ok(args.includes("--restricted") && args.includes("--strict-mcp-config"));
+    assert.equal(argOf(args, "--tools"), "Read,Glob,Grep,Edit,Write,NotebookEdit,Bash,PowerShell");
+    assert.equal(argOf(args, "--permission-mode"), "acceptEdits");
+    assert.equal(argOf(args, "--allowedTools"), "Bash,PowerShell");
+    assert.ok(!args.includes("--mcp-config") && !args.includes("--add-dir"));
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("claudeSession: modo leitura não edita nem roda comandos", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "harness-mcp-"));
+  try {
+    fs.writeFileSync(path.join(dir, "mcp.json"), JSON.stringify({ modo: "leitura" }));
+    const { args } = E.claudeSession(dir);
+    assert.equal(argOf(args, "--tools"), "Read,Glob,Grep");
+    assert.ok(!args.includes("--permission-mode") && !args.includes("--allowedTools"));
+    fs.writeFileSync(path.join(dir, "mcp.json"), JSON.stringify({ modo: "tudo" }));
+    assert.throws(() => E.claudeSession(dir), /"modo" deve ser/);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("claudeSession: com repo, trabalha no repo, lê o projeto e usa só os servidores pedidos", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "harness-mcp-"));
+  try {
+    const repo = path.join(dir, "repo"), proj = path.join(dir, "proj");
+    fs.mkdirSync(path.join(repo, "tools", "x"), { recursive: true }); fs.mkdirSync(proj);
+    fs.writeFileSync(path.join(repo, "tools", "x", "server.js"), "");
+    fs.writeFileSync(path.join(repo, ".mcp.json"), JSON.stringify({ mcpServers: {
+      "x-ds": { command: "node", args: ["tools/x/server.js", "--flag"] },
+      "outro": { command: "node", args: ["nao-usar.js"] },
+    } }));
+    fs.writeFileSync(path.join(proj, "mcp.json"), JSON.stringify({ repo, servidores: ["x-ds"] }));
+
+    const { cwd, args } = E.claudeSession(proj);
+    assert.equal(cwd, repo);
+    assert.equal(argOf(args, "--add-dir"), proj);
+    const cfg = JSON.parse(argOf(args, "--mcp-config"));
+    assert.deepEqual(Object.keys(cfg.mcpServers), ["x-ds"]);
+    assert.deepEqual(cfg.mcpServers["x-ds"].args, [path.join(repo, "tools", "x", "server.js"), "--flag"]);
+    assert.equal(argOf(args, "--allowedTools"), "Bash,PowerShell,mcp__x-ds");
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("claudeSession: repo inexistente, servidor inexistente ou nome com curinga é erro claro", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "harness-mcp-"));
+  try {
+    fs.writeFileSync(path.join(dir, "mcp.json"), JSON.stringify({ repo: path.join(dir, "nao-existe") }));
+    assert.throws(() => E.claudeSession(dir), /repo .* não existe/);
+    fs.writeFileSync(path.join(dir, ".mcp.json"), JSON.stringify({ mcpServers: { a: { command: "node" } } }));
+    fs.writeFileSync(path.join(dir, "mcp.json"), JSON.stringify({ repo: dir, servidores: ["b"] }));
+    assert.throws(() => E.claudeSession(dir), /servidor "b" não está/);
+    fs.writeFileSync(path.join(dir, "mcp.json"), JSON.stringify({ mcpServers: { "a*": { command: "node" } } }));
+    assert.throws(() => E.claudeSession(dir), /nome de servidor inválido/);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
 test("redact remove segredos comuns", () => {
   assert.match(redact("token=abcdef123456"), /\[REDIGIDO\]/);
   assert.doesNotMatch(redact("Authorization: Bearer abcdefghijklmnop"), /abcdefghijklmnop/);

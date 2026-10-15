@@ -236,6 +236,31 @@ node ui/server.js
 
 Abra http://localhost:4321. Mostra chats, instruções, memória, contexto e tarefas, com seletor de projeto. Só escuta em `127.0.0.1`. A navegação é somente leitura; a única escrita é o botão **Conversar com o Projeto**, que conversa com Claude Code, opencode ou Gemini e salva a conversa em `chats/` quando você pede. No app desktop do Claude Code, o servidor `harness-ui` de `.claude/launch.json` também pode ser iniciado pelo painel de preview.
 
+### Ferramentas e MCPs do chat com o Claude
+
+No chat da interface, o Claude **lê, edita e roda comandos** no repositório do projeto, sem pedir aprovação (não há ninguém para aprovar no modo `-p`). Ele roda em modo `--restricted`:
+- as ferramentas de arquivo ficam presas às pastas de trabalho (o repositório e `projects/<projeto>/`);
+- as configurações (settings) do usuário e do repositório são ignoradas;
+- escrita em arquivos de configuração, git e ferramentas nunca é aprovada sozinha.
+
+Os MCPs do seu usuário e de outros projetos **não** são carregados. Comandos (`Bash`/`PowerShell`), porém, rodam com as suas permissões de usuário, como no terminal.
+
+Configure cada projeto em `projects/<projeto>/mcp.json` (fica só na sua máquina):
+
+```json
+{
+  "repo": "C:/Users/voce/git/57multimarcas",
+  "servidores": ["cod-design-system"]
+}
+```
+
+- `repo`: pasta onde o Claude trabalha (lê o código, edita e roda comandos). Ele também lê `projects/<projeto>/` (chats e contexto). Sem `repo`, trabalha só em `projects/<projeto>/`.
+- `servidores`: quais servidores do `.mcp.json` do repositório carregar (caminhos relativos viram absolutos). Só esses são liberados (`mcp__<nome>`).
+- `mcpServers` (opcional): servidores próprios do projeto, no formato do `.mcp.json`, com caminhos absolutos.
+- `"modo": "leitura"` (opcional): só `Read`/`Glob`/`Grep`, sem editar nem rodar comandos. Recomendado para projetos com dados de terceiros (ex.: saúde).
+
+> Risco: conversas importadas são lidas pelo Claude. Um texto malicioso colado nelas pode tentar induzi-lo a rodar comandos. Use `"modo": "leitura"` onde isso preocupar.
+
 Ao abrir um chat:
 - **Você**: bolha colorida à direita.
 - **Claude**: bolha cinza à esquerda, com markdown renderizado.
