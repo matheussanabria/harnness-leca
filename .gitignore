@@ -9,6 +9,18 @@ projects/*
 # (os arquivos de exemplo ficam em global/*.example.md)
 global/instructions.md
 global/memory.md
+global/.env
+*.env
+!.env.example
+!*.example
+
+# Fila e runtime local
+bridge/*.jsonl
+
+# Scratch e testes descartáveis
+tools/scratch_*.js
+tools/test_*.js
 
 .claude/settings.local.json
 node_modules/
+

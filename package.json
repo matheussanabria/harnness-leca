@@ -1,0 +1,11 @@
+{
+  "name": "harness-leca",
+  "private": true,
+  "description": "Projetos estilo Claude Chat sobre Claude Code, Gemini/Antigravity e opencode. Sem dependências.",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "sync": "node tools/sync.js",
+    "sync:dry": "node tools/sync.js --dry-run",
+    "ui": "node ui/server.js"
+  }
+}
