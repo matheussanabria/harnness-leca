@@ -5,6 +5,7 @@ const path = require("path");
 const crypto = require("crypto");
 
 const { ROOT } = require("./root");
+const { readMeta, hashBody, countTurns } = require("./chat-format");
 const SLUG = /^[a-z0-9][a-z0-9_-]{0,59}$/;
 
 function paths(slug) {
@@ -21,21 +22,17 @@ function paths(slug) {
 
 // Lê um chat importado: identidade (sessão), tamanho (turnos) e impressão digital do conteúdo (hash).
 function readChat(file) {
-  // O cabeçalho aceita CRLF (um .md salvo por editor do Windows não o perde). O conteúdo NÃO é normalizado:
-  // as conversas trazem saídas de comandos com \r\n e o hash gravado no extraction-state.json depende dos bytes.
-  const raw = fs.readFileSync(file, "utf8").replace(/^﻿/, "");
-  const fm = (raw.match(/^---\r?\n([\s\S]*?)\r?\n---/) || [])[1] || "";
-  const get = (k) => { const m = fm.match(new RegExp(`^${k}: (.*)$`, "m")); return m ? m[1].replace(/^"|"$/g, "") : ""; };
-  // O hash cobre só o conteúdo da conversa: metadados do cabeçalho e o título (que o agente pode renomear) não contam.
-  // `## opencode` conta como `## Claude`: o importador do opencode usava "Claude", e a troca do título não é conteúdo novo.
-  const body = raw.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "").replace(/^# .*\r?\n/, "").replace(/^## opencode[ \t]*$/gim, "## Claude");
+  const raw = fs.readFileSync(file, "utf8");
+  const get = readMeta(raw);
+  // O hash cobre só o conteúdo da conversa (regras e cuidados em chat-format.hashBody).
+  const body = hashBody(raw);
   return {
     name: path.basename(file),
     sessao: get("sessao") || path.basename(file),
     titulo: get("titulo") || path.basename(file),
     data: get("inicio").slice(0, 10),
     fim: get("fim"),
-    turnos: (raw.match(/^## (Você|Claude|Gemini|Antigravity|opencode)\s*$/gim) || []).length,
+    turnos: countTurns(raw),
     hash: crypto.createHash("sha1").update(body).digest("hex").slice(0, 16),
   };
 }

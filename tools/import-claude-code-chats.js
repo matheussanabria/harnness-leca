@@ -20,7 +20,8 @@ const { ROOT } = require("./lib/root");
 const SOURCE_ROOT = path.join(os.homedir(), ".claude", "projects");
 
 const { redact } = require("./lib/redact"); // redação de segredos comuns (heurística)
-const { slugify, safe } = require("./lib/text");
+const { slugify } = require("./lib/text");
+const { renderChat } = require("./lib/chat-format");
 const { flag, opt } = require("./lib/cli");
 const { MAX_FILE } = require("./lib/limits");
 
@@ -94,29 +95,8 @@ function convert(file, withTools) {
   return { title: title || "Sem título", cwd, first, last, turns };
 }
 
-function renderPart(p) {
-  if (p.kind === "text") return p.text;
-  if (p.kind === "thinking") return `:::thinking\n${safe(p.text)}\n:::`;
-  return `:::tool ${p.name} | ${p.hint.replace(/\|/g, "/")}${p.error ? " | erro" : ""}\n--- entrada\n${safe(p.input)}\n--- resultado\n${safe(p.result)}\n:::`;
-}
-
 function render(c, sessionId) {
-  const head = [
-    "---",
-    `titulo: ${JSON.stringify(c.title)}`,
-    `sessao: ${sessionId}`,
-    `origem: ${JSON.stringify(c.cwd)}`,
-    `inicio: ${c.first || ""}`,
-    `fim: ${c.last || ""}`,
-    "agente: \"claude\"",
-    "---",
-    "",
-    `# ${c.title}`,
-    "",
-  ];
-  const body = c.turns.map((t) =>
-    `## ${t.who === "user" ? "Você" : "Claude"}\n\n${t.parts.map(renderPart).join("\n\n")}\n`);
-  return head.concat(body).join("\n");
+  return renderChat({ title: c.title, sessionId, origin: c.cwd, first: c.first, last: c.last, agent: "claude", assistantLabel: "Claude" }, c.turns);
 }
 
 function sourceDirs() {

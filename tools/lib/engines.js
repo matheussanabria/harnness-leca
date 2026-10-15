@@ -10,6 +10,8 @@ const cp = require("child_process");
 const crypto = require("crypto");
 const state = require("./state");
 const { redact } = require("./redact");
+const { slugify } = require("./text");
+const { readMeta, renderChat, escapeBlocks } = require("./chat-format");
 const { resolveClaudeBin } = require("./claude-bin");
 const { loadProjectConfig } = require("./project-mcp");
 
@@ -451,60 +453,33 @@ function saveChatToProject({ slug, engine, title, turns, sessionId }) {
   if (!fs.existsSync(p.chats)) fs.mkdirSync(p.chats, { recursive: true });
 
   // Título numa linha só: uma quebra de linha forjaria campos no cabeçalho (ex.: outro `sessao:`).
-  title = String(title || "").replace(/[\r\n]+/g, " ").trim().slice(0, 200);
-  // Como nos importadores: ":::" no início da linha fecharia o bloco antes da hora.
-  const safe = (s) => String(s == null ? "" : s).replace(/^:::/gm, "::​:");
-
-  const dateStr = new Date().toISOString().slice(0, 10);
-  const cleanTitle = (title || "Conversa via Interface")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 50) || "chat";
+  title = String(title || "").replace(/[\r\n]+/g, " ").trim().slice(0, 200) || "Conversa via Interface";
 
   // Igual aos importadores: o nome leva o início do id da sessão. Salvar de novo a mesma conversa
   // regrava o mesmo arquivo; duas conversas com o mesmo título no mesmo dia não se sobrescrevem.
   const sid = typeof sessionId === "string" && /^[\w-]{1,80}$/.test(sessionId) ? sessionId : crypto.randomUUID();
   const shortId = sid.replace(/^ses_/, "").replace(/[^A-Za-z0-9]/g, "").slice(0, 8).toLowerCase();
-  const previous = fs.readdirSync(p.chats).find((f) => f.endsWith(`-${shortId}.md`) &&
-    fs.readFileSync(path.join(p.chats, f), "utf8").includes(`sessao: "${sid}"`));
-  const fileName = previous || `${dateStr}-${cleanTitle}-${shortId}.md`;
+  // Arquivos antigos da interface gravavam `sessao: "id"` (com aspas); a busca aceita os dois jeitos.
+  const previous = fs.readdirSync(p.chats).find((f) => f.endsWith(`-${shortId}.md`) && readMeta(fs.readFileSync(path.join(p.chats, f), "utf8"))("sessao") === sid);
+  const now = new Date().toISOString();
+  const first = previous ? readMeta(fs.readFileSync(path.join(p.chats, previous), "utf8"))("inicio") || now : now; // `inicio` não muda a cada salvamento
+  const fileName = previous || `${now.slice(0, 10)}-${slugify(title).slice(0, 50)}-${shortId}.md`;
   const fullPath = path.join(p.chats, fileName);
 
   const nameOf = (e) => (e === "gemini" ? "Gemini" : e === "opencode" ? "opencode" : "Claude");
-  const engineName = nameOf(engine);
   const agentTag = engine === "gemini" ? "gemini" : engine === "opencode" ? "opencode" : "claude";
 
-  const lines = [
-    "---",
-    `titulo: "${(title || "Conversa via Interface").replace(/"/g, '\\"')}"`,
-    `sessao: "${sid}"`,
-    `agente: "${agentTag}"`,
-    `inicio: "${new Date().toISOString()}"`,
-    `fim: "${new Date().toISOString()}"`,
-    "---",
-    "",
-    `# ${title || "Conversa com " + engineName}`,
-    "",
-  ];
-
-  for (const t of turns) {
+  const chatTurns = turns.map((t) => {
+    const parts = [];
+    if (t.thinking) parts.push({ kind: "thinking", text: String(t.thinking), full: true });
+    parts.push({ kind: "text", text: escapeBlocks(t.text) });
     // Cada resposta leva o motor que a gerou (o usuário pode trocar de motor no meio da conversa).
-    lines.push(`## ${t.role === "user" ? "Você" : nameOf(t.engine || engine)}`);
-    if (t.thinking) {
-      lines.push(":::thinking");
-      lines.push(safe(t.thinking));
-      lines.push(":::");
-      lines.push("");
-    }
-    lines.push(safe(t.text));
-    lines.push("");
-  }
+    return { who: t.role === "user" ? "user" : "assistant", label: nameOf(t.engine || engine), parts };
+  });
 
-  // Mesma redação de segredos dos importadores (o que for digitado na UI também vai para chats/).
-  fs.writeFileSync(fullPath, redact(lines.join("\n")), "utf8");
+  const text = renderChat({ title, sessionId: sid, origin: "harness-ui", first, last: now, agent: agentTag, assistantLabel: nameOf(engine) }, chatTurns);
+  // Mesma redação de segredos e dados pessoais dos importadores (o que for digitado na UI também vai para chats/).
+  fs.writeFileSync(fullPath, redact(text), "utf8");
 
   // Atualiza automaticamente o mapa e a tabela Markdown
   try {

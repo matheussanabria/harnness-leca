@@ -34,6 +34,7 @@ const DOC_EXT = new Set([".md", ".txt", ".html"]);
 const MIN_ANSWER = Number(process.env.MIN_ANSWER || 2500); // tamanho mínimo de uma resposta longa
 
 const { flag, opt } = require("./lib/cli");
+const { readMeta, stripFrontmatter, stripBlocks, splitTurns } = require("./lib/chat-format");
 const DRY = flag("dry-run");
 
 const slugify = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
@@ -52,15 +53,10 @@ if (!fs.existsSync(chatsDir)) { console.error(`Sem chats em projects/${slug}/cha
 
 // ---------- leitura dos chats (.md gerados pelo importador) ----------
 function parseChat(file) {
-  const raw = fs.readFileSync(file, "utf8").replace(/^﻿/, "").replace(/\r\n/g, "\n"); // CRLF: mesmo tratamento de state.readChat
-  const fm = (raw.match(/^---\n([\s\S]*?)\n---/) || [])[1] || "";
-  const get = (k) => { const m = fm.match(new RegExp(`^${k}: (.*)$`, "m")); return m ? m[1].replace(/^"|"$/g, "") : ""; };
-  const body = raw.replace(/^---\n[\s\S]*?\n---\n/, "").replace(/^:::(tool|thinking)[^\n]*\n[\s\S]*?^:::$/gm, "");
-  const turns = [];
-  for (const part of body.split(/^## (Você|Claude|Gemini|Antigravity|opencode)\s*$/im).slice(1).reduce((a, x, i, arr) => (i % 2 ? a : a.concat([[x, arr[i + 1]]])), [])) {
-    const text = (part[1] || "").trim();
-    if (text) turns.push({ who: /^Você$/i.test(part[0]) ? "user" : "claude", text });
-  }
+  const raw = fs.readFileSync(file, "utf8").replace(/^﻿/, "").replace(/\r\n/g, "\n"); // aqui só importa o texto das falas
+  const get = readMeta(raw);
+  const body = stripBlocks(stripFrontmatter(raw));
+  const turns = splitTurns(body).map((t) => ({ who: /^Você$/i.test(t.speaker) ? "user" : "claude", text: t.text }));
   return { file, titulo: get("titulo") || path.basename(file), sessao: get("sessao"), data: get("inicio").slice(0, 10), turns };
 }
 

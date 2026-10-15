@@ -22,7 +22,8 @@ const path = require("path");
 
 const { ROOT } = require("./lib/root");
 const { redact } = require("./lib/redact");
-const { slugify, safe } = require("./lib/text");
+const { slugify } = require("./lib/text");
+const { renderChat } = require("./lib/chat-format");
 const { flag, opt } = require("./lib/cli");
 const { MAX_FILE } = require("./lib/limits");
 
@@ -165,30 +166,19 @@ if (!picked.length) fail("Nada casou com a seleção. Use --list para ver os tí
 
 // ---------- render ----------
 const withTools = !flag("no-tools");
-function renderPart(p) {
-  if (p.kind === "text") return p.text;
-  if (p.kind === "note") return p.text.split("\n").map((l) => `> ${l}`).join("\n");
-  if (p.kind === "thinking") return `:::thinking\n${safe(p.text)}\n:::`;
-  return `:::tool ${p.name} | ${String(p.hint).replace(/\|/g, "/")}${p.error ? " | erro" : ""}\n--- entrada\n${safe(p.input)}\n--- resultado\n${safe(p.result)}\n:::`;
-}
 function render(it) {
   const turns = it.turns.map((t) => ({ ...t, parts: t.parts.filter((p) => withTools || (p.kind !== "tool" && p.kind !== "thinking")) })).filter((t) => t.parts.length);
   const title = label(it).replace(/\s+/g, " ").slice(0, 80);
-  const head = [
-    "---",
-    `titulo: ${JSON.stringify(title)}`,
-    `sessao: ${it.id}`,
-    `origem: ${JSON.stringify(it.kind === "design" ? `claude.ai/design${it.project ? ` · ${it.project}` : ""}` : "claude.ai")}`,
-    `inicio: ${it.created || ""}`,
-    `fim: ${it.updated || ""}`,
-    "agente: \"claude\"",
-    "---",
-    "",
-    `# ${title}`,
-    "",
-  ];
-  const body = turns.map((t) => `## ${t.who === "user" ? "Você" : "Claude"}\n\n${t.parts.map(renderPart).join("\n\n")}\n`);
-  return { text: head.concat(body).join("\n"), n: turns.length };
+  const text = renderChat({
+    title,
+    sessionId: it.id,
+    origin: it.kind === "design" ? `claude.ai/design${it.project ? ` · ${it.project}` : ""}` : "claude.ai",
+    first: it.created,
+    last: it.updated,
+    agent: "claude",
+    assistantLabel: "Claude",
+  }, turns);
+  return { text, n: turns.length };
 }
 
 const dest = path.join(ROOT, "projects", slug);

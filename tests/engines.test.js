@@ -98,6 +98,37 @@ test("saveChatToProject: grava agente, não sobrescreve outra conversa e regrava
   assert.equal(state.readChat(s1.path).turnos, 3);
 });
 
+test("saveChatToProject: mesmo formato dos importadores, inicio preservado e arquivo antigo com aspas reconhecido", async (t) => {
+  const slug = `zz-teste-c-${process.pid}`;
+  const chats = path.join(PROJECTS, slug, "chats");
+  fs.mkdirSync(chats, { recursive: true });
+  t.after(() => fs.rmSync(path.join(PROJECTS, slug), { recursive: true, force: true }));
+  const sid = "33333333-aaaa-4aaa-8aaa-000000000003";
+  const turns = [{ role: "user", text: "oi" }, { role: "assistant", text: "olá\n:::fim", thinking: "pensei", engine: "claude" }];
+
+  const first = E.saveChatToProject({ slug, engine: "claude", title: "Formato", turns, sessionId: sid });
+  const raw1 = fs.readFileSync(first.path, "utf8");
+  assert.match(raw1, new RegExp(`^sessao: ${sid}$`, "m"), "sem aspas, como nos importadores");
+  assert.match(raw1, /^origem: "harness-ui"$/m);
+  assert.ok(!/^:::fim/m.test(raw1), "::: no conteúdo é desarmado");
+
+  await new Promise((r) => setTimeout(r, 15));
+  const second = E.saveChatToProject({ slug, engine: "claude", title: "Formato", turns: [...turns, { role: "user", text: "e mais" }], sessionId: sid });
+  assert.equal(second.fileName, first.fileName);
+  const raw2 = fs.readFileSync(second.path, "utf8");
+  const meta = (raw, k) => require("../tools/lib/chat-format").readMeta(raw)(k);
+  assert.equal(meta(raw2, "inicio"), meta(raw1, "inicio"), "inicio não muda ao salvar de novo");
+  assert.notEqual(meta(raw2, "fim"), meta(raw1, "fim"));
+
+  // Arquivo gravado pela versão antiga da interface (sessao entre aspas) é reconhecido como a mesma conversa.
+  const sidOld = "44444444-aaaa-4aaa-8aaa-000000000004";
+  const legacy = path.join(chats, "2026-01-01-antigo-44444444.md");
+  fs.writeFileSync(legacy, `---\ntitulo: "Antigo"\nsessao: "${sidOld}"\nagente: "claude"\ninicio: "2026-01-01T00:00:00.000Z"\nfim: "2026-01-01T00:00:00.000Z"\n---\n\n# Antigo\n\n## Você\noi\n`);
+  const upd = E.saveChatToProject({ slug, engine: "claude", title: "Antigo", turns, sessionId: sidOld });
+  assert.equal(upd.fileName, "2026-01-01-antigo-44444444.md");
+  assert.equal(meta(fs.readFileSync(upd.path, "utf8"), "inicio"), "2026-01-01T00:00:00.000Z");
+});
+
 test("saveChatToProject: sessionId estranho não entra no nome do arquivo", (t) => {
   const slug = `zz-teste-b-${process.pid}`;
   fs.mkdirSync(path.join(PROJECTS, slug, "chats"), { recursive: true });

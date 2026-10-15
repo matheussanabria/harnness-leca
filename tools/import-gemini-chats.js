@@ -28,7 +28,8 @@ const { ROOT } = require("./lib/root");
 const BRAIN_ROOT = path.join(os.homedir(), ".gemini", "antigravity-ide", "brain");
 
 const { redact } = require("./lib/redact");
-const { slugify, safe } = require("./lib/text");
+const { slugify } = require("./lib/text");
+const { renderChat: renderChatMd } = require("./lib/chat-format");
 const { flag, opt } = require("./lib/cli");
 const { MAX_FILE } = require("./lib/limits");
 
@@ -228,29 +229,8 @@ function parseSession(sessionDir, sessionId, withTools = true) {
   };
 }
 
-function renderPart(p) {
-  if (p.kind === "text") return p.text;
-  if (p.kind === "thinking") return `:::thinking\n${safe(p.text)}\n:::`;
-  return `:::tool ${p.name} | ${p.hint.replace(/\|/g, "/")}${p.error ? " | erro" : ""}\n--- entrada\n${safe(p.input)}\n--- resultado\n${safe(p.result)}\n:::`;
-}
-
 function renderChat(c) {
-  const head = [
-    "---",
-    `titulo: ${JSON.stringify(c.title)}`,
-    `sessao: ${c.sessionId}`,
-    `origem: ${JSON.stringify(c.origin)}`,
-    `inicio: ${c.first || ""}`,
-    `fim: ${c.last || ""}`,
-    "agente: \"gemini\"",
-    "---",
-    "",
-    `# ${c.title}`,
-    "",
-  ];
-  const body = c.turns.map((t) =>
-    `## ${t.who === "user" ? "Você" : "Gemini"}\n\n${t.parts.map(renderPart).join("\n\n")}\n`);
-  return head.concat(body).join("\n");
+  return renderChatMd({ title: c.title, sessionId: c.sessionId, origin: c.origin, first: c.first, last: c.last, agent: "gemini", assistantLabel: "Gemini" }, c.turns);
 }
 
 function listSessions() {

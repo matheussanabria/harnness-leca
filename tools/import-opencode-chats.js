@@ -24,7 +24,8 @@ const { ROOT } = require("./lib/root");
 const SOURCE_DB = path.join(os.homedir(), ".local", "share", "opencode", "opencode.db");
 
 const { redact } = require("./lib/redact"); // redação de segredos comuns (heurística)
-const { slugify, safe } = require("./lib/text");
+const { slugify } = require("./lib/text");
+const { renderChat } = require("./lib/chat-format");
 const { flag, opt } = require("./lib/cli");
 
 
@@ -112,29 +113,8 @@ function convert(db, session, withTools) {
   return { title, directory: session.directory, first: session.timeCreated, last: session.timeUpdated, turns };
 }
 
-function renderPart(p) {
-  if (p.kind === "text") return p.text;
-  if (p.kind === "thinking") return `:::thinking\n${safe(p.text)}\n:::`;
-  return `:::tool ${p.name} | ${p.hint.replace(/\|/g, "/")}${p.error ? " | erro" : ""}\n--- entrada\n${safe(p.input)}\n--- resultado\n${safe(p.result)}\n:::`;
-}
-
 function render(c, sessionId) {
-  const head = [
-    "---",
-    `titulo: ${JSON.stringify(c.title)}`,
-    `sessao: ${sessionId}`,
-    `origem: ${JSON.stringify(c.directory)}`,
-    `inicio: ${iso(c.first)}`,
-    `fim: ${iso(c.last)}`,
-    "agente: \"opencode\"",
-    "---",
-    "",
-    `# ${c.title}`,
-    "",
-  ];
-  const body = c.turns.map((t) =>
-    `## ${t.who === "user" ? "Você" : "opencode"}\n\n${t.parts.map(renderPart).join("\n\n")}\n`);
-  return head.concat(body).join("\n");
+  return renderChat({ title: c.title, sessionId, origin: c.directory, first: iso(c.first), last: iso(c.last), agent: "opencode", assistantLabel: "opencode" }, c.turns);
 }
 
 if (!fs.existsSync(SOURCE_DB)) {
