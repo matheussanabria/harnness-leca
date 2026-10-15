@@ -37,8 +37,13 @@ function readChat(file) {
   };
 }
 
+// Arquivo ausente, ilegível ou sem o campo `sessoes` (editado à mão, versão antiga): começa vazio em vez de quebrar o scan.
 function load(slug) {
-  try { return JSON.parse(fs.readFileSync(paths(slug).state, "utf8")); } catch { return { version: 1, sessoes: {} }; }
+  let st = null;
+  try { st = JSON.parse(fs.readFileSync(paths(slug).state, "utf8")); } catch { /* sem estado ainda */ }
+  if (!st || typeof st !== "object") st = { version: 1 };
+  if (!st.sessoes || typeof st.sessoes !== "object" || Array.isArray(st.sessoes)) st.sessoes = {};
+  return st;
 }
 function save(slug, st) { fs.writeFileSync(paths(slug).state, JSON.stringify(st, null, 2) + "\n"); }
 

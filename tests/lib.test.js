@@ -106,6 +106,31 @@ test("writeChat: nova, sem mudança, atualizada; renomeia só a MESMA sessão; d
   assert.deepEqual(fs.readdirSync(dir).sort(), ["2026-01-01-novo-titulo-abcdef12.md", "2026-01-02-outra-abcdef12.md"]);
 });
 
+test("state.load: estado ausente, quebrado ou sem `sessoes` vira vazio em vez de quebrar o scan", (t) => {
+  const fs = require("fs"), os = require("os"), path = require("path");
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "harness-load-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  // state.js lê a raiz ao ser carregado: carrega uma cópia apontada para a raiz temporária.
+  const prev = process.env.HARNESS_ROOT;
+  process.env.HARNESS_ROOT = root;
+  for (const k of Object.keys(require.cache)) if (/tools[\\/]lib[\\/](state|root)\.js$/.test(k)) delete require.cache[k];
+  const state = require("../tools/lib/state");
+  process.env.HARNESS_ROOT = prev;
+  if (prev === undefined) delete process.env.HARNESS_ROOT;
+
+  fs.mkdirSync(path.join(root, "projects", "p", "chats"), { recursive: true });
+  const stateFile = path.join(root, "projects", "p", "extraction-state.json");
+  assert.deepEqual(state.load("p").sessoes, {}, "sem arquivo");
+  for (const bad of ["{}", "[]", "null", "42", "{ não é json", '{"sessoes": []}', '{"sessoes": "x"}']) {
+    fs.writeFileSync(stateFile, bad);
+    assert.deepEqual(state.load("p").sessoes, {}, `estado inválido: ${bad}`);
+  }
+  fs.writeFileSync(stateFile, '{"version":1,"sessoes":{"a":{"hash":"h"}}}');
+  assert.deepEqual(state.load("p").sessoes, { a: { hash: "h" } }, "estado válido passa intacto");
+  fs.writeFileSync(path.join(root, "projects", "p", "chats", "c.md"), "---\nsessao: s\n---\n# T\n\n## Você\n\noi\n");
+  assert.equal(state.scan("p")[0].status, "nova", "scan funciona com o estado recuperado");
+});
+
 test("cli: flag e opt leem --nome e --nome valor", () => {
   const argv = ["--dry-run", "--project", "dai", "--limit"];
   assert.equal(flag("dry-run", argv), true);

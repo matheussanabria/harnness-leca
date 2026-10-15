@@ -146,129 +146,145 @@ function readJsonBody(req) {
   });
 }
 
+// ---------- rotas da API ----------
+// Cada handler recebe ctx = { req, res, url, params } (params: grupos do caminho, quando a rota é uma RegExp).
+
+const apiState = ({ res }) => send(res, 200, {
+  active: active(),
+  projects: slugs(),
+  global: {
+    instructions: read(path.join(ROOT, "global", "instructions.md")),
+    memory: read(path.join(ROOT, "global", "memory.md")),
+  },
+});
+
+const apiEngines = async ({ res }) => send(res, 200, await E.getEnginesStatus());
+
+const apiProject = ({ res, params: [slug] }) =>
+  slugs().includes(slug) ? send(res, 200, project(slug)) : send(res, 404, { error: "projeto não encontrado" });
+
+// Só <slug>/<chats|context|scheduled>/<arquivo> ou <slug>/<instructions|memory>.md, sem sair de projects/.
+function apiFile({ res, url }) {
+  const rel = url.searchParams.get("path") || "";
+  const target = path.resolve(PROJECTS, rel);
+  const ok = /^[\w-]+\/(chats|context|scheduled)\/[^\/\\]+$|^[\w-]+\/(instructions|memory)\.md$/.test(rel);
+  if (!ok || !target.startsWith(PROJECTS + path.sep) || !inside(PROJECTS, target)) return send(res, 404, { error: "não encontrado" });
+  return send(res, 200, { content: read(target) });
+}
+
+// Clientes antigos mandavam "temperature"; hoje o controle é o nível de esforço.
+const effortFromTemperature = (t) => (Number(t) <= 0.35 ? "low" : Number(t) >= 0.75 ? "high" : "medium");
+
+// Resposta em SSE: devolve os três callbacks que todo motor usa (texto/raciocínio, fim, erro).
+function sseWriter(res, engineId) {
+  const open = () => !res.writableEnded && !res.destroyed;
+  const emit = (data) => { try { res.write(`data: ${JSON.stringify(data)}\n\n`); } catch { /* conexão já foi fechada pelo cliente */ } };
+  return {
+    onChunk: (data) => { if (open()) emit(data); },
+    onDone: (data) => { if (open()) { emit({ type: "done", ...data }); res.end(); } },
+    onError: (err) => {
+      if (!open()) return;
+      // Só mensagens nossas vão ao navegador; stderr do CLI e respostas de APIs ficam no log (podem ter caminhos locais).
+      const isPublic = err instanceof E.PublicError;
+      if (!isPublic) console.error("[chat]", engineId, (err && err.stack) || err);
+      emit({ type: "error", error: isPublic ? err.message : "Falha ao falar com o motor. O detalhe está no terminal do servidor." });
+      res.end();
+    },
+  };
+}
+
+async function apiChat({ req, res }) {
+  let body;
+  try { body = await readJsonBody(req); } catch { return send(res, 400, { error: "JSON inválido" }); }
+  const { engine, prompt, slug, sessionId, history, model, effort, temperature } = body;
+  const eff = E.safeEffort(effort || (temperature != null ? effortFromTemperature(temperature) : "medium"));
+  if (typeof prompt !== "string" || !prompt || !slug) return send(res, 400, { error: "prompt e slug são obrigatórios" });
+  if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
+  if (runningChats >= MAX_CHATS) return send(res, 429, { error: `Já há ${MAX_CHATS} respostas em andamento. Aguarde uma terminar.` });
+
+  // Fechar a aba (ou a conexão cair) cancela o motor: o processo do Claude e a consulta ao opencode não ficam soltos.
+  runningChats++;
+  const ac = new AbortController();
+  res.on("close", () => {
+    if (!res.writableFinished) ac.abort();
+    runningChats--;
+  });
+
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream; charset=utf-8",
+    "Cache-Control": "no-cache",
+    "Connection": "keep-alive",
+    "X-Content-Type-Options": "nosniff",
+    ...HEADERS,
+  });
+  const sink = sseWriter(res, engine);
+
+  // Cada motor tem a mesma interface (tools/lib/engines/index.js): o servidor não precisa conhecer nenhum pelo nome.
+  // engines.get() devolve undefined para qualquer id desconhecido (inclusive "__proto__" e afins).
+  const impl = E.engines.get(engine);
+  if (impl) impl.stream({ prompt, slug, sessionId, history, model, effort: eff, signal: ac.signal, ...sink });
+  else sink.onError(new E.PublicError(`Motor "${engine}" não suportado.`));
+}
+
+async function apiChatSave({ req, res }) {
+  let body;
+  try { body = await readJsonBody(req); } catch { return send(res, 400, { error: "JSON inválido" }); }
+  const { slug, engine, title, turns, sessionId } = body;
+  if (!slug || !Array.isArray(turns)) return send(res, 400, { error: "slug e turnos são obrigatórios" });
+  if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
+  try {
+    return send(res, 200, { ok: true, ...E.saveChatToProject({ slug, engine, title, turns, sessionId }) });
+  } catch (err) {
+    console.error("[chat/save]", (err && err.stack) || err);
+    return send(res, 500, { error: "Não foi possível salvar a conversa. O detalhe está no terminal do servidor." });
+  }
+}
+
+// method + caminho (texto exato ou RegExp). HEAD usa a rota do GET.
+const ROUTES = [
+  { method: "GET", path: "/api/state", handler: apiState },
+  { method: "GET", path: "/api/engines", handler: apiEngines },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)$/, handler: apiProject },
+  { method: "GET", path: "/api/file", handler: apiFile },
+  { method: "POST", path: "/api/chat", handler: apiChat },
+  { method: "POST", path: "/api/chat/save", handler: apiChatSave },
+];
+
+function serveStatic(res, p) {
+  const file = path.resolve(PUBLIC, "." + path.sep + (p === "/" ? "index.html" : p.replace(/^[\/\\]+/, "")));
+  const type = TYPES[path.extname(file).toLowerCase()];
+  if (type && file.startsWith(PUBLIC + path.sep) && inside(PUBLIC, file)) return send(res, 200, fs.readFileSync(file), type);
+  return send(res, 404, "404", "text/plain");
+}
+
 async function handle(req, res) {
   const url = new URL(req.url, "http://x");
   const p = decodeURIComponent(url.pathname);
   if (p.includes("\0")) return send(res, 400, { error: "requisição inválida" });
 
-  if (p === "/api/state") {
-    return send(res, 200, {
-      active: active(),
-      projects: slugs(),
-      global: {
-        instructions: read(path.join(ROOT, "global", "instructions.md")),
-        memory: read(path.join(ROOT, "global", "memory.md")),
-      },
-    });
+  const method = req.method === "HEAD" ? "GET" : req.method;
+  let pathKnown = false;
+  for (const route of ROUTES) {
+    const m = typeof route.path === "string" ? (p === route.path ? [p] : null) : p.match(route.path);
+    if (!m) continue;
+    pathKnown = true;
+    if (route.method === method) return route.handler({ req, res, url, params: m.slice(1) });
   }
-
-  if (p === "/api/engines") {
-    const status = await E.getEnginesStatus();
-    return send(res, 200, status);
-  }
-
-  if (p === "/api/chat" && req.method === "POST") {
-    let body;
-    try { body = await readJsonBody(req); } catch { return send(res, 400, { error: "JSON inválido" }); }
-    const { engine, prompt, slug, sessionId, history, model, effort, temperature } = body;
-    const eff = E.safeEffort(effort || (temperature !== undefined && temperature !== null ? (Number(temperature) <= 0.35 ? "low" : Number(temperature) >= 0.75 ? "high" : "medium") : "medium"));
-    if (typeof prompt !== "string" || !prompt || !slug) return send(res, 400, { error: "prompt e slug são obrigatórios" });
-    if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
-    if (runningChats >= MAX_CHATS) return send(res, 429, { error: `Já há ${MAX_CHATS} respostas em andamento. Aguarde uma terminar.` });
-
-    // Fechar a aba (ou a conexão cair) cancela o motor: o processo do Claude e a consulta ao opencode não ficam soltos.
-    runningChats++;
-    const ac = new AbortController();
-    res.on("close", () => {
-      if (!res.writableFinished) ac.abort();
-      runningChats--;
-    });
-    const signal = ac.signal;
-
-    res.writeHead(200, {
-      "Content-Type": "text/event-stream; charset=utf-8",
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
-      "X-Content-Type-Options": "nosniff",
-      ...HEADERS,
-    });
-
-    const onChunk = (data) => {
-      if (!res.writableEnded && !res.destroyed) {
-        try { res.write(`data: ${JSON.stringify(data)}\n\n`); } catch {}
-      }
-    };
-    const onDone = (data) => {
-      if (!res.writableEnded && !res.destroyed) {
-        try {
-          res.write(`data: ${JSON.stringify({ type: "done", ...data })}\n\n`);
-          res.end();
-        } catch {}
-      }
-    };
-    const onError = (err) => {
-      if (!res.writableEnded && !res.destroyed) {
-        try {
-          // Só mensagens nossas vão ao navegador; stderr do CLI e respostas de APIs ficam no log (podem ter caminhos locais).
-          const isPublic = err instanceof E.PublicError;
-          if (!isPublic) console.error("[chat]", engine, (err && err.stack) || err);
-          const error = isPublic ? err.message : "Falha ao falar com o motor. O detalhe está no terminal do servidor.";
-          res.write(`data: ${JSON.stringify({ type: "error", error })}\n\n`);
-          res.end();
-        } catch {}
-      }
-    };
-
-    // Cada motor tem a mesma interface (tools/lib/engines/index.js): o servidor não precisa conhecer nenhum pelo nome.
-    // engines.get() devolve undefined para qualquer id desconhecido (inclusive "__proto__" e afins).
-    const impl = E.engines.get(engine);
-    if (impl) impl.stream({ prompt, slug, sessionId, history, model, effort: eff, signal, onChunk, onDone, onError });
-    else onError(new E.PublicError(`Motor "${engine}" não suportado.`));
-    return;
-  }
-
-  if (p === "/api/chat/save" && req.method === "POST") {
-    let body;
-    try { body = await readJsonBody(req); } catch { return send(res, 400, { error: "JSON inválido" }); }
-    const { slug, engine, title, turns, sessionId } = body;
-    if (!slug || !Array.isArray(turns)) return send(res, 400, { error: "slug e turnos são obrigatórios" });
-    if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
-    try {
-      const saved = E.saveChatToProject({ slug, engine, title, turns, sessionId });
-      return send(res, 200, { ok: true, ...saved });
-    } catch (err) {
-      console.error("[chat/save]", (err && err.stack) || err);
-      return send(res, 500, { error: "Não foi possível salvar a conversa. O detalhe está no terminal do servidor." });
-    }
-  }
-
-  const m = p.match(/^\/api\/project\/([\w-]+)$/);
-  if (m && slugs().includes(m[1])) return send(res, 200, project(m[1]));
-
-  if (p === "/api/file") {
-    // Só <slug>/<chats|context|scheduled>/<arquivo> ou <slug>/<instructions|memory>.md, sem sair de projects/.
-    const rel = url.searchParams.get("path") || "";
-    const target = path.resolve(PROJECTS, rel);
-    const ok = /^[\w-]+\/(chats|context|scheduled)\/[^\/\\]+$|^[\w-]+\/(instructions|memory)\.md$/.test(rel);
-    if (!ok || !target.startsWith(PROJECTS + path.sep) || !inside(PROJECTS, target)) return send(res, 404, { error: "não encontrado" });
-    return send(res, 200, { content: read(target) });
-  }
-
-  const file = path.resolve(PUBLIC, "." + path.sep + (p === "/" ? "index.html" : p.replace(/^[\/\\]+/, "")));
-  const type = TYPES[path.extname(file).toLowerCase()];
-  if (type && file.startsWith(PUBLIC + path.sep) && inside(PUBLIC, file)) {
-    return send(res, 200, fs.readFileSync(file), type);
-  }
-  send(res, 404, "404", "text/plain");
+  return pathKnown ? send(res, 405, { error: "método não permitido" }) : serveStatic(res, p);
 }
 
-http.createServer(async (req, res) => {
-  try {
-    if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "POST") return send(res, 405, { error: "método não permitido" });
-    if (!hostOk(req)) return send(res, 403, { error: "host não permitido" });
-    if (req.method === "POST" && !postOk(req)) return send(res, 403, { error: "origem não permitida" });
-    await handle(req, res);
-  } catch (err) {
-    if (!res.headersSent && !res.writableEnded) send(res, 400, { error: "requisição inválida" });
-  }
-}).listen(PORT, "127.0.0.1", () => console.log(`Harness UI: http://localhost:${PORT}`));
+function createServer() {
+  return http.createServer(async (req, res) => {
+    try {
+      if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "POST") return send(res, 405, { error: "método não permitido" });
+      if (!hostOk(req)) return send(res, 403, { error: "host não permitido" });
+      if (req.method === "POST" && !postOk(req)) return send(res, 403, { error: "origem não permitida" });
+      await handle(req, res);
+    } catch (err) {
+      if (!res.headersSent && !res.writableEnded) send(res, 400, { error: "requisição inválida" });
+    }
+  });
+}
+
+module.exports = { createServer };
+if (require.main === module) createServer().listen(PORT, "127.0.0.1", () => console.log(`Harness UI: http://localhost:${PORT}`));
