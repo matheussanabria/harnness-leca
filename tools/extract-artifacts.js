@@ -58,7 +58,7 @@ function parseChat(file) {
   const get = (k) => { const m = fm.match(new RegExp(`^${k}: (.*)$`, "m")); return m ? m[1].replace(/^"|"$/g, "") : ""; };
   const body = raw.replace(/^---\n[\s\S]*?\n---\n/, "").replace(/^:::(tool|thinking)[^\n]*\n[\s\S]*?^:::$/gm, "");
   const turns = [];
-  for (const part of body.split(/^## (Você|Claude|Gemini|Antigravity)\s*$/im).slice(1).reduce((a, x, i, arr) => (i % 2 ? a : a.concat([[x, arr[i + 1]]])), [])) {
+  for (const part of body.split(/^## (Você|Claude|Gemini|Antigravity|opencode)\s*$/im).slice(1).reduce((a, x, i, arr) => (i % 2 ? a : a.concat([[x, arr[i + 1]]])), [])) {
     const text = (part[1] || "").trim();
     if (text) turns.push({ who: /^Você$/i.test(part[0]) ? "user" : "claude", text });
   }

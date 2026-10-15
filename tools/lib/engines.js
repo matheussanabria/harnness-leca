@@ -9,9 +9,16 @@ const path = require("path");
 const cp = require("child_process");
 const crypto = require("crypto");
 const state = require("./state");
+const { redact } = require("./redact");
 
 const ROOT = path.resolve(__dirname, "../..");
 const OPENCODE_DEFAULT_URL = process.env.OPENCODE_URL || "http://localhost:63186";
+
+// Valores que chegam do navegador e viram argumento de linha de comando: só formatos conhecidos passam.
+const MODEL_RE = /^[a-z0-9][a-z0-9._:\/-]{0,63}$/i;
+const EFFORTS = new Set(["low", "medium", "high", "xhigh", "max"]);
+const safeModel = (m) => (typeof m === "string" && MODEL_RE.test(m) ? m : "");
+const safeEffort = (e) => (EFFORTS.has(e) ? e : "medium");
 
 // Carrega variáveis de ambiente de global/.env ou .env sob demanda
 function loadEnv() {
@@ -69,12 +76,11 @@ function streamClaude({ prompt, slug, sessionId, model, effort, onChunk, onDone,
   if (isClaudeUuid) {
     args.push("--resume", sessionId);
   }
+  model = safeModel(model);
   if (model && model !== "default") {
     args.push("--model", model);
   }
-  if (effort) {
-    args.push("--effort", effort);
-  }
+  args.push("--effort", safeEffort(effort));
 
   let fullPrompt = prompt;
   // Se for início de sessão, injeta o contexto do projeto junto ao primeiro prompt
@@ -89,8 +95,7 @@ function streamClaude({ prompt, slug, sessionId, model, effort, onChunk, onDone,
     stdio: ["pipe", "pipe", "pipe"],
   });
 
-  let capturedSessionId = sessionId || null;
-  let accumulatedText = "";
+  const parser = createClaudeStreamParser(onChunk, sessionId);
   let buffer = "";
 
   child.stdin.write(fullPrompt);
@@ -100,52 +105,69 @@ function streamClaude({ prompt, slug, sessionId, model, effort, onChunk, onDone,
     buffer += chunk.toString();
     const lines = buffer.split("\n");
     buffer = lines.pop(); // guarda linha incompleta
-
-    for (const line of lines) {
-      if (!line.trim()) continue;
-      try {
-        const d = JSON.parse(line);
-        if (d.session_id) capturedSessionId = d.session_id;
-
-        // Bloco de raciocínio (thinking)
-        if (d.type === "assistant" && d.message && Array.isArray(d.message.content)) {
-          for (const c of d.message.content) {
-            if (c.type === "text" && c.text) {
-              const delta = c.text.slice(accumulatedText.length);
-              if (delta) {
-                accumulatedText = c.text;
-                onChunk({ type: "text", text: delta, sessionId: capturedSessionId });
-              }
-            } else if (c.type === "thinking" && c.thinking) {
-              onChunk({ type: "thinking", text: c.thinking, sessionId: capturedSessionId });
-            }
-          }
-        }
-
-        if (d.type === "result") {
-          if (d.session_id) capturedSessionId = d.session_id;
-          if (d.result && !accumulatedText) {
-            accumulatedText = d.result;
-            onChunk({ type: "text", text: d.result, sessionId: capturedSessionId });
-          }
-        }
-      } catch (e) {
-        // Ignora linhas que não são JSON válido
-      }
-    }
+    lines.forEach(parser.line);
   });
 
   let errBuf = "";
   child.stderr.on("data", (d) => { errBuf += d.toString(); });
 
   child.on("close", (code) => {
-    if (code !== 0 && !accumulatedText) {
+    if (buffer) parser.line(buffer);
+    if (code !== 0 && !parser.text) {
       return onError(new Error(errBuf.trim() || `Claude Code finalizou com código ${code}`));
     }
-    onDone({ sessionId: capturedSessionId, fullText: accumulatedText });
+    onDone({ sessionId: parser.sessionId, fullText: parser.text });
   });
 
   child.on("error", onError);
+}
+
+// Interpreta as linhas do `claude --output-format stream-json` e repassa só o trecho novo de cada bloco.
+// Cada bloco (id da mensagem + índice) é acompanhado à parte: um texto novo depois de uma ferramenta
+// começa do zero e não pode ser cortado pelo tamanho do texto anterior.
+function createClaudeStreamParser(onChunk, initialSessionId) {
+  let sessionId = initialSessionId || null;
+  let text = "";
+  let events = 0;
+  const seen = new Map();
+  const deltaOf = (key, full) => {
+    const before = seen.get(key);
+    seen.set(key, full.length);
+    return before === undefined ? { delta: full, fresh: true } : { delta: full.slice(before), fresh: false };
+  };
+
+  function line(raw) {
+    if (!raw.trim()) return;
+    let d;
+    try { d = JSON.parse(raw); } catch { return; } // ignora linhas que não são JSON
+    if (d.session_id) sessionId = d.session_id;
+    events++;
+
+    if (d.type === "assistant" && d.message && Array.isArray(d.message.content)) {
+      const msgId = d.message.id || `evt${events}`;
+      d.message.content.forEach((c, i) => {
+        const key = `${msgId}:${i}`;
+        if (c.type === "text" && c.text) {
+          let { delta, fresh } = deltaOf(key, c.text);
+          if (fresh && text) delta = "\n\n" + delta;
+          if (delta) {
+            text += delta;
+            onChunk({ type: "text", text: delta, sessionId });
+          }
+        } else if (c.type === "thinking" && c.thinking) {
+          const { delta } = deltaOf(key, c.thinking);
+          if (delta) onChunk({ type: "thinking", text: delta, sessionId });
+        }
+      });
+    }
+
+    if (d.type === "result" && d.result && !text) {
+      text = d.result;
+      onChunk({ type: "text", text: d.result, sessionId });
+    }
+  }
+
+  return { line, get text() { return text; }, get sessionId() { return sessionId; } };
 }
 
 // ----------------------------------------------------
@@ -154,7 +176,9 @@ function streamClaude({ prompt, slug, sessionId, model, effort, onChunk, onDone,
 async function streamOpenCode({ prompt, slug, sessionId, model, effort, onChunk, onDone, onError }) {
   try {
     let sId = sessionId;
-    const isValidOpencodeSession = sId && typeof sId === "string" && sId.startsWith("ses_");
+    model = safeModel(model);
+    // O id vai no caminho da URL: só o formato do opencode (ses_ + alfanumérico) é aceito.
+    const isValidOpencodeSession = typeof sId === "string" && /^ses_[A-Za-z0-9]{1,64}$/.test(sId);
 
     // Se não há sessão válida, cria uma no opencode
     if (!isValidOpencodeSession) {
@@ -278,16 +302,19 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, onChunk,
 // ----------------------------------------------------
 // MOTOR 3: GEMINI (Google AI Studio ou Bridge)
 // ----------------------------------------------------
-async function streamGemini({ prompt, slug, sessionId, apiKey, model, effort, onChunk, onDone, onError }) {
+async function streamGemini({ prompt, slug, sessionId, history, model, effort, onChunk, onDone, onError }) {
   loadEnv();
-  const key = apiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  // A chave vem só do .env: aceitá-la da requisição deixaria uma página forjada mandar o contexto do projeto para outra conta.
+  const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  // A API do Gemini não guarda sessão: cada conversa ganha um id próprio, mantido pelo navegador entre os turnos.
+  const sid = typeof sessionId === "string" && /^[0-9a-f-]{36}$/i.test(sessionId) ? sessionId : crypto.randomUUID();
 
   if (!key) {
     // Se não tiver chave de API, grava na fila da Bridge local do Antigravity
     const bridgeDir = path.join(ROOT, "bridge");
     if (!fs.existsSync(bridgeDir)) fs.mkdirSync(bridgeDir, { recursive: true });
     const item = {
-      id: crypto.randomUUID(),
+      id: sid,
       data: new Date().toISOString(),
       slug,
       prompt,
@@ -302,12 +329,19 @@ async function streamGemini({ prompt, slug, sessionId, apiKey, model, effort, on
 
   try {
     const ctx = getProjectContext(slug);
-    const targetModel = model || "gemini-3.8-flash";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:streamGenerateContent?key=${encodeURIComponent(key)}&alt=sse`;
+    const targetModel = safeModel(model) || "gemini-3.8-flash";
+    // A chave vai no header, não na URL (URLs aparecem em logs e mensagens de erro).
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:streamGenerateContent?alt=sse`;
+
+    // Turnos anteriores da conversa (o navegador envia), para o Gemini não esquecer o que já foi dito.
+    const past = (Array.isArray(history) ? history : [])
+      .filter((t) => t && typeof t.text === "string" && t.text.trim())
+      .slice(-40)
+      .map((t) => ({ role: t.role === "user" ? "user" : "model", parts: [{ text: t.text }] }));
 
     const tempVal = effort === "low" ? 0.2 : effort === "high" ? 1.0 : 0.7;
     const body = {
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      contents: [...past, { role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: tempVal,
         maxOutputTokens: 8192,
@@ -319,12 +353,12 @@ async function streamGemini({ prompt, slug, sessionId, apiKey, model, effort, on
 
     const res = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify(body),
     });
 
     if (!res.ok) {
-      const errText = await res.text();
+      const errText = (await res.text()).split(key).join("[REDIGIDO]");
       throw new Error(`Google Gemini API retornou HTTP ${res.status}: ${errText}`);
     }
 
@@ -351,7 +385,7 @@ async function streamGemini({ prompt, slug, sessionId, apiKey, model, effort, on
             for (const part of cand.content.parts) {
               if (part.text) {
                 accumulatedText += part.text;
-                onChunk({ type: "text", text: part.text, sessionId: sessionId || "gemini-live" });
+                onChunk({ type: "text", text: part.text, sessionId: sid });
               }
             }
           }
@@ -359,7 +393,7 @@ async function streamGemini({ prompt, slug, sessionId, apiKey, model, effort, on
       }
     }
 
-    onDone({ sessionId: sessionId || "gemini-live", fullText: accumulatedText });
+    onDone({ sessionId: sid, fullText: accumulatedText });
   } catch (err) {
     onError(err);
   }
@@ -370,6 +404,11 @@ function saveChatToProject({ slug, engine, title, turns, sessionId }) {
   const p = state.paths(slug);
   if (!fs.existsSync(p.chats)) fs.mkdirSync(p.chats, { recursive: true });
 
+  // Título numa linha só: uma quebra de linha forjaria campos no cabeçalho (ex.: outro `sessao:`).
+  title = String(title || "").replace(/[\r\n]+/g, " ").trim().slice(0, 200);
+  // Como nos importadores: ":::" no início da linha fecharia o bloco antes da hora.
+  const safe = (s) => String(s == null ? "" : s).replace(/^:::/gm, "::​:");
+
   const dateStr = new Date().toISOString().slice(0, 10);
   const cleanTitle = (title || "Conversa via Interface")
     .normalize("NFD")
@@ -379,17 +418,24 @@ function saveChatToProject({ slug, engine, title, turns, sessionId }) {
     .replace(/^-+|-+$/g, "")
     .slice(0, 50) || "chat";
 
-  const fileName = `${dateStr}-${cleanTitle}.md`;
+  // Igual aos importadores: o nome leva o início do id da sessão. Salvar de novo a mesma conversa
+  // regrava o mesmo arquivo; duas conversas com o mesmo título no mesmo dia não se sobrescrevem.
+  const sid = typeof sessionId === "string" && /^[\w-]{1,80}$/.test(sessionId) ? sessionId : crypto.randomUUID();
+  const shortId = sid.replace(/^ses_/, "").replace(/[^A-Za-z0-9]/g, "").slice(0, 8).toLowerCase();
+  const previous = fs.readdirSync(p.chats).find((f) => f.endsWith(`-${shortId}.md`) &&
+    fs.readFileSync(path.join(p.chats, f), "utf8").includes(`sessao: "${sid}"`));
+  const fileName = previous || `${dateStr}-${cleanTitle}-${shortId}.md`;
   const fullPath = path.join(p.chats, fileName);
 
-  const engineName = engine === "gemini" ? "Gemini" : engine === "opencode" ? "opencode" : "Claude";
+  const nameOf = (e) => (e === "gemini" ? "Gemini" : e === "opencode" ? "opencode" : "Claude");
+  const engineName = nameOf(engine);
   const agentTag = engine === "gemini" ? "gemini" : engine === "opencode" ? "opencode" : "claude";
 
   const lines = [
     "---",
     `titulo: "${(title || "Conversa via Interface").replace(/"/g, '\\"')}"`,
-    `sessao: "${sessionId || crypto.randomUUID()}"`,
-    `agent: "${agentTag}"`,
+    `sessao: "${sid}"`,
+    `agente: "${agentTag}"`,
     `inicio: "${new Date().toISOString()}"`,
     `fim: "${new Date().toISOString()}"`,
     "---",
@@ -399,18 +445,20 @@ function saveChatToProject({ slug, engine, title, turns, sessionId }) {
   ];
 
   for (const t of turns) {
-    lines.push(`## ${t.role === "user" ? "Você" : engineName}`);
+    // Cada resposta leva o motor que a gerou (o usuário pode trocar de motor no meio da conversa).
+    lines.push(`## ${t.role === "user" ? "Você" : nameOf(t.engine || engine)}`);
     if (t.thinking) {
       lines.push(":::thinking");
-      lines.push(t.thinking);
+      lines.push(safe(t.thinking));
       lines.push(":::");
       lines.push("");
     }
-    lines.push(t.text);
+    lines.push(safe(t.text));
     lines.push("");
   }
 
-  fs.writeFileSync(fullPath, lines.join("\n"), "utf8");
+  // Mesma redação de segredos dos importadores (o que for digitado na UI também vai para chats/).
+  fs.writeFileSync(fullPath, redact(lines.join("\n")), "utf8");
 
   // Atualiza automaticamente o mapa e a tabela Markdown
   try {
@@ -551,4 +599,7 @@ module.exports = {
   streamGemini,
   saveChatToProject,
   getEnginesStatus,
+  safeModel,
+  safeEffort,
+  createClaudeStreamParser,
 };

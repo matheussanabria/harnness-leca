@@ -3,7 +3,7 @@
 // dentro de projects/<slug>/chats/, para aparecerem na interface do harness.
 //
 // Formato gerado (lido pela interface):
-//   ## Você / ## Claude          -> turnos da conversa
+//   ## Você / ## opencode        -> turnos da conversa
 //   :::tool Nome | resumo [| erro]   ... --- entrada ... --- resultado ... :::
 //                                -> processamento interno (ferramentas), em accordion na interface
 //   :::thinking                  -> raciocínio (reasoning), quando disponível
@@ -143,7 +143,7 @@ function render(c, sessionId) {
     "",
   ];
   const body = c.turns.map((t) =>
-    `## ${t.who === "user" ? "Você" : "Claude"}\n\n${t.parts.map(renderPart).join("\n\n")}\n`);
+    `## ${t.who === "user" ? "Você" : "opencode"}\n\n${t.parts.map(renderPart).join("\n\n")}\n`);
   return head.concat(body).join("\n");
 }
 

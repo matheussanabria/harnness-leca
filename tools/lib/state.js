@@ -25,14 +25,15 @@ function readChat(file) {
   const fm = (raw.match(/^---\n([\s\S]*?)\n---/) || [])[1] || "";
   const get = (k) => { const m = fm.match(new RegExp(`^${k}: (.*)$`, "m")); return m ? m[1].replace(/^"|"$/g, "") : ""; };
   // O hash cobre só o conteúdo da conversa: metadados do cabeçalho e o título (que o agente pode renomear) não contam.
-  const body = raw.replace(/^---\n[\s\S]*?\n---\n/, "").replace(/^# .*\n/, "");
+  // `## opencode` conta como `## Claude`: o importador do opencode usava "Claude", e a troca do título não é conteúdo novo.
+  const body = raw.replace(/^---\n[\s\S]*?\n---\n/, "").replace(/^# .*\n/, "").replace(/^## opencode[ \t]*$/gim, "## Claude");
   return {
     name: path.basename(file),
     sessao: get("sessao") || path.basename(file),
     titulo: get("titulo") || path.basename(file),
     data: get("inicio").slice(0, 10),
     fim: get("fim"),
-    turnos: (raw.match(/^## (Você|Claude|Gemini|Antigravity)\s*$/gim) || []).length,
+    turnos: (raw.match(/^## (Você|Claude|Gemini|Antigravity|opencode)\s*$/gim) || []).length,
     hash: crypto.createHash("sha1").update(body).digest("hex").slice(0, 16),
   };
 }

@@ -653,6 +653,8 @@ async function sendChatMessage() {
         prompt: text,
         slug: P.slug,
         sessionId: engineSessions[currentEngine],
+        // Turnos anteriores (sem o atual): o Gemini não guarda sessão no servidor e precisa deles.
+        history: chatTurns.slice(0, -2).map(t => ({ role: t.role, text: t.text })),
         model: engineSettings[currentEngine].model,
         effort: engineSettings[currentEngine].effort,
       }),

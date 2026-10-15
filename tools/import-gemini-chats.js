@@ -305,6 +305,11 @@ if (flag("list")) {
 }
 
 const targetProject = opt("project");
+// Mesma regra de state.js: o slug vira caminho em projects/, então nada de "..", barras ou maiúsculas.
+if (targetProject !== undefined && !/^[a-z0-9][a-z0-9_-]{0,59}$/.test(targetProject)) {
+  console.error(`--project inválido: "${targetProject}" (use letras minúsculas, números, - ou _)`);
+  process.exit(1);
+}
 const fromSession = opt("from");
 const allProjects = flag("all-projects");
 const limit = opt("limit") ? parseInt(opt("limit"), 10) : Infinity;
@@ -366,7 +371,8 @@ for (const s of sessions) {
       // Remove versão antiga da mesma sessão se o título tiver mudado
       if (fs.existsSync(chatsDir)) {
         for (const old of fs.readdirSync(chatsDir)) {
-          if (old !== name && old.endsWith(`-${c.sessionId.slice(0, 8)}.md`)) {
+          // Confere a sessão no cabeçalho: o sufixo de 8 caracteres sozinho pode coincidir com outra conversa.
+          if (old !== name && old.endsWith(`-${c.sessionId.slice(0, 8)}.md`) && fs.readFileSync(path.join(chatsDir, old), "utf8").includes(`sessao: ${c.sessionId}\n`)) {
             try { fs.rmSync(path.join(chatsDir, old)); } catch {}
           }
         }

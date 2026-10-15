@@ -94,6 +94,7 @@ const HEADERS = {
 };
 
 function send(res, code, body, type = "application/json; charset=utf-8") {
+  if (res.headersSent || res.writableEnded) return;
   res.writeHead(code, { "Content-Type": type, ...HEADERS });
   res.end(typeof body === "string" || Buffer.isBuffer(body) ? body : JSON.stringify(body));
 }
@@ -154,9 +155,10 @@ async function handle(req, res) {
   if (p === "/api/chat" && req.method === "POST") {
     let body;
     try { body = await readJsonBody(req); } catch { return send(res, 400, { error: "JSON inválido" }); }
-    const { engine, prompt, slug, sessionId, apiKey, model, effort, temperature } = body;
-    const eff = effort || (temperature !== undefined && temperature !== null ? (Number(temperature) <= 0.35 ? "low" : Number(temperature) >= 0.75 ? "high" : "medium") : "medium");
-    if (!prompt || !slug) return send(res, 400, { error: "prompt e slug são obrigatórios" });
+    const { engine, prompt, slug, sessionId, history, model, effort, temperature } = body;
+    const eff = E.safeEffort(effort || (temperature !== undefined && temperature !== null ? (Number(temperature) <= 0.35 ? "low" : Number(temperature) >= 0.75 ? "high" : "medium") : "medium"));
+    if (typeof prompt !== "string" || !prompt || !slug) return send(res, 400, { error: "prompt e slug são obrigatórios" });
+    if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
 
     res.writeHead(200, {
       "Content-Type": "text/event-stream; charset=utf-8",
@@ -167,15 +169,25 @@ async function handle(req, res) {
     });
 
     const onChunk = (data) => {
-      res.write(`data: ${JSON.stringify(data)}\n\n`);
+      if (!res.writableEnded && !res.destroyed) {
+        try { res.write(`data: ${JSON.stringify(data)}\n\n`); } catch {}
+      }
     };
     const onDone = (data) => {
-      res.write(`data: ${JSON.stringify({ type: "done", ...data })}\n\n`);
-      res.end();
+      if (!res.writableEnded && !res.destroyed) {
+        try {
+          res.write(`data: ${JSON.stringify({ type: "done", ...data })}\n\n`);
+          res.end();
+        } catch {}
+      }
     };
     const onError = (err) => {
-      res.write(`data: ${JSON.stringify({ type: "error", error: err.message || String(err) })}\n\n`);
-      res.end();
+      if (!res.writableEnded && !res.destroyed) {
+        try {
+          res.write(`data: ${JSON.stringify({ type: "error", error: err.message || String(err) })}\n\n`);
+          res.end();
+        } catch {}
+      }
     };
 
     if (engine === "claude") {
@@ -183,7 +195,7 @@ async function handle(req, res) {
     } else if (engine === "opencode") {
       E.streamOpenCode({ prompt, slug, sessionId, model, effort: eff, onChunk, onDone, onError });
     } else if (engine === "gemini") {
-      E.streamGemini({ prompt, slug, sessionId, apiKey, model, effort: eff, onChunk, onDone, onError });
+      E.streamGemini({ prompt, slug, sessionId, history, model, effort: eff, onChunk, onDone, onError });
     } else {
       onError(new Error(`Motor "${engine}" não suportado.`));
     }
@@ -195,6 +207,7 @@ async function handle(req, res) {
     try { body = await readJsonBody(req); } catch { return send(res, 400, { error: "JSON inválido" }); }
     const { slug, engine, title, turns, sessionId } = body;
     if (!slug || !Array.isArray(turns)) return send(res, 400, { error: "slug e turnos são obrigatórios" });
+    if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
     try {
       const saved = E.saveChatToProject({ slug, engine, title, turns, sessionId });
       return send(res, 200, { ok: true, ...saved });
@@ -228,5 +241,7 @@ http.createServer(async (req, res) => {
     if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "POST") return send(res, 405, { error: "método não permitido" });
     if (!hostOk(req)) return send(res, 403, { error: "host não permitido" });
     await handle(req, res);
-  } catch (err) { send(res, 400, { error: "requisição inválida" }); }
+  } catch (err) {
+    if (!res.headersSent && !res.writableEnded) send(res, 400, { error: "requisição inválida" });
+  }
 }).listen(PORT, "127.0.0.1", () => console.log(`Harness UI: http://localhost:${PORT}`));

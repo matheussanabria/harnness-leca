@@ -11,7 +11,7 @@ Replica a arquitetura de **Projetos** do Claude Chat (instruções, memória, co
 | Windows 10/11 | O hook usa PowerShell | — |
 | [Claude Code](https://claude.com/claude-code) (app desktop ou CLI) | Rodar o harness | abrir o app |
 | [Git](https://git-scm.com/downloads) | Clonar o repositório | `git --version` |
-| [Node.js 18+](https://nodejs.org) | Interface web e importador | `node -v` |
+| [Node.js 22.5+](https://nodejs.org) | Interface web, importadores e `sync` (o opencode usa o `node:sqlite` embutido) | `node -v` |
 
 > O hook é um script PowerShell, então o harness funciona direto só no Windows. No Mac/Linux é preciso reescrever `.claude/hooks/load-project.ps1` (ex.: em bash) e ajustar `.claude/settings.json`. A interface e o importador (Node) funcionam em qualquer sistema.
 
@@ -234,7 +234,7 @@ Abra a pasta `harness-leca` no Antigravity e peça, por exemplo: *"Use a skill e
 node ui/server.js
 ```
 
-Abra http://localhost:4321. Mostra chats, instruções, memória, contexto e tarefas, com seletor de projeto. É somente leitura e só escuta em `127.0.0.1`. No app desktop do Claude Code, o servidor `harness-ui` de `.claude/launch.json` também pode ser iniciado pelo painel de preview.
+Abra http://localhost:4321. Mostra chats, instruções, memória, contexto e tarefas, com seletor de projeto. Só escuta em `127.0.0.1`. A navegação é somente leitura; a única escrita é o botão **Conversar com o Projeto**, que conversa com Claude Code, opencode ou Gemini e salva a conversa em `chats/` quando você pede. No app desktop do Claude Code, o servidor `harness-ui` de `.claude/launch.json` também pode ser iniciado pelo painel de preview.
 
 Ao abrir um chat:
 - **Você**: bolha colorida à direita.
