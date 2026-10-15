@@ -213,6 +213,7 @@ if (flag("llm")) {
 out["extraido-indice.md"] = head(`Extração do projeto ${slug}`) +
   `- Conversas analisadas: ${chats.length}\n- Regras candidatas: ${rules.length}\n- Conversas com arquivos tocados: ${files.length}\n` +
   `- Documentos gravados pelo Claude: ${docFiles.size}\n- Respostas longas estruturadas: ${ansFiles.size}\n` +
+  `- Tabela de mapeamento das conversas e pendências: ver [extraido-conversas.md](extraido-conversas.md)\n` +
   (flag("llm") ? "- Memórias sugeridas: ver extraido-memorias.md\n" : "- Para memórias/decisões destiladas, rode de novo com `--llm`.\n") +
   (docFiles.size ? `\n## Documentos (extraidos/documentos/)\n\n${[...docFiles.keys()].map((k) => `- ${k}`).join("\n")}\n` : "") +
   (ansFiles.size ? `\n## Respostas longas (extraidos/respostas/)\n\n${[...ansFiles.keys()].map((k) => `- ${k}`).join("\n")}\n` : "");
@@ -223,7 +224,7 @@ if (DRY) { console.log("[dry-run] nada foi gravado."); process.exit(0); }
 // Regrava só o que é derivado: arquivos extraido-*.md e a pasta extraidos/.
 fs.mkdirSync(ctxDir, { recursive: true });
 const keepLlm = !flag("llm") && fs.existsSync(path.join(ctxDir, "extraido-memorias.md")); // não apaga memórias LLM antigas sem --llm
-for (const f of fs.readdirSync(ctxDir)) if (/^extraido-.*\.md$/.test(f) && !(keepLlm && f === "extraido-memorias.md")) fs.rmSync(path.join(ctxDir, f));
+for (const f of fs.readdirSync(ctxDir)) if (/^extraido-.*\.md$/.test(f) && !(keepLlm && f === "extraido-memorias.md") && f !== "extraido-conversas.md") fs.rmSync(path.join(ctxDir, f));
 fs.rmSync(path.join(ctxDir, "extraidos"), { recursive: true, force: true });
 for (const [f, t] of Object.entries(out)) fs.writeFileSync(path.join(ctxDir, f), t);
 for (const [f, t] of [...docFiles, ...ansFiles]) {
@@ -232,4 +233,5 @@ for (const [f, t] of [...docFiles, ...ansFiles]) {
   fs.writeFileSync(dest, t);
 }
 if (pendingMarks.length) S.mark(slug, pendingMarks, "claude");
+S.generateTableMarkdown(slug);
 console.log(`Gravado em projects/${slug}/context/`);

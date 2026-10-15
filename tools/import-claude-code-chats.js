@@ -118,6 +118,7 @@ function render(c, sessionId) {
     `origem: ${JSON.stringify(c.cwd)}`,
     `inicio: ${c.first || ""}`,
     `fim: ${c.last || ""}`,
+    "agente: \"claude\"",
     "---",
     "",
     `# ${c.title}`,

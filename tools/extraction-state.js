@@ -37,6 +37,10 @@ if (cmd === "status") {
     console.log(`${r.status.padEnd(8)} ${r.name}${extra}`);
   }
   if (!pending.length) console.log("Tudo em dia.");
+  S.generateTableMarkdown(slug);
+} else if (cmd === "table" || cmd === "sync") {
+  const md = S.generateTableMarkdown(slug);
+  console.log(`Tabela atualizada em projects/${slug}/context/extraido-conversas.md (${rows.length} conversas)`);
 } else if (cmd === "pending") {
   const lim = opt("limit") ? Math.max(1, parseInt(opt("limit"), 10) || 1) : Infinity;
   pending.slice(0, lim).forEach((r) => console.log(r.name));
@@ -51,9 +55,11 @@ if (cmd === "status") {
   const headings = new Set([...mem.matchAll(/^## (.+?) \((\d{4}-\d\d-\d\d|s\/d)\)\s*$/gm)].map((m) => `${m[1].trim().toLowerCase()}|${m[2]}`));
   const hits = rows.filter((r) => headings.has(`${r.titulo.trim().toLowerCase()}|${r.data || "s/d"}`)).map((r) => r.name);
   if (hits.length) S.mark(slug, hits, opt("by") || "adotada");
+  S.generateTableMarkdown(slug);
   console.log(`${hits.length} conversa(s) adotada(s) como já analisadas.`);
   hits.forEach((f) => console.log(`  ${f}`));
 } else if (cmd === "reset") {
   S.save(slug, { version: 1, sessoes: {} });
+  S.generateTableMarkdown(slug);
   console.log("Estado zerado.");
 } else fail(`Comando desconhecido: ${cmd}`);

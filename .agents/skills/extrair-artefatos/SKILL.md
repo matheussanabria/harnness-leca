@@ -9,7 +9,7 @@ Faz o mesmo que `node tools/extract-artifacts.js --project <slug> --llm`, mas qu
 
 ## Passo a passo
 
-1. **Projeto.** Use o que o usuário indicar; sem indicação, o projeto ativo em `projects/.active`. O nome só pode ter letras minúsculas, números, `_` e `-`. Se não existir `projects/<slug>/chats/`, avise que é preciso importar antes (`node tools/import-claude-code-chats.js --list`).
+1. **Projeto.** Use o que o usuário indicar; sem indicação, o projeto ativo em `projects/.active`. O nome só pode ter letras minúsculas, números, `_` e `-`. Se não existir `projects/<slug>/chats/`, avise que é preciso importar antes (`node tools/import-claude-code-chats.js --list` ou `node tools/import-gemini-chats.js --list`).
 2. **Atualize as conversas.** Se o usuário disser que houve conversas novas ou que continuaram, rode o importador para o projeto (ele só regrava o que mudou). Pergunte o comando exato se não souber a pasta de origem.
 3. **Veja o que falta.** Rode `node tools/extraction-state.js --project <slug> status`. Ele separa:
    - `nova`: nunca analisada;
