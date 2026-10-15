@@ -22,6 +22,7 @@ const SOURCE_ROOT = path.join(os.homedir(), ".claude", "projects");
 const { redact } = require("./lib/redact"); // redação de segredos comuns (heurística)
 const { slugify } = require("./lib/text");
 const { renderChat } = require("./lib/chat-format");
+const { writeChat } = require("./lib/chat-store");
 const { flag, opt } = require("./lib/cli");
 const { MAX_FILE } = require("./lib/limits");
 
@@ -148,22 +149,10 @@ for (const f of fs.readdirSync(dirName).filter((n) => n.endsWith(".jsonl"))) {
   if (!c.turns.length) { skipped++; continue; }
   const date = (c.first || "").slice(0, 10) || "sem-data";
   const name = `${date}-${slugify(c.title)}-${sessionId.slice(0, 8)}.md`;
-  const out = path.join(chatsDir, name);
   const text = redact(render(c, sessionId));
-  const before = fs.existsSync(out) ? fs.readFileSync(out, "utf8") : null;
-  const state = before === null ? "nova" : before === text ? "sem mudança" : "atualizada";
+  const { state, removed } = writeChat({ chatsDir, name, sessionId, shortId: sessionId.slice(0, 8), text, mtime: c.last, dryRun: flag("dry-run") });
   console.log(`${flag("dry-run") ? "[dry-run] " : ""}[${state}] ${name}  (${c.turns.length} turnos)`);
-  if (!flag("dry-run") && state !== "sem mudança") {
-    // O título (gerado pelo Claude) pode mudar quando a conversa cresce: remove o arquivo antigo da mesma sessão.
-    for (const old of fs.readdirSync(chatsDir)) {
-      if (old !== name && old.endsWith(`-${sessionId.slice(0, 8)}.md`) && fs.readFileSync(path.join(chatsDir, old), "utf8").includes(`sessao: ${sessionId}\n`)) {
-        fs.rmSync(path.join(chatsDir, old));
-        console.log(`  (renomeada; removido ${old})`);
-      }
-    }
-    fs.writeFileSync(out, text);
-    if (c.last) fs.utimesSync(out, new Date(c.last), new Date(c.last)); // a interface ordena/data pelo mtime
-  }
+  for (const old of removed) console.log(`  (renomeada; removido ${old})`);
   if (state !== "sem mudança") changed++;
   ok++;
 }

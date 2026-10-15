@@ -78,6 +78,34 @@ test("chat-format: turnHeading reconhece os 5 falantes e nada além deles", () =
   assert.ok(!CF.turnHeading().test("### Claude"));
 });
 
+test("writeChat: nova, sem mudança, atualizada; renomeia só a MESMA sessão; dry-run não grava", (t) => {
+  const fs = require("fs"), os = require("os"), path = require("path");
+  const { writeChat } = require("../tools/lib/chat-store");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "harness-store-"));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const md = (sessao, extra = "") => `---\ntitulo: "T"\nsessao: ${sessao}\n---\n# T\n\n## Você\n\noi${extra}\n`;
+  const base = { chatsDir: dir, shortId: "abcdef12" };
+
+  // dry-run: calcula o estado e não toca em nada
+  assert.deepEqual(writeChat({ ...base, name: "2026-01-01-a-abcdef12.md", sessionId: "abcdef12-1", text: md("abcdef12-1"), dryRun: true }), { state: "nova", removed: [] });
+  assert.deepEqual(fs.readdirSync(dir), []);
+
+  assert.equal(writeChat({ ...base, name: "2026-01-01-a-abcdef12.md", sessionId: "abcdef12-1", text: md("abcdef12-1"), mtime: "2026-01-01T00:00:00Z" }).state, "nova");
+  assert.equal(fs.statSync(path.join(dir, "2026-01-01-a-abcdef12.md")).mtime.toISOString(), "2026-01-01T00:00:00.000Z", "mtime vira a data da conversa");
+  assert.equal(writeChat({ ...base, name: "2026-01-01-a-abcdef12.md", sessionId: "abcdef12-1", text: md("abcdef12-1") }).state, "sem mudança");
+  assert.equal(writeChat({ ...base, name: "2026-01-01-a-abcdef12.md", sessionId: "abcdef12-1", text: md("abcdef12-1", " mais") }).state, "atualizada");
+
+  // Outra conversa com o mesmo sufixo de 8 caracteres no nome, mas sessão diferente: nunca pode ser apagada.
+  fs.writeFileSync(path.join(dir, "2026-01-02-outra-abcdef12.md"), md("abcdef12-OUTRA"));
+  // Arquivo legado da mesma sessão com aspas no cabeçalho (gravado pela interface antiga): é reconhecido e removido.
+  fs.writeFileSync(path.join(dir, "2026-01-03-legado-abcdef12.md"), md('"abcdef12-1"'));
+
+  const r = writeChat({ ...base, name: "2026-01-01-novo-titulo-abcdef12.md", sessionId: "abcdef12-1", text: md("abcdef12-1", " novo") });
+  assert.equal(r.state, "nova");
+  assert.deepEqual(r.removed.sort(), ["2026-01-01-a-abcdef12.md", "2026-01-03-legado-abcdef12.md"]);
+  assert.deepEqual(fs.readdirSync(dir).sort(), ["2026-01-01-novo-titulo-abcdef12.md", "2026-01-02-outra-abcdef12.md"]);
+});
+
 test("cli: flag e opt leem --nome e --nome valor", () => {
   const argv = ["--dry-run", "--project", "dai", "--limit"];
   assert.equal(flag("dry-run", argv), true);

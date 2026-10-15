@@ -30,6 +30,7 @@ const BRAIN_ROOT = path.join(os.homedir(), ".gemini", "antigravity-ide", "brain"
 const { redact } = require("./lib/redact");
 const { slugify } = require("./lib/text");
 const { renderChat: renderChatMd } = require("./lib/chat-format");
+const { writeChat } = require("./lib/chat-store");
 const { flag, opt } = require("./lib/cli");
 const { MAX_FILE } = require("./lib/limits");
 
@@ -328,33 +329,12 @@ for (const s of sessions) {
 
   const date = (c.first || "").slice(0, 10) || "sem-data";
   const name = `${date}-${slugify(c.title)}-${c.sessionId.slice(0, 8)}.md`;
-  const outPath = path.join(chatsDir, name);
   const text = redact(renderChat(c));
-
-  const before = fs.existsSync(outPath) ? fs.readFileSync(outPath, "utf8") : null;
-  const state = before === null ? "nova" : before === text ? "sem mudança" : "atualizada";
-
+  // Sem mtime: as sessões do Gemini sempre ficaram com a data da importação (a interface ordena por ela).
+  const { state, removed } = writeChat({ chatsDir, name, sessionId: c.sessionId, shortId: c.sessionId.slice(0, 8), text, dryRun: flag("dry-run") });
   console.log(`${flag("dry-run") ? "[dry-run] " : ""}[${state}] (${destProject}) ${name} (${c.turns.length} turnos)`);
-
-  if (!flag("dry-run")) {
-    if (state !== "sem mudança") {
-      // Remove versão antiga da mesma sessão se o título tiver mudado
-      if (fs.existsSync(chatsDir)) {
-        for (const old of fs.readdirSync(chatsDir)) {
-          // Confere a sessão no cabeçalho: o sufixo de 8 caracteres sozinho pode coincidir com outra conversa.
-          if (old !== name && old.endsWith(`-${c.sessionId.slice(0, 8)}.md`) && fs.readFileSync(path.join(chatsDir, old), "utf8").includes(`sessao: ${c.sessionId}\n`)) {
-            try { fs.rmSync(path.join(chatsDir, old)); } catch {}
-          }
-        }
-      }
-      fs.writeFileSync(outPath, text, "utf8");
-      imported++;
-    } else {
-      unchanged++;
-    }
-  } else {
-    imported++;
-  }
+  for (const old of removed) console.log(`  (renomeada; removido ${old})`);
+  if (state !== "sem mudança") imported++; else unchanged++;
 }
 
 console.log(`\nConcluído: ${imported} importada(s), ${unchanged} sem mudança, ${skipped} ignorada(s).`);

@@ -24,6 +24,7 @@ const { ROOT } = require("./lib/root");
 const { redact } = require("./lib/redact");
 const { slugify } = require("./lib/text");
 const { renderChat } = require("./lib/chat-format");
+const { writeChat } = require("./lib/chat-store");
 const { flag, opt } = require("./lib/cli");
 const { MAX_FILE } = require("./lib/limits");
 
@@ -196,21 +197,10 @@ for (const it of picked) {
   if (!n) { skipped++; continue; }
   const date = (it.created || "").slice(0, 10) || "sem-data";
   const name = `${date}-${slugify(it.kind === "design" && it.project ? `design-${it.project}-${label(it)}` : label(it))}-${it.id.slice(0, 8)}.md`;
-  const out = path.join(chatsDir, name);
   const red = redact(text);
-  const before = fs.existsSync(out) ? fs.readFileSync(out, "utf8") : null;
-  const state = before === null ? "nova" : before === red ? "sem mudança" : "atualizada";
+  const { state, removed } = writeChat({ chatsDir, name, sessionId: it.id, shortId: it.id.slice(0, 8), text: red, mtime: it.updated, dryRun: dry });
   console.log(`${dry ? "[dry-run] " : ""}[${state}] ${name}  (${n} turnos, ${it.kind})`);
-  if (!dry && state !== "sem mudança") {
-    for (const old of fs.readdirSync(chatsDir)) {
-      if (old !== name && old.endsWith(`-${it.id.slice(0, 8)}.md`) && fs.readFileSync(path.join(chatsDir, old), "utf8").includes(`sessao: ${it.id}\n`)) {
-        fs.rmSync(path.join(chatsDir, old));
-        console.log(`  (renomeada; removido ${old})`);
-      }
-    }
-    fs.writeFileSync(out, red);
-    if (it.updated) fs.utimesSync(out, new Date(it.updated), new Date(it.updated));
-  }
+  for (const old of removed) console.log(`  (renomeada; removido ${old})`);
   if (state !== "sem mudança") changed++;
 }
 console.log(`\n${picked.length - skipped} conversas processadas (${changed} novas ou atualizadas), ${skipped} vazias ignoradas.`);

@@ -26,6 +26,7 @@ const SOURCE_DB = path.join(os.homedir(), ".local", "share", "opencode", "openco
 const { redact } = require("./lib/redact"); // redação de segredos comuns (heurística)
 const { slugify } = require("./lib/text");
 const { renderChat } = require("./lib/chat-format");
+const { writeChat } = require("./lib/chat-store");
 const { flag, opt } = require("./lib/cli");
 
 
@@ -166,22 +167,10 @@ for (const s of selected) {
   const date = iso(c.first).slice(0, 10) || "sem-data";
   const shortId = slugify(s.id.slice(0, 12)); // só [a-z0-9-] no nome do arquivo gerado
   const name = `${date}-${slugify(c.title)}-${shortId}.md`;
-  const out = path.join(chatsDir, name);
   const text = redact(render(c, s.id));
-  const before = fs.existsSync(out) ? fs.readFileSync(out, "utf8") : null;
-  const state = before === null ? "nova" : before === text ? "sem mudança" : "atualizada";
+  const { state, removed } = writeChat({ chatsDir, name, sessionId: s.id, shortId, text, mtime: c.last, dryRun: flag("dry-run") });
   console.log(`${flag("dry-run") ? "[dry-run] " : ""}[${state}] ${name}  (${c.turns.length} turnos)`);
-  if (!flag("dry-run") && state !== "sem mudança") {
-    // O título da sessão pode mudar quando a conversa cresce: remove o arquivo antigo da mesma sessão.
-    for (const old of fs.readdirSync(chatsDir)) {
-      if (old !== name && old.endsWith(`-${shortId}.md`) && fs.readFileSync(path.join(chatsDir, old), "utf8").includes(`sessao: ${s.id}\n`)) {
-        fs.rmSync(path.join(chatsDir, old));
-        console.log(`  (renomeada; removido ${old})`);
-      }
-    }
-    fs.writeFileSync(out, text);
-    if (c.last) fs.utimesSync(out, new Date(c.last), new Date(c.last)); // a interface ordena/data pelo mtime
-  }
+  for (const old of removed) console.log(`  (renomeada; removido ${old})`);
   if (state !== "sem mudança") changed++;
   ok++;
 }
