@@ -81,6 +81,20 @@ function project(slug) {
     };
   });
 
+  let appConfig = null;
+  const appJsonFile = path.join(dir, "app.json");
+  if (fs.existsSync(appJsonFile)) {
+    try { appConfig = JSON.parse(fs.readFileSync(appJsonFile, "utf8").replace(/^\uFEFF/, "")); } catch {}
+  } else {
+    const mcpJsonFile = path.join(dir, "mcp.json");
+    if (fs.existsSync(mcpJsonFile)) {
+      try {
+        const mcpCfg = JSON.parse(fs.readFileSync(mcpJsonFile, "utf8").replace(/^\uFEFF/, ""));
+        if (mcpCfg && mcpCfg.app) appConfig = mcpCfg.app;
+      } catch {}
+    }
+  }
+
   return {
     slug,
     instructions: read(path.join(dir, "instructions.md")),
@@ -90,6 +104,7 @@ function project(slug) {
     scheduled: listDir(path.join(dir, "scheduled")),
     extraction,
     review: reviewSummary(slug),
+    app: appConfig,
   };
 }
 
@@ -103,9 +118,9 @@ const HEADERS = {
   "Cache-Control": "no-store",
   "Referrer-Policy": "no-referrer",
   "Cross-Origin-Resource-Policy": "same-origin",
-  "X-Frame-Options": "DENY",
-  // A interface usa script/estilo inline; bloqueia todo o resto (sem rede externa, sem frames).
-  "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+  "X-Frame-Options": "SAMEORIGIN",
+  // A interface usa script/estilo inline; permite frames e conexões locais para o Vibecoding Studio.
+  "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' http: https:; frame-src 'self' http: https:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
 };
 
 function send(res, code, body, type = "application/json; charset=utf-8") {
@@ -231,6 +246,22 @@ const apiDai = ({ res }) => send(res, 200, {
   agents: DAI.listDaiAgents(),
   workflows: DAI.DAI_WORKFLOWS,
 });
+
+async function apiAppPing({ res, url }) {
+  const target = url.searchParams.get("url");
+  if (!target || !/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?/i.test(target)) {
+    return send(res, 400, { error: "URL inválida ou não local" });
+  }
+  try {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), 1000);
+    const check = await fetch(target, { method: "HEAD", signal: ac.signal }).catch(() => null);
+    clearTimeout(timer);
+    return send(res, 200, { alive: !!check, status: check ? check.status : 0 });
+  } catch {
+    return send(res, 200, { alive: false, status: 0 });
+  }
+}
 
 async function apiChat({ req, res }) {
   let body;
@@ -483,6 +514,7 @@ const ROUTES = [
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/sync$/, handler: apiProjectSync },
   { method: "GET", path: "/api/file", handler: apiFile },
   { method: "GET", path: "/api/dai", handler: apiDai },
+  { method: "GET", path: "/api/app/ping", handler: apiAppPing },
   { method: "POST", path: "/api/chat", handler: apiChat },
   { method: "POST", path: "/api/chat/save", handler: apiChatSave },
 ];

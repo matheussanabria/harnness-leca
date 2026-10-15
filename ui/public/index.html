@@ -168,11 +168,24 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
 .btn-send{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-weight:600;font-size:13px;cursor:pointer;transition:opacity .15s}
 .btn-send:hover{opacity:.9}
 .btn-send:disabled{opacity:.4;cursor:not-allowed}
+.btn-cancel{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;box-shadow:0 2px 8px rgba(239,68,68,0.35)}
+.btn-cancel:hover{background:#b91c1c}
+.btn-cancel-single{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);color:#ef4444;border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:3px;transition:all .15s}
+.btn-cancel-single:hover{background:rgba(239,68,68,0.25);border-color:#ef4444}
+.live-pill{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.live-pill.connecting{background:rgba(217,119,87,0.15);color:#d97757}
+.live-pill.thinking{background:rgba(179,136,255,0.18);color:#b388ff;border:1px solid rgba(179,136,255,0.3)}
+.live-pill.answering{background:rgba(125,226,163,0.15);color:#7de2a3}
+.col-timer{font-size:11px;color:var(--mute);font-weight:normal}
+.thinking-placeholder{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1px dashed var(--line);border-radius:8px;color:var(--text);margin-top:4px;animation:pulseBorder 2s infinite ease-in-out}
+@keyframes pulseBorder{0%,100%{border-color:var(--line)}50%{border-color:var(--accent)}}
+.thinking-pulse-dot{width:10px;height:10px;border-radius:50%;background:#b388ff;box-shadow:0 0 8px #b388ff;animation:blink 1.2s infinite}
+.thinking-stream-badge{font-size:10px;color:#b388ff;background:rgba(179,136,255,0.15);border:1px solid rgba(179,136,255,0.3);padding:1px 6px;border-radius:4px;font-weight:normal;animation:blink 1.5s infinite}
 .btn-chat-action{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font:inherit;font-size:12px;cursor:pointer}
 .btn-chat-action:hover{background:var(--panel);border-color:var(--mute)}
 .btn-chat-action:disabled{opacity:.4;cursor:not-allowed}
 .chat-thinking{background:var(--bg);border:1px solid var(--line);border-radius:8px;margin-bottom:8px;font-size:12px}
-.chat-thinking summary{padding:6px 10px;cursor:pointer;color:var(--mute);font-weight:500}
+.chat-thinking summary{padding:6px 10px;cursor:pointer;color:var(--mute);font-weight:500;user-select:none}
 .chat-thinking .think-content{padding:8px 12px;color:var(--mute);white-space:pre-wrap;border-top:1px solid var(--line);font-family:monospace;font-size:11px;max-height:180px;overflow:auto}
 .stream-cursor{display:inline-block;color:var(--accent);font-weight:bold;animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
@@ -196,6 +209,63 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
 .rv-actions button:disabled,.rv-pager button:disabled{opacity:.45;cursor:default}
 .rv-pager{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--mute);margin:8px 0;flex-wrap:wrap}
 .rv-msg{font-size:12px;color:#7de2a3;min-height:18px;margin:4px 0}
+/* Sincronização de conversas */
+.act-header{display:flex;justify-content:space-between;align-items:center;margin:24px 0 10px;flex-wrap:wrap;gap:12px}
+.sync-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sync-btn-group{display:inline-flex;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px}
+.btn-sync-action{background:none;border:0;color:var(--text);border-radius:6px;padding:4px 9px;font:inherit;font-size:11.5px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;font-weight:500;user-select:none}
+.btn-sync-action:hover:not(:disabled){background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.btn-sync-action:disabled{opacity:.55;cursor:wait}
+.btn-sync-action.btn-sync-all{font-weight:600;color:var(--accent)}
+.btn-sync-action.btn-sync-claude:hover{color:#d97757}
+.btn-sync-action.btn-sync-gemini:hover{color:#7ca5f5}
+.btn-sync-action.btn-sync-opencode:hover{color:#7de2a3}
+.btn-sync-chat{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:3px 9px;font:inherit;font-size:11.5px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+.btn-sync-chat:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sync-chat:disabled{opacity:.55;cursor:wait}
+@keyframes spinSync{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.is-syncing .sync-rot{display:inline-block;animation:spinSync .8s linear infinite}
+.sync-toast{font-size:11.5px;padding:3px 9px;border-radius:6px;font-weight:500;display:inline-flex;align-items:center;gap:6px;transition:opacity .3s ease;animation:fadeIn .2s ease}
+.sync-toast.success{background:rgba(60,179,113,0.18);color:#7de2a3;border:1px solid rgba(60,179,113,0.3)}
+.sync-toast.info{background:rgba(92,135,242,0.18);color:#7ca5f5;border:1px solid rgba(92,135,242,0.3)}
+.sync-toast.error{background:rgba(239,68,68,0.18);color:#ef4444;border:1px solid rgba(239,68,68,0.3)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-2px)}to{opacity:1;transform:translateY(0)}}
+/* Studio Vibecoding & DAI */
+.btn-studio-toggle{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:0;border-radius:8px;padding:6px 14px;font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;box-shadow:0 2px 8px rgba(139,92,246,0.35);transition:opacity .15s}
+.btn-studio-toggle:hover{opacity:.9}
+body.studio-active{overflow:hidden}
+body.studio-active #mainDashboard{display:none !important}
+body.studio-active #studioWorkspace{display:flex !important}
+.studio-workspace{display:none;height:calc(100vh - 58px);width:100vw;overflow:hidden;background:var(--bg)}
+.studio-sidebar{width:460px;min-width:340px;max-width:560px;display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--panel);height:100%}
+.studio-sidebar-header{padding:8px 14px;background:var(--panel2);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.studio-controls-bar{padding:6px 14px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:38px}
+.dai-chips-bar{display:flex;gap:6px;overflow-x:auto;padding:6px 12px;background:var(--bg);border-bottom:1px solid var(--line);scrollbar-width:none}
+.dai-chips-bar::-webkit-scrollbar{display:none}
+.dai-chip{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .15s;user-select:none}
+.dai-chip:hover{border-color:var(--accent);color:var(--accent);background:var(--panel)}
+.studio-canvas{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg);position:relative;height:100%}
+.studio-canvas-header{padding:8px 16px;background:var(--panel2);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.canvas-url-input{flex:1;min-width:180px;max-width:380px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-family:monospace;font-size:12px}
+.canvas-url-input:focus{outline:none;border-color:var(--accent)}
+.canvas-route-chips{display:flex;gap:4px;align-items:center}
+.route-chip{background:var(--panel);color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:2px 7px;font-size:11px;cursor:pointer;transition:all .15s}
+.route-chip:hover{color:var(--text);border-color:var(--mute)}
+.canvas-viewport-bar{display:flex;align-items:center;gap:4px}
+.btn-vp{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:3px 9px;font-size:11.5px;cursor:pointer;transition:all .15s}
+.btn-vp:hover{background:var(--panel2);border-color:var(--mute)}
+.btn-vp.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-vp-icon{font-size:13px;padding:3px 7px}
+.studio-frame-wrapper{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;overflow:auto;background:radial-gradient(var(--panel2) 1px, transparent 1px) 0 0/16px 16px var(--bg);position:relative}
+.studio-viewport-container{height:100%;transition:width .25s ease;position:relative;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(0,0,0,0.3);border-radius:8px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+.studio-viewport-container.device-frame{border-radius:28px;border:8px solid #2d2d2c;box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+.studio-iframe{width:100%;height:100%;border:0;background:#fff}
+.studio-offline-overlay{position:absolute;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:10;padding:20px}
+.offline-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;text-align:center;box-shadow:0 8px 24px #0004;max-width:420px}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.status-dot.online{background:#3cb371;box-shadow:0 0 6px #3cb371}
+.status-dot.offline{background:#ef4444;box-shadow:0 0 6px #ef4444}
+.status-dot.checking{background:#e0a040;animation:blink 1s infinite}
 </style>
 </head>
 <body>
@@ -204,20 +274,131 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
   <select id="sel"></select>
   <span class="badge" id="act"></span>
   <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+    <a href="/overview" title="Resumo paginado de todos os projetos e ações do sistema" style="font-size:13px;color:var(--text);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 12px;background:var(--panel);display:inline-flex;align-items:center;gap:6px">📊 Visão geral</a>
+    <button class="btn-studio-toggle" id="btnToggleStudio" onclick="toggleStudioMode()" title="Abrir Studio de Vibecoding com Live Preview da Aplicação e Agentes DAI">
+      <span>🎨</span> Vibecoding Studio
+    </button>
     <button class="btn-live-chat" onclick="openInteractiveChat()">
       <span>💬</span> Conversar com o Projeto
     </button>
   </div>
 </header>
-<main>
+<main id="mainDashboard">
   <section>
     <h1 id="title"></h1>
     <div class="sub">Projeto local · <span id="meta"></span></div>
-    <h3 class="sech"><span>Atividade</span> <button class="btn-map" onclick="showMappingTable()">📊 Mapeamento de conversas e pendências</button></h3>
+    <div class="act-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <h3 class="sech" style="margin:0">Atividade</h3>
+        <span id="syncToast" class="sync-toast" style="display:none"></span>
+      </div>
+      <div class="sync-bar">
+        <div class="sync-btn-group" title="Sincronizar conversas feitas externamente para este projeto">
+          <button class="btn-sync-action btn-sync-all" id="btnSyncAll" title="Sincronizar conversas de todos os motores (Claude Code, Gemini e OpenCode)" onclick="syncProjectChats('all')">
+            <span class="sync-rot">🔄</span> Sincronizar Tudo
+          </button>
+          <button class="btn-sync-action btn-sync-claude" id="btnSyncClaude" title="Sincronizar conversas do Claude Code (~/.claude/projects)" onclick="syncProjectChats('claude')">
+            ✱ Claude
+          </button>
+          <button class="btn-sync-action btn-sync-gemini" id="btnSyncGemini" title="Sincronizar conversas do Gemini / Antigravity (~/.gemini/antigravity-ide/brain)" onclick="syncProjectChats('gemini')">
+            ✦ Gemini
+          </button>
+          <button class="btn-sync-action btn-sync-opencode" id="btnSyncOpencode" title="Sincronizar conversas do OpenCode (~/.local/share/opencode)" onclick="syncProjectChats('opencode')">
+            ◆ OpenCode
+          </button>
+        </div>
+        <button class="btn-map" onclick="showMappingTable()">📊 Mapeamento</button>
+      </div>
+    </div>
     <div id="chats"></div>
   </section>
   <aside class="card" id="side"></aside>
 </main>
+<div id="studioWorkspace" class="studio-workspace">
+  <div class="studio-sidebar">
+    <div class="studio-sidebar-header">
+      <div class="engine-tabs" id="studioEngineTabs">
+        <button class="eng-tab active" data-engine="claude" onclick="switchEngine('claude')">✱ Claude Code</button>
+        <button class="eng-tab" data-engine="opencode" onclick="switchEngine('opencode')">◆ OpenCode</button>
+        <button class="eng-tab" data-engine="gemini" onclick="switchEngine('gemini')">✦ Gemini</button>
+        <button class="eng-tab" data-engine="compare" onclick="switchEngine('compare')">⚖ Comparar</button>
+      </div>
+      <button class="btn-chat-action" onclick="toggleStudioMode(false)" title="Voltar ao Dashboard">← Dashboard</button>
+    </div>
+    <div class="studio-controls-bar">
+      <div style="display:flex;align-items:center;gap:6px">
+        <label for="studioDaiSelect" style="font-size:11px;color:var(--mute)"><b>DAI:</b></label>
+        <select id="studioDaiSelect" onchange="onDaiAgentChange(this.value)" style="background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:3px 6px;font-size:11px;max-width:160px">
+          <option value="">🤖 Assistente Geral</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <label for="studioModelSelect" style="font-size:11px;color:var(--mute)"><b>Mod:</b></label>
+        <select id="studioModelSelect" onchange="onModelChange(this.value)" style="background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:3px 6px;font-size:11px;max-width:130px"></select>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:4px" id="studioEffortContainer"></div>
+    </div>
+    <div class="dai-chips-bar" id="studioDaiChips"></div>
+    <div class="chat-history" id="studioChatHistory">
+      <div class="empty" style="text-align:center;padding:40px 10px;color:var(--mute)">
+        💬 Converse com o motor e manipule o código do projeto com preview em tempo real.
+      </div>
+    </div>
+    <div class="chat-footer">
+      <div class="chat-input-wrap">
+        <textarea id="studioChatInput" class="chat-input" placeholder="Peça alterações visuais ou novas features... (Enter para enviar)" rows="1" oninput="autoGrow(this)" onkeydown="handleStudioChatKey(event)"></textarea>
+        <button id="btnSendStudioChat" class="btn-send" onclick="sendStudioChatMessage()">Enviar ➤</button>
+        <button id="btnCancelStudioChat" class="btn-cancel" style="display:none" onclick="cancelChatStream()">⏹ Parar</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn-chat-action" onclick="resetChatSession()">🔄 Novo Chat</button>
+          <button class="btn-chat-action" id="btnSaveStudioChat" onclick="saveCurrentChat()" disabled>💾 Salvar</button>
+          <span id="studioChatStatusText" style="font-size:11px;color:var(--mute)"></span>
+        </div>
+        <div style="font-size:11px;color:var(--mute)">Hot-Reload ativo</div>
+      </div>
+    </div>
+  </div>
+  <div class="studio-canvas">
+    <div class="studio-canvas-header">
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+        <span id="canvasStatusDot" class="status-dot offline" title="Status da aplicação local"></span>
+        <input id="canvasUrlInput" class="canvas-url-input" value="http://localhost:4200/" onkeydown="if(event.key==='Enter') navigateCanvas(this.value)">
+        <div id="canvasRouteChips" class="canvas-route-chips"></div>
+      </div>
+      <div class="canvas-viewport-bar">
+        <button class="btn-vp" data-vp="375px" onclick="setStudioViewport('375px')">📱 375px</button>
+        <button class="btn-vp" data-vp="768px" onclick="setStudioViewport('768px')">📱 768px</button>
+        <button class="btn-vp active" data-vp="100%" onclick="setStudioViewport('100%')">💻 100%</button>
+        <button class="btn-vp btn-vp-icon" onclick="reloadStudioIframe()" title="Recarregar preview">↻</button>
+        <button class="btn-vp btn-vp-icon" onclick="openStudioExternal()" title="Abrir em nova aba externa">↗</button>
+      </div>
+    </div>
+    <div class="studio-frame-wrapper" id="studioFrameWrapper">
+      <div class="studio-viewport-container" id="studioViewportContainer" style="width: 100%">
+        <iframe id="studioIframe" class="studio-iframe" src="about:blank"></iframe>
+        <div id="studioOfflineOverlay" class="studio-offline-overlay">
+          <div class="offline-card">
+            <div style="font-size:36px;margin-bottom:8px">⚡</div>
+            <h3 style="margin:0 0 8px">Aplicação local não detectada</h3>
+            <p style="color:var(--mute);font-size:13px;margin:0 0 16px;max-width:360px">
+              O Vibecoding Studio tentou se conectar a <b id="offlineTargetUrl">http://localhost:4200</b>, mas o servidor local parece offline.
+            </p>
+            <div style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:16px;text-align:left">
+              💡 <b>Como iniciar a aplicação:</b>
+              <div id="offlineCmdHelp" style="margin-top:4px;font-family:monospace;color:var(--accent)">npm start (ou ng serve)</div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:center">
+              <button class="btn-send" onclick="checkAppStatus(true)">🔄 Verificar Novamente</button>
+              <button class="btn-chat-action" onclick="forceLoadIframe()">Carregar Mesmo Assim</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <dialog id="dlg"><div class="dh"><span id="dt"></span><button onclick="dlg.close()">×</button></div><div class="db" id="dbody"></div></dialog>
 <dialog id="chatDlg" class="chat-dialog">
   <div class="chat-header">
@@ -230,14 +411,28 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
       <button class="eng-tab" data-engine="gemini" onclick="switchEngine('gemini')">✦ Gemini</button>
       <button class="eng-tab" data-engine="compare" onclick="switchEngine('compare')">⚖ Comparar Motores</button>
     </div>
-    <button onclick="chatDlg.close()" style="background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer">×</button>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+      <button type="button" class="btn-chat-action" onclick="chatDlg.close(); toggleStudioMode(true)" title="Abrir esta conversa no Studio com visualização em tempo real da aplicação">⤢ Abrir no Studio</button>
+      <button onclick="chatDlg.close()" style="background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer">×</button>
+    </div>
   </div>
   <div class="chat-context-bar">
     <div>✦ Contexto ativo: <code>instructions.md</code> + <code>memory.md</code> injetados automaticamente.</div>
-    <div id="engineAuthBadge" class="eng-badge">Plano Claude Pro (CLI local)</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button type="button" class="btn-sync-chat" title="Sincronizar conversas feitas externamente agora" onclick="syncProjectChats('all', true)">
+        <span class="sync-rot">🔄</span> Sincronizar Conversas
+      </button>
+      <div id="engineAuthBadge" class="eng-badge">Plano Claude Pro (CLI local)</div>
+    </div>
   </div>
   <div class="chat-controls-bar">
     <div id="singleControls" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;width:100%">
+      <div class="ctrl-item">
+        <label for="modalDaiSelect"><b>Agente DAI:</b></label>
+        <select id="modalDaiSelect" onchange="onDaiAgentChange(this.value)" style="background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font:inherit;font-size:12px;outline:none;cursor:pointer;max-width:200px">
+          <option value="">🤖 Assistente Geral</option>
+        </select>
+      </div>
       <div class="ctrl-item">
         <label for="chatModelSelect"><b>Modelo:</b></label>
         <select id="chatModelSelect" onchange="onModelChange(this.value)"></select>
@@ -274,6 +469,7 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
       </div>
     </div>
   </div>
+  <div class="dai-chips-bar" id="modalDaiChips"></div>
   <div class="chat-history" id="chatHistory">
     <div class="empty" style="text-align:center;padding:40px 10px;color:var(--mute)">
       Comece uma conversa com o motor escolhido usando todo o contexto deste projeto.
@@ -283,6 +479,7 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
     <div class="chat-input-wrap">
       <textarea id="chatInput" class="chat-input" placeholder="Pergunte algo sobre o projeto... (Enter para enviar, Shift+Enter para nova linha)" rows="1" oninput="autoGrow(this)" onkeydown="handleChatKey(event)"></textarea>
       <button id="btnSendChat" class="btn-send" onclick="sendChatMessage()">Enviar ➤</button>
+      <button id="btnCancelChat" class="btn-cancel" style="display:none" onclick="cancelChatStream()">⏹ Parar</button>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
       <div style="display:flex;gap:8px;align-items:center">
@@ -463,7 +660,7 @@ async function load(slug) {
         const stBadge = `<span class="status-badge ${stClass}" style="margin-left:6px">${stLabel}</span>`;
         return `<div class="row" data-i="${i}"><b style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${ag}<span>${esc(c.title || c.name.replace(/\.md$/, ""))}</span>${stBadge}</b><span>${fmt(c.mtime)}</span></div>`;
       }).join("")
-    : '<p class="empty">Nenhum chat salvo ainda. Importe com tools/import-claude-code-chats.js, tools/import-gemini-chats.js ou tools/import-opencode-chats.js.</p>';
+    : '<div style="padding:16px 4px"><p class="empty" style="margin:0 0 10px">Nenhum chat salvo ainda neste projeto.</p><button type="button" class="btn-sync-action btn-sync-all" style="padding:6px 14px;background:var(--panel2);border:1px solid var(--line)" onclick="syncProjectChats(\'all\')"><span class="sync-rot">🔄</span> Sincronizar conversas existentes agora</button></div>';
   document.querySelectorAll("#chats .row").forEach(r => r.onclick = () => openFile("chats", P.chats[r.dataset.i].name));
 
   const ins = clean(P.instructions), mem = clean(P.memory);
@@ -479,6 +676,7 @@ async function load(slug) {
       : '<div class="empty">Nenhuma tarefa recorrente</div>');
   document.querySelectorAll(".file").forEach(r => r.onclick = () => openFile("context", P.context[r.dataset.i].name));
   document.querySelectorAll("[data-s]").forEach(r => r.onclick = () => openFile("scheduled", P.scheduled[r.dataset.s].name));
+  if (isStudioMode) syncStudioControls();
 }
 
 function showMappingTable() {
@@ -551,6 +749,65 @@ function showMappingTable() {
 
   openDlg("Mapeamento de Conversas e Extração — " + P.slug, "", renderTableHtml("all", ""));
 }
+
+let isSyncingChats = false;
+async function syncProjectChats(engine = "all", fromModal = false) {
+  if (isSyncingChats || !P || !P.slug) return;
+  isSyncingChats = true;
+  const toast = $("syncToast");
+  const allBtns = document.querySelectorAll(".btn-sync-action, .btn-sync-chat");
+  allBtns.forEach(b => { b.disabled = true; b.classList.add("is-syncing"); });
+
+  const labelMap = { all: "todos os motores", claude: "Claude Code", gemini: "Gemini", opencode: "OpenCode" };
+  const targetLabel = labelMap[engine] || engine;
+
+  if (toast) {
+    toast.style.display = "inline-flex";
+    toast.style.opacity = "1";
+    toast.className = "sync-toast info";
+    toast.innerHTML = `<span class="sync-rot">🔄</span> Sincronizando ${targetLabel}...`;
+  }
+
+  try {
+    const res = await fetch(`/api/project/${encodeURIComponent(P.slug)}/sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ engine }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+
+    // Recarrega o projeto para atualizar a lista de chats e metadados na tela
+    await load(P.slug);
+
+    if (toast) {
+      toast.style.display = "inline-flex";
+      toast.style.opacity = "1";
+      const isNew = (data.totalNova > 0 || data.totalAtualizada > 0);
+      toast.className = `sync-toast ${isNew ? 'success' : 'info'}`;
+      toast.innerHTML = `${isNew ? '✓' : 'ℹ'} ${esc(data.mensagem)}`;
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => { toast.style.display = "none"; toast.style.opacity = "1"; }, 400);
+      }, 5000);
+    }
+  } catch (err) {
+    if (toast) {
+      toast.style.display = "inline-flex";
+      toast.style.opacity = "1";
+      toast.className = "sync-toast error";
+      toast.innerHTML = `⚠️ Falha ao sincronizar: ${esc(err.message || String(err))}`;
+      setTimeout(() => { toast.style.display = "none"; }, 5000);
+    }
+  } finally {
+    isSyncingChats = false;
+    allBtns.forEach(b => { b.disabled = false; b.classList.remove("is-syncing"); });
+  }
+}
+
 const showIns = () => openDlg("Instruções", "## Globais\n" + clean(S.global.instructions) + "\n\n## Do projeto\n" + clean(P.instructions));
 // ---------- revisão das sugestões de memória ----------
 // Fluxo: a extração gera sugestões em context/extraido-memorias.md; aqui o usuário promove (vai para memory.md, que é
@@ -673,6 +930,14 @@ let engineSettings = {
 let isChatStreaming = false;
 let enginesMeta = {};
 
+// Variáveis e estado do Studio Vibecoding & DAI
+let isStudioMode = false;
+let daiData = { available: false, agents: [], workflows: [] };
+let activeDaiAgent = "";
+let currentAppUrl = "http://localhost:4200/";
+let appStatusChecking = false;
+let appIsOnline = false;
+
 async function initEngines() {
   try {
     enginesMeta = await (await fetch("/api/engines")).json();
@@ -680,31 +945,247 @@ async function initEngines() {
   } catch {}
 }
 
+async function initDai() {
+  try {
+    daiData = await (await fetch("/api/dai")).json();
+    renderDaiSelectors();
+  } catch {}
+}
+
+function renderDaiSelectors() {
+  const agents = daiData.agents || [];
+  const optionsHtml = '<option value="">🤖 Assistente Geral (Sem Persona)</option>' +
+    agents.map(a => `<option value="${esc(a.id)}" ${a.id === activeDaiAgent ? "selected" : ""}>${esc(a.icon)} ${esc(a.title)}</option>`).join("");
+
+  const selModal = $("modalDaiSelect");
+  if (selModal) selModal.innerHTML = optionsHtml;
+  const selStudio = $("studioDaiSelect");
+  if (selStudio) selStudio.innerHTML = optionsHtml;
+
+  const wfs = daiData.workflows || [];
+  const chipsHtml = wfs.map(w => `<button type="button" class="dai-chip" onclick="applyDaiWorkflow('${esc(w.id)}')">${esc(w.label)}</button>`).join("");
+  const chipsModal = $("modalDaiChips");
+  if (chipsModal) chipsModal.innerHTML = chipsHtml;
+  const chipsStudio = $("studioDaiChips");
+  if (chipsStudio) chipsStudio.innerHTML = chipsHtml;
+}
+
+function onDaiAgentChange(val) {
+  activeDaiAgent = val || "";
+  const selModal = $("modalDaiSelect");
+  if (selModal) selModal.value = activeDaiAgent;
+  const selStudio = $("studioDaiSelect");
+  if (selStudio) selStudio.value = activeDaiAgent;
+}
+
+function applyDaiWorkflow(wfId) {
+  const wfs = daiData.workflows || [];
+  const wf = wfs.find(w => w.id === wfId);
+  if (!wf) return;
+  const target = isStudioMode ? $("studioChatInput") : $("chatInput");
+  if (target) {
+    target.value = wf.prompt;
+    target.focus();
+    autoGrow(target);
+  }
+}
+
+function toggleStudioMode(force) {
+  isStudioMode = force != null ? !!force : !isStudioMode;
+  document.body.classList.toggle("studio-active", isStudioMode);
+  const btn = $("btnToggleStudio");
+  if (btn) btn.classList.toggle("active", isStudioMode);
+
+  const dlg = $("chatDlg");
+  if (dlg && dlg.open) dlg.close();
+
+  if (isStudioMode) {
+    syncStudioControls();
+    renderChatHistory();
+    checkAppStatus();
+    setTimeout(() => {
+      const inp = $("studioChatInput");
+      if (inp) inp.focus();
+    }, 80);
+  } else {
+    renderChatHistory();
+  }
+}
+
+function syncStudioControls() {
+  updateEngineControls();
+  renderDaiSelectors();
+  if (P && P.app) {
+    currentAppUrl = P.app.url || currentAppUrl;
+    const inp = $("canvasUrlInput");
+    if (inp) inp.value = currentAppUrl;
+    renderCanvasRouteChips(P.app.routes || []);
+  } else {
+    const inp = $("canvasUrlInput");
+    if (inp && inp.value) currentAppUrl = inp.value;
+  }
+}
+
+function renderCanvasRouteChips(routes) {
+  const box = $("canvasRouteChips");
+  if (!box) return;
+  if (!routes || !routes.length) {
+    box.innerHTML = "";
+    return;
+  }
+  box.innerHTML = routes.map(r =>
+    `<button type="button" class="route-chip" onclick="navigateCanvasRoute('${esc(r.path)}')">${esc(r.label)}</button>`
+  ).join("");
+}
+
+function navigateCanvasRoute(path) {
+  try {
+    const base = new URL(currentAppUrl);
+    base.pathname = path;
+    navigateCanvas(base.href);
+  } catch {
+    navigateCanvas(currentAppUrl.replace(/\/+$/, "") + path);
+  }
+}
+
+function navigateCanvas(url) {
+  if (!url) return;
+  if (!/^https?:\/\//i.test(url)) url = "http://" + url;
+  currentAppUrl = url;
+  const inp = $("canvasUrlInput");
+  if (inp) inp.value = url;
+  checkAppStatus();
+}
+
+async function checkAppStatus(showToast) {
+  if (appStatusChecking) return;
+  appStatusChecking = true;
+  const dot = $("canvasStatusDot");
+  if (dot) {
+    dot.className = "status-dot checking";
+    dot.title = "Verificando aplicação...";
+  }
+  const overlay = $("studioOfflineOverlay");
+  const targetHelp = $("offlineTargetUrl");
+  if (targetHelp) targetHelp.textContent = currentAppUrl;
+  const cmdHelp = $("offlineCmdHelp");
+  if (cmdHelp && P && P.app && P.app.command) {
+    cmdHelp.textContent = `${P.app.command}${P.app.cwd ? " (em " + P.app.cwd + ")" : ""}`;
+  }
+
+  try {
+    const res = await fetch("/api/app/ping?url=" + encodeURIComponent(currentAppUrl));
+    const data = await res.json();
+    appIsOnline = !!(data && data.alive);
+    if (dot) {
+      dot.className = "status-dot " + (appIsOnline ? "online" : "offline");
+      dot.title = appIsOnline ? `Online (${currentAppUrl})` : `Offline (${currentAppUrl})`;
+    }
+    if (overlay) {
+      overlay.style.display = appIsOnline ? "none" : "flex";
+    }
+    const frame = $("studioIframe");
+    if (frame && appIsOnline && (frame.src === "about:blank" || !frame.src || frame.src !== currentAppUrl)) {
+      frame.src = currentAppUrl;
+    }
+    if (showToast) {
+      showSyncToast(appIsOnline ? "✅ Aplicação online e conectada!" : "⚠️ Servidor dev não detectado na porta.", appIsOnline ? "success" : "error");
+    }
+  } catch {
+    appIsOnline = false;
+    if (dot) dot.className = "status-dot offline";
+    if (overlay) overlay.style.display = "flex";
+  } finally {
+    appStatusChecking = false;
+  }
+}
+
+function forceLoadIframe() {
+  const overlay = $("studioOfflineOverlay");
+  if (overlay) overlay.style.display = "none";
+  const frame = $("studioIframe");
+  if (frame) frame.src = currentAppUrl;
+}
+
+function reloadStudioIframe() {
+  const frame = $("studioIframe");
+  if (frame) {
+    try {
+      frame.contentWindow.location.reload();
+    } catch {
+      const u = currentAppUrl.split("#")[0];
+      const sep = u.includes("?") ? "&" : "?";
+      frame.src = u + sep + "_harnesst=" + Date.now();
+    }
+  }
+}
+
+function openStudioExternal() {
+  window.open(currentAppUrl, "_blank", "noopener,noreferrer");
+}
+
+function setStudioViewport(vp) {
+  document.querySelectorAll(".btn-vp[data-vp]").forEach(b => {
+    b.classList.toggle("active", b.dataset.vp === vp);
+  });
+  const cont = $("studioViewportContainer");
+  if (!cont) return;
+  cont.style.width = vp;
+  cont.classList.toggle("device-frame", vp !== "100%");
+}
+
+function handleStudioChatKey(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendStudioChatMessage();
+  }
+}
+
+function sendStudioChatMessage() {
+  const inp = $("studioChatInput");
+  if (!inp) return;
+  const txt = inp.value.trim();
+  if (!txt) return;
+  const mainInp = $("chatInput");
+  if (mainInp) mainInp.value = txt;
+  inp.value = "";
+  inp.style.height = "auto";
+  sendChatMessage();
+}
+
 function updateEngineControls() {
   const eng = enginesMeta[currentEngine];
   if (!eng) return;
 
   const sel = $("chatModelSelect");
-  if (sel) {
-    const models = eng.models || [];
-    const currentModel = engineSettings[currentEngine].model || eng.defaultModel || (models[0]?.id || "");
-    engineSettings[currentEngine].model = currentModel;
-    sel.innerHTML = models.map(m => `<option value="${esc(m.id)}" ${m.id === currentModel ? "selected" : ""}>${esc(m.name)}${m.desc ? " (" + esc(m.desc) + ")" : ""}</option>`).join("");
+  const selStudio = $("studioModelSelect");
+  const models = eng.models || [];
+  const currentModel = engineSettings[currentEngine].model || eng.defaultModel || (models[0]?.id || "");
+  engineSettings[currentEngine].model = currentModel;
+  const optsHtml = models.map(m => `<option value="${esc(m.id)}" ${m.id === currentModel ? "selected" : ""}>${esc(m.name)}${m.desc ? " (" + esc(m.desc) + ")" : ""}</option>`).join("");
+  if (sel) sel.innerHTML = optsHtml;
+  if (selStudio) selStudio.innerHTML = optsHtml;
+
+  const levels = eng.effortLevels || [
+    { id: "low", label: "Low" },
+    { id: "medium", label: "Medium" },
+    { id: "high", label: "High" }
+  ];
+  let currentEffort = engineSettings[currentEngine].effort;
+  if (!levels.some(l => l.id === currentEffort)) {
+    currentEffort = eng.defaultEffort || levels[0]?.id || "medium";
+    engineSettings[currentEngine].effort = currentEffort;
   }
 
   const effortContainer = $("effortToggle");
   if (effortContainer) {
-    const levels = eng.effortLevels || [
-      { id: "low", label: "Low" },
-      { id: "medium", label: "Medium" },
-      { id: "high", label: "High" }
-    ];
-    let currentEffort = engineSettings[currentEngine].effort;
-    if (!levels.some(l => l.id === currentEffort)) {
-      currentEffort = eng.defaultEffort || levels[0]?.id || "medium";
-      engineSettings[currentEngine].effort = currentEffort;
-    }
     effortContainer.innerHTML = levels.map(l =>
+      `<button type="button" class="effort-btn ${l.id === currentEffort ? "active" : ""}" data-effort="${esc(l.id)}" onclick="setEffort('${esc(l.id)}')">${esc(l.label)}</button>`
+    ).join("");
+  }
+  const effortStudio = $("studioEffortContainer");
+  if (effortStudio) {
+    effortStudio.innerHTML = levels.map(l =>
       `<button type="button" class="effort-btn ${l.id === currentEffort ? "active" : ""}" data-effort="${esc(l.id)}" onclick="setEffort('${esc(l.id)}')">${esc(l.label)}</button>`
     ).join("");
   }
@@ -821,12 +1302,79 @@ function handleChatKey(e) {
   }
 }
 
-function renderChatHistory() {
-  const box = $("chatHistory");
+let activeAbortControllers = { claude: null, opencode: null, gemini: null, single: null };
+let chatStreamTimer = null;
+
+function setChatStatus(text) {
+  const s1 = $("chatStatusText");
+  if (s1) s1.textContent = text;
+  const s2 = $("studioChatStatusText");
+  if (s2) s2.textContent = text;
+}
+
+function setStreamingUI(streaming) {
+  isChatStreaming = streaming;
+  const sendBtn = $("btnSendChat");
+  const cancelBtn = $("btnCancelChat");
+  const saveBtn = $("btnSaveChat");
+  if (sendBtn) sendBtn.style.display = streaming ? "none" : "inline-flex";
+  if (cancelBtn) cancelBtn.style.display = streaming ? "inline-flex" : "none";
+  if (saveBtn) saveBtn.disabled = streaming || chatTurns.length < 2;
+
+  const sendStudioBtn = $("btnSendStudioChat");
+  const cancelStudioBtn = $("btnCancelStudioChat");
+  const saveStudioBtn = $("btnSaveStudioChat");
+  if (sendStudioBtn) sendStudioBtn.style.display = streaming ? "none" : "inline-flex";
+  if (cancelStudioBtn) cancelStudioBtn.style.display = streaming ? "inline-flex" : "none";
+  if (saveStudioBtn) saveStudioBtn.disabled = streaming || chatTurns.length < 2;
+
+  if (streaming) {
+    if (!chatStreamTimer) {
+      chatStreamTimer = setInterval(() => {
+        if (!isChatStreaming) {
+          clearInterval(chatStreamTimer);
+          chatStreamTimer = null;
+          return;
+        }
+        renderChatHistory(true);
+      }, 500);
+    }
+  } else {
+    if (chatStreamTimer) {
+      clearInterval(chatStreamTimer);
+      chatStreamTimer = null;
+    }
+  }
+}
+
+function cancelEngineStream(eng) {
+  if (activeAbortControllers[eng]) {
+    activeAbortControllers[eng].abort();
+    activeAbortControllers[eng] = null;
+  }
+}
+
+function cancelChatStream() {
+  Object.keys(activeAbortControllers).forEach(k => {
+    if (activeAbortControllers[k]) {
+      activeAbortControllers[k].abort();
+      activeAbortControllers[k] = null;
+    }
+  });
+  setStreamingUI(false);
+  setChatStatus("⏹ Respostas interrompidas pelo usuário.");
+  renderChatHistory();
+}
+
+function renderChatHistory(keepScroll = false) {
+  const boxes = [$('chatHistory'), $('studioChatHistory')].filter(Boolean);
+  if (!boxes.length) return;
+
   if (!chatTurns.length) {
-    box.innerHTML = `<div class="empty" style="text-align:center;padding:40px 10px;color:var(--mute)">
+    const emptyHtml = `<div class="empty" style="text-align:center;padding:40px 10px;color:var(--mute)">
       Comece uma conversa com o motor escolhido usando todo o contexto deste projeto.
     </div>`;
+    boxes.forEach(b => { b.innerHTML = emptyHtml; });
     return;
   }
 
@@ -839,20 +1387,57 @@ function renderChatHistory() {
 
     if (t.role === "comparison") {
       const cols = t.engines.map((eng) => {
-        const resp = t.responses[eng] || { text: "", streaming: false };
+        const resp = t.responses[eng] || { text: "", thinking: "", streaming: false, phase: "done" };
         const meta = enginesMeta[eng] || { name: eng, icon: "🤖" };
         const isStreaming = resp.streaming;
+        const phase = resp.phase || (isStreaming ? (resp.text ? "answering" : (resp.thinking ? "thinking" : "connecting")) : "done");
+
+        let statusBadge = "";
+        let cancelBtn = "";
+        const elapsedSec = (resp.elapsedMs ? resp.elapsedMs : (Date.now() - resp.startTime)) / 1000;
+        const timeBadge = `<span class="col-timer">⏱ ${elapsedSec.toFixed(1)}s</span>`;
+
+        if (isStreaming) {
+          cancelBtn = `<button type="button" class="btn-cancel-single" title="Interromper este motor" onclick="cancelEngineStream('${eng}')">⏹ Parar</button>`;
+          if (phase === "thinking") {
+            statusBadge = `<span class="live-pill thinking">🧠 Pensando...</span>`;
+          } else if (phase === "connecting") {
+            statusBadge = `<span class="live-pill connecting">⏳ Conectando...</span>`;
+          } else {
+            statusBadge = `<span class="live-pill answering">● Respondendo...</span>`;
+          }
+        }
+
         const isThinkOpen = isStreaming && !resp.text ? " open" : "";
         const thinkingHtml = resp.thinking
-          ? `<details class="chat-thinking"${isThinkOpen}><summary>🧠 Raciocínio interno</summary><div class="think-content">${esc(resp.thinking)}</div></details>`
+          ? `<details class="chat-thinking"${isThinkOpen}><summary><span style="display:flex;align-items:center;gap:6px">🧠 Raciocínio interno ${isStreaming && phase === 'thinking' ? '<span class="thinking-stream-badge">gerando pensamento...</span>' : ''}</span></summary><div class="think-content">${esc(resp.thinking)}</div></details>`
           : "";
-        const bodyHtml = resp.error
-          ? `<p style="color:#ef4444;font-size:12px;padding:8px;background:rgba(239,68,68,0.1);border-radius:6px">⚠️ <b>Erro:</b> ${esc(resp.error)}</p>`
-          : resp.text
-          ? md(resp.text)
-          : (isStreaming ? '<p style="color:var(--mute);font-style:italic">Gerando resposta...</p>' : '<p style="color:var(--mute)">Sem resposta</p>');
+
+        let bodyHtml = "";
+        if (resp.error) {
+          const isUserAbort = /Interrompido/i.test(resp.error);
+          bodyHtml = `<p style="color:${isUserAbort ? 'var(--mute)' : '#ef4444'};font-size:12px;padding:8px 10px;background:${isUserAbort ? 'var(--bg)' : 'rgba(239,68,68,0.1)'};border-radius:6px;border:1px solid ${isUserAbort ? 'var(--line)' : 'rgba(239,68,68,0.2)'}">${isUserAbort ? '⏹' : '⚠️'} <b>${isUserAbort ? 'Parado:' : 'Erro:'}</b> ${esc(resp.error)}</p>`;
+        } else if (resp.text) {
+          bodyHtml = md(resp.text);
+        } else if (isStreaming) {
+          if (phase === "connecting" && !resp.thinking) {
+            bodyHtml = `
+              <div class="thinking-placeholder">
+                <div class="thinking-pulse-dot"></div>
+                <div>
+                  <div style="font-weight:600;font-size:12px;color:var(--text)">Iniciando ${esc(meta.name)}...</div>
+                  <div style="font-size:11px;color:var(--mute);margin-top:2px">Carregando instruções e memórias do projeto</div>
+                </div>
+              </div>
+            `;
+          } else if (!resp.thinking) {
+            bodyHtml = '<p style="color:var(--mute);font-style:italic">Aguardando resposta...</p>';
+          }
+        } else {
+          bodyHtml = '<p style="color:var(--mute)">Sem resposta gerada.</p>';
+        }
+
         const cursorHtml = isStreaming ? '<span class="stream-cursor">▌</span>' : "";
-        const timeBadge = resp.elapsedMs ? `<span style="font-size:11px;opacity:0.75;font-weight:normal">⏱ ${(resp.elapsedMs / 1000).toFixed(1)}s</span>` : "";
         const effortBadge = resp.effort ? `<span style="font-size:10px;border:1px solid var(--line);padding:1px 5px;border-radius:4px;opacity:0.8">${esc(effortMap[resp.effort] || resp.effort)}</span>` : "";
         const modelBadge = resp.model ? `<span style="font-size:11px;opacity:0.75;font-weight:normal">${esc(resp.model)}</span>` : "";
 
@@ -863,7 +1448,9 @@ function renderChatHistory() {
               <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
                 ${modelBadge}
                 ${effortBadge}
-                ${isStreaming ? '<span style="color:var(--accent);font-size:11px;animation:blink 1s infinite">● gerando</span>' : timeBadge}
+                ${statusBadge}
+                ${timeBadge}
+                ${cancelBtn}
               </div>
             </div>
             <div class="compare-col-body">
@@ -888,15 +1475,39 @@ function renderChatHistory() {
     const engClass = (t.engine || currentEngine);
     const isLastStreaming = isChatStreaming && idx === chatTurns.length - 1;
     const isThinkOpen = isLastStreaming && !t.text ? " open" : "";
-    const thinkingHtml = t.thinking ? `<details class="chat-thinking"${isThinkOpen}><summary>🧠 Raciocínio interno</summary><div class="think-content">${esc(t.thinking)}</div></details>` : "";
-    const bodyHtml = t.text ? md(t.text) : (isLastStreaming ? "" : '<p class="empty">Gerando resposta...</p>');
+    const thinkingHtml = t.thinking
+      ? `<details class="chat-thinking"${isThinkOpen}><summary><span style="display:flex;align-items:center;gap:6px">🧠 Raciocínio interno ${isLastStreaming && t.phase === 'thinking' ? '<span class="thinking-stream-badge">gerando pensamento...</span>' : ''}</span></summary><div class="think-content">${esc(t.thinking)}</div></details>`
+      : "";
+
+    let bodyHtml = "";
+    if (t.text) {
+      bodyHtml = md(t.text);
+    } else if (isLastStreaming) {
+      if (!t.thinking) {
+        bodyHtml = `
+          <div class="thinking-placeholder">
+            <div class="thinking-pulse-dot"></div>
+            <div>
+              <div style="font-weight:600;font-size:12px;color:var(--text)">Iniciando ${esc(eng.name)}...</div>
+              <div style="font-size:11px;color:var(--mute);margin-top:2px">Injetando instruções e memória do projeto</div>
+            </div>
+          </div>
+        `;
+      }
+    } else {
+      bodyHtml = '<p class="empty">Sem resposta</p>';
+    }
+
     const cursorHtml = isLastStreaming ? '<span class="stream-cursor">▌</span>' : "";
     const modelLabel = t.model ? ` · <span style="opacity:0.75;font-weight:normal">${esc(t.model)}</span>` : "";
     const effortLabel = t.effort ? ` <span style="font-size:10px;opacity:0.65;border:1px solid var(--line);padding:1px 5px;border-radius:4px">${esc(effortMap[t.effort] || t.effort)}</span>` : "";
     return `<div class="msg ${engClass}"><div class="who">${esc(eng.icon)} ${esc(eng.name)}${modelLabel}${effortLabel}</div><div class="bubble">${thinkingHtml}${bodyHtml}${cursorHtml}</div></div>`;
   }).join("");
 
-  box.scrollTop = box.scrollHeight;
+  boxes.forEach(box => {
+    box.innerHTML = html;
+    if (!keepScroll) box.scrollTop = box.scrollHeight;
+  });
 }
 
 async function sendChatMessage() {
@@ -908,6 +1519,11 @@ async function sendChatMessage() {
   chatTurns.push({ role: "user", text });
   input.value = "";
   input.style.height = "auto";
+  const studioInput = $("studioChatInput");
+  if (studioInput) {
+    studioInput.value = "";
+    studioInput.style.height = "auto";
+  }
 
   // MODO COMPARATIVO: dispara todos os motores selecionados em paralelo
   if (currentEngine === "compare") {
@@ -930,6 +1546,7 @@ async function sendChatMessage() {
         model: engineSettings[eng].model,
         effort: engineSettings[eng].effort,
         streaming: true,
+        phase: "connecting",
         error: null,
         startTime: Date.now(),
         elapsedMs: null,
@@ -937,17 +1554,18 @@ async function sendChatMessage() {
     }
 
     chatTurns.push(compTurn);
-    isChatStreaming = true;
-    $("btnSendChat").disabled = true;
-    $("btnSaveChat").disabled = true;
-    $("chatStatusText").textContent = `Comparando ${activeEngines.length} motores em paralelo...`;
+    setStreamingUI(true);
+    setChatStatus(`Comparando ${activeEngines.length} motores em paralelo...`);
     renderChatHistory();
 
     const streamPromises = activeEngines.map(async (eng) => {
+      const ac = new AbortController();
+      activeAbortControllers[eng] = ac;
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: ac.signal,
           body: JSON.stringify({
             engine: eng,
             prompt: text,
@@ -959,6 +1577,7 @@ async function sendChatMessage() {
               .map(t => ({ role: t.role, text: t.text })),
             model: engineSettings[eng].model,
             effort: engineSettings[eng].effort,
+            daiAgent: activeDaiAgent || undefined,
           }),
         });
 
@@ -987,12 +1606,15 @@ async function sendChatMessage() {
               if (data.sessionId) engineSessions[eng] = data.sessionId;
 
               if (data.type === "text" && data.text) {
+                compTurn.responses[eng].phase = "answering";
                 compTurn.responses[eng].text += data.text;
                 renderChatHistory();
               } else if (data.type === "thinking" && data.text) {
+                compTurn.responses[eng].phase = "thinking";
                 compTurn.responses[eng].thinking = (compTurn.responses[eng].thinking || "") + data.text;
                 renderChatHistory();
               } else if (data.type === "error") {
+                compTurn.responses[eng].phase = "error";
                 compTurn.responses[eng].error = data.error;
                 renderChatHistory();
               } else if (data.type === "done") {
@@ -1000,13 +1622,19 @@ async function sendChatMessage() {
                 if (data.fullText && !compTurn.responses[eng].text) {
                   compTurn.responses[eng].text = data.fullText;
                 }
+                if (isStudioMode) setTimeout(reloadStudioIframe, 350);
               }
             } catch {}
           }
         }
       } catch (err) {
-        compTurn.responses[eng].error = err.message || String(err);
+        if (err.name === "AbortError") {
+          compTurn.responses[eng].error = "Interrompido pelo usuário.";
+        } else {
+          compTurn.responses[eng].error = err.message || String(err);
+        }
       } finally {
+        activeAbortControllers[eng] = null;
         compTurn.responses[eng].streaming = false;
         compTurn.responses[eng].elapsedMs = Date.now() - compTurn.responses[eng].startTime;
         renderChatHistory();
@@ -1014,10 +1642,8 @@ async function sendChatMessage() {
     });
 
     await Promise.allSettled(streamPromises);
-    isChatStreaming = false;
-    $("btnSendChat").disabled = false;
-    $("btnSaveChat").disabled = chatTurns.length < 2;
-    $("chatStatusText").textContent = "Comparação concluída!";
+    setStreamingUI(false);
+    setChatStatus("Comparação concluída!");
     renderChatHistory();
     $("chatInput").focus();
     return;
@@ -1028,21 +1654,25 @@ async function sendChatMessage() {
     role: "assistant",
     text: "",
     thinking: "",
+    phase: "connecting",
     engine: currentEngine,
     model: engineSettings[currentEngine].model,
     effort: engineSettings[currentEngine].effort,
+    daiAgent: activeDaiAgent || undefined,
   };
   chatTurns.push(assistantTurn);
-  isChatStreaming = true;
-  $("btnSendChat").disabled = true;
-  $("btnSaveChat").disabled = true;
-  $("chatStatusText").textContent = `Conectando com ${currentEngine}...`;
+  setStreamingUI(true);
+  setChatStatus(`Conectando com ${currentEngine}...`);
   renderChatHistory();
+
+  const ac = new AbortController();
+  activeAbortControllers.single = ac;
 
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: ac.signal,
       body: JSON.stringify({
         engine: currentEngine,
         prompt: text,
@@ -1052,6 +1682,7 @@ async function sendChatMessage() {
         history: chatTurns.slice(0, -2).map(t => ({ role: t.role, text: t.text })),
         model: engineSettings[currentEngine].model,
         effort: engineSettings[currentEngine].effort,
+        daiAgent: activeDaiAgent || undefined,
       }),
     });
 
@@ -1080,12 +1711,14 @@ async function sendChatMessage() {
           if (data.sessionId) engineSessions[currentEngine] = data.sessionId;
 
           if (data.type === "text" && data.text) {
+            assistantTurn.phase = "answering";
             assistantTurn.text += data.text;
-            $("chatStatusText").textContent = "Recebendo resposta...";
+            setChatStatus("Recebendo resposta...");
             renderChatHistory();
           } else if (data.type === "thinking" && data.text) {
+            assistantTurn.phase = "thinking";
             assistantTurn.thinking = (assistantTurn.thinking || "") + data.text;
-            $("chatStatusText").textContent = "Pensando (raciocínio interno)...";
+            setChatStatus("Pensando (raciocínio interno)...");
             renderChatHistory();
           } else if (data.type === "error") {
             assistantTurn.text += `\n\n> ⚠️ **Erro:** ${data.error}`;
@@ -1095,27 +1728,33 @@ async function sendChatMessage() {
             if (data.fullText && !assistantTurn.text) {
               assistantTurn.text = data.fullText;
             }
+            if (isStudioMode) setTimeout(reloadStudioIframe, 350);
           }
         } catch {}
       }
     }
   } catch (err) {
-    assistantTurn.text += `\n\n> ⚠️ **Erro na conexão:** ${err.message}`;
+    if (err.name === "AbortError") {
+      assistantTurn.text += `\n\n> ⏹ *Resposta interrompida pelo usuário.*`;
+    } else {
+      assistantTurn.text += `\n\n> ⚠️ **Erro na conexão:** ${err.message}`;
+    }
   } finally {
-    isChatStreaming = false;
-    $("btnSendChat").disabled = false;
-    $("btnSaveChat").disabled = chatTurns.length < 2;
+    activeAbortControllers.single = null;
+    setStreamingUI(false);
     const currentSId = engineSessions[currentEngine];
-    $("chatStatusText").textContent = currentSId ? `Sessão ativa (${currentEngine}): ${currentSId.slice(0, 14)}...` : "";
+    setChatStatus(currentSId ? `Sessão ativa (${currentEngine}): ${currentSId.slice(0, 14)}...` : "");
     renderChatHistory();
-    $("chatInput").focus();
+    const targetInp = isStudioMode ? $("studioChatInput") : $("chatInput");
+    if (targetInp) targetInp.focus();
   }
 }
 
 async function saveCurrentChat() {
   if (chatTurns.length < 2) return;
-  $("chatStatusText").textContent = "Salvando conversa no projeto...";
-  $("btnSaveChat").disabled = true;
+  setChatStatus("Salvando conversa no projeto...");
+  const b1 = $("btnSaveChat"); if (b1) b1.disabled = true;
+  const b2 = $("btnSaveStudioChat"); if (b2) b2.disabled = true;
 
   try {
     const firstUserMsg = chatTurns.find(t => t.role === "user");
@@ -1161,24 +1800,27 @@ async function saveCurrentChat() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Falha ao salvar");
 
-    $("chatStatusText").textContent = `✅ Salvo em chats/${data.fileName}!`;
+    setChatStatus(`✅ Salvo em chats/${data.fileName}!`);
     await load(P.slug);
   } catch (err) {
-    $("chatStatusText").textContent = `⚠️ Erro ao salvar: ${err.message}`;
-    $("btnSaveChat").disabled = false;
+    setChatStatus(`⚠️ Erro ao salvar: ${err.message}`);
+    const b1 = $("btnSaveChat"); if (b1) b1.disabled = false;
+    const b2 = $("btnSaveStudioChat"); if (b2) b2.disabled = false;
   }
 }
 
 function resetChatSession() {
   chatTurns = [];
   engineSessions = { claude: null, opencode: null, gemini: null };
-  $("btnSaveChat").disabled = true;
-  $("chatStatusText").textContent = "Novo chat iniciado.";
+  const b1 = $("btnSaveChat"); if (b1) b1.disabled = true;
+  const b2 = $("btnSaveStudioChat"); if (b2) b2.disabled = true;
+  setChatStatus("Novo chat iniciado.");
   renderChatHistory();
 }
 
 (async () => {
   await initEngines();
+  await initDai();
   S = await (await fetch("/api/state")).json();
   $("sel").innerHTML = S.projects.map(p => `<option ${p === S.active ? "selected" : ""}>${esc(p)}</option>`).join("");
   $("sel").onchange = e => load(e.target.value);
@@ -1188,7 +1830,11 @@ function resetChatSession() {
     $("chats").innerHTML = '<p class="empty">Crie um projeto copiando projects/_template ou importe conversas com tools/import-claude-code-chats.js.</p>';
     return;
   }
-  load(S.projects.includes(S.active) ? S.active : S.projects[0]);
+  // /?p=slug (vindo da visão geral) abre o projeto indicado; sem parâmetro, o ativo.
+  const want = new URLSearchParams(location.search).get("p");
+  const start = want && S.projects.includes(want) ? want : (S.projects.includes(S.active) ? S.active : S.projects[0]);
+  $("sel").value = start;
+  load(start);
 })();
 </script>
 </body>
