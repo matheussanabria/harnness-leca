@@ -175,6 +175,11 @@ node tools/extract-artifacts.js --project meu-projeto --llm --limit 5
 - Os arquivos `extraido-*.md` aparecem no cartão **Contexto** da interface e na lista que o hook entrega ao Claude. A pasta `extraidos/` fica no disco.
 - Rodar de novo regrava os arquivos derivados. Sem `--llm`, o `extraido-memorias.md` anterior é preservado.
 - `--limit N|all` (padrão 10, as mais recentes) e `--model nome` controlam o modo `--llm`.
+- **`--engine opencode`** faz a extração com um modelo do OpenCode em vez do Claude (não gasta a cota do Claude). Padrão: `opencode/deepseek-v4.1-flash-free`. Veja os modelos com `opencode models`.
+  - **Só modelos gratuitos** (`opencode/...-free`) rodam sem pedir licença: groq, openrouter e os demais usam as suas chaves e podem custar; para usá-los de propósito, `--allow-paid`.
+  - **Isolamento:** o modelo roda numa pasta temporária vazia, com um agente que só tem leitura; escrita, comandos, web e diretórios externos são negados (testado: pedidos de escrever, executar e ler fora da pasta foram recusados e nada foi criado). Não dá para tirar *todas* as ferramentas: o plano gratuito do OpenCode devolve 403 para agentes sem nenhuma, e essa é uma regra do serviço.
+  - Cada conversa é gravada e marcada como analisada **assim que termina**; se a execução cair no meio, o que já foi feito fica. Em falha do serviço (ex.: limite de uso), tenta uma segunda vez e, se falhar de novo, a conversa continua pendente.
+  - Cerca de 15 a 20 s por conversa. O conteúdo vai para o modelo do OpenCode (serviço externo), já com segredos e dados pessoais redigidos.
 - O modo `--llm` envia um resumo de cada conversa (com segredos já redigidos) ao modelo via `claude -p`, **sem ferramentas habilitadas**, e é opcional por isso. Evite em projetos com dados de terceiros, como saúde, sem necessidade.
 - Para promover algo à memória, copie manualmente a linha revisada para `memory.md`.
 

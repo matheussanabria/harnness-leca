@@ -6,6 +6,8 @@
 // Uso:
 //   node tools/extract-artifacts.js --project 57multimarcas [--dry-run]
 //   node tools/extract-artifacts.js --project 57multimarcas --llm [--limit 10|all] [--model sonnet]
+//   node tools/extract-artifacts.js --project 57multimarcas --llm --engine opencode [--model opencode/<modelo>-free]
+//     (opencode: só modelos gratuitos por padrão; o modelo roda isolado, só com leitura, numa pasta vazia)
 //
 // Saídas (em projects/<slug>/context/):
 //   extraido-indice.md        resumo do que foi extraído
@@ -21,11 +23,9 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { spawnSync } = require("child_process");
-const { resolveClaudeBin } = require("./lib/claude-bin");
+const { ask } = require("./lib/llm");
 const { redact } = require("./lib/redact");
 const S = require("./lib/state");
-let pendingMarks = []; // conversas resumidas com sucesso neste run (marcadas como analisadas ao gravar)
 
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE_ROOT = path.join(os.homedir(), ".claude", "projects");
@@ -42,10 +42,12 @@ const slugify = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowe
 
 const slug = opt("project");
 if (!slug || !/^[a-z0-9][a-z0-9_-]{0,59}$/.test(slug) || slug === "_template") {
-  console.error("Uso: node tools/extract-artifacts.js --project <slug> [--llm] [--limit N|all] [--model nome] [--dry-run]");
+  console.error("Uso: node tools/extract-artifacts.js --project <slug> [--llm] [--engine claude|opencode] [--limit N|all] [--model nome] [--allow-paid] [--dry-run]");
   process.exit(1);
 }
-if (opt("model") && !/^[\w.\-]+$/.test(opt("model"))) { console.error("--model inválido (use só letras, números, ponto, _ e -)."); process.exit(1); }
+if (opt("model") && !/^[\w.\-\/]+$/.test(opt("model"))) { console.error("--model inválido (use só letras, números, ponto, _, - e /)."); process.exit(1); }
+const engine = opt("engine") || "claude";
+if (!["claude", "opencode"].includes(engine)) { console.error("--engine inválido (use claude ou opencode)."); process.exit(1); }
 const projDir = path.join(ROOT, "projects", slug);
 const chatsDir = path.join(projDir, "chats");
 const ctxDir = path.join(projDir, "context");
@@ -132,18 +134,6 @@ Seja conservador: só inclua o que continuará válido depois desta conversa e q
 <conversa titulo="${chat.titulo.replace(/"/g, "'")}" data="${chat.data}">${condense(chat)}
 </conversa>`;
 
-function askClaude(prompt, model) {
-  if (model && !/^[\w.\-]+$/.test(model)) throw new Error("--model inválido");
-  // Caminho absoluto e shell:false: nada passa pelo cmd.exe nem é buscado na pasta atual (%TEMP%, gravável por todos).
-  // O prompt vai por stdin; --model continua validado acima como defesa extra.
-  const bin = resolveClaudeBin();
-  if (!bin) throw new Error("Claude Code não encontrado no PATH (defina CLAUDE_BIN)");
-  const args = ["-p", "--tools", "", "--no-session-persistence", "--output-format", "text", ...(model ? ["--model", model] : [])];
-  const r = spawnSync(bin, args, { input: prompt, encoding: "utf8", shell: false, windowsHide: true, cwd: os.tmpdir(), timeout: 300000, maxBuffer: 16 * 1024 * 1024 });
-  if (r.status !== 0) throw new Error((r.stderr || r.error || "falha").toString().slice(0, 300));
-  return r.stdout.trim();
-}
-
 // ---------- execução ----------
 const chats = fs.readdirSync(chatsDir).filter((f) => f.endsWith(".md")).sort().reverse().map((f) => parseChat(path.join(chatsDir, f)));
 if (!chats.length) { console.error("Nenhum chat para processar."); process.exit(1); }
@@ -196,17 +186,33 @@ if (flag("llm")) {
   const header = chunks[0].trim() ? chunks[0].trimEnd() + "\n\n" : head("Memórias, regras e decisões sugeridas");
   const sections = new Map(chunks.slice(1).map((s) => [s.match(/^<!-- sessao: (\S+)/)[1], s.trimEnd() + "\n\n"]));
   const done = [];
+  const key = (s) => (s.match(/^<!-- sessao: \S+ \| (\S+)/) || [])[1] || "";
+  const render = () => header + [...sections.values()].sort((a, b) => key(b).localeCompare(key(a))).join("");
+  const sleep = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+  const attempts = engine === "opencode" ? 2 : 1; // o plano gratuito às vezes recusa por limite de uso: uma nova tentativa ajuda
   for (const c of pick) {
     process.stdout.write(`  ${c.titulo.slice(0, 60)} … `);
     if (DRY) { console.log("[dry-run]"); continue; }
-    try {
-      sections.set(c.sessao, `<!-- sessao: ${c.sessao} | ${c.data} -->\n## ${c.titulo} (${c.data})\n\n${redact(askClaude(PROMPT(c), opt("model")))}\n\n`);
-      done.push(path.basename(c.file)); console.log("ok");
-    } catch (e) { console.log(`falhou: ${String(e.message).replace(/\s+/g, " ").slice(0, 120)}`); } // não marca: continua pendente
+    let lastErr = null;
+    for (let i = 1; i <= attempts; i++) {
+      try {
+        const answer = ask({ engine, model: opt("model"), prompt: PROMPT(c), allowPaid: flag("allow-paid") });
+        sections.set(c.sessao, `<!-- sessao: ${c.sessao} | ${c.data} -->\n## ${c.titulo} (${c.data})\n\n${redact(answer)}\n\n`);
+        lastErr = null; break;
+      } catch (e) {
+        lastErr = e;
+        if (i < attempts && /^opencode:/.test(String(e.message))) sleep(5000); // falha do serviço: tenta de novo; erro nosso (modelo recusado etc.) não
+        else break;
+      }
+    }
+    if (lastErr) { console.log(`falhou: ${String(lastErr.message).replace(/\s+/g, " ").slice(0, 160)}`); continue; } // não marca: continua pendente
+    // Grava e marca JÁ: uma execução longa (muitas conversas, modelo lento) que cair no meio não perde o que foi feito.
+    fs.mkdirSync(ctxDir, { recursive: true });
+    fs.writeFileSync(memFile, render());
+    S.mark(slug, [path.basename(c.file)], engine);
+    done.push(path.basename(c.file)); console.log("ok");
   }
-  const key = (s) => (s.match(/^<!-- sessao: \S+ \| (\S+)/) || [])[1] || "";
-  out["extraido-memorias.md"] = header + [...sections.values()].sort((a, b) => key(b).localeCompare(key(a))).join("");
-  if (!DRY && done.length) { pendingMarks = done; }
+  out["extraido-memorias.md"] = render();
 }
 
 out["extraido-indice.md"] = head(`Extração do projeto ${slug}`) +
@@ -231,6 +237,5 @@ for (const [f, t] of [...docFiles, ...ansFiles]) {
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.writeFileSync(dest, t);
 }
-if (pendingMarks.length) S.mark(slug, pendingMarks, "claude");
 S.writeTable(slug);
 console.log(`Gravado em projects/${slug}/context/`);
