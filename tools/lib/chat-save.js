@@ -31,6 +31,7 @@ function saveChatToProject({ slug, engine, title, turns, sessionId }) {
   const agentTag = engine === "gemini" ? "gemini" : engine === "opencode" ? "opencode" : "claude";
 
   const chatTurns = turns.map((t) => {
+    /** @type {import("./types").Part[]} */
     const parts = [];
     if (t.thinking) parts.push({ kind: "thinking", text: String(t.thinking), full: true });
     parts.push({ kind: "text", text: escapeBlocks(t.text) });
