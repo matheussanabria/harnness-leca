@@ -25,7 +25,7 @@ h3.sech{font-size:13px;color:var(--mute);font-weight:500;margin:28px 0 8px;displ
 .sec{padding:16px 18px;border-bottom:1px solid var(--line)}.sec:last-child{border:0}
 .sec h4{margin:0 0 6px;font-size:15px;display:flex;justify-content:space-between;align-items:center}
 .tag{font-size:11px;font-weight:400;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:1px 7px}
-.preview{color:var(--mute);font-size:13px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
+.preview{color:var(--mute);font-size:13px;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
 .empty{color:var(--mute);font-size:13px;font-style:italic}
 .files{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .file{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;width:150px;font-size:12px;word-break:break-all;cursor:pointer}
@@ -36,10 +36,13 @@ dialog::backdrop{background:#0008}
 .dh{display:flex;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);font-weight:600}
 .dh button{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer}
 .db{padding:6px 20px 20px;overflow:auto;max-height:65vh}
+.db a{color:var(--accent,#e8825a);text-decoration:underline;text-underline-offset:2px;word-break:break-all}
 .db h1,.db h2,.db h3{font-family:inherit;color:var(--text);font-size:17px;margin:16px 0 6px}
 .db pre{background:var(--panel2);padding:12px;border-radius:8px;overflow:auto;white-space:pre-wrap}
 .db code{background:var(--panel2);padding:1px 5px;border-radius:4px}
-.db li{margin:2px 0;margin-left:18px}
+.db li{margin:4px 0;line-height:1.55}
+.db ul,.db ol{margin:8px 0;padding-left:24px}
+.db blockquote{border-left:3px solid var(--accent);margin:8px 0;padding:6px 12px;background:var(--panel2);border-radius:0 6px 6px 0;color:var(--mute)}
 .db table{border-collapse:collapse;margin:8px 0;font-size:13px}
 .db th,.db td{border:1px solid var(--line);padding:4px 8px;text-align:left}
 dialog{overflow:hidden}
@@ -50,19 +53,36 @@ dialog.wide{width:min(900px,94vw);height:min(86vh,900px);max-height:none}
 .clip{position:relative;max-height:240px;overflow:hidden}
 .clip.open{max-height:none}
 .clip.fade::after{content:"";position:absolute;left:0;right:0;bottom:0;height:56px;background:linear-gradient(transparent,var(--fade))}
-.msg.user{--fade:var(--accent)}.msg.claude,.msg.gemini{--fade:var(--panel2)}
+.msg.user{--fade:var(--accent)}.msg.claude,.msg.gemini,.msg.opencode{--fade:var(--panel2)}
 .clip.open::after{display:none}
 .toggle{background:none;border:0;color:inherit;opacity:.85;cursor:pointer;font:inherit;font-size:12px;text-decoration:underline;padding:6px 0 0}
 .msg.user .bubble p{margin:0}
 .chat{display:flex;flex-direction:column;gap:14px;padding-top:14px}
 .msg .who{font-size:11px;color:var(--mute);margin-bottom:3px}
 .msg.gemini .who{color:#7ca5f5}
-.msg .bubble{border-radius:14px;padding:10px 14px;max-width:88%;overflow-wrap:anywhere}
-.msg .bubble p{margin:4px 0}.msg .bubble h2,.msg .bubble h3,.msg .bubble h4{font-size:15px;margin:10px 0 4px}
+.msg.claude .who{color:#d97757}
+.msg.opencode .who{color:#3cb371}
+.msg .bubble{border-radius:14px;padding:12px 16px;max-width:88%;overflow-wrap:anywhere}
+.msg .bubble p{margin:6px 0;line-height:1.55}
+.msg .bubble p:first-child{margin-top:0}
+.msg .bubble p:last-child{margin-bottom:0}
+.msg .bubble h2,.msg .bubble h3,.msg .bubble h4{font-size:15px;margin:12px 0 6px}
+/* Listas com espaçamento confortável, indentação adequada e bullets temáticos */
+.msg .bubble ul,.msg .bubble ol{margin:8px 0;padding-left:22px}
+.msg .bubble ul:first-child,.msg .bubble ol:first-child{margin-top:0}
+.msg .bubble ul:last-child,.msg .bubble ol:last-child{margin-bottom:0}
+.msg .bubble ul ul,.msg .bubble ol ol,.msg .bubble ul ol,.msg .bubble ol ul{margin:4px 0 4px 4px;padding-left:18px}
+.msg .bubble li{margin:5px 0;line-height:1.55;padding-left:2px}
+.msg .bubble li::marker{color:var(--mute);font-size:1.1em}
+.msg.user .bubble li::marker{color:#fff}
+.msg.claude .bubble li::marker{color:#e07a5f}
+.msg.opencode .bubble li::marker{color:#4ade80}
+.msg.gemini .bubble li::marker{color:#7ca5f5}
+.msg .bubble blockquote{border-left:3px solid var(--accent);margin:8px 0;padding:6px 12px;background:#ffffff0a;border-radius:0 6px 6px 0;color:var(--mute)}
 .msg.user{align-items:flex-end;display:flex;flex-direction:column}
 .msg.user .bubble{background:var(--accent);color:#fff;border-bottom-right-radius:4px}
 .msg.user .bubble code{background:#0003;color:#fff}
-.msg.claude .bubble,.msg.gemini .bubble{background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.claude .bubble,.msg.gemini .bubble,.msg.opencode .bubble{background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}
 details.internal{border:1px dashed var(--line);border-radius:10px;font-size:13px;color:var(--mute);background:transparent}
 details.internal>summary{padding:7px 12px;cursor:pointer;display:flex;gap:10px;align-items:baseline}
 details.internal>summary .names{opacity:.7;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -73,6 +93,68 @@ details.step>summary b{color:var(--text);font-weight:500}
 details.step .lbl{font-size:11px;padding:2px 10px 0;text-transform:uppercase;letter-spacing:.04em}
 details.step pre{margin:2px 10px 8px;font-size:12px;max-height:240px;overflow:auto}
 details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-bottom:6px}
+.status-badge{font-size:11px;border-radius:6px;padding:2px 7px;border:1px solid;display:inline-block;white-space:nowrap}
+.status-ok{color:#7de2a3;border-color:#7de2a344;background:#7de2a311}
+.status-nova{color:#d97757;border-color:#d9775744;background:#d9775711}
+.status-alterada{color:#e0a040;border-color:#e0a04044;background:#e0a04011}
+.btn-map{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer}
+.btn-map:hover{background:var(--panel);border-color:var(--mute)}
+.table-wrap{width:100%;overflow-x:auto}
+.table-full{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+.table-full th,.table-full td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+.table-full th{background:var(--panel2);font-weight:600}
+.table-full tr:hover{background:var(--panel2)}
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.filter-btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer}
+.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-live-chat{background:linear-gradient(135deg,#d97757,#e06c45);color:#fff;border:0;border-radius:8px;padding:6px 14px;font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;box-shadow:0 2px 8px #d9775744;transition:opacity .15s}
+.btn-live-chat:hover{opacity:.9}
+/* Modal do Chat Interativo */
+.chat-dialog{width:min(940px,94vw);height:min(88vh,820px);padding:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 36px #000a}
+.chat-header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--panel2);flex-wrap:wrap;gap:10px}
+.chat-header .title{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px}
+.engine-tabs{display:flex;gap:4px;background:var(--bg);padding:3px;border-radius:8px;border:1px solid var(--line)}
+.eng-tab{background:none;border:0;color:var(--mute);padding:5px 12px;border-radius:6px;font:inherit;font-size:12px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:5px;transition:all .15s}
+.eng-tab:hover{color:var(--text)}
+.eng-tab.active[data-engine="claude"]{background:#d97757;color:#fff}
+.eng-tab.active[data-engine="opencode"]{background:#3cb371;color:#fff}
+.eng-tab.active[data-engine="gemini"]{background:#5c87f2;color:#fff}
+.chat-context-bar{background:var(--panel2);padding:6px 18px;font-size:12px;color:var(--mute);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chat-context-bar code{background:var(--bg);padding:1px 5px;border-radius:4px;color:var(--text)}
+.eng-badge{font-size:11px;padding:2px 8px;border-radius:6px;background:var(--bg);border:1px solid var(--line);color:var(--mute)}
+.chat-controls-bar{background:var(--panel);padding:7px 18px;font-size:12px;color:var(--text);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.chat-controls-bar .ctrl-item{display:flex;align-items:center;gap:8px}
+.chat-controls-bar label{color:var(--mute);font-size:11px;display:flex;align-items:center;gap:4px}
+.chat-controls-bar label b{color:var(--text);font-weight:600}
+.chat-controls-bar select{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font:inherit;font-size:12px;outline:none;cursor:pointer;max-width:320px}
+.chat-controls-bar select:focus{border-color:var(--accent)}
+.effort-toggle{display:flex;background:var(--bg);padding:2px;border-radius:8px;border:1px solid var(--line);gap:2px}
+.effort-btn{background:none;border:0;color:var(--mute);padding:3px 10px;border-radius:6px;font:inherit;font-size:11.5px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.effort-btn:hover{color:var(--text)}
+.effort-btn.active{background:var(--panel2);font-weight:600;box-shadow:0 1px 3px #0004}
+.effort-btn.active[data-effort="low"]{color:#7de2a3}
+.effort-btn.active[data-effort="medium"]{color:#e0a040}
+.effort-btn.active[data-effort="high"]{color:#d97757}
+.effort-btn.active[data-effort="xhigh"]{color:#b388ff}
+.effort-btn.active[data-effort="max"]{color:#f43f5e}
+.chat-history{flex:1;min-height:0;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.chat-footer{border-top:1px solid var(--line);padding:12px 16px;background:var(--panel);display:flex;flex-direction:column;gap:8px}
+.chat-input-wrap{display:flex;gap:10px;align-items:flex-end}
+.chat-input{flex:1;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font:inherit;font-size:14px;resize:none;max-height:160px;min-height:44px;line-height:1.4}
+.chat-input:focus{outline:none;border-color:var(--accent)}
+.btn-send{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-weight:600;font-size:13px;cursor:pointer;transition:opacity .15s}
+.btn-send:hover{opacity:.9}
+.btn-send:disabled{opacity:.4;cursor:not-allowed}
+.btn-chat-action{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font:inherit;font-size:12px;cursor:pointer}
+.btn-chat-action:hover{background:var(--panel);border-color:var(--mute)}
+.btn-chat-action:disabled{opacity:.4;cursor:not-allowed}
+.chat-thinking{background:var(--bg);border:1px solid var(--line);border-radius:8px;margin-bottom:8px;font-size:12px}
+.chat-thinking summary{padding:6px 10px;cursor:pointer;color:var(--mute);font-weight:500}
+.chat-thinking .think-content{padding:8px 12px;color:var(--mute);white-space:pre-wrap;border-top:1px solid var(--line);font-family:monospace;font-size:11px;max-height:180px;overflow:auto}
+.stream-cursor{display:inline-block;color:var(--accent);font-weight:bold;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.msg.opencode .who{color:#7de2a3}
+.msg.opencode .bubble{background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}
 </style>
 </head>
 <body>
@@ -80,28 +162,91 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
   <span class="logo">✱ Harness Leca</span>
   <select id="sel"></select>
   <span class="badge" id="act"></span>
+  <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+    <button class="btn-live-chat" onclick="openInteractiveChat()">
+      <span>💬</span> Conversar com o Projeto
+    </button>
+  </div>
 </header>
 <main>
   <section>
     <h1 id="title"></h1>
     <div class="sub">Projeto local · <span id="meta"></span></div>
-    <h3 class="sech">Atividade <span>🔒 Chats ficam apenas neste computador</span></h3>
+    <h3 class="sech"><span>Atividade</span> <button class="btn-map" onclick="showMappingTable()">📊 Mapeamento de conversas e pendências</button></h3>
     <div id="chats"></div>
   </section>
   <aside class="card" id="side"></aside>
 </main>
 <dialog id="dlg"><div class="dh"><span id="dt"></span><button onclick="dlg.close()">×</button></div><div class="db" id="dbody"></div></dialog>
+<dialog id="chatDlg" class="chat-dialog">
+  <div class="chat-header">
+    <div class="title">
+      <span id="chatTitle">💬 Chat do Projeto</span>
+    </div>
+    <div class="engine-tabs" id="engineTabs">
+      <button class="eng-tab active" data-engine="claude" onclick="switchEngine('claude')">✱ Claude Code</button>
+      <button class="eng-tab" data-engine="opencode" onclick="switchEngine('opencode')">◆ OpenCode</button>
+      <button class="eng-tab" data-engine="gemini" onclick="switchEngine('gemini')">✦ Gemini</button>
+    </div>
+    <button onclick="chatDlg.close()" style="background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer">×</button>
+  </div>
+  <div class="chat-context-bar">
+    <div>✦ Contexto ativo: <code>instructions.md</code> + <code>memory.md</code> injetados automaticamente.</div>
+    <div id="engineAuthBadge" class="eng-badge">Plano Claude Pro (CLI local)</div>
+  </div>
+  <div class="chat-controls-bar">
+    <div class="ctrl-item">
+      <label for="chatModelSelect"><b>Modelo:</b></label>
+      <select id="chatModelSelect" onchange="onModelChange(this.value)"></select>
+    </div>
+    <div class="ctrl-item" style="margin-left:auto">
+      <label><b>Esforço / Raciocínio:</b></label>
+      <div class="effort-toggle" id="effortToggle">
+        <button type="button" class="effort-btn" data-effort="low" onclick="setEffort('low')">Low</button>
+        <button type="button" class="effort-btn active" data-effort="medium" onclick="setEffort('medium')">Medium</button>
+        <button type="button" class="effort-btn" data-effort="high" onclick="setEffort('high')">High</button>
+        <button type="button" class="effort-btn" data-effort="xhigh" onclick="setEffort('xhigh')">Extra High</button>
+        <button type="button" class="effort-btn" data-effort="max" onclick="setEffort('max')">Max</button>
+      </div>
+    </div>
+  </div>
+  <div class="chat-history" id="chatHistory">
+    <div class="empty" style="text-align:center;padding:40px 10px;color:var(--mute)">
+      Comece uma conversa com o motor escolhido usando todo o contexto deste projeto.
+    </div>
+  </div>
+  <div class="chat-footer">
+    <div class="chat-input-wrap">
+      <textarea id="chatInput" class="chat-input" placeholder="Pergunte algo sobre o projeto... (Enter para enviar, Shift+Enter para nova linha)" rows="1" oninput="autoGrow(this)" onkeydown="handleChatKey(event)"></textarea>
+      <button id="btnSendChat" class="btn-send" onclick="sendChatMessage()">Enviar ➤</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn-chat-action" onclick="resetChatSession()">🔄 Novo Chat</button>
+        <button class="btn-chat-action" id="btnSaveChat" onclick="saveCurrentChat()" disabled>💾 Salvar no Projeto</button>
+        <span id="chatStatusText" style="font-size:11px;color:var(--mute)"></span>
+      </div>
+      <div style="font-size:11px;color:var(--mute)">Sem chaves avulsas · Execução via Sessão/Plano</div>
+    </div>
+  </div>
+</dialog>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const clean = t => t.replace(/<!--[\s\S]*?-->/g, "").replace(/^# .*\n?/, "").trim();
+const clean = t => t.replace(/<!\x2d\x2d[\s\S]*?-\x2d>/g, "").replace(/^# .*\n?/, "").trim();
 const fmt = ms => new Date(ms).toLocaleDateString("pt-BR", {day:"numeric", month:"short"}).replace(".", "");
 
-// Markdown básico: blocos de código, títulos, listas, tabelas, negrito, itálico e código inline.
+// Markdown básico com suporte completo a listas (-, *, +, •, 1.), blocos de código, títulos, tabelas e citações.
 function md(t) {
   const code = [];
   t = t.replace(/\u0000/g, "").replace(/```[^\n]*\n([\s\S]*?)```/g, (_, c) => { code.push(c); return `\u0000${code.length - 1}\u0000`; });
-  const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|\W)_(.+?)_(?=\W|$)/g, "$1<i>$2</i>").replace(/`(.+?)`/g, "<code>$1</code>");
+  // Links http(s): [texto](url) e URLs soltas (guardados à parte para o itálico/negrito não mexer neles).
+  const links = [];
+  const stash = (url, label) => { links.push(`<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`); return `\u0001${links.length - 1}\u0001`; };
+  const inline = s => esc(s)
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_, l, u) => stash(u, l))
+    .replace(/(^|[\s(])(https?:\/\/[^\s<)\u0001]+)/g, (_, pre, u) => pre + stash(u, u))
+    .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|\W)_(.+?)_(?=\W|$)/g, "$1<i>$2</i>").replace(/`(.+?)`/g, "<code>$1</code>").replace(/\u0001(\d+)\u0001/g, (_, i) => links[i]);
   const lines = t.split("\n"), out = [];
   for (let i = 0; i < lines.length; i++) {
     const l = lines[i];
@@ -111,10 +256,52 @@ function md(t) {
       while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) rows.push(cell(lines[i++])); i--;
       out.push("<table><tr>" + head.map(c => `<th>${inline(c)}</th>`).join("") + "</tr>" +
         rows.map(r => "<tr>" + r.map(c => `<td>${inline(c)}</td>`).join("") + "</tr>").join("") + "</table>");
-    } else if (/^#{1,3} /.test(l)) { const n = l.match(/^#+/)[0].length; out.push(`<h${n + 1}>${inline(l.replace(/^#+ /, ""))}</h${n + 1}>`); }
-    else if (/^\s*([-*]|\d+\.) /.test(l)) out.push("<li>" + inline(l.replace(/^\s*([-*]|\d+\.) /, "")) + "</li>");
-    else if (/^\u0000\d+\u0000$/.test(l.trim())) out.push("<pre>" + esc(code[l.trim().slice(1, -1)]) + "</pre>");
-    else out.push(l.trim() ? "<p>" + inline(l) + "</p>" : "");
+    } else if (/^#{1,3} /.test(l)) {
+      const n = l.match(/^#+/)[0].length;
+      out.push(`<h${n + 1}>${inline(l.replace(/^#+ /, ""))}</h${n + 1}>`);
+    } else if (/^\s*([*\-+]\s+|[•⁃◦▪▫]\s*)/.test(l)) {
+      const items = [];
+      while (i < lines.length && /^\s*([*\-+]\s+|[•⁃◦▪▫]\s*)/.test(lines[i])) {
+        const line = lines[i];
+        const isNested = /^( {2,}|\t+)/.test(line);
+        const text = line.replace(/^\s*([*\-+]\s+|[•⁃◦▪▫]\s*)/, "");
+        if (isNested && items.length > 0) {
+          items[items.length - 1] += `<ul><li>${inline(text)}</li></ul>`;
+        } else {
+          items.push(`<li>${inline(text)}</li>`);
+        }
+        i++;
+      }
+      i--;
+      out.push(`<ul>${items.join("")}</ul>`);
+    } else if (/^\s*\d+\.\s+/.test(l)) {
+      const items = [];
+      while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) {
+        const line = lines[i];
+        const isNested = /^( {2,}|\t+)/.test(line);
+        const text = line.replace(/^\s*\d+\.\s+/, "");
+        if (isNested && items.length > 0) {
+          items[items.length - 1] += `<ol><li>${inline(text)}</li></ol>`;
+        } else {
+          items.push(`<li>${inline(text)}</li>`);
+        }
+        i++;
+      }
+      i--;
+      out.push(`<ol>${items.join("")}</ol>`);
+    } else if (/^\s*>\s*/.test(l)) {
+      const bq = [];
+      while (i < lines.length && /^\s*>\s*/.test(lines[i])) {
+        bq.push(inline(lines[i].replace(/^\s*>\s*/, "")));
+        i++;
+      }
+      i--;
+      out.push(`<blockquote>${bq.join("<br>")}</blockquote>`);
+    } else if (/^\u0000\d+\u0000$/.test(l.trim())) {
+      out.push("<pre>" + esc(code[l.trim().slice(1, -1)]) + "</pre>");
+    } else {
+      out.push(l.trim() ? "<p>" + inline(l) + "</p>" : "");
+    }
   }
   return out.join("");
 }
@@ -130,9 +317,9 @@ function parseChat(src) {
   const lines = src.split("\n");
   for (let i = 0; i < lines.length; i++) {
     const l = lines[i];
-    if (/^## (Você|Claude|Gemini|Antigravity)\s*$/i.test(l)) {
+    if (/^## (Você|Claude|Gemini|Antigravity|opencode)\s*$/i.test(l)) {
       flush();
-      who = /^## Você\s*$/i.test(l) ? "user" : /Claude/i.test(l) ? "claude" : "gemini";
+      who = /^## Você\s*$/i.test(l) ? "user" : /Claude/i.test(l) ? "claude" : /opencode/i.test(l) ? "opencode" : "gemini";
       continue;
     }
     const m = l.match(/^:::(tool|thinking)\s*(.*)$/);
@@ -158,6 +345,7 @@ function renderChat(src) {
   return '<div class="chat">' + parseChat(src).map(it => {
     if (it.who === "user") return `<div class="msg user"><div class="who">Você</div><div class="bubble"><div class="clip">${md(it.text.replace(/<\/?pasted_content[^>]*>/g, ""))}</div></div></div>`;
     if (it.who === "claude") return `<div class="msg claude"><div class="who">✱ Claude</div><div class="bubble"><div class="clip">${md(it.text)}</div></div></div>`;
+    if (it.who === "opencode") return `<div class="msg opencode"><div class="who">◆ OpenCode</div><div class="bubble"><div class="clip">${md(it.text)}</div></div></div>`;
     if (it.who === "gemini") return `<div class="msg gemini"><div class="who">✦ Gemini</div><div class="bubble"><div class="clip">${md(it.text)}</div></div></div>`;
     const n = it.tools.length, errs = it.tools.filter(t => t.error).length;
     const names = [...new Set(it.tools.map(t => t.name))].slice(0, 4).join(", ");
@@ -198,14 +386,19 @@ let S, P;
 async function load(slug) {
   P = await (await fetch("/api/project/" + slug)).json();
   $("title").textContent = slug.charAt(0).toUpperCase() + slug.slice(1);
-  $("meta").textContent = `${P.chats.length} chats · ${P.context.length} arquivos`;
+  const ext = P.extraction;
+  const extMeta = ext && ext.total ? ` · <span style="color:#7de2a3">${ext.ok} em dia</span> · <span style="color:#d97757">${ext.nova + ext.alterada} pendentes</span>` : '';
+  $("meta").innerHTML = `${P.chats.length} chats${extMeta} · ${P.context.length} arquivos`;
   $("act").textContent = S.active === slug ? "ativo no harness" : "inativo (edite projects/.active)";
   $("chats").innerHTML = P.chats.length
     ? P.chats.map((c, i) => {
-        const ag = c.agent === "gemini" ? '<span class="tag" style="margin-right:6px;color:#7ca5f5;border-color:#7ca5f544">✦ Gemini</span>' : '<span class="tag" style="margin-right:6px">✱ Claude</span>';
-        return `<div class="row" data-i="${i}"><b>${ag}${esc(c.title || c.name.replace(/\.md$/, ""))}</b><span>${fmt(c.mtime)}</span></div>`;
+        const ag = c.agent === "gemini" ? '<span class="tag" style="margin-right:6px;color:#7ca5f5;border-color:#7ca5f544">✦ Gemini</span>' : c.agent === "opencode" ? '<span class="tag" style="margin-right:6px;color:#7de2a3;border-color:#7de2a344">◆ opencode</span>' : '<span class="tag" style="margin-right:6px">✱ Claude</span>';
+        const stClass = c.status === "ok" ? "status-ok" : c.status === "alterada" ? "status-alterada" : "status-nova";
+        const stLabel = c.status === "ok" ? "✓ em dia" : c.status === "alterada" ? "↻ alterada" : "⏳ pendente";
+        const stBadge = `<span class="status-badge ${stClass}" style="margin-left:6px">${stLabel}</span>`;
+        return `<div class="row" data-i="${i}"><b style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${ag}<span>${esc(c.title || c.name.replace(/\.md$/, ""))}</span>${stBadge}</b><span>${fmt(c.mtime)}</span></div>`;
       }).join("")
-    : '<p class="empty">Nenhum chat salvo ainda. Importe com tools/import-claude-code-chats.js ou tools/import-gemini-chats.js.</p>';
+    : '<p class="empty">Nenhum chat salvo ainda. Importe com tools/import-claude-code-chats.js, tools/import-gemini-chats.js ou tools/import-opencode-chats.js.</p>';
   document.querySelectorAll("#chats .row").forEach(r => r.onclick = () => openFile("chats", P.chats[r.dataset.i].name));
 
   const ins = clean(P.instructions), mem = clean(P.memory);
@@ -221,10 +414,349 @@ async function load(slug) {
   document.querySelectorAll(".file").forEach(r => r.onclick = () => openFile("context", P.context[r.dataset.i].name));
   document.querySelectorAll("[data-s]").forEach(r => r.onclick = () => openFile("scheduled", P.scheduled[r.dataset.s].name));
 }
+
+function showMappingTable() {
+  if (!P || !P.extraction) return;
+  const ext = P.extraction;
+  let currentFilter = "all";
+
+  function renderTableHtml(filter = "all", search = "") {
+    let rows = ext.rows || [];
+    if (filter === "ok") rows = rows.filter(r => r.status === "ok");
+    else if (filter === "nova") rows = rows.filter(r => r.status === "nova");
+    else if (filter === "alterada") rows = rows.filter(r => r.status === "alterada");
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      rows = rows.filter(r => (r.titulo || "").toLowerCase().includes(q) || (r.name || "").toLowerCase().includes(q) || (r.por || "").toLowerCase().includes(q));
+    }
+
+    return `
+      <div class="filter-bar">
+        <button class="filter-btn ${filter === 'all' ? 'active' : ''}" onclick="window._changeTableFilter('all')">Todos (${ext.total})</button>
+        <button class="filter-btn ${filter === 'ok' ? 'active' : ''}" onclick="window._changeTableFilter('ok')">✅ Em dia (${ext.ok})</button>
+        <button class="filter-btn ${filter === 'nova' ? 'active' : ''}" onclick="window._changeTableFilter('nova')">⏳ Novas (${ext.nova})</button>
+        ${ext.alterada ? `<button class="filter-btn ${filter === 'alterada' ? 'active' : ''}" onclick="window._changeTableFilter('alterada')">↻ Alteradas (${ext.alterada})</button>` : ''}
+        <input type="text" id="tblSearch" placeholder="Buscar título ou arquivo..." value="${esc(search)}" oninput="window._changeTableFilter(null, this.value)" style="margin-left:auto;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font:inherit;font-size:12px">
+      </div>
+      <div class="table-wrap">
+        <table class="table-full">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Título da Conversa</th>
+              <th>Data</th>
+              <th>Turnos</th>
+              <th>Status</th>
+              <th>Analisado por</th>
+              <th>Data da Análise</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.length ? rows.map((r, i) => {
+              const isAlt = r.status === "alterada";
+              const stClass = r.status === "ok" ? "status-ok" : isAlt ? "status-alterada" : "status-nova";
+              const stLabel = r.status === "ok" ? "✅ Em dia" : isAlt ? "↻ Alterada" : "⏳ Pendente";
+              const turnosDisplay = isAlt && r.turnosAntes ? `<span style="color:#e0a040;font-weight:600">${r.turnosAntes} → ${r.turnos}</span>` : r.turnos;
+              return `<tr>
+                <td>${i + 1}</td>
+                <td><b>${esc(r.titulo)}</b><br><code style="font-size:11px;opacity:0.7">${esc(r.name)}</code></td>
+                <td>${esc(r.data || "-")}</td>
+                <td style="text-align:center">${turnosDisplay}</td>
+                <td><span class="status-badge ${stClass}">${stLabel}</span></td>
+                <td>${esc(r.por || "-")}</td>
+                <td>${esc(r.analisadoEm || "-")}</td>
+                <td><button class="btn-map" onclick="openFile('chats', '${esc(r.name)}')">Abrir</button></td>
+              </tr>`;
+            }).join("") : '<tr><td colspan="8" class="empty" style="text-align:center;padding:16px">Nenhuma conversa encontrada</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  window._changeTableFilter = (f, s) => {
+    if (f !== null) currentFilter = f;
+    const searchVal = s !== undefined ? s : ($("tblSearch") ? $("tblSearch").value : "");
+    $("dbody").innerHTML = renderTableHtml(currentFilter, searchVal);
+    const inp = $("tblSearch");
+    if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+  };
+
+  openDlg("Mapeamento de Conversas e Extração — " + P.slug, "", renderTableHtml("all", ""));
+}
 const showIns = () => openDlg("Instruções", "## Globais\n" + clean(S.global.instructions) + "\n\n## Do projeto\n" + clean(P.instructions));
 const showMem = () => openDlg("Memória", "## Global\n" + clean(S.global.memory) + "\n\n## Do projeto\n" + clean(P.memory));
 
+let chatTurns = [];
+let currentEngine = "claude";
+let engineSessions = { claude: null, opencode: null, gemini: null };
+let engineSettings = {
+  claude: { model: null, effort: "medium" },
+  opencode: { model: null, effort: "medium" },
+  gemini: { model: null, effort: "medium" },
+};
+let isChatStreaming = false;
+let enginesMeta = {};
+
+async function initEngines() {
+  try {
+    enginesMeta = await (await fetch("/api/engines")).json();
+    updateEngineAuthBadge();
+  } catch {}
+}
+
+function updateEngineControls() {
+  const eng = enginesMeta[currentEngine];
+  if (!eng) return;
+
+  const sel = $("chatModelSelect");
+  if (sel) {
+    const models = eng.models || [];
+    const currentModel = engineSettings[currentEngine].model || eng.defaultModel || (models[0]?.id || "");
+    engineSettings[currentEngine].model = currentModel;
+    sel.innerHTML = models.map(m => `<option value="${esc(m.id)}" ${m.id === currentModel ? "selected" : ""}>${esc(m.name)}${m.desc ? " (" + esc(m.desc) + ")" : ""}</option>`).join("");
+  }
+
+  const effortContainer = $("effortToggle");
+  if (effortContainer) {
+    const levels = eng.effortLevels || [
+      { id: "low", label: "Low" },
+      { id: "medium", label: "Medium" },
+      { id: "high", label: "High" }
+    ];
+    let currentEffort = engineSettings[currentEngine].effort;
+    if (!levels.some(l => l.id === currentEffort)) {
+      currentEffort = eng.defaultEffort || levels[0]?.id || "medium";
+      engineSettings[currentEngine].effort = currentEffort;
+    }
+    effortContainer.innerHTML = levels.map(l =>
+      `<button type="button" class="effort-btn ${l.id === currentEffort ? "active" : ""}" data-effort="${esc(l.id)}" onclick="setEffort('${esc(l.id)}')">${esc(l.label)}</button>`
+    ).join("");
+  }
+}
+
+function onModelChange(val) {
+  engineSettings[currentEngine].model = val;
+}
+
+function setEffort(lvl) {
+  engineSettings[currentEngine].effort = lvl;
+  document.querySelectorAll(".effort-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.effort === lvl);
+  });
+}
+
+function updateEngineAuthBadge() {
+  const eng = enginesMeta[currentEngine];
+  if (eng) {
+    const badge = $("engineAuthBadge");
+    if (badge) badge.textContent = eng.auth;
+    const inp = $("chatInput");
+    if (inp) inp.placeholder = `Pergunte algo ao ${eng.name} sobre o projeto... (Enter para enviar)`;
+  }
+  updateEngineControls();
+  const sId = engineSessions[currentEngine];
+  const stText = $("chatStatusText");
+  if (stText) stText.textContent = sId ? `Sessão ativa (${currentEngine}): ${sId.slice(0, 14)}...` : "";
+}
+
+function switchEngine(eng) {
+  currentEngine = eng;
+  document.querySelectorAll(".eng-tab").forEach(tab => {
+    tab.classList.toggle("active", tab.dataset.engine === eng);
+  });
+  updateEngineAuthBadge();
+}
+
+function openInteractiveChat() {
+  if (!P) return;
+  $("chatTitle").textContent = `💬 Chat do Projeto — ${P.slug}`;
+  updateEngineAuthBadge();
+  $("chatDlg").showModal();
+  setTimeout(() => $("chatInput").focus(), 50);
+}
+
+function autoGrow(el) {
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 160) + "px";
+}
+
+function handleChatKey(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendChatMessage();
+  }
+}
+
+function renderChatHistory() {
+  const box = $("chatHistory");
+  if (!chatTurns.length) {
+    box.innerHTML = `<div class="empty" style="text-align:center;padding:40px 10px;color:var(--mute)">
+      Comece uma conversa com o motor escolhido usando todo o contexto deste projeto.
+    </div>`;
+    return;
+  }
+
+  const effortMap = { low: "Low", medium: "Medium", high: "High", xhigh: "Extra High", max: "Max" };
+
+  box.innerHTML = chatTurns.map((t, idx) => {
+    if (t.role === "user") {
+      return `<div class="msg user"><div class="who">Você</div><div class="bubble"><p>${esc(t.text).replace(/\n/g, "<br>")}</p></div></div>`;
+    }
+    const eng = enginesMeta[t.engine || currentEngine] || { name: "Assistente", icon: "🤖" };
+    const engClass = (t.engine || currentEngine);
+    const isLastStreaming = isChatStreaming && idx === chatTurns.length - 1;
+    const isThinkOpen = isLastStreaming && !t.text ? " open" : "";
+    const thinkingHtml = t.thinking ? `<details class="chat-thinking"${isThinkOpen}><summary>🧠 Raciocínio interno</summary><div class="think-content">${esc(t.thinking)}</div></details>` : "";
+    const bodyHtml = t.text ? md(t.text) : (isLastStreaming ? "" : '<p class="empty">Gerando resposta...</p>');
+    const cursorHtml = isLastStreaming ? '<span class="stream-cursor">▌</span>' : "";
+    const modelLabel = t.model ? ` · <span style="opacity:0.75;font-weight:normal">${esc(t.model)}</span>` : "";
+    const effortLabel = t.effort ? ` <span style="font-size:10px;opacity:0.65;border:1px solid var(--line);padding:1px 5px;border-radius:4px">${esc(effortMap[t.effort] || t.effort)}</span>` : "";
+    return `<div class="msg ${engClass}"><div class="who">${esc(eng.icon)} ${esc(eng.name)}${modelLabel}${effortLabel}</div><div class="bubble">${thinkingHtml}${bodyHtml}${cursorHtml}</div></div>`;
+  }).join("");
+
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendChatMessage() {
+  if (isChatStreaming) return;
+  const input = $("chatInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  chatTurns.push({ role: "user", text });
+  input.value = "";
+  input.style.height = "auto";
+
+  const assistantTurn = {
+    role: "assistant",
+    text: "",
+    thinking: "",
+    engine: currentEngine,
+    model: engineSettings[currentEngine].model,
+    effort: engineSettings[currentEngine].effort,
+  };
+  chatTurns.push(assistantTurn);
+  isChatStreaming = true;
+  $("btnSendChat").disabled = true;
+  $("btnSaveChat").disabled = true;
+  $("chatStatusText").textContent = `Conectando com ${currentEngine}...`;
+  renderChatHistory();
+
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        engine: currentEngine,
+        prompt: text,
+        slug: P.slug,
+        sessionId: engineSessions[currentEngine],
+        model: engineSettings[currentEngine].model,
+        effort: engineSettings[currentEngine].effort,
+      }),
+    });
+
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => ({}));
+      throw new Error(errJson.error || `HTTP ${res.status}`);
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        const jsonStr = line.slice(6).trim();
+        if (!jsonStr) continue;
+        try {
+          const data = JSON.parse(jsonStr);
+          if (data.sessionId) engineSessions[currentEngine] = data.sessionId;
+
+          if (data.type === "text" && data.text) {
+            assistantTurn.text += data.text;
+            $("chatStatusText").textContent = "Recebendo resposta...";
+            renderChatHistory();
+          } else if (data.type === "thinking" && data.text) {
+            assistantTurn.thinking = (assistantTurn.thinking || "") + data.text;
+            $("chatStatusText").textContent = "Pensando (raciocínio interno)...";
+            renderChatHistory();
+          } else if (data.type === "error") {
+            assistantTurn.text += `\n\n> ⚠️ **Erro:** ${data.error}`;
+            renderChatHistory();
+          } else if (data.type === "done") {
+            if (data.sessionId) engineSessions[currentEngine] = data.sessionId;
+            if (data.fullText && !assistantTurn.text) {
+              assistantTurn.text = data.fullText;
+            }
+          }
+        } catch {}
+      }
+    }
+  } catch (err) {
+    assistantTurn.text += `\n\n> ⚠️ **Erro na conexão:** ${err.message}`;
+  } finally {
+    isChatStreaming = false;
+    $("btnSendChat").disabled = false;
+    $("btnSaveChat").disabled = chatTurns.length < 2;
+    const currentSId = engineSessions[currentEngine];
+    $("chatStatusText").textContent = currentSId ? `Sessão ativa (${currentEngine}): ${currentSId.slice(0, 14)}...` : "";
+    renderChatHistory();
+    $("chatInput").focus();
+  }
+}
+
+async function saveCurrentChat() {
+  if (chatTurns.length < 2) return;
+  $("chatStatusText").textContent = "Salvando conversa no projeto...";
+  $("btnSaveChat").disabled = true;
+
+  try {
+    const firstUserMsg = chatTurns.find(t => t.role === "user");
+    const title = firstUserMsg ? firstUserMsg.text.slice(0, 50).replace(/[\r\n]+/g, " ") : "Chat com " + currentEngine;
+
+    const res = await fetch("/api/chat/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        slug: P.slug,
+        engine: currentEngine,
+        title,
+        turns: chatTurns,
+        sessionId: engineSessions[currentEngine],
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Falha ao salvar");
+
+    $("chatStatusText").textContent = `✅ Salvo em chats/${data.fileName}!`;
+    await load(P.slug);
+  } catch (err) {
+    $("chatStatusText").textContent = `⚠️ Erro ao salvar: ${err.message}`;
+    $("btnSaveChat").disabled = false;
+  }
+}
+
+function resetChatSession() {
+  chatTurns = [];
+  engineSessions = { claude: null, opencode: null, gemini: null };
+  $("btnSaveChat").disabled = true;
+  $("chatStatusText").textContent = "Novo chat iniciado.";
+  renderChatHistory();
+}
+
 (async () => {
+  await initEngines();
   S = await (await fetch("/api/state")).json();
   $("sel").innerHTML = S.projects.map(p => `<option ${p === S.active ? "selected" : ""}>${esc(p)}</option>`).join("");
   $("sel").onchange = e => load(e.target.value);
