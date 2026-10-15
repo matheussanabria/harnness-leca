@@ -100,7 +100,7 @@ function convert(db, session, withTools) {
           error: st.status === "error",
         });
       } else if (part.type === "file") {
-        push(who, { kind: "text", text: `_ [arquivo anexado: ${part.filename || "sem nome"}]_` });
+        push(who, { kind: "text", text: `_[arquivo anexado: ${part.filename || "sem nome"}]_` });
       }
       // step-start, step-finish, patch e compaction são ruído de execução: ignorados.
     }

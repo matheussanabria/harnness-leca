@@ -14,7 +14,7 @@ agente: "opencode"
 
 Olá, meu e-mail é [REDIGIDO:email], token=[REDIGIDO] e cpf [REDIGIDO:cpf]
 
-_ [arquivo anexado: tela.png]_
+_[arquivo anexado: tela.png]_
 
 ## opencode
 
