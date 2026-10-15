@@ -55,9 +55,12 @@ test("readChat: trocar ## Claude por ## opencode não muda o hash e conta os tur
   const head = "---\nsessao: x\ninicio: \"2026-10-15T00:00:00Z\"\n---\n# T\n\n## Você\n\noi\n\n";
   fs.writeFileSync(path.join(dir, "a.md"), head + "## Claude\n\nolá\n");
   fs.writeFileSync(path.join(dir, "b.md"), head + "## opencode\n\nolá\n");
-  const a = state.readChat(path.join(dir, "a.md")), b = state.readChat(path.join(dir, "b.md"));
+  fs.writeFileSync(path.join(dir, "c.md"), (head + "## Claude\n\nolá\n").replace(/\n/g, "\r\n"));
+  const a = state.readChat(path.join(dir, "a.md")), b = state.readChat(path.join(dir, "b.md")), c = state.readChat(path.join(dir, "c.md"));
   assert.equal(a.hash, b.hash);
   assert.equal(b.turnos, 2);
+  assert.equal(c.hash, a.hash, "CRLF não muda o hash");
+  assert.equal(c.sessao, "x", "CRLF não perde o cabeçalho");
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
@@ -178,6 +181,23 @@ test("claudeSession: repo inexistente, servidor inexistente ou nome com curinga 
     fs.writeFileSync(path.join(dir, "mcp.json"), JSON.stringify({ mcpServers: { "a*": { command: "node" } } }));
     assert.throws(() => E.claudeSession(dir), /nome de servidor inválido/);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("killTree encerra o processo e os filhos que ele abriu", async () => {
+  const cp = require("child_process");
+  const alive = (pid) => { try { process.kill(pid, 0); return true; } catch { return false; } };
+  // Pai que abre um neto e imprime o pid dele; os dois ficam vivos até serem mortos.
+  const code = "const c=require('child_process').spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});console.log(c.pid);setInterval(()=>{},1000)";
+  const parent = cp.spawn(process.execPath, ["-e", code], { stdio: ["ignore", "pipe", "ignore"], windowsHide: true });
+  const childPid = Number(await new Promise((r) => parent.stdout.once("data", (d) => r(String(d).trim()))));
+  assert.ok(alive(parent.pid) && alive(childPid));
+
+  E.killTree(parent);
+  const deadline = Date.now() + 5000;
+  while ((alive(parent.pid) || alive(childPid)) && Date.now() < deadline) await new Promise((r) => setTimeout(r, 100));
+  assert.ok(!alive(parent.pid), "o processo principal morreu");
+  if (process.platform === "win32") assert.ok(!alive(childPid), "o filho também morreu");
+  else try { process.kill(childPid); } catch {}
 });
 
 test("redact remove segredos comuns", () => {

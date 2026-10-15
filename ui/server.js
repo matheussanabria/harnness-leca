@@ -83,6 +83,10 @@ function project(slug) {
   };
 }
 
+// Respostas de chat em andamento ao mesmo tempo (cada uma pode ser um processo do Claude com MCPs e comandos).
+const MAX_CHATS = 2;
+let runningChats = 0;
+
 const HEADERS = {
   "X-Content-Type-Options": "nosniff",
   "Cache-Control": "no-store",
@@ -159,6 +163,16 @@ async function handle(req, res) {
     const eff = E.safeEffort(effort || (temperature !== undefined && temperature !== null ? (Number(temperature) <= 0.35 ? "low" : Number(temperature) >= 0.75 ? "high" : "medium") : "medium"));
     if (typeof prompt !== "string" || !prompt || !slug) return send(res, 400, { error: "prompt e slug são obrigatórios" });
     if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
+    if (runningChats >= MAX_CHATS) return send(res, 429, { error: `Já há ${MAX_CHATS} respostas em andamento. Aguarde uma terminar.` });
+
+    // Fechar a aba (ou a conexão cair) cancela o motor: o processo do Claude e a consulta ao opencode não ficam soltos.
+    runningChats++;
+    const ac = new AbortController();
+    res.on("close", () => {
+      if (!res.writableFinished) ac.abort();
+      runningChats--;
+    });
+    const signal = ac.signal;
 
     res.writeHead(200, {
       "Content-Type": "text/event-stream; charset=utf-8",
@@ -191,11 +205,11 @@ async function handle(req, res) {
     };
 
     if (engine === "claude") {
-      E.streamClaude({ prompt, slug, sessionId, model, effort: eff, onChunk, onDone, onError });
+      E.streamClaude({ prompt, slug, sessionId, model, effort: eff, signal, onChunk, onDone, onError });
     } else if (engine === "opencode") {
-      E.streamOpenCode({ prompt, slug, sessionId, model, effort: eff, onChunk, onDone, onError });
+      E.streamOpenCode({ prompt, slug, sessionId, model, effort: eff, signal, onChunk, onDone, onError });
     } else if (engine === "gemini") {
-      E.streamGemini({ prompt, slug, sessionId, history, model, effort: eff, onChunk, onDone, onError });
+      E.streamGemini({ prompt, slug, sessionId, history, model, effort: eff, signal, onChunk, onDone, onError });
     } else {
       onError(new Error(`Motor "${engine}" não suportado.`));
     }

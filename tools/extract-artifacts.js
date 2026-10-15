@@ -54,7 +54,7 @@ if (!fs.existsSync(chatsDir)) { console.error(`Sem chats em projects/${slug}/cha
 
 // ---------- leitura dos chats (.md gerados pelo importador) ----------
 function parseChat(file) {
-  const raw = fs.readFileSync(file, "utf8");
+  const raw = fs.readFileSync(file, "utf8").replace(/^﻿/, "").replace(/\r\n/g, "\n"); // CRLF: mesmo tratamento de state.readChat
   const fm = (raw.match(/^---\n([\s\S]*?)\n---/) || [])[1] || "";
   const get = (k) => { const m = fm.match(new RegExp(`^${k}: (.*)$`, "m")); return m ? m[1].replace(/^"|"$/g, "") : ""; };
   const body = raw.replace(/^---\n[\s\S]*?\n---\n/, "").replace(/^:::(tool|thinking)[^\n]*\n[\s\S]*?^:::$/gm, "");

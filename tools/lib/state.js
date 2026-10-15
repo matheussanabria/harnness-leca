@@ -21,7 +21,8 @@ function paths(slug) {
 
 // Lê um chat importado: identidade (sessão), tamanho (turnos) e impressão digital do conteúdo (hash).
 function readChat(file) {
-  const raw = fs.readFileSync(file, "utf8");
+  // CRLF vira LF: um .md salvo por um editor do Windows não perde o cabeçalho nem muda de hash.
+  const raw = fs.readFileSync(file, "utf8").replace(/^﻿/, "").replace(/\r\n/g, "\n");
   const fm = (raw.match(/^---\n([\s\S]*?)\n---/) || [])[1] || "";
   const get = (k) => { const m = fm.match(new RegExp(`^${k}: (.*)$`, "m")); return m ? m[1].replace(/^"|"$/g, "") : ""; };
   // O hash cobre só o conteúdo da conversa: metadados do cabeçalho e o título (que o agente pode renomear) não contam.

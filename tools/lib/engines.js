@@ -70,7 +70,18 @@ function getProjectContext(slug) {
 // ----------------------------------------------------
 // MOTOR 1: CLAUDE CODE (via CLI com streaming)
 // ----------------------------------------------------
-function streamClaude({ prompt, slug, sessionId, model, effort, onChunk, onDone, onError }) {
+// Encerra o processo e tudo que ele abriu (MCPs, comandos). No Windows, child.kill() mataria só o claude.exe.
+function killTree(child) {
+  if (!child.pid || child.exitCode !== null) return;
+  if (process.platform === "win32") {
+    const taskkill = path.join(process.env.SystemRoot || "C:\\Windows", "System32", "taskkill.exe");
+    cp.execFile(taskkill, ["/pid", String(child.pid), "/T", "/F"], { windowsHide: true }, () => {});
+  } else {
+    child.kill("SIGTERM");
+  }
+}
+
+function streamClaude({ prompt, slug, sessionId, model, effort, signal, onChunk, onDone, onError }) {
   const projDir = path.join(ROOT, "projects", slug);
   const args = ["-p", "-", "--output-format", "stream-json", "--verbose"];
   const isClaudeUuid = sessionId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId);
@@ -107,6 +118,10 @@ function streamClaude({ prompt, slug, sessionId, model, effort, onChunk, onDone,
     cwd,
     stdio: ["pipe", "pipe", "pipe"],
   });
+  if (signal) {
+    if (signal.aborted) killTree(child);
+    else signal.addEventListener("abort", () => killTree(child), { once: true });
+  }
 
   const parser = createClaudeStreamParser(onChunk, sessionId);
   let buffer = "";
@@ -211,7 +226,7 @@ function createClaudeStreamParser(onChunk, initialSessionId) {
 // ----------------------------------------------------
 // MOTOR 2: OPENCODE (via REST HTTP local na porta 63186)
 // ----------------------------------------------------
-async function streamOpenCode({ prompt, slug, sessionId, model, effort, onChunk, onDone, onError }) {
+async function streamOpenCode({ prompt, slug, sessionId, model, effort, signal, onChunk, onDone, onError }) {
   try {
     let sId = sessionId;
     model = safeModel(model);
@@ -295,6 +310,11 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, onChunk,
 
     while (!completed) {
       await new Promise((r) => setTimeout(r, 200));
+      // Cliente saiu: para de consultar e pede ao opencode para interromper a geração (melhor esforço).
+      if (signal && signal.aborted) {
+        fetch(`${OPENCODE_DEFAULT_URL}/session/${sId}/abort`, { method: "POST" }).catch(() => {});
+        return;
+      }
       if (Date.now() - startTime > 120000) throw new Error("Tempo limite excedido aguardando resposta do OpenCode");
 
       const mRes = await fetch(`${OPENCODE_DEFAULT_URL}/session/${sId}/message`);
@@ -340,7 +360,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, onChunk,
 // ----------------------------------------------------
 // MOTOR 3: GEMINI (Google AI Studio ou Bridge)
 // ----------------------------------------------------
-async function streamGemini({ prompt, slug, sessionId, history, model, effort, onChunk, onDone, onError }) {
+async function streamGemini({ prompt, slug, sessionId, history, model, effort, signal, onChunk, onDone, onError }) {
   loadEnv();
   // A chave vem só do .env: aceitá-la da requisição deixaria uma página forjada mandar o contexto do projeto para outra conta.
   const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
@@ -393,6 +413,7 @@ async function streamGemini({ prompt, slug, sessionId, history, model, effort, o
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify(body),
+      signal, // cliente saiu: cancela a requisição e a leitura do stream
     });
 
     if (!res.ok) {
@@ -507,14 +528,24 @@ function saveChatToProject({ slug, engine, title, turns, sessionId }) {
 }
 
 // Verifica disponibilidade dos 3 motores e lista modelos e parâmetros de temperatura
+// `claude -v` assíncrono e guardado por um minuto: a versão síncrona travava o servidor inteiro a cada consulta.
+const CLAUDE_CHECK_TTL_MS = 60_000;
+let claudeCheck = { at: 0, ok: false };
+function claudeAvailable() {
+  if (Date.now() - claudeCheck.at < CLAUDE_CHECK_TTL_MS) return Promise.resolve(claudeCheck.ok);
+  const bin = resolveClaudeBin();
+  if (!bin) return Promise.resolve(false);
+  return new Promise((resolve) => {
+    cp.execFile(bin, ["-v"], { windowsHide: true, timeout: 3000 }, (err) => {
+      claudeCheck = { at: Date.now(), ok: !err };
+      resolve(claudeCheck.ok);
+    });
+  });
+}
+
 async function getEnginesStatus() {
   loadEnv();
-  let claudeOk = false;
-  try {
-    const bin = resolveClaudeBin();
-    const res = bin ? cp.spawnSync(bin, ["-v"], { shell: false, windowsHide: true, timeout: 3000 }) : { status: 1 };
-    claudeOk = res.status === 0;
-  } catch {}
+  const claudeOk = await claudeAvailable();
 
   let opencodeOk = false;
   try {
@@ -642,4 +673,5 @@ module.exports = {
   safeEffort,
   createClaudeStreamParser,
   claudeSession,
+  killTree,
 };
