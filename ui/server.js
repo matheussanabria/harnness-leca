@@ -2,6 +2,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const { spawn } = require("child_process");
 
 const { ROOT } = require("../tools/lib/root");
 const PROJECTS = path.join(ROOT, "projects");
@@ -20,6 +21,7 @@ const active = () => {
 const S = require("../tools/lib/state");
 const E = require("../tools/lib/engines");
 const MR = require("../tools/lib/memory-review");
+const syncCore = require("../tools/lib/sync-core");
 const DAI = require("../tools/lib/dai");
 
 function listDir(dir) {
@@ -277,13 +279,208 @@ async function apiChatSave({ req, res }) {
   }
 }
 
+async function apiProjectSync({ req, res, params: [slug] }) {
+  if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
+  let body = {};
+  try { body = await readJsonBody(req); } catch {}
+  const engine = body && body.engine ? body.engine : "all";
+  try {
+    const engines = engine === "all" ? ["claude", "gemini", "opencode"] : [engine];
+    const result = syncCore.syncProject({ slug, engines });
+    return send(res, 200, result);
+  } catch (err) {
+    console.error("[sync]", (err && err.stack) || err);
+    return send(res, 500, { error: "Falha ao sincronizar conversas." });
+  }
+}
+
+// ---------- visão geral: resumo paginado de todos os projetos ----------
+
+// Chave de ordenação barata (só stat dos arquivos de chats/): a página inteira é ordenada sem reler as conversas.
+function activityMs(slug) {
+  try {
+    const dir = path.join(PROJECTS, slug, "chats");
+    let max = 0;
+    for (const f of fs.readdirSync(dir)) max = Math.max(max, fs.statSync(path.join(dir, f)).mtimeMs);
+    return max;
+  } catch { return 0; }
+}
+
+// Resumo de um projeto para a lista da visão geral (mesmas contagens da página do projeto).
+function overviewProject(slug) {
+  const dir = path.join(PROJECTS, slug);
+  let rows = null;
+  try { rows = S.scan(slug); } catch { /* chats ilegíveis: cai para a contagem de arquivos abaixo */ }
+  const list = rows || [];
+  return {
+    slug,
+    chats: rows ? rows.length : listDir(path.join(dir, "chats")).filter((c) => c.name.endsWith(".md")).length,
+    lastChat: list.length && list[0].fim ? list[0].fim.slice(0, 10) : null,
+    extraction: {
+      total: list.length,
+      ok: list.filter((r) => r.status === "ok").length,
+      nova: list.filter((r) => r.status === "nova").length,
+      alterada: list.filter((r) => r.status === "alterada").length,
+    },
+    review: reviewSummary(slug),
+    context: listDir(path.join(dir, "context")).length,
+    scheduled: listDir(path.join(dir, "scheduled")).length,
+    memoryBytes: Buffer.byteLength(read(path.join(dir, "memory.md"))),
+    instructionsBytes: Buffer.byteLength(read(path.join(dir, "instructions.md"))),
+  };
+}
+
+// O resumo relê todas as conversas (scan com hash), o que custa ~200 ms por projeto cheio. Guarda por uma impressão
+// digital dos arquivos que entram no cálculo: mudou algum, o projeto é resumido de novo na hora.
+const OV_CACHE = new Map();
+const fpFile = (p) => { try { const st = fs.statSync(p); return `${st.mtimeMs}:${st.size}`; } catch { return ""; } };
+const fpDir = (dir) => {
+  try {
+    const files = fs.readdirSync(dir);
+    let sum = 0, max = 0;
+    for (const f of files) { try { const st = fs.statSync(path.join(dir, f)); sum += st.size; max = Math.max(max, st.mtimeMs); } catch { /* arquivo sumiu no meio */ } }
+    return `${files.length}:${max}:${sum}`;
+  } catch { return ""; }
+};
+
+function overviewCached(slug, isActive) {
+  const dir = path.join(PROJECTS, slug);
+  const fp = [
+    fpDir(path.join(dir, "chats")),
+    fpFile(path.join(dir, "extraction-state.json")),
+    fpFile(path.join(dir, "memory.md")),
+    fpFile(path.join(dir, "instructions.md")),
+    fpFile(path.join(dir, "memory-review.json")),
+    fpDir(path.join(dir, "context")), // sugestões extraídas e consolidadas moram aqui
+    fpDir(path.join(dir, "scheduled")),
+  ].join("|");
+  const hit = OV_CACHE.get(slug);
+  const summary = hit && hit.fp === fp ? hit.value : overviewProject(slug);
+  if (!hit || hit.fp !== fp) OV_CACHE.set(slug, { fp, value: summary });
+  return { ...summary, active: isActive };
+}
+
+const OV_PAGE_SIZE = 10;
+const OV_MAX_PAGE_SIZE = 50;
+const ovInt = (raw, fallback, min, max) => {
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= min ? Math.min(Math.floor(n), max) : fallback;
+};
+
+// page/pageSize vêm da query string; valores inválidos caem nos limites em vez de quebrar a página.
+function apiOverview({ res, url }) {
+  const act = active();
+  const order = slugs()
+    .map((slug) => ({ slug, at: activityMs(slug) }))
+    .sort((a, b) => b.at - a.at || a.slug.localeCompare(b.slug));
+  const pageSize = ovInt(url.searchParams.get("pageSize"), OV_PAGE_SIZE, 1, OV_MAX_PAGE_SIZE);
+  const pages = Math.max(1, Math.ceil(order.length / pageSize));
+  const page = ovInt(url.searchParams.get("page"), 1, 1, pages);
+  const start = (page - 1) * pageSize;
+  return send(res, 200, {
+    total: order.length,
+    page,
+    pageSize,
+    pages,
+    active: act,
+    projects: order.slice(start, start + pageSize).map((o) => overviewCached(o.slug, o.slug === act)),
+  });
+}
+
+// ---------- ações do sistema: sincronização de todos os projetos/motores ----------
+
+const SYNC_ENGINES = ["claude", "gemini", "opencode"];
+// Uma sincronização por vez: duas execuções simultâneas do importador gravariam os mesmos arquivos.
+let syncRunning = false;
+
+async function apiSync({ req, res }) {
+  let body = {};
+  try { body = await readJsonBody(req); } catch { return send(res, 400, { error: "JSON inválido" }); }
+
+  const raw = body && body.engines != null ? body.engines : "all";
+  const parts = (Array.isArray(raw) ? raw : String(raw).split(",")).map((s) => String(s).trim().toLowerCase()).filter(Boolean);
+  // Vazio ou "all" = todos os motores; qualquer nome fora da lista é recusado antes de disparar o processo.
+  const engines = !parts.length || parts.includes("all") ? SYNC_ENGINES.slice() : parts;
+  if (engines.some((e) => !SYNC_ENGINES.includes(e))) {
+    return send(res, 400, { error: `Motor inválido. Use: ${SYNC_ENGINES.join(", ")} ou "all".` });
+  }
+  if (!slugs().length) return send(res, 400, { error: "Nenhum projeto em projects/ para sincronizar." });
+  if (syncRunning) return send(res, 409, { error: "Já há uma sincronização em andamento." });
+
+  const dryRun = body && body.dryRun === true;
+  // O script vive no repositório (ROOT pode ser outra pasta quando HARNESS_ROOT aponta para um harness de teste).
+  const syncScript = path.resolve(__dirname, "..", "tools", "sync.js");
+  const args = ["--no-warnings", syncScript, "--engine", engines.join(",")];
+  if (dryRun) args.push("--dry-run");
+
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream; charset=utf-8",
+    "Cache-Control": "no-cache",
+    "Connection": "keep-alive",
+    "X-Content-Type-Options": "nosniff",
+    ...HEADERS,
+  });
+
+  syncRunning = true;
+  const started = Date.now();
+  let finished = false;
+  let buf = "";
+  const emit = (data) => { try { res.write(`data: ${JSON.stringify(data)}\n\n`); } catch { /* conexão caiu */ } };
+  const finish = (code) => {
+    if (finished) return;
+    finished = true;
+    syncRunning = false;
+    if (buf.trim()) emit({ type: "log", line: buf.trimEnd() });
+    emit({ type: "done", code, ms: Date.now() - started });
+    res.end();
+  };
+
+  // tools/sync.js faz uma passada por motor em todos os projetos (e a extração local do que mudou).
+  let child;
+  try {
+    child = spawn(process.execPath, args, { cwd: ROOT, env: process.env, windowsHide: true });
+  } catch (err) {
+    console.error("[sync]", (err && err.stack) || err);
+    emit({ type: "error", error: "Não foi possível executar tools/sync.js. O detalhe está no terminal do servidor." });
+    finish(-1);
+    return;
+  }
+  const onChunk = (chunk) => {
+    buf += chunk;
+    let i;
+    while ((i = buf.search(/[\r\n]/)) >= 0) {
+      const line = buf.slice(0, i).replace(/\r$/, "");
+      buf = buf.slice(i + 1);
+      if (line.trim()) emit({ type: "log", line });
+    }
+  };
+  child.stdout.on("data", onChunk);
+  child.stderr.on("data", onChunk);
+  child.on("error", (err) => {
+    console.error("[sync]", (err && err.stack) || err);
+    emit({ type: "error", error: "Não foi possível executar tools/sync.js. O detalhe está no terminal do servidor." });
+    finish(-1);
+  });
+  child.on("close", (code) => finish(code));
+  // Fechar a aba cancela a execução: o processo filho não fica solto.
+  res.on("close", () => {
+    if (finished) return;
+    finished = true;
+    syncRunning = false;
+    try { child.kill(); } catch { /* já encerrou */ }
+  });
+}
+
 // method + caminho (texto exato ou RegExp). HEAD usa a rota do GET.
 const ROUTES = [
   { method: "GET", path: "/api/state", handler: apiState },
   { method: "GET", path: "/api/engines", handler: apiEngines },
+  { method: "GET", path: "/api/overview", handler: apiOverview },
+  { method: "POST", path: "/api/sync", handler: apiSync },
   { method: "GET", path: /^\/api\/project\/([\w-]+)$/, handler: apiProject },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/review$/, handler: apiReviewList },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/review$/, handler: apiReviewApply },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/sync$/, handler: apiProjectSync },
   { method: "GET", path: "/api/file", handler: apiFile },
   { method: "GET", path: "/api/dai", handler: apiDai },
   { method: "POST", path: "/api/chat", handler: apiChat },
@@ -291,7 +488,9 @@ const ROUTES = [
 ];
 
 function serveStatic(res, p) {
-  const file = path.resolve(PUBLIC, "." + path.sep + (p === "/" ? "index.html" : p.replace(/^[\/\\]+/, "")));
+  // /overview sem .html, para o endereço da visão geral ficar limpo.
+  const rel = p === "/" ? "index.html" : p === "/overview" ? "overview.html" : p.replace(/^[\/\\]+/, "");
+  const file = path.resolve(PUBLIC, "." + path.sep + rel);
   const type = TYPES[path.extname(file).toLowerCase()];
   if (type && file.startsWith(PUBLIC + path.sep) && inside(PUBLIC, file)) return send(res, 200, fs.readFileSync(file), type);
   return send(res, 404, "404", "text/plain");

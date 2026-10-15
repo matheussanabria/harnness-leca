@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harness Leca · Visão geral</title>
+<style>
+:root{--bg:#1f1e1d;--panel:#262624;--panel2:#30302e;--line:#3a3937;--text:#f0eee6;--mute:#9a978e;--accent:#d97757}
+@media (prefers-color-scheme: light){:root{--bg:#faf9f5;--panel:#fff;--panel2:#f0eee6;--line:#e3e0d5;--text:#1f1e1d;--mute:#6f6c63}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"Segoe UI",system-ui,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:14px 28px;border-bottom:1px solid var(--line)}
+header .logo{font-weight:600;color:var(--accent);text-decoration:none}
+.badge{font-size:12px;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+.nav-link{font-size:13px;color:var(--text);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:5px 12px;background:var(--panel);display:inline-flex;align-items:center;gap:6px}
+.nav-link:hover{border-color:var(--accent);color:var(--accent)}
+main{max-width:1180px;margin:0 auto;padding:32px 28px}
+h1{font-family:Georgia,serif;font-weight:500;font-size:30px;margin:0 0 4px}
+.sub{color:var(--mute);margin-bottom:24px}
+h3.sech{font-size:13px;color:var(--mute);font-weight:500;margin:28px 0 8px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.sec{padding:16px 18px;border-bottom:1px solid var(--line)}.sec:last-child{border:0}
+.sec h4{margin:0 0 10px;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:400;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:1px 7px}
+.empty{color:var(--mute);font-size:13px;font-style:italic}
+.status-badge{font-size:11px;border-radius:6px;padding:2px 7px;border:1px solid;display:inline-block;white-space:nowrap}
+.status-ok{color:#7de2a3;border-color:#7de2a344;background:#7de2a311}
+.status-nova{color:#d97757;border-color:#d9775744;background:#d9775711}
+.status-alterada{color:#e0a040;border-color:#e0a04044;background:#e0a04011}
+.status-none{color:var(--mute);border-color:var(--line)}
+/* Ações do sistema */
+.act-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.eng-chips{display:flex;gap:6px;flex-wrap:wrap}
+.eng-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:8px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:12.5px;user-select:none}
+.eng-chip:hover{border-color:var(--mute)}
+.eng-chip input{accent-color:var(--accent);cursor:pointer;margin:0}
+.eng-chip.claude input{accent-color:#d97757}
+.eng-chip.gemini input{accent-color:#5c87f2}
+.eng-chip.opencode input{accent-color:#3cb371}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--mute);cursor:pointer;user-select:none}
+.chk input{accent-color:var(--accent);cursor:pointer;margin:0}
+.btn-run{background:linear-gradient(135deg,#d97757,#e06c45);color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:600;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;box-shadow:0 2px 8px #d9775744;transition:opacity .15s}
+.btn-run:hover{opacity:.9}
+.btn-run:disabled{opacity:.5;cursor:wait}
+@keyframes spinSync{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.sync-rot{display:inline-block}
+.running .sync-rot{animation:spinSync .8s linear infinite}
+.run-state{font-size:12px;color:var(--mute);display:inline-flex;align-items:center;gap:7px}
+.run-state.ok{color:#7de2a3}.run-state.err{color:#ef4444}.run-state.busy{color:#e0a040}
+.hint{font-size:12px;color:var(--mute);margin-top:10px;line-height:1.5}
+.hint code{background:var(--panel2);padding:1px 5px;border-radius:4px;color:var(--text)}
+.log{margin:12px 0 0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:12px/1.5 Consolas,Menlo,monospace;color:var(--mute);max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.log:empty{display:none}
+.log b{color:var(--text);font-weight:600}
+/* Tabela de projetos */
+.table-wrap{width:100%;overflow-x:auto}
+.table-full{width:100%;border-collapse:collapse;font-size:13.5px}
+.table-full th,.table-full td{border-bottom:1px solid var(--line);padding:11px 14px;text-align:left;vertical-align:middle}
+.table-full th{background:var(--panel2);font-weight:600;font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.table-full tr:hover td{background:var(--panel2)}
+.table-full tr:last-child td{border-bottom:0}
+.p-name b{font-weight:600;display:flex;align-items:center;gap:7px;flex-wrap:wrap;cursor:pointer}
+.p-name b:hover{color:var(--accent)}
+.p-name .sub2{color:var(--mute);font-size:11.5px;margin-top:3px}
+.badge-active{font-size:10px;font-weight:600;color:#7de2a3;border-color:#7de2a344;background:#7de2a311}
+.cell-num{font-variant-numeric:tabular-nums}
+.cell-num .sub2{color:var(--mute);font-size:11.5px}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.btn-row{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font:inherit;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.btn-row:hover{border-color:var(--accent);color:var(--accent)}
+.btn-row:disabled{opacity:.5;cursor:wait}
+.btn-row.sync:hover{border-color:#7de2a3;color:#7de2a3}
+.acts{display:flex;gap:6px;justify-content:flex-end}
+/* Paginação */
+.pager{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line);flex-wrap:wrap;font-size:12.5px;color:var(--mute)}
+.pager .grow{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pager button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 12px;font:inherit;font-size:12.5px;cursor:pointer}
+.pager button:hover:not(:disabled){border-color:var(--accent)}
+.pager button:disabled{opacity:.4;cursor:default}
+.pager select{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:3px 7px;font:inherit;font-size:12.5px}
+.row-msg{font-size:12px;padding:0 14px 10px;color:var(--mute);display:none}
+.row-msg.show{display:block}
+.row-msg.ok{color:#7de2a3}.row-msg.err{color:#ef4444}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="/">✱ Harness Leca</a>
+  <span class="badge">Visão geral</span>
+  <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+    <span class="badge" id="totBadge">…</span>
+    <a class="nav-link" href="/">✱ Abrir projeto</a>
+  </div>
+</header>
+<main>
+  <h1>Visão geral dos projetos</h1>
+  <div class="sub" id="sub">Carregando resumos…</div>
+
+  <div class="card">
+    <div class="sec">
+      <h4>Ações do sistema <span class="tag">node tools/sync.js</span></h4>
+      <div class="act-bar">
+        <div class="eng-chips" id="engChips">
+          <label class="eng-chip claude"><input type="checkbox" class="eng" value="claude" checked> ✱ Claude Code</label>
+          <label class="eng-chip gemini"><input type="checkbox" class="eng" value="gemini" checked> ✦ Gemini</label>
+          <label class="eng-chip opencode"><input type="checkbox" class="eng" value="opencode" checked> ◆ OpenCode</label>
+        </div>
+        <label class="chk" title="Só mostra o que mudaria, sem gravar conversas"><input type="checkbox" id="dryRun"> Simulação (dry-run)</label>
+        <button class="btn-run" id="btnRun" onclick="runSyncAll()"><span class="sync-rot">🔄</span> Sincronizar todos os motores e conversas</button>
+        <span class="run-state" id="runState">pronto</span>
+      </div>
+      <div class="hint">
+        Dispara <code>node tools/sync.js</code> com os motores marcados: varre <code>~/.claude/projects</code>,
+        <code>~/.gemini/antigravity-ide/brain</code> e o banco do OpenCode, importa as conversas novas/alteradas para
+        <code>projects/&lt;slug&gt;/chats/</code> e roda a extração local do que mudou. Uma sincronização por vez; o log aparece abaixo.
+      </div>
+      <pre class="log" id="log"></pre>
+    </div>
+    <div class="sec">
+      <h4>Por projeto <span class="tag">conversa a conversa</span></h4>
+      <div class="hint" style="margin-top:0">
+        Cada linha tem o botão <b>🔄 Sync</b>, que sincroniza só aquele projeto (os 3 motores) e atualiza a lista.
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sech"><span>Projetos</span> <span id="pageInfo"></span></h3>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table-full">
+        <thead>
+          <tr>
+            <th>Projeto</th>
+            <th>Conversas</th>
+            <th>Extração</th>
+            <th>Revisões</th>
+            <th>Memória</th>
+            <th style="text-align:right">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="rows"><tr><td colspan="6" class="empty">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="row-msg" id="rowMsg"></div>
+    <div class="pager">
+      <button id="btnPrev" onclick="goPage(OV.page - 1)">← Anterior</button>
+      <span id="pagerInfo">—</span>
+      <button id="btnNext" onclick="goPage(OV.page + 1)">Próxima →</button>
+      <div class="grow">
+        <label for="selSize">por página:</label>
+        <select id="selSize" onchange="setSize(this.value)">
+          <option>10</option><option>25</option><option>50</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const kb = n => (n / 1024).toFixed(1).replace(".", ",") + " KB";
+const dateBR = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-"); return `${d}/${m}/${y}`; };
+
+// Estado da página (page/pageSize também ficam na URL para sobreviver ao refresh).
+const Q = new URLSearchParams(location.search);
+const SIZES = [10, 25, 50];
+let OV = {
+  page: Number(Q.get("page")) || 1,
+  pageSize: SIZES.includes(Number(Q.get("pageSize"))) ? Number(Q.get("pageSize")) : 10,
+  total: 0, pages: 1, projects: [],
+};
+$("selSize").value = String(OV.pageSize);
+
+function syncUrl() {
+  const q = new URLSearchParams();
+  if (OV.page !== 1) q.set("page", OV.page);
+  if (OV.pageSize !== 10) q.set("pageSize", OV.pageSize);
+  history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : ""));
+}
+
+async function loadOverview() {
+  try {
+    const r = await fetch(`/api/overview?page=${OV.page}&pageSize=${OV.pageSize}`);
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    OV = { ...OV, ...await r.json() };
+    render();
+    syncUrl();
+  } catch (err) {
+    $("rows").innerHTML = `<tr><td colspan="6" class="empty">Não foi possível carregar a visão geral (${esc(err.message)}).</td></tr>`;
+  }
+}
+
+function goPage(p) { if (p < 1 || p > OV.pages || p === OV.page) return; OV.page = p; loadOverview(); }
+function setSize(v) { OV.pageSize = Number(v) || 10; OV.page = 1; loadOverview(); }
+
+function chips(c) {
+  if (!c || !c.total) return '<span class="status-badge status-none">sem conversas</span>';
+  const pend = c.nova + c.alterada;
+  const parts = [];
+  if (c.ok) parts.push(`<span class="status-badge status-ok">${c.ok} em dia</span>`);
+  if (pend) parts.push(`<span class="status-badge ${c.alterada && !c.nova ? "status-alterada" : "status-nova"}">${pend} pendente${pend > 1 ? "s" : ""}</span>`);
+  return `<span class="chips">${parts.join("")}</span>`;
+}
+
+function render() {
+  const p = OV.projects || [];
+  $("sub").innerHTML = `${OV.total} projeto${OV.total === 1 ? "" : "s"} no harness · ${OV.active ? `ativo: <b>${esc(OV.active)}</b>` : "nenhum projeto ativo em <code>projects/.active</code>"}`;
+  $("totBadge").textContent = `${OV.total} projeto${OV.total === 1 ? "" : "s"}`;
+  $("pageInfo").textContent = OV.total ? `página ${OV.page} de ${OV.pages}` : "";
+
+  $("rows").innerHTML = p.length ? p.map(x => `
+    <tr data-slug="${esc(x.slug)}">
+      <td class="p-name">
+        <b onclick="openProject('${esc(x.slug)}')" title="Abrir projeto">${esc(x.slug)}${x.active ? '<span class="status-badge badge-active">ativo</span>' : ""}</b>
+        <div class="sub2">${x.context} contexto · ${x.scheduled} agendada${x.scheduled === 1 ? "" : "s"}${x.lastChat ? " · último chat " + dateBR(x.lastChat) : ""}</div>
+      </td>
+      <td class="cell-num">${x.chats}${x.extraction && x.extraction.total ? `<div class="sub2">analisadas</div>` : ""}</td>
+      <td>${chips(x.extraction)}</td>
+      <td class="cell-num">${x.review && x.review.pendentes
+        ? `<span class="status-badge status-alterada" title="Sugestões de memória esperando revisão">${x.review.pendentes} pendente${x.review.pendentes > 1 ? "s" : ""}</span>`
+        : '<span class="status-badge status-ok">em dia</span>'}</td>
+      <td class="cell-num">${kb(x.memoryBytes || 0)}</td>
+      <td>
+        <div class="acts">
+          <button class="btn-row sync" title="Sincronizar conversas deste projeto (Claude, Gemini e OpenCode)" onclick="syncRow('${esc(x.slug)}', this)">🔄 Sync</button>
+          <button class="btn-row" onclick="openProject('${esc(x.slug)}')">Abrir →</button>
+        </div>
+      </td>
+    </tr>`).join("")
+    : '<tr><td colspan="6" class="empty" style="text-align:center;padding:22px">Nenhum projeto ainda. Copie <code>projects/_template</code> ou importe conversas com <code>tools/import-claude-code-chats.js</code>.</td></tr>';
+
+  const from = OV.total ? (OV.page - 1) * OV.pageSize + 1 : 0;
+  const to = Math.min(OV.page * OV.pageSize, OV.total);
+  $("pagerInfo").textContent = OV.total ? `Mostrando ${from}–${to} de ${OV.total}` : "—";
+  $("btnPrev").disabled = OV.page <= 1;
+  $("btnNext").disabled = OV.page >= OV.pages;
+}
+
+function openProject(slug) { location.href = "/?p=" + encodeURIComponent(slug); }
+
+// ---------- sincronização de um projeto (POST /api/project/:slug/sync, resposta em JSON) ----------
+let rowBusy = false;
+function rowMsg(text, cls) {
+  const el = $("rowMsg");
+  el.textContent = text;
+  el.className = "row-msg show " + (cls || "");
+  clearTimeout(rowMsg._t);
+  rowMsg._t = setTimeout(() => { el.className = "row-msg"; }, 6000);
+}
+async function syncRow(slug, btn) {
+  if (rowBusy) return;
+  rowBusy = true;
+  const old = btn.textContent;
+  btn.disabled = true; btn.textContent = "… sincronizando";
+  rowMsg(`Sincronizando ${slug} (Claude, Gemini e OpenCode)…`, "");
+  try {
+    const res = await fetch(`/api/project/${encodeURIComponent(slug)}/sync`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ engine: "all" }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+    const novo = (data.totalNova || 0) + (data.totalAtualizada || 0);
+    rowMsg(`${slug}: ${data.mensagem || (novo ? `${novo} conversa(s) atualizada(s)` : "tudo em dia")}`, novo ? "ok" : "");
+    await loadOverview();
+  } catch (err) {
+    rowMsg(`⚠ ${slug}: ${err.message}`, "err");
+  } finally {
+    rowBusy = false;
+    btn.disabled = false; btn.textContent = old;
+  }
+}
+
+// ---------- ação do sistema: sync geral em streaming (POST /api/sync, SSE) ----------
+let running = false;
+const ENGINES = ["claude", "gemini", "opencode"];
+
+function setRunState(text, cls) { $("runState").textContent = text; $("runState").className = "run-state " + (cls || ""); }
+function logLine(html) {
+  const log = $("log");
+  log.innerHTML += html + "\n";
+  log.scrollTop = log.scrollHeight;
+}
+const logEsc = (s) => `<b>${esc(s)}</b>`;
+
+async function runSyncAll() {
+  if (running) return;
+  const engines = [...document.querySelectorAll(".eng:checked")].map(c => c.value);
+  if (!engines.length) { setRunState("marque ao menos um motor", "err"); return; }
+  const dryRun = $("dryRun").checked;
+
+  running = true;
+  $("btnRun").disabled = true;
+  document.body.classList.add("running");
+  $("log").innerHTML = "";
+  setRunState("sincronizando…", "busy");
+  logLine(logEsc(`$ node tools/sync.js --engine ${engines.join(",")}${dryRun ? " --dry-run" : ""}`));
+
+  try {
+    const res = await fetch("/api/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ engines, dryRun }),
+    });
+    if (!res.ok || !res.body) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "HTTP " + res.status);
+    }
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = "";
+    let fim = null;
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf("\n\n")) >= 0) {
+        const chunk = buf.slice(0, i).trim();
+        buf = buf.slice(i + 2);
+        if (!chunk.startsWith("data: ")) continue;
+        const ev = JSON.parse(chunk.slice(6));
+        if (ev.type === "log") logLine(esc(ev.line));
+        else if (ev.type === "error") { logLine(`<span style="color:#ef4444">⚠ ${esc(ev.error)}</span>`); fim = { code: -1, ms: 0 }; }
+        else if (ev.type === "done") fim = ev;
+      }
+    }
+    if (!fim) throw new Error("conexão interrompida");
+    if (fim.code === 0) {
+      setRunState(`concluído em ${(fim.ms / 1000).toFixed(1).replace(".", ",")}s`, "ok");
+      logLine(logEsc("✔ sincronização concluída"));
+    } else {
+      setRunState(`finalizou com código ${fim.code}`, "err");
+      logLine(`<span style="color:#ef4444">⚠ sincronização terminou com código ${fim.code}</span>`);
+    }
+    await loadOverview();
+  } catch (err) {
+    setRunState("falhou", "err");
+    logLine(`<span style="color:#ef4444">⚠ ${esc(err.message || String(err))}</span>`);
+  } finally {
+    running = false;
+    $("btnRun").disabled = false;
+    document.body.classList.remove("running");
+  }
+}
+
+loadOverview();
+</script>
+</body>
+</html>

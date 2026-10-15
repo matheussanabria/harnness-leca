@@ -89,6 +89,18 @@ test("método errado em rota conhecida é 405; HEAD usa a rota do GET", async ()
   assert.equal((await fetch(base + "/api/state", { method: "DELETE" })).status, 405);
 });
 
+test("POST /api/project/:slug/sync: dispara sincronização para o projeto", async () => {
+  const missing = await post("/api/project/nao-existe/sync", {});
+  assert.equal(missing.status, 404);
+
+  const res = await post("/api/project/demo/sync", { engine: "gemini" });
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.equal(data.ok, true);
+  assert.equal(data.slug, "demo");
+  assert.deepEqual(data.engines, ["gemini"]);
+});
+
 test("POST /api/chat/save: valida, grava no projeto e não vaza erro interno", async () => {
   assert.equal((await post("/api/chat/save", { slug: "demo" })).status, 400);
   assert.equal((await post("/api/chat/save", { slug: "nao-existe", turns: [] })).status, 404);
