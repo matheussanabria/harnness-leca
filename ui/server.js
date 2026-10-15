@@ -219,15 +219,11 @@ async function handle(req, res) {
       }
     };
 
-    if (engine === "claude") {
-      E.streamClaude({ prompt, slug, sessionId, model, effort: eff, signal, onChunk, onDone, onError });
-    } else if (engine === "opencode") {
-      E.streamOpenCode({ prompt, slug, sessionId, model, effort: eff, signal, onChunk, onDone, onError });
-    } else if (engine === "gemini") {
-      E.streamGemini({ prompt, slug, sessionId, history, model, effort: eff, signal, onChunk, onDone, onError });
-    } else {
-      onError(new E.PublicError(`Motor "${engine}" não suportado.`));
-    }
+    // Cada motor tem a mesma interface (tools/lib/engines/index.js): o servidor não precisa conhecer nenhum pelo nome.
+    // engines.get() devolve undefined para qualquer id desconhecido (inclusive "__proto__" e afins).
+    const impl = E.engines.get(engine);
+    if (impl) impl.stream({ prompt, slug, sessionId, history, model, effort: eff, signal, onChunk, onDone, onError });
+    else onError(new E.PublicError(`Motor "${engine}" não suportado.`));
     return;
   }
 

@@ -73,7 +73,16 @@ harness-leca/
 │   ├── import-opencode-chats.js      # importa conversas do opencode (SQLite local)
 │   ├── extract-artifacts.js          # extrai regras, memórias e documentos das conversas
 │   ├── extraction-state.js           # o que já foi analisado / mudou depois
-│   └── lib/                          # redact.js (segredos) e state.js (controle de estado)
+│   ├── sync.js                       # atualiza os 3 motores de uma vez
+│   └── lib/
+│       ├── chat-format.js            # formato do .md de conversa (escrever e ler): único dono do formato
+│       ├── chat-store.js             # grava/renomeia/data um chat (importadores)
+│       ├── chat-save.js              # salva a conversa feita na interface
+│       ├── engines/                  # motores do chat: claude.js, opencode.js, gemini.js + catalog.json (modelos) + index.js (registro)
+│       ├── state.js                  # controle do que já foi analisado
+│       ├── redact.js                 # redação de segredos e dados pessoais
+│       └── root.js, env.js, cli.js, text.js, limits.js, projects.js, claude-bin.js, project-mcp.js
+├── tests/                       # npm test (node --test, sem dependências); golden master dos importadores em tests/golden/
 ├── ui/                          # interface web local (Node, sem dependências)
 └── projects/                     # LOCAL: só o _template é versionado
     ├── .active                  # slug do projeto ativo (uma linha)

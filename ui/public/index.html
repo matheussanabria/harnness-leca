@@ -110,7 +110,7 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
 .btn-live-chat{background:linear-gradient(135deg,#d97757,#e06c45);color:#fff;border:0;border-radius:8px;padding:6px 14px;font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;box-shadow:0 2px 8px #d9775744;transition:opacity .15s}
 .btn-live-chat:hover{opacity:.9}
 /* Modal do Chat Interativo */
-.chat-dialog{width:min(940px,94vw);height:min(88vh,820px);padding:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 36px #000a}
+.chat-dialog{width:min(1240px,96vw);height:min(90vh,860px);padding:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 36px #000a;transition:width .2s}
 .chat-header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--panel2);flex-wrap:wrap;gap:10px}
 .chat-header .title{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px}
 .engine-tabs{display:flex;gap:4px;background:var(--bg);padding:3px;border-radius:8px;border:1px solid var(--line)}
@@ -119,10 +119,11 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
 .eng-tab.active[data-engine="claude"]{background:#d97757;color:#fff}
 .eng-tab.active[data-engine="opencode"]{background:#3cb371;color:#fff}
 .eng-tab.active[data-engine="gemini"]{background:#5c87f2;color:#fff}
+.eng-tab.active[data-engine="compare"]{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff}
 .chat-context-bar{background:var(--panel2);padding:6px 18px;font-size:12px;color:var(--mute);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .chat-context-bar code{background:var(--bg);padding:1px 5px;border-radius:4px;color:var(--text)}
 .eng-badge{font-size:11px;padding:2px 8px;border-radius:6px;background:var(--bg);border:1px solid var(--line);color:var(--mute)}
-.chat-controls-bar{background:var(--panel);padding:7px 18px;font-size:12px;color:var(--text);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.chat-controls-bar{background:var(--panel);padding:7px 18px;font-size:12px;color:var(--text);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;flex-wrap:wrap;min-height:43px}
 .chat-controls-bar .ctrl-item{display:flex;align-items:center;gap:8px}
 .chat-controls-bar label{color:var(--mute);font-size:11px;display:flex;align-items:center;gap:4px}
 .chat-controls-bar label b{color:var(--text);font-weight:600}
@@ -137,6 +138,28 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
 .effort-btn.active[data-effort="high"]{color:#d97757}
 .effort-btn.active[data-effort="xhigh"]{color:#b388ff}
 .effort-btn.active[data-effort="max"]{color:#f43f5e}
+.compare-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:12px;user-select:none;transition:all .15s}
+.compare-chip:hover{border-color:var(--mute)}
+.compare-chip input{accent-color:var(--accent);cursor:pointer;margin:0}
+.compare-chip.active{border-color:var(--accent);background:var(--panel2)}
+.compare-grid{display:grid;gap:12px;width:100%}
+.compare-grid.cols-1{grid-template-columns:1fr}
+.compare-grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.compare-grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:860px){
+  .compare-grid.cols-2,.compare-grid.cols-3{grid-template-columns:1fr}
+}
+.compare-col{display:flex;flex-direction:column;background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 2px 8px #0002;min-width:0}
+.compare-col-header{padding:8px 12px;background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:600}
+.compare-col-header .who{display:flex;align-items:center;gap:6px}
+.compare-col-body{padding:12px 14px;flex:1;font-size:13.5px;line-height:1.5;display:flex;flex-direction:column;gap:8px;overflow-wrap:break-word;word-break:break-word}
+.compare-col-body pre{max-width:100%;overflow-x:auto}
+.compare-col.claude{border-top:3px solid #d97757}
+.compare-col.claude .who{color:#d97757}
+.compare-col.opencode{border-top:3px solid #3cb371}
+.compare-col.opencode .who{color:#7de2a3}
+.compare-col.gemini{border-top:3px solid #5c87f2}
+.compare-col.gemini .who{color:#7ca5f5}
 .chat-history{flex:1;min-height:0;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 .chat-footer{border-top:1px solid var(--line);padding:12px 16px;background:var(--panel);display:flex;flex-direction:column;gap:8px}
 .chat-input-wrap{display:flex;gap:10px;align-items:flex-end}
@@ -187,6 +210,7 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
       <button class="eng-tab active" data-engine="claude" onclick="switchEngine('claude')">✱ Claude Code</button>
       <button class="eng-tab" data-engine="opencode" onclick="switchEngine('opencode')">◆ OpenCode</button>
       <button class="eng-tab" data-engine="gemini" onclick="switchEngine('gemini')">✦ Gemini</button>
+      <button class="eng-tab" data-engine="compare" onclick="switchEngine('compare')">⚖ Comparar Motores</button>
     </div>
     <button onclick="chatDlg.close()" style="background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer">×</button>
   </div>
@@ -195,18 +219,40 @@ details.internal[open]>summary{border-bottom:1px dashed var(--line);margin-botto
     <div id="engineAuthBadge" class="eng-badge">Plano Claude Pro (CLI local)</div>
   </div>
   <div class="chat-controls-bar">
-    <div class="ctrl-item">
-      <label for="chatModelSelect"><b>Modelo:</b></label>
-      <select id="chatModelSelect" onchange="onModelChange(this.value)"></select>
+    <div id="singleControls" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;width:100%">
+      <div class="ctrl-item">
+        <label for="chatModelSelect"><b>Modelo:</b></label>
+        <select id="chatModelSelect" onchange="onModelChange(this.value)"></select>
+      </div>
+      <div class="ctrl-item" style="margin-left:auto">
+        <label><b>Esforço / Raciocínio:</b></label>
+        <div class="effort-toggle" id="effortToggle">
+          <button type="button" class="effort-btn" data-effort="low" onclick="setEffort('low')">Low</button>
+          <button type="button" class="effort-btn active" data-effort="medium" onclick="setEffort('medium')">Medium</button>
+          <button type="button" class="effort-btn" data-effort="high" onclick="setEffort('high')">High</button>
+          <button type="button" class="effort-btn" data-effort="xhigh" onclick="setEffort('xhigh')">Extra High</button>
+          <button type="button" class="effort-btn" data-effort="max" onclick="setEffort('max')">Max</button>
+        </div>
+      </div>
     </div>
-    <div class="ctrl-item" style="margin-left:auto">
-      <label><b>Esforço / Raciocínio:</b></label>
-      <div class="effort-toggle" id="effortToggle">
-        <button type="button" class="effort-btn" data-effort="low" onclick="setEffort('low')">Low</button>
-        <button type="button" class="effort-btn active" data-effort="medium" onclick="setEffort('medium')">Medium</button>
-        <button type="button" class="effort-btn" data-effort="high" onclick="setEffort('high')">High</button>
-        <button type="button" class="effort-btn" data-effort="xhigh" onclick="setEffort('xhigh')">Extra High</button>
-        <button type="button" class="effort-btn" data-effort="max" onclick="setEffort('max')">Max</button>
+    <div id="compareControls" style="display:none;align-items:center;gap:14px;flex-wrap:wrap;width:100%">
+      <div class="ctrl-item" style="display:flex;align-items:center;gap:8px">
+        <span style="font-weight:600;font-size:11.5px;color:var(--mute)">Comparar:</span>
+        <label class="compare-chip active" id="chipClaude" onclick="toggleCompareEngine('claude')">
+          <input type="checkbox" id="chkCompareClaude" checked onclick="event.stopPropagation();toggleCompareEngine('claude')">
+          <span style="color:#d97757;font-weight:600">✱ Claude</span>
+        </label>
+        <label class="compare-chip active" id="chipGemini" onclick="toggleCompareEngine('gemini')">
+          <input type="checkbox" id="chkCompareGemini" checked onclick="event.stopPropagation();toggleCompareEngine('gemini')">
+          <span style="color:#5c87f2;font-weight:600">✦ Gemini</span>
+        </label>
+        <label class="compare-chip" id="chipOpencode" onclick="toggleCompareEngine('opencode')">
+          <input type="checkbox" id="chkCompareOpencode" onclick="event.stopPropagation();toggleCompareEngine('opencode')">
+          <span style="color:#3cb371;font-weight:600">◆ OpenCode</span>
+        </label>
+      </div>
+      <div id="compareSummaryBadge" style="margin-left:auto;font-size:11.5px;color:var(--mute);display:flex;align-items:center;gap:10px">
+        <span id="compareEnginesDesc">2 motores selecionados · streaming simultâneo</span>
       </div>
     </div>
   </div>
@@ -490,6 +536,7 @@ const showMem = () => openDlg("Memória", "## Global\n" + clean(S.global.memory)
 
 let chatTurns = [];
 let currentEngine = "claude";
+let compareSelectedEngines = ["claude", "gemini"];
 let engineSessions = { claude: null, opencode: null, gemini: null };
 let engineSettings = {
   claude: { model: null, effort: "medium" },
@@ -537,14 +584,18 @@ function updateEngineControls() {
 }
 
 function onModelChange(val) {
-  engineSettings[currentEngine].model = val;
+  if (currentEngine !== "compare") {
+    engineSettings[currentEngine].model = val;
+  }
 }
 
 function setEffort(lvl) {
-  engineSettings[currentEngine].effort = lvl;
-  document.querySelectorAll(".effort-btn").forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.effort === lvl);
-  });
+  if (currentEngine !== "compare") {
+    engineSettings[currentEngine].effort = lvl;
+    document.querySelectorAll(".effort-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.effort === lvl);
+    });
+  }
 }
 
 function updateEngineAuthBadge() {
@@ -561,18 +612,72 @@ function updateEngineAuthBadge() {
   if (stText) stText.textContent = sId ? `Sessão ativa (${currentEngine}): ${sId.slice(0, 14)}...` : "";
 }
 
+function cap(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function toggleCompareEngine(eng) {
+  const chk = $("chkCompare" + cap(eng));
+  if (!chk) return;
+  const idx = compareSelectedEngines.indexOf(eng);
+  if (chk.checked && idx < 0) {
+    compareSelectedEngines.push(eng);
+  } else if (!chk.checked && idx >= 0) {
+    if (compareSelectedEngines.length <= 1) {
+      chk.checked = true;
+      return;
+    }
+    compareSelectedEngines.splice(idx, 1);
+  }
+  const chip = $("chip" + cap(eng));
+  if (chip) chip.classList.toggle("active", chk.checked);
+  updateCompareDesc();
+}
+
+function updateCompareDesc() {
+  const desc = $("compareEnginesDesc");
+  if (desc) {
+    desc.textContent = `${compareSelectedEngines.length} motores selecionados · streaming simultâneo`;
+  }
+  const badge = $("engineAuthBadge");
+  if (badge && currentEngine === "compare") {
+    badge.textContent = `Arena de Comparação (${compareSelectedEngines.length} motores ativos)`;
+  }
+}
+
 function switchEngine(eng) {
   currentEngine = eng;
   document.querySelectorAll(".eng-tab").forEach(tab => {
     tab.classList.toggle("active", tab.dataset.engine === eng);
   });
-  updateEngineAuthBadge();
+
+  const isComp = eng === "compare";
+  const singleCtrl = $("singleControls");
+  const compCtrl = $("compareControls");
+  if (singleCtrl) singleCtrl.style.display = isComp ? "none" : "flex";
+  if (compCtrl) compCtrl.style.display = isComp ? "flex" : "none";
+
+  const badge = $("engineAuthBadge");
+  const inp = $("chatInput");
+  const stText = $("chatStatusText");
+
+  if (isComp) {
+    updateCompareDesc();
+    if (inp) inp.placeholder = "Envie uma pergunta para comparar as respostas dos motores selecionados... (Enter para enviar)";
+    if (stText) stText.textContent = "Modo Comparação ativo. Envie um prompt para ver as respostas lado a lado.";
+  } else {
+    updateEngineAuthBadge();
+  }
 }
 
 function openInteractiveChat() {
   if (!P) return;
   $("chatTitle").textContent = `💬 Chat do Projeto — ${P.slug}`;
-  updateEngineAuthBadge();
+  if (currentEngine === "compare") {
+    switchEngine("compare");
+  } else {
+    updateEngineAuthBadge();
+  }
   $("chatDlg").showModal();
   setTimeout(() => $("chatInput").focus(), 50);
 }
@@ -604,6 +709,54 @@ function renderChatHistory() {
     if (t.role === "user") {
       return `<div class="msg user"><div class="who">Você</div><div class="bubble"><p>${esc(t.text).replace(/\n/g, "<br>")}</p></div></div>`;
     }
+
+    if (t.role === "comparison") {
+      const cols = t.engines.map((eng) => {
+        const resp = t.responses[eng] || { text: "", streaming: false };
+        const meta = enginesMeta[eng] || { name: eng, icon: "🤖" };
+        const isStreaming = resp.streaming;
+        const isThinkOpen = isStreaming && !resp.text ? " open" : "";
+        const thinkingHtml = resp.thinking
+          ? `<details class="chat-thinking"${isThinkOpen}><summary>🧠 Raciocínio interno</summary><div class="think-content">${esc(resp.thinking)}</div></details>`
+          : "";
+        const bodyHtml = resp.error
+          ? `<p style="color:#ef4444;font-size:12px;padding:8px;background:rgba(239,68,68,0.1);border-radius:6px">⚠️ <b>Erro:</b> ${esc(resp.error)}</p>`
+          : resp.text
+          ? md(resp.text)
+          : (isStreaming ? '<p style="color:var(--mute);font-style:italic">Gerando resposta...</p>' : '<p style="color:var(--mute)">Sem resposta</p>');
+        const cursorHtml = isStreaming ? '<span class="stream-cursor">▌</span>' : "";
+        const timeBadge = resp.elapsedMs ? `<span style="font-size:11px;opacity:0.75;font-weight:normal">⏱ ${(resp.elapsedMs / 1000).toFixed(1)}s</span>` : "";
+        const effortBadge = resp.effort ? `<span style="font-size:10px;border:1px solid var(--line);padding:1px 5px;border-radius:4px;opacity:0.8">${esc(effortMap[resp.effort] || resp.effort)}</span>` : "";
+        const modelBadge = resp.model ? `<span style="font-size:11px;opacity:0.75;font-weight:normal">${esc(resp.model)}</span>` : "";
+
+        return `
+          <div class="compare-col ${eng}">
+            <div class="compare-col-header">
+              <div class="who">${esc(meta.icon)} ${esc(meta.name)}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+                ${modelBadge}
+                ${effortBadge}
+                ${isStreaming ? '<span style="color:var(--accent);font-size:11px;animation:blink 1s infinite">● gerando</span>' : timeBadge}
+              </div>
+            </div>
+            <div class="compare-col-body">
+              ${thinkingHtml}
+              ${bodyHtml}
+              ${cursorHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div class="msg comparison" style="width:100%">
+          <div class="compare-grid cols-${Math.min(t.engines.length, 3)}">
+            ${cols}
+          </div>
+        </div>
+      `;
+    }
+
     const eng = enginesMeta[t.engine || currentEngine] || { name: "Assistente", icon: "🤖" };
     const engClass = (t.engine || currentEngine);
     const isLastStreaming = isChatStreaming && idx === chatTurns.length - 1;
@@ -629,6 +782,121 @@ async function sendChatMessage() {
   input.value = "";
   input.style.height = "auto";
 
+  // MODO COMPARATIVO: dispara todos os motores selecionados em paralelo
+  if (currentEngine === "compare") {
+    const activeEngines = [...compareSelectedEngines];
+    if (!activeEngines.length) {
+      alert("Selecione pelo menos um motor para comparar.");
+      return;
+    }
+
+    const compTurn = {
+      role: "comparison",
+      engines: activeEngines,
+      responses: {}
+    };
+
+    for (const eng of activeEngines) {
+      compTurn.responses[eng] = {
+        text: "",
+        thinking: "",
+        model: engineSettings[eng].model,
+        effort: engineSettings[eng].effort,
+        streaming: true,
+        error: null,
+        startTime: Date.now(),
+        elapsedMs: null,
+      };
+    }
+
+    chatTurns.push(compTurn);
+    isChatStreaming = true;
+    $("btnSendChat").disabled = true;
+    $("btnSaveChat").disabled = true;
+    $("chatStatusText").textContent = `Comparando ${activeEngines.length} motores em paralelo...`;
+    renderChatHistory();
+
+    const streamPromises = activeEngines.map(async (eng) => {
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            engine: eng,
+            prompt: text,
+            slug: P.slug,
+            sessionId: engineSessions[eng],
+            history: chatTurns
+              .filter(t => t.role === "user" || (t.role === "assistant" && t.engine === eng))
+              .slice(0, -1)
+              .map(t => ({ role: t.role, text: t.text })),
+            model: engineSettings[eng].model,
+            effort: engineSettings[eng].effort,
+          }),
+        });
+
+        if (!res.ok) {
+          const errJson = await res.json().catch(() => ({}));
+          throw new Error(errJson.error || `HTTP ${res.status}`);
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const jsonStr = line.slice(6).trim();
+            if (!jsonStr) continue;
+            try {
+              const data = JSON.parse(jsonStr);
+              if (data.sessionId) engineSessions[eng] = data.sessionId;
+
+              if (data.type === "text" && data.text) {
+                compTurn.responses[eng].text += data.text;
+                renderChatHistory();
+              } else if (data.type === "thinking" && data.text) {
+                compTurn.responses[eng].thinking = (compTurn.responses[eng].thinking || "") + data.text;
+                renderChatHistory();
+              } else if (data.type === "error") {
+                compTurn.responses[eng].error = data.error;
+                renderChatHistory();
+              } else if (data.type === "done") {
+                if (data.sessionId) engineSessions[eng] = data.sessionId;
+                if (data.fullText && !compTurn.responses[eng].text) {
+                  compTurn.responses[eng].text = data.fullText;
+                }
+              }
+            } catch {}
+          }
+        }
+      } catch (err) {
+        compTurn.responses[eng].error = err.message || String(err);
+      } finally {
+        compTurn.responses[eng].streaming = false;
+        compTurn.responses[eng].elapsedMs = Date.now() - compTurn.responses[eng].startTime;
+        renderChatHistory();
+      }
+    });
+
+    await Promise.allSettled(streamPromises);
+    isChatStreaming = false;
+    $("btnSendChat").disabled = false;
+    $("btnSaveChat").disabled = chatTurns.length < 2;
+    $("chatStatusText").textContent = "Comparação concluída!";
+    renderChatHistory();
+    $("chatInput").focus();
+    return;
+  }
+
+  // MODO INDIVIDUAL: motor único
   const assistantTurn = {
     role: "assistant",
     text: "",
@@ -724,17 +992,42 @@ async function saveCurrentChat() {
 
   try {
     const firstUserMsg = chatTurns.find(t => t.role === "user");
-    const title = firstUserMsg ? firstUserMsg.text.slice(0, 50).replace(/[\r\n]+/g, " ") : "Chat com " + currentEngine;
+    const title = firstUserMsg ? firstUserMsg.text.slice(0, 50).replace(/[\r\n]+/g, " ") : (currentEngine === "compare" ? "Comparativo Multi-Motor" : "Chat com " + currentEngine);
+
+    const flatTurns = [];
+    for (const t of chatTurns) {
+      if (t.role === "user") {
+        flatTurns.push({ role: "user", text: t.text });
+      } else if (t.role === "comparison") {
+        for (const eng of t.engines) {
+          const resp = t.responses[eng];
+          if (resp && (resp.text || resp.thinking)) {
+            flatTurns.push({
+              role: "assistant",
+              engine: eng,
+              model: resp.model,
+              effort: resp.effort,
+              text: resp.text,
+              thinking: resp.thinking
+            });
+          }
+        }
+      } else {
+        flatTurns.push(t);
+      }
+    }
+
+    const saveEngine = currentEngine === "compare" ? (compareSelectedEngines[0] || "claude") : currentEngine;
 
     const res = await fetch("/api/chat/save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         slug: P.slug,
-        engine: currentEngine,
+        engine: saveEngine,
         title,
-        turns: chatTurns,
-        sessionId: engineSessions[currentEngine],
+        turns: flatTurns,
+        sessionId: engineSessions[saveEngine],
       }),
     });
 
