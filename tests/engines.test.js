@@ -261,7 +261,11 @@ test("servidor: POST só com Origin igual ao próprio endereço e JSON; erros in
   const port = 43000 + (process.pid % 2000);
   const srv = cp.spawn(process.execPath, [path.join(__dirname, "..", "ui", "server.js")], { env: { ...process.env, PORT: String(port) }, stdio: ["ignore", "pipe", "ignore"], windowsHide: true });
   t.after(() => srv.kill());
-  await new Promise((r) => srv.stdout.once("data", r));
+  await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("servidor não respondeu em 15 s")), 15000);
+    srv.once("exit", (code) => { clearTimeout(timer); reject(new Error(`servidor saiu antes de subir (código ${code})`)); });
+    srv.stdout.once("data", () => { clearTimeout(timer); resolve(); });
+  });
 
   const base = `http://127.0.0.1:${port}`;
   const post = (headers, body = { engine: "x", prompt: "oi", slug: "dai" }) =>
