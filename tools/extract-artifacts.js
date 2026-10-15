@@ -184,6 +184,7 @@ if (flag("llm")) {
   // Só o que está pendente (nova ou alterada desde a última análise); --all reanalisa tudo.
   const lim = opt("limit") || "10";
   const byName = new Map(chats.map((c) => [path.basename(c.file), c]));
+  S.migrateLegacy(slug);
   const todo = S.scan(slug).filter((r) => flag("all") || r.status !== "ok").map((r) => byName.get(r.name)).filter(Boolean);
   const pick = lim === "all" ? todo : todo.slice(0, Math.max(1, parseInt(lim, 10) || 10));
   console.log(`Modo --llm: ${pick.length} conversa(s) pendente(s) serão resumidas pelo modelo (de ${todo.length} pendentes).`);
@@ -231,5 +232,5 @@ for (const [f, t] of [...docFiles, ...ansFiles]) {
   fs.writeFileSync(dest, t);
 }
 if (pendingMarks.length) S.mark(slug, pendingMarks, "claude");
-S.generateTableMarkdown(slug);
+S.writeTable(slug);
 console.log(`Gravado em projects/${slug}/context/`);

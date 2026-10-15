@@ -6,6 +6,7 @@ const crypto = require("crypto");
 
 const { ROOT } = require("./root");
 const { readMeta, hashBody, countTurns } = require("./chat-format");
+const { statusOf, renderTable } = require("./extraction");
 const SLUG = /^[a-z0-9][a-z0-9_-]{0,59}$/;
 
 function paths(slug) {
@@ -47,74 +48,40 @@ function load(slug) {
 }
 function save(slug, st) { fs.writeFileSync(paths(slug).state, JSON.stringify(st, null, 2) + "\n"); }
 
-// status: "nova" (nunca analisada) | "alterada" (mudou depois da análise) | "ok" (em dia)
+// Conversas do projeto com o status de cada uma (ver extraction.statusOf), da mais recente para a mais antiga.
+// É só leitura: não grava nada. Entradas antigas contam como em dia quando o nº de turnos não mudou; para gravar o
+// hash novo no estado, use migrateLegacy (os comandos de linha de comando chamam; a interface web não).
 function scan(slug) {
   const p = paths(slug), st = load(slug);
   if (!fs.existsSync(p.chats)) return [];
-  let migrated = false;
   const list = fs.readdirSync(p.chats).filter((f) => f.endsWith(".md")).map((f) => {
     const c = readChat(path.join(p.chats, f)), prev = st.sessoes[c.sessao];
-    let status = !prev ? "nova" : prev.hash === c.hash ? "ok" : "alterada";
-    // Entradas antigas (hash do arquivo inteiro, sem `v`): se o nº de turnos não mudou, adota o novo hash uma vez.
-    if (status === "alterada" && prev.v !== 2 && prev.turnos === c.turnos) { prev.hash = c.hash; prev.v = 2; status = "ok"; migrated = true; }
-    return { ...c, status, antes: prev || null };
+    const { status, adopt } = statusOf(prev, c);
+    return { ...c, status, adopt, antes: prev || null };
   });
-  if (migrated) save(slug, st);
   return list.sort((a, b) => (b.fim || "").localeCompare(a.fim || ""));
 }
 
-// Gera e atualiza a tabela Markdown em projects/<slug>/context/extraido-conversas.md
-function generateTableMarkdown(slug) {
+// Grava no estado o hash novo das entradas antigas (sem `v`) cujo nº de turnos não mudou. Devolve quantas migrou.
+function migrateLegacy(slug) {
+  const st = load(slug);
+  const legacy = scan(slug).filter((r) => r.adopt);
+  for (const r of legacy) Object.assign(st.sessoes[r.sessao], { hash: r.hash, v: 2 });
+  if (legacy.length) save(slug, st);
+  return legacy.length;
+}
+
+// Grava a tabela de conversas em projects/<slug>/context/extraido-conversas.md (se a pasta context/ existir).
+// Devolve o Markdown ("" se não há conversas).
+function writeTable(slug) {
   const p = paths(slug);
-  const rows = scan(slug);
-  if (!rows.length) return "";
-  const n = (s) => rows.filter((r) => r.status === s).length;
-  const lines = [
-    `# Mapeamento de Conversas e Estado de Extração — ${slug}`,
-    "",
-    `> Gerado automaticamente por \`tools/extraction-state.js\` em ${new Date().toISOString().slice(0, 10)}.`,
-    `> **Sugestões para revisão**: nada aqui foi copiado para \`memory.md\` ou \`instructions.md\`.`,
-    "",
-    `### Resumo`,
-    `- **Total de conversas:** ${rows.length}`,
-    `- **Em dia (analisadas):** ${n("ok")}`,
-    `- **Pendentes (novas):** ${n("nova")}`,
-    `- **Alteradas (com novos turnos após análise):** ${n("alterada")}`,
-    "",
-    "### Como analisar as conversas pendentes",
-    "Use a skill `extrair-artefatos` ou execute:",
-    "```bash",
-    `node tools/extraction-state.js --project ${slug} status`,
-    `node tools/extraction-state.js --project ${slug} pending --limit 5`,
-    "```",
-    "",
-    "### Tabela de Mapeamento",
-    "",
-    "| # | Conversa / Título | Arquivo | Data | Turnos | Status | Analisado por | Analisado em |",
-    "|---|---|---|:---:|:---:|:---:|:---:|:---:|",
-  ];
-
-  rows.forEach((r, idx) => {
-    const isAlt = r.status === "alterada";
-    const stIcon = r.status === "ok" ? "✅ Em dia" : isAlt ? "↻ Alterada" : "⏳ Pendente";
-    const turnosStr = isAlt && r.antes ? `${r.antes.turnos} → ${r.turnos}` : `${r.turnos}`;
-    const por = r.antes ? r.antes.por || "desconhecido" : "-";
-    const dataAnalisado = r.antes && r.antes.analisadoEm ? r.antes.analisadoEm.slice(0, 10) : "-";
-    const fileRel = `../chats/${r.name}`;
-    const cleanTitle = r.titulo.replace(/\|/g, "\\-").replace(/[\r\n]+/g, " ");
-    lines.push(`| ${idx + 1} | [${cleanTitle}](${fileRel}) | \`${r.name}\` | ${r.data || "-"} | ${turnosStr} | ${stIcon} | ${por} | ${dataAnalisado} |`);
-  });
-
-  lines.push("");
-  const md = lines.join("\n");
-  const ctxDir = path.join(p.proj, "context");
-  if (fs.existsSync(ctxDir)) {
-    fs.writeFileSync(p.tabela, md, "utf8");
-  }
+  const md = renderTable(slug, scan(slug), new Date().toISOString().slice(0, 10));
+  if (md && fs.existsSync(path.join(p.proj, "context"))) fs.writeFileSync(p.tabela, md, "utf8");
   return md;
 }
 
-// Registra como analisadas as conversas indicadas (nomes de arquivo dentro de chats/).
+// Registra como analisadas as conversas indicadas (nomes de arquivo dentro de chats/). Só atualiza o estado:
+// quem quiser a tabela atualizada chama writeTable depois.
 function mark(slug, names, by) {
   const p = paths(slug), st = load(slug), done = [];
   for (const n of names) {
@@ -125,8 +92,7 @@ function mark(slug, names, by) {
     done.push(c.name);
   }
   save(slug, st);
-  generateTableMarkdown(slug);
   return done;
 }
 
-module.exports = { paths, readChat, load, save, scan, mark, generateTableMarkdown };
+module.exports = { paths, readChat, load, save, scan, migrateLegacy, mark, writeTable };

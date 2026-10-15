@@ -43,7 +43,7 @@ function saveChatToProject({ slug, engine, title, turns, sessionId }) {
 
   // Atualiza automaticamente o mapa e a tabela Markdown
   try {
-    state.generateTableMarkdown(slug);
+    state.writeTable(slug);
   } catch {}
 
   return { fileName, path: fullPath };

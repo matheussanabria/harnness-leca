@@ -26,6 +26,7 @@ let p;
 try { p = S.paths(slug); } catch { fail("Uso: node tools/extraction-state.js --project <slug> status|pending|mark|adopt|reset"); }
 if (!fs.existsSync(p.chats)) fail(`Sem chats em projects/${slug}/chats. Rode o importador primeiro.`);
 
+S.migrateLegacy(slug); // estado de versões antigas: grava o hash novo uma vez (o scan em si só lê)
 const rows = S.scan(slug);
 const pending = rows.filter((r) => r.status !== "ok");
 
@@ -37,9 +38,9 @@ if (cmd === "status") {
     console.log(`${r.status.padEnd(8)} ${r.name}${extra}`);
   }
   if (!pending.length) console.log("Tudo em dia.");
-  S.generateTableMarkdown(slug);
+  S.writeTable(slug);
 } else if (cmd === "table" || cmd === "sync") {
-  const md = S.generateTableMarkdown(slug);
+  const md = S.writeTable(slug);
   console.log(`Tabela atualizada em projects/${slug}/context/extraido-conversas.md (${rows.length} conversas)`);
 } else if (cmd === "pending") {
   const lim = opt("limit") ? Math.max(1, parseInt(opt("limit"), 10) || 1) : Infinity;
@@ -48,6 +49,7 @@ if (cmd === "status") {
   const files = all("file");
   if (!files.length) fail("Informe ao menos um --file nome.md");
   try { S.mark(slug, files, opt("by")).forEach((f) => console.log(`marcada: ${f}`)); } catch (e) { fail(e.message); }
+  S.writeTable(slug);
 } else if (cmd === "adopt") {
   // Para quem já extraiu antes de existir o controle: casa os títulos de extraido-memorias.md com as conversas.
   if (!fs.existsSync(p.memorias)) fail("Não há extraido-memorias.md neste projeto.");
@@ -55,11 +57,11 @@ if (cmd === "status") {
   const headings = new Set([...mem.matchAll(/^## (.+?) \((\d{4}-\d\d-\d\d|s\/d)\)\s*$/gm)].map((m) => `${m[1].trim().toLowerCase()}|${m[2]}`));
   const hits = rows.filter((r) => headings.has(`${r.titulo.trim().toLowerCase()}|${r.data || "s/d"}`)).map((r) => r.name);
   if (hits.length) S.mark(slug, hits, opt("by") || "adotada");
-  S.generateTableMarkdown(slug);
+  S.writeTable(slug);
   console.log(`${hits.length} conversa(s) adotada(s) como já analisadas.`);
   hits.forEach((f) => console.log(`  ${f}`));
 } else if (cmd === "reset") {
   S.save(slug, { version: 1, sessoes: {} });
-  S.generateTableMarkdown(slug);
+  S.writeTable(slug);
   console.log("Estado zerado.");
 } else fail(`Comando desconhecido: ${cmd}`);

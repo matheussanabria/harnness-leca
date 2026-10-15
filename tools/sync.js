@@ -135,6 +135,7 @@ if (!DRY && !flag("no-extract")) {
 
 console.log("\nProjeto                               conversas  em dia  novas  alteradas  (para analisar)");
 for (const slug of slugs.filter(want)) {
+  if (!DRY) state.migrateLegacy(slug); // estado de versões antigas: o scan só lê
   const list = state.scan(slug);
   const c = (s) => list.filter((x) => x.status === s).length;
   console.log(`${slug.padEnd(37)} ${String(list.length).padStart(9)}  ${String(c("ok")).padStart(6)}  ${String(c("nova")).padStart(5)}  ${String(c("alterada")).padStart(9)}`);
