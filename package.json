@@ -6,6 +6,7 @@
   "scripts": {
     "sync": "node tools/sync.js",
     "sync:dry": "node tools/sync.js --dry-run",
-    "ui": "node ui/server.js"
+    "ui": "node ui/server.js",
+    "test": "node --test \"tests/*.test.js\""
   }
 }
