@@ -1,3 +1,4 @@
+// @ts-check
 // Variáveis de ambiente locais (global/.env ou .env), carregadas sob demanda por quem precisa delas.
 // Não roda ao carregar o módulo e não sobrescreve o que já veio do ambiente do sistema: o valor do sistema
 // vence o do arquivo. Mudanças no arquivo valem na próxima chamada (só para as chaves que o arquivo trouxe).

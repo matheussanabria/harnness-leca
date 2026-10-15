@@ -1,3 +1,4 @@
+// @ts-check
 // Grava um chat em projects/<slug>/chats/ e arruma o que ficou para trás. Usado pelos 4 importadores.
 const fs = require("fs");
 const path = require("path");
@@ -10,6 +11,7 @@ const { readMeta } = require("./chat-format");
 //   { chatsDir, name, sessionId, shortId, text, mtime?, dryRun? }
 //   mtime: data da última mensagem (ISO ou ms); a interface ordena e data os chats pelo mtime do arquivo.
 //   retorna { state: "nova" | "atualizada" | "sem mudança", removed: [nomes removidos] }
+/** @param {import("./types").WriteChatOptions} opts @returns {{ state: import("./types").WriteState, removed: string[] }} */
 function writeChat({ chatsDir, name, sessionId, shortId, text, mtime, dryRun = false }) {
   const out = path.join(chatsDir, name);
   const before = fs.existsSync(out) ? fs.readFileSync(out, "utf8") : null;

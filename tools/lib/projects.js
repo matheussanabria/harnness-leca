@@ -1,3 +1,4 @@
+// @ts-check
 // Descobre a qual projeto do harness pertence uma pasta de trabalho (caminho, ou nome de pasta do Claude Code).
 // Só considera projetos que já existem em projects/. Apelidos opcionais em projects/.sources.json:
 //   { "saude-prontuario": ["prontuario"], "dai": ["agentes-dai"] }

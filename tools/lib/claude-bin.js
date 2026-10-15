@@ -1,3 +1,4 @@
+// @ts-check
 // Caminho absoluto do executável do Claude Code, para rodar com shell:false.
 // Com shell:true (ou com o nome solto), o Windows procura "claude" primeiro na pasta atual: um claude.cmd
 // deixado em projects/<slug>/ rodaria no lugar do verdadeiro. Aqui só valem CLAUDE_BIN e as pastas do PATH.

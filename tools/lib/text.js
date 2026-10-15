@@ -1,3 +1,4 @@
+// @ts-check
 // Funções de texto usadas pelos importadores para montar nomes de arquivo e blocos do .md.
 const { MAX_IO } = require("./limits");
 

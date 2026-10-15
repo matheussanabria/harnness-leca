@@ -1,3 +1,4 @@
+// @ts-check
 // Peças comuns aos motores de chat: erro público, validação do que vem do navegador e contexto do projeto.
 const fs = require("fs");
 const path = require("path");

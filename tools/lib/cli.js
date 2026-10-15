@@ -1,3 +1,4 @@
+// @ts-check
 // Leitura mínima de argumentos de linha de comando (--nome e --nome valor), sem dependências.
 // Os dois leem process.argv a cada chamada; `argv` existe para os testes e para chamar os scripts em memória.
 const rest = () => process.argv.slice(2);

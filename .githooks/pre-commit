@@ -1,0 +1,3 @@
+#!/bin/sh
+# Pre-commit do harness (ativar: npm run setup:hooks). Veja scripts/pre-commit.js.
+exec node "$(git rev-parse --show-toplevel)/scripts/pre-commit.js"

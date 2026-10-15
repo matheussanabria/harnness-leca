@@ -319,9 +319,9 @@ test("redact: remove e-mail, CPF e telefone, mas deixa números comuns em paz", 
 
 test("redact remove segredos comuns", () => {
   assert.match(redact("token=abcdef123456"), /\[REDIGIDO\]/);
-  assert.doesNotMatch(redact("Authorization: Bearer abcdefghijklmnop"), /abcdefghijklmnop/);
-  assert.match(redact("curl -H 'Bearer abcdefghijklmnop'"), /Bearer \[REDIGIDO\]/);
-  assert.match(redact("https://user:senha123@host.com"), /user:\[REDIGIDO\]@/);
+  assert.doesNotMatch(redact("Authorization: Bearer abcdefghijklmnop"), /abcdefghijklmnop/); // allow-secret
+  assert.match(redact("curl -H 'Bearer abcdefghijklmnop'"), /Bearer \[REDIGIDO\]/); // allow-secret
+  assert.match(redact("https://user:senha123@host.com"), /user:\[REDIGIDO\]@/); // allow-secret
   assert.equal(redact("texto comum"), "texto comum");
 
   // Formatos que a primeira versão deixava passar. Os valores são montados na hora para o repositório
@@ -330,7 +330,7 @@ test("redact remove segredos comuns", () => {
   const leaks = [
     "sk_" + "live_" + fill(24), "rk_" + "live_" + fill(24), "ya29." + fill(40), "GOCSPX-" + fill(24),
     "npm_" + fill(36), "hf_" + fill(34), "pypi-" + fill(40),
-    "https://hooks.slack.com/services/T0000000/B0000000/" + fill(24),
+    "https://hooks.slack.com/services/T0000000/B0000000/" + fill(24), // allow-secret
     "https://discord.com/api/webhooks/123456789012345678/" + fill(40),
     "DefaultEndpointsProtocol=https;AccountName=x;AccountKey=" + fill(44),
     "https://x.blob.core.windows.net/c/f?sv=2022&sig=" + fill(40),

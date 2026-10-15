@@ -1,3 +1,4 @@
+// @ts-check
 // Controle de quais conversas já foram analisadas e se mudaram depois disso.
 // Estado em projects/<slug>/extraction-state.json, indexado pelo id da sessão (campo `sessao` do .md).
 const fs = require("fs");
@@ -22,6 +23,7 @@ function paths(slug) {
 }
 
 // Lê um chat importado: identidade (sessão), tamanho (turnos) e impressão digital do conteúdo (hash).
+/** @param {string} file @returns {import("./types").ChatInfo} */
 function readChat(file) {
   const raw = fs.readFileSync(file, "utf8");
   const get = readMeta(raw);
@@ -51,6 +53,7 @@ function save(slug, st) { fs.writeFileSync(paths(slug).state, JSON.stringify(st,
 // Conversas do projeto com o status de cada uma (ver extraction.statusOf), da mais recente para a mais antiga.
 // É só leitura: não grava nada. Entradas antigas contam como em dia quando o nº de turnos não mudou; para gravar o
 // hash novo no estado, use migrateLegacy (os comandos de linha de comando chamam; a interface web não).
+/** @param {string} slug @returns {import("./types").ChatRow[]} */
 function scan(slug) {
   const p = paths(slug), st = load(slug);
   if (!fs.existsSync(p.chats)) return [];

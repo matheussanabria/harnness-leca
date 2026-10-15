@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# O workflow só lê o repositório.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Node ${{ matrix.node }} em ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        # 22.13.0 é o mínimo declarado em package.json (node:sqlite sem flag); 24.x é o corrente.
+        node: ["22.13.0", "24.x"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Sintaxe e JSON
+        run: npm run check
+      - name: Testes
+        run: npm test
+
+  types:
+    name: Tipos (JSDoc)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      # Instala o TypeScript numa pasta temporária; nada entra no package.json.
+      - name: Checagem de tipos
+        run: npm run types

@@ -1,3 +1,4 @@
+// @ts-check
 // Motor 3: Gemini (Google AI Studio com chave em global/.env; sem chave, grava na fila bridge/ do Antigravity).
 const fs = require("fs");
 const path = require("path");
@@ -6,6 +7,7 @@ const { ROOT } = require("../root");
 const { loadEnv } = require("../env");
 const { safeModel, getProjectContext } = require("./common");
 
+/** @param {import("../types").EngineRequest} req */
 async function streamGemini({ prompt, slug, sessionId, history, model, effort, signal, onChunk, onDone, onError }) {
   loadEnv();
   // A chave vem só do .env: aceitá-la da requisição deixaria uma página forjada mandar o contexto do projeto para outra conta.
@@ -104,7 +106,8 @@ async function streamGemini({ prompt, slug, sessionId, history, model, effort, s
   }
 }
 
-module.exports = {
+/** @type {import("../types").Engine} */
+const engine = {
   id: "gemini",
   stream: streamGemini,
   status: async (catalog) => {
@@ -112,3 +115,5 @@ module.exports = {
     return { available: true, hasKey, auth: hasKey ? catalog._authComChave : catalog.auth };
   },
 };
+
+module.exports = engine;

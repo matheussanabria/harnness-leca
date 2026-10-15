@@ -1,3 +1,4 @@
+// @ts-check
 // Motor 2: opencode (REST HTTP no servidor local que já está rodando).
 const { PublicError, safeModel, getProjectContext } = require("./common");
 
@@ -5,6 +6,7 @@ const DEFAULT_URL = "http://localhost:63186";
 // Lido a cada uso (e não ao carregar o módulo): assim OPENCODE_URL vindo de global/.env também vale.
 const baseUrl = () => process.env.OPENCODE_URL || DEFAULT_URL;
 
+/** @param {import("../types").EngineRequest} req */
 async function streamOpenCode({ prompt, slug, sessionId, model, effort, signal, onChunk, onDone, onError }) {
   const base = baseUrl();
   try {
@@ -161,6 +163,7 @@ async function fetchModels(base, knownIds) {
   }
 }
 
+/** @param {import("../types").EngineCatalogEntry} catalog */
 async function status(catalog) {
   const base = baseUrl();
   let available = false;
@@ -173,4 +176,7 @@ async function status(catalog) {
   return { available, url: base, auth: `Servidor local (Porta ${port})`, defaultModel: models[0]?.id || catalog.defaultModel, models };
 }
 
-module.exports = { id: "opencode", stream: streamOpenCode, status };
+/** @type {import("../types").Engine} */
+const engine = { id: "opencode", stream: streamOpenCode, status };
+
+module.exports = engine;

@@ -1,3 +1,4 @@
+// @ts-check
 // Formato do .md de conversa em projects/<slug>/chats/: único lugar que escreve e lê esse formato no servidor e nas CLIs.
 // (ui/public/index.html tem um leitor próprio, pois roda no navegador: se mudar algo aqui, ajuste lá também.)
 //
@@ -29,6 +30,7 @@ const turnHeading = (flags = "im") => new RegExp(`^## (${SPEAKERS.join("|")})\\s
 const countTurns = (raw) => (raw.match(turnHeading("gim")) || []).length;
 
 // Divide o corpo em [{ speaker, text }] pelos títulos "## <falante>"; turnos vazios ficam de fora.
+/** @param {string} body @returns {{ speaker: string, text: string }[]} */
 function splitTurns(body) {
   const pieces = body.split(turnHeading("im")).slice(1); // [falante, texto, falante, texto, ...]
   const turns = [];
@@ -45,6 +47,7 @@ function splitTurns(body) {
 const frontmatterOf = (raw) => (raw.replace(/^﻿/, "").match(/^---\r?\n([\s\S]*?)\r?\n---/) || [])[1] || "";
 
 // Valor de um campo do cabeçalho, sem aspas nas pontas ("" se não existir).
+/** @param {string} raw @returns {(key: string) => string} */
 function readMeta(raw) {
   const fm = frontmatterOf(raw);
   return (key) => { const m = fm.match(new RegExp(`^${key}: (.*)$`, "m")); return m ? m[1].replace(/^"|"$/g, "") : ""; };
@@ -68,6 +71,7 @@ const escapeBlocks = (s) => String(s ?? "").replace(/^:::/gm, "::​:");
 
 // Partes: { kind: "text"|"note"|"thinking"|"tool", ... }. `full: true` num "thinking" dispensa o corte de tamanho
 // (chats salvos pela interface guardam o raciocínio inteiro; os importadores cortam em MAX_IO como nas ferramentas).
+/** @param {import("./types").Part} p @returns {string} */
 function renderPart(p) {
   if (p.kind === "text") return p.text;
   if (p.kind === "note") return p.text.split("\n").map((l) => `> ${l}`).join("\n");
@@ -77,6 +81,7 @@ function renderPart(p) {
 
 // meta: { title, sessionId, origin, first, last, agent, assistantLabel }
 // turns: [{ who: "user" | outro, label?, parts: [...] }] — turnos que não são do usuário usam `label` ou meta.assistantLabel.
+/** @param {import("./types").ChatMeta} meta @param {import("./types").Turn[]} turns @returns {string} */
 function renderChat(meta, turns) {
   const head = [
     "---",

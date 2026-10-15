@@ -1,3 +1,4 @@
+// @ts-check
 // Os motores de chat da interface e o que há de comum entre eles. Cada motor é um módulo com a mesma forma:
 //   { id, stream(req), status(catalogo) }
 //   stream({ prompt, slug, sessionId, history, model, effort, signal, onChunk, onDone, onError })
@@ -13,6 +14,7 @@ const claude = require("./claude");
 const opencode = require("./opencode");
 const gemini = require("./gemini");
 
+/** @type {Map<string, import("../types").Engine>} */
 const engines = new Map([claude, opencode, gemini].map((e) => [e.id, e]));
 
 // Chaves do catálogo que começam com "_" são de uso interno dos motores e não vão para a interface.

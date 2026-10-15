@@ -1,3 +1,4 @@
+// @ts-check
 // Regras puras do controle de extração (sem arquivos, sem relógio): qual o status de uma conversa e como ela aparece
 // na tabela de conversas. Quem lê e grava o estado em disco é tools/lib/state.js.
 
@@ -5,6 +6,11 @@
 // prev: o que o estado guardou da conversa (ou undefined); chat: { hash, turnos } lido do .md agora.
 // `adopt` indica uma entrada antiga (hash do arquivo inteiro, sem `v`): se o nº de turnos não mudou, o hash novo é
 // adotado uma vez e a conversa conta como em dia; quem decide persistir isso é o chamador (state.migrateLegacy).
+/**
+ * @param {import("./types").StateEntry | undefined} prev
+ * @param {{ hash: string, turnos: number }} chat
+ * @returns {{ status: import("./types").ExtractionStatus, adopt: boolean }}
+ */
 function statusOf(prev, chat) {
   if (!prev) return { status: "nova", adopt: false };
   if (prev.hash === chat.hash) return { status: "ok", adopt: false };
@@ -14,6 +20,7 @@ function statusOf(prev, chat) {
 
 // Tabela Markdown de projects/<slug>/context/extraido-conversas.md. `today`: "AAAA-MM-DD" (parâmetro para ser testável).
 // rows: o que state.scan devolve. Sem conversas, devolve "".
+/** @param {string} slug @param {import("./types").ChatRow[]} rows @param {string} today @returns {string} */
 function renderTable(slug, rows, today) {
   if (!rows.length) return "";
   const n = (s) => rows.filter((r) => r.status === s).length;

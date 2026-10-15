@@ -1,3 +1,4 @@
+// @ts-check
 // Motor 1: Claude Code (CLI com streaming). Roda por projeto, com o repo, as permissões e os MCPs de projects/<slug>/mcp.json.
 const path = require("path");
 const cp = require("child_process");
@@ -17,6 +18,7 @@ function killTree(child) {
   }
 }
 
+/** @param {import("../types").EngineRequest} req */
 function streamClaude({ prompt, slug, sessionId, model, effort, signal, onChunk, onDone, onError }) {
   const projDir = path.join(ROOT, "projects", slug);
   const args = ["-p", "-", "--output-format", "stream-json", "--verbose"];
@@ -174,11 +176,16 @@ function claudeAvailable() {
   });
 }
 
-module.exports = {
+/** @type {import("../types").Engine} */
+const engine = {
   id: "claude",
   stream: streamClaude,
   // Parte dinâmica do status; o resto vem de catalog.json.
   status: async () => ({ available: await claudeAvailable() }),
+};
+
+module.exports = {
+  ...engine,
   killTree,
   claudeSession,
   createClaudeStreamParser,

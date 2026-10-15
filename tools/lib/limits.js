@@ -1,3 +1,4 @@
+// @ts-check
 // Limites compartilhados pelos importadores.
 module.exports = {
   MAX_IO: 1500, // caracteres por entrada/resultado de ferramenta no .md gerado

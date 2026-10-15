@@ -276,6 +276,23 @@ Ao abrir um chat:
 - **Processamento interno**: accordion recolhido ("⚙ Processamento interno · N etapas"); cada etapa abre com entrada e resultado.
 - Mensagens longas são limitadas a ~240 px, com "Ver mais / Ver menos".
 
+## Desenvolvimento: testes, checagens e pre-commit
+
+Nada disto acrescenta dependência ao projeto.
+
+| Comando | O que faz |
+|---|---|
+| `npm test` | Roda a suíte (`node --test`): importadores (golden master em `tests/golden/`), rotas do servidor, motores, estado de extração, redação de segredos. Usa raiz e pasta de usuário temporárias: nunca toca em `projects/` nem em `global/`. |
+| `npm run check` | Sintaxe de todos os `.js` (com o Node que estiver instalado) e validade dos `.json`. |
+| `npm run types` | Checagem de tipos por JSDoc nos arquivos com `// @ts-check` (contratos em `tools/lib/types.d.ts`). Instala o TypeScript numa pasta temporária na primeira vez (precisa de rede). |
+| `npm run setup:hooks` | Ativa o pre-commit (`git config core.hooksPath .githooks`; para desativar, `git config --unset core.hooksPath`). |
+
+**Pre-commit** (depois de `npm run setup:hooks`): barra o commit se entrar dado local (`projects/` exceto `_template`, `global/*.md` pessoais, `.env`, `bridge/*.jsonl`, mesmo com `git add -f`), se uma linha adicionada tiver segredo de formato conhecido (chave de API, JWT, webhook, chave privada…; o valor nunca é impresso) ou se `check` ou os testes falharem. Para exemplos e fixtures de teste, ponha `allow-secret` num comentário da mesma linha. Em commits só de documentação, `HARNESS_SKIP_TESTS=1 git commit ...` pula os testes.
+
+**CI** (`.github/workflows/ci.yml`): `check` e `test` em Ubuntu e Windows, com Node 22.13.0 (o mínimo) e 24.x, mais um job de tipos.
+
+**Mudou o formato de um chat importado de propósito?** Rode `UPDATE_GOLDEN=1 npm test` e revise o diff de `tests/golden/` antes de commitar.
+
 ## Privacidade: o que sobe ao GitHub
 
 O `.gitignore` versiona **apenas o processo**. Ficam de fora: tudo em `projects/` (exceto `_template`), `global/instructions.md` e `global/memory.md`. Se for contribuir com melhorias, rode `git status` antes de cada commit e confira que nenhum dado pessoal ou de cliente está na lista.

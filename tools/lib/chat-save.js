@@ -1,3 +1,4 @@
+// @ts-check
 // Salva no projeto a conversa feita na interface (botão "Conversar com o Projeto"), no mesmo formato dos importadores.
 const fs = require("fs");
 const path = require("path");

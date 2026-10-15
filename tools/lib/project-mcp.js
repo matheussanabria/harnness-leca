@@ -1,3 +1,4 @@
+// @ts-check
 // Como o chat da interface roda o Claude em cada projeto: em qual repositório, com que permissões e com quais MCPs.
 // Sem projects/<slug>/mcp.json: roda na pasta do projeto, sem MCP.
 //
