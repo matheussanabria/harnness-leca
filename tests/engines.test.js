@@ -65,8 +65,16 @@ test("readChat: trocar ## Claude por ## opencode não muda o hash e conta os tur
   const a = state.readChat(path.join(dir, "a.md")), b = state.readChat(path.join(dir, "b.md")), c = state.readChat(path.join(dir, "c.md"));
   assert.equal(a.hash, b.hash);
   assert.equal(b.turnos, 2);
-  assert.equal(c.hash, a.hash, "CRLF não muda o hash");
-  assert.equal(c.sessao, "x", "CRLF não perde o cabeçalho");
+  assert.equal(c.sessao, "x", "arquivo todo em CRLF não perde o cabeçalho");
+  assert.equal(c.turnos, 2);
+
+  // O hash é bytes do conteúdo (sem cabeçalho nem título), exatamente como já está gravado nos extraction-state.json:
+  // normalizar CRLF aqui faria todas as conversas com saída de comando do Windows virarem "alteradas".
+  const crypto = require("crypto");
+  const body = "\n## Você\n\noi\n\n## Claude\n\nolá\n";
+  assert.equal(a.hash, crypto.createHash("sha1").update(body).digest("hex").slice(0, 16));
+  const withCrInContent = state.readChat((() => { const f = path.join(dir, "d.md"); fs.writeFileSync(f, head + "## Claude\n\nsaída\r\ndo comando\n"); return f; })());
+  assert.equal(withCrInContent.hash, crypto.createHash("sha1").update("\n## Você\n\noi\n\n## Claude\n\nsaída\r\ndo comando\n").digest("hex").slice(0, 16));
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
