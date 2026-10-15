@@ -21,13 +21,12 @@ const path = require("path");
 const { DatabaseSync } = require("node:sqlite");
 
 const { ROOT } = require("./lib/root");
-const SOURCE_DB = path.join(os.homedir(), ".local", "share", "opencode", "opencode.db");
 
 const { redact } = require("./lib/redact"); // redação de segredos comuns (heurística)
 const { slugify } = require("./lib/text");
 const { renderChat } = require("./lib/chat-format");
 const { writeChat } = require("./lib/chat-store");
-const { flag, opt } = require("./lib/cli");
+const { flag, opt, CliError, runAsScript } = require("./lib/cli");
 
 
 
@@ -118,61 +117,71 @@ function render(c, sessionId) {
   return renderChat({ title: c.title, sessionId, origin: c.directory, first: iso(c.first), last: iso(c.last), agent: "opencode", assistantLabel: "opencode" }, c.turns);
 }
 
-if (!fs.existsSync(SOURCE_DB)) {
-  console.error(`Banco do opencode não encontrado: ${SOURCE_DB}`);
-  process.exit(1);
-}
-const db = new DatabaseSync(SOURCE_DB, { readOnly: true });
-const sessions = loadSessions(db);
+// Importa sessões do opencode (~/.local/share/opencode/opencode.db) para projects/<slug>/chats.
+// argv: os mesmos argumentos da CLI. io.log recebe o relatório. home: onde procurar o banco (os testes trocam).
+// sessionIds: importa exatamente essas sessões (o sync usa para abrir o banco uma vez por projeto, em vez de uma por sessão).
+// Retorna { nova, atualizada, igual, ignoradas }; erros de uso viram CliError.
+function run(argv, io = console, { home = os.homedir(), sessionIds } = {}) {
+  const has = (n) => flag(n, argv), get = (n) => opt(n, argv);
+  const sourceDb = path.join(home, ".local", "share", "opencode", "opencode.db");
+  const result = { nova: 0, atualizada: 0, igual: 0, ignoradas: 0 };
 
-if (flag("list")) {
-  for (const s of sessions) {
-    if (s.parentId) continue; // subagentes não viram conversa
-    console.log(`${iso(s.timeCreated).slice(0, 10)}  ${s.id.slice(0, 20).padEnd(20)}  ${(s.title || "(sem título)").slice(0, 60).padEnd(60)}  ${s.directory}`);
+  if (!fs.existsSync(sourceDb)) throw new CliError(`Banco do opencode não encontrado: ${sourceDb}`);
+  const db = new DatabaseSync(sourceDb, { readOnly: true });
+  try {
+    const sessions = loadSessions(db);
+
+    if (has("list")) {
+      for (const s of sessions) {
+        if (s.parentId) continue; // subagentes não viram conversa
+        io.log(`${iso(s.timeCreated).slice(0, 10)}  ${s.id.slice(0, 20).padEnd(20)}  ${(s.title || "(sem título)").slice(0, 60).padEnd(60)}  ${s.directory}`);
+      }
+      return result;
+    }
+
+    const from = get("from"), slug = get("project");
+    if ((!from && !sessionIds) || !slug) throw new CliError("Uso: node tools/import-opencode-chats.js --list | --from <match> --project <slug> [--no-tools] [--dry-run]");
+
+    if (!/^[a-z0-9][a-z0-9_-]{0,59}$/i.test(slug) || slug === "_template") {
+      throw new CliError("--project inválido: use apenas letras, números, '-' e '_' (sem barras ou '..').");
+    }
+
+    const wanted = sessionIds ? new Set(sessionIds) : null;
+    const f = (from || "").toLowerCase();
+    const selected = sessions.filter((s) => !s.parentId && (wanted
+      ? wanted.has(s.id)
+      : s.directory.toLowerCase().includes(f) || s.id.toLowerCase().startsWith(f)));
+    if (!selected.length) throw new CliError(`Nenhuma sessão corresponde a "${from}" (diretório ou id). Veja --list.`);
+
+    const dry = has("dry-run");
+    const dest = path.join(ROOT, "projects", slug);
+    if (!fs.existsSync(dest) && !dry) {
+      fs.cpSync(path.join(ROOT, "projects", "_template"), dest, { recursive: true });
+      io.log(`Projeto criado: projects/${slug}`);
+    }
+    const chatsDir = path.join(dest, "chats");
+    if (!dry) fs.mkdirSync(chatsDir, { recursive: true });
+
+    for (const s of selected) {
+      const c = convert(db, s, !has("no-tools"));
+      if (!c) { result.ignoradas++; continue; }
+      const date = iso(c.first).slice(0, 10) || "sem-data";
+      const shortId = slugify(s.id.slice(0, 12)); // só [a-z0-9-] no nome do arquivo gerado
+      const name = `${date}-${slugify(c.title)}-${shortId}.md`;
+      const text = redact(render(c, s.id));
+      const { state, removed } = writeChat({ chatsDir, name, sessionId: s.id, shortId, text, mtime: c.last, dryRun: dry });
+      io.log(`${dry ? "[dry-run] " : ""}[${state}] ${name}  (${c.turns.length} turnos)`);
+      for (const old of removed) io.log(`  (renomeada; removido ${old})`);
+      result[state === "sem mudança" ? "igual" : state]++;
+    }
+    const processed = result.nova + result.atualizada + result.igual;
+    io.log(`\n${processed} conversas processadas (${result.nova + result.atualizada} novas ou atualizadas), ${result.ignoradas} ignoradas (vazias ou subagentes).`);
+    io.log(`Para ver o que ainda precisa de extração: node tools/extraction-state.js --project ${slug} status`);
+    return result;
+  } finally {
+    db.close();
   }
-  process.exit(0);
 }
 
-const from = opt("from"), slug = opt("project");
-if (!from || !slug) {
-  console.error("Uso: node tools/import-opencode-chats.js --list | --from <match> --project <slug> [--no-tools] [--dry-run]");
-  process.exit(1);
-}
-
-if (!/^[a-z0-9][a-z0-9_-]{0,59}$/i.test(slug) || slug === "_template") {
-  console.error("--project inválido: use apenas letras, números, '-' e '_' (sem barras ou '..').");
-  process.exit(1);
-}
-
-const f = from.toLowerCase();
-const selected = sessions.filter((s) =>
-  !s.parentId && (s.directory.toLowerCase().includes(f) || s.id.toLowerCase().startsWith(f)));
-if (!selected.length) {
-  console.error(`Nenhuma sessão corresponde a "${from}" (diretório ou id). Veja --list.`);
-  process.exit(1);
-}
-
-const dest = path.join(ROOT, "projects", slug);
-if (!fs.existsSync(dest) && !flag("dry-run")) {
-  fs.cpSync(path.join(ROOT, "projects", "_template"), dest, { recursive: true });
-  console.log(`Projeto criado: projects/${slug}`);
-}
-const chatsDir = path.join(dest, "chats");
-if (!flag("dry-run")) fs.mkdirSync(chatsDir, { recursive: true });
-
-let ok = 0, skipped = 0, changed = 0;
-for (const s of selected) {
-  const c = convert(db, s, !flag("no-tools"));
-  if (!c) { skipped++; continue; }
-  const date = iso(c.first).slice(0, 10) || "sem-data";
-  const shortId = slugify(s.id.slice(0, 12)); // só [a-z0-9-] no nome do arquivo gerado
-  const name = `${date}-${slugify(c.title)}-${shortId}.md`;
-  const text = redact(render(c, s.id));
-  const { state, removed } = writeChat({ chatsDir, name, sessionId: s.id, shortId, text, mtime: c.last, dryRun: flag("dry-run") });
-  console.log(`${flag("dry-run") ? "[dry-run] " : ""}[${state}] ${name}  (${c.turns.length} turnos)`);
-  for (const old of removed) console.log(`  (renomeada; removido ${old})`);
-  if (state !== "sem mudança") changed++;
-  ok++;
-}
-console.log(`\n${ok} conversas processadas (${changed} novas ou atualizadas), ${skipped} ignoradas (vazias ou subagentes).`);
-console.log(`Para ver o que ainda precisa de extração: node tools/extraction-state.js --project ${slug} status`);
+module.exports = { run };
+if (require.main === module) runAsScript(run);

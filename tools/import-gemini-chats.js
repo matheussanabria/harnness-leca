@@ -19,19 +19,14 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 
-// Previne erro EPIPE ao paginar/filtrar no terminal
-process.stdout.on("error", (err) => {
-  if (err.code === "EPIPE") process.exit(0);
-});
-
 const { ROOT } = require("./lib/root");
-const BRAIN_ROOT = path.join(os.homedir(), ".gemini", "antigravity-ide", "brain");
 
 const { redact } = require("./lib/redact");
 const { slugify } = require("./lib/text");
 const { renderChat: renderChatMd } = require("./lib/chat-format");
 const { writeChat } = require("./lib/chat-store");
-const { flag, opt } = require("./lib/cli");
+const { flag, opt, CliError, runAsScript } = require("./lib/cli");
+const { matchers, projectFromPath } = require("./lib/projects");
 const { MAX_FILE } = require("./lib/limits");
 
 
@@ -57,6 +52,9 @@ function cleanUserText(text) {
   return clean.trim();
 }
 
+// Associações de projects/ (nomes das pastas + apelidos de .sources.json), lidas uma vez por execução.
+let projectMatchers = null;
+
 function detectProjectFromText(text) {
   if (!text) return null;
   if (/saude[\\/]dispensacao/i.test(text)) return "saude-dispensacao";
@@ -69,7 +67,7 @@ function detectProjectFromText(text) {
   const gitMatch = text.match(/[\\/]git[\\/]([a-zA-Z0-9_-]+)/i);
   if (gitMatch) return gitMatch[1].toLowerCase();
 
-  return null;
+  return projectFromPath(text, (projectMatchers ||= matchers()));
 }
 
 function cleanTitle(raw) {
@@ -234,107 +232,112 @@ function renderChat(c) {
   return renderChatMd({ title: c.title, sessionId: c.sessionId, origin: c.origin, first: c.first, last: c.last, agent: "gemini", assistantLabel: "Gemini" }, c.turns);
 }
 
-function listSessions() {
-  if (!fs.existsSync(BRAIN_ROOT)) {
-    console.error("Diretório do Antigravity/Gemini não encontrado em:", BRAIN_ROOT);
-    process.exit(1);
-  }
+function listSessions(brainRoot) {
+  if (!fs.existsSync(brainRoot)) throw new CliError(`Diretório do Antigravity/Gemini não encontrado em: ${brainRoot}`);
 
-  const dirs = fs.readdirSync(BRAIN_ROOT, { withFileTypes: true })
+  return fs.readdirSync(brainRoot, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => {
-      const logFile = path.join(BRAIN_ROOT, d.name, ".system_generated", "logs", "transcript.jsonl");
+      const logFile = path.join(brainRoot, d.name, ".system_generated", "logs", "transcript.jsonl");
       if (!fs.existsSync(logFile)) return null;
       const st = fs.statSync(logFile);
-      return { id: d.name, path: path.join(BRAIN_ROOT, d.name), mtime: st.mtime, size: st.size };
+      return { id: d.name, path: path.join(brainRoot, d.name), mtime: st.mtime, size: st.size };
     })
     .filter(Boolean)
     .sort((a, b) => b.mtime - a.mtime);
-
-  return dirs;
 }
 
-// ------------------- Comandos CLI -------------------
-
-if (flag("list")) {
-  const sessions = listSessions();
-  console.log(`\nEncontradas ${sessions.length} sessões do Gemini/Antigravity:\n`);
-  console.log("Data       | Projeto detectado              | Turnos | Sessão   | Título / Início");
-  console.log("-----------+--------------------------------+--------+----------+--------------------------------------");
-
-  for (const s of sessions) {
-    const c = parseSession(s.path, s.id, false);
-    if (!c) continue;
-    const date = (c.first || s.mtime.toISOString()).slice(0, 10);
-    const proj = (c.project || "desconhecido").padEnd(30).slice(0, 30);
-    const turns = String(c.turns.length).padStart(6);
-    const shortId = s.id.slice(0, 8);
-    const title = c.title.slice(0, 45);
-    console.log(`${date} | ${proj} | ${turns} | ${shortId} | ${title}`);
-  }
-  process.exit(0);
-}
-
-const targetProject = opt("project");
-// Mesma regra de state.js: o slug vira caminho em projects/, então nada de "..", barras ou maiúsculas.
-if (targetProject !== undefined && !/^[a-z0-9][a-z0-9_-]{0,59}$/.test(targetProject)) {
-  console.error(`--project inválido: "${targetProject}" (use letras minúsculas, números, - ou _)`);
-  process.exit(1);
-}
-const fromSession = opt("from");
-const allProjects = flag("all-projects");
-const limit = opt("limit") ? parseInt(opt("limit"), 10) : Infinity;
-
-if (!targetProject && !fromSession && !allProjects) {
-  console.log(`
-Uso:
+const USAGE = `Uso:
   node tools/import-gemini-chats.js --list
   node tools/import-gemini-chats.js --project <slug> [--dry-run] [--no-tools] [--limit N]
   node tools/import-gemini-chats.js --from <session-uuid> --project <slug>
-  node tools/import-gemini-chats.js --all-projects [--dry-run]
-`);
-  process.exit(1);
+  node tools/import-gemini-chats.js --all-projects [--dry-run]`;
+
+// Importa as sessões do Antigravity/Gemini para projects/<slug>/chats.
+// argv: os mesmos argumentos da CLI. io.log recebe o relatório. home: onde procurar ~/.gemini (os testes trocam).
+// onlyProjects (Set de slugs): classifica cada sessão pelo projeto detectado e importa só as dos projetos do conjunto,
+//   sem criar projeto novo; o sync usa isto para ler as transcrições uma vez em vez de uma por projeto.
+// Retorna { nova, atualizada, igual, ignoradas, porProjeto: { slug: { nova, atualizada, igual } } }; erros de uso viram CliError.
+function run(argv, io = console, { home = os.homedir(), onlyProjects } = {}) {
+  const has = (n) => flag(n, argv), get = (n) => opt(n, argv);
+  const brainRoot = path.join(home, ".gemini", "antigravity-ide", "brain");
+  const result = { nova: 0, atualizada: 0, igual: 0, ignoradas: 0, porProjeto: {} };
+  projectMatchers = null; // relê projects/ e .sources.json a cada execução
+
+  if (has("list")) {
+    const sessions = listSessions(brainRoot);
+    io.log(`\nEncontradas ${sessions.length} sessões do Gemini/Antigravity:\n`);
+    io.log("Data       | Projeto detectado              | Turnos | Sessão   | Título / Início");
+    io.log("-----------+--------------------------------+--------+----------+--------------------------------------");
+    for (const s of sessions) {
+      const c = parseSession(s.path, s.id, false);
+      if (!c) continue;
+      const date = (c.first || s.mtime.toISOString()).slice(0, 10);
+      const proj = (c.project || "desconhecido").padEnd(30).slice(0, 30);
+      const turns = String(c.turns.length).padStart(6);
+      io.log(`${date} | ${proj} | ${turns} | ${s.id.slice(0, 8)} | ${c.title.slice(0, 45)}`);
+    }
+    return result;
+  }
+
+  const targetProject = get("project");
+  // Mesma regra de state.js: o slug vira caminho em projects/, então nada de "..", barras ou maiúsculas.
+  if (targetProject !== undefined && !/^[a-z0-9][a-z0-9_-]{0,59}$/.test(targetProject)) {
+    throw new CliError(`--project inválido: "${targetProject}" (use letras minúsculas, números, - ou _)`);
+  }
+  const fromSession = get("from");
+  const allProjects = has("all-projects");
+  const limit = get("limit") ? parseInt(get("limit"), 10) : Infinity;
+  if (!targetProject && !fromSession && !allProjects && !onlyProjects) throw new CliError(USAGE);
+
+  const dry = has("dry-run");
+  const sessions = listSessions(brainRoot);
+
+  for (const s of sessions) {
+    if (result.nova + result.atualizada >= limit) break;
+    if (fromSession && fromSession !== "all" && !s.id.toLowerCase().startsWith(fromSession.toLowerCase())) continue;
+
+    const c = parseSession(s.path, s.id, !has("no-tools"));
+    if (!c || !c.turns.length) { result.ignoradas++; continue; }
+
+    const destProject = targetProject || (allProjects || onlyProjects ? c.project : null);
+    if (!destProject || destProject === "desconhecido" || destProject === "outros") {
+      if (!targetProject) { result.ignoradas++; continue; }
+    }
+    if (onlyProjects && !onlyProjects.has(destProject)) continue; // projeto que não existe (ou não foi pedido): não cria
+
+    // Se o usuário especificou --project sem --from, filtra para importar apenas as sessões do projeto correspondente
+    if (targetProject && !fromSession && c.project !== targetProject) continue;
+
+    const destDir = path.join(ROOT, "projects", destProject);
+    if (!fs.existsSync(destDir) && !dry) {
+      fs.cpSync(path.join(ROOT, "projects", "_template"), destDir, { recursive: true });
+      io.log(`Projeto criado: projects/${destProject}`);
+    }
+
+    const chatsDir = path.join(destDir, "chats");
+    if (!dry) fs.mkdirSync(chatsDir, { recursive: true });
+
+    const date = (c.first || "").slice(0, 10) || "sem-data";
+    const name = `${date}-${slugify(c.title)}-${c.sessionId.slice(0, 8)}.md`;
+    const text = redact(renderChat(c));
+    // Sem mtime: as sessões do Gemini sempre ficaram com a data da importação (a interface ordena por ela).
+    const { state, removed } = writeChat({ chatsDir, name, sessionId: c.sessionId, shortId: c.sessionId.slice(0, 8), text, dryRun: dry });
+    io.log(`${dry ? "[dry-run] " : ""}[${state}] (${destProject}) ${name} (${c.turns.length} turnos)`);
+    for (const old of removed) io.log(`  (renomeada; removido ${old})`);
+
+    const key = state === "sem mudança" ? "igual" : state;
+    result[key]++;
+    (result.porProjeto[destProject] ||= { nova: 0, atualizada: 0, igual: 0 })[key]++;
+  }
+
+  io.log(`\nConcluído: ${result.nova + result.atualizada} importada(s), ${result.igual} sem mudança, ${result.ignoradas} ignorada(s).`);
+  return result;
 }
 
-const sessions = listSessions();
-let imported = 0, skipped = 0, unchanged = 0;
-
-for (const s of sessions) {
-  if (imported >= limit) break;
-  if (fromSession && fromSession !== "all" && !s.id.toLowerCase().startsWith(fromSession.toLowerCase())) {
-    continue;
-  }
-
-  const c = parseSession(s.path, s.id, !flag("no-tools"));
-  if (!c || !c.turns.length) { skipped++; continue; }
-
-  const destProject = targetProject || (allProjects ? c.project : null);
-  if (!destProject || destProject === "desconhecido" || destProject === "outros") {
-    if (!targetProject) { skipped++; continue; }
-  }
-
-  // Se o usuário especificou --project sem --from, filtra para importar apenas as sessões do projeto correspondente
-  if (targetProject && !fromSession && c.project !== targetProject) {
-    continue;
-  }
-
-  const destDir = path.join(ROOT, "projects", destProject);
-  if (!fs.existsSync(destDir) && !flag("dry-run")) {
-    fs.cpSync(path.join(ROOT, "projects", "_template"), destDir, { recursive: true });
-    console.log(`Projeto criado: projects/${destProject}`);
-  }
-
-  const chatsDir = path.join(destDir, "chats");
-  if (!flag("dry-run")) fs.mkdirSync(chatsDir, { recursive: true });
-
-  const date = (c.first || "").slice(0, 10) || "sem-data";
-  const name = `${date}-${slugify(c.title)}-${c.sessionId.slice(0, 8)}.md`;
-  const text = redact(renderChat(c));
-  // Sem mtime: as sessões do Gemini sempre ficaram com a data da importação (a interface ordena por ela).
-  const { state, removed } = writeChat({ chatsDir, name, sessionId: c.sessionId, shortId: c.sessionId.slice(0, 8), text, dryRun: flag("dry-run") });
-  console.log(`${flag("dry-run") ? "[dry-run] " : ""}[${state}] (${destProject}) ${name} (${c.turns.length} turnos)`);
-  for (const old of removed) console.log(`  (renomeada; removido ${old})`);
-  if (state !== "sem mudança") imported++; else unchanged++;
+module.exports = { run };
+if (require.main === module) {
+  // Previne erro EPIPE ao paginar/filtrar no terminal
+  process.stdout.on("error", (err) => { if (err.code === "EPIPE") process.exit(0); });
+  runAsScript(run);
 }
-
-console.log(`\nConcluído: ${imported} importada(s), ${unchanged} sem mudança, ${skipped} ignorada(s).`);

@@ -25,10 +25,8 @@ const { redact } = require("./lib/redact");
 const { slugify } = require("./lib/text");
 const { renderChat } = require("./lib/chat-format");
 const { writeChat } = require("./lib/chat-store");
-const { flag, opt } = require("./lib/cli");
+const { flag, opt, CliError, runAsScript } = require("./lib/cli");
 const { MAX_FILE } = require("./lib/limits");
-
-const fail = (m) => { console.error(m); process.exit(1); };
 
 const oneLine = (s, n = 120) => String(s || "").replace(/\s+/g, " ").slice(0, n);
 const strip = (t) => String(t || "")
@@ -38,9 +36,6 @@ const resultText = (c) =>
 const hint = (i) => oneLine((i && (i.file_path || i.path || i.title || i.command || i.pattern || i.query || i.url || i.prompt || i.description || i.id)) || "");
 
 // ---------- leitura do export ----------
-const exportArg = opt("export");
-if (!exportArg) fail("Informe --export <pasta> (a pasta extraída do export do claude.ai). Veja o cabeçalho do arquivo.");
-
 function findIn(base, rel, depth = 3) {
   const direct = path.join(base, rel);
   if (fs.existsSync(direct)) return direct;
@@ -50,17 +45,11 @@ function findIn(base, rel, depth = 3) {
   for (const d of entries) { const r = findIn(path.join(base, d.name), rel, depth - 1); if (r) return r; }
   return null;
 }
-function readJson(f) {
+function readJson(f, io) {
   const st = fs.lstatSync(f);
-  if (!st.isFile() || st.size > MAX_FILE) { console.error(`ignorado (symlink ou > 200 MB): ${f}`); return null; }
-  try { return JSON.parse(fs.readFileSync(f, "utf8").replace(/^﻿/, "")); } catch (e) { console.error(`JSON inválido: ${f} (${e.message})`); return null; }
+  if (!st.isFile() || st.size > MAX_FILE) { io.log(`ignorado (symlink ou > 200 MB): ${f}`); return null; }
+  try { return JSON.parse(fs.readFileSync(f, "utf8").replace(/^﻿/, "")); } catch (e) { io.log(`JSON inválido: ${f} (${e.message})`); return null; }
 }
-
-const base = path.resolve(exportArg);
-if (!fs.existsSync(base)) fail(`Pasta não encontrada: ${base}`);
-const convFile = findIn(base, "conversations.json");
-const designDir = findIn(base, "design_chats");
-if (!convFile && !designDir) fail("Não achei conversations.json nem design_chats/ dentro da pasta informada.");
 
 // Normaliza tudo para: { id, kind: "chat"|"design", title, project, created, updated, summary, turns }
 // turns: [{ who: "user"|"assistant", parts: [{kind:"text"|"thinking"|"tool"|"note", ...}] }]
@@ -130,44 +119,10 @@ function fromDesign(d) {
   return { id: d.uuid, kind: "design", title: d.title || "", project: (d.project && d.project.name) || "", created: d.created_at, updated: d.updated_at, summary: "", turns };
 }
 
-const items = [];
-if (convFile) { const j = readJson(convFile); if (Array.isArray(j)) for (const c of j) items.push(fromConversation(c)); }
-if (designDir) for (const f of fs.readdirSync(designDir).filter((n) => n.endsWith(".json"))) { const j = readJson(path.join(designDir, f)); if (j) items.push(fromDesign(j)); }
-
 const label = (it) => (it.title && it.title !== "Chat" ? it.title : "") || (it.turns.find((t) => t.who === "user" && t.parts.some((p) => p.kind === "text"))?.parts.find((p) => p.kind === "text").text.replace(/\s+/g, " ").slice(0, 70) || "Sem título");
 
-// ---------- --list ----------
-if (flag("list")) {
-  const rows = items.slice().sort((a, b) => String(a.created).localeCompare(String(b.created)));
-  for (const it of rows) {
-    console.log(`${(it.created || "").slice(0, 10)}  ${it.kind === "design" ? "design" : "chat  "}  ${String(it.turns.length).padStart(3)} turnos  ${it.id.slice(0, 8)}  ${oneLine(label(it), 60)}${it.project ? `  [${it.project}]` : ""}`);
-  }
-  console.log(`\n${rows.length} no total (${rows.filter((r) => r.kind === "design").length} de Design). Escolha com --match, --design-project ou --id.`);
-  process.exit(0);
-}
-
-// ---------- seleção obrigatória ----------
-const slug = opt("project");
-if (!slug) fail("Uso: --export <pasta> --project <slug> (--match <regex> | --design-project <nome> | --id <uuid,...>) [--no-tools] [--dry-run] | --list");
-if (!/^[a-z0-9][a-z0-9_-]{0,59}$/i.test(slug) || slug === "_template") fail("--project inválido: use apenas letras, números, '-' e '_'.");
-const mt = opt("match"), dp = opt("design-project"), ids = opt("id");
-if (!mt && !dp && !ids) fail("Escolha o que importar: --match, --design-project ou --id (o export mistura assuntos pessoais, nada é importado por padrão).");
-
-let re = null;
-if (mt) { try { re = new RegExp(mt, "i"); } catch (e) { fail(`--match inválido: ${e.message}`); } }
-const idSet = ids ? new Set(ids.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean)) : null;
-const dpl = dp ? dp.toLowerCase() : null;
-const picked = items.filter((it) => {
-  if (idSet && [...idSet].some((i) => it.id.toLowerCase().startsWith(i))) return true;
-  if (dpl && it.kind === "design" && it.project.toLowerCase().includes(dpl)) return true;
-  if (re && re.test(`${it.title}\n${it.project}\n${it.summary}`)) return true;
-  return false;
-});
-if (!picked.length) fail("Nada casou com a seleção. Use --list para ver os títulos e ids.");
-
 // ---------- render ----------
-const withTools = !flag("no-tools");
-function render(it) {
+function render(it, withTools) {
   const turns = it.turns.map((t) => ({ ...t, parts: t.parts.filter((p) => withTools || (p.kind !== "tool" && p.kind !== "thinking")) })).filter((t) => t.parts.length);
   const title = label(it).replace(/\s+/g, " ").slice(0, 80);
   const text = renderChat({
@@ -182,26 +137,79 @@ function render(it) {
   return { text, n: turns.length };
 }
 
-const dest = path.join(ROOT, "projects", slug);
-const dry = flag("dry-run");
-if (!fs.existsSync(dest) && !dry) {
-  fs.cpSync(path.join(ROOT, "projects", "_template"), dest, { recursive: true });
-  console.log(`Projeto criado: projects/${slug}`);
-}
-const chatsDir = path.join(dest, "chats");
-if (!dry) fs.mkdirSync(chatsDir, { recursive: true });
+// Importa conversas de um export do claude.ai para projects/<slug>/chats.
+// argv: os mesmos argumentos da CLI. io.log recebe o relatório.
+// Retorna { nova, atualizada, igual, ignoradas }; erros de uso viram CliError.
+function run(argv, io = console) {
+  const has = (n) => flag(n, argv), get = (n) => opt(n, argv);
+  const result = { nova: 0, atualizada: 0, igual: 0, ignoradas: 0 };
 
-let changed = 0, skipped = 0;
-for (const it of picked) {
-  const { text, n } = render(it);
-  if (!n) { skipped++; continue; }
-  const date = (it.created || "").slice(0, 10) || "sem-data";
-  const name = `${date}-${slugify(it.kind === "design" && it.project ? `design-${it.project}-${label(it)}` : label(it))}-${it.id.slice(0, 8)}.md`;
-  const red = redact(text);
-  const { state, removed } = writeChat({ chatsDir, name, sessionId: it.id, shortId: it.id.slice(0, 8), text: red, mtime: it.updated, dryRun: dry });
-  console.log(`${dry ? "[dry-run] " : ""}[${state}] ${name}  (${n} turnos, ${it.kind})`);
-  for (const old of removed) console.log(`  (renomeada; removido ${old})`);
-  if (state !== "sem mudança") changed++;
+  // ---------- leitura do export ----------
+  const exportArg = get("export");
+  if (!exportArg) throw new CliError("Informe --export <pasta> (a pasta extraída do export do claude.ai). Veja o cabeçalho do arquivo.");
+  const base = path.resolve(exportArg);
+  if (!fs.existsSync(base)) throw new CliError(`Pasta não encontrada: ${base}`);
+  const convFile = findIn(base, "conversations.json");
+  const designDir = findIn(base, "design_chats");
+  if (!convFile && !designDir) throw new CliError("Não achei conversations.json nem design_chats/ dentro da pasta informada.");
+
+  const items = [];
+  if (convFile) { const j = readJson(convFile, io); if (Array.isArray(j)) for (const c of j) items.push(fromConversation(c)); }
+  if (designDir) for (const f of fs.readdirSync(designDir).filter((n) => n.endsWith(".json"))) { const j = readJson(path.join(designDir, f), io); if (j) items.push(fromDesign(j)); }
+
+  // ---------- --list ----------
+  if (has("list")) {
+    const rows = items.slice().sort((a, b) => String(a.created).localeCompare(String(b.created)));
+    for (const it of rows) {
+      io.log(`${(it.created || "").slice(0, 10)}  ${it.kind === "design" ? "design" : "chat  "}  ${String(it.turns.length).padStart(3)} turnos  ${it.id.slice(0, 8)}  ${oneLine(label(it), 60)}${it.project ? `  [${it.project}]` : ""}`);
+    }
+    io.log(`\n${rows.length} no total (${rows.filter((r) => r.kind === "design").length} de Design). Escolha com --match, --design-project ou --id.`);
+    return result;
+  }
+
+  // ---------- seleção obrigatória ----------
+  const slug = get("project");
+  if (!slug) throw new CliError("Uso: --export <pasta> --project <slug> (--match <regex> | --design-project <nome> | --id <uuid,...>) [--no-tools] [--dry-run] | --list");
+  if (!/^[a-z0-9][a-z0-9_-]{0,59}$/i.test(slug) || slug === "_template") throw new CliError("--project inválido: use apenas letras, números, '-' e '_'.");
+  const mt = get("match"), dp = get("design-project"), ids = get("id");
+  if (!mt && !dp && !ids) throw new CliError("Escolha o que importar: --match, --design-project ou --id (o export mistura assuntos pessoais, nada é importado por padrão).");
+
+  let re = null;
+  if (mt) { try { re = new RegExp(mt, "i"); } catch (e) { throw new CliError(`--match inválido: ${e.message}`); } }
+  const idSet = ids ? new Set(ids.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean)) : null;
+  const dpl = dp ? dp.toLowerCase() : null;
+  const picked = items.filter((it) => {
+    if (idSet && [...idSet].some((i) => it.id.toLowerCase().startsWith(i))) return true;
+    if (dpl && it.kind === "design" && it.project.toLowerCase().includes(dpl)) return true;
+    if (re && re.test(`${it.title}\n${it.project}\n${it.summary}`)) return true;
+    return false;
+  });
+  if (!picked.length) throw new CliError("Nada casou com a seleção. Use --list para ver os títulos e ids.");
+
+  const withTools = !has("no-tools");
+  const dry = has("dry-run");
+  const dest = path.join(ROOT, "projects", slug);
+  if (!fs.existsSync(dest) && !dry) {
+    fs.cpSync(path.join(ROOT, "projects", "_template"), dest, { recursive: true });
+    io.log(`Projeto criado: projects/${slug}`);
+  }
+  const chatsDir = path.join(dest, "chats");
+  if (!dry) fs.mkdirSync(chatsDir, { recursive: true });
+
+  for (const it of picked) {
+    const { text, n } = render(it, withTools);
+    if (!n) { result.ignoradas++; continue; }
+    const date = (it.created || "").slice(0, 10) || "sem-data";
+    const name = `${date}-${slugify(it.kind === "design" && it.project ? `design-${it.project}-${label(it)}` : label(it))}-${it.id.slice(0, 8)}.md`;
+    const { state, removed } = writeChat({ chatsDir, name, sessionId: it.id, shortId: it.id.slice(0, 8), text: redact(text), mtime: it.updated, dryRun: dry });
+    io.log(`${dry ? "[dry-run] " : ""}[${state}] ${name}  (${n} turnos, ${it.kind})`);
+    for (const old of removed) io.log(`  (renomeada; removido ${old})`);
+    result[state === "sem mudança" ? "igual" : state]++;
+  }
+  io.log(`\n${picked.length - result.ignoradas} conversas processadas (${result.nova + result.atualizada} novas ou atualizadas), ${result.ignoradas} vazias ignoradas.`);
+  io.log(`Para ver o que ainda precisa de extração: node tools/extraction-state.js --project ${slug} status`);
+  return result;
 }
-console.log(`\n${picked.length - skipped} conversas processadas (${changed} novas ou atualizadas), ${skipped} vazias ignoradas.`);
-console.log(`Para ver o que ainda precisa de extração: node tools/extraction-state.js --project ${slug} status`);
+
+module.exports = { run };
+if (require.main === module) runAsScript(run);

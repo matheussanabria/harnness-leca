@@ -40,13 +40,16 @@ if (only && !slugs.includes(only)) fail(`Projeto "${only}" não existe em projec
 const want = (slug) => !only || slug === only;
 const ms = matchers();
 
-// Executa um importador e conta [nova] / [atualizada] / [sem mudança] na saída.
-function run(script, a) {
-  const r = spawnSync(process.execPath, ["--no-warnings", T(script), ...a, ...(DRY ? ["--dry-run"] : [])], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
-  const out = (r.stdout || "") + "\n" + (r.stderr || "");
-  const n = { nova: 0, atualizada: 0, igual: 0 };
-  for (const m of out.matchAll(/\[(nova|atualizada|sem mudança)\]/g)) n[m[1] === "sem mudança" ? "igual" : m[1]]++;
-  return { ok: r.status === 0, n, err: (r.stderr || r.stdout || "").trim().split("\n").pop() };
+// Roda um importador em memória (sem processo filho) e devolve as contagens por estado.
+// Os importadores são carregados só quando o motor é usado (o do opencode exige o node:sqlite do Node 22.13+).
+const QUIET = { log() {} };
+function call(importerFile, argv, opts) {
+  try {
+    const r = require(importerFile).run([...argv, ...(DRY ? ["--dry-run"] : [])], QUIET, opts);
+    return { ok: true, n: { nova: r.nova, atualizada: r.atualizada, igual: r.igual }, err: "", porProjeto: r.porProjeto };
+  } catch (e) {
+    return { ok: false, n: { nova: 0, atualizada: 0, igual: 0 }, err: String(e && e.message).split("\n")[0] };
+  }
 }
 
 const rows = []; // { engine, slug, nova, atualizada, igual, erro }
@@ -66,7 +69,7 @@ function syncClaude() {
   for (const [slug, dirs] of bySlug) {
     const sum = { ok: true, n: { nova: 0, atualizada: 0, igual: 0 }, err: "" };
     for (const d of dirs) {
-      const r = run("import-claude-code-chats.js", ["--from", path.join(CLAUDE_ROOT, d), "--project", slug]);
+      const r = call("./import-claude-code-chats", ["--from", path.join(CLAUDE_ROOT, d), "--project", slug]);
       for (const k of Object.keys(sum.n)) sum.n[k] += r.n[k];
       if (!r.ok) { sum.ok = false; sum.err = r.err; }
     }
@@ -74,13 +77,18 @@ function syncClaude() {
   }
 }
 
-// ---- Gemini/Antigravity: o importador detecta o projeto de cada sessão; filtramos por projeto existente
+// ---- Gemini/Antigravity: o importador detecta o projeto de cada sessão; uma passada só, restrita aos projetos que existem
 function syncGemini() {
   if (!fs.existsSync(GEMINI_ROOT)) return "indisponível (sem ~/.gemini/antigravity-ide/brain)";
-  for (const slug of slugs.filter(want)) add("gemini", slug, run("import-gemini-chats.js", ["--project", slug]));
+  const wanted = slugs.filter(want);
+  const r = call("./import-gemini-chats", [], { onlyProjects: new Set(wanted) });
+  for (const slug of wanted) {
+    const n = (r.porProjeto && r.porProjeto[slug]) || { nova: 0, atualizada: 0, igual: 0 };
+    add("gemini", slug, { ok: r.ok, n, err: r.err });
+  }
 }
 
-// ---- opencode: lê só session (diretório) para mapear; cada sessão é importada pelo id
+// ---- opencode: lê só session (diretório) para mapear; as sessões de cada projeto entram numa única execução
 function syncOpencode() {
   if (!fs.existsSync(OPENCODE_DB)) return "indisponível (sem opencode.db)";
   const { DatabaseSync } = require("node:sqlite");
@@ -93,15 +101,7 @@ function syncOpencode() {
     if (!slug) { skip("opencode", path.basename(String(s.directory || "").replace(/[\\/]+$/, "")) || s.directory); continue; }
     if (want(slug)) (bySlug.get(slug) || bySlug.set(slug, []).get(slug)).push(s.id);
   }
-  for (const [slug, ids] of bySlug) {
-    const sum = { ok: true, n: { nova: 0, atualizada: 0, igual: 0 }, err: "" };
-    for (const id of ids) {
-      const r = run("import-opencode-chats.js", ["--from", id, "--project", slug]);
-      for (const k of Object.keys(sum.n)) sum.n[k] += r.n[k];
-      if (!r.ok) { sum.ok = false; sum.err = r.err; }
-    }
-    add("opencode", slug, sum);
-  }
+  for (const [slug, ids] of bySlug) add("opencode", slug, call("./import-opencode-chats", ["--project", slug], { sessionIds: ids }));
 }
 
 const fns = { claude: syncClaude, gemini: syncGemini, opencode: syncOpencode };

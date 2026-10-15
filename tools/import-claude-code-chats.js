@@ -17,13 +17,12 @@ const os = require("os");
 const path = require("path");
 
 const { ROOT } = require("./lib/root");
-const SOURCE_ROOT = path.join(os.homedir(), ".claude", "projects");
 
 const { redact } = require("./lib/redact"); // redação de segredos comuns (heurística)
 const { slugify } = require("./lib/text");
 const { renderChat } = require("./lib/chat-format");
 const { writeChat } = require("./lib/chat-store");
-const { flag, opt } = require("./lib/cli");
+const { flag, opt, CliError, runAsScript } = require("./lib/cli");
 const { MAX_FILE } = require("./lib/limits");
 
 
@@ -100,61 +99,71 @@ function render(c, sessionId) {
   return renderChat({ title: c.title, sessionId, origin: c.cwd, first: c.first, last: c.last, agent: "claude", assistantLabel: "Claude" }, c.turns);
 }
 
-function sourceDirs() {
-  return fs.readdirSync(SOURCE_ROOT, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
+function sourceDirs(sourceRoot) {
+  return fs.readdirSync(sourceRoot, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
 }
 
-if (flag("list")) {
-  for (const d of sourceDirs()) {
-    const n = fs.readdirSync(path.join(SOURCE_ROOT, d)).filter((f) => f.endsWith(".jsonl")).length;
-    console.log(`${String(n).padStart(3)} conversas  ${d}`);
+// Importa as conversas de uma pasta de ~/.claude/projects para projects/<slug>/chats.
+// argv: os mesmos argumentos da CLI. io.log recebe o relatório. home: onde procurar ~/.claude (os testes trocam).
+// Retorna { nova, atualizada, igual, ignoradas }; erros de uso viram CliError.
+function run(argv, io = console, { home = os.homedir() } = {}) {
+  const has = (n) => flag(n, argv), get = (n) => opt(n, argv);
+  const sourceRoot = path.join(home, ".claude", "projects");
+  const result = { nova: 0, atualizada: 0, igual: 0, ignoradas: 0 };
+
+  if (has("list")) {
+    for (const d of sourceDirs(sourceRoot)) {
+      const n = fs.readdirSync(path.join(sourceRoot, d)).filter((f) => f.endsWith(".jsonl")).length;
+      io.log(`${String(n).padStart(3)} conversas  ${d}`);
+    }
+    return result;
   }
-  process.exit(0);
+
+  const from = get("from"), slug = get("project");
+  if (!from || !slug) throw new CliError("Uso: node tools/import-claude-code-chats.js --list | --from <pasta> --project <slug> [--no-tools] [--dry-run]");
+
+  if (!/^[a-z0-9][a-z0-9_-]{0,59}$/i.test(slug) || slug === "_template") {
+    throw new CliError("--project inválido: use apenas letras, números, '-' e '_' (sem barras ou '..').");
+  }
+
+  // --from só pode apontar para dentro de ~/.claude/projects (caminho fora dele é recusado).
+  const insideSource = (d) => { const r = path.relative(sourceRoot, path.resolve(d)); return r && !r.startsWith("..") && !path.isAbsolute(r); };
+  if (fs.existsSync(from) && !insideSource(from)) throw new CliError("--from fora de ~/.claude/projects não é permitido.");
+  let dirName = from;
+  if (!fs.existsSync(from)) {
+    const m = sourceDirs(sourceRoot).filter((d) => d.toLowerCase().includes(from.toLowerCase()));
+    if (m.length !== 1) throw new CliError(m.length ? `Ambíguo, use um nome mais específico:\n  ${m.join("\n  ")}` : `Nenhuma pasta contém "${from}".`);
+    dirName = path.join(sourceRoot, m[0]);
+  }
+
+  const dry = has("dry-run");
+  const dest = path.join(ROOT, "projects", slug);
+  if (!fs.existsSync(dest) && !dry) {
+    fs.cpSync(path.join(ROOT, "projects", "_template"), dest, { recursive: true });
+    io.log(`Projeto criado: projects/${slug}`);
+  }
+  const chatsDir = path.join(dest, "chats");
+  if (!dry) fs.mkdirSync(chatsDir, { recursive: true });
+
+  for (const f of fs.readdirSync(dirName).filter((n) => n.endsWith(".jsonl"))) {
+    const sessionId = slugify(f.replace(/\.jsonl$/, "")); // só [a-z0-9-] no nome do arquivo gerado
+    const src = path.join(dirName, f), st = fs.lstatSync(src);
+    if (!st.isFile() || st.size > MAX_FILE) { io.log(`ignorado (symlink ou > 200 MB): ${f}`); result.ignoradas++; continue; }
+    const c = convert(src, !has("no-tools"));
+    if (!c.turns.length) { result.ignoradas++; continue; }
+    const date = (c.first || "").slice(0, 10) || "sem-data";
+    const name = `${date}-${slugify(c.title)}-${sessionId.slice(0, 8)}.md`;
+    const text = redact(render(c, sessionId));
+    const { state, removed } = writeChat({ chatsDir, name, sessionId, shortId: sessionId.slice(0, 8), text, mtime: c.last, dryRun: dry });
+    io.log(`${dry ? "[dry-run] " : ""}[${state}] ${name}  (${c.turns.length} turnos)`);
+    for (const old of removed) io.log(`  (renomeada; removido ${old})`);
+    result[state === "sem mudança" ? "igual" : state]++;
+  }
+  const processed = result.nova + result.atualizada + result.igual;
+  io.log(`\n${processed} conversas processadas (${result.nova + result.atualizada} novas ou atualizadas), ${result.ignoradas} vazias ignoradas.`);
+  io.log(`Para ver o que ainda precisa de extração: node tools/extraction-state.js --project ${slug} status`);
+  return result;
 }
 
-const from = opt("from"), slug = opt("project");
-if (!from || !slug) {
-  console.error("Uso: node tools/import-claude-code-chats.js --list | --from <pasta> --project <slug> [--no-tools] [--dry-run]");
-  process.exit(1);
-}
-
-if (!/^[a-z0-9][a-z0-9_-]{0,59}$/i.test(slug) || slug === "_template") {
-  console.error("--project inválido: use apenas letras, números, '-' e '_' (sem barras ou '..').");
-  process.exit(1);
-}
-
-// --from só pode apontar para dentro de ~/.claude/projects (caminho fora dele é recusado).
-const insideSource = (d) => { const r = path.relative(SOURCE_ROOT, path.resolve(d)); return r && !r.startsWith("..") && !path.isAbsolute(r); };
-if (fs.existsSync(from) && !insideSource(from)) { console.error("--from fora de ~/.claude/projects não é permitido."); process.exit(1); }
-const dirName = fs.existsSync(from) ? from : (() => {
-  const m = sourceDirs().filter((d) => d.toLowerCase().includes(from.toLowerCase()));
-  if (m.length !== 1) { console.error(m.length ? `Ambíguo, use um nome mais específico:\n  ${m.join("\n  ")}` : `Nenhuma pasta contém "${from}".`); process.exit(1); }
-  return path.join(SOURCE_ROOT, m[0]);
-})();
-
-const dest = path.join(ROOT, "projects", slug);
-if (!fs.existsSync(dest) && !flag("dry-run")) {
-  fs.cpSync(path.join(ROOT, "projects", "_template"), dest, { recursive: true });
-  console.log(`Projeto criado: projects/${slug}`);
-}
-const chatsDir = path.join(dest, "chats");
-if (!flag("dry-run")) fs.mkdirSync(chatsDir, { recursive: true });
-
-let ok = 0, skipped = 0, changed = 0;
-for (const f of fs.readdirSync(dirName).filter((n) => n.endsWith(".jsonl"))) {
-  const sessionId = slugify(f.replace(/\.jsonl$/, "")); // só [a-z0-9-] no nome do arquivo gerado
-  const src = path.join(dirName, f), st = fs.lstatSync(src);
-  if (!st.isFile() || st.size > MAX_FILE) { console.log(`ignorado (symlink ou > 200 MB): ${f}`); skipped++; continue; }
-  const c = convert(src, !flag("no-tools"));
-  if (!c.turns.length) { skipped++; continue; }
-  const date = (c.first || "").slice(0, 10) || "sem-data";
-  const name = `${date}-${slugify(c.title)}-${sessionId.slice(0, 8)}.md`;
-  const text = redact(render(c, sessionId));
-  const { state, removed } = writeChat({ chatsDir, name, sessionId, shortId: sessionId.slice(0, 8), text, mtime: c.last, dryRun: flag("dry-run") });
-  console.log(`${flag("dry-run") ? "[dry-run] " : ""}[${state}] ${name}  (${c.turns.length} turnos)`);
-  for (const old of removed) console.log(`  (renomeada; removido ${old})`);
-  if (state !== "sem mudança") changed++;
-  ok++;
-}
-console.log(`\n${ok} conversas processadas (${changed} novas ou atualizadas), ${skipped} vazias ignoradas.`);
-console.log(`Para ver o que ainda precisa de extração: node tools/extraction-state.js --project ${slug} status`);
+module.exports = { run };
+if (require.main === module) runAsScript(run);
