@@ -19,7 +19,7 @@ function killTree(child) {
 }
 
 /** @param {import("../types").EngineRequest} req */
-function streamClaude({ prompt, slug, sessionId, model, effort, signal, onChunk, onDone, onError }) {
+function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, signal, onChunk, onDone, onError }) {
   const projDir = path.join(ROOT, "projects", slug);
   const args = ["-p", "-", "--output-format", "stream-json", "--verbose"];
   const isClaudeUuid = sessionId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId);
@@ -43,7 +43,7 @@ function streamClaude({ prompt, slug, sessionId, model, effort, signal, onChunk,
   let fullPrompt = prompt;
   // Se for início de sessão, injeta o contexto do projeto junto ao primeiro prompt
   if (!isClaudeUuid) {
-    const ctx = getProjectContext(slug);
+    const ctx = getProjectContext(slug, { daiAgent });
     if (ctx) fullPrompt = `${ctx}\nPergunta do usuário:\n${fullPrompt}`;
   }
 

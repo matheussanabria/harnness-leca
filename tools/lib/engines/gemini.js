@@ -8,7 +8,7 @@ const { loadEnv } = require("../env");
 const { safeModel, getProjectContext } = require("./common");
 
 /** @param {import("../types").EngineRequest} req */
-async function streamGemini({ prompt, slug, sessionId, history, model, effort, signal, onChunk, onDone, onError }) {
+async function streamGemini({ prompt, slug, sessionId, history, model, effort, daiAgent, signal, onChunk, onDone, onError }) {
   loadEnv();
   // A chave vem só do .env: aceitá-la da requisição deixaria uma página forjada mandar o contexto do projeto para outra conta.
   const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
@@ -34,7 +34,7 @@ async function streamGemini({ prompt, slug, sessionId, history, model, effort, s
   }
 
   try {
-    const ctx = getProjectContext(slug);
+    const ctx = getProjectContext(slug, { daiAgent });
     const targetModel = safeModel(model) || "gemini-3.8-flash";
     // A chave vai no header, não na URL (URLs aparecem em logs e mensagens de erro).
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:streamGenerateContent?alt=sse`;

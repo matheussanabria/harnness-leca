@@ -20,6 +20,7 @@ const active = () => {
 const S = require("../tools/lib/state");
 const E = require("../tools/lib/engines");
 const MR = require("../tools/lib/memory-review");
+const DAI = require("../tools/lib/dai");
 
 function listDir(dir) {
   try {
@@ -222,10 +223,17 @@ function sseWriter(res, engineId) {
   };
 }
 
+const apiDai = ({ res }) => send(res, 200, {
+  available: !!DAI.getDaiPath(),
+  path: DAI.getDaiPath(),
+  agents: DAI.listDaiAgents(),
+  workflows: DAI.DAI_WORKFLOWS,
+});
+
 async function apiChat({ req, res }) {
   let body;
   try { body = await readJsonBody(req); } catch { return send(res, 400, { error: "JSON inválido" }); }
-  const { engine, prompt, slug, sessionId, history, model, effort, temperature } = body;
+  const { engine, prompt, slug, sessionId, history, model, effort, temperature, daiAgent } = body;
   const eff = E.safeEffort(effort || (temperature != null ? effortFromTemperature(temperature) : "medium"));
   if (typeof prompt !== "string" || !prompt || !slug) return send(res, 400, { error: "prompt e slug são obrigatórios" });
   if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
@@ -251,7 +259,7 @@ async function apiChat({ req, res }) {
   // Cada motor tem a mesma interface (tools/lib/engines/index.js): o servidor não precisa conhecer nenhum pelo nome.
   // engines.get() devolve undefined para qualquer id desconhecido (inclusive "__proto__" e afins).
   const impl = E.engines.get(engine);
-  if (impl) impl.stream({ prompt, slug, sessionId, history, model, effort: eff, signal: ac.signal, ...sink });
+  if (impl) impl.stream({ prompt, slug, sessionId, history, model, effort: eff, daiAgent, signal: ac.signal, ...sink });
   else sink.onError(new E.PublicError(`Motor "${engine}" não suportado.`));
 }
 
@@ -277,6 +285,7 @@ const ROUTES = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/review$/, handler: apiReviewList },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/review$/, handler: apiReviewApply },
   { method: "GET", path: "/api/file", handler: apiFile },
+  { method: "GET", path: "/api/dai", handler: apiDai },
   { method: "POST", path: "/api/chat", handler: apiChat },
   { method: "POST", path: "/api/chat/save", handler: apiChatSave },
 ];

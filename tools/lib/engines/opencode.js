@@ -24,7 +24,7 @@ const baseUrl = () => {
 };
 
 /** @param {import("../types").EngineRequest} req */
-async function streamOpenCode({ prompt, slug, sessionId, model, effort, signal, onChunk, onDone, onError }) {
+async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent, signal, onChunk, onDone, onError }) {
   const base = baseUrl();
   try {
     let sId = sessionId;
@@ -51,7 +51,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, signal, 
       fullPrompt = `[Esforço de raciocínio: High / Alto. Raciocine passo a passo em profundidade antes da resposta final]\n\n${fullPrompt}`;
     }
     if (!isValidOpencodeSession) {
-      const ctx = getProjectContext(slug);
+      const ctx = getProjectContext(slug, { daiAgent });
       if (ctx) fullPrompt = `${ctx}\nPergunta do usuário:\n${fullPrompt}`;
     }
 

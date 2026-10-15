@@ -101,6 +101,7 @@ export interface EngineRequest extends EngineSink {
   history?: { role: string; text: string }[];
   model?: string;
   effort?: string;
+  daiAgent?: string;
   signal?: AbortSignal;
 }
 

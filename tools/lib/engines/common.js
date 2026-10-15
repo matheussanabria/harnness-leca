@@ -15,8 +15,15 @@ const EFFORTS = new Set(["low", "medium", "high", "xhigh", "max"]);
 const safeModel = (m) => (typeof m === "string" && MODEL_RE.test(m) ? m : "");
 const safeEffort = (e) => (EFFORTS.has(e) ? e : "medium");
 
+const { getDaiAgentPrompt } = require("../dai");
+
 // Carrega instruções e memórias de um projeto para enriquecer o contexto
-function getProjectContext(slug) {
+/**
+ * @param {string} slug
+ * @param {{ daiAgent?: string }|string} [options]
+ */
+function getProjectContext(slug, options = {}) {
+  const daiAgent = typeof options === "string" ? options : (options && typeof options === "object" ? options.daiAgent : null);
   const p = state.paths(slug);
   const read = (f) => (f && fs.existsSync(f) ? fs.readFileSync(f, "utf8").trim() : "");
   const globalIns = read(path.join(ROOT, "global", "instructions.md"));
@@ -25,6 +32,10 @@ function getProjectContext(slug) {
   const projMem = read(path.join(p.proj, "memory.md"));
 
   const parts = [];
+  if (daiAgent) {
+    const daiPrompt = getDaiAgentPrompt(daiAgent);
+    if (daiPrompt) parts.push(`### Papel do Agente DAI (${daiAgent})\n${neutralizeContext(daiPrompt)}`);
+  }
   if (globalIns) parts.push(`### Instruções Globais\n${neutralizeContext(globalIns)}`);
   if (globalMem) parts.push(`### Memória Global\n${neutralizeContext(globalMem)}`);
   if (projIns) parts.push(`### Instruções do Projeto (${slug})\n${neutralizeContext(projIns)}`);
