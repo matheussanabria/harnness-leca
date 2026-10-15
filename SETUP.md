@@ -69,6 +69,8 @@ harness-leca/
 │   └── memory.example.md        # copie para memory.md (local)
 ├── tools/
 │   ├── import-claude-code-chats.js   # importa conversas do Claude Code
+│   ├── import-gemini-chats.js        # importa conversas do Antigravity / Gemini
+│   ├── import-opencode-chats.js      # importa conversas do opencode (SQLite local)
 │   ├── extract-artifacts.js          # extrai regras, memórias e documentos das conversas
 │   ├── extraction-state.js           # o que já foi analisado / mudou depois
 │   └── lib/                          # redact.js (segredos) e state.js (controle de estado)
@@ -116,6 +118,30 @@ Cada conversa vira um `.md` em `projects/<projeto>/chats/` com título, datas e 
 
 > Conversas podem conter dados sensíveis (logs, senhas coladas, dados de clientes). Elas ficam só no seu computador. Revise antes de compartilhar qualquer arquivo de `chats/`. O importador redige por heurística padrões comuns de segredo (chaves de API, `Bearer`, `senha=`/`token=`, senhas em URLs, chaves privadas), mas isso não garante cobertura total.
 
+## Importar conversas do Antigravity / Gemini
+
+O Antigravity guarda os transcripts de sessões em `~/.gemini/antigravity-ide/brain/<uuid>/.system_generated/logs/transcript.jsonl`. O importador detecta automaticamente o projeto de cada conversa e converte para o formato do harness:
+
+```bash
+# 1. ver todas as sessões disponíveis no Gemini e o projeto detectado
+node tools/import-gemini-chats.js --list
+
+# 2. simular a importação das conversas de um projeto (não grava nada)
+node tools/import-gemini-chats.js --project saude-dispensacao --dry-run
+
+# 3. importar todas as conversas detectadas para o projeto
+node tools/import-gemini-chats.js --project saude-dispensacao
+
+# 4. ou importar uma sessão específica pelo ID
+node tools/import-gemini-chats.js --from 39c79beb --project saude-dispensacao
+
+# 5. ou auto-importar todas as sessões detectadas para seus respectivos projetos
+node tools/import-gemini-chats.js --all-projects
+```
+
+- A interface (`http://localhost:4321`) exibe tanto chats do Claude (`✱ Claude`) quanto do Gemini (`✦ Gemini`).
+- As chamadas de ferramenta e raciocínio (`:::thinking`) são totalmente preservadas e exibidas em accordions.
+
 ## Extrair regras, memórias e documentos das conversas
 
 Depois de importar, `tools/extract-artifacts.js` lê as conversas do projeto e separa o que vale reaproveitar. Tudo vai para `projects/<projeto>/context/` como **sugestão para revisar**: nada é copiado automaticamente para `memory.md` ou `instructions.md`.
@@ -142,6 +168,34 @@ node tools/extract-artifacts.js --project meu-projeto --llm --limit 5
 - `--limit N|all` (padrão 10, as mais recentes) e `--model nome` controlam o modo `--llm`.
 - O modo `--llm` envia um resumo de cada conversa (com segredos já redigidos) ao modelo via `claude -p`, **sem ferramentas habilitadas**, e é opcional por isso. Evite em projetos com dados de terceiros, como saúde, sem necessidade.
 - Para promover algo à memória, copie manualmente a linha revisada para `memory.md`.
+
+## Sincronizar os 3 motores (um comando)
+
+`tools/sync.js` atualiza de uma vez as conversas do **Claude Code**, do **Gemini/Antigravity** e do **opencode** nos projetos que já existem em `projects/`. Nunca cria projeto novo.
+
+```bash
+node tools/sync.js                            # todos os motores, todos os projetos
+node tools/sync.js --project dai              # só um projeto
+node tools/sync.js --engine claude,opencode   # só alguns motores
+node tools/sync.js --dry-run                  # mostra o que mudaria, sem gravar
+node tools/sync.js --no-extract               # não roda a extração local depois
+```
+
+Também funciona como `npm run sync` e, no Claude Code, como `/sync` (aceita os mesmos argumentos).
+
+O que ele faz:
+1. **Associa cada conversa a um projeto** pelo nome do projeto no caminho da pasta de trabalho (`.../git/57multimarcas` vai para o projeto `57multimarcas`). Pastas sem projeto correspondente são listadas como ignoradas.
+2. **Importa** com o importador de cada motor (`import-claude-code-chats.js`, `import-gemini-chats.js`, `import-opencode-chats.js`), regravando só o que mudou.
+3. **Roda a extração local** (regras, documentos, arquivos tocados; sem modelo e sem custo) nos projetos que receberam algo.
+4. **Mostra o que falta analisar** por projeto: conversas novas e as que continuaram depois da análise.
+
+Para associar uma pasta de nome diferente a um projeto, crie `projects/.sources.json` (fica só na sua máquina):
+
+```json
+{ "saude-prontuario": ["prontuario"], "framework-componentes": ["framework de componentes"] }
+```
+
+Requisitos: Node 22.5 ou mais novo (o opencode guarda as conversas em SQLite, lido pelo `node:sqlite` embutido). O `sync` só lê as tabelas de conversa do `opencode.db` e nunca abre `auth.json` nem credenciais.
 
 ## Acompanhar o que já foi analisado
 
