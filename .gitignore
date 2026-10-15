@@ -10,6 +10,7 @@ projects/*
 global/instructions.md
 global/memory.md
 global/.env
+global/routines.log
 *.env
 !.env.example
 !*.example
