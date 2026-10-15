@@ -216,6 +216,15 @@ A extração (`extract-artifacts.js --llm` ou a skill `extrair-artefatos`) só *
 - Filtros por categoria, busca e paginação (25 por página). A mesma sugestão vinda de várias conversas aparece uma vez.
 - O que já foi revisado (ou já está na `memory.md`) não volta, nem quando a conversa é reanalisada. O estado fica em `projects/<projeto>/memory-review.json`.
 - O texto promovido passa pelo mesmo `redact` dos chats (segredos, e-mail, CPF, telefone) e vira uma linha só (até 600 caracteres).
+- **Consolidar antes de revisar** (recomendado quando há centenas de sugestões):
+
+  ```bash
+  node tools/consolidate-memory.js --project dai --dry-run --max 20    # só mostra o resultado, não grava
+  node tools/consolidate-memory.js --project dai --max 20              # grava
+  node tools/consolidate-memory.js --project dai --desfazer            # traz as originais de volta
+  ```
+
+  Um modelo (padrão: opencode gratuito; `--engine claude` usa a sua cota) junta as sugestões que dizem a mesma coisa, descarta o passageiro e, com `--max N`, escolhe as N mais importantes de cada categoria. Cada frase consolidada guarda de quais sugestões originais veio. As consolidadas ficam em `context/memorias-consolidadas.md` e aparecem na revisão; as originais saem da lista, mas **nada é apagado**: `--desfazer` as traz de volta (o que você já promoveu ou descartou continua). O modelo só gera sugestões: nada vai para a `memory.md` sem a sua revisão. Medido no `dai`: 181 sugestões viraram 112 só juntando repetidas e 48 com `--max 12`, em cerca de 4 minutos. Para ver o que cada passo faz com o texto, use `--dry-run` primeiro.
 - **Cuidado com o tamanho:** a `memory.md` vai junto em **toda mensagem**. A tela mostra o tamanho atual e avisa acima de 8 KB. Promova o que realmente vale; descarte o resto.
 
 ## Sincronizar os 3 motores (um comando)

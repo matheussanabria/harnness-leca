@@ -10,6 +10,8 @@ const crypto = require("crypto");
 const state = require("./state");
 const { redact } = require("./redact");
 
+// Registros que a consolidação grava em memory-review.json (as decisões do usuário são "promovida" e "descartada").
+const CONSOLIDATION_ACTIONS = new Set(["consolidada", "fora-da-consolidacao"]);
 const MAX_TEXT = 600;
 const MAX_ACTIONS = 200;
 
@@ -97,6 +99,7 @@ function files(slug) {
   const p = state.paths(slug);
   return {
     suggestions: path.join(p.proj, "context", "extraido-memorias.md"),
+    consolidated: path.join(p.proj, "context", "memorias-consolidadas.md"), // gerado por tools/lib/consolidate.js
     memory: path.join(p.proj, "memory.md"),
     review: path.join(p.proj, "memory-review.json"),
   };
@@ -124,16 +127,35 @@ function alreadyInMemory(lines, texto, categoria) {
   return lines.some((l) => candidates.some((c) => c && (l === c || (c.length >= 25 && l.includes(c)))));
 }
 
+/** @param {string} slug @param {ReturnType<typeof loadReview>} review */
+function saveReview(slug, review) {
+  fs.writeFileSync(files(slug).review, JSON.stringify(review, null, 2) + "\n");
+}
+
 /**
- * O que ainda precisa de revisão: sugestões que não foram promovidas nem descartadas e que não estão na memory.md.
+ * O que ainda precisa de revisão: sugestões que não foram promovidas, descartadas nem consolidadas e que não estão na
+ * memory.md. Inclui as consolidadas (memorias-consolidadas.md), a menos que `somenteOriginais`.
  * @param {string} slug
+ * @param {{ somenteOriginais?: boolean }} [opts]
  * @returns {Suggestion[]}
  */
-function pending(slug) {
+function pending(slug, { somenteOriginais = false } = {}) {
   const f = files(slug);
   const reviewed = loadReview(slug).itens;
   const lines = memoryLines(read(f.memory));
-  return parseSuggestions(read(f.suggestions)).filter((s) => !reviewed[s.id] && !alreadyInMemory(lines, s.texto, s.categoria));
+  // Qualquer registro esconde a sugestão ORIGINAL (inclusive "consolidada": ela já está representada na consolidada).
+  // Já a sugestão CONSOLIDADA só é escondida por uma decisão do usuário (promovida ou descartada), nunca pelo registro de
+  // consolidação: uma consolidada com o mesmo texto de um original tem o mesmo id e precisa continuar visível.
+  const byUser = (/** @type {string} */ id) => reviewed[id] && !CONSOLIDATION_ACTIONS.has(reviewed[id].acao);
+  /** @type {Map<string, Suggestion>} */
+  const all = new Map(parseSuggestions(read(f.suggestions)).filter((s) => !reviewed[s.id]).map((s) => [s.id, s]));
+  if (!somenteOriginais) {
+    for (const s of parseSuggestions(read(f.consolidated)).filter((x) => !byUser(x.id))) {
+      const seen = all.get(s.id);
+      if (seen) seen.conversas.push(...s.conversas); else all.set(s.id, s);
+    }
+  }
+  return [...all.values()].filter((s) => !alreadyInMemory(lines, s.texto, s.categoria));
 }
 
 /**
@@ -173,8 +195,8 @@ function apply(slug, acoes, now = new Date()) {
     const base = memory.trim() ? memory.replace(/\s*$/, "\n") : "# Memória do projeto\n<!-- Equivale ao campo \"Memória\". Atualizada pelo Claude durante as conversas. Formato: - [AAAA-MM-DD] fato -->\n\n";
     fs.writeFileSync(f.memory, base + toAppend.join("\n") + "\n");
   }
-  if (result.promovidas || result.descartadas) fs.writeFileSync(f.review, JSON.stringify(review, null, 2) + "\n");
+  if (result.promovidas || result.descartadas) saveReview(slug, review);
   return result;
 }
 
-module.exports = { parseSuggestions, pending, apply, cleanText, idOf, ReviewError, MAX_ACTIONS };
+module.exports = { parseSuggestions, pending, apply, cleanText, idOf, files, loadReview, saveReview, ReviewError, CONSOLIDATION_ACTIONS, MAX_ACTIONS };
