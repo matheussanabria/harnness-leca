@@ -6,6 +6,7 @@
 // claude.cmd (o .cmd do npm só repassa para node_modules/@anthropic-ai/claude-code/bin/claude.exe).
 const fs = require("fs");
 const path = require("path");
+const { loadEnv } = require("./env");
 
 const WIN = process.platform === "win32";
 const NPM_EXE = path.join("node_modules", "@anthropic-ai", "claude-code", "bin", "claude.exe");
@@ -18,6 +19,7 @@ const pathDirs = () => String(process.env.PATH || "").split(path.delimiter).map(
 
 function resolveClaudeBin() {
   if (cached !== undefined) return cached;
+  loadEnv(); // CLAUDE_BIN pode estar em global/.env
   const fromEnv = process.env.CLAUDE_BIN;
   if (fromEnv && path.isAbsolute(fromEnv) && isFile(fromEnv)) return (cached = fromEnv);
 

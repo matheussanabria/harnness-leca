@@ -11,7 +11,7 @@ Replica a arquitetura de **Projetos** do Claude Chat (instruções, memória, co
 | Windows 10/11 | O hook usa PowerShell | — |
 | [Claude Code](https://claude.com/claude-code) (app desktop ou CLI) | Rodar o harness | abrir o app |
 | [Git](https://git-scm.com/downloads) | Clonar o repositório | `git --version` |
-| [Node.js 22.5+](https://nodejs.org) | Interface web, importadores e `sync` (o opencode usa o `node:sqlite` embutido) | `node -v` |
+| [Node.js 22.13+](https://nodejs.org) | Interface web, importadores e `sync` (o opencode usa o `node:sqlite` embutido) | `node -v` |
 
 > O hook é um script PowerShell, então o harness funciona direto só no Windows. No Mac/Linux é preciso reescrever `.claude/hooks/load-project.ps1` (ex.: em bash) e ajustar `.claude/settings.json`. A interface e o importador (Node) funcionam em qualquer sistema.
 
@@ -195,7 +195,7 @@ Para associar uma pasta de nome diferente a um projeto, crie `projects/.sources.
 { "saude-prontuario": ["prontuario"], "framework-componentes": ["framework de componentes"] }
 ```
 
-Requisitos: Node 22.5 ou mais novo (o opencode guarda as conversas em SQLite, lido pelo `node:sqlite` embutido). O `sync` só lê as tabelas de conversa do `opencode.db` e nunca abre `auth.json` nem credenciais.
+Requisitos: Node 22.13 ou mais novo (antes disso o `node:sqlite` exigia a flag `--experimental-sqlite`; o opencode guarda as conversas em SQLite, lido pelo `node:sqlite` embutido). O `sync` só lê as tabelas de conversa do `opencode.db` e nunca abre `auth.json` nem credenciais.
 
 ## Acompanhar o que já foi analisado
 

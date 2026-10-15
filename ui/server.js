@@ -3,7 +3,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-const ROOT = path.resolve(__dirname, "..");
+const { ROOT } = require("../tools/lib/root");
 const PROJECTS = path.join(ROOT, "projects");
 const PUBLIC = path.join(__dirname, "public");
 const PORT = process.env.PORT || 4321;
@@ -108,6 +108,17 @@ const LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i;
 const hostOk = (req) => LOCAL.test(req.headers.host || "") &&
   (!req.headers.origin || LOCAL.test(req.headers.origin.replace(/^https?:\/\//i, "")));
 
+// POST muda estado (dispara o motor, grava chats). Além do Host local, exige:
+// - Origin presente e igual ao próprio endereço do servidor, com a mesma porta (outra página em localhost:<outra porta>
+//   é outra origem e seria aceita pela regra frouxa acima);
+// - Content-Type application/json (text/plain é "requisição simples" e dispensa o preflight do CORS).
+const postOk = (req) => {
+  const origin = (req.headers.origin || "").replace(/\/+$/, "").toLowerCase();
+  const host = (req.headers.host || "").toLowerCase();
+  const json = /^application\/json\s*(;|$)/i.test(req.headers["content-type"] || "");
+  return json && (origin === `http://${host}`);
+};
+
 // Só serve arquivos regulares cujo caminho real fica dentro de `base` (bloqueia symlinks que escapam).
 function inside(base, target) {
   try {
@@ -198,7 +209,11 @@ async function handle(req, res) {
     const onError = (err) => {
       if (!res.writableEnded && !res.destroyed) {
         try {
-          res.write(`data: ${JSON.stringify({ type: "error", error: err.message || String(err) })}\n\n`);
+          // Só mensagens nossas vão ao navegador; stderr do CLI e respostas de APIs ficam no log (podem ter caminhos locais).
+          const isPublic = err instanceof E.PublicError;
+          if (!isPublic) console.error("[chat]", engine, (err && err.stack) || err);
+          const error = isPublic ? err.message : "Falha ao falar com o motor. O detalhe está no terminal do servidor.";
+          res.write(`data: ${JSON.stringify({ type: "error", error })}\n\n`);
           res.end();
         } catch {}
       }
@@ -211,7 +226,7 @@ async function handle(req, res) {
     } else if (engine === "gemini") {
       E.streamGemini({ prompt, slug, sessionId, history, model, effort: eff, signal, onChunk, onDone, onError });
     } else {
-      onError(new Error(`Motor "${engine}" não suportado.`));
+      onError(new E.PublicError(`Motor "${engine}" não suportado.`));
     }
     return;
   }
@@ -226,7 +241,8 @@ async function handle(req, res) {
       const saved = E.saveChatToProject({ slug, engine, title, turns, sessionId });
       return send(res, 200, { ok: true, ...saved });
     } catch (err) {
-      return send(res, 500, { error: err.message });
+      console.error("[chat/save]", (err && err.stack) || err);
+      return send(res, 500, { error: "Não foi possível salvar a conversa. O detalhe está no terminal do servidor." });
     }
   }
 
@@ -254,6 +270,7 @@ http.createServer(async (req, res) => {
   try {
     if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "POST") return send(res, 405, { error: "método não permitido" });
     if (!hostOk(req)) return send(res, 403, { error: "host não permitido" });
+    if (req.method === "POST" && !postOk(req)) return send(res, 403, { error: "origem não permitida" });
     await handle(req, res);
   } catch (err) {
     if (!res.headersSent && !res.writableEnded) send(res, 400, { error: "requisição inválida" });

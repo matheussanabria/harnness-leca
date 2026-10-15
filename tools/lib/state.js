@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
-const ROOT = path.resolve(__dirname, "..", "..");
+const { ROOT } = require("./root");
 const SLUG = /^[a-z0-9][a-z0-9_-]{0,59}$/;
 
 function paths(slug) {

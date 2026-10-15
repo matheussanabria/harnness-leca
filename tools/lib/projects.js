@@ -5,7 +5,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const PROJECTS = path.resolve(__dirname, "..", "..", "projects");
+const PROJECTS = path.join(require("./root").ROOT, "projects");
 const SEP = "[\\\\/\\-_ ]"; // separadores equivalentes: / \ - _ espaço (o Claude Code troca / por - nos nomes de pasta)
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
