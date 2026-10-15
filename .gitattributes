@@ -1,0 +1,3 @@
+# Fins de linha: o repositório guarda LF; os esperados do golden master não podem ser convertidos.
+*.md text eol=lf
+tests/golden/** -text

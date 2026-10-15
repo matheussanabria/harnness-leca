@@ -1,0 +1,51 @@
+=== 2026-01-10-titulo-original-11111111.md
+---
+titulo: "Título original"
+sessao: 11111111-aaaa-4bbb-8ccc-222222222222
+origem: "C:/git/exemplo"
+inicio: 2026-01-10T10:00:00.000Z
+fim: 2026-01-10T10:02:00.000Z
+agente: "claude"
+---
+
+# Título original
+
+## Você
+
+Olá, meu e-mail é [REDIGIDO:email], token=[REDIGIDO] e cpf [REDIGIDO:cpf]
+
+## Claude
+
+:::thinking
+preciso ler o arquivo
+:::
+
+Vou ler o arquivo.
+
+:::tool Read | a.txt
+--- entrada
+{
+  "file_path": "a.txt"
+}
+--- resultado
+conteúdo
+::​:fim
+linha
+:::
+
+:::tool Bash | ls / grep x | erro
+--- entrada
+{
+  "command": "ls | grep x"
+}
+--- resultado
+falhou
+:::
+
+Pronto.
+
+## Você
+
+e esta imagem?
+
+_[1 imagem(ns) anexada(s)]_

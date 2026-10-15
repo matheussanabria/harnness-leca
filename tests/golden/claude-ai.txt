@@ -1,0 +1,66 @@
+=== 2026-03-05-titulo-original-aaaaaaaa.md
+---
+titulo: "Título original"
+sessao: aaaaaaaa-1111-4222-8333-444444444444
+origem: "claude.ai"
+inicio: 2026-03-05T12:00:00Z
+fim: 2026-03-05T12:30:00Z
+agente: "claude"
+---
+
+# Título original
+
+## Você
+
+Oi, meu e-mail é [REDIGIDO:email], token=[REDIGIDO] e cpf [REDIGIDO:cpf]
+
+_[anexo: doc.pdf]_
+
+## Claude
+
+:::thinking
+hmm
+:::
+
+Olá!
+
+:::tool web_search | algo
+--- entrada
+{
+  "query": "algo"
+}
+--- resultado
+achou
+::​:
+:::
+
+=== 2026-03-06-design-framework-de-componentes-chat-de-design-bbbbbbbb.md
+---
+titulo: "Chat de design"
+sessao: bbbbbbbb-1111-4222-8333-444444444444
+origem: "claude.ai/design · Framework de componentes"
+inicio: 2026-03-06T08:00:00Z
+fim: 2026-03-06T08:10:00Z
+agente: "claude"
+---
+
+# Chat de design
+
+## Você
+
+Crie um botão
+
+_[anexos: ref.png]_
+
+## Claude
+
+Pronto, criei.
+
+:::tool write | b.html
+--- entrada
+{
+  "path": "b.html"
+}
+--- resultado
+ok
+:::

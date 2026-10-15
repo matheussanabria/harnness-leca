@@ -1,0 +1,46 @@
+=== 2026-01-10-titulo-original-ses-abc123de.md
+---
+titulo: "Título original"
+sessao: ses_abc123def456ghi
+origem: "C:/git/exemplo"
+inicio: 2026-01-10T10:00:00.000Z
+fim: 2026-01-10T10:01:00.000Z
+agente: "opencode"
+---
+
+# Título original
+
+## Você
+
+Olá, meu e-mail é [REDIGIDO:email], token=[REDIGIDO] e cpf [REDIGIDO:cpf]
+
+_ [arquivo anexado: tela.png]_
+
+## opencode
+
+:::thinking
+preciso ler o arquivo
+:::
+
+Vou ler o arquivo.
+
+:::tool read | a.txt
+--- entrada
+{
+  "filePath": "a.txt"
+}
+--- resultado
+conteúdo
+::​:fim
+:::
+
+:::tool bash | ls / grep x | erro
+--- entrada
+{
+  "command": "ls | grep x"
+}
+--- resultado
+falhou
+:::
+
+Pronto.

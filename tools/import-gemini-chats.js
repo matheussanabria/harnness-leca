@@ -24,7 +24,7 @@ process.stdout.on("error", (err) => {
   if (err.code === "EPIPE") process.exit(0);
 });
 
-const ROOT = path.resolve(__dirname, "..");
+const { ROOT } = require("./lib/root");
 const BRAIN_ROOT = path.join(os.homedir(), ".gemini", "antigravity-ide", "brain");
 const MAX_IO = 1500; // limite de caracteres por entrada/resultado de ferramenta
 const MAX_FILE = 200 * 1024 * 1024; // arquivos maiores são ignorados

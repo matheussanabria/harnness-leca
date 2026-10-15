@@ -20,7 +20,7 @@ const os = require("os");
 const path = require("path");
 const { DatabaseSync } = require("node:sqlite");
 
-const ROOT = path.resolve(__dirname, "..");
+const { ROOT } = require("./lib/root");
 const SOURCE_DB = path.join(os.homedir(), ".local", "share", "opencode", "opencode.db");
 const MAX_IO = 1500; // limite de caracteres por entrada/resultado de ferramenta
 

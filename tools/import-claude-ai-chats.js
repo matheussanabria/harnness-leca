@@ -20,7 +20,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const ROOT = path.resolve(__dirname, "..");
+const { ROOT } = require("./lib/root");
 const MAX_IO = 1500;
 const MAX_FILE = 200 * 1024 * 1024;
 const { redact } = require("./lib/redact");

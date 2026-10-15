@@ -16,7 +16,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 
-const ROOT = path.resolve(__dirname, "..");
+const { ROOT } = require("./lib/root");
 const SOURCE_ROOT = path.join(os.homedir(), ".claude", "projects");
 const MAX_IO = 1500; // limite de caracteres por entrada/resultado de ferramenta
 const MAX_FILE = 200 * 1024 * 1024; // jsonl maiores que isso são ignorados (evita estourar memória)
