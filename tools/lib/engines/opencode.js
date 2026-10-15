@@ -1,10 +1,27 @@
 // @ts-check
 // Motor 2: opencode (REST HTTP no servidor local que já está rodando).
 const { PublicError, safeModel, getProjectContext } = require("./common");
+const { loadEnv } = require("../env");
+const { detectOpenCodeUrl } = require("../opencode-detect");
 
 const DEFAULT_URL = "http://localhost:63186";
-// Lido a cada uso (e não ao carregar o módulo): assim OPENCODE_URL vindo de global/.env também vale.
-const baseUrl = () => process.env.OPENCODE_URL || DEFAULT_URL;
+let cachedUrl = null;
+let cachedAt = 0;
+
+// Lido a cada uso: aceita OPENCODE_URL do .env e auto-detecta porta ativa do OpenCode se a padrão não responder.
+const baseUrl = () => {
+  loadEnv();
+  if (process.env.OPENCODE_URL) return process.env.OPENCODE_URL;
+  if (process.env.HARNESS_ROOT) return DEFAULT_URL; // isolamento em testes de unidade
+  if (cachedUrl && Date.now() - cachedAt < 10000) return cachedUrl;
+  const detected = detectOpenCodeUrl();
+  if (detected) {
+    cachedUrl = detected;
+    cachedAt = Date.now();
+    return detected;
+  }
+  return DEFAULT_URL;
+};
 
 /** @param {import("../types").EngineRequest} req */
 async function streamOpenCode({ prompt, slug, sessionId, model, effort, signal, onChunk, onDone, onError }) {
@@ -89,6 +106,13 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, signal, 
     let accumulatedThinking = "";
     let completed = false;
     const startTime = Date.now();
+    let lastActivity = Date.now();
+
+    // Modelos com raciocínio profundo (ex.: DeepSeek, Qwen) podem pensar por vários minutos.
+    // O timeout só dispara se houver inatividade completa (sem novos tokens de texto ou raciocínio) por 3 minutos,
+    // ou se o tempo total absoluto ultrapassar 15 minutos (teto de segurança).
+    const IDLE_TIMEOUT_MS = 180_000; // 3 minutos de tolerância sem atividade
+    const MAX_TOTAL_TIMEOUT_MS = 900_000; // 15 minutos de teto global
 
     while (!completed) {
       await new Promise((r) => setTimeout(r, 200));
@@ -97,7 +121,14 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, signal, 
         fetch(`${base}/session/${sId}/abort`, { method: "POST" }).catch(() => {});
         return;
       }
-      if (Date.now() - startTime > 120000) throw new PublicError("Tempo limite excedido aguardando resposta do OpenCode");
+
+      const now = Date.now();
+      if (now - lastActivity > IDLE_TIMEOUT_MS) {
+        throw new PublicError("Tempo limite de inatividade excedido (OpenCode sem novos dados por mais de 3 minutos)");
+      }
+      if (now - startTime > MAX_TOTAL_TIMEOUT_MS) {
+        throw new PublicError("Tempo limite total excedido aguardando resposta do OpenCode (15 minutos)");
+      }
 
       const mRes = await fetch(`${base}/session/${sId}/message`);
       if (!mRes.ok) continue;
@@ -107,28 +138,37 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, signal, 
       // Procura a última mensagem do assistente criada após o início do prompt
       const candidateMsgs = msgs.slice(initialMsgCount);
       const lastAss = [...candidateMsgs].reverse().find((m) => m.info && m.info.role === "assistant");
-      if (lastAss && Array.isArray(lastAss.parts)) {
-        let totalReasoning = "";
-        let totalText = "";
-
-        for (const part of lastAss.parts) {
-          if (part.type === "reasoning" && part.text) totalReasoning += part.text;
-          else if (part.type === "text" && part.text) totalText += part.text;
+      if (lastAss) {
+        if (lastAss.info && lastAss.info.error) {
+          const errMsg = lastAss.info.error.message || lastAss.info.error.name || "Erro na geração do OpenCode";
+          throw new PublicError(`OpenCode erro: ${errMsg}`);
         }
 
-        if (totalReasoning.length > accumulatedThinking.length) {
-          const delta = totalReasoning.slice(accumulatedThinking.length);
-          accumulatedThinking = totalReasoning;
-          onChunk({ type: "thinking", text: delta, sessionId: sId });
-        }
-        if (totalText.length > accumulatedText.length) {
-          const delta = totalText.slice(accumulatedText.length);
-          accumulatedText = totalText;
-          onChunk({ type: "text", text: delta, sessionId: sId });
-        }
+        if (Array.isArray(lastAss.parts)) {
+          let totalReasoning = "";
+          let totalText = "";
 
-        if (lastAss.info.time && lastAss.info.time.completed) {
-          completed = true;
+          for (const part of lastAss.parts) {
+            if (part.type === "reasoning" && part.text) totalReasoning += part.text;
+            else if (part.type === "text" && part.text) totalText += part.text;
+          }
+
+          if (totalReasoning.length > accumulatedThinking.length) {
+            const delta = totalReasoning.slice(accumulatedThinking.length);
+            accumulatedThinking = totalReasoning;
+            lastActivity = Date.now();
+            onChunk({ type: "thinking", text: delta, sessionId: sId });
+          }
+          if (totalText.length > accumulatedText.length) {
+            const delta = totalText.slice(accumulatedText.length);
+            accumulatedText = totalText;
+            lastActivity = Date.now();
+            onChunk({ type: "text", text: delta, sessionId: sId });
+          }
+
+          if (lastAss.info.time && lastAss.info.time.completed) {
+            completed = true;
+          }
         }
       }
     }
