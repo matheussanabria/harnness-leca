@@ -1,0 +1,152 @@
+---
+titulo: Plano de commit atômico da worktree
+status: em execução
+data: 2026-10-20
+escopo: Worktree do harness-leca (610 caminhos acumulados)
+base: 152b06f
+---
+
+# Plano de commit atômico
+
+## 1. Objetivo
+
+Transformar a worktree atual — 610 caminhos acumulados em vários épicos — em uma
+sequência de commits temáticos, com mensagens no padrão do repositório e corpo
+explicando decisão, regra e testes.
+
+O objetivo não é reconstruir a história real de desenvolvimento, e sim produzir
+uma narrativa revisável: cada commit agrupado por decisão técnica, com seus testes
+junto, e o topo da branch verde.
+
+## 2. Decisões aprovadas
+
+| Decisão | Escolha |
+|---|---|
+| Preparação | `git reset` (mixed), preservando a worktree; `logs/` no `.gitignore` |
+| Rigor | 21 commits temáticos; topo verde (hubs inteiros nos blocos de base) |
+| Documentação | Dossiês, mapas e contextos exportados no bloco final |
+| Push / PR | Não autorizados nesta etapa |
+
+## 3. Diagnóstico
+
+- HEAD: `152b06f test(engines): falhar rápido se o servidor não subir`.
+- Antes do reset: 401 arquivos staged e 5 `AD` (CSS antigos staged como novos e
+  já apagados na worktree), índice impróprio para commit.
+- Depois do reset: 34 arquivos rastreados modificados + 165 entradas untracked.
+- Quase todo o conteúdo é novo em relação ao HEAD (ex.: `ui/server/router.js`,
+  `ui/public/js/modules/*`, `tools/lib/skills/*` não existem no HEAD). O HEAD é
+  um baseline antigo; a worktree acumula os épicos EP-01 a EP-12, HIA,
+  coordenação multiagente e a reescrita modular da interface.
+- Arquivos-hub tocados por vários blocos: `ui/server/router.js`,
+  `ui/public/index.html`, `ui/public/js/app.js`, `ui/public/css/index.css`,
+  `package.json`, `AGENTS.md`.
+- `logs/telemetry/hia-executions.jsonl` estava untracked e não ignorado.
+- `global/deploy*.json` já consta no `.gitignore`; nenhum `.env` no diff.
+
+## 4. Baseline (antes do primeiro commit)
+
+| Verificação | Resultado |
+|---|---|
+| `npm run check` | verde — 549 `.js` e 16 `.json` sem erro |
+| `npm test` | 638 testes, 637 passam, 1 falha |
+| `npm run types` | 349 erros de tipo já existentes |
+
+Falha pré-existente: `tests/engines.misc.test.js:20` esperava a expressão
+`são DADOS do usuário` e o código gerava `sao DADOS`. Corrigida no commit
+`feat(hia): adiciona context engine com aviso de dados acentuado`, junto com o
+módulo que faltava; a suíte passou a 638/638 antes do primeiro commit temático.
+
+## 5. Regras de commit
+
+- Assunto: `<tipo>(<escopo>): <descrição em minúsculas>`, até 72 caracteres.
+- Sem ID de issue (o histórico do repositório não usa `DIS-*`).
+- Tipos: `feat`, `fix`, `refactor`, `style`, `test`, `chore`, `docs`.
+- Corpo obrigatório em commits de código, em parágrafos:
+  1. **O quê** — arquivos e decisão estrutural.
+  2. **Por quê** — regra ou problema que motivou.
+  3. **Testes** — o que cobre o commit.
+- Sem `console.log`, `debugger` ou segredo no diff.
+- Teste de reversão: se reverter o commit isoladamente quebrar dois assuntos
+  distintos, o bloco precisa ser dividido.
+
+## 6. Fase 0 — preparação (concluída)
+
+- [x] Coordenação verificada: não há história do projeto `saude-dispensacao` para
+  manutenção do harness; esta tarefa não usa `claim`.
+- [x] `git reset` para limpar o índice inconsistente.
+- [x] `logs/` no `.gitignore`.
+- [x] Baseline de `check`, `test` e `types` registrado acima.
+- [ ] Repetir `npm test` no topo após cada macro-fase (blocos 8, 13 e 21).
+
+## 7. Blocos de commit
+
+Ordem: base → domínios → documentação. Contagem aproximada de arquivos.
+
+| # | Mensagem | Escopo | ~arq. |
+|---|---|---|---|
+| 1 | `chore(repo): higiene de índice, configuração e telemetria` | `.gitignore`, `jsconfig.json`, `.claude/settings.json`, `scripts/pre-commit.js`, `package.json` | 5 |
+| 2 | `refactor(tools): separa importadores e sincronização em módulos` | `tools/lib/{gemini-import,claude-sync-sources,chat-store,sync-core}`, `tools/{sync,daily-journal,import-*}.js`, `tests/{lib,importers.run}*` | 11 |
+| 3 | `feat(engines): fortalece catálogo e falhas e integra codex e ollama` | `tools/lib/engines/**`, `tools/lib/{codex-bin,claude-sync-sources}.js`, `tests/engines*`, `tests/golden/**` | 12 |
+| 4 | `feat(remote): acesso remoto com pin, qr code e túnel` | `tools/lib/{network*,qrcode*,permissions,project-mcp}.js`, `tools/{tunnel,permission-mcp}.js`, `controllers/{remote,permissions}`, `tests/{remote,permissions}` | 18 |
+| 5 | `feat(skills): catálogo e edição de skills por projeto` | `tools/lib/skills/**`, `controllers/skills`, `modules/skills*`, `partials/dialogs-skills.html`, `tests/skills` | 17 |
+| 6 | `feat(groups): classificação e sugestão de grupos de conversas` | `tools/lib/{classify,taxonomy,suggest*}.js`, `tools/suggest-groups.js`, `modules/groups*`, `tests/classify` | 11 |
+| 7 | `feat(context): exporta contexto e sessões para os agentes` | `tools/{export-context,export-claude-sessions,export-codex-sessions,import-codex-chats,daily-journal}.js`, `tests/{export-claude-sessions,overview}` | 8 |
+| 8 | `refactor(server): extrai config, router, controllers e services` | `ui/server.js`, `ui/server/{config,router}.js`, `controllers/{overview,project,review,sync,static,upload,services}`, `services/project*`, `tools/lib/proc-manager*` | ~30 |
+| 9 | `feat(design): design system com registry, preview e auditoria de telas` | `controllers/design*`, `services/design-*`, `tools/ds-docs/**`, `tools/import-ds-docs.js`, `modules/design*`, `css/design/**`, `global/design/**`, `tests/design*`, `tests/ds-docs*` | ~55 |
+| 10 | `feat(prototype): ateliê, canvas, catálogo e camadas do protótipo` | `controllers/prototype`, `services/prototype-{renderer,storage,structural,version,editor,exporter,sanitizer}`, `modules/prototype*`, `css/design/13-*`, `tests/prototype-{atelier,editor,structural,canvas}` | ~25 |
+| 11 | `feat(prototype): schema v2, parser semântico e piloto dis` | `services/prototype-{schema,state,validator,semantic-parser,screen-decomposer,reconstructor,sandbox-renderer,traceability,pilot-dis}`, `schemas/prototype-v2.json`, `tests/prototype-*` | ~20 |
+| 12 | `feat(scrum): doze raias, migração e transições de histórias` | `services/project-scrum-*`, `controllers/{scrum,scrum-transition}`, `modules/design-scrum*`, `css/design/09..12`, `tests/{project-scrum*,design-scrum*}` | 42 |
+| 13 | `feat(chat): apresentações, execução sincronizada e modelos do chat` | `controllers/{chat,upload}`, `services/{agent-activity,hia-chat-dispatcher}`, `modules/{chat*,mobile-chat}`, `shared/markdown*`, `css/chat/**`, `tests/chat*` | ~51 |
+| 14 | `feat(window-manager): janelas, foco, docking e layouts salvos` | `js/window-manager/**`, `types/window-manager.d.ts`, `css/office/12..14`, `tests/{window-*,taskbar,docking,drag-resize,focus-manager,layout-persistence,workspace-*,responsive-layout}` | 16 |
+| 15 | `feat(office): escritório com estações, telões e estado dos agentes` | `js/office/**`, `css/office/**`, `office.html`, `tests/office*`, `tests/station-adapter` | 79 |
+| 16 | `feat(projects): seleção centralizada e proteção de alterações` | `services/project-selection`, `shared/{project-selection,unsaved-changes}.js`, `tests/{project-selection,unsaved-changes}` | 4 |
+| 17 | `feat(studio): layouts, origem de código e visualizações` | `modules/studio*`, `css/studio/**`, `partials/studio*.html`, `controllers/source-workspace`, `services/source-workspace`, `tests/{studio*,source-*}` | 24 |
+| 18 | `feat(hia): roteador local, registry de automações e benchmark` | `tools/hia.js`, `tools/lib/hia/**`, `schemas/hia-*`, `controllers/hia`, `modules/hia-dashboard.js`, `css/hia-dashboard.css`, `tests/hia-*` | 13 |
+| 19 | `feat(coordination): ledger multiagente com claim, handoff e inbox` | `tools/coordination.js`, `tools/lib/coordination/**`, `tests/coordination`, trecho de `AGENTS.md` | 3 |
+| 20 | `feat(deploy): painel de deploy com histórico e terminal` | `controllers/deploy`, `deploy.html`, `js/deploy/**`, `css/deploy/**`, `tests/deploy-render` | 15 |
+| 21 | `docs(harness): dossiês de evolução, domínios e setup` | `docs/**`, `MAPA.md`, `README.md`, `SETUP.md`, `CLAUDE.md`, `.agents/skills/**`, `.claude/context/**`, `.gemini/context/**` | 53 |
+
+Sobras (`tests/` e `tools/` sem dono explícito) entram no bloco do domínio
+correspondente; a triagem final garante que nada fique fora.
+
+## 8. Arquivos-hub
+
+`ui/server/router.js`, `ui/public/index.html`, `ui/public/js/app.js`,
+`ui/public/css/index.css`, `package.json` e `AGENTS.md` pertencem a vários blocos.
+
+Estratégia aprovada (topo verde): os hubs entram inteiros no bloco de base que
+primeiro precisa deles (backend no 8, frontend no 9, scripts no 1). Consequência
+aceita: commits intermediários podem não inicializar a aplicação; o que se
+garante é `npm test` verde nos checkpoints e no topo.
+
+## 9. Riscos e cuidados
+
+1. Nunca usar `git add -A` ou `git add .`: arrasta `logs/` e contextos gerados.
+2. `tests/golden/engines-status.json` deve ir junto do bloco 3, senão o teste
+   de snapshot quebra.
+3. `.claude/context/**` e `MAPA.md` contêm caminhos absolutos da máquina; já é o
+   padrão atual do repositório, mas o bloco 21 deve ser revisado antes.
+4. Contextos exportados são regenerados ao final (`npm run export:context`), não
+   copiados do estado atual.
+5. `npm run types` está vermelho desde o baseline (349 erros). Nenhum bloco deve
+   piorar esse número; a correção dos tipos é trabalho separado.
+6. Não commitar `projects/` (ignorado) nem telemetria.
+
+## 10. Checkpoints
+
+| Checkpoint | Critério |
+|---|---|
+| Após bloco 8 | `npm test` sem novas falhas |
+| Após bloco 13 | `npm test` sem novas falhas |
+| Após bloco 21 | `npm run check` verde, `npm test` com 1 falha conhecida, `git status` sem untracked inesperado |
+
+## 11. Registro de execução
+
+| Bloco | Commit | Status |
+|---|---|---|
+| 0 — preparação | — | concluído |
+| 0.1 — pré-requisito da suíte | `feat(hia): adiciona context engine com aviso de dados acentuado` | concluído |
+| 0.2 — teste do pre-commit | `test(precommit): cobre a checagem de arquivos fora do mapa` | concluído |
+| 1 — higiene | `chore(repo): higiene de índice, configuração e telemetria` | concluído |
+| 2 — importadores e sync | `refactor(tools): separa importadores e sincronização em módulos` | concluído |
+| 3 a 21 | — | pendente |

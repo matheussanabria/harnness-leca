@@ -1,0 +1,311 @@
+﻿
+> types
+> node scripts/types.js
+
+tools/lib/gemini-import/sessions.js(146,21): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+tools/lib/gemini-import/sessions.js(146,31): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+tools/lib/network-access.js(52,12): error TS2503: Cannot find namespace 'http'.
+tools/lib/network-access.js(63,12): error TS2503: Cannot find namespace 'http'.
+tools/lib/network-access.js(85,12): error TS2503: Cannot find namespace 'http'.
+tools/lib/proc-manager-store.js(17,13): error TS2503: Cannot find namespace 'cp'.
+ui/public/js/app.js(157,25): error TS2339: Property 'toggleInspectorMode' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/app.js(158,16): error TS2339: Property 'toggleInspectorMode' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/boot.js(6,1): error TS1375: 'await' expressions are only allowed at the top level of a file when that file is a module, but this file has no imports or exports. Consider adding an empty 'export {}' to make this file a module.
+ui/public/js/boot.js(6,1): error TS1378: Top-level 'await' expressions are only allowed when the 'module' option is set to 'es2022', 'esnext', 'system', 'node16', 'nodenext', or 'preserve', and the 'target' option is set to 'es2017' or higher.
+ui/public/js/boot.js(20,1): error TS1375: 'await' expressions are only allowed at the top level of a file when that file is a module, but this file has no imports or exports. Consider adding an empty 'export {}' to make this file a module.
+ui/public/js/boot.js(20,1): error TS1378: Top-level 'await' expressions are only allowed when the 'module' option is set to 'es2022', 'esnext', 'system', 'node16', 'nodenext', or 'preserve', and the 'target' option is set to 'es2017' or higher.
+ui/public/js/boot.js(20,14): error TS2307: Cannot find module '/js/app.js' or its corresponding type declarations.
+ui/public/js/deploy/deploy-modals.js(9,8): error TS2339: Property 'openNewProjectModal' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-modals.js(21,18): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(22,17): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(22,32): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(23,19): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(23,34): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(28,28): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(29,24): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(30,45): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(35,8): error TS2339: Property 'saveNewProject' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-modals.js(36,58): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(37,52): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(38,58): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(78,3): error TS2304: Cannot find name 'closeModal'.
+ui/public/js/deploy/deploy-modals.js(83,8): error TS2339: Property 'openEditProjectModal' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-modals.js(88,44): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(89,46): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(90,46): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(95,8): error TS2339: Property 'saveEditProject' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-modals.js(97,59): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(98,59): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(109,3): error TS2304: Cannot find name 'closeModal'.
+ui/public/js/deploy/deploy-modals.js(114,8): error TS2339: Property 'deleteProject' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-modals.js(118,10): error TS2339: Property 'openConfirmModal' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-modals.js(130,8): error TS2339: Property 'openEditEnvModal' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-modals.js(139,43): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(140,42): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(141,46): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(142,46): error TS2339: Property 'checked' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(147,8): error TS2339: Property 'saveEditEnv' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-modals.js(150,56): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(151,54): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(152,61): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(153,62): error TS2339: Property 'checked' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(166,3): error TS2304: Cannot find name 'closeModal'.
+ui/public/js/deploy/deploy-modals.js(171,8): error TS2339: Property 'testWebhookFromModal' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-modals.js(172,54): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(173,61): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(183,13): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-modals.js(212,15): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-render.js(106,113): error TS2304: Cannot find name 'escapeAttr'.
+ui/public/js/deploy/deploy-render.js(113,48): error TS2304: Cannot find name 'escapeAttr'.
+ui/public/js/deploy/deploy-render.js(113,74): error TS2304: Cannot find name 'escapeAttr'.
+ui/public/js/deploy/deploy-render.js(118,119): error TS2304: Cannot find name 'escapeAttr'.
+ui/public/js/deploy/deploy-render.js(118,145): error TS2304: Cannot find name 'escapeAttr'.
+ui/public/js/deploy/deploy-render.js(122,116): error TS2304: Cannot find name 'escapeAttr'.
+ui/public/js/deploy/deploy-render.js(122,149): error TS2304: Cannot find name 'escapeAttr'.
+ui/public/js/deploy/deploy-render.js(138,114): error TS2304: Cannot find name 'escapeAttr'.
+ui/public/js/deploy/deploy-render.js(139,93): error TS2304: Cannot find name 'escapeAttr'.
+ui/public/js/deploy/deploy-run.js(9,8): error TS2339: Property 'triggerDeploy' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-run.js(21,12): error TS2339: Property 'openConfirmModal' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-run.js(41,9): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-run.js(114,11): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/deploy/deploy-utils.js(6,8): error TS2339: Property 'clearHistory' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-utils.js(7,10): error TS2339: Property 'openConfirmModal' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-utils.js(40,8): error TS2339: Property 'copyToClipboard' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-utils.js(48,8): error TS2339: Property 'copyCurl' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-utils.js(50,10): error TS2339: Property 'copyToClipboard' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-utils.js(53,8): error TS2339: Property 'openConfirmModal' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-utils.js(60,8): error TS2339: Property 'executePendingConfirm' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/deploy/deploy-utils.js(61,3): error TS2304: Cannot find name 'closeModal'.
+ui/public/js/deploy/deploy-utils.js(74,8): error TS2339: Property 'closeModal' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-attachments.js(57,12): error TS2339: Property 'thumb' does not exist on type '{ id: number; name: any; kind: string; }'.
+ui/public/js/modules/chat-attachments.js(69,10): error TS2339: Property 'path' does not exist on type '{ id: number; name: any; kind: string; }'.
+ui/public/js/modules/chat-attachments.js(71,10): error TS2339: Property 'error' does not exist on type '{ id: number; name: any; kind: string; }'.
+ui/public/js/modules/chat-code-actions.js(53,7): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/chat-code-actions.js(59,9): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/chat-engines.js(151,28): error TS2554: Expected 0 arguments, but got 2.
+ui/public/js/modules/chat-engines.js(230,28): error TS2554: Expected 0 arguments, but got 2.
+ui/public/js/modules/chat-mini.js(147,24): error TS2339: Property 'togglePanelCollapse' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-mini.js(148,14): error TS2339: Property 'togglePanelCollapse' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-mini.js(181,78): error TS2339: Property 'togglePanelCollapse' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-mini.js(182,14): error TS2339: Property 'togglePanelCollapse' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-mini.js(194,14): error TS2339: Property 'toggleStudioMode' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-mini.js(194,39): error TS2339: Property 'toggleStudioMode' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-mini.js(207,16): error TS2339: Property 'renderChatHistory' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-mini.js(207,42): error TS2339: Property 'renderChatHistory' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-mini.js(210,32): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/chat-mini.js(210,43): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/chat-mini.js(223,14): error TS2339: Property 'handleChatInput' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-mini.js(223,38): error TS2339: Property 'handleChatInput' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-mini.js(230,14): error TS2339: Property 'sendChatMessage' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-mini.js(230,38): error TS2339: Property 'sendChatMessage' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-persist.js(82,16): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-persist.js(82,35): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-persist.js(113,45): error TS2339: Property 'text' does not exist on type '{ who: string; tools: { name: string; hint: string; error: boolean; input: string; result: string; thinking: boolean; }[]; }'.
+ui/public/js/modules/chat-persist.js(123,20): error TS2339: Property 'text' does not exist on type '{ who: string; tools: { name: string; hint: string; error: boolean; input: string; result: string; thinking: boolean; }[]; }'.
+ui/public/js/modules/chat-persist.js(165,41): error TS2339: Property 'toggleStudioMode' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-persist.js(165,66): error TS2339: Property 'toggleStudioMode' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-send.js(150,50): error TS2339: Property 'reloadStudioIframe' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-send.js(150,88): error TS2339: Property 'reloadStudioIframe' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-send.js(262,46): error TS2339: Property 'reloadStudioIframe' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-send.js(262,84): error TS2339: Property 'reloadStudioIframe' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/chat-session-store.js(41,3): error TS2739: Type '{ [k: string]: any; }' is missing the following properties from type '{ claude: any; opencode: any; gemini: any; codex: any; }': claude, opencode, gemini, codex
+ui/public/js/modules/groups-assign.js(50,15): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-assign.js(67,12): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-assign.js(69,17): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-assign.js(90,26): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-assign.js(99,25): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-assign.js(101,26): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-assign.js(146,14): error TS2339: Property 'renderProjectChats' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/groups-assign.js(146,41): error TS2339: Property 'renderProjectChats' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/groups-assign.js(176,14): error TS2339: Property 'renderProjectChats' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/groups-assign.js(176,41): error TS2339: Property 'renderProjectChats' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/groups-assign.js(187,9): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-assign.js(240,30): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-assign.js(247,11): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-classify.js(15,9): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-classify.js(81,11): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-classify.js(97,9): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-classify.js(135,16): error TS2339: Property 'renderProjectChats' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/groups-classify.js(135,43): error TS2339: Property 'renderProjectChats' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/groups-classify.js(141,11): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-data.js(67,14): error TS2339: Property 'renderProjectChats' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/groups-data.js(67,41): error TS2339: Property 'renderProjectChats' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/groups-manage.js(27,26): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-manage.js(28,31): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-manage.js(41,26): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-manage.js(42,31): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-manage.js(55,26): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-manage.js(56,31): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-manage.js(65,39): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-manage.js(70,47): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/groups-manage.js(114,24): error TS2304: Cannot find name 'getProjectAssignments'.
+ui/public/js/modules/groups-manage.js(151,26): error TS2304: Cannot find name 'getProjectAssignments'.
+ui/public/js/modules/inspector-card.js(226,26): error TS2304: Cannot find name 'currentInspectedData'.
+ui/public/js/modules/projects-load.js(77,7): error TS2339: Property 'onclick' does not exist on type 'Element'.
+ui/public/js/modules/projects-load.js(80,7): error TS2339: Property 'onclick' does not exist on type 'Element'.
+ui/public/js/modules/projects-load.js(82,14): error TS2339: Property 'syncStudioControls' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/projects-load.js(82,41): error TS2339: Property 'syncStudioControls' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/prototype-atelier.js(28,14): error TS2339: Property 'syncStudioControls' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/prototype-atelier.js(28,41): error TS2339: Property 'syncStudioControls' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/prototype-atelier.js(29,14): error TS2339: Property 'renderChatHistory' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/prototype-atelier.js(29,40): error TS2339: Property 'renderChatHistory' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/prototype-atelier.js(30,14): error TS2339: Property 'updateEngineAuthBadge' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/prototype-atelier.js(30,44): error TS2339: Property 'updateEngineAuthBadge' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/prototype-atelier.js(118,57): error TS2339: Property 'promptCreateNewPrototype' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/prototype-edit-panel.js(159,99): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/prototype-edit-panel.js(162,114): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/prototype-edit-panel.js(166,43): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/prototype-edit-panel.js(167,41): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/prototype-edit-panel.js(187,39): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/review.js(14,27): error TS2304: Cannot find name 'P'.
+ui/public/js/modules/review.js(14,47): error TS2304: Cannot find name 'P'.
+ui/public/js/modules/review.js(14,59): error TS2339: Property 'P' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/review.js(168,9): error TS2339: Property 'setSelectionRange' does not exist on type 'HTMLElement'.
+ui/public/js/modules/review.js(168,29): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/review.js(168,45): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/review.js(177,89): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/review.js(195,27): error TS2304: Cannot find name 'P'.
+ui/public/js/modules/review.js(195,47): error TS2304: Cannot find name 'P'.
+ui/public/js/modules/review.js(195,59): error TS2339: Property 'P' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/review.js(196,25): error TS2304: Cannot find name 'load'.
+ui/public/js/modules/review.js(196,47): error TS2304: Cannot find name 'load'.
+ui/public/js/modules/review.js(196,62): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/services.js(81,14): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/services.js(105,29): error TS2339: Property 'checkAppStatus' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/services.js(105,54): error TS2339: Property 'checkAppStatus' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/services.js(106,29): error TS2339: Property 'checkAppStatus' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/services.js(106,54): error TS2339: Property 'checkAppStatus' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/services.js(112,16): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/services.js(141,18): error TS2339: Property 'checkAppStatus' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/services.js(141,41): error TS2339: Property 'checkAppStatus' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-add.js(23,22): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(25,30): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(27,20): error TS2339: Property 'showModal' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(70,40): error TS2339: Property 'dataset' does not exist on type 'Element'.
+ui/public/js/modules/skills-add.js(80,46): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(87,7): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(96,16): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-add.js(96,35): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-add.js(97,22): error TS2551: Property 'close' does not exist on type 'HTMLElement'. Did you mean 'closest'?
+ui/public/js/modules/skills-add.js(102,9): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(110,46): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(118,16): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-add.js(118,35): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-add.js(119,22): error TS2551: Property 'close' does not exist on type 'HTMLElement'. Did you mean 'closest'?
+ui/public/js/modules/skills-add.js(129,46): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(130,37): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(131,37): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(132,39): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(133,43): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-add.js(159,16): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-add.js(159,35): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-add.js(160,22): error TS2551: Property 'close' does not exist on type 'HTMLElement'. Did you mean 'closest'?
+ui/public/js/modules/skills-import.js(35,48): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-import.js(40,53): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-import.js(137,46): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-import.js(148,16): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-import.js(148,35): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-import.js(149,22): error TS2551: Property 'close' does not exist on type 'HTMLElement'. Did you mean 'closest'?
+ui/public/js/modules/skills-import.js(159,46): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-import.js(184,16): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-import.js(184,35): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-import.js(185,22): error TS2551: Property 'close' does not exist on type 'HTMLElement'. Did you mean 'closest'?
+ui/public/js/modules/skills-section.js(110,13): error TS2339: Property 'open' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-section.js(112,13): error TS2551: Property 'close' does not exist on type 'HTMLElement'. Did you mean 'closest'?
+ui/public/js/modules/skills-section.js(115,9): error TS2339: Property 'showModal' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-section.js(146,28): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-section.js(154,45): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-section.js(155,25): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-section.js(171,16): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-section.js(171,35): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-section.js(177,27): error TS2339: Property 'disabled' does not exist on type 'HTMLElement'.
+ui/public/js/modules/skills-section.js(196,25): error TS2551: Property 'close' does not exist on type 'HTMLElement'. Did you mean 'closest'?
+ui/public/js/modules/skills-section.js(197,16): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/skills-section.js(197,35): error TS2339: Property 'load' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-canvas.js(100,16): error TS2339: Property 'updateServiceStatusIndicators' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-canvas.js(100,54): error TS2339: Property 'updateServiceStatusIndicators' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-canvas.js(108,16): error TS2339: Property 'updateServiceStatusIndicators' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-canvas.js(108,54): error TS2339: Property 'updateServiceStatusIndicators' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(19,16): error TS2339: Property 'hideMiniChatWidget' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(19,43): error TS2339: Property 'hideMiniChatWidget' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(21,16): error TS2339: Property 'renderChatHistory' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(21,42): error TS2339: Property 'renderChatHistory' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(28,16): error TS2339: Property 'renderChatHistory' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(28,42): error TS2339: Property 'renderChatHistory' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(29,46): error TS2339: Property 'updateMiniChatWidget' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(29,75): error TS2339: Property 'updateMiniChatWidget' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(106,14): error TS2339: Property 'updateEngineControls' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(106,43): error TS2339: Property 'updateEngineControls' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(107,14): error TS2339: Property 'renderDaiSelectors' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(107,41): error TS2339: Property 'renderDaiSelectors' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(125,14): error TS2339: Property 'updateServiceStatusIndicators' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/modules/studio-core.js(125,52): error TS2339: Property 'updateServiceStatusIndicators' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office-3d-controls.js(15,16): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office-3d-controls.js(17,37): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office-3d-controls.js(28,16): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office-3d-controls.js(29,39): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office-3d.js(58,27): error TS2532: Object is possibly 'undefined'.
+ui/public/js/office-3d.js(80,26): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office-3d.js(105,10): error TS2339: Property 'initRenderers' does not exist on type 'Office3D'.
+ui/public/js/office-3d.js(117,14): error TS2551: Property 'setViewMode' does not exist on type 'Office3D'. Did you mean 'viewMode'?
+ui/public/js/office-3d.js(119,14): error TS2551: Property 'setViewMode' does not exist on type 'Office3D'. Did you mean 'viewMode'?
+ui/public/js/office-3d.js(158,36): error TS2339: Property 'sitAtWorkstation' does not exist on type 'Office3D'.
+ui/public/js/office-3d.js(159,32): error TS2339: Property 'sitAtWarRoom' does not exist on type 'Office3D'.
+ui/public/js/office-3d.js(160,40): error TS2339: Property 'openWarRoomDrawer' does not exist on type 'Office3D'.
+ui/public/js/office-3d.js(161,39): error TS2339: Property 'openAgentDossier' does not exist on type 'Office3D'.
+ui/public/js/office-3d.js(163,34): error TS2339: Property 'sitAtWorkstation' does not exist on type 'Office3D'.
+ui/public/js/office-3d.js(164,19): error TS2551: Property 'setViewMode' does not exist on type 'Office3D'. Did you mean 'viewMode'?
+ui/public/js/office-3d.js(197,17): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office-app.js(68,14): error TS2339: Property 'setMouseSensitivity' does not exist on type 'Office3D'.
+ui/public/js/office-audio.js(8,61): error TS2551: Property 'webkitAudioContext' does not exist on type 'Window & typeof globalThis'. Did you mean 'AudioContext'?
+ui/public/js/office3d/browser-screen.js(88,35): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office3d/browser-screen.js(170,39): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office3d/camera-controller.js(27,40): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office3d/camera-controller.js(109,26): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office3d/interaction-manager.js(20,33): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office3d/interaction-manager.js(21,29): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office3d/interaction-manager.js(22,32): error TS2339: Property 'THREE' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/office3d/seat-and-mode-manager.js(33,52): error TS2339: Property 'renderer' does not exist on type '{ cameraController: any; avatar: any; orbitControls: any; interactionManager: any; cssRenderer: any; crosshair?: HTMLElement; positions: any; }'.
+ui/public/js/office3d/seat-and-mode-manager.js(34,24): error TS2339: Property 'renderer' does not exist on type '{ cameraController: any; avatar: any; orbitControls: any; interactionManager: any; cssRenderer: any; crosshair?: HTMLElement; positions: any; }'.
+ui/public/js/office3d/seat-and-mode-manager.js(42,20): error TS2339: Property 'renderer' does not exist on type '{ cameraController: any; avatar: any; orbitControls: any; interactionManager: any; cssRenderer: any; crosshair?: HTMLElement; positions: any; }'.
+ui/public/js/office3d/seat-and-mode-manager.js(43,18): error TS2339: Property 'renderer' does not exist on type '{ cameraController: any; avatar: any; orbitControls: any; interactionManager: any; cssRenderer: any; crosshair?: HTMLElement; positions: any; }'.
+ui/public/js/office3d/war-screen/war-screen-agents.js(37,44): error TS2339: Property 'integrations' does not exist on type 'OrchestrationState'.
+ui/public/js/office3d/war-screen/war-screen-agents.js(43,44): error TS2339: Property 'executions' does not exist on type 'OrchestrationState'.
+ui/public/js/office3d/war-screen/war-screen-agents.js(44,44): error TS2339: Property 'executions' does not exist on type 'OrchestrationState'.
+ui/public/js/office3d/war-screen/war-screen-agents.js(45,46): error TS2339: Property 'executions' does not exist on type 'OrchestrationState'.
+ui/public/js/office3d/war-screen/war-screen-tasks.js(39,27): error TS2339: Property 'executions' does not exist on type 'OrchestrationState'.
+ui/public/js/office3d/war-screen/war-screen-tasks.js(39,60): error TS2339: Property 'executions' does not exist on type 'OrchestrationState'.
+ui/public/js/office3d/war-screen/war-screen-tasks.js(40,35): error TS2339: Property 'executions' does not exist on type 'OrchestrationState'.
+ui/public/js/office3d/war-screen/war-screen-tasks.js(144,29): error TS2339: Property 'slice' does not exist on type 'unknown'.
+ui/public/js/shared/dom.js(55,22): error TS2339: Property '_timeout' does not exist on type 'HTMLElement'.
+ui/public/js/shared/dom.js(56,9): error TS2339: Property '_timeout' does not exist on type 'HTMLElement'.
+ui/public/js/shared/dom.js(78,27): error TS2339: Property 'md' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/shared/dom.js(78,39): error TS2339: Property 'md' does not exist on type 'Window & typeof globalThis'.
+ui/public/js/shared/dom.js(82,18): error TS2339: Property 'showModal' does not exist on type 'HTMLElement'.
+ui/public/js/shared/dom.js(83,9): error TS2339: Property 'showModal' does not exist on type 'HTMLElement'.
+ui/server/controllers/orchestration.controller.js(19,37): error TS2339: Property 'getState' does not exist on type 'EventEngine'.
+ui/server/controllers/orchestration.controller.js(35,47): error TS2339: Property 'getEvents' does not exist on type 'EventEngine'.
+ui/server/controllers/orchestration.controller.js(44,29): error TS2339: Property 'getState' does not exist on type 'EventEngine'.
+ui/server/controllers/orchestration.controller.js(48,30): error TS2339: Property 'getEvents' does not exist on type 'EventEngine'.
+ui/server/controllers/orchestration.controller.js(121,36): error TS2339: Property 'getState' does not exist on type 'EventEngine'.
+ui/server/services/design-profile-detector.service.js(68,5): error TS2739: Type '{ ref: string; overrides: { componentsDir: string; tokensCss: string; }; }' is missing the following properties from type '{ provider: string; prefix: string; }': provider, prefix
+ui/server/services/framework-adapter.factory.js(2,25): error TS2724: '"./component-resolver.service"' has no exported member named 'resolveComponentFiles'. Did you mean 'resolveComponent'?
+ui/server/services/framework-adapter.factory.js(4,9): error TS2305: Module '"./component-editor.service"' has no exported member 'applyComponentEdit'.
+ui/server/services/orchestration/adapters/opencode-adapter.js(81,9): error TS2322: Type 'SQLOutputValue' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+ui/server/services/orchestration/adapters/opencode-adapter.js(82,9): error TS2322: Type 'SQLOutputValue' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+ui/server/services/orchestration/adapters/opencode-adapter.js(86,87): error TS2339: Property 'slice' does not exist on type 'SQLOutputValue'.
+  Property 'slice' does not exist on type 'number'.
+ui/server/services/orchestration/adapters/opencode-adapter.js(101,11): error TS2322: Type 'SQLOutputValue' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+ui/server/services/orchestration/adapters/opencode-adapter.js(102,11): error TS2322: Type 'SQLOutputValue' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+ui/server/services/orchestration/adapters/services-adapter.js(30,45): error TS2339: Property 'startedAt' does not exist on type '{ id: string; name: string; command: string; cwd: string; url: string; status: string; pid?: number; uptimeMs?: number; }'.
+ui/server/services/orchestration/adapters/services-adapter.js(41,20): error TS2339: Property 'startedAt' does not exist on type '{ id: string; name: string; command: string; cwd: string; url: string; status: string; pid?: number; uptimeMs?: number; }'.
+ui/server/services/orchestration/adapters/services-adapter.js(41,43): error TS2339: Property 'startedAt' does not exist on type '{ id: string; name: string; command: string; cwd: string; url: string; status: string; pid?: number; uptimeMs?: number; }'.
+ui/server/services/orchestration/adapters/services-adapter.js(50,21): error TS2339: Property 'exitCode' does not exist on type '{ id: string; name: string; command: string; cwd: string; url: string; status: string; pid?: number; uptimeMs?: number; }'.
+ui/server/services/orchestration/event-engine.js(101,10): error TS2339: Property 'projectEvent' does not exist on type 'EventEngine'.
+ui/server/services/template-locator-find.js(56,14): error TS2304: Cannot find name 'TemplateNode'.
+ui/server/services/template-locator-nodes.js(142,3): error TS2322: Type '{ class: string; }' is not assignable to type 'Record<string, string>'.
+  Index signature for type 'string' is missing in type '{ class: string; }'.

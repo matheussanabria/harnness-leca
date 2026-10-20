@@ -1,0 +1,5 @@
+﻿
+> check
+> node scripts/check.js
+
+Ô£ö 359 arquivos .js e 9 .json sem erro (Node v24.22.0)

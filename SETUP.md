@@ -73,6 +73,8 @@ harness-leca/
 │   ├── import-opencode-chats.js      # importa conversas do opencode (SQLite local)
 │   ├── extract-artifacts.js          # extrai regras, memórias e documentos das conversas
 │   ├── extraction-state.js           # o que já foi analisado / mudou depois
+│   ├── export-context.js             # exporta memória e regras para o contexto do Claude e Gemini
+│   ├── export-claude-sessions.js     # reidrata o histórico de sessões do Claude Code (.jsonl)
 │   ├── sync.js                       # atualiza os 3 motores de uma vez
 │   └── lib/
 │       ├── chat-format.js            # formato do .md de conversa (escrever e ler): único dono do formato
@@ -103,258 +105,30 @@ harness-leca/
 - **Contexto:** coloque arquivos em `projects/<projeto>/context/`. O Claude recebe só a lista de nomes e abre o arquivo quando precisar.
 - **Chats:** peça "salve um resumo desta conversa" e o Claude grava em `chats/`.
 
-## Importar conversas de outros projetos do Claude Code
+## Motor local (Ollama)
 
-O Claude Code guarda cada conversa como `.jsonl` em `~/.claude/projects/<pasta-do-projeto>/`. O importador converte para o formato do harness:
+O "Ollama Local" do chat não é um serviço na nuvem: é um daemon que roda na sua máquina, em `http://localhost:11434`. Sem ele no ar, a interface mostra "Ollama desligado" (e não um erro de internet).
 
-```bash
-# 1. ver as pastas e quantas conversas cada uma tem
-node tools/import-claude-code-chats.js --list
-
-# 2. simular (não grava nada)
-node tools/import-claude-code-chats.js --from nome-da-pasta --project meu-projeto --dry-run
-
-# 3. importar
-node tools/import-claude-code-chats.js --from nome-da-pasta --project meu-projeto
+```powershell
+# 1. Instale o Ollama (Windows): https://ollama.com/download
+# 2. Suba o daemon (o app do Windows já o mantém em segundo plano)
+ollama serve
+# 3. Baixe o modelo padrão (~1 GB de RAM em uso)
+ollama pull qwen2.5-coder:1.5b
+# 4. Confira
+curl.exe http://localhost:11434/api/tags
 ```
 
-- `--from`: trecho do nome da pasta de origem (use o nome mostrado em `--list`).
-- `--project`: destino em `projects/` (criado a partir do `_template` se não existir).
-- `--no-tools`: não inclui as chamadas de ferramenta (arquivos bem menores).
-- Rodar de novo atualiza os mesmos arquivos, sem duplicar.
+Requisitos e ajustes:
 
-Cada conversa vira um `.md` em `projects/<projeto>/chats/` com título, datas e origem. As chamadas de ferramenta (entrada e resultado, cortados em 1.500 caracteres) ficam em blocos `:::tool` que a interface mostra recolhidos.
+- Pelo menos **3000 MB de RAM livre** para o motor local; o HIA só roteia tarefas leves para ele quando a máquina está apta.
+- Modelos alternativos: `qwen2.5-coder:3b` e `deepseek-r1:1.5b`.
+- Para usar um Ollama em outra máquina (LAN/VPN), defina `OLLAMA_URL=http://<host>:11434` em `global/.env` e reinicie a interface.
+- Docker: `docker run -d -p 11434:11434 -v ollama:/root/.ollama ollama/ollama` e depois `docker exec -it <container> ollama pull qwen2.5-coder:1.5b`.
 
-> Conversas podem conter dados sensíveis (logs, senhas coladas, dados de clientes). Elas ficam só no seu computador. Revise antes de compartilhar qualquer arquivo de `chats/`. O importador redige por heurística padrões comuns de segredo (chaves de API, `Bearer`, `senha=`/`token=`, senhas em URLs, chaves privadas), mas isso não garante cobertura total.
 
-## Importar conversas do Antigravity / Gemini
+## Guias complementares
 
-O Antigravity guarda os transcripts de sessões em `~/.gemini/antigravity-ide/brain/<uuid>/.system_generated/logs/transcript.jsonl`. O importador detecta automaticamente o projeto de cada conversa e converte para o formato do harness:
-
-```bash
-# 1. ver todas as sessões disponíveis no Gemini e o projeto detectado
-node tools/import-gemini-chats.js --list
-
-# 2. simular a importação das conversas de um projeto (não grava nada)
-node tools/import-gemini-chats.js --project saude-dispensacao --dry-run
-
-# 3. importar todas as conversas detectadas para o projeto
-node tools/import-gemini-chats.js --project saude-dispensacao
-
-# 4. ou importar uma sessão específica pelo ID
-node tools/import-gemini-chats.js --from 39c79beb --project saude-dispensacao
-
-# 5. ou auto-importar todas as sessões detectadas para seus respectivos projetos
-node tools/import-gemini-chats.js --all-projects
-```
-
-- A interface (`http://localhost:4321`) exibe tanto chats do Claude (`✱ Claude`) quanto do Gemini (`✦ Gemini`).
-- As chamadas de ferramenta e raciocínio (`:::thinking`) são totalmente preservadas e exibidas em accordions.
-
-## Extrair regras, memórias e documentos das conversas
-
-Depois de importar, `tools/extract-artifacts.js` lê as conversas do projeto e separa o que vale reaproveitar. Tudo vai para `projects/<projeto>/context/` como **sugestão para revisar**: nada é copiado automaticamente para `memory.md` ou `instructions.md`.
-
-```bash
-# sem custo, roda local: regras, documentos, arquivos tocados
-node tools/extract-artifacts.js --project meu-projeto
-
-# opcional: memórias, regras e decisões destiladas pelo Claude (usa sua cota)
-node tools/extract-artifacts.js --project meu-projeto --llm --limit 5
-```
-
-| Saída | Conteúdo |
-|---|---|
-| `extraido-indice.md` | resumo e lista do que foi extraído |
-| `extraido-regras.md` | frases suas com cara de regra ("sempre", "nunca", "prefiro"...). Heurística: revise |
-| `extraido-arquivos.md` | arquivos que o Claude criou ou editou, por conversa |
-| `extraido-memorias.md` | (`--llm`) memórias, regras, decisões e termos do domínio por conversa |
-| `extraidos/documentos/` | documentos `.md`/`.txt`/`.html` que o Claude gravou, com o conteúdo completo |
-| `extraidos/respostas/` | respostas longas e estruturadas do Claude (planos, análises, tabelas) |
-
-- Os arquivos `extraido-*.md` aparecem no cartão **Contexto** da interface e na lista que o hook entrega ao Claude. A pasta `extraidos/` fica no disco.
-- Rodar de novo regrava os arquivos derivados. Sem `--llm`, o `extraido-memorias.md` anterior é preservado.
-- `--limit N|all` (padrão 10, as mais recentes) e `--model nome` controlam o modo `--llm`.
-- **`--engine opencode`** faz a extração com um modelo do OpenCode em vez do Claude (não gasta a cota do Claude). Padrão: `opencode/deepseek-v4.1-flash-free`. Veja os modelos com `opencode models`.
-  - **Só modelos gratuitos** (`opencode/...-free`) rodam sem pedir licença: groq, openrouter e os demais usam as suas chaves e podem custar; para usá-los de propósito, `--allow-paid`.
-  - **Isolamento:** o modelo roda numa pasta temporária vazia, com um agente que só tem leitura; escrita, comandos, web e diretórios externos são negados (testado: pedidos de escrever, executar e ler fora da pasta foram recusados e nada foi criado). Não dá para tirar *todas* as ferramentas: o plano gratuito do OpenCode devolve 403 para agentes sem nenhuma, e essa é uma regra do serviço.
-  - Cada conversa é gravada e marcada como analisada **assim que termina**; se a execução cair no meio, o que já foi feito fica. Em falha do serviço (ex.: limite de uso), tenta uma segunda vez e, se falhar de novo, a conversa continua pendente.
-  - Cerca de 15 a 20 s por conversa. O conteúdo vai para o modelo do OpenCode (serviço externo), já com segredos e dados pessoais redigidos.
-- O modo `--llm` envia um resumo de cada conversa (com segredos já redigidos) ao modelo via `claude -p`, **sem ferramentas habilitadas**, e é opcional por isso. Evite em projetos com dados de terceiros, como saúde, sem necessidade.
-- Para promover algo à memória, copie manualmente a linha revisada para `memory.md`.
-
-## Rotinas (tarefas recorrentes)
-
-Cada rotina é um arquivo em `projects/<projeto>/scheduled/*.md`, com um cabeçalho simples (veja `projects/_template/scheduled/exemplo-extrair-pendentes.md`):
-
-| Campo | Valores |
-|---|---|
-| `acao` | `sync` (importa as conversas novas), `extrair` (sugestões de memória das pendentes), `sync-extrair` (os dois, em ordem) ou `prompt` (um texto livre, que vai no corpo do arquivo) |
-| `intervalo` | de `15m` a `90d` (`m`, `h`, `d`) |
-| `ativa` | `true` ou `false` |
-| `engine`, `modelo` | `claude` ou `opencode`; para o opencode, só modelos `opencode/...-free` (veja a seção da extração) |
-| `limite` | quantas conversas analisar por execução (1 a 200; padrão 10) |
-
-As ações são fixas: o arquivo **nunca** fornece um comando, só escolhe uma ação e seus parâmetros (validados). A ação `prompt` recebe, como dado, as instruções, a memória e os títulos das conversas recentes do projeto, e grava o resultado (já redigido) em `scheduled/resultados/`.
-
-```bash
-node tools/run-scheduled.js --list                         # rotinas, última execução e próxima
-node tools/run-scheduled.js                                # roda as que venceram, em todos os projetos
-node tools/run-scheduled.js --project dai --now extrair-pendentes   # roda uma agora, fora do prazo
-node tools/run-scheduled.js --dry-run                      # mostra o que rodaria
-```
-
-- O estado fica em `projects/<projeto>/routines-state.json`. Uma rotina que falha tenta de novo em até 1 hora (ou no intervalo, se for menor), e uma falha não impede as outras. Uma trava impede duas execuções ao mesmo tempo no mesmo projeto.
-- **Execução automática no Windows:** `node tools/schedule-windows.js` mostra o comando; `--apply` cria no Agendador de Tarefas uma tarefa horária (`HarnessLeca-Rotinas`) que roda `run-scheduled.js --log`, e só executa o que venceu. `--status` e `--remove` consultam e apagam. A tarefa roda com o seu usuário e só com a sessão aberta. A saída vai para `global/routines.log` (local). Em Linux/macOS, agende o mesmo comando no cron.
-- Nada disso acontece sozinho até você criar a tarefa: sem ela, as rotinas só rodam quando você chama `run-scheduled.js`.
-
-## Revisar as sugestões de memória
-
-A extração (`extract-artifacts.js --llm` ou a skill `extrair-artefatos`) só **sugere** memórias, regras, decisões e termos em `context/extraido-memorias.md`. Quem decide o que entra na memória é você, na interface: no cartão **Memória** aparece "🧠 Revisar N sugestões".
-
-- **✅ Promover** acrescenta `- [AAAA-MM-DD] texto` em `projects/<projeto>/memory.md` (regras, decisões e termos ganham o prefixo `Regra:`, `Decisão:`, `Termo:`). **✏️ Editar** promove com o texto ajustado. **❌ Descartar** só registra; descartar uma página inteira pede confirmação.
-- Filtros por categoria, busca e paginação (25 por página). A mesma sugestão vinda de várias conversas aparece uma vez.
-- O que já foi revisado (ou já está na `memory.md`) não volta, nem quando a conversa é reanalisada. O estado fica em `projects/<projeto>/memory-review.json`.
-- O texto promovido passa pelo mesmo `redact` dos chats (segredos, e-mail, CPF, telefone) e vira uma linha só (até 600 caracteres).
-- **Consolidar antes de revisar** (recomendado quando há centenas de sugestões):
-
-  ```bash
-  node tools/consolidate-memory.js --project dai --dry-run --max 20    # só mostra o resultado, não grava
-  node tools/consolidate-memory.js --project dai --max 20              # grava
-  node tools/consolidate-memory.js --project dai --desfazer            # traz as originais de volta
-  ```
-
-  Um modelo (padrão: opencode gratuito; `--engine claude` usa a sua cota) junta as sugestões que dizem a mesma coisa, descarta o passageiro e, com `--max N`, escolhe as N mais importantes de cada categoria. Cada frase consolidada guarda de quais sugestões originais veio. As consolidadas ficam em `context/memorias-consolidadas.md` e aparecem na revisão; as originais saem da lista, mas **nada é apagado**: `--desfazer` as traz de volta (o que você já promoveu ou descartou continua). O modelo só gera sugestões: nada vai para a `memory.md` sem a sua revisão. Medido no `dai`: 181 sugestões viraram 112 só juntando repetidas e 48 com `--max 12`, em cerca de 4 minutos. Para ver o que cada passo faz com o texto, use `--dry-run` primeiro.
-- **Cuidado com o tamanho:** a `memory.md` vai junto em **toda mensagem**. A tela mostra o tamanho atual e avisa acima de 8 KB. Promova o que realmente vale; descarte o resto.
-
-## Sincronizar os 3 motores (um comando)
-
-`tools/sync.js` atualiza de uma vez as conversas do **Claude Code**, do **Gemini/Antigravity** e do **opencode** nos projetos que já existem em `projects/`. Nunca cria projeto novo.
-
-```bash
-node tools/sync.js                            # todos os motores, todos os projetos
-node tools/sync.js --project dai              # só um projeto
-node tools/sync.js --engine claude,opencode   # só alguns motores
-node tools/sync.js --dry-run                  # mostra o que mudaria, sem gravar
-node tools/sync.js --no-extract               # não roda a extração local depois
-```
-
-Também funciona como `npm run sync` e, no Claude Code, como `/sync` (aceita os mesmos argumentos).
-
-O que ele faz:
-1. **Associa cada conversa a um projeto** pelo nome do projeto no caminho da pasta de trabalho (`.../git/57multimarcas` vai para o projeto `57multimarcas`). Pastas sem projeto correspondente são listadas como ignoradas.
-2. **Importa** com o importador de cada motor (`import-claude-code-chats.js`, `import-gemini-chats.js`, `import-opencode-chats.js`), regravando só o que mudou.
-3. **Roda a extração local** (regras, documentos, arquivos tocados; sem modelo e sem custo) nos projetos que receberam algo.
-4. **Mostra o que falta analisar** por projeto: conversas novas e as que continuaram depois da análise.
-
-Para associar uma pasta de nome diferente a um projeto, crie `projects/.sources.json` (fica só na sua máquina):
-
-```json
-{ "saude-prontuario": ["prontuario"], "framework-componentes": ["framework de componentes"] }
-```
-
-Requisitos: Node 22.13 ou mais novo (antes disso o `node:sqlite` exigia a flag `--experimental-sqlite`; o opencode guarda as conversas em SQLite, lido pelo `node:sqlite` embutido). O `sync` só lê as tabelas de conversa do `opencode.db` e nunca abre `auth.json` nem credenciais.
-
-## Acompanhar o que já foi analisado
-
-Cada conversa importada recebe uma impressão digital do conteúdo. `tools/extraction-state.js` guarda, em `projects/<projeto>/extraction-state.json`, o que já foi analisado, por quem e quando, e avisa quando a conversa **continuou depois da análise**.
-
-```bash
-# fluxo normal
-node tools/import-claude-code-chats.js --from nome-da-pasta --project meu-projeto   # traz conversas novas e as que continuaram
-node tools/extraction-state.js --project meu-projeto status                         # nova | alterada | em dia
-node tools/extraction-state.js --project meu-projeto pending --limit 5              # nomes dos pendentes (para agentes)
-node tools/extraction-state.js --project meu-projeto mark --by gemini --file a.md   # registra como analisada
-node tools/extraction-state.js --project meu-projeto adopt --by gemini              # adota análises feitas antes do controle
-node tools/extraction-state.js --project meu-projeto reset                          # esquece tudo e reanalisa do zero
-```
-
-- **nova:** nunca analisada. **alterada:** já analisada, mas o `.md` mudou depois (mais turnos). **em dia:** nada a fazer.
-- O importador diz `[nova]`, `[atualizada]` ou `[sem mudança]` por conversa, não regrava as que não mudaram e, se o título gerado mudar, renomeia em vez de duplicar.
-- `extract-artifacts.js --llm` processa só as pendentes (use `--all` para refazer tudo) e **substitui** a seção da conversa alterada em `extraido-memorias.md`, em vez de acrescentar outra.
-- Agentes (Gemini, opencode etc.) seguem o mesmo fluxo pela skill `extrair-artefatos`.
-- Quem já tinha rodado a extração antes do controle: `adopt` marca como analisadas as conversas que já têm seção em `extraido-memorias.md`.
-
-## Usar com outro agente (Antigravity/Gemini)
-
-O hook de contexto só existe no Claude Code. Para outro agente que lê a pasta, como o Gemini no Antigravity, o repositório traz o equivalente em texto:
-
-- `AGENTS.md`: manda o agente ler `projects/.active`, as instruções e as memórias (global e do projeto) no início de cada tarefa, e trata o conteúdo como dado, não comando.
-- `.agents/skills/extrair-artefatos/SKILL.md`: o passo a passo da extração de memórias, regras e decisões, feito pelo próprio agente. Substitui o `--llm`, sem API nem chave.
-
-Abra a pasta `harness-leca` no Antigravity e peça, por exemplo: *"Use a skill extrair-artefatos no projeto 57multimarcas, limite 5 conversas."* Se o seu Antigravity não carregar `AGENTS.md` ou a skill sozinho, peça: *"Leia AGENTS.md e .agents/skills/extrair-artefatos/SKILL.md e siga as instruções."*
-
-> Atenção: o agente lê as conversas e o conteúdo vai para o modelo dele (Google, no caso do Gemini). Evite projetos com dados de terceiros, como os de saúde.
-
-## Interface web
-
-```bash
-node ui/server.js
-```
-
-Abra http://localhost:4321. Mostra chats, instruções, memória, contexto e tarefas, com seletor de projeto. Só escuta em `127.0.0.1`. A navegação é somente leitura; a única escrita é o botão **Conversar com o Projeto**, que conversa com Claude Code, opencode ou Gemini e salva a conversa em `chats/` quando você pede. No app desktop do Claude Code, o servidor `harness-ui` de `.claude/launch.json` também pode ser iniciado pelo painel de preview.
-
-### Ferramentas e MCPs do chat com o Claude
-
-No chat da interface, o Claude **lê, edita e roda comandos** no repositório do projeto, sem pedir aprovação (não há ninguém para aprovar no modo `-p`). Ele roda em modo `--restricted`:
-- as ferramentas de arquivo ficam presas às pastas de trabalho (o repositório e `projects/<projeto>/`);
-- as configurações (settings) do usuário e do repositório são ignoradas;
-- escrita em arquivos de configuração, git e ferramentas nunca é aprovada sozinha.
-
-Os MCPs do seu usuário e de outros projetos **não** são carregados. Comandos (`Bash`/`PowerShell`), porém, rodam com as suas permissões de usuário, como no terminal.
-
-Configure cada projeto em `projects/<projeto>/mcp.json` (fica só na sua máquina):
-
-```json
-{
-  "repo": "C:/Users/voce/git/57multimarcas",
-  "servidores": ["cod-design-system"]
-}
-```
-
-- `repo`: pasta onde o Claude trabalha (lê o código, edita e roda comandos). Ele também lê `projects/<projeto>/` (chats e contexto). Sem `repo`, trabalha só em `projects/<projeto>/`.
-- `servidores`: quais servidores do `.mcp.json` do repositório carregar (caminhos relativos viram absolutos). Só esses são liberados (`mcp__<nome>`).
-- `mcpServers` (opcional): servidores próprios do projeto, no formato do `.mcp.json`, com caminhos absolutos.
-- `"modo": "leitura"` (opcional): só `Read`/`Glob`/`Grep`, sem editar nem rodar comandos. Recomendado para projetos com dados de terceiros (ex.: saúde).
-
-> Risco: conversas importadas são lidas pelo Claude. Um texto malicioso colado nelas pode tentar induzi-lo a rodar comandos. Use `"modo": "leitura"` onde isso preocupar.
-
-Ao abrir um chat:
-- **Você**: bolha colorida à direita.
-- **Claude**: bolha cinza à esquerda, com markdown renderizado.
-- **Processamento interno**: accordion recolhido ("⚙ Processamento interno · N etapas"); cada etapa abre com entrada e resultado.
-- Mensagens longas são limitadas a ~240 px, com "Ver mais / Ver menos".
-
-## Desenvolvimento: testes, checagens e pre-commit
-
-Nada disto acrescenta dependência ao projeto.
-
-| Comando | O que faz |
-|---|---|
-| `npm test` | Roda a suíte (`node --test`): importadores (golden master em `tests/golden/`), rotas do servidor, motores, estado de extração, redação de segredos. Usa raiz e pasta de usuário temporárias: nunca toca em `projects/` nem em `global/`. |
-| `npm run check` | Sintaxe de todos os `.js` (com o Node que estiver instalado) e validade dos `.json`. |
-| `npm run types` | Checagem de tipos por JSDoc nos arquivos com `// @ts-check` (contratos em `tools/lib/types.d.ts`). Instala o TypeScript numa pasta temporária na primeira vez (precisa de rede). |
-| `npm run setup:hooks` | Ativa o pre-commit (`git config core.hooksPath .githooks`; para desativar, `git config --unset core.hooksPath`). |
-
-**Pre-commit** (depois de `npm run setup:hooks`): barra o commit se entrar dado local (`projects/` exceto `_template`, `global/*.md` pessoais, `.env`, `bridge/*.jsonl`, mesmo com `git add -f`), se uma linha adicionada tiver segredo de formato conhecido (chave de API, JWT, webhook, chave privada…; o valor nunca é impresso) ou se `check` ou os testes falharem. Para exemplos e fixtures de teste, ponha `allow-secret` num comentário da mesma linha. Em commits só de documentação, `HARNESS_SKIP_TESTS=1 git commit ...` pula os testes.
-
-**CI** (`.github/workflows/ci.yml`): `check` e `test` em Ubuntu e Windows, com Node 22.13.0 (o mínimo) e 24.x, mais um job de tipos.
-
-**Mudou o formato de um chat importado de propósito?** Rode `UPDATE_GOLDEN=1 npm test` e revise o diff de `tests/golden/` antes de commitar.
-
-## Privacidade: o que sobe ao GitHub
-
-O `.gitignore` versiona **apenas o processo**. Ficam de fora: tudo em `projects/` (exceto `_template`), `global/instructions.md` e `global/memory.md`. Se for contribuir com melhorias, rode `git status` antes de cada commit e confira que nenhum dado pessoal ou de cliente está na lista.
-
-## Problemas comuns
-
-| Sintoma | Causa provável | Solução |
-|---|---|---|
-| Claude não menciona instruções/memória | Hook não aprovado ou desativado | Reabra a pasta e aprove o hook; teste o comando do passo 4 |
-| Erro de execução do PowerShell | Política de scripts | O comando já usa `-ExecutionPolicy Bypass`; confira se `.claude/settings.json` está intacto |
-| `Nenhum projeto ativo` no bloco injetado | `projects/.active` ausente ou com nome errado | Escreva o nome exato de uma pasta de `projects/` |
-| Interface mostra "Nenhum projeto ainda" | Ainda não criou projeto | Passo 4 ou importe conversas |
-| `node` não reconhecido | Node.js não instalado | Instale em nodejs.org e reabra o terminal |
-| `repository not found` ao clonar | Sem acesso ao repositório privado | Peça o convite e faça login no GitHub |
-| Importador: "Nenhuma pasta contém ..." | Nome de origem errado | Use `--list` e copie o trecho do nome |
-| Porta 4321 em uso | Outro processo na porta | `$env:PORT=4400; node ui/server.js` |
+- [Importadores e extração de conversas](docs/setup/importadores.md): Claude Code, Antigravity/Gemini e extração de regras, memórias e documentos.
+- [Rotinas, revisão de memória e sincronização](docs/setup/rotinas-e-sync.md): tarefas recorrentes, sugestões de memória, `sync` dos 3 motores e uso com outros agentes.
+- [Exportar contexto, interface web e desenvolvimento](docs/setup/interface-e-desenvolvimento.md): exportação para os agentes, interface web, testes, privacidade e problemas comuns.
