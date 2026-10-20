@@ -1,0 +1,31 @@
+{
+  "name": "intent-classification",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "prompt": "qual o status do git e quais arquivos foram modificados?",
+      "expectedIntent": "git.status",
+      "deterministicTool": "git.status"
+    },
+    {
+      "prompt": "roda a checagem de erros de sintaxe e json do projeto",
+      "expectedIntent": "repo.check",
+      "deterministicTool": "repo.check"
+    },
+    {
+      "prompt": "quem está trabalhando na história DIS-01 e qual a posse do agente?",
+      "expectedIntent": "coordination.status",
+      "deterministicTool": "coordination.status"
+    },
+    {
+      "prompt": "liste os documentos de contexto deste projeto",
+      "expectedIntent": "context.list",
+      "deterministicTool": "context.list"
+    },
+    {
+      "prompt": "refatore a arquitetura inteira do subsistema de telas para usar clean architecture e web components",
+      "expectedIntent": "complex_cloud_reasoning",
+      "deterministicTool": null
+    }
+  ]
+}
