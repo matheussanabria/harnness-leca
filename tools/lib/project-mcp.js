@@ -16,7 +16,7 @@ const fs = require("fs");
 const path = require("path");
 
 const NAME_RE = /^[A-Za-z0-9_-]{1,64}$/; // o nome vira regra de permissão (mcp__<nome>): nada de curingas ou espaços
-const MODES = new Set(["completo", "leitura"]);
+const MODES = new Set(["completo", "leitura", "restrito"]);
 
 const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8").replace(/^\uFEFF/, ""));
 
@@ -33,16 +33,18 @@ function absolutize(server, repo) {
   return out;
 }
 
-// Retorna { repo, modo, mcpServers, names }. Erros de configuração são lançados com mensagem clara
+// Retorna { repo, modo, restrito, mcpServers, names }. Erros de configuração são lançados com mensagem clara
 // (melhor que rodar o Claude no lugar errado ou com um MCP pela metade).
 function loadProjectConfig(projDir) {
   const file = path.join(projDir, "mcp.json");
-  const none = { repo: null, modo: "completo", mcpServers: {}, names: [] };
+  const none = { repo: null, modo: "completo", restrito: false, mcpServers: {}, names: [] };
   if (!fs.existsSync(file)) return none;
   const cfg = readJson(file);
 
   const modo = cfg.modo || "completo";
   if (!MODES.has(modo)) throw new Error(`mcp.json: "modo" deve ser ${[...MODES].join(" ou ")}`);
+
+  const restrito = typeof cfg.restrito === "boolean" ? cfg.restrito : modo === "restrito";
 
   let repo = null;
   const servers = {};
@@ -64,7 +66,7 @@ function loadProjectConfig(projDir) {
   const names = Object.keys(servers);
   const bad = names.find((n) => !NAME_RE.test(n));
   if (bad) throw new Error(`mcp.json: nome de servidor inválido "${bad}" (use letras, números, - ou _)`);
-  return { repo, modo, mcpServers: servers, names };
+  return { repo, modo, restrito, mcpServers: servers, names };
 }
 
 module.exports = { loadProjectConfig };
