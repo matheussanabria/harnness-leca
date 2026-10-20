@@ -23,8 +23,19 @@ export class WindowStore {
     /** @type {string | null} */
     this.activeWindowId = null;
     this.highestZIndex = BASE_Z_INDEX;
+    this.instanceSeq = 0;
     /** @type {Set<WindowManagerListener>} */
     this.listeners = new Set();
+  }
+
+  /**
+   * Identificador único e monótono para janelas multi-instância.
+   * Data e aleatório colidiam quando duas janelas abriam no mesmo milissegundo.
+   * @returns {number}
+   */
+  nextInstanceSeq() {
+    this.instanceSeq += 1;
+    return this.instanceSeq;
   }
 
   /**
@@ -52,7 +63,7 @@ export class WindowStore {
       }
     }
 
-    const id = isSingleton ? `win-${moduleId}` : `win-${moduleId}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const id = isSingleton ? `win-${moduleId}` : `win-${moduleId}-${this.nextInstanceSeq()}`;
     const bounds = {
       x: options.bounds?.x ?? descriptor?.defaultBounds?.x ?? 80,
       y: options.bounds?.y ?? descriptor?.defaultBounds?.y ?? 80,
