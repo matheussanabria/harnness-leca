@@ -1,0 +1,7 @@
+/* --- components: agregador dos módulos em components/ (ordem preservada) --- */
+@import "./components/01-componentes-globais-cards.css";
+@import "./components/02-sincronizacao-conversas.css";
+@import "./components/03-painel-controle-conversas.css";
+@import "./components/04-paginacao.css";
+@import "./components/05-modal-conectar-celular.css";
+@import "./components/06-responsividade-menor.css";

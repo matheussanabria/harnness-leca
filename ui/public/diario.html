@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harness Leca · Diário</title>
+<style>
+:root{--bg:#1f1e1d;--panel:#262624;--panel2:#30302e;--line:#3a3937;--text:#f0eee6;--mute:#9a978e;--accent:#d97757}
+@media (prefers-color-scheme: light){:root{--bg:#faf9f5;--panel:#fff;--panel2:#f0eee6;--line:#e3e0d5;--text:#1f1e1d;--mute:#6f6c63}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"Segoe UI",system-ui,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:14px 28px;border-bottom:1px solid var(--line)}
+header .logo{font-weight:600;color:var(--accent);text-decoration:none}
+.badge{font-size:12px;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+.nav-link{font-size:13px;color:var(--text);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:5px 12px;background:var(--panel);display:inline-flex;align-items:center;gap:6px}
+.nav-link:hover{border-color:var(--accent);color:var(--accent)}
+main{max-width:1000px;margin:0 auto;padding:32px 28px}
+h1{font-family:Georgia,serif;font-weight:500;font-size:30px;margin:0 0 4px}
+.sub{color:var(--mute);margin-bottom:20px}
+.filters{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:22px}
+.filters label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute)}
+.filters select,.filters input{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font:inherit;font-size:13px;min-width:140px}
+.filters input[type=search]{min-width:200px}
+.btn-row{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font:inherit;font-size:12.5px;cursor:pointer}
+.btn-row:hover{border-color:var(--accent);color:var(--accent)}
+.empty{color:var(--mute);font-size:13px;font-style:italic;padding:18px 0}
+.day{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;overflow:hidden}
+.day-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;background:var(--panel2);cursor:pointer;user-select:none}
+.day-h b{font-size:15px}
+.day-h .meta{font-size:12px;color:var(--mute);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.day.closed .sess-wrap{display:none}
+.sess{padding:14px 18px;border-top:1px solid var(--line)}
+.sess h4{margin:0 0 8px;font-size:14.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.time{font-variant-numeric:tabular-nums;color:var(--mute);font-weight:400;font-size:13px}
+.tag{font-size:11px;font-weight:500;border-radius:6px;padding:1px 7px;border:1px solid var(--line);color:var(--mute)}
+.ag-claude{color:#d97757;border-color:#d9775755}
+.ag-gemini{color:#5c87f2;border-color:#5c87f255}
+.ag-opencode{color:#3cb371;border-color:#3cb37155}
+.dis{color:#e0a040;border-color:#e0a04055}
+.lbl{font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin:10px 0 3px}
+ul{margin:0;padding-left:20px;font-size:13.5px}
+li{margin:2px 0;word-break:break-word}
+code{background:var(--panel2);padding:1px 5px;border-radius:4px;font-size:12px}
+details summary{cursor:pointer;color:var(--mute);font-size:12.5px;margin-top:8px}
+.src{font-size:11.5px;color:var(--mute);margin-top:8px}
+@media (max-width: 600px){
+  header{padding:10px 14px}header .badge{display:none}
+  main{padding:16px 12px}h1{font-size:22px}
+  .filters label,.filters select,.filters input{width:100%}
+}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="/">✱ Harness Leca</a>
+  <span class="badge">Diário</span>
+  <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+    <a class="nav-link" href="/deploy">🚀 Deploy</a>
+    <a class="nav-link" href="/overview">📊 Visão geral</a>
+    <a class="nav-link" href="/escritorio">🏢 Escritório</a>
+    <a class="nav-link" href="/">✱ Abrir projeto</a>
+  </div>
+</header>
+<main>
+  <h1>Diário de atividade</h1>
+  <div class="sub" id="sub">Carregando…</div>
+
+  <div class="filters">
+    <label>Projeto <select id="fProject"></select></label>
+    <label>Agente <select id="fAgent"><option value="">todos</option></select></label>
+    <label>De <input type="date" id="fFrom"></label>
+    <label>Até <input type="date" id="fTo"></label>
+    <label>Buscar <input type="search" id="fText" placeholder="pedido, arquivo, comando, DIS-…"></label>
+    <button class="btn-row" id="btnClear">Limpar</button>
+    <button class="btn-row" id="btnToggle">Recolher tudo</button>
+  </div>
+
+  <div id="days"><div class="empty">Carregando…</div></div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dateBR = iso => { const [y, m, d] = iso.split("-"); return `${d}/${m}/${y}`; };
+const weekday = iso => new Date(iso + "T12:00:00").toLocaleDateString("pt-BR", { weekday: "long" });
+const hhmm = iso => iso ? new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "?";
+const dayOf = iso => new Date(iso).toLocaleDateString("sv-SE");
+const AGENTS = ["claude", "gemini", "opencode"];
+
+let DATA = [];       // dias do projeto atual
+let allClosed = false;
+
+const Q = new URLSearchParams(location.search);
+
+async function loadProjects() {
+  const r = await fetch("/api/overview?page=1&pageSize=50");
+  const o = await r.json();
+  const sel = $("fProject");
+  sel.innerHTML = (o.projects || []).map(p => `<option value="${esc(p.slug)}">${esc(p.slug)}${p.active ? " (ativo)" : ""}</option>`).join("");
+  const want = Q.get("p") || o.active || (o.projects[0] && o.projects[0].slug) || "";
+  if (want) sel.value = want;
+}
+
+async function loadJournal() {
+  const slug = $("fProject").value;
+  if (!slug) { $("days").innerHTML = '<div class="empty">Nenhum projeto.</div>'; return; }
+  $("days").innerHTML = '<div class="empty">Carregando…</div>';
+  try {
+    const r = await fetch(`/api/project/${encodeURIComponent(slug)}/journal`);
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    DATA = (await r.json()).days || [];
+  } catch (err) {
+    DATA = [];
+    $("days").innerHTML = `<div class="empty">Não foi possível carregar o diário (${esc(err.message)}).</div>`;
+    return;
+  }
+  const agents = [...new Set(DATA.flatMap(d => d.sessions.map(s => s.agente)))].sort();
+  $("fAgent").innerHTML = '<option value="">todos</option>' + agents.map(a => `<option>${esc(a)}</option>`).join("");
+  render();
+}
+
+function sessionText(s) {
+  return [s.titulo, ...s.prompts, ...s.edited, ...s.commands, ...s.dis].join(" ").toLowerCase();
+}
+
+function filtered() {
+  const agent = $("fAgent").value, from = $("fFrom").value, to = $("fTo").value, text = $("fText").value.trim().toLowerCase();
+  const out = [];
+  for (const d of DATA) {
+    if ((from && d.day < from) || (to && d.day > to)) continue;
+    const sessions = d.sessions.filter(s => (!agent || s.agente === agent) && (!text || sessionText(s).includes(text)));
+    if (sessions.length) out.push({ day: d.day, sessions });
+  }
+  return out;
+}
+
+const list = (items, max, fmt = esc) => {
+  if (!items.length) return "";
+  const head = items.slice(0, max).map(i => `<li>${fmt(i)}</li>`).join("");
+  const rest = items.slice(max);
+  return `<ul>${head}</ul>` + (rest.length ? `<details><summary>+${rest.length} mais</summary><ul>${rest.map(i => `<li>${fmt(i)}</li>`).join("")}</ul></details>` : "");
+};
+
+function renderSession(s, day) {
+  const fim = dayOf(s.fim) === day ? hhmm(s.fim) : `${dateBR(dayOf(s.fim))} ${hhmm(s.fim)}`;
+  const cls = AGENTS.includes(s.agente) ? " ag-" + s.agente : "";
+  return `<div class="sess">
+    <h4><span class="time">${hhmm(s.inicio)}–${fim}</span><span class="tag${cls}">${esc(s.agente)}</span>${esc(s.titulo)}
+      ${s.dis.map(x => `<span class="tag dis">${esc(x)}</span>`).join("")}</h4>
+    ${s.prompts.length ? `<div class="lbl">Pedidos (${s.prompts.length})</div>${list(s.prompts, 5)}` : ""}
+    ${s.edited.length ? `<div class="lbl">Arquivos alterados (${s.edited.length})</div>${list(s.edited, 8, x => `<code>${esc(x)}</code>`)}` : ""}
+    ${s.commands.length ? `<div class="lbl">Comandos relevantes</div>${list(s.commands, 5, x => `<code>${esc(x)}</code>`)}` : ""}
+    <div class="src">chats/${esc(s.file)} · ${s.toolCount} chamada(s) de ferramenta</div>
+  </div>`;
+}
+
+function render() {
+  const days = filtered();
+  const nSess = days.reduce((n, d) => n + d.sessions.length, 0);
+  const nPrompts = days.reduce((n, d) => n + d.sessions.reduce((m, s) => m + s.prompts.length, 0), 0);
+  $("sub").textContent = `${$("fProject").value} · ${days.length} dia(s), ${nSess} sessão(ões), ${nPrompts} pedido(s)` +
+    (DATA.length && days.length !== DATA.length ? ` (filtrado de ${DATA.length} dia(s))` : "");
+  if (!days.length) {
+    $("days").innerHTML = `<div class="empty">${DATA.length ? "Nada encontrado com esses filtros." : "Sem atividade registrada. Rode o sync para importar as conversas."}</div>`;
+    return;
+  }
+  $("days").innerHTML = days.map(d => {
+    const ag = [...new Set(d.sessions.map(s => s.agente))];
+    const dis = [...new Set(d.sessions.flatMap(s => s.dis))];
+    const pr = d.sessions.reduce((m, s) => m + s.prompts.length, 0);
+    return `<section class="day${allClosed ? " closed" : ""}">
+      <div class="day-h" onclick="this.parentElement.classList.toggle('closed')">
+        <b>${dateBR(d.day)} <span class="time">${esc(weekday(d.day))}</span></b>
+        <span class="meta">${d.sessions.length} sessão(ões) · ${pr} pedido(s)
+          ${ag.map(a => `<span class="tag${AGENTS.includes(a) ? " ag-" + a : ""}">${esc(a)}</span>`).join("")}
+          ${dis.slice(0, 6).map(x => `<span class="tag dis">${esc(x)}</span>`).join("")}${dis.length > 6 ? `<span class="tag">+${dis.length - 6}</span>` : ""}
+        </span>
+      </div>
+      <div class="sess-wrap">${d.sessions.map(s => renderSession(s, d.day)).join("")}</div>
+    </section>`;
+  }).join("");
+}
+
+function syncUrl() {
+  const q = new URLSearchParams();
+  if ($("fProject").value) q.set("p", $("fProject").value);
+  history.replaceState(null, "", location.pathname + "?" + q);
+}
+
+$("fProject").onchange = () => { syncUrl(); loadJournal(); };
+for (const id of ["fAgent", "fFrom", "fTo"]) $(id).onchange = render;
+$("fText").oninput = render;
+$("btnClear").onclick = () => { $("fAgent").value = ""; $("fFrom").value = ""; $("fTo").value = ""; $("fText").value = ""; render(); };
+$("btnToggle").onclick = () => {
+  allClosed = !allClosed;
+  document.querySelectorAll(".day").forEach(el => el.classList.toggle("closed", allClosed));
+  $("btnToggle").textContent = allClosed ? "Expandir tudo" : "Recolher tudo";
+};
+
+loadProjects().then(() => { syncUrl(); return loadJournal(); }).catch(err => {
+  $("days").innerHTML = `<div class="empty">Não foi possível carregar os projetos (${esc(err.message)}).</div>`;
+});
+</script>
+</body>
+</html>

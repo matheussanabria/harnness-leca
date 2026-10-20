@@ -34,10 +34,19 @@ test.before(async () => {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   base = `http://127.0.0.1:${server.address().port}`;
 
-  // O trecho de revisão e a função esc() vêm da própria página.
-  const block = html.slice(html.indexOf("// ---------- revisão das sugestões de memória ----------"), html.indexOf("const showMem = () =>"));
-  const escDef = html.match(/^const esc = .*$/m);
-  assert.ok(block.length > 500 && escDef, "não achei o trecho de revisão / esc() em index.html");
+  // O trecho de revisão e a função esc() vêm do módulo modular review.js (ou fallback para index.html).
+  const reviewModuleFile = path.join(__dirname, "..", "ui", "public", "js", "modules", "review.js");
+  let block, escDef;
+  if (fs.existsSync(reviewModuleFile)) {
+    block = fs.readFileSync(reviewModuleFile, "utf8")
+      .replace(/^import\s+[\s\S]*?;\s*/m, "")
+      .replace(/\nexport\s*\{[\s\S]*?\};?\s*$/m, "");
+    escDef = ["const esc = s => String(s || \"\").replace(/[&<>\"']/g, c => ({\n  \"&\": \"&amp;\", \"<\": \"&lt;\", \">\": \"&gt;\", '\"': \"&quot;\", \"'\": \"&#39;\"\n}[c]));"];
+  } else {
+    block = html.slice(html.indexOf("// ---------- revisão das sugestões de memória ----------"), html.indexOf("const showMem = () =>"));
+    escDef = html.match(/^const esc = .*$/m);
+  }
+  assert.ok(block.length > 500 && escDef, "não achei o trecho de revisão / esc() em review.js ou index.html");
 
   const elements = new Map();
   const sandbox = {

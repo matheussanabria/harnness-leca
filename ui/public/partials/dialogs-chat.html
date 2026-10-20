@@ -1,0 +1,276 @@
+<dialog id="chatDlg" class="chat-dialog">
+  <!-- REGION A: CABEÇALHO COMPACTO -->
+  <header class="chat-header-compact">
+    <div class="chat-provider-wrap">
+      <button type="button" class="chat-provider-btn" id="chatProviderBtn" onclick="toggleProviderDropdown()" title="Alternar Provedor de IA" aria-label="Provedor de IA" aria-haspopup="true">
+        <span class="chat-provider-icon" id="chatProviderIcon"><i class="fa-solid fa-asterisk" style="color:#d97757"></i></span>
+        <span class="chat-provider-name" id="chatProviderName">Claude Code</span>
+        <i class="fa-solid fa-chevron-down chat-chevron"></i>
+      </button>
+      <div class="chat-dropdown-menu" id="providerDropdownMenu" style="display:none">
+        <button type="button" class="dropdown-item" data-eng="claude" onclick="selectProvider('claude')">
+          <i class="fa-solid fa-asterisk" style="color:#d97757"></i>
+          <span>Claude Code</span>
+        </button>
+        <button type="button" class="dropdown-item" data-eng="opencode" onclick="selectProvider('opencode')">
+          <i class="fa-solid fa-code" style="color:#3cb371"></i>
+          <span>OpenCode</span>
+        </button>
+        <button type="button" class="dropdown-item" data-eng="gemini" onclick="selectProvider('gemini')">
+          <i class="fa-solid fa-gem" style="color:#5c87f2"></i>
+          <span>Gemini</span>
+        </button>
+        <button type="button" class="dropdown-item" data-eng="codex" onclick="selectProvider('codex')">
+          <i class="fa-solid fa-terminal" style="color:#10a37f"></i><span>Codex</span>
+        </button>
+        <button type="button" class="dropdown-item" data-eng="ollama" onclick="selectProvider('ollama')">
+          <i class="fa-solid fa-microchip" style="color:#e06c75"></i><span>Ollama Local</span>
+        </button>
+        <div class="dropdown-divider"></div>
+        <button type="button" class="dropdown-item" data-eng="compare" onclick="selectProvider('compare')">
+          <i class="fa-solid fa-code-compare" style="color:#a78bfa"></i>
+          <span>Comparar Motores</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-header-title" id="chatTitle">Chat · Projeto</div>
+
+    <div class="chat-header-actions">
+      <button type="button" class="chat-header-icon-btn" id="btnToggleCompareMode" onclick="toggleCompareMode()" title="Comparar Motores (Multi-IA)" aria-label="Comparar Motores">
+        <i class="fa-solid fa-code-compare"></i>
+      </button>
+      <button type="button" class="chat-header-icon-btn" onclick="minimizeCurrentChat('dialog')" title="Minimizar para Widget" aria-label="Minimizar">
+        <i class="fa-solid fa-window-minimize"></i>
+      </button>
+      <button type="button" class="chat-header-icon-btn" id="btnChatDashboard" onclick="closeChatModal()" title="Voltar ao Dashboard" aria-label="Dashboard">
+        <i class="fa-solid fa-table-cells-large"></i>
+      </button>
+      <div class="chat-more-wrap">
+        <button type="button" class="chat-header-icon-btn" id="btnChatMore" onclick="toggleChatMoreMenu()" title="Mais Ações" aria-label="Mais Ações" aria-haspopup="true">
+          <i class="fa-solid fa-ellipsis"></i>
+        </button>
+        <div class="chat-dropdown-menu dropdown-right" id="chatMoreMenu" style="display:none">
+          <button type="button" class="dropdown-item" onclick="resetChatSession(); closeAllChatMenus()">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Novo Chat</span>
+          </button>
+          <button type="button" class="dropdown-item" onclick="openContinueChatModal(); closeAllChatMenus()">
+            <i class="fa-solid fa-folder-open"></i>
+            <span>Continuar Conversa</span>
+          </button>
+          <button type="button" class="dropdown-item" id="btnSaveChat" onclick="saveCurrentChat(); closeAllChatMenus()" disabled>
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Salvar no Projeto</span>
+          </button>
+          <div class="dropdown-divider"></div>
+          <button type="button" class="dropdown-item" onclick="syncProjectChats('all', true); closeAllChatMenus()">
+            <i class="fa-solid fa-rotate"></i>
+            <span>Sincronizar Conversas</span>
+          </button>
+          <button type="button" class="dropdown-item" onclick="openPermissionsDialog(); closeAllChatMenus()">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Permissões</span>
+          </button>
+          <button type="button" class="dropdown-item" onclick="chatDlg.close(); toggleStudioMode(true); closeAllChatMenus()">
+            <i class="fa-solid fa-palette"></i>
+            <span>Abrir no Studio</span>
+          </button>
+          <button type="button" class="dropdown-item" onclick="minimizeChatModal(); closeAllChatMenus()">
+            <i class="fa-solid fa-window-minimize"></i>
+            <span>Minimizar para Widget</span>
+          </button>
+          <div class="dropdown-divider"></div>
+          <button type="button" class="dropdown-item text-danger" onclick="closeChatModal(); closeAllChatMenus()">
+            <i class="fa-solid fa-xmark"></i>
+            <span>Fechar Chat</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- REGION B: BARRA DE CONTEXTO DA CONVERSA -->
+  <div class="chat-context-strip" id="chatContextStrip">
+    <div id="singleControls" class="context-controls-single">
+      <div class="context-item context-agent">
+        <i class="fa-solid fa-robot context-item-icon"></i>
+        <select id="modalDaiSelect" class="context-select" onchange="onDaiAgentChange(this.value)" title="Selecionar Agente DAI">
+          <option value="">Assistente Geral</option>
+        </select>
+      </div>
+
+      <div class="context-item context-model">
+        <select id="chatModelSelect" class="context-select" onchange="onModelChange(this.value)" title="Selecionar Modelo">
+        </select>
+      </div>
+
+      <div class="context-settings-wrap">
+        <button type="button" class="chat-context-icon-btn" id="btnChatSettings" onclick="toggleChatSettingsPopover()" title="Configurações de Raciocínio e Contexto" aria-label="Configurações" aria-haspopup="true">
+          <i class="fa-solid fa-sliders"></i>
+        </button>
+        <div class="chat-popover-panel" id="chatSettingsPopover" style="display:none">
+          <div class="popover-panel-header">
+            <span><i class="fa-solid fa-sliders"></i> Configurações da Conversa</span>
+            <button type="button" class="popover-close-btn" onclick="toggleChatSettingsPopover(false)"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="popover-section">
+            <label class="popover-label">Nível de Raciocínio (Effort)</label>
+            <div class="effort-toggle-compact" id="effortToggle">
+              <button type="button" class="effort-btn" data-effort="low" onclick="setEffort('low')">Low</button>
+              <button type="button" class="effort-btn active" data-effort="medium" onclick="setEffort('medium')">Med</button>
+              <button type="button" class="effort-btn" data-effort="high" onclick="setEffort('high')">High</button>
+              <button type="button" class="effort-btn" data-effort="max" onclick="setEffort('max')">Max</button>
+            </div>
+          </div>
+          <div class="popover-section">
+            <label class="popover-label">Contexto Ativo</label>
+            <div class="popover-info-badge"><i class="fa-solid fa-file-code"></i> <code>instructions.md</code> + <code>memory.md</code></div>
+          </div>
+          <div class="popover-section">
+            <label class="popover-label">Economia HIA</label>
+            <div id="hiaMetricsContainer" class="chat-settings-hia"></div>
+          </div>
+          <div class="popover-section">
+            <label class="popover-label">Autenticação & Execução</label>
+            <div id="engineAuthBadge" class="eng-badge">Plano Claude Pro (CLI local)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="compareControls" class="context-controls-compare" style="display:none">
+      <div class="compare-chips-group">
+        <span class="compare-strip-title"><i class="fa-solid fa-code-compare"></i> Comparar:</span>
+        <label class="compare-chip active" id="chipClaude" onclick="toggleCompareEngine('claude')">
+          <input type="checkbox" id="chkCompareClaude" checked onclick="event.stopPropagation();toggleCompareEngine('claude')">
+          <span style="color:#d97757;font-weight:600"><i class="fa-solid fa-asterisk"></i> Claude</span>
+        </label>
+        <label class="compare-chip active" id="chipGemini" onclick="toggleCompareEngine('gemini')">
+          <input type="checkbox" id="chkCompareGemini" checked onclick="event.stopPropagation();toggleCompareEngine('gemini')">
+          <span style="color:#5c87f2;font-weight:600"><i class="fa-solid fa-gem"></i> Gemini</span>
+        </label>
+        <label class="compare-chip" id="chipOpencode" onclick="toggleCompareEngine('opencode')">
+          <input type="checkbox" id="chkCompareOpencode" onclick="event.stopPropagation();toggleCompareEngine('opencode')">
+          <span style="color:#3cb371;font-weight:600"><i class="fa-solid fa-code"></i> OpenCode</span>
+        </label>
+        <label class="compare-chip" id="chipCodex" onclick="toggleCompareEngine('codex')">
+          <input type="checkbox" id="chkCompareCodex" onclick="event.stopPropagation();toggleCompareEngine('codex')">
+          <span style="color:#10a37f;font-weight:600"><i class="fa-solid fa-terminal"></i> Codex</span>
+        </label>
+        <label class="compare-chip" id="chipOllama" onclick="toggleCompareEngine('ollama')">
+          <input type="checkbox" id="chkCompareOllama" onclick="event.stopPropagation();toggleCompareEngine('ollama')">
+          <span style="color:#e06c75;font-weight:600"><i class="fa-solid fa-microchip"></i> Ollama</span>
+        </label>
+      </div>
+      <div id="compareSummaryBadge" class="compare-summary-badge">
+        <span id="compareEnginesDesc">2 motores selecionados</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="dai-chips-bar" id="modalDaiChips" style="display:none"></div>
+
+  <!-- REGION C: ÁREA PRINCIPAL DE CONVERSA -->
+  <div class="chat-history" id="chatHistory" onscroll="handleChatHistoryScroll(this)">
+    <div class="empty chat-empty-hero">
+      <div class="chat-empty-icon"><i class="fa-regular fa-comments"></i></div>
+      <h2 class="chat-empty-title">Como posso ajudar você no projeto?</h2>
+      <p class="chat-empty-sub">Instruções, memórias e agentes DAI carregados e prontos para desenvolvimento.</p>
+      <div class="chat-quick-suggestions">
+        <button type="button" class="quick-suggest-btn" onclick="applySuggestedPrompt('Refatore o dashboard mantendo a arquitetura atual e os componentes existentes.')">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Refatore o dashboard...
+        </button>
+        <button type="button" class="quick-suggest-btn" onclick="applySuggestedPrompt('Analise as regras e memórias do projeto e sugira melhorias de código.')">
+          <i class="fa-solid fa-book-open"></i> Analise regras e memórias...
+        </button>
+        <button type="button" class="quick-suggest-btn" onclick="applySuggestedPrompt('Escreva cenários BDD em Gherkin para o fluxo principal desta funcionalidade.')">
+          <i class="fa-solid fa-vial"></i> Escreva cenários BDD...
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGION D: COMPOSITOR DE MENSAGEM INTEGRADO -->
+  <div class="chat-composer-container">
+    <div id="chatAttachTray" class="chat-attach-tray" style="display:none"></div>
+    <input type="file" id="chatFileInput" multiple hidden accept="image/*,audio/*,.pdf,.txt,.md,.csv,.json,.log,.xml,.yml,.yaml,.html,.css,.js,.ts" onchange="onChatFilesChosen(this)">
+
+    <div class="chat-composer-card">
+      <textarea id="chatInput" class="chat-composer-input" placeholder="Escreva uma mensagem..." rows="1" oninput="handleChatInput(this)" onkeydown="handleChatKey(event)" onpaste="onChatPaste(event)"></textarea>
+
+      <div class="chat-composer-toolbar">
+        <div class="chat-composer-tools-left">
+          <div class="composer-popover-wrap">
+            <button type="button" class="composer-btn-tool" id="btnComposerAdd" onclick="toggleComposerAddMenu()" title="Adicionar arquivos, skills, memória..." aria-label="Adicionar">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+            <div class="composer-dropdown-menu" id="composerAddMenu" style="display:none">
+              <button type="button" class="dropdown-item" onclick="pickChatFiles(); closeAllChatMenus()">
+                <i class="fa-solid fa-paperclip"></i>
+                <span>Upload de Arquivos</span>
+              </button>
+              <button type="button" class="dropdown-item" onclick="openSkillViewerModal(); closeAllChatMenus()">
+                <i class="fa-solid fa-scroll"></i>
+                <span>Ver Skills Disponíveis</span>
+              </button>
+              <button type="button" class="dropdown-item" onclick="openAddSkillModal(); closeAllChatMenus()">
+                <i class="fa-solid fa-plug"></i>
+                <span>Adicionar Nova Skill</span>
+              </button>
+              <button type="button" class="dropdown-item" onclick="openReviewMemoryModal(); closeAllChatMenus()">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Revisar Memórias</span>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" class="composer-btn-tool" onclick="pickChatFiles()" title="Anexar arquivo" aria-label="Anexar arquivo">
+            <i class="fa-solid fa-paperclip"></i>
+          </button>
+
+          <div class="composer-popover-wrap">
+            <button type="button" class="composer-btn-tool" id="btnComposerTools" onclick="toggleComposerToolsMenu()" title="Ações Rápidas de Desenvolvimento" aria-label="Ações Rápidas">
+              <i class="fa-solid fa-wrench"></i>
+            </button>
+            <div class="composer-dropdown-menu" id="composerToolsMenu" style="display:none">
+              <div class="menu-section-label">Ações Rápidas</div>
+              <button type="button" class="dropdown-item" onclick="applyQuickAction('design-system'); closeAllChatMenus()">
+                <i class="fa-solid fa-palette" style="color:#a78bfa"></i>
+                <span>Design System</span>
+              </button>
+              <button type="button" class="dropdown-item" onclick="applyQuickAction('vibecoding-new'); closeAllChatMenus()">
+                <i class="fa-solid fa-layer-group" style="color:#60a5fa"></i>
+                <span>Nova Interface</span>
+              </button>
+              <button type="button" class="dropdown-item" onclick="applyQuickAction('fix-layout'); closeAllChatMenus()">
+                <i class="fa-solid fa-wand-magic-sparkles" style="color:#f59e0b"></i>
+                <span>Corrigir Visual</span>
+              </button>
+              <button type="button" class="dropdown-item" onclick="applyQuickAction('clean-refactor'); closeAllChatMenus()">
+                <i class="fa-solid fa-code" style="color:#34d399"></i>
+                <span>Clean Code</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-composer-tools-right">
+          <button id="btnSendChat" class="composer-send-btn" onclick="sendChatMessage()" title="Enviar mensagem" aria-label="Enviar">
+            <i class="fa-solid fa-arrow-up"></i>
+          </button>
+          <button id="btnCancelChat" class="composer-cancel-btn" style="display:none" onclick="cancelChatStream()" title="Interromper geração" aria-label="Interromper">
+            <i class="fa-solid fa-square"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-composer-bottom">
+      <span id="chatStatusText" class="chat-status-text">Sem chaves avulsas · Execução via Sessão/Plano</span>
+      <button type="button" id="chatScrollBottomBtn" class="chat-scroll-bottom-btn" onclick="scrollChatToBottom()" style="display:none" title="Rolar até o fim" aria-label="Rolar até o fim">
+        <i class="fa-solid fa-arrow-down"></i>
+      </button>
+    </div>
+  </div>
+</dialog>

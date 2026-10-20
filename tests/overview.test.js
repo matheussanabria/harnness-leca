@@ -136,7 +136,7 @@ test("página /overview é servida (com e sem .html) e traz a lista de ações",
     const html = await res.text();
     assert.match(html, /Visão geral dos projetos/);
     assert.match(html, /Sincronizar todos os motores e conversas/);
-    assert.match(html, /api\/overview/);
+    assert.match(html, /js\/overview\.js/);
   }
   assert.equal((await get("/overview/../server.js")).status, 404);
 });
@@ -199,7 +199,7 @@ test("POST /api/sync sem projetos responde 400 (e não dispara o CLI)", async ()
 test("overview.html: a lista renderiza e o sync geral termina em 'concluído'", async () => {
   const vm = require("vm");
   const page = fs.readFileSync(path.join(__dirname, "..", "ui", "public", "overview.html"), "utf8").replace(/\r\n/g, "\n");
-  const script = page.slice(page.indexOf("<script>") + 8, page.lastIndexOf("</script>"));
+  const script = fs.readFileSync(path.join(__dirname, "..", "ui", "public", "js", "overview.js"), "utf8").replace(/\r\n/g, "\n");
   assert.ok(script.length > 2000 && script.includes("runSyncAll"), "não achei o script da página");
 
   const els = new Map();

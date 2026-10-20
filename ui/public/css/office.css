@@ -1,0 +1,19 @@
+/* ==========================================================================
+   DAI HQ - Escritório Virtual dos Agentes 3D
+   Ponto de Entrada Modular CSS (Arquitetura Anti-Monólito & Zero Bundlers)
+   ========================================================================== */
+
+@import './office/01-variables.css';
+@import './office/02-topbar.css';
+@import './office/03-viewport.css';
+@import './office/04-widgets-left.css';
+@import './office/05-sidebar-hud.css';
+@import './office/06-bottom-bar.css';
+@import './office/07-immersive-mode.css';
+@import './office/08-drawer.css';
+@import './office/09-tooltips-crosshair.css';
+@import './office/10-monitor-css3d.css';
+@import './office/11-controls-hints.css';
+@import './office/12-taskbar.css';
+@import './office/13-docking.css';
+@import './office/14-responsive-wm.css';

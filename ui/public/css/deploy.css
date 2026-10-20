@@ -1,0 +1,5 @@
+/* --- deploy: agregador dos módulos em deploy/ (ordem preservada) --- */
+@import "./deploy/01-painel-deploy-easypanel.css";
+@import "./deploy/02-toolbar-section-headers.css";
+@import "./deploy/03-environments-list-card.css";
+@import "./deploy/04-history-terminal-drawer.css";

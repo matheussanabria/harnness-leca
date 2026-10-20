@@ -1,0 +1,140 @@
+/* Sincronização de Conversas */
+.act-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 24px 0 10px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sync-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sync-btn-group {
+  display: inline-flex;
+  align-items: center;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.btn-sync-action {
+  background: none;
+  border: 0;
+  color: var(--text);
+  border-radius: 6px;
+  padding: 4px 9px;
+  font: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all .15s;
+  font-weight: 500;
+  user-select: none;
+}
+
+.btn-sync-action:hover:not(:disabled) {
+  background: var(--panel);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.btn-sync-action:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.btn-sync-action.btn-sync-all {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.btn-sync-action.btn-sync-claude:hover {
+  color: #d97757;
+}
+
+.btn-sync-action.btn-sync-gemini:hover {
+  color: #7ca5f5;
+}
+
+.btn-sync-action.btn-sync-opencode:hover {
+  color: #7de2a3;
+}
+
+.btn-sync-chat {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 9px;
+  font: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all .15s;
+}
+
+.btn-sync-chat:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-sync-chat:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+@keyframes spinSync {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.is-syncing .sync-rot {
+  display: inline-block;
+  animation: spinSync .8s linear infinite;
+}
+
+.sync-toast {
+  font-size: 11.5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity .3s ease;
+  animation: fadeIn .2s ease;
+}
+
+.sync-toast.success {
+  background: rgba(60, 179, 113, 0.18);
+  color: #7de2a3;
+  border: 1px solid rgba(60, 179, 113, 0.3);
+}
+
+.sync-toast.info {
+  background: rgba(92, 135, 242, 0.18);
+  color: #7ca5f5;
+  border: 1px solid rgba(92, 135, 242, 0.3);
+}
+
+.sync-toast.error {
+  background: rgba(239, 68, 68, 0.18);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
+}

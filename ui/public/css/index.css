@@ -1,0 +1,11 @@
+/* --- Bundle de Estilos Modulares do Harness Leca --- */
+@import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css";
+@import "./base.css";
+@import "./components.css";
+@import "./chat.css";
+@import "./chat-mobile.css";
+@import "./studio.css";
+@import "./review.css";
+@import "./inspector.css";
+@import "./design.css";
+@import "./hia-dashboard.css";

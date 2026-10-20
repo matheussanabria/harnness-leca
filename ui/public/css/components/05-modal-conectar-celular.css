@@ -1,0 +1,224 @@
+/* Modal Conectar Celular / QR Code */
+#remoteConnectDlg {
+  width: min(540px, calc(100vw - 16px));
+  max-width: calc(100vw - 16px);
+  height: auto;
+  max-height: 92vh;
+  margin: auto;
+  box-sizing: border-box;
+}
+
+.remote-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#remoteQrContainer {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+#remoteQrContainer svg {
+  width: min(230px, calc(100vw - 80px)) !important;
+  max-width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1/1;
+  display: block;
+  margin: 0 auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsividade de Componentes */
+@media (max-width: 960px) {
+  header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .header-brand-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+  }
+  .header-brand-wrap .logo {
+    font-size: 13.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .header-brand-wrap select {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  .header-brand-wrap .badge {
+    display: none !important;
+  }
+  .header-actions {
+    width: 100%;
+    margin-left: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+  .header-actions button,
+  .header-actions a {
+    width: 100%;
+    justify-content: center;
+    padding: 6px 3px !important;
+    font-size: 11px !important;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  main#mainDashboard {
+    padding: 12px 10px !important;
+    gap: 16px !important;
+    grid-template-columns: 1fr !important;
+  }
+  main#mainDashboard h1 {
+    font-size: 22px !important;
+  }
+  .sub {
+    font-size: 12px;
+    margin-bottom: 14px;
+    line-height: 1.4;
+  }
+  .act-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin: 14px 0 10px;
+  }
+  .sync-bar {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 6px;
+  }
+  .sync-btn-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 4px;
+    padding: 4px;
+  }
+  .btn-sync-action {
+    justify-content: center;
+    padding: 6px 6px;
+    font-size: 11.5px;
+  }
+  .btn-sync-all {
+    grid-column: span 2;
+    background: rgba(217, 119, 87, 0.14);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .btn-map {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    padding: 6px 10px;
+    font-size: 11.5px;
+  }
+  .engine-filter-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    width: 100%;
+  }
+  .eng-badge-filter {
+    justify-content: center;
+    padding: 5px 8px;
+    font-size: 11.5px;
+  }
+  .group-filter-bar {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .btn-manage-groups {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+    padding: 6px 10px;
+  }
+  .chats-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .search-input-wrap {
+    min-width: 0 !important;
+    width: 100%;
+  }
+  .chats-toolbar-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .chats-sort-select {
+    flex: 1;
+    min-width: 0;
+    font-size: 11.5px !important;
+  }
+  .chats-counter {
+    width: 100%;
+    text-align: right;
+    margin-left: 0 !important;
+    font-size: 11px;
+  }
+  .chats-pagination {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+  }
+  .pagination-info, .page-size-wrap {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+  .pagination-controls {
+    justify-content: center;
+    width: 100%;
+  }
+  .page-btn {
+    padding: 4px 7px;
+    font-size: 11px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+  .card#side {
+    width: 100%;
+    border-radius: 12px;
+  }
+  .sec {
+    padding: 12px 14px;
+  }
+  .file {
+    width: calc(50% - 4px);
+    font-size: 11.5px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 680px) {
+  .chats-table th.col-turns, .chats-table td.col-turns,
+  .chats-table th.col-date, .chats-table td.col-date {
+    display: none;
+  }
+}

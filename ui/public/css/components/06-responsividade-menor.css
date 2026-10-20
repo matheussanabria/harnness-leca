@@ -1,0 +1,87 @@
+@media (max-width: 480px) {
+  .header-actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .header-actions button,
+  .header-actions a {
+    padding: 7px 4px !important;
+    font-size: 11.5px !important;
+  }
+  .chats-table th.col-group, .chats-table td.col-group,
+  .chats-table th.col-status, .chats-table td.col-status {
+    display: none;
+  }
+  .chats-table td {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+  .chats-table th {
+    padding: 8px 6px;
+    font-size: 11.5px;
+  }
+  .chats-table b {
+    max-width: 170px !important;
+  }
+  .chats-table span {
+    max-width: 170px !important;
+  }
+  .mobile-inline-meta {
+    display: flex !important;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 3px;
+  }
+  .row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+    padding: 10px 8px !important;
+  }
+  .row b {
+    width: 100% !important;
+    font-size: 12.5px !important;
+    line-height: 1.4 !important;
+  }
+  .row-meta-actions {
+    width: 100% !important;
+    margin-left: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+}
+
+@media (max-width: 360px) {
+  header .logo {
+    font-size: 12px;
+  }
+  .header-brand-wrap select {
+    font-size: 11px;
+    padding: 3px 5px;
+  }
+  .header-actions button,
+  .header-actions a {
+    font-size: 10.5px !important;
+    padding: 6px 2px !important;
+  }
+  .btn-sync-action {
+    font-size: 11px;
+    padding: 5px 4px;
+  }
+  .eng-badge-filter {
+    font-size: 11px;
+    padding: 4px 6px;
+  }
+  .chats-table b {
+    max-width: 130px !important;
+  }
+  .chats-table span {
+    max-width: 130px !important;
+  }
+  .btn-sync-chat {
+    font-size: 10.5px;
+    padding: 2px 6px;
+  }
+}
