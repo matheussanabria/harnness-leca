@@ -27,19 +27,31 @@ function saveChatToProject({ slug, engine, title, turns, sessionId }) {
   const fileName = previous || `${now.slice(0, 10)}-${slugify(title).slice(0, 50)}-${shortId}.md`;
   const fullPath = path.join(p.chats, fileName);
 
-  const nameOf = (e) => (e === "gemini" ? "Gemini" : e === "opencode" ? "opencode" : "Claude");
-  const agentTag = engine === "gemini" ? "gemini" : engine === "opencode" ? "opencode" : "claude";
+  const LABELS = { gemini: "Gemini", opencode: "opencode", codex: "Codex", ollama: "Ollama" };
+  const nameOf = (e) => LABELS[e] || "Claude";
+  const agentTag = (e) => LABELS[e] ? e : "claude";
 
   const chatTurns = turns.map((t) => {
     /** @type {import("./types").Part[]} */
     const parts = [];
     if (t.thinking) parts.push({ kind: "thinking", text: String(t.thinking), full: true });
     parts.push({ kind: "text", text: escapeBlocks(t.text) });
+    // Metadados da interceptação HIA viajam como bloco de ferramenta: o texto do turno fica limpo
+    // e leitores antigos do formato apenas veem mais uma etapa interna.
+    if (t.hiaRoute) {
+      parts.push({
+        kind: "tool",
+        name: `hia-${String(t.hiaRoute).replace(/[^a-z_]/gi, "")}`,
+        hint: String(t.hiaTool || t.hiaModel || t.hiaRoute).replace(/\|/g, "/"),
+        input: "",
+        result: String(Number(t.tokensSaved) || 0),
+      });
+    }
     // Cada resposta leva o motor que a gerou (o usuário pode trocar de motor no meio da conversa).
     return { who: t.role === "user" ? "user" : "assistant", label: nameOf(t.engine || engine), parts };
   });
 
-  const text = renderChat({ title, sessionId: sid, origin: "harness-ui", first, last: now, agent: agentTag, assistantLabel: nameOf(engine) }, chatTurns);
+  const text = renderChat({ title, sessionId: sid, origin: "harness-ui", first, last: now, agent: agentTag(engine), assistantLabel: nameOf(engine) }, chatTurns);
   // Mesma redação de segredos e dados pessoais dos importadores (o que for digitado na UI também vai para chats/).
   fs.writeFileSync(fullPath, redact(text), "utf8");
 
