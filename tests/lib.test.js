@@ -83,7 +83,7 @@ test("writeChat: nova, sem mudança, atualizada; renomeia só a MESMA sessão; d
   const { writeChat } = require("../tools/lib/chat-store");
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "harness-store-"));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
-  const md = (sessao, extra = "") => `---\ntitulo: "T"\nsessao: ${sessao}\n---\n# T\n\n## Você\n\noi${extra}\n`;
+  const md = (sessao, extra = "", agente = "claude") => `---\ntitulo: "T"\nsessao: ${sessao}\nagente: "${agente}"\n---\n# T\n\n## Você\n\noi${extra}\n`;
   const base = { chatsDir: dir, shortId: "abcdef12" };
 
   // dry-run: calcula o estado e não toca em nada
@@ -104,6 +104,28 @@ test("writeChat: nova, sem mudança, atualizada; renomeia só a MESMA sessão; d
   assert.equal(r.state, "nova");
   assert.deepEqual(r.removed.sort(), ["2026-01-01-a-abcdef12.md", "2026-01-03-legado-abcdef12.md"]);
   assert.deepEqual(fs.readdirSync(dir).sort(), ["2026-01-01-novo-titulo-abcdef12.md", "2026-01-02-outra-abcdef12.md"]);
+});
+
+test("writeChat preserva motores diferentes que compartilham o mesmo sessionId", (t) => {
+  const fs = require("fs"), os = require("os"), path = require("path");
+  const { writeChat } = require("../tools/lib/chat-store");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "harness-store-provider-"));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const sessionId = "same-session-id";
+  const shortId = "same-ses";
+  const name = `2026-01-01-mesmo-titulo-${shortId}.md`;
+  const md = (agent, speaker) => `---\ntitulo: "T"\nsessao: ${sessionId}\nagente: "${agent}"\n---\n# T\n\n## ${speaker}\n\nresposta\n`;
+
+  assert.equal(writeChat({ chatsDir: dir, name, sessionId, shortId, text: md("claude", "Claude") }).state, "nova");
+  assert.equal(writeChat({ chatsDir: dir, name, sessionId, shortId, text: md("gemini", "Gemini") }).state, "nova");
+  assert.equal(fs.readdirSync(dir).length, 2, "cada motor mantém seu próprio arquivo");
+
+  const agents = fs.readdirSync(dir).map((file) =>
+    require("../tools/lib/chat-format").readMeta(fs.readFileSync(path.join(dir, file), "utf8"))("agente")
+  ).sort();
+  assert.deepEqual(agents, ["claude", "gemini"]);
+  assert.equal(writeChat({ chatsDir: dir, name, sessionId, shortId, text: md("claude", "Claude") }).state, "sem mudança");
+  assert.equal(writeChat({ chatsDir: dir, name, sessionId, shortId, text: md("gemini", "Gemini") }).state, "sem mudança");
 });
 
 test("state.load: estado ausente, quebrado ou sem `sessoes` vira vazio em vez de quebrar o scan", (t) => {

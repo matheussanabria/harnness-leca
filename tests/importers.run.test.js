@@ -117,9 +117,19 @@ test("sync: importa os 3 motores em memória, só em projetos que já existem, e
 
   // Os três motores com conversas do projeto 57multimarcas (mais uma pasta do Claude sem projeto, que deve ser ignorada).
   IMPORTERS["claude-code"].make(home, "Conversa");
-  fs.renameSync(path.join(home, ".claude", "projects", "c--fixture"), path.join(home, ".claude", "projects", "c--git-57multimarcas"));
+  const currentClaudeDir = path.join(home, ".claude", "projects", "c--git-57multimarcas");
+  fs.renameSync(path.join(home, ".claude", "projects", "c--fixture"), currentClaudeDir);
+  const currentClaudeFile = path.join(currentClaudeDir, "11111111-aaaa-4bbb-8ccc-222222222222.jsonl");
+  const oldClaudeFile = path.join(home, ".claude", "projects", "C--Desktop-57multimarcas", path.basename(currentClaudeFile));
+  write(oldClaudeFile, fs.readFileSync(currentClaudeFile, "utf8").replace('"Conversa"', '"Conversa antiga"'));
+  fs.utimesSync(oldClaudeFile, new Date("2025-01-01T00:00:00Z"), new Date("2025-01-01T00:00:00Z"));
+  fs.utimesSync(currentClaudeFile, new Date("2026-01-01T00:00:00Z"), new Date("2026-01-01T00:00:00Z"));
   write(path.join(home, ".claude", "projects", "c--git-outro-projeto", "x.jsonl"), "");
   IMPORTERS.gemini.make(home, "Revise");
+  fs.renameSync(
+    path.join(home, ".gemini", "antigravity-ide", "brain", "cccccccc-1111-4222-8333-444444444444"),
+    path.join(home, ".gemini", "antigravity-ide", "brain", "11111111-aaaa-4bbb-8ccc-222222222222"),
+  );
   IMPORTERS.opencode.make(home, "Conversa");
   const db = new DatabaseSync(path.join(home, ".local", "share", "opencode", "opencode.db"));
   db.exec("UPDATE session SET directory = 'C:/git/57multimarcas'");
@@ -143,6 +153,8 @@ test("sync: importa os 3 motores em memória, só em projetos que já existem, e
   assert.deepEqual(row(first, "gemini"), [1, 0, 0]);
   assert.deepEqual(row(first, "opencode"), [1, 0, 0]);
   assert.equal(fs.readdirSync(path.join(root, "projects", "57multimarcas", "chats")).length, 3);
+  const claudeFile = fs.readdirSync(path.join(root, "projects", "57multimarcas", "chats")).find((file) => file.endsWith("-11111111.md"));
+  assert.match(fs.readFileSync(path.join(root, "projects", "57multimarcas", "chats", claudeFile), "utf8"), /^# Conversa$/m);
   assert.match(first, /pasta\(s\) sem projeto correspondente \(ignoradas\): c--git-outro-projeto/);
   assert.deepEqual(fs.readdirSync(path.join(root, "projects")).sort(), ["57multimarcas", "_template"], "nenhum projeto novo");
 

@@ -105,8 +105,9 @@ function sourceDirs(sourceRoot) {
 
 // Importa as conversas de uma pasta de ~/.claude/projects para projects/<slug>/chats.
 // argv: os mesmos argumentos da CLI. io.log recebe o relatório. home: onde procurar ~/.claude (os testes trocam).
+// sessionIds: restringe a importação às fontes reconciliadas pelo sync.
 // Retorna { nova, atualizada, igual, ignoradas }; erros de uso viram CliError.
-function run(argv, io = console, { home = os.homedir() } = {}) {
+function run(argv, io = console, { home = os.homedir(), sessionIds } = {}) {
   const has = (n) => flag(n, argv), get = (n) => opt(n, argv);
   const sourceRoot = path.join(home, ".claude", "projects");
   const result = { nova: 0, atualizada: 0, igual: 0, ignoradas: 0 };
@@ -145,7 +146,7 @@ function run(argv, io = console, { home = os.homedir() } = {}) {
   const chatsDir = path.join(dest, "chats");
   if (!dry) fs.mkdirSync(chatsDir, { recursive: true });
 
-  for (const f of fs.readdirSync(dirName).filter((n) => n.endsWith(".jsonl"))) {
+  for (const f of fs.readdirSync(dirName).filter((n) => n.endsWith(".jsonl") && (!sessionIds || sessionIds.has(n.slice(0, -6))))) {
     const sessionId = slugify(f.replace(/\.jsonl$/, "")); // só [a-z0-9-] no nome do arquivo gerado
     const src = path.join(dirName, f), st = fs.lstatSync(src);
     if (!st.isFile() || st.size > MAX_FILE) { io.log(`ignorado (symlink ou > 200 MB): ${f}`); result.ignoradas++; continue; }

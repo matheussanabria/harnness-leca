@@ -18,6 +18,7 @@ const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
 const { existingSlugs, matchers, projectFromPath } = require("./lib/projects");
+const { selectClaudeSources } = require("./lib/claude-sync-sources");
 const state = require("./lib/state");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -68,8 +69,8 @@ function syncClaude() {
   }
   for (const [slug, dirs] of bySlug) {
     const sum = { ok: true, n: { nova: 0, atualizada: 0, igual: 0 }, err: "" };
-    for (const d of dirs) {
-      const r = call("./import-claude-code-chats", ["--from", path.join(CLAUDE_ROOT, d), "--project", slug]);
+    for (const { dir, sessionIds } of selectClaudeSources(CLAUDE_ROOT, dirs)) {
+      const r = call("./import-claude-code-chats", ["--from", path.join(CLAUDE_ROOT, dir), "--project", slug], { sessionIds });
       for (const k of Object.keys(sum.n)) sum.n[k] += r.n[k];
       if (!r.ok) { sum.ok = false; sum.err = r.err; }
     }
@@ -130,6 +131,15 @@ if (!DRY && !flag("no-extract")) {
   for (const slug of changed) {
     const r = spawnSync(process.execPath, ["--no-warnings", T("extract-artifacts.js"), "--project", slug], { encoding: "utf8" });
     console.log(`\nextração local ${slug}: ${r.status === 0 ? "atualizada" : "falhou (" + (r.stderr || "").trim().split("\n").pop() + ")"}`);
+  }
+}
+
+// ---- diário de atividade (sem modelo): regrava context/diario* nos projetos que mudaram
+if (!DRY) {
+  const journal = require("./daily-journal");
+  for (const slug of changed) {
+    try { console.log(`diário ${slug}: ${journal.write(slug)} dia(s) atualizado(s)`); }
+    catch (e) { console.log(`diário ${slug}: falhou (${String(e.message).split("\n")[0]})`); }
   }
 }
 

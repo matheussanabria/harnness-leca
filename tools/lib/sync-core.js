@@ -6,6 +6,7 @@ const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
 const { matchers, projectFromPath } = require("./projects");
+const { selectClaudeSources } = require("./claude-sync-sources");
 const state = require("./state");
 
 const QUIET = /** @type {any} */ ({ log() {} });
@@ -24,9 +25,9 @@ function syncClaudeForProject(slug, ms, dryRun = false) {
   }
   const sum = { ok: true, n: { nova: 0, atualizada: 0, igual: 0 }, err: "" };
   const importer = require("../import-claude-code-chats");
-  for (const d of dirs) {
+  for (const { dir, sessionIds } of selectClaudeSources(claudeRoot, dirs)) {
     try {
-      const r = importer.run(["--from", path.join(claudeRoot, d), "--project", slug, ...(dryRun ? ["--dry-run"] : [])], QUIET);
+      const r = importer.run(["--from", path.join(claudeRoot, dir), "--project", slug, ...(dryRun ? ["--dry-run"] : [])], QUIET, /** @type {any} */ ({ sessionIds }));
       sum.n.nova += r.nova || 0;
       sum.n.atualizada += r.atualizada || 0;
       sum.n.igual += r.igual || 0;
@@ -121,6 +122,9 @@ function syncProject({ slug, engines = ["claude", "gemini", "opencode"], dryRun 
           spawnSync(process.execPath, ["--no-warnings", extScript, "--project", slug], { encoding: "utf8", windowsHide: true, timeout: 10000 });
         }
       } catch {}
+    }
+    if (totalNova + totalAtualizada > 0) {
+      try { require("../daily-journal").write(slug); } catch {}
     }
   }
 
