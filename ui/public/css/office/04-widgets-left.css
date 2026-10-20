@@ -1,0 +1,145 @@
+/* ==========================================================================
+   WIDGETS FLUTUANTES DA ESQUERDA
+   ========================================================================== */
+.dai-floating-left {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 80;
+  pointer-events: none;
+}
+
+.dai-floating-left > * {
+  pointer-events: auto;
+}
+
+/* Card: Bom dia, Matheus! */
+.dai-welcome-card {
+  position: relative;
+  width: 310px;
+  background: var(--dai-panel);
+  border: 1px solid var(--dai-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.dai-welcome-card .dai-hud-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.welcome-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.ai-hologram-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: radial-gradient(circle, rgba(0, 210, 255, 0.25) 0%, rgba(13, 20, 36, 0.8) 100%);
+  border: 1px solid var(--dai-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 0 16px rgba(0, 210, 255, 0.35);
+}
+
+.welcome-text h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.welcome-text p {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: var(--dai-mute);
+}
+
+.welcome-quote {
+  font-size: 11.5px;
+  color: #cbd5e1;
+  font-style: italic;
+  line-height: 1.5;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+  margin: 0;
+}
+
+/* Card: Agentes em Ação */
+.dai-active-agents-card {
+  width: 250px;
+  background: var(--dai-panel);
+  border: 1px solid var(--dai-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.card-title-row .status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--dai-green);
+  box-shadow: 0 0 8px var(--dai-green);
+}
+
+.agent-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agent-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.agent-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.agent-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.badge-dev { color: #10b981; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge-qa { color: #f59e0b; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-devops { color: #a855f7; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); }
+.badge-arch { color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); }
+.badge-ba { color: #60a5fa; background: rgba(96, 165, 250, 0.15); border: 1px solid rgba(96, 165, 250, 0.3); }

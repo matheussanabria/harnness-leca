@@ -1,0 +1,90 @@
+/* ==========================================================================
+   VIEWPORT PRINCIPAL & CENÁRIO HQ
+   ========================================================================== */
+.dai-viewport-container {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+/* Cenário Diorama Imersivo com Imagem Hiper-Realista */
+.dai-diorama-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #090d16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.dai-backdrop-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.95) contrast(1.05);
+  transform: scale(1.02);
+  transition: transform 0.5s ease-out;
+}
+
+/* Camada de Hotspots Interativos Flutuantes no Diorama */
+.dai-hotspots-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.dai-hotspot {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(13, 22, 40, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 136, 255, 0.25);
+  transform: translate(-50%, -50%);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dai-hotspot:hover {
+  transform: translate(-50%, -55%) scale(1.06);
+  border-color: var(--dai-cyan);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 210, 255, 0.5);
+}
+
+.dai-hotspot-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.hotspot-claude { border-color: rgba(217, 119, 87, 0.6); }
+.hotspot-claude .dai-hotspot-dot { background: #d97757; box-shadow: 0 0 8px #d97757; }
+
+.hotspot-gemini { border-color: rgba(92, 135, 242, 0.6); }
+.hotspot-gemini .dai-hotspot-dot { background: #5c87f2; box-shadow: 0 0 8px #5c87f2; }
+
+.hotspot-opencode { border-color: rgba(60, 179, 113, 0.6); }
+.hotspot-opencode .dai-hotspot-dot { background: #3cb371; box-shadow: 0 0 8px #3cb371; }
+
+.hotspot-core { border-color: rgba(0, 210, 255, 0.7); }
+.hotspot-core .dai-hotspot-dot { background: #00d2ff; box-shadow: 0 0 10px #00d2ff; animation: pulse 1s infinite alternate; }

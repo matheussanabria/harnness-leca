@@ -1,0 +1,195 @@
+/* ==========================================================================
+   SIDEBAR DIREITA: DASHBOARD DO PROJETO (HUD)
+   ========================================================================== */
+.dai-sidebar-right {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  bottom: 24px;
+  width: 340px;
+  background: var(--dai-panel);
+  border: 1px solid var(--dai-border);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 20px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  z-index: 85;
+  box-shadow: -10px 10px 40px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+}
+
+.dai-sidebar-right::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dai-sidebar-right::-webkit-scrollbar-thumb {
+  background: var(--dai-border);
+  border-radius: 4px;
+}
+
+/* Card de Status do Projeto */
+.project-summary-box {
+  position: relative;
+  background: var(--dai-panel-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.project-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.project-title-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-title-row h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.project-subtitle {
+  font-size: 11.5px;
+  color: var(--dai-mute);
+  margin-bottom: 12px;
+}
+
+.project-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--dai-mute);
+  margin-bottom: 6px;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #00d2ff);
+  border-radius: 4px;
+  width: 68%;
+  box-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+}
+
+.project-meta-grid {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--dai-mute);
+}
+
+/* Atalhos Rápidos */
+.sidebar-section-title {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--dai-mute);
+  margin-bottom: 8px;
+}
+
+.quick-links-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quick-link-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 9px;
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.quick-link-row:hover {
+  background: rgba(0, 136, 255, 0.15);
+  border-color: rgba(0, 136, 255, 0.4);
+  color: #ffffff;
+  transform: translateX(2px);
+}
+
+/* Feed de Últimas Atividades */
+.activity-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.activity-feed-item {
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  font-size: 11.5px;
+}
+
+.activity-top-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.activity-actor {
+  font-weight: 600;
+  color: var(--dai-cyan);
+}
+
+.activity-time {
+  color: var(--dai-mute);
+  font-size: 10px;
+}
+
+.activity-text {
+  color: #cbd5e1;
+}
+
+.sidebar-footer-quote {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--dai-mute);
+}

@@ -1,0 +1,193 @@
+/* ==========================================================================
+   NAVEGADOR REAL NO MONITOR 3D (CSS3D)
+   ========================================================================== */
+.monitor-3d-screen {
+  width: 1440px;
+  height: 810px;
+  background: #090d16;
+  border: 2px solid rgba(56, 189, 248, 0.3);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 35px rgba(0, 210, 255, 0.25);
+  user-select: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.monitor-browser-bar {
+  height: 48px;
+  background: #0d1526;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.browser-window-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 4px;
+}
+
+.browser-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.browser-dot:hover {
+  transform: scale(1.15);
+}
+
+.browser-dot.red { background: #ef4444; }
+.browser-dot.yellow { background: #f59e0b; }
+.browser-dot.green { background: #10b981; }
+
+.browser-nav-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s;
+}
+
+.browser-nav-btn:hover {
+  background: rgba(0, 210, 255, 0.2);
+  border-color: var(--dai-cyan);
+  color: #ffffff;
+}
+
+.browser-url-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #050811;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 8px;
+  height: 34px;
+  padding: 0 10px;
+  gap: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.browser-url-bar:focus-within {
+  border-color: var(--dai-cyan);
+  box-shadow: 0 0 12px rgba(0, 210, 255, 0.35);
+}
+
+.browser-url-icon {
+  font-size: 13px;
+  color: #10b981;
+}
+
+.browser-url-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f8fafc;
+  font-size: 13.5px;
+  font-family: inherit;
+}
+
+.browser-go-btn {
+  background: var(--dai-cyan);
+  color: #0b0f19;
+  border: none;
+  border-radius: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.browser-go-btn:hover {
+  background: #38bdf8;
+  transform: translateY(-1px);
+}
+
+.browser-shortcuts {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.browser-shortcut-chip {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  font-size: 11.5px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.browser-shortcut-chip:hover {
+  background: rgba(0, 210, 255, 0.15);
+  border-color: var(--dai-cyan);
+  color: #ffffff;
+}
+
+.browser-shortcut-chip.active {
+  background: rgba(0, 210, 255, 0.25);
+  border-color: var(--dai-cyan);
+  color: var(--dai-cyan);
+  font-weight: 600;
+}
+
+.browser-focus-zoom-btn {
+  background: rgba(217, 119, 87, 0.2);
+  border: 1px solid rgba(217, 119, 87, 0.5);
+  color: #fca5a5;
+  font-size: 11.5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.browser-focus-zoom-btn:hover {
+  background: rgba(217, 119, 87, 0.35);
+  border-color: #f87171;
+  color: #ffffff;
+}
+
+.monitor-browser-viewport {
+  flex: 1;
+  width: 100%;
+  height: calc(100% - 48px);
+  position: relative;
+  background: #0b0f19;
+}
+
+.monitor-browser-viewport iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #ffffff;
+}

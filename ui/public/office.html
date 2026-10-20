@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DAI · Estação de Trabalho Imersiva do Agente 3D</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/office.css">
+  <script src="/js/vendor/three.min.js"></script>
+  <script src="/js/vendor/OrbitControls.js"></script>
+  <script src="/js/vendor/PointerLockControls.js"></script>
+  <script src="/js/vendor/CSS3DRenderer.js"></script>
+</head>
+<body class="office-body">
+  <!-- TOPBAR DAI -->
+  <header class="dai-topbar">
+    <div class="dai-brand-group">
+      <a class="dai-logo-wrap" href="/">
+        <span class="dai-logo-icon">▲</span>
+        <span class="dai-logo-text">DAI</span>
+      </a>
+      <span class="dai-tagline">Harness de Agentes · Skills · Workflows</span>
+    </div>
+
+    <!-- Navegação Central DAI -->
+    <nav class="dai-nav-links">
+      <a href="/" class="dai-nav-item" title="Ver lista de Projetos">📁 Projetos</a>
+      <a href="/escritorio" class="dai-nav-item active" title="Escritório Virtual dos Agentes">🏢 Escritório</a>
+      <a href="/?design=1" class="dai-nav-item" title="Agentes DAI em Ação">👤 Agentes</a>
+      <a href="/" class="dai-nav-item" title="Catálogo de Skills">🧩 Skills</a>
+      <a href="/" class="dai-nav-item" title="Workflows Automatizados">🔀 Workflows</a>
+      <a href="/diario" class="dai-nav-item" title="Diário de Atividade e Memórias">🗄️ Memórias</a>
+      <a href="/deploy" class="dai-nav-item" title="Painel de Deploys e VPS">⚙️ Configurações</a>
+    </nav>
+
+    <!-- Usuário & Controles Direita -->
+    <div class="dai-user-group">
+      <button class="dai-hud-toggle-btn" id="btnToggleHud" title="Ocultar/Exibir menus da tela (Atalho: H)">
+        <span class="hud-toggle-icon">👁️</span>
+        <span class="hud-toggle-text">Ocultar Menus</span>
+        <kbd class="hud-kbd-badge">H</kbd>
+      </button>
+      <button class="dai-sound-btn" id="btnAudioToggle" title="Ativar/Desativar Efeitos Sonoros">🔊</button>
+      <div class="dai-sensitivity-pill" id="daiSensitivityPill" title="Sensibilidade do Mouse (1 a 10)">
+        <span class="sensitivity-icon">🖱️</span>
+        <span class="sensitivity-label">Sens</span>
+        <input type="range" id="mouseSensitivitySlider" min="1" max="10" step="1" value="5" class="dai-sensitivity-slider" aria-label="Sensibilidade do mouse">
+        <span class="sensitivity-value" id="mouseSensitivityVal">5</span>
+      </div>
+      <div class="dai-project-dropdown">
+        <span id="topProjectIcon"><i class="fa-solid fa-folder-open"></i></span>
+        <select id="projectSelect" title="Trocar projeto ativo"></select>
+      </div>
+      <div class="dai-user-avatar" title="Matheus (Líder de Produto)">M</div>
+    </div>
+  </header>
+
+  <!-- VIEWPORT PRINCIPAL (CENA 3D REAL EM THREE.JS) -->
+  <main class="dai-viewport-container">
+    <!-- 1. Viewport 3D Principal (Three.js WebGL Real) -->
+    <div id="viewport3D"></div>
+
+    <!-- 2. Camada 2D Isométrica (Habbo Navegável com WASD) -->
+    <canvas id="canvas2D" style="display:none"></canvas>
+
+    <!-- WIDGETS FLUTUANTES DA ESQUERDA -->
+    <div class="dai-floating-left">
+      <!-- Card: Bom dia, Matheus! -->
+      <div class="dai-welcome-card">
+        <button class="dai-hud-close-btn" id="btnCloseLeftPanel" title="Ocultar painéis da esquerda (Atalho: H)" aria-label="Ocultar painéis da esquerda">✕</button>
+        <div class="welcome-header">
+          <div class="ai-hologram-avatar">🤖</div>
+          <div class="welcome-text">
+            <h3>Bom dia, Matheus!</h3>
+            <p id="welcomeStats">Hoje temos 12 tarefas ativas e 4 agentes em execução.</p>
+          </div>
+        </div>
+        <p class="welcome-quote">
+          "Grandes sistemas são construídos por pessoas que constroem bons sistemas."
+        </p>
+      </div>
+
+      <!-- Card: Agentes em Ação -->
+      <div class="dai-active-agents-card">
+        <div class="card-title-row">
+          <span class="status-dot"></span>
+          <span>Agentes em Ação</span>
+        </div>
+        <div class="agent-status-list">
+          <div class="agent-status-row">
+            <span class="agent-name-cell"><span>🤖</span> Orquestrador</span>
+            <span class="agent-badge badge-dev">Desenvolvendo</span>
+          </div>
+          <div class="agent-status-row">
+            <span class="agent-name-cell"><span>⚡</span> Dev</span>
+            <span class="agent-badge badge-dev">Implementando</span>
+          </div>
+          <div class="agent-status-row">
+            <span class="agent-name-cell"><span>🧪</span> QA</span>
+            <span class="agent-badge badge-qa">Testando</span>
+          </div>
+          <div class="agent-status-row">
+            <span class="agent-name-cell"><span>🚀</span> DevOps</span>
+            <span class="agent-badge badge-devops">Implantando</span>
+          </div>
+          <div class="agent-status-row">
+            <span class="agent-name-cell"><span>📐</span> Architect</span>
+            <span class="agent-badge badge-arch">Analisando</span>
+          </div>
+          <div class="agent-status-row">
+            <span class="agent-name-cell"><span>📋</span> BA</span>
+            <span class="agent-badge badge-ba">Documentando</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR DIREITA: DASHBOARD DO PROJETO (HUD) -->
+    <aside class="dai-sidebar-right">
+      <!-- Resumo do Projeto Ativo -->
+      <div class="project-summary-box">
+        <div class="project-title-row">
+          <div class="project-title-left">
+            <span style="font-size:20px" id="hudProjectIcon"><i class="fa-solid fa-folder-open"></i></span>
+            <h2 id="hudProjectTitle">Carregando...</h2>
+          </div>
+          <button class="dai-hud-close-btn" id="btnCloseRightSidebar" title="Ocultar painel lateral direito (Atalho: H)" aria-label="Ocultar painel lateral direito">✕</button>
+        </div>
+        <div class="project-subtitle" id="hudProjectDesc">Workspace gerenciado por agentes DAI</div>
+        <div class="project-status-pill">
+          <span class="pill-dot online"></span>
+          <span>Em desenvolvimento</span>
+        </div>
+
+        <div class="progress-header">
+          <span>Progresso</span>
+          <span id="hudProgressPercent">68%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="hudProgressBar" style="width: 68%;"></div>
+        </div>
+        <div class="project-meta-grid">
+          <span>Tarefas: <b id="hudTaskCount" style="color:#fff">12 / 18</b></span>
+          <span>Última atualização: <b style="color:#fff">Hoje</b></span>
+        </div>
+      </div>
+
+      <!-- Atalhos Rápidos -->
+      <div>
+        <div class="sidebar-section-title">Atalhos rápidos</div>
+        <div class="quick-links-list">
+          <a href="vscode://file/c:/Users/matheuss.rodrigues/git/harness-leca" class="quick-link-row" title="Abrir no editor VS Code">
+            <span>💻 Abrir no VS Code</span>
+            <span>›</span>
+          </a>
+          <a href="/" class="quick-link-row" title="Ver arquivos e repositório">
+            <span>📁 Ver repositório</span>
+            <span>›</span>
+          </a>
+          <a href="/diario" class="quick-link-row" title="Documentação e Dossiês">
+            <span>📖 Documentação</span>
+            <span>›</span>
+          </a>
+          <a href="/deploy" class="quick-link-row" title="Painel de Deploys VPS">
+            <span>🚀 Deploy</span>
+            <span>›</span>
+          </a>
+          <a href="/preview" class="quick-link-row" title="Visualização Mobile/Web">
+            <span>📱 Mobile/Preview</span>
+            <span>›</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Últimas Atividades (Feed do Diário) -->
+      <div>
+        <div class="sidebar-section-title">Últimas atividades</div>
+        <div class="activity-feed-list" id="hudActivityFeed">
+          <div class="activity-feed-item">
+            <div class="activity-top-row">
+              <span class="activity-actor">DevCommits</span>
+              <span class="activity-time">há 3 min</span>
+            </div>
+            <div class="activity-text">feat: 57 Multimarcas renderizado na tela do monitor 3D</div>
+          </div>
+          <div class="activity-feed-item">
+            <div class="activity-top-row">
+              <span class="activity-actor">QA</span>
+              <span class="activity-time">há 7 min</span>
+            </div>
+            <div class="activity-text">198 testes automatizados aprovados (100% pass)</div>
+          </div>
+          <div class="activity-feed-item">
+            <div class="activity-top-row">
+              <span class="activity-actor">DevOps</span>
+              <span class="activity-time">há 12 min</span>
+            </div>
+            <div class="activity-text">Easypanel webhook preparado para sincronização</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rodapé Lema -->
+      <div class="sidebar-footer-quote">
+        <span>O futuro não é algo que acontece. É algo que construímos.</span>
+        <span style="font-weight:900;color:var(--dai-cyan)">▲</span>
+      </div>
+    </aside>
+
+    <!-- BARRA DE TAREFAS DO WINDOW MANAGER (JANELAS ABERTAS E MINIMIZADAS) -->
+    <div class="window-taskbar is-empty" id="windowTaskbar" aria-label="Barra de Tarefas de Janelas"></div>
+
+    <!-- BARRA INFERIOR DE CONTROLES (MODOS DE CÂMERA & NAVEGAÇÃO) -->
+    <div class="dai-bottom-bar">
+      <!-- Seletor de Câmera e Modo com Atalhos -->
+      <div class="mode-toggle-group">
+        <button class="btn-mode-pill active" id="btnMode3rdPerson" title="Explorar o estúdio em 3ª Pessoa (Atalho: 1)">
+          <span>🚶‍♂️</span> 3ª Pessoa <kbd class="mode-kbd">1</kbd>
+        </button>
+        <button class="btn-mode-pill" id="btnMode1stPerson" title="Perspectiva imersiva em 1ª Pessoa nos olhos do personagem (Atalho: 2 ou C)">
+          <span>👁️</span> 1ª Pessoa <kbd class="mode-kbd">2</kbd>
+        </button>
+        <button class="btn-mode-pill" id="btnModeWorkstation" title="Sentar na Cadeira e utilizar a Estação de Trabalho (Atalho: 3)">
+          <span>💺</span> Estação <kbd class="mode-kbd">3</kbd>
+        </button>
+        <button class="btn-mode-pill" id="btnModeWarRoom" title="Navegar e focar na Sala de Guerra (Atalho: 4 ou G)">
+          <span>🏛️</span> Sala de Guerra <kbd class="mode-kbd">4/G</kbd>
+        </button>
+        <button class="btn-mode-pill" id="btnModeOrbit" title="Visão Externa 3D Orbital com rotação livre (Atalho: 5 ou O)">
+          <span>🌐</span> Diorama <kbd class="mode-kbd">5</kbd>
+        </button>
+        <button class="btn-mode-pill" id="btnMode2D" title="Modo Retrô Jogável 2.5D estilo Habbo (Atalho: 6 ou Z)">
+          <span>📦</span> Modo 2.5D <kbd class="mode-kbd">6/Z</kbd>
+        </button>
+      </div>
+
+      <div class="bottom-hint-pill" id="bottomHintText">
+        <span>🎮</span>
+        <span><b>WASD</b> Andar · <b>Alt/M</b> Cursor Livre · <b>1-6 / G / Z</b> Cômodos · <b>E</b> Interagir · <b>H</b> Menus</span>
+      </div>
+    </div>
+
+    <!-- Botão Flutuante Discreto para Reexibir Menus -->
+    <button class="dai-floating-hud-trigger" id="btnFloatingHudTrigger" title="Reexibir menus da tela (Atalho: H)">
+      <span class="hud-floating-icon">👁️</span>
+      <span class="hud-floating-text">Mostrar Menus</span>
+      <kbd class="hud-kbd-badge">H</kbd>
+    </button>
+  </main>
+
+  <!-- Prompt Flutuante de Interação Contextual no Mundo 3D -->
+  <div class="interaction-prompt" id="interactionPrompt" style="display:none">
+    <span class="key-badge" id="interactionBadge">E</span>
+    <span id="interactionPromptText">Utilizar Estação de Trabalho</span>
+  </div>
+
+  <!-- Tooltip Flutuante -->
+  <div class="office-tooltip" id="officeTooltip"></div>
+
+  <!-- Retículo de Mira Central 3D -->
+  <div class="office-crosshair" id="officeCrosshair"></div>
+
+  <!-- Banner de Dica de Modo Imersivo -->
+  <div class="office-pointer-lock-hint" id="officePointerLockHint" style="display:none">
+    🎯 Modo Imersivo Ativo · Olhe livremente com o mouse · Pressione <b>ESC</b> para liberar o cursor
+  </div>
+
+  <!-- Drawer Lateral Retrátil de Detalhes / Window Manager -->
+  <aside class="office-drawer" id="officeDrawer" aria-label="Painel de Detalhes">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <span class="drawer-icon" id="drawerIcon"><i class="fa-solid fa-window-maximize"></i></span>
+        <div>
+          <h2 class="drawer-title" id="drawerTitle">Estação de Trabalho</h2>
+          <div class="drawer-subtitle" id="drawerSubtitle">Histórico do projeto</div>
+        </div>
+      </div>
+      <div class="drawer-actions">
+        <button class="drawer-action-btn" id="drawerToggleFloatBtn" title="Destacar em janela flutuante"><i class="fa-solid fa-up-right-from-square"></i></button>
+        <button class="drawer-action-btn" id="drawerMinimizeBtn" title="Minimizar janela"><i class="fa-solid fa-minus"></i></button>
+        <button class="drawer-action-btn" id="drawerMaximizeBtn" title="Maximizar janela"><i class="fa-solid fa-expand"></i></button>
+        <button class="drawer-action-btn drawer-close" id="drawerCloseBtn" title="Fechar painel"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+    <div class="drawer-body" id="drawerBody">
+      <!-- Conteúdo injetado dinamicamente -->
+    </div>
+  </aside>
+
+  <!-- Script Principal -->
+  <script type="module" src="/js/office-app.js"></script>
+</body>
+</html>

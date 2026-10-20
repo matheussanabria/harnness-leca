@@ -1,0 +1,89 @@
+/* ==========================================================================
+   BARRA INFERIOR DE CONTROLES
+   ========================================================================== */
+.dai-bottom-bar {
+  position: absolute;
+  bottom: 20px;
+  left: 24px;
+  right: 388px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 90;
+  pointer-events: none;
+}
+
+.dai-bottom-bar > * {
+  pointer-events: auto;
+}
+
+/* Switcher de Modo: 2.5D Habbo vs 3D Diorama */
+.mode-toggle-group {
+  display: flex;
+  background: rgba(13, 20, 36, 0.88);
+  border: 1px solid var(--dai-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 14px;
+  padding: 4px;
+  gap: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-mode-pill {
+  background: transparent;
+  border: none;
+  color: var(--dai-mute);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-mode-pill:hover {
+  color: #ffffff;
+}
+
+.btn-mode-pill.active {
+  background: var(--dai-blue);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(0, 136, 255, 0.5);
+}
+
+.mode-kbd {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--dai-cyan);
+  margin-left: 2px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.btn-mode-pill.active .mode-kbd {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.bottom-hint-pill {
+  background: rgba(13, 20, 36, 0.8);
+  border: 1px solid var(--dai-border);
+  backdrop-filter: blur(12px);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--dai-mute);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

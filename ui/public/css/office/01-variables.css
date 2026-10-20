@@ -1,0 +1,36 @@
+/* --- Estilo do Centro de Comando DAI HQ (Escritório Virtual dos Agentes) --- */
+:root {
+  --dai-bg: #0b0f19;
+  --dai-panel: rgba(13, 20, 36, 0.78);
+  --dai-panel-solid: #111a2e;
+  --dai-panel-card: rgba(18, 28, 51, 0.75);
+  --dai-border: rgba(56, 189, 248, 0.15);
+  --dai-border-glow: rgba(0, 168, 255, 0.4);
+  --dai-blue: #0088ff;
+  --dai-cyan: #00d2ff;
+  --dai-accent: #38bdf8;
+  --dai-claude: #d97757;
+  --dai-gemini: #5c87f2;
+  --dai-opencode: #3cb371;
+  --dai-text: #f1f5f9;
+  --dai-mute: #94a3b8;
+  --dai-green: #10b981;
+  --dai-purple: #a855f7;
+  --dai-yellow: #f59e0b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body.office-body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--dai-bg);
+  color: var(--dai-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  user-select: none;
+}
