@@ -1,0 +1,164 @@
+<!-- Modal para Gerenciar Grupos e Subgrupos -->
+<dialog id="manageGroupsDlg" class="chat-dialog" style="max-width:760px;height:min(88vh,740px)">
+  <div class="chat-header">
+    <div class="title">
+      <span>📁 Gerenciar Grupos e Subgrupos de Contexto</span>
+    </div>
+    <button onclick="manageGroupsDlg.close()" style="background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer">×</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:18px">
+    <!-- Criar / Editar Grupo -->
+    <div style="background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px">
+      <div style="font-weight:600;font-size:14px;margin-bottom:10px;color:var(--text);display:flex;align-items:center;gap:6px">
+        <span id="groupFormIcon">➕</span> <span id="groupFormTitle">Criar Novo Grupo de Contexto</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <label style="font-size:11.5px;color:var(--mute);display:block;margin-bottom:4px">Nome do Grupo (ex: Módulo Financeiro, Autenticação, Design System):</label>
+          <input type="text" id="newGroupNameInput" class="chats-search-input" placeholder="Digite o nome do grupo..." style="padding:8px 12px">
+        </div>
+        <div>
+          <label style="font-size:11.5px;color:var(--mute);display:block;margin-bottom:4px">Cor de Destaque:</label>
+          <div class="color-dot-picker" id="newGroupColorPicker"></div>
+        </div>
+        <div>
+          <label style="font-size:11.5px;color:var(--mute);display:block;margin-bottom:4px">Subgrupos (separados por vírgula):</label>
+          <input type="text" id="newGroupSubgroupsInput" class="chats-search-input" placeholder="ex: Contas a Pagar, Faturamento, Relatórios" style="padding:8px 12px">
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px">
+          <button type="button" id="btnCancelEditGroup" class="btn-chat-action" style="display:none" onclick="cancelEditGroup()">Cancelar Edição</button>
+          <button type="button" id="btnSubmitGroup" class="btn-send" style="height:36px;padding:6px 16px;font-size:12.5px" onclick="submitCreateOrUpdateGroup()">
+            + Criar Grupo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auto-classificador de Conversas em Lote com IA -->
+    <div style="background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-weight:600;font-size:13.5px;color:var(--text);display:flex;align-items:center;gap:6px">
+            🤖 Classificador Automático de Conversas (IA)
+          </div>
+          <div style="font-size:11.5px;color:var(--mute);margin-top:2px">
+            Analisa o conteúdo e título das conversas e sugere grupos e subgrupos automaticamente.
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" id="btnBatchSuggestPending" class="btn-vp" style="padding:6px 13px;font-size:12px;display:inline-flex;align-items:center;gap:5px" onclick="loadAutoClassifySuggestions(false)">
+            ✨ Sugerir Pendentes
+          </button>
+          <button type="button" id="btnBatchSuggestAll" class="btn-chat-action" style="padding:6px 13px;font-size:12px;display:inline-flex;align-items:center;gap:5px" onclick="loadAutoClassifySuggestions(true)" title="Reclassificar todas as conversas do projeto">
+            🔄 Reavaliar Todas
+          </button>
+        </div>
+      </div>
+      <div id="batchSuggestContainer" style="display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:14px">
+        <div id="batchSuggestHeader" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:12px;color:var(--mute)">
+          <span id="batchSuggestStats"></span>
+          <div style="display:flex;gap:8px">
+            <button type="button" class="btn-cancel-single" style="font-size:11.5px;padding:4px 8px" onclick="closeBatchSuggestContainer()">Fechar</button>
+            <button type="button" id="btnApplyBatchSuggestions" class="btn-send" style="padding:5px 14px;font-size:12px" onclick="applyBatchClassifySuggestions()">
+              ✓ Aplicar Sugestões
+            </button>
+          </div>
+        </div>
+        <div id="batchSuggestList" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+
+    <!-- Lista de Grupos Existentes -->
+    <div>
+      <div style="font-weight:600;font-size:14px;margin-bottom:10px;color:var(--text);display:flex;align-items:center;justify-content:space-between">
+        <span>Grupos Cadastrados neste Projeto:</span>
+        <span id="manageGroupsCount" style="font-size:12px;color:var(--mute);font-weight:normal">0 grupos</span>
+      </div>
+      <div id="manageGroupsList" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- Modal para Atribuir Grupo e Subgrupo a uma Conversa -->
+<dialog id="assignChatDlg" class="chat-dialog" style="max-width:540px;height:auto;max-height:86vh">
+  <div class="chat-header">
+    <div class="title">
+      <span>🏷️ Atribuir Grupo à Conversa</span>
+    </div>
+    <button onclick="assignChatDlg.close()" style="background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer">×</button>
+  </div>
+  <div style="padding:18px 20px;display:flex;flex-direction:column;gap:16px">
+    <div>
+      <div style="font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.4px">Conversa Selecionada:</div>
+      <div id="assignChatTitle" style="font-weight:600;font-size:14px;color:var(--text);margin-top:4px;word-break:break-word"></div>
+      <div id="assignChatMeta" style="font-size:11.5px;color:var(--mute);margin-top:4px;display:flex;gap:8px;align-items:center"></div>
+    </div>
+
+    <!-- Banner de Sugestão Inteligente por IA -->
+    <div id="assignChatSuggestBanner" style="display:none;background:rgba(217,119,87,0.12);border:1px solid rgba(217,119,87,0.35);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--text)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-weight:600;color:var(--accent);display:inline-flex;align-items:center;gap:6px">✨ Sugestão Inteligente (IA)</span>
+        <span id="assignSuggestConfidence" style="font-size:11px;background:var(--panel2);border:1px solid var(--line);padding:2px 7px;border-radius:4px;color:var(--text)"></span>
+      </div>
+      <div id="assignSuggestText" style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px"></div>
+      <div id="assignSuggestReason" style="font-size:11.5px;color:var(--mute)"></div>
+    </div>
+
+    <div style="background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <label style="font-size:11.5px;font-weight:600;color:var(--text);margin:0">Grupo de Contexto:</label>
+          <button type="button" id="btnSuggestChatGroup" class="btn-vp" style="padding:3px 9px;font-size:11px;gap:4px;display:inline-flex;align-items:center" onclick="requestSingleChatSuggestion()">
+            ✨ Sugerir com IA
+          </button>
+        </div>
+        <select id="assignGroupSelect" onchange="onAssignGroupSelectChange(this.value)" style="width:100%;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px">
+        </select>
+      </div>
+
+      <div id="assignSubgroupWrap" style="display:none">
+        <label style="font-size:11.5px;font-weight:600;color:var(--text);display:block;margin-bottom:5px">Subgrupo:</label>
+        <select id="assignSubgroupSelect" onchange="onAssignSubgroupSelectChange(this.value)" style="width:100%;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px">
+        </select>
+      </div>
+
+      <div id="assignCustomSubgroupWrap" style="display:none">
+        <label style="font-size:11.5px;color:var(--mute);display:block;margin-bottom:4px">Nome do Novo Subgrupo:</label>
+        <input type="text" id="assignCustomSubgroupInput" class="chats-search-input" placeholder="ex: Relatórios" style="padding:6px 10px">
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px">
+      <button type="button" id="btnRemoveChatGroup" class="btn-cancel-single" style="font-size:12px;padding:6px 12px" onclick="removeChatGroupAssignment()">
+        🗑️ Desvincular Grupo
+      </button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button type="button" class="btn-chat-action" onclick="assignChatDlg.close()">Cancelar</button>
+        <button type="button" class="btn-send" style="height:36px;padding:6px 18px;font-size:13px" onclick="saveChatGroupAssignment()">
+          💾 Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+</dialog>
+<dialog id="continueChatDlg" class="chat-dialog" style="max-width:760px;height:72vh">
+  <div class="chat-header">
+    <div class="title">
+      <span id="continueChatTitle"><i class="fa-solid fa-folder-open"></i> Continuar Conversa Existente</span>
+    </div>
+    <button onclick="continueChatDlg.close()" style="background:none;border:0;color:var(--mute);font-size:18px;cursor:pointer" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="padding:10px 16px;background:var(--panel2);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <input id="continueChatSearch" class="rv-search" style="flex:1;min-width:200px" placeholder="Buscar por título ou termo..." oninput="filterContinueChats()">
+    <div id="continueChatFilterGroup" style="display:flex;gap:4px">
+      <button type="button" class="btn-vp active" data-filter="all" onclick="setContinueChatFilter('all')">Todas</button>
+      <button type="button" class="btn-vp" data-filter="claude" onclick="setContinueChatFilter('claude')"><i class="fa-solid fa-asterisk"></i> Claude</button>
+      <button type="button" class="btn-vp" data-filter="opencode" onclick="setContinueChatFilter('opencode')"><i class="fa-solid fa-code"></i> OpenCode</button>
+      <button type="button" class="btn-vp" data-filter="gemini" onclick="setContinueChatFilter('gemini')"><i class="fa-solid fa-bolt"></i> Gemini</button>
+      <button type="button" class="btn-vp" data-filter="codex" onclick="setContinueChatFilter('codex')"><i class="fa-solid fa-terminal"></i> Codex</button>
+      <button type="button" class="btn-vp" data-filter="ollama" onclick="setContinueChatFilter('ollama')"><i class="fa-solid fa-microchip"></i> Ollama</button>
+    </div>
+  </div>
+  <div id="continueChatList" style="flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px"></div>
+</dialog>
+
