@@ -1,0 +1,57 @@
+/* 06-chat-system-cards.css — Pedidos de permissão, cartões de erro e anexos no chat */
+
+/* Pedidos de permissão do motor (cartões no chat) */
+.perm-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 0 0 8px;
+  font-size: 12px;
+  background: var(--bg);
+}
+.perm-card code { word-break: break-all; font-size: 11.5px; }
+.perm-card.pending { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg)); }
+.perm-card.done { color: var(--mute); }
+.perm-card.denied { color: var(--mute); border-style: dashed; }
+.perm-title { font-weight: 600; margin-bottom: 4px; }
+.perm-what { margin: 2px 0 4px; }
+.perm-meta { color: var(--mute); margin: 2px 0 4px; font-size: 11.5px; }
+.perm-warn { color: #d97706; margin: 2px 0 4px; }
+.perm-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.perm-btn { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--text); cursor: pointer; }
+.perm-btn:hover { border-color: var(--accent); }
+.perm-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.perm-btn.deny { color: #ef4444; }
+.perm-rule { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+.perm-rule code { word-break: break-all; }
+
+/* Erros do chat */
+.err-card { border: 1px solid rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08); border-radius: 8px; padding: 9px 11px; margin: 6px 0; font-size: 12.5px; }
+.err-card.unknown { border-style: dashed; }
+.err-title { font-weight: 600; margin-bottom: 3px; }
+.err-tag { font-weight: 400; font-size: 10.5px; color: var(--mute); border: 1px solid var(--line); border-radius: 10px; padding: 0 6px; margin-left: 4px; }
+.err-msg { line-height: 1.5; }
+.err-hint { margin-top: 5px; color: var(--text); line-height: 1.5; }
+.err-hint code { font-size: 11.5px; }
+.err-detail { margin-top: 6px; color: var(--mute); }
+.err-detail summary { cursor: pointer; font-size: 11.5px; }
+.err-detail pre { margin: 4px 0 0; padding: 6px 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; white-space: pre-wrap; word-break: break-word; font-size: 11px; }
+
+/* Anexos e gravação de áudio no chat */
+.chat-attach-tray { display: flex; flex-wrap: wrap; gap: 6px; }
+.att-chip { display: flex; align-items: center; gap: 6px; max-width: 100%; padding: 4px 6px; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; font-size: 12px; }
+.att-chip img { width: 36px; height: 36px; object-fit: cover; border-radius: 5px; }
+.att-chip.bad { border-color: #ef4444; }
+.att-ico { font-size: 14px; }
+.att-name { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.att-wait { color: var(--mute); }
+.att-err { color: #ef4444; }
+.att-chip button { background: none; border: 0; color: var(--mute); cursor: pointer; padding: 4px; font-size: 12px; }
+.btn-attach { flex: none; min-width: 42px; height: 42px; background: var(--panel2); color: inherit; border: 1px solid var(--line); border-radius: 8px; font-size: 17px; cursor: pointer; }
+.btn-attach.recording { background: #ef4444; color: #fff; border-color: #ef4444; font-size: 13px; animation: att-pulse 1.2s infinite; }
+@keyframes att-pulse { 50% { opacity: .7; } }
+@media (max-width: 640px) {
+  .chat-input-wrap { flex-wrap: wrap; }
+  .chat-input-wrap .chat-input { flex: 1 1 100%; order: 3; }
+  .chat-input-wrap .btn-send, .chat-input-wrap .btn-cancel { margin-left: auto; }
+}

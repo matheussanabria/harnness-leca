@@ -1,0 +1,26 @@
+// @ts-check
+// mobile-chat.js — Fachada e adaptador de compatibilidade com a UI unificada do chat
+export {
+  handleChatInput,
+  handleMobileChatInput,
+  restoreChatDraft,
+  restoreMobileChatDraft,
+  closeAllChatMenus,
+  toggleProviderDropdown,
+  selectProvider,
+  selectClaudeEngine,
+  toggleCompareMode,
+  toggleChatMoreMenu,
+  toggleChatSettingsPopover,
+  toggleClaudeModelSheet,
+  toggleComposerAddMenu,
+  toggleClaudeAddSheet,
+  toggleComposerToolsMenu,
+  applyQuickAction,
+  applySuggestedPrompt,
+  handleChatHistoryScroll,
+  scrollChatToBottom,
+  updateChatHeaderAndPills,
+  updateClaudeBottomPills,
+  updateMobileChatHeader,
+} from "./chat-ui-interaction.js";

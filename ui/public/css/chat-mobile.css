@@ -1,0 +1,227 @@
+/* --- chat-mobile.css: Layout responsivo, container queries e safe-areas mobile --- */
+
+/* Habilita Container Queries para adaptação independente de container */
+.chat-dialog,
+.studio-sidebar,
+.chat-container,
+.mini-chat-dock {
+  container-type: inline-size;
+}
+
+/* Redimensionador contínuo do painel lateral do Studio */
+.studio-sidebar-resizer {
+  width: 5px;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+  position: relative;
+  z-index: 15;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.studio-sidebar-resizer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  width: 1px;
+  background: var(--line);
+  transition: background 0.15s ease;
+}
+
+.studio-sidebar-resizer:hover::after,
+.studio-sidebar-resizer:focus-visible::after,
+body.studio-resizing .studio-sidebar-resizer::after {
+  background: var(--accent);
+  width: 2px;
+}
+
+.studio-sidebar-resizer:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+body.studio-resizing {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+body.studio-resizing iframe {
+  pointer-events: none !important;
+}
+
+/* Regras com Container Queries para containers compactos (<= 460px) */
+@container (max-width: 460px) {
+  .chat-header-compact {
+    padding: 0 10px;
+    height: 44px;
+    gap: 6px;
+  }
+
+  .chat-header-title {
+    display: none;
+  }
+
+  .chat-provider-btn {
+    padding: 3px 6px;
+    font-size: 13px;
+    gap: 6px;
+    max-width: 160px;
+  }
+
+  .chat-provider-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chat-header-actions {
+    gap: 2px;
+  }
+
+  .chat-header-icon-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+
+  .chat-context-strip {
+    padding: 0 10px;
+    min-height: 38px;
+    gap: 6px;
+  }
+
+  .context-controls-single {
+    gap: 6px;
+    width: 100%;
+  }
+
+  .context-item.context-agent {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .context-item.context-model {
+    flex: 1 1 0;
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  .context-select {
+    width: 100%;
+    max-width: none !important;
+    min-width: 0;
+    font-size: 11.5px;
+    padding: 3px 5px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .context-settings-wrap {
+    flex-shrink: 0;
+  }
+
+  .chat-context-icon-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 12.5px;
+  }
+
+  .context-controls-compare {
+    gap: 6px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .compare-chips-group {
+    gap: 4px;
+  }
+
+  .compare-chip {
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+
+  .compare-summary-badge {
+    font-size: 10.5px;
+    width: 100%;
+    text-align: right;
+  }
+
+  .chat-history {
+    padding: 10px 12px 14px;
+    gap: 12px;
+  }
+
+  .chat-composer-container {
+    padding: 6px 10px 8px;
+  }
+
+  .chat-composer-card {
+    padding: 8px 10px 6px;
+    border-radius: 12px;
+  }
+
+  .chat-composer-input {
+    font-size: 13.5px;
+  }
+
+  .composer-btn-tool {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+
+  .composer-send-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+}
+
+/* Refinamentos específicos para Viewport Mobile (<= 768px) */
+@media (max-width: 768px) {
+  #chatDlg.chat-dialog {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    margin: 0 !important;
+    inset: 0 !important;
+  }
+
+  .studio-sidebar-resizer {
+    display: none !important;
+  }
+
+  .chat-composer-container {
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .chat-dropdown-menu,
+  .composer-dropdown-menu {
+    max-width: min(290px, calc(100vw - 20px));
+  }
+
+  .chat-popover-panel {
+    max-width: min(300px, calc(100vw - 20px));
+    right: 0 !important;
+    left: auto !important;
+  }
+}
+
+/* Minimizar coluna do chat no Studio para dar espaço total ao preview/canvas */
+body.studio-chat-minimized #studioWorkspace #studioSidebar,
+body.studio-chat-minimized #studioWorkspace #studioSidebarResizer {
+  display: none !important;
+}
+
+body.studio-chat-minimized #studioWorkspace .studio-canvas {
+  width: 100% !important;
+  flex: 1 1 100% !important;
+}

@@ -1,0 +1,10 @@
+/* --- chat: agregador modular de estilos da interface de chat --- */
+@import "./chat/01-chat-layout.css";
+@import "./chat/02-chat-messages.css";
+@import "./chat/03-chat-composer.css";
+@import "./chat/04-chat-popovers.css";
+@import "./chat/03-grid-comparativo.css";
+@import "./chat/04-mini-chat-dock.css";
+@import "./chat/05-chat-code-cards.css";
+@import "./chat/06-chat-system-cards.css";
+@import "./chat/07-continue-chat-modal.css";

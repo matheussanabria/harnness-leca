@@ -1,0 +1,148 @@
+/* Seletor de conversa: cabeçalho e filtros fixos, lista com uma única rolagem. */
+#continueChatDlg.chat-dialog {
+  width: min(900px, 92vw) !important;
+  height: min(780px, 90dvh) !important;
+  max-width: 92vw;
+  max-height: 90dvh;
+  padding: 0;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+#continueChatDlg::backdrop {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+#continueChatDlg > .chat-header {
+  min-height: 56px;
+  padding: 0 18px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+
+#continueChatDlg > .chat-header .title {
+  min-width: 0;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 650;
+}
+
+#continueChatTitle {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#continueChatDlg > .chat-header > button {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  border-radius: 7px !important;
+}
+
+#continueChatDlg > .chat-header > button:hover,
+#continueChatDlg > .chat-header > button:focus-visible {
+  background: var(--panel2) !important;
+  color: var(--text) !important;
+}
+
+#continueChatDlg > div:nth-child(2) {
+  flex: 0 0 auto;
+  padding: 12px 18px !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: color-mix(in srgb, var(--panel2) 50%, var(--panel)) !important;
+}
+
+#continueChatSearch {
+  height: 36px;
+  min-width: 0 !important;
+  margin: 0;
+  background: var(--panel) !important;
+  border-radius: 8px !important;
+}
+
+#continueChatFilterGroup {
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+}
+
+#continueChatList {
+  min-height: 0;
+  flex: 1 1 auto !important;
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  padding: 12px 18px 18px !important;
+}
+
+#continueChatList .row {
+  min-width: 0;
+  gap: 12px !important;
+  padding: 12px !important;
+  background: var(--panel2) !important;
+  border-radius: 10px !important;
+}
+
+#continueChatList .row:hover { border-color: var(--mute) !important; }
+
+#continueChatList .row b,
+#continueChatList .row code {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#continueChatList .row > div:first-child { min-width: 0 !important; }
+
+#continueChatList .row > div:last-child { flex: 0 0 auto; }
+
+@media (max-width: 680px) {
+  #continueChatDlg.chat-dialog {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: none;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+
+  #continueChatDlg > .chat-header { min-height: 50px; padding: 0 12px; }
+
+  #continueChatDlg > div:nth-child(2) {
+    align-items: stretch;
+    padding: 10px 12px !important;
+  }
+
+  #continueChatFilterGroup {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    padding-bottom: 2px;
+  }
+
+  #continueChatFilterGroup .btn-vp { flex: 0 0 auto; }
+
+  #continueChatList { padding: 10px 12px !important; }
+
+  #continueChatList .row {
+    align-items: flex-start !important;
+    flex-direction: column;
+  }
+
+  #continueChatList .row > div:last-child { width: 100%; }
+  #continueChatList .row > div:last-child button { flex: 1; }
+}

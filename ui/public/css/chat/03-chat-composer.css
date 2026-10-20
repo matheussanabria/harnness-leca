@@ -1,0 +1,227 @@
+/* 03-chat-composer.css — Compositor de Mensagem Integrado */
+
+/* REGION D: COMPOSITOR */
+.chat-composer-container {
+  padding: 8px 18px 12px;
+  background: #18181b;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .chat-composer-container {
+    padding: 6px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Card do Compositor */
+.chat-composer-card {
+  position: relative;
+  background: #1e1e22;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 10px 12px 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.chat-composer-card:focus-within {
+  border-color: rgba(217, 119, 87, 0.65);
+  box-shadow: 0 0 0 1px rgba(217, 119, 87, 0.25), 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.chat-composer-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f4f4f5;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 28px;
+  max-height: 140px;
+  resize: none;
+  padding: 0 4px;
+}
+
+.chat-composer-input::placeholder {
+  color: #71717a;
+}
+
+/* Barra de Ações Interna do Card */
+.chat-composer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.chat-composer-tools-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.composer-popover-wrap {
+  position: relative;
+}
+
+.composer-btn-tool {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.composer-btn-tool:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.composer-btn-tool:active {
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(0.96);
+}
+
+.chat-composer-tools-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Botão de Envio (Coral / Terracota) */
+.composer-send-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #d97757;
+  color: #ffffff;
+  border: none;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(217, 119, 87, 0.35);
+}
+
+.composer-send-btn:hover {
+  background: #e06c4b;
+  transform: scale(1.03);
+}
+
+.composer-send-btn:active {
+  transform: scale(0.96);
+}
+
+.composer-cancel-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.composer-cancel-btn:hover {
+  background: #dc2626;
+}
+
+/* Barra Inferior com Status e Botão Scroll */
+.chat-composer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 6px 0;
+  min-height: 22px;
+}
+
+.chat-status-text {
+  font-size: 11px;
+  color: #71717a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80%;
+}
+
+.chat-scroll-bottom-btn {
+  position: absolute;
+  top: -38px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #27272a;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f4f4f5;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s;
+  z-index: 5;
+}
+
+.chat-scroll-bottom-btn:hover {
+  background: #3f3f46;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+/* Bandeja de Anexos */
+.chat-attach-tray {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-bottom: 4px;
+}
+
+.chat-attach-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #27272a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  color: #e4e4e7;
+}
+
+.chat-attach-chip .btn-remove-attach {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  font-size: 11px;
+}
+
+.chat-attach-chip .btn-remove-attach:hover {
+  color: #ef4444;
+}
