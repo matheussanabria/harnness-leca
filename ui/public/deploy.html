@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Harness Leca · Deploy de Projetos (Easypanel / Hostinger)</title>
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/deploy.css">
+</head>
+<body>
+
+<header>
+  <a class="logo" href="/">✱ Harness Leca</a>
+  <span class="badge badge-hostinger">🚀 Hostinger VPS · Easypanel</span>
+  <div style="margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <a class="nav-link" href="/overview">📊 Visão geral</a>
+    <a class="nav-link" href="/diario">📓 Diário</a>
+    <a class="nav-link" href="/escritorio">🏢 Escritório</a>
+    <a class="nav-link" href="/">✱ Abrir projeto</a>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <div>
+      <h1>Deploy de Projetos</h1>
+      <div class="sub">Disparo rápido de deploys por webhook para ambientes Staging e Produção na sua VPS Hostinger (Easypanel).</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn-primary" onclick="openNewProjectModal()">
+        <span>+</span> Novo Projeto
+      </button>
+    </div>
+  </div>
+
+  <!-- Banner de Dica do Easypanel (Retrátil) -->
+  <div class="easypanel-tip-box">
+    <div class="tip-header" onclick="toggleTipContent()">
+      <div class="tip-title">
+        <span>💡</span>
+        <span>Como pegar o Webhook de Deploy no Easypanel (Hostinger VPS)</span>
+      </div>
+      <span id="tipToggleIcon" style="font-size:12px;color:var(--mute)">▼ Expandir</span>
+    </div>
+    <div class="tip-content" id="tipContent" style="display:none">
+      <p style="margin-top:0">O <b>Easypanel</b> permite disparar o rebuild e deploy do seu container automaticamente através de uma requisição HTTP:</p>
+      <ol>
+        <li>Acesse o painel do Easypanel na sua VPS (ex: <code>https://painel.seudominio.com</code>).</li>
+        <li>Entre no <b>Projeto</b> e selecione o <b>Serviço</b> desejado (ex: o backend ou frontend).</li>
+        <li>Vá na aba <b>Settings</b> (ou <b>Source</b> dependendo da versão) e localize a seção <b>Deploy Webhook</b>.</li>
+        <li>Copie a URL gerada (ela contém o token de autenticação único).</li>
+        <li>Clique no botão <b>⚙️ Configurar</b> do card correspondente abaixo e cole a URL no campo de Webhook. Pronto!</li>
+      </ol>
+      <div style="margin-top:8px;font-size:12.5px;color:var(--text)">
+        💡 <b>Dica de Segurança:</b> As URLs dos seus webhooks são salvas no arquivo local <code>global/deployments.json</code> (que está no seu <code>.gitignore</code>) e nunca sobem para o GitHub.
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner de Estatísticas -->
+  <div class="stats-banner">
+    <div class="stat-card">
+      <span class="label">Projetos Monitorados</span>
+      <span class="value" id="statProjectsCount">0</span>
+      <span class="desc">Aplicações configuradas</span>
+    </div>
+    <div class="stat-card">
+      <span class="label">Ambientes</span>
+      <span class="value" id="statEnvsCount">0</span>
+      <span class="desc">Staging / Produção mapeados</span>
+    </div>
+    <div class="stat-card">
+      <span class="label">Webhooks Ativos</span>
+      <span class="value" id="statWebhooksReady">0</span>
+      <span class="desc">Prontos para disparo imediato</span>
+    </div>
+    <div class="stat-card">
+      <span class="label">Último Disparo</span>
+      <span class="value" id="statLastDeploy" style="font-size:18px">-</span>
+      <span class="desc">Status do deploy mais recente</span>
+    </div>
+  </div>
+
+  <!-- Seção dos Projetos -->
+  <div class="section-toolbar">
+    <div class="section-title">
+      <span>📦</span>
+      <span>Projetos & Ambientes de Deploy</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-secondary" onclick="window.location.reload()">
+        <span>🔄</span> Atualizar Painel
+      </button>
+    </div>
+  </div>
+
+  <!-- Grid de Cards de Projetos -->
+  <div class="projects-grid" id="projectsGrid">
+    <!-- Renderizado dinamicamente pelos módulos de js/deploy -->
+  </div>
+
+  <!-- Seção de Histórico de Execuções -->
+  <div class="history-section">
+    <div class="history-header">
+      <h3>
+        <span>📜</span>
+        <span>Histórico de Disparos de Deploy</span>
+      </h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn-secondary" onclick="clearHistory()" style="font-size:12px;padding:4px 10px">
+          <span>🗑️</span> Limpar Histórico
+        </button>
+      </div>
+    </div>
+    <div class="history-table-wrap">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Data / Hora</th>
+            <th>Projeto</th>
+            <th>Ambiente</th>
+            <th>Status HTTP</th>
+            <th>Duração</th>
+            <th>Retorno do Servidor</th>
+          </tr>
+        </thead>
+        <tbody id="historyTbody">
+          <!-- Renderizado dinamicamente -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Modal: Novo Projeto -->
+<div class="modal-backdrop" id="modalNewProject">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Novo Projeto de Deploy</h3>
+      <button class="btn-icon" onclick="closeModal('modalNewProject')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Importar de Projeto Local (Opcional)</label>
+        <select class="form-select" id="newProjectSelect"></select>
+      </div>
+      <div class="form-group">
+        <label>Nome do Projeto</label>
+        <input type="text" class="form-input" id="newProjectName" placeholder="Ex: Minha API / Painel Administrativo">
+      </div>
+      <div class="form-group">
+        <label>Identificador (Slug)</label>
+        <input type="text" class="form-input" id="newProjectId" placeholder="Ex: meu-projeto-api">
+      </div>
+      <div class="form-group">
+        <label>Descrição</label>
+        <input type="text" class="form-input" id="newProjectDesc" placeholder="Ex: Backend em Node / Docker no Easypanel">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalNewProject')">Cancelar</button>
+      <button class="btn-primary" onclick="saveNewProject()">Cadastrar Projeto</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Editar Projeto -->
+<div class="modal-backdrop" id="modalEditProject">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Editar Projeto</h3>
+      <button class="btn-icon" onclick="closeModal('modalEditProject')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editProjectId">
+      <div class="form-group">
+        <label>Nome do Projeto</label>
+        <input type="text" class="form-input" id="editProjectName">
+      </div>
+      <div class="form-group">
+        <label>Descrição</label>
+        <input type="text" class="form-input" id="editProjectDesc">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalEditProject')">Cancelar</button>
+      <button class="btn-primary" onclick="saveEditProject()">Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Configurar Ambiente / Webhook -->
+<div class="modal-backdrop" id="modalEditEnv">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="envModalTitle">Configurar Webhook</h3>
+      <button class="btn-icon" onclick="closeModal('modalEditEnv')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nome do Ambiente</label>
+        <input type="text" class="form-input" id="envNameInput" placeholder="Ex: Staging / Homologação">
+      </div>
+      <div class="form-group">
+        <label>URL do Webhook do Easypanel</label>
+        <input type="url" class="form-input" id="envUrlInput" placeholder="https://painel.seudominio.com/api/trpc/services.deploy?token=...">
+        <span style="font-size:12px;color:var(--mute)">Cole aqui o webhook gerado nas configurações do serviço no seu Easypanel.</span>
+      </div>
+      <div class="form-group">
+        <label>Método HTTP</label>
+        <select class="form-select" id="envMethodSelect">
+          <option value="POST">POST (Padrão Easypanel / Webhooks)</option>
+          <option value="GET">GET</option>
+        </select>
+      </div>
+      <div style="margin-top:6px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px;user-select:none">
+          <input type="checkbox" id="envConfirmCheck" style="accent-color:var(--accent);width:16px;height:16px">
+          <span><b>Exigir confirmação antes de disparar</b> (Recomendado para Produção)</span>
+        </label>
+      </div>
+      <div style="background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:12.5px;font-weight:600">Testar Conexão</div>
+            <div style="font-size:11.5px;color:var(--mute)">Dispara um ping no webhook para verificar se responde 200 OK</div>
+          </div>
+          <button class="btn-secondary" id="btnTestEnvWebhook" onclick="testWebhookFromModal()" style="font-size:12px;padding:6px 12px">
+            Testar Agora
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalEditEnv')">Cancelar</button>
+      <button class="btn-primary" onclick="saveEditEnv()">Salvar Configurações</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmação de Ação -->
+<div class="modal-backdrop" id="modalConfirm">
+  <div class="modal-card" style="max-width:460px">
+    <div class="modal-header">
+      <h3 id="confirmModalTitle">Confirmação</h3>
+      <button class="btn-icon" onclick="closeModal('modalConfirm')">✕</button>
+    </div>
+    <div class="modal-body" id="confirmModalBody" style="font-size:14px;line-height:1.6">
+      Tem certeza que deseja prosseguir?
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalConfirm')">Cancelar</button>
+      <button class="btn-primary" id="btnExecuteConfirm" onclick="executePendingConfirm()">Confirmar e Disparar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleTipContent() {
+    const content = document.getElementById("tipContent");
+    const icon = document.getElementById("tipToggleIcon");
+    if (!content || !icon) return;
+    const isHidden = content.style.display === "none";
+    content.style.display = isHidden ? "block" : "none";
+    icon.textContent = isHidden ? "▲ Ocultar" : "▼ Expandir";
+  }
+</script>
+<script type="module" src="/js/deploy/main.js"></script>
+
+</body>
+</html>

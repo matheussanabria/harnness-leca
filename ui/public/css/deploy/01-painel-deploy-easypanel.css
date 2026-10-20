@@ -1,0 +1,242 @@
+/* --- Estilos do Painel de Deploy (Easypanel / Hostinger VPS) --- */
+:root {
+  --bg: #1a1918;
+  --panel: #242321;
+  --panel2: #2d2c29;
+  --panel3: #363430;
+  --line: #3d3b37;
+  --line-strong: #4f4c46;
+  --text: #f4f2ec;
+  --mute: #a19d93;
+  --accent: #d97757;
+  --accent-hover: #e06c45;
+  --accent-glow: rgba(217, 119, 87, 0.25);
+  --success: #7de2a3;
+  --success-glow: rgba(125, 226, 163, 0.25);
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --staging: #38bdf8;
+  --prod: #a855f7;
+  --font-mono: "JetBrains Mono", Consolas, Menlo, Monaco, monospace;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7f6f1;
+    --panel: #ffffff;
+    --panel2: #f0eee6;
+    --panel3: #e6e3d8;
+    --line: #dedad0;
+    --line-strong: #cfcbbf;
+    --text: #1f1e1d;
+    --mute: #6f6c63;
+    --accent-glow: rgba(217, 119, 87, 0.15);
+    --success-glow: rgba(16, 185, 129, 0.15);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14.5px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* Header */
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(36, 35, 33, 0.7);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+header .logo {
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 16px;
+  letter-spacing: -0.2px;
+}
+
+.badge {
+  font-size: 11.5px;
+  color: var(--mute);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.badge-hostinger {
+  background: rgba(168, 85, 247, 0.1);
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.3);
+  font-weight: 600;
+}
+
+.nav-link {
+  font-size: 13px;
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 14px;
+  background: var(--panel);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.15s ease;
+}
+
+.nav-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Container */
+main {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 32px 28px 60px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+h1 {
+  font-family: Georgia, serif;
+  font-weight: 500;
+  font-size: 32px;
+  margin: 0 0 6px;
+  letter-spacing: -0.5px;
+}
+
+.sub {
+  color: var(--mute);
+  font-size: 14px;
+}
+
+/* Overview Banner / Stats Grid */
+.stats-banner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.stat-card:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-2px);
+}
+
+.stat-card .label {
+  font-size: 11.5px;
+  color: var(--mute);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.stat-card .value {
+  font-size: 26px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.stat-card .desc {
+  font-size: 12px;
+  color: var(--mute);
+}
+
+/* Easypanel Tip Collapsible Card */
+.easypanel-tip-box {
+  background: linear-gradient(135deg, rgba(36, 35, 33, 0.95), rgba(45, 44, 41, 0.85));
+  border: 1px solid rgba(217, 119, 87, 0.25);
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.tip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tip-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--accent);
+}
+
+.tip-content {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 13.5px;
+  color: var(--mute);
+  line-height: 1.6;
+}
+
+.tip-content ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.tip-content li {
+  margin-bottom: 4px;
+}
+
+.tip-content code {
+  background: var(--panel2);
+  color: var(--text);
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  border: 1px solid var(--line);
+}
