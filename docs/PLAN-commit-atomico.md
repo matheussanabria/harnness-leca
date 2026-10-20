@@ -138,15 +138,61 @@ garante é `npm test` verde nos checkpoints e no topo.
 |---|---|
 | Após bloco 8 | `npm test` sem novas falhas |
 | Após bloco 13 | `npm test` sem novas falhas |
-| Após bloco 21 | `npm run check` verde, `npm test` com 1 falha conhecida, `git status` sem untracked inesperado |
+| Após bloco 21 | `npm run check` verde, `npm test` 638/638, `npm run types` com os 349 erros de baseline, `git status` limpo |
 
 ## 11. Registro de execução
 
-| Bloco | Commit | Status |
-|---|---|---|
-| 0 — preparação | — | concluído |
-| 0.1 — pré-requisito da suíte | `feat(hia): adiciona context engine com aviso de dados acentuado` | concluído |
-| 0.2 — teste do pre-commit | `test(precommit): cobre a checagem de arquivos fora do mapa` | concluído |
-| 1 — higiene | `chore(repo): higiene de índice, configuração e telemetria` | concluído |
-| 2 — importadores e sync | `refactor(tools): separa importadores e sincronização em módulos` | concluído |
-| 3 a 21 | — | pendente |
+Execução concluída em 2026-10-20. Os blocos 5, 6, 9, 10, 12 e 13 foram divididos
+em backend e interface, e os marcos de validação e a correção do id de janela
+ganharam commits próprios: 36 commits sobre `152b06f`.
+
+| Commit | Assunto |
+|---|---|
+| `d6f5057` | `feat(hia): adiciona context engine com aviso de dados acentuado` |
+| `8d0b9cc` | `chore(repo): higiene de índice, configuração e telemetria` |
+| `eecde67` | `test(precommit): cobre a checagem de arquivos fora do mapa` |
+| `a2167c8` | `refactor(tools): separa importadores e sincronização em módulos` |
+| `97f1253` | `feat(engines): integra codex e ollama e padroniza erros dos motores` |
+| `07f7ee8` | `feat(remote): libera acesso remoto com pin, qr code e túnel` |
+| `b82c4e3` | `feat(skills): gerencia skills do projeto pela interface` |
+| `78d36f5` | `docs(skills): adiciona skills de evolução, inteligência e coordenação` |
+| `d2dcb9b` | `feat(groups): classifica conversas e sugere grupos de contexto` |
+| `c69dada` | `feat(context): exporta contexto e sessões para os motores` |
+| `b1e74eb` | `refactor(server): extrai config, router e controllers do servidor` |
+| `575b6b0` | `feat(orchestration): monitora agentes, execuções e serviços locais` |
+| `58bd266` | `feat(design): design system com registry, preview e auditoria de telas` |
+| `fb782ce` | `feat(prototype): ateliê, canvas e camadas do protótipo` |
+| `e934a0a` | `feat(prototype): schema v2, parser semântico e piloto dis` |
+| `6dfc7de` | `feat(scrum): doze raias, migração e transições de histórias` |
+| `545c99b` | `feat(chat): execução com streaming, apresentações e troca de modelo` |
+| `9d8b8ed` | `feat(chat): interface modular com streaming e apresentações` |
+| `957962b` | `feat(window-manager): janelas, foco, docking e layouts salvos` |
+| `565a20f` | `feat(office): escritório 2D e 3D com estações e telões` |
+| `070fb0a` | `feat(projects): seleção centralizada e proteção de alterações` |
+| `f710ac7` | `feat(studio): layouts, origem de código e visualizações` |
+| `1ad2402` | `feat(hia): roteador local, registry de automações e benchmark` |
+| `0e4a722` | `feat(coordination): ledger multiagente com claim, handoff e inbox` |
+| `e63eaa9` | `feat(deploy): painel de deploy com histórico e terminal` |
+| `da83e0d` | `feat(design): interface do design system, camadas e inspetor` |
+| `ba5cca7` | `feat(groups): interface de grupos e classificação de conversas` |
+| `eba9a0b` | `feat(skills): telas de listagem, criação e importação de skills` |
+| `b78705a` | `feat(scrum): quadro de raias e detalhes de história na interface` |
+| `f7c2eca` | `feat(prototype): ateliê, canvas e árvore de camadas na interface` |
+| `5d5e748` | `test(prototype): valida marcos M1 a M3 com fixture` |
+| `32e72ec` | `feat(ui): casca da aplicação, navegação e páginas de apoio` |
+| `e543700` | `docs(harness): dossiês de evolução, domínios e setup` |
+| `d918c4c` | `style(studio): adiciona folha agregadora do estúdio` |
+| `52c5c22` | `fix(window-manager): gera id único por sequência` |
+
+### Verificação final
+- `npm run check`: 549 arquivos `.js` e 16 `.json` sem erro.
+- `npm test`: 638 testes, 638 passando, 0 falhando.
+- `npm run types`: 349 erros, igual ao baseline.
+- `git status`: limpo. Nenhum push ou PR executado.
+
+### Pendências conhecidas
+- O id multi-instância do window manager era flaky (colisão de `Date.now()` com
+  aleatório); corrigido no commit `52c5c22` após a suíte falhar uma vez.
+- `tests/engines.misc.test.js` fixava a mensagem acentuada; a correção veio
+  junto do context engine, antes do primeiro commit temático.
+
