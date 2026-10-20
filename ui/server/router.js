@@ -1,0 +1,286 @@
+// @ts-check
+const { PIN, send, getActiveAppUrl, sendPinLoginPage } = require("./config");
+const netLib = require("../../tools/lib/network");
+const { apiHiaMetrics } = require("./controllers/hia.controller");
+
+const { apiOverview } = require("./controllers/overview.controller");
+const {
+  apiState,
+  apiProject,
+  apiProjectActiveSet,
+  apiProjectGroupsGet,
+  apiProjectGroupsSave,
+  apiProjectChatGroupAssign,
+  apiProjectGroupsSuggest,
+  apiFile,
+  apiProjectJournal,
+} = require("./controllers/project.controller");
+const { apiReviewList, apiReviewApply } = require("./controllers/review.controller");
+const { apiPermissionRequest, apiPermissionAnswer, apiProjectPermissionsGet, apiProjectPermissionsRemove } = require("./controllers/permissions.controller");
+const {
+  apiProjectSkillsGet,
+  apiProjectSkillsTemplates,
+  apiProjectSkillsDetail,
+  apiProjectSkillsSave,
+  apiProjectSkillsInstall,
+  apiProjectSkillsRecognized,
+  apiProjectSkillsImportRecognized,
+  apiProjectSkillsDelete,
+} = require("./controllers/skills.controller");
+const {
+  apiProjectServicesGet,
+  apiProjectServicesStart,
+  apiProjectServicesStop,
+  apiProjectServicesLogs,
+  apiProjectServicesConfig,
+} = require("./controllers/services.controller");
+const { apiEngines, apiDai, apiAppPing, apiChat, apiChatSave } = require("./controllers/chat.controller");
+const { apiChatUpload } = require("./controllers/upload.controller");
+const { apiSync, apiProjectSync } = require("./controllers/sync.controller");
+const { apiRemoteInfo, apiRemotePin } = require("./controllers/remote.controller");
+const { apiProjectInspectResolve, apiProjectInspectFile, apiProjectInspectComponents } = require("./controllers/inspect.controller");
+const {
+  apiProjectSourceFiles,
+  apiProjectSourceFileGet,
+  apiProjectSourceFileSave,
+} = require("./controllers/source-workspace.controller");
+const {
+  apiProjectInspectEditPreview,
+  apiProjectInspectEditApply,
+  apiProjectInspectEditUndo,
+  apiProjectInspectDsClasses,
+} = require("./controllers/inspect-edit.controller");
+const {
+  apiDeployConfigGet,
+  apiDeployConfigSave,
+  apiDeployTrigger,
+  apiDeployHistoryGet,
+  apiDeployHistoryClear,
+} = require("./controllers/deploy.controller");
+const {
+  apiProjectDesignProfileGet,
+  apiProjectDesignProfileDetect,
+  apiProjectDesignProfileSave,
+  apiProjectDesignIndex,
+  apiProjectDesignLayers,
+  apiProjectDesignFile,
+  apiProjectDesignPrototype,
+  apiProjectDesignScreens,
+  apiProjectDesignAudit,
+} = require("./controllers/design.controller");
+const {
+  apiRegistryList,
+  apiRegistryGetComponent,
+  apiRegistryPreviewComponent,
+  apiRegistryExtractPilot,
+} = require("./controllers/design-registry.controller");
+const {
+  apiPrototypesList,
+  apiPrototypesCreate,
+  apiPrototypesImportArtifact,
+  apiPrototypesGet,
+  apiPrototypesRender,
+  apiPrototypesSaveFiles,
+  apiPrototypesVersionsGet,
+  apiPrototypesVersionRestore,
+  apiPrototypesEditPreview,
+  apiPrototypesEditApply,
+  apiPrototypesEditUndo,
+  apiPrototypesEditStructural,
+  apiPrototypesExtractComponent,
+  apiPrototypesExportSingleHtml,
+} = require("./controllers/prototype.controller");
+const {
+  apiProjectScrumGet,
+  apiProjectScrumStorySave,
+  apiProjectScrumStoryStatus,
+  apiProjectScrumStoryAssignSprint,
+  apiProjectScrumStoryDelete,
+  apiProjectScrumEpicSave,
+  apiProjectScrumSprintSave,
+  apiProjectScrumStatusMappingSave,
+  apiProjectScrumLanesSave,
+  apiProjectScrumLanesOrder,
+} = require("./controllers/scrum.controller");
+const { apiProjectScrumStoryTransition } = require("./controllers/scrum-transition.controller");
+const {
+  apiOrchestrationState,
+  apiOrchestrationEvents,
+  apiOrchestrationExecutionDetail,
+  apiOrchestrationCapabilities,
+  apiOrchestrationStream,
+  apiOrchestrationOperation
+} = require("./controllers/orchestration.controller");
+const { serveStatic } = require("./controllers/static.controller");
+const { getActiveAgentsSummary } = require("./services/agent-activity.service");
+
+function apiAgentsActive({ res }) {
+  return send(res, 200, getActiveAgentsSummary());
+}
+
+// method + caminho (texto exato ou RegExp). HEAD usa a rota do GET.
+const ROUTES = [
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/scrum$/, handler: apiProjectScrumGet },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story$/, handler: apiProjectScrumStorySave },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/status$/, handler: apiProjectScrumStoryStatus },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/transition$/, handler: apiProjectScrumStoryTransition },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/assign-sprint$/, handler: apiProjectScrumStoryAssignSprint },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/delete$/, handler: apiProjectScrumStoryDelete },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/epic$/, handler: apiProjectScrumEpicSave },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/sprint$/, handler: apiProjectScrumSprintSave },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/status-mapping$/, handler: apiProjectScrumStatusMappingSave },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/lanes$/, handler: apiProjectScrumLanesSave },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/lanes\/order$/, handler: apiProjectScrumLanesOrder },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/profile$/, handler: apiProjectDesignProfileGet },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/profile\/detect$/, handler: apiProjectDesignProfileDetect },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/profile$/, handler: apiProjectDesignProfileSave },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/index$/, handler: apiProjectDesignIndex },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/screens$/, handler: apiProjectDesignScreens },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/audit$/, handler: apiProjectDesignAudit },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/layers$/, handler: apiProjectDesignLayers },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/file$/, handler: apiProjectDesignFile },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry$/, handler: apiRegistryList },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/registry\/extract-pilot$/, handler: apiRegistryExtractPilot },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry\/([\w.-]+)\/preview$/, handler: apiRegistryPreviewComponent },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry\/([\w.-]+)$/, handler: apiRegistryGetComponent },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes$/, handler: apiPrototypesList },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes$/, handler: apiPrototypesCreate },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/import-artifact\/([\w-]+)$/, handler: apiPrototypesImportArtifact },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)$/, handler: apiPrototypesGet },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/render(?:\/([\w-]+))?$/, handler: apiPrototypesRender },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/files$/, handler: apiPrototypesSaveFiles },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/edit\/preview$/, handler: apiPrototypesEditPreview },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/edit\/apply$/, handler: apiPrototypesEditApply },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/edit\/undo$/, handler: apiPrototypesEditUndo },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/edit\/structural$/, handler: apiPrototypesEditStructural },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/extract-component$/, handler: apiPrototypesExtractComponent },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/export\/single-html$/, handler: apiPrototypesExportSingleHtml },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/versions$/, handler: apiPrototypesVersionsGet },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/versions\/(\d+)\/restore$/, handler: apiPrototypesVersionRestore },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototype(?:\/([\w-]+)(?:\/(.*))?)?$/, handler: apiProjectDesignPrototype },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/inspect\/components$/, handler: apiProjectInspectComponents },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/inspect\/resolve$/, handler: apiProjectInspectResolve },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/inspect\/file$/, handler: apiProjectInspectFile },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/inspect\/edit\/preview$/, handler: apiProjectInspectEditPreview },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/inspect\/edit\/apply$/, handler: apiProjectInspectEditApply },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/inspect\/edit\/undo$/, handler: apiProjectInspectEditUndo },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/inspect\/ds-classes$/, handler: apiProjectInspectDsClasses },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/source$/, handler: apiProjectSourceFiles },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/source\/file$/, handler: apiProjectSourceFileGet },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/source\/file$/, handler: apiProjectSourceFileSave },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/journal$/, handler: apiProjectJournal },
+  { method: "GET", path: "/api/state", handler: apiState },
+  { method: "GET", path: "/api/agents/active", handler: apiAgentsActive },
+  { method: "GET", path: "/api/orchestration/state", handler: apiOrchestrationState },
+  { method: "GET", path: "/api/orchestration/events", handler: apiOrchestrationEvents },
+  { method: "GET", path: /^\/api\/orchestration\/executions\/([\w-]+)$/, handler: apiOrchestrationExecutionDetail },
+  { method: "GET", path: "/api/orchestration/capabilities", handler: apiOrchestrationCapabilities },
+  { method: "GET", path: "/api/orchestration/stream", handler: apiOrchestrationStream },
+  { method: "POST", path: "/api/orchestration/operations", handler: apiOrchestrationOperation },
+  { method: "GET", path: "/api/engines", handler: apiEngines },
+  { method: "GET", path: "/api/overview", handler: apiOverview },
+  { method: "POST", path: "/api/sync", handler: apiSync },
+  { method: "POST", path: "/api/project/active", handler: apiProjectActiveSet },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)$/, handler: apiProject },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/review$/, handler: apiReviewList },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/review$/, handler: apiReviewApply },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/sync$/, handler: apiProjectSync },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/groups$/, handler: apiProjectGroupsGet },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/groups$/, handler: apiProjectGroupsSave },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/groups\/suggest$/, handler: apiProjectGroupsSuggest },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/chat-group$/, handler: apiProjectChatGroupAssign },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/skills$/, handler: apiProjectSkillsGet },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/skills\/templates$/, handler: apiProjectSkillsTemplates },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/skills\/recognized$/, handler: apiProjectSkillsRecognized },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/skills\/detail$/, handler: apiProjectSkillsDetail },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/skills$/, handler: apiProjectSkillsSave },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/skills\/install$/, handler: apiProjectSkillsInstall },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/skills\/import-recognized$/, handler: apiProjectSkillsImportRecognized },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/skills\/delete$/, handler: apiProjectSkillsDelete },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/services$/, handler: apiProjectServicesGet },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/services\/start$/, handler: apiProjectServicesStart },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/services\/stop$/, handler: apiProjectServicesStop },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/services\/logs$/, handler: apiProjectServicesLogs },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/services\/config$/, handler: apiProjectServicesConfig },
+  { method: "GET", path: "/api/file", handler: apiFile },
+  { method: "GET", path: "/api/dai", handler: apiDai },
+  { method: "GET", path: "/api/app/ping", handler: apiAppPing },
+  { method: "GET", path: "/api/remote/info", handler: apiRemoteInfo },
+  { method: "POST", path: "/api/remote/pin", handler: apiRemotePin },
+  { method: "POST", path: "/api/chat", handler: apiChat },
+  { method: "POST", path: "/api/chat/save", handler: apiChatSave },
+  { method: "POST", path: "/api/chat/upload", handler: apiChatUpload },
+  { method: "POST", path: "/api/permissions/request", handler: apiPermissionRequest },
+  { method: "POST", path: "/api/permissions/answer", handler: apiPermissionAnswer },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/permissions$/, handler: apiProjectPermissionsGet },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/permissions\/remove$/, handler: apiProjectPermissionsRemove },
+  { method: "GET", path: "/api/deploy/config", handler: apiDeployConfigGet },
+  { method: "POST", path: "/api/deploy/config", handler: apiDeployConfigSave },
+  { method: "POST", path: "/api/deploy/trigger", handler: apiDeployTrigger },
+  { method: "GET", path: "/api/deploy/history", handler: apiDeployHistoryGet },
+  { method: "POST", path: "/api/deploy/clear-history", handler: apiDeployHistoryClear },
+  { method: "GET", path: "/api/hia/metrics", handler: apiHiaMetrics },
+];
+
+async function handle(req, res) {
+  const url = new URL(req.url, "http://x");
+  const p = decodeURIComponent(url.pathname);
+  if (p.includes("\0")) return send(res, 400, { error: "requisição inválida" });
+
+  // 1. PIN de Acesso Remoto: se não for localhost, valida PIN
+  if (!netLib.validatePin(req, PIN, url)) {
+    if (p.startsWith("/api/")) {
+      return send(res, 401, { error: "PIN de acesso remoto obrigatório", authRequired: true });
+    }
+    return sendPinLoginPage(res);
+  }
+
+  // Se o PIN veio na query param do link/QR code, salva cookie para futuras requisições
+  if (url.searchParams.has("pin") && url.searchParams.get("pin") === PIN) {
+    res.setHeader("Set-Cookie", `harness_pin=${encodeURIComponent(PIN)}; Path=/; SameSite=Lax; Max-Age=2592000`);
+  }
+
+  // 2. Rota de Proxy do App em Desenvolvimento: /preview ou /preview/*
+  if (p === "/preview" || p.startsWith("/preview/")) {
+    const appUrl = getActiveAppUrl();
+    const subpath = p.replace(/^\/preview/, "") || "/";
+    return netLib.proxyAppRequest(req, res, appUrl, subpath + (url.search || ""));
+  }
+
+  const method = req.method === "HEAD" ? "GET" : req.method;
+  let pathKnown = false;
+  for (const route of ROUTES) {
+    const m = typeof route.path === "string" ? (p === route.path ? [p] : null) : p.match(route.path);
+    if (!m) continue;
+    pathKnown = true;
+    if (route.method === method) return /** @type {any} */ (route.handler)({ req, res, url, params: m.slice(1) });
+  }
+
+  // 3. Proxy de assets e submódulos do app dev (Vite, React, Angular, Webpack)
+  const referer = req.headers.referer || "";
+  const isAppReferer =
+    referer.includes("/preview") ||
+    referer.includes("/@vite") ||
+    referer.includes("/@") ||
+    referer.includes("/src/") ||
+    referer.includes("/node_modules/");
+  const isKnownDevPrefix =
+    p.startsWith("/@") ||
+    p.startsWith("/src/") ||
+    p.startsWith("/node_modules/") ||
+    p.startsWith("/assets/");
+  const isDevAssetExt = /\.(tsx?|jsx?|mjs|cjs|vue|svelte|css|scss|less|wasm|svg|png|jpe?g|gif|webp|ico|woff2?|ttf|eot|json|map)($|\?)/i.test(p);
+  const isAppDevAsset = !p.includes("..") && (isKnownDevPrefix || (isAppReferer && isDevAssetExt));
+
+  if (!p.startsWith("/api/") && isAppDevAsset) {
+    const appUrl = getActiveAppUrl();
+    return netLib.proxyAppRequest(req, res, appUrl, p + (url.search || ""));
+  }
+
+  return pathKnown ? send(res, 405, { error: "método não permitido" }) : serveStatic(res, p);
+}
+
+module.exports = {
+  ROUTES,
+  handle,
+};

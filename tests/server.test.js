@@ -57,6 +57,17 @@ test("GET /api/state e /api/project: dados do projeto, projeto ativo ignora mai�
   assert.equal((await missing.json()).error, "projeto não encontrado");
 });
 
+test("POST /api/project/active: canonicaliza e persiste apenas projeto existente", async () => {
+  const selected = await post("/api/project/active", { slug: "DEMO" });
+  assert.equal(selected.status, 200);
+  assert.deepEqual(await selected.json(), { ok: true, active: "demo" });
+  assert.equal(fs.readFileSync(path.join(TMP_ROOT, "projects", ".active"), "utf8"), "demo\n");
+
+  const invalid = await post("/api/project/active", { slug: "inexistente" });
+  assert.equal(invalid.status, 400);
+  assert.equal(fs.readFileSync(path.join(TMP_ROOT, "projects", ".active"), "utf8"), "demo\n");
+});
+
 test("GET /api/file: só arquivos permitidos do projeto, sem sair de projects/", async () => {
   const file = (rel) => get(`/api/file?path=${encodeURIComponent(rel)}`);
   assert.equal((await (await file("demo/memory.md")).json()).content, "- fato\n");
