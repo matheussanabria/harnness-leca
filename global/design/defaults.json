@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "designSystem": {
+    "provider": "none",
+    "prefix": "ds-",
+    "tokensCss": "design/tokens.css",
+    "componentsDir": ""
+  },
+  "framework": {
+    "adapter": "static-html"
+  },
+  "docs": {
+    "layers": {
+      "adapter": "markdown-folders",
+      "featuresGlob": "doc/features/*"
+    }
+  },
+  "stages": {
+    "enabled": [
+      "prototype",
+      "extracted",
+      "design_system",
+      "boilerplate",
+      "implemented",
+      "documented"
+    ]
+  },
+  "agents": {
+    "source": "dai",
+    "map": {
+      "prototype": "ux-ui-designer",
+      "extracted": "ux-ui-designer",
+      "design_system": "frontend-engineer",
+      "boilerplate": "frontend-engineer",
+      "implemented": "documentation-engineer",
+      "documented": "qa-engineer"
+    }
+  },
+  "prototypes": {
+    "viewports": [
+      { "id": "desktop", "label": "Desktop", "width": 1280 },
+      { "id": "tablet", "label": "Tablet", "width": 768 },
+      { "id": "mobile", "label": "Celular", "width": 390 }
+    ]
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "id": "procempa-dis",
+  "name": "Procempa DIS Design System",
+  "designSystem": {
+    "provider": "fs",
+    "prefix": "ds-",
+    "componentsDir": "doc/design-system",
+    "tokensCss": "doc/design-system/ds.css",
+    "mcpServer": "dis-design-system",
+    "allowedRepoDirs": [
+      "doc/design-system",
+      "doc/sistema/features",
+      "doc/prototipo",
+      "tools/dis-design-system-mcp"
+    ],
+    "fallbackPrototypes": [
+      {
+        "id": "dis-design-system",
+        "title": "DIS Design System (Catálogo & Protótipo)",
+        "file": "doc/design-system/DIS Design System.html",
+        "externalUrl": "https://claude.ai/artifact/EDswW8MCMszhR8PUh7EBoW"
+      },
+      {
+        "id": "dis-mapa-camadas",
+        "title": "DIS Mapa em Camadas (Canvas v20)",
+        "file": "doc/sistema/features/Mapa em camadas DIS.html",
+        "externalUrl": "https://claude.ai/artifact/CXX9VysCXf5RJEEXBbKWr7"
+      },
+      {
+        "id": "dis-prototipo-navegavel",
+        "title": "Protótipo DIS — Dispensação",
+        "file": "doc/prototipo/DIS — fluxo do paciente (navegável)-html/Main.dc.html",
+        "externalUrl": "https://claude.ai/artifact/PbThg5cSnUDy4uiEmowENs"
+      }
+    ]
+  },
+  "framework": {
+    "adapter": "angular"
+  },
+  "docs": {
+    "layers": {
+      "adapter": "mapa-camadas-json",
+      "featuresGlob": "doc/sistema/features/*/mapa-camadas.json"
+    }
+  },
+  "stages": {
+    "enabled": [
+      "prototype",
+      "extracted",
+      "design_system",
+      "boilerplate",
+      "implemented",
+      "documented"
+    ],
+    "actions": {
+      "prototype": "Decompor protótipo visual e isolar elementos reutilizáveis como componentes.",
+      "extracted": "Definir interface, props, estados e tokens do componente para o Design System.",
+      "design_system": "Desenvolver esqueleto de código (boilerplate) e empacotar no catálogo do Design System.",
+      "boilerplate": "Integrar o componente na aplicação Angular consumindo via MCP do Design System.",
+      "implemented": "Documentar e mapear a funcionalidade nas 4 camadas (UI/UX, Regras, API, Dados).",
+      "documented": "Componente e feature totalmente integrados e documentados no dossiê."
+    }
+  }
+}
