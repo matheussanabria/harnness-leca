@@ -1,0 +1,19 @@
+/* Controles de reordenação horizontal das raias. */
+.scrum-col-title, .scrum-lane-order-actions { display: flex; align-items: center; gap: 6px; }
+.scrum-col-title { min-width: 0; }
+.scrum-lane-order-actions { justify-content: flex-end; }
+.scrum-lane-drag, .scrum-lane-order-actions button {
+  display: inline-grid; width: 32px; height: 32px; flex: 0 0 32px; place-items: center;
+  border: 1px solid var(--line); border-radius: 5px; background: var(--panel2); color: var(--mute); cursor: pointer;
+}
+.scrum-lane-drag { cursor: grab; }
+.scrum-lane-drag:active { cursor: grabbing; }
+.scrum-lane-order-actions button:disabled { opacity: .35; cursor: not-allowed; }
+.scrum-lane-drag:focus-visible, .scrum-lane-order-actions button:focus-visible {
+  outline: 2px solid #818cf8; outline-offset: 2px; color: var(--text);
+}
+.scrum-kanban-col:has(.scrum-lane-drag:active) { border-color: var(--lane-color); }
+
+@media (pointer: coarse) {
+  .scrum-lane-drag, .scrum-lane-order-actions button { width: 44px; height: 44px; flex-basis: 44px; }
+}

@@ -1,0 +1,15 @@
+/* Movimentacao de historias e trilha de transicoes. */
+.scrum-story-card[draggable="true"] { cursor: grab; }
+.scrum-story-card[draggable="true"]:active { cursor: grabbing; }
+.story-drag-handle { cursor: grab; }
+.btn-step-col:disabled { cursor: not-allowed; opacity: .38; }
+.btn-step-col:focus-visible { outline: 2px solid #818cf8; outline-offset: 2px; }
+.story-transition-history { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.story-transition-history li { display: flex; align-items: flex-start; gap: 8px; padding: 9px 10px; border-radius: 6px; background: var(--panel2); font-size: 12px; }
+.story-transition-history li > i { margin-top: 2px; color: #818cf8; }
+.story-transition-history span { display: grid; gap: 3px; }
+.story-transition-history small { color: var(--mute); }
+
+@media (pointer: coarse) {
+  .story-card-nav-btns .btn-step-col { min-width: 44px; min-height: 44px; }
+}

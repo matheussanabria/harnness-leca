@@ -1,0 +1,87 @@
+/* Detalhes de historia, cartoes enriquecidos e mapeamento de status. */
+.scrum-workspace-layout { position: relative; }
+.scrum-nav-tabs, .scrum-sprint-heading, .scrum-button-group,
+.scrum-sprint-controls, .story-card-identifiers, .story-card-signals {
+  display: flex; align-items: center; gap: 6px;
+}
+.scrum-nav-summary { color: var(--mute); font-size: 12px; }
+.scrum-sprint-view { display: flex; flex: 1; flex-direction: column; gap: 12px; overflow: hidden; }
+.scrum-sprint-banner-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.scrum-sprint-banner h2 { margin: 4px 0 2px; color: var(--text); font-size: 16px; }
+.scrum-sprint-goal { color: var(--mute); font-size: 12.5px; }
+.scrum-sprint-goal span { margin-left: 8px; font-size: 11.5px; }
+.scrum-sprint-controls { gap: 12px; }
+.sprint-stats-box small { color: var(--mute); text-transform: uppercase; }
+.sprint-stats-box b { color: var(--text); font-size: 15px; }
+.sprint-stats-box b span { color: var(--mute); font-size: 11px; font-weight: 400; }
+.sprint-stats-box .scorecard-progress-bar { height: 5px; width: 140px; }
+.sprint-stats-box .scorecard-progress-fill { background: #22c55e; }
+.scrum-empty-column { padding: 24px 0; color: var(--mute); font-size: 11px; text-align: center; }
+
+.scrum-story-card { cursor: pointer; }
+.scrum-story-card:focus-visible { border-color: #818cf8; outline: 2px solid #818cf8; outline-offset: 2px; }
+.story-card-identifiers { min-width: 0; }
+.story-epic-chip { background: color-mix(in srgb, var(--epic-color) 15%, transparent); border-color: color-mix(in srgb, var(--epic-color) 35%, transparent); color: var(--epic-color); }
+.story-card-source-status { color: var(--mute); font-size: 10.5px; }
+.story-card-signals { color: var(--mute); font-size: 10.5px; }
+.story-card-signals .priority-alta, .story-card-signals .priority-critica { color: #f87171; }
+.story-card-signals .priority-media { color: #facc15; }
+.story-card-signals .priority-baixa { color: #94a3b8; }
+
+.scrum-story-drawer {
+  position: absolute; z-index: 30; inset: 0 0 0 auto; width: min(620px, 92vw);
+  background: var(--panel); border-left: 1px solid var(--line); box-shadow: -16px 0 36px rgba(0,0,0,.32);
+  color: var(--text); transform: translateX(0); display: flex; flex-direction: column;
+}
+.scrum-story-drawer[hidden] { display: none; }
+.story-drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.story-source-badge { margin-left: 8px; padding: 2px 7px; border: 1px solid var(--line); border-radius: 999px; color: var(--mute); font-size: 10px; }
+.story-drawer-close { width: 32px; height: 32px; border: 0; border-radius: 6px; background: transparent; color: var(--mute); cursor: pointer; }
+.story-drawer-close:hover, .story-drawer-close:focus-visible { background: var(--panel2); color: var(--text); }
+.story-drawer-scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 18px 22px 30px; }
+.story-drawer-scroll > h2 { margin: 0 0 10px; font-size: 21px; line-height: 1.3; }
+.story-drawer-actions { display: flex; gap: 8px; margin-bottom: 20px; }
+.story-detail-section { padding: 16px 0; border-top: 1px solid var(--line); }
+.story-detail-section h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 13px; }
+.story-detail-section h3 span { padding: 1px 7px; border-radius: 999px; background: var(--panel2); color: var(--mute); font-size: 10px; }
+.story-detail-markdown { color: var(--text); font-size: 12.5px; line-height: 1.55; }
+.story-detail-markdown p { margin: 5px 0; }
+.story-detail-markdown ul { padding-left: 20px; }
+.story-detail-empty, .story-detail-source { color: var(--mute); font-size: 12px; }
+.story-detail-item { padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel2); }
+.story-detail-item + .story-detail-item { margin-top: 8px; }
+.story-detail-item > strong { color: #a5b4fc; font-size: 12px; }
+.story-detail-scenario { padding: 9px 11px; border: 1px solid var(--line); border-radius: 7px; }
+.story-detail-scenario + .story-detail-scenario { margin-top: 7px; }
+.story-detail-scenario summary { cursor: pointer; font-size: 12px; font-weight: 600; }
+.story-detail-metadata { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin: 0; }
+.story-detail-metadata div { padding: 8px 10px; border-radius: 6px; background: var(--panel2); }
+.story-detail-metadata dt { color: var(--mute); font-size: 10px; text-transform: uppercase; }
+.story-detail-metadata dd { margin: 2px 0 0; font-size: 12px; overflow-wrap: anywhere; }
+.story-detail-relations { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.story-detail-relations li { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 8px; }
+.story-detail-relations li > span { color: var(--mute); font-size: 10px; text-align: right; }
+.story-detail-relations button { padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel2); color: var(--text); cursor: pointer; text-align: left; }
+.story-detail-relations button:hover { border-color: #6366f1; }
+
+.story-comment-item { display: flex; flex-direction: column; gap: 6px; }
+.story-comment-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.story-comment-header strong { color: #a5b4fc; font-size: 11.5px; }
+.story-comment-header small { color: var(--mute); font-size: 10.5px; }
+
+.scrum-status-mapping-dialog { width: min(520px, 92vw); }
+.scrum-mapping-help { color: var(--mute); font-size: 12px; }
+.scrum-mapping-list { display: grid; gap: 7px; max-height: 55vh; overflow-y: auto; }
+.scrum-mapping-list label { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; }
+.scrum-mapping-list label span { display: grid; font-size: 12px; }
+.scrum-mapping-list small { color: var(--mute); }
+.scrum-mapping-list select { padding: 5px 7px; border: 1px solid var(--line); border-radius: 5px; background: var(--panel2); color: var(--text); }
+.scrum-mapping-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+@media (max-width: 760px) {
+  .scrum-nav-bar, .scrum-sprint-controls { align-items: stretch; flex-direction: column; }
+  .scrum-nav-tabs { overflow-x: auto; }
+  .scrum-nav-tab { white-space: nowrap; }
+  .scrum-story-drawer { position: fixed; width: 100vw; }
+  .story-detail-metadata { grid-template-columns: 1fr; }
+}
