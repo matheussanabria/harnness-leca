@@ -1,0 +1,146 @@
+skill:
+  contract: 2
+  id: "epic-evolution-architect"
+  name: "Epic Evolution Architect"
+  version: "1.0.0"
+  status: "active"
+  maintainer: "ST12 Team"
+  last_updated: "2026-10-20"
+
+  why:
+    purpose: >
+      Conduzir o diagnóstico de subsistemas de software e estruturar programas
+      de evolução arquitetural modular por épicos e histórias atômicas (metodologia Harness Evolution).
+    problem:
+      - evoluções complexas geram refatorações caóticas e acopladas sem baseline
+      - histórico de arquitetura e decisões (ADRs) dispersos e esquecidos
+      - histórias mal dimensionadas (> 300 linhas, sem critérios de aceite e sem testes)
+    value:
+      - decomposição disciplinada em épicos independentes e histórias autocontidas
+      - integridade arquitetural através de baseline de testes e ADRs
+      - rastreabilidade estrita de progresso e dependências
+
+  what:
+    capabilities:
+      - auditar arquitetura atual e mapear inventário, painéis e contratos
+      - redigir ADRs formais para decisões transversais
+      - criar o índice mestre de implementação (00-index.md) com grafo de dependências
+      - decompor épicos em histórias com contrato estrito (story-template)
+      - estruturar planos de teste (TP) e baseline de regressão
+    responsibilities:
+      - garantir conformidade com o limite máximo de 250-300 linhas por arquivo
+      - proibir criação de monólitos paralelos
+      - manter links relativos e rastreabilidade com o backlog
+
+  io:
+    inputs:
+      - "visão geral do subsistema ou demanda de evolução arquitetural — obrigatório"
+      - "código-fonte atual e mapa de módulos (MAPA.md) — obrigatório"
+      - "regras de arquitetura do repositório (AGENTS.md / CLAUDE.md) — obrigatório"
+    outputs:
+      - "índice mestre do programa (00-index.md)"
+      - "ADRs em 03-decisions/ADR-xxx.md"
+      - "histórias em 02-epics/EP-xx/xx.yy-slug.md"
+      - "plano de testes em 04-test-plans/TP-xx.md"
+
+  when:
+    triggers:
+      - evolução arquitetural por épicos
+      - estruturar programa de evolução
+      - decompor épico em histórias
+      - plano diretor de evolução
+      - criar auditoria de arquitetura
+      - modelar épicos do harness
+    conditions:
+      - repositório com código ou arquitetura existente acessível
+    avoid_when:
+      - entrega de feature individual convencional -> sdlc-pipeline
+      - quebra simples de uma user story única em tarefas técnicas -> technical-breakdown
+      - protocolo operacional de ledger e handoff entre agentes -> multi-agent-coordination
+
+  who:
+    audience:
+      level: "advanced"
+    consumers:
+      - software-architect
+      - tech-lead
+      - software-engineer
+    dependencies:
+      skills:
+        - software-architecture
+        - technical-breakdown
+        - test-planning
+        - clean-architecture
+      tools:
+        - filesystem
+        - git
+
+  where:
+    domain:
+      - architecture
+      - engineering
+      - quality
+    technologies:
+      - Markdown
+      - Mermaid
+      - Node.js
+      - Shell
+    environments:
+      - architecture
+      - planning
+    context_defaults:
+      - "limite de 250 a 300 linhas por arquivo"
+      - "ícones FontAwesome exclusivos, nenhum emoji"
+    project_config:
+      - docs_root
+
+  how:
+    strategy: >
+      Diagnosticar antes de intervir; estabelecer baseline de testes; decompor em épicos
+      com grafos de dependência e histórias atômicas com contrato padrão e critérios de aceite.
+    workflow:
+      - "1. Auditoria atual (inventário, contratos, gaps e baseline de testes)"
+      - "2. Definição de arquitetura-alvo e ADRs transversais"
+      - "3. Criação do índice mestre (00-index.md) e mapeamento de dependências"
+      - "4. Detalhamento de épicos e redação das histórias em formato story-template"
+      - "5. Definição do plano de testes e governança de regressão"
+    rules:
+      - "Toda história deve seguir rigorosamente o story-template (contexto, objetivo, requisitos RF/RNF, passos, testes, aceite, riscos e evidências)"
+      - "Nenhum código novo deve ser implementado antes da especificação da história e validação de dependências"
+      - "Decisões que afetem múltiplos épicos devem virar ADR formal em 03-decisions/"
+    rules_ref:
+      - acceptance-criteria-required
+      - tests-by-default
+      - max-file-size-modularity
+      - evidence-hierarchy
+
+  how_much:
+    scope:
+      default: "comprehensive"
+    complexity:
+      preferred: "high"
+      escalate_when: >
+        Quando os requisitos violarem regras de segurança, dependências externas estiverem bloqueadas
+        ou houver divergência estrutural com o usuário.
+    constraints:
+      max_files_without_confirmation: 10
+      avoid_large_refactors: false
+      prefer_minimal_change: false
+
+  quality:
+    success_criteria:
+      - "Índice mestre com grafo Mermaid de dependências válido"
+      - "Histórias com critérios de aceite objetivos e comandos de teste pré-definidos"
+      - "Conformidade total com o limite modular de 300 linhas"
+    definition_of_done:
+      - "Documentos de épico, histórias e ADRs gerados e validados estruturalmente"
+    validation:
+      - markdown-lint
+    test_cases: "validation/test-cases.md"
+    failure:
+      if_uncertain:
+        - state_assumption
+        - ask_for_missing_context
+      if_out_of_scope:
+        - explain_limitation
+        - suggest_correct_skill

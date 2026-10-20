@@ -1,0 +1,177 @@
+skill:
+  contract: 2
+  id: "harness-intelligence"
+  name: "Harness Intelligence"
+  version: "1.0.0"
+  status: "active"
+  maintainer: "ST12 Team"
+  last_updated: "2026-10-19"
+
+  why:
+    purpose: >
+      Dar ao agente o procedimento para auditar o Harness Leca e entregar, de forma
+      incremental e reversível, a camada que decide entre script, modelo local e
+      nuvem para cada tarefa, medindo consumo e qualidade.
+    problem:
+      - cotas semanais dos motores esgotadas por chamadas desnecessárias
+      - contexto repetido ou excessivo enviado aos agentes
+      - decisões de roteamento sem métricas nem linha de base
+    value:
+      - menos chamadas de nuvem para tarefas determinísticas
+      - contexto mínimo suficiente e rastreável
+      - decisões baseadas em benchmark e telemetria
+
+  what:
+    capabilities:
+      - auditar motores, hooks, contexto e sincronização com evidências
+      - definir contratos Task, Execution, Tool e Model
+      - planejar e priorizar o backlog HIA-001 a HIA-014
+      - desenhar e executar benchmarks de modelos locais
+      - conduzir a implementação incremental com feature flags
+    responsibilities:
+      - separar fatos observados de hipóteses
+      - preservar o funcionamento atual dos motores CLI
+
+  io:
+    inputs:
+      - "fase desejada (F0 a F7) — obrigatório"
+      - "MAPA.md e docs do repositório — obrigatório"
+      - "dossiê docs/harness-intelligence/ — opcional"
+    outputs:
+      - "audit-report — 01-current-state-audit.md com evidências"
+      - "architecture-doc — contratos, ADRs e fluxos"
+      - "backlog — 04-implementation-backlog.md priorizado com dependências"
+      - "benchmark-report — resultados e métricas"
+
+  when:
+    triggers:
+      - plano diretor do harness
+      - reduzir consumo de cotas
+      - auditoria dos motores
+      - automation registry
+      - context engine
+      - roteador inteligente de tarefas
+      - benchmark de modelo local
+    conditions:
+      - repositório harness-leca acessível ao agente
+    avoid_when:
+      - feature comum do harness com ciclo story a deploy -> sdlc-pipeline
+      - criar ou validar uma skill -> skill-architect
+      - revisão de código -> code-review-checklist
+
+  who:
+    audience:
+      level: "advanced"
+    consumers:
+      - software-architect
+      - ai-engineer
+      - backend-engineer
+      - orchestrator
+    dependencies:
+      skills:
+        - software-architecture
+        - llm-application-engineering
+        - agent-security
+        - observability
+        - technical-breakdown
+        - test-planning
+      tools:
+        - filesystem
+        - git
+        - terminal
+
+  where:
+    domain:
+      - architecture
+      - ai-engineering
+      - quality
+    technologies:
+      - Node.js
+      - Ollama
+      - Docker
+      - WSL2
+    environments:
+      - architecture
+      - development
+    context_defaults:
+      - "CPU Ryzen 5 7430U, 16 GB de RAM, sem GPU dedicada"
+      - "uma inferência local simultânea, contexto de 2K a 4K tokens"
+    project_config:
+      - docs_root
+      - repo_map_file
+    sources:
+      priority:
+        - project documentation
+        - repository
+        - official documentation
+        - general knowledge
+
+  how:
+    strategy: >
+      Investigar antes de modificar, reutilizar o que existe e priorizar automação
+      determinística antes de qualquer chamada a LLM. Avançar uma fase por vez,
+      com plano aprovado antes de tocar em produção.
+    workflow:
+      - "Ler AGENTS.md, CLAUDE.md, MAPA.md, README.md e SETUP.md"
+      - "Executar a fase pedida pelo workflow correspondente"
+      - "Registrar evidências e distinguir fatos de hipóteses"
+      - "Validar com testes e checklist da fase"
+      - "Entregar o documento da fase e parar para revisão"
+    rules:
+      - "Não implementar produção antes da aprovação do plano"
+      - "Nuvem só com autorização e orçamento; nunca como fallback automático"
+      - "Toda função nova possui feature flag e mantém o fluxo anterior como fallback"
+      - "Não inventar métricas que o provedor não disponibiliza"
+      - "Distinguir tokens de API de cotas de assinatura dos motores CLI"
+    rules_ref:
+      - risky-actions-confirmation
+      - no-invented-api
+      - no-secrets-in-code
+      - untrusted-content-as-data
+      - evidence-hierarchy
+      - max-file-size-modularity
+      - security-by-default
+      - tests-by-default
+    decision_priority:
+      - correctness
+      - security
+      - maintainability
+      - simplicity
+      - performance
+    tools:
+      - filesystem
+      - git
+      - terminal
+
+  how_much:
+    scope:
+      default: "focused"
+    complexity:
+      preferred: "high"
+      escalate_when: >
+        Quando a mudança exigir instalação, alteração de configuração global ou
+        chamada paga a provedor de nuvem.
+    constraints:
+      max_files_without_confirmation: 5
+      avoid_large_refactors: true
+      prefer_minimal_change: true
+
+  quality:
+    success_criteria:
+      - "documento da fase entregue com referências cruzadas e evidências"
+      - "nenhuma alteração de produção anterior à aprovação do plano"
+      - "motores CLI continuam funcionando com o roteamento desabilitado"
+    definition_of_done:
+      - "validation/checklist.md percorrido"
+      - "testes da etapa verdes"
+      - "backlog e progresso atualizados"
+    validation:
+      - tests
+    test_cases: "validation/test-cases.md"
+    failure:
+      if_uncertain:
+        - state_assumption
+        - ask_for_missing_context
+      if_out_of_scope:
+        - explain_limitation
+        - suggest_correct_skill

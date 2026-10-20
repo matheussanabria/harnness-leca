@@ -1,0 +1,4 @@
+interface:
+  display_name: "Preparar conversa"
+  short_description: "Organiza o contexto de uma conversa antes da sincronização."
+  default_prompt: "Prepare este chat para ser sincronizado com a arquitetura da interface."

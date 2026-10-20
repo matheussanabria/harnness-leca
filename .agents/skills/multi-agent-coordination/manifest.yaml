@@ -1,0 +1,149 @@
+skill:
+  contract: 2
+  id: "multi-agent-coordination"
+  name: "Multi-Agent Coordination"
+  version: "1.0.0"
+  status: "active"
+  maintainer: "ST12 Team"
+  last_updated: "2026-10-20"
+
+  why:
+    purpose: >
+      Operar e auditar o protocolo de coordenação concorrente entre múltiplos agentes
+      de IA e desenvolvedores, garantindo ownership exclusivo de arquivos, transições de estado via ledger
+      canônico, handoffs disciplinados e prevenção de conflitos de merge.
+    problem:
+      - agentes sobrepondo edições nos mesmos arquivos gerando corrupção ou perda de código
+      - falta de rastreio de quem é o responsável atual por uma entrega
+      - arquivos inflados ("god files") recebendo edições concorrentes desordenadas
+      - agentes trabalhando sem registrar evidência de testes e validação
+    value:
+      - prevenção absoluta de conflitos concorrentes via ownership de trilha
+      - rastreabilidade em tempo real com ledger canônico (state.json)
+      - transferências de contexto limpas entre provedores (Gemini, Codex, Claude, OpenCode)
+
+  what:
+    capabilities:
+      - gerenciar ciclo de posse no ledger (claim, start, heartbeat, complete)
+      - orquestrar transferências de contexto formais (handoff, notify)
+      - fiscalizar a matriz de ownership exclusivo de arquivos por provedor/trilha
+      - aplicar regras de congelamento e decomposição de arquivos (anti-monólito)
+      - validar requisitos de gate (evidência de testes e contratos)
+    responsibilities:
+      - nunca permitir que um provedor edite arquivos de outra trilha sem handoff prévio
+      - exigir comando de teste e evidência concreta para fechamento (complete)
+      - manter atualizadas as projeções derivadas (STATUS.md, inbox/*.md, multi-agent-sync.md)
+
+  io:
+    inputs:
+      - "comando de coordenação ou ID da história — obrigatório"
+      - "provedor de execução (gemini, codex, claude, opencode) — obrigatório"
+      - "matriz de ownership de arquivos — obrigatório"
+    outputs:
+      - "registro de eventos em state.json (ledger canônico)"
+      - "projeções atualizadas (STATUS.md, context/coordination.md, inboxes)"
+      - "evidência de conclusão anexada à história"
+
+  when:
+    triggers:
+      - coordenar agentes
+      - claim de história
+      - handoff entre agentes
+      - posse de arquivos multiagente
+      - multi-agent sync
+      - ledger de coordenação
+      - passar tarefa para codex
+      - passar tarefa para gemini
+    conditions:
+      - repositório com ferramenta de coordenação (ex: tools/coordination.js) ou ledger equivalente
+    avoid_when:
+      - criação ou arquitetura do plano de épicos -> epic-evolution-architect
+      - entrega de feature individual por um único agente -> sdlc-pipeline
+      - orquestração de rotas funcionais do usuário -> sdlc-orchestrator
+
+  who:
+    audience:
+      level: "advanced"
+    consumers:
+      - software-engineer
+      - devops-engineer
+      - technical-lead
+    dependencies:
+      skills:
+        - code-review-checklist
+        - feature-implementation
+      tools:
+        - filesystem
+        - terminal
+        - git
+
+  where:
+    domain:
+      - operations
+      - engineering
+      - quality
+    technologies:
+      - Node.js
+      - PowerShell
+      - Bash
+      - Git
+    environments:
+      - development
+      - coordination
+    context_defaults:
+      - "worktree compartilhado pode estar sujo; alterações desconhecidas devem ser preservadas"
+      - "IDs canônicos: claude, codex, gemini, opencode"
+    project_config:
+      - coordination_tool
+
+  how:
+    strategy: >
+      Controle estrito de estado por eventos auditáveis em ledger canônico; isolamento
+      de trilhas por propriedade exclusiva de arquivos; handoffs explícitos sem suposições mútuas.
+    workflow:
+      - "1. Consultar inbox do provedor e verificar tarefas pendentes"
+      - "2. Registrar claim e start antes de abrir ou editar arquivos"
+      - "3. Validar se os arquivos pertencem à sua trilha exclusiva de ownership"
+      - "4. Decompor arquivos congelados antes de acrescentar novas regras"
+      - "5. Executar suíte de testes direcionada da fatia"
+      - "6. Concluir via complete com comando e evidência, ou transferir via handoff"
+    rules:
+      - "Nunca editar arquivos de outra trilha sem handoff prévio"
+      - "Proibido adicionar novas responsabilidades no final de arquivos em lista de decomposição"
+      - "O consumidor do contrato não altera a implementação do produtor; solicita ajustes via handoff"
+      - "Todo fechamento exige evidência real verificável"
+    rules_ref:
+      - evidence-hierarchy
+      - max-file-size-modularity
+      - security-by-default
+
+  how_much:
+    scope:
+      default: "focused"
+    complexity:
+      preferred: "medium"
+      escalate_when: >
+        Quando houver conflito de concorrência não resolvido ou alterações não comitadas no worktree
+        que impeçam a troca de contexto.
+    constraints:
+      max_files_without_confirmation: 5
+      avoid_large_refactors: true
+      prefer_minimal_change: true
+
+  quality:
+    success_criteria:
+      - "Nenhum conflito de merge entre trilhas de agentes"
+      - "Histórico do ledger 100% íntegro e sincronizado com os documentos de progresso"
+      - "Todas as histórias concluídas possuem evidências rastreáveis e verificadas"
+    definition_of_done:
+      - "Transição de estado registrada no ledger e confirmada nas projeções"
+    validation:
+      - ledger-integrity-check
+    test_cases: "validation/test-cases.md"
+    failure:
+      if_uncertain:
+        - state_assumption
+        - ask_for_missing_context
+      if_out_of_scope:
+        - explain_limitation
+        - suggest_correct_skill
