@@ -59,7 +59,7 @@ test("status dos motores: opencode offline e sem chave do Gemini, e depois com o
 
 test("registro de motores: todo motor tem a mesma interface e uma entrada no catálogo", () => {
   const catalog = require("../tools/lib/engines/catalog.json");
-  assert.deepEqual([...E.engines.keys()], ["claude", "opencode", "gemini"]);
+  assert.deepEqual([...E.engines.keys()], ["claude", "opencode", "gemini", "codex", "ollama"]);
   for (const [id, engine] of E.engines) {
     assert.equal(engine.id, id);
     assert.equal(typeof engine.stream, "function", `${id}.stream`);

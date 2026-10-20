@@ -88,8 +88,20 @@ export interface Io { log(line: string): void }
 
 // ---- motores de chat (tools/lib/engines) ----
 
+/** Erro já traduzido para a interface (tools/lib/engines/errors.js); `error` é a mensagem. */
+export interface ErrorEvent {
+  type: "error";
+  error: string;
+  code: string;
+  title: string;
+  hint?: string;
+  detail?: string;
+  retryable: boolean;
+  sessionId?: string | null;
+}
+
 export interface EngineSink {
-  onChunk(data: { type: "text" | "thinking"; text: string; sessionId?: string | null }): void;
+  onChunk(data: { type: "text" | "thinking"; text: string; sessionId?: string | null } | ErrorEvent): void;
   onDone(data: { sessionId?: string | null; fullText?: string; thinking?: string }): void;
   onError(err: Error): void;
 }
@@ -102,6 +114,9 @@ export interface EngineRequest extends EngineSink {
   model?: string;
   effort?: string;
   daiAgent?: string;
+  /** conversa no servidor da interface e onde ele atende (pedidos de permissão do motor) */
+  chatId?: string;
+  permissionUrl?: string;
   signal?: AbortSignal;
 }
 

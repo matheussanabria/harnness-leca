@@ -8,7 +8,7 @@
 //   origem: "..."            (JSON)
 //   inicio: <ISO>
 //   fim: <ISO>
-//   agente: "claude|gemini|opencode"
+//   agente: "claude|gemini|opencode|codex|ollama"
 //   ---
 //
 //   # <título>
@@ -22,7 +22,7 @@ const { safe } = require("./text");
 
 // ---------- falantes ----------
 
-const SPEAKERS = ["Você", "Claude", "Gemini", "Antigravity", "opencode"];
+const SPEAKERS = ["Você", "Claude", "Gemini", "Antigravity", "opencode", "Codex", "Ollama"];
 
 // Novo RegExp a cada chamada: regex global tem estado (lastIndex) e não pode ser compartilhada.
 const turnHeading = (flags = "im") => new RegExp(`^## (${SPEAKERS.join("|")})\\s*$`, flags);

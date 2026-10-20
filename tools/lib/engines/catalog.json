@@ -126,6 +126,27 @@
       }
     ]
   },
+  "codex": {
+    "name": "Codex",
+    "icon": "<> ",
+    "color": "#10a37f",
+    "description": "Executa o Codex CLI local e retoma suas sessões nativas",
+    "auth": "ChatGPT conectado no Codex CLI",
+    "defaultModel": "gpt-5.6-terra",
+    "defaultEffort": "medium",
+    "effortLevels": [
+      { "id": "low", "label": "Low" },
+      { "id": "medium", "label": "Medium" },
+      { "id": "high", "label": "High" },
+      { "id": "xhigh", "label": "Extra High" },
+      { "id": "max", "label": "Max" }
+    ],
+    "models": [
+      { "id": "gpt-5.6-terra", "name": "GPT-5.6 Terra", "desc": "Modelo equilibrado para trabalho geral" },
+      { "id": "gpt-5.6-luna", "name": "GPT-5.6 Luna", "desc": "Modelo rápido e versátil" },
+      { "id": "gpt-5.6-sol", "name": "GPT-5.6 Sol", "desc": "Modelo de maior intensidade" }
+    ]
+  },
   "gemini": {
     "name": "Gemini / Antigravity",
     "icon": "✦",
@@ -174,6 +195,37 @@
         "id": "gemini-pro-latest",
         "name": "Gemini Pro Latest",
         "desc": "Versão Pro mais recente do AI Studio"
+      }
+    ]
+  },
+  "ollama": {
+    "name": "Ollama Local",
+    "icon": "LOC",
+    "color": "#e06c75",
+    "description": "Inferência 100% local e offline em CPU sem consumo de cotas de IA",
+    "auth": "Daemon local (http://localhost:11434)",
+    "defaultModel": "qwen2.5-coder:1.5b",
+    "defaultEffort": "medium",
+    "effortLevels": [
+      { "id": "low", "label": "Low" },
+      { "id": "medium", "label": "Medium" },
+      { "id": "high", "label": "High" }
+    ],
+    "models": [
+      {
+        "id": "qwen2.5-coder:1.5b",
+        "name": "Qwen 2.5 Coder 1.5B (Ultra-leve)",
+        "desc": "Uso mínimo de RAM (~1 GB), ideal para CPU"
+      },
+      {
+        "id": "qwen2.5-coder:3b",
+        "name": "Qwen 2.5 Coder 3B",
+        "desc": "Equilíbrio entre lógica e consumo (~2.2 GB)"
+      },
+      {
+        "id": "deepseek-r1:1.5b",
+        "name": "DeepSeek R1 1.5B",
+        "desc": "Raciocínio analítico local leve"
       }
     ]
   }

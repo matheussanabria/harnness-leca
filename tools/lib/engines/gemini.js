@@ -64,19 +64,7 @@ async function streamGemini({ prompt, slug, sessionId, history, model, effort, d
       signal, // cliente saiu: cancela a requisição e a leitura do stream
     });
 
-    if (!res.ok && (res.status === 503 || res.status === 429) && targetModel !== "gemini-3-flash-preview") {
-      // Fallback gracioso: se o modelo selecionado estiver sobrecarregado (503) ou for Pro sem cota (429), tenta gemini-3-flash-preview
-      const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:streamGenerateContent?alt=sse`;
-      const fallbackRes = await fetch(fallbackUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-        body: JSON.stringify(body),
-        signal,
-      });
-      if (fallbackRes.ok) {
-        res = fallbackRes;
-      }
-    }
+
 
     if (!res.ok) {
       const errText = (await res.text()).split(key).join("[REDIGIDO]");

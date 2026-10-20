@@ -5,21 +5,12 @@ const cp = require("child_process");
 const { ROOT } = require("../root");
 const { resolveClaudeBin } = require("../claude-bin");
 const { loadProjectConfig } = require("../project-mcp");
+const { killTree } = require("../proc-manager-core");
 const { PublicError, safeModel, safeEffort, getProjectContext } = require("./common");
-
-// Encerra o processo e tudo que ele abriu (MCPs, comandos). No Windows, child.kill() mataria só o claude.exe.
-function killTree(child) {
-  if (!child.pid || child.exitCode !== null) return;
-  if (process.platform === "win32") {
-    const taskkill = path.join(process.env.SystemRoot || "C:\\Windows", "System32", "taskkill.exe");
-    cp.execFile(taskkill, ["/pid", String(child.pid), "/T", "/F"], { windowsHide: true }, () => {});
-  } else {
-    child.kill("SIGTERM");
-  }
-}
+const { describeError, errorEvent } = require("./errors");
 
 /** @param {import("../types").EngineRequest} req */
-function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, signal, onChunk, onDone, onError }) {
+function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, chatId, permissionUrl, signal, onChunk, onDone, onError }) {
   const projDir = path.join(ROOT, "projects", slug);
   const args = ["-p", "-", "--output-format", "stream-json", "--verbose"];
   const isClaudeUuid = sessionId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId);
@@ -33,7 +24,7 @@ function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, signal
   args.push("--effort", safeEffort(effort));
   let cwd;
   try {
-    const session = claudeSession(projDir);
+    const session = claudeSession(projDir, chatId && permissionUrl ? { chatId, url: permissionUrl } : undefined);
     cwd = session.cwd;
     args.push(...session.args);
   } catch (err) {
@@ -55,6 +46,8 @@ function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, signal
     windowsHide: true,
     cwd,
     stdio: ["pipe", "pipe", "pipe"],
+    // O pedido de permissão pode esperar a pessoa responder na interface: o Claude não pode desistir da ferramenta antes disso.
+    env: chatId && permissionUrl ? { ...process.env, MCP_TOOL_TIMEOUT: String(PERMISSION_WAIT_MS) } : process.env,
   });
   if (signal) {
     if (signal.aborted) killTree(child);
@@ -79,36 +72,64 @@ function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, signal
 
   child.on("close", (code) => {
     if (buffer) parser.line(buffer);
-    if (code !== 0 && !parser.text) {
+    if (code !== 0 && !parser.text && !parser.errored) {
       return onError(new Error(errBuf.trim() || `Claude Code finalizou com código ${code}`));
     }
+    // Saiu com erro depois de responder em parte: a resposta fica e o motivo aparece junto, em vez de sumir.
+    if (code !== 0 && !parser.errored && errBuf.trim()) onChunk(errorEvent(describeError(errBuf.trim(), { engine: "claude" })));
     onDone({ sessionId: parser.sessionId, fullText: parser.text });
   });
 
   child.on("error", onError);
 }
 
+// Ferramenta MCP que leva os pedidos de permissão à interface (tools/permission-mcp.js, tools/lib/permissions.js).
+const PERM_SERVER = "harness_perm";
+const PERM_TOOL = `mcp__${PERM_SERVER}__approve`;
+const PERMISSION_WAIT_MS = require("../permissions").TIMEOUT_MS + 60_000;
+
 const READ_TOOLS = ["Read", "Glob", "Grep"];
 const EDIT_TOOLS = ["Edit", "Write", "NotebookEdit"];
 const COMMAND_TOOLS = ["Bash", "PowerShell"];
 
+const DESTRUCTIVE_GUARD_PROMPT =
+  "DIRETRIZ DE SEGURANÇA MANDATÓRIA (AÇÕES DESTRUTIVAS):\n" +
+  "Você possui acesso total para inspecionar, navegar, editar arquivos e executar comandos no sistema conforme a necessidade do usuário.\n" +
+  "Contudo, para QUALQUER ação potencialmente destrutiva — especialmente remover, deletar ou purgar arquivos ou diretórios (ex.: rm, del, rmdir, Remove-Item, git clean, drop/truncate de tabelas ou bancos) —, é terminantemente PROIBIDO executar diretamente.\n" +
+  "Você DEVE OBRIGATORIAMENTE parar, listar com precisão os arquivos/diretórios afetados, explicar o motivo e solicitar permissão explícita ao usuário no chat. Aguarde a confirmação explícita na próxima mensagem antes de executar a exclusão.";
+
 // Onde e com que permissões o Claude roda no chat da interface (ver tools/lib/project-mcp.js).
 // - Pasta de trabalho: o repo do projeto (com projects/<slug> junto, para chats e contexto) ou só projects/<slug>.
-// - --restricted: ferramentas de arquivo presas às pastas de trabalho, settings do usuário e do repo ignorados,
-//   bypassPermissions recusado, e escrita em configs/git/ferramentas nunca aprovada sozinha.
+// - Acesso total (padrão): sem --restricted, permitindo inspecionar/editar qualquer pasta e executar comandos.
+// - Confinamento restrito: ativado apenas se projects/<slug>/mcp.json tiver restrito: true ou modo: "restrito".
 // - Modo "completo" (padrão): edita (acceptEdits) e roda comandos. Modo "leitura": só Read/Glob/Grep.
 // - --strict-mcp-config: só os MCPs declarados no mcp.json do projeto; os do usuário e de outros ficam de fora.
-function claudeSession(projDir) {
+// - perm = { chatId, url }: o que o Claude não puder fazer sozinho vira um cartão na interface (--permission-prompt-tool),
+//   em vez de ser negado. Sem perm (testes, scripts) vale o comportamento antigo.
+function claudeSession(projDir, perm) {
   const cfg = loadProjectConfig(projDir);
   const full = cfg.modo === "completo";
   const tools = [...READ_TOOLS, ...(full ? [...EDIT_TOOLS, ...COMMAND_TOOLS] : [])];
-  const args = ["--restricted", "--tools", tools.join(","), "--strict-mcp-config"];
+  const args = ["--tools", tools.join(","), "--strict-mcp-config"];
+  if (cfg.restrito) args.unshift("--restricted");
   if (cfg.repo) args.push("--add-dir", projDir);
   if (full) args.push("--permission-mode", "acceptEdits");
+  args.push("--append-system-prompt", DESTRUCTIVE_GUARD_PROMPT);
 
-  // No -p ninguém responde a pedidos de permissão: o que não estiver liberado aqui é negado.
+  // No -p ninguém responde a pedidos de permissão: o que não estiver liberado aqui é negado, a menos que `perm`
+  // ligue a interface como quem responde.
+  const mcpServers = { ...cfg.mcpServers };
   const allowed = [...(full ? COMMAND_TOOLS : []), ...cfg.names.map((n) => `mcp__${n}`)];
-  if (cfg.names.length) args.push("--mcp-config", JSON.stringify({ mcpServers: cfg.mcpServers }));
+  if (perm) {
+    mcpServers[PERM_SERVER] = {
+      command: process.execPath,
+      args: [path.join(__dirname, "..", "..", "permission-mcp.js")],
+      env: { HARNESS_PERM_URL: perm.url, HARNESS_PERM_CHAT: perm.chatId },
+    };
+    args.push("--permission-prompt-tool", PERM_TOOL);
+    allowed.push(PERM_TOOL);
+  }
+  if (Object.keys(mcpServers).length) args.push("--mcp-config", JSON.stringify({ mcpServers }));
   if (allowed.length) args.push("--allowedTools", allowed.join(","));
   return { cwd: cfg.repo || projDir, args };
 }
@@ -120,6 +141,7 @@ function createClaudeStreamParser(onChunk, initialSessionId) {
   let sessionId = initialSessionId || null;
   let text = "";
   let events = 0;
+  let errored = false; // já mandamos um erro tratado ao navegador (evita repetir o do código de saída)
   const seen = new Map();
   const deltaOf = (key, full) => {
     const before = seen.get(key);
@@ -152,13 +174,20 @@ function createClaudeStreamParser(onChunk, initialSessionId) {
       });
     }
 
-    if (d.type === "result" && d.result && !text) {
-      text = d.result;
-      onChunk({ type: "text", text: d.result, sessionId });
+    if (d.type === "result") {
+      if (d.is_error) {
+        // Limite de uso, chave recusada, passos demais...: o texto do result é a mensagem do erro, não uma resposta.
+        const raw = typeof d.result === "string" && d.result ? d.result : String(d.subtype || "erro desconhecido");
+        errored = true;
+        onChunk({ ...errorEvent(describeError(raw, { engine: "claude", status: Number(d.api_error_status) || undefined })), sessionId });
+      } else if (d.result && !text) {
+        text = d.result;
+        onChunk({ type: "text", text: d.result, sessionId });
+      }
     }
   }
 
-  return { line, get text() { return text; }, get sessionId() { return sessionId; } };
+  return { line, get text() { return text; }, get sessionId() { return sessionId; }, get errored() { return errored; } };
 }
 
 // `claude -v` assíncrono e guardado por um minuto: a versão síncrona travava o servidor inteiro a cada consulta.

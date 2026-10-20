@@ -10,12 +10,15 @@ const { loadEnv } = require("../env");
 const { saveChatToProject } = require("../chat-save");
 const catalog = require("./catalog.json");
 const common = require("./common");
+const errors = require("./errors");
 const claude = require("./claude");
 const opencode = require("./opencode");
 const gemini = require("./gemini");
+const codex = require("./codex");
+const ollama = require("./ollama");
 
 /** @type {Map<string, import("../types").Engine>} */
-const engines = new Map([claude, opencode, gemini].map((e) => [e.id, e]));
+const engines = new Map([claude, opencode, gemini, codex, ollama].map((e) => [e.id, e]));
 
 // Chaves do catálogo que começam com "_" são de uso interno dos motores e não vão para a interface.
 const publicPart = (entry) => Object.fromEntries(Object.entries(entry).filter(([k]) => !k.startsWith("_")));
@@ -36,6 +39,8 @@ module.exports = {
   streamOpenCode: opencode.stream,
   streamGemini: gemini.stream,
   PublicError: common.PublicError,
+  describeError: errors.describeError,
+  errorEvent: errors.errorEvent,
   safeModel: common.safeModel,
   safeEffort: common.safeEffort,
   getProjectContext: common.getProjectContext,

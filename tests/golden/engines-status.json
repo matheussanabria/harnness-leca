@@ -5,9 +5,8 @@
       "name": "Claude Code",
       "icon": "✱",
       "color": "#d97757",
-      "available": true,
-      "auth": "Plano Claude Pro / Max (CLI local)",
       "description": "Executa nativamente o Claude Code CLI com streaming no terminal sem custo de API",
+      "auth": "Plano Claude Pro / Max (CLI local)",
       "defaultModel": "sonnet",
       "defaultEffort": "medium",
       "effortLevels": [
@@ -63,16 +62,14 @@
           "name": "Sonnet 5",
           "desc": "Eficiente para tarefas de rotina"
         }
-      ]
+      ],
+      "available": true
     },
     "opencode": {
       "id": "opencode",
       "name": "OpenCode",
       "icon": "◆",
       "color": "#7de2a3",
-      "available": false,
-      "url": "http://localhost:63186",
-      "auth": "Servidor local (Porta 63186)",
       "description": "Conecta na porta HTTP local do OpenCode já em execução com multi-modelos",
       "defaultModel": "qwen3.6-plus-free",
       "defaultEffort": "medium",
@@ -131,17 +128,18 @@
           "name": "Nemotron 3.5 Lightning",
           "desc": "Respostas concisas e diretas"
         }
-      ]
+      ],
+      "available": false,
+      "url": "http://localhost:63186",
+      "auth": "Servidor local (Porta 63186)"
     },
     "gemini": {
       "id": "gemini",
       "name": "Gemini / Antigravity",
       "icon": "✦",
       "color": "#7ca5f5",
-      "available": true,
-      "hasKey": false,
-      "auth": "Bridge Local / AI Studio Free",
       "description": "Responde via Google AI Studio gratuito ou grava na fila local do Antigravity",
+      "auth": "Bridge Local / AI Studio Free",
       "defaultModel": "gemini-3.8-flash",
       "defaultEffort": "medium",
       "effortLevels": [
@@ -184,7 +182,102 @@
           "name": "Gemini Pro Latest",
           "desc": "Versão Pro mais recente do AI Studio"
         }
-      ]
+      ],
+      "available": true,
+      "hasKey": false
+    },
+    "codex": {
+      "id": "codex",
+      "name": "Codex",
+      "icon": "<> ",
+      "color": "#10a37f",
+      "description": "Executa o Codex CLI local e retoma suas sessões nativas",
+      "auth": "ChatGPT conectado no Codex CLI",
+      "defaultModel": "gpt-5.6-terra",
+      "defaultEffort": "medium",
+      "effortLevels": [
+        {
+          "id": "low",
+          "label": "Low"
+        },
+        {
+          "id": "medium",
+          "label": "Medium"
+        },
+        {
+          "id": "high",
+          "label": "High"
+        },
+        {
+          "id": "xhigh",
+          "label": "Extra High"
+        },
+        {
+          "id": "max",
+          "label": "Max"
+        }
+      ],
+      "models": [
+        {
+          "id": "gpt-5.6-sol",
+          "name": "GPT-5.6-Sol",
+          "desc": "Older generation workhorse model."
+        },
+        {
+          "id": "gpt-5.6-terra",
+          "name": "GPT-5.6-Terra",
+          "desc": "Older balanced model for straightforward work."
+        },
+        {
+          "id": "gpt-5.6-luna",
+          "name": "GPT-5.6-Luna",
+          "desc": "Older fast and efficient model."
+        }
+      ],
+      "available": true
+    },
+    "ollama": {
+      "id": "ollama",
+      "name": "Ollama Local",
+      "icon": "LOC",
+      "color": "#e06c75",
+      "description": "Inferência 100% local e offline em CPU sem consumo de cotas de IA",
+      "auth": "Ollama desligado (execute 'ollama serve')",
+      "defaultModel": "qwen2.5-coder:1.5b",
+      "defaultEffort": "medium",
+      "effortLevels": [
+        {
+          "id": "low",
+          "label": "Low"
+        },
+        {
+          "id": "medium",
+          "label": "Medium"
+        },
+        {
+          "id": "high",
+          "label": "High"
+        }
+      ],
+      "models": [
+        {
+          "id": "qwen2.5-coder:1.5b",
+          "name": "Qwen 2.5 Coder 1.5B (Ultra-leve)",
+          "desc": "Uso mínimo de RAM (~1 GB), ideal para CPU"
+        },
+        {
+          "id": "qwen2.5-coder:3b",
+          "name": "Qwen 2.5 Coder 3B",
+          "desc": "Equilíbrio entre lógica e consumo (~2.2 GB)"
+        },
+        {
+          "id": "deepseek-r1:1.5b",
+          "name": "DeepSeek R1 1.5B",
+          "desc": "Raciocínio analítico local leve"
+        }
+      ],
+      "available": false,
+      "url": "http://localhost:11434"
     }
   },
   "online": {
@@ -193,9 +286,8 @@
       "name": "Claude Code",
       "icon": "✱",
       "color": "#d97757",
-      "available": true,
-      "auth": "Plano Claude Pro / Max (CLI local)",
       "description": "Executa nativamente o Claude Code CLI com streaming no terminal sem custo de API",
+      "auth": "Plano Claude Pro / Max (CLI local)",
       "defaultModel": "sonnet",
       "defaultEffort": "medium",
       "effortLevels": [
@@ -251,16 +343,14 @@
           "name": "Sonnet 5",
           "desc": "Eficiente para tarefas de rotina"
         }
-      ]
+      ],
+      "available": true
     },
     "opencode": {
       "id": "opencode",
       "name": "OpenCode",
       "icon": "◆",
       "color": "#7de2a3",
-      "available": true,
-      "url": "http://localhost:63186",
-      "auth": "Servidor local (Porta 63186)",
       "description": "Conecta na porta HTTP local do OpenCode já em execução com multi-modelos",
       "defaultModel": "glm-5-free",
       "defaultEffort": "medium",
@@ -299,17 +389,18 @@
           "name": "Zeta",
           "desc": "Modelo Gratuito"
         }
-      ]
+      ],
+      "available": true,
+      "url": "http://localhost:63186",
+      "auth": "Servidor local (Porta 63186)"
     },
     "gemini": {
       "id": "gemini",
       "name": "Gemini / Antigravity",
       "icon": "✦",
       "color": "#7ca5f5",
-      "available": true,
-      "hasKey": true,
-      "auth": "Google AI Studio (Gemini 3.8 / Flash)",
       "description": "Responde via Google AI Studio gratuito ou grava na fila local do Antigravity",
+      "auth": "Google AI Studio (Gemini 3.8 / Flash)",
       "defaultModel": "gemini-3.8-flash",
       "defaultEffort": "medium",
       "effortLevels": [
@@ -352,7 +443,102 @@
           "name": "Gemini Pro Latest",
           "desc": "Versão Pro mais recente do AI Studio"
         }
-      ]
+      ],
+      "available": true,
+      "hasKey": true
+    },
+    "codex": {
+      "id": "codex",
+      "name": "Codex",
+      "icon": "<> ",
+      "color": "#10a37f",
+      "description": "Executa o Codex CLI local e retoma suas sessões nativas",
+      "auth": "ChatGPT conectado no Codex CLI",
+      "defaultModel": "gpt-5.6-terra",
+      "defaultEffort": "medium",
+      "effortLevels": [
+        {
+          "id": "low",
+          "label": "Low"
+        },
+        {
+          "id": "medium",
+          "label": "Medium"
+        },
+        {
+          "id": "high",
+          "label": "High"
+        },
+        {
+          "id": "xhigh",
+          "label": "Extra High"
+        },
+        {
+          "id": "max",
+          "label": "Max"
+        }
+      ],
+      "models": [
+        {
+          "id": "gpt-5.6-sol",
+          "name": "GPT-5.6-Sol",
+          "desc": "Older generation workhorse model."
+        },
+        {
+          "id": "gpt-5.6-terra",
+          "name": "GPT-5.6-Terra",
+          "desc": "Older balanced model for straightforward work."
+        },
+        {
+          "id": "gpt-5.6-luna",
+          "name": "GPT-5.6-Luna",
+          "desc": "Older fast and efficient model."
+        }
+      ],
+      "available": true
+    },
+    "ollama": {
+      "id": "ollama",
+      "name": "Ollama Local",
+      "icon": "LOC",
+      "color": "#e06c75",
+      "description": "Inferência 100% local e offline em CPU sem consumo de cotas de IA",
+      "auth": "Ollama desligado (execute 'ollama serve')",
+      "defaultModel": "qwen2.5-coder:1.5b",
+      "defaultEffort": "medium",
+      "effortLevels": [
+        {
+          "id": "low",
+          "label": "Low"
+        },
+        {
+          "id": "medium",
+          "label": "Medium"
+        },
+        {
+          "id": "high",
+          "label": "High"
+        }
+      ],
+      "models": [
+        {
+          "id": "qwen2.5-coder:1.5b",
+          "name": "Qwen 2.5 Coder 1.5B (Ultra-leve)",
+          "desc": "Uso mínimo de RAM (~1 GB), ideal para CPU"
+        },
+        {
+          "id": "qwen2.5-coder:3b",
+          "name": "Qwen 2.5 Coder 3B",
+          "desc": "Equilíbrio entre lógica e consumo (~2.2 GB)"
+        },
+        {
+          "id": "deepseek-r1:1.5b",
+          "name": "DeepSeek R1 1.5B",
+          "desc": "Raciocínio analítico local leve"
+        }
+      ],
+      "available": false,
+      "url": "http://localhost:11434"
     }
   }
 }
