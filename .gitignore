@@ -11,12 +11,14 @@ global/instructions.md
 global/memory.md
 global/.env
 global/routines.log
+global/deploy*.json
 *.env
 !.env.example
 !*.example
 
 # Fila e runtime local
 bridge/*.jsonl
+logs/
 
 # Scratch e testes descartáveis
 tools/scratch_*.js

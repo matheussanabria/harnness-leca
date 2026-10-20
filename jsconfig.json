@@ -9,6 +9,14 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["tools/**/*.js", "tools/**/*.d.ts", "ui/server.js", "scripts/*.js"],
+  "include": [
+    "tools/**/*.js",
+    "tools/**/*.d.ts",
+    "ui/server.js",
+    "ui/server/**/*.js",
+    "ui/public/js/**/*.js",
+    "ui/public/js/**/*.d.ts",
+    "scripts/*.js"
+  ],
   "exclude": ["node_modules", "projects", "tests"]
 }

@@ -3,7 +3,8 @@
 //   1. entra um arquivo que é dado local (projects/, global/*.md e .env, bridge/): o .gitignore já os exclui, isto pega o `git add -f`;
 //   2. uma linha ADICIONADA tem um segredo de formato conhecido (chave de API, JWT, webhook, chave privada...).
 //      Exemplos e fixtures: ponha "allow-secret" num comentário da mesma linha;
-//   3. `npm run check` ou `npm test` falham (pule os testes com HARNESS_SKIP_TESTS=1, ex.: commit só de documentação).
+//   3. entra arquivo novo e o MAPA.md nao foi atualizado no mesmo commit (e o arquivo, sua pasta ou seu nome nao aparecem no mapa);
+//   4. `npm run check` ou `npm test` falham (pule os testes com HARNESS_SKIP_TESTS=1, ex.: commit só de documentação).
 // Nunca imprime o segredo achado: só arquivo, linha e tipo.
 const { spawnSync } = require("child_process");
 const path = require("path");
@@ -18,6 +19,19 @@ function forbiddenPath(rel) {
   if (/(^|\/)\.env($|\.)/.test(p) && !/\.example$/.test(p)) return "arquivo .env (pode ter chaves)";
   if (/^bridge\/.+\.jsonl$/.test(p)) return "fila local do bridge (tem prompts)";
   return null;
+}
+
+// Arquivos novos que o MAPA.md ainda não conhece. Vale como mapeado: o MAPA.md ter sido alterado no mesmo commit, ou ele
+// citar o caminho, o nome do arquivo ou uma das pastas do caminho. Ignora o próprio mapa, .gitkeep e os golden masters.
+function missingFromMapa(added, mapaText, mapaTouched) {
+  if (mapaTouched) return [];
+  const mapa = mapaText.replace(/\\/g, "/");
+  return added.map((f) => f.replace(/\\/g, "/")).filter((p) => {
+    if (p === "MAPA.md" || p.endsWith(".gitkeep") || p.startsWith("tests/golden/")) return false;
+    const parts = p.split("/");
+    const dirs = parts.slice(0, -1).map((_, i) => parts.slice(0, i + 1).join("/") + "/");
+    return ![p, parts[parts.length - 1], ...dirs].some((c) => mapa.includes(c));
+  });
 }
 
 // Linhas adicionadas por arquivo, com o número da linha no arquivo novo, a partir de `git diff -U0`.
@@ -60,6 +74,10 @@ function main() {
   for (const s of scanDiff(git(["diff", "--cached", "-U0", "--no-color", "--diff-filter=ACMR"]))) {
     problems.push(`${s.file}:${s.line}: parece ${s.rule} (se for exemplo, acrescente "allow-secret" num comentário da linha)`);
   }
+  const added = git(["diff", "--cached", "--name-only", "--diff-filter=A", "-z"]).split("\0").filter(Boolean);
+  const mapaTouched = git(["diff", "--cached", "--name-only", "-z"]).split("\0").includes("MAPA.md");
+  const mapaText = require("fs").existsSync("MAPA.md") ? require("fs").readFileSync("MAPA.md", "utf8") : "";
+  for (const f of missingFromMapa(added, mapaText, mapaTouched)) problems.push(`${f}: arquivo novo fora do MAPA.md (atualize o mapa no mesmo commit)`);
   if (problems.length) {
     console.error("✖ commit barrado:\n" + problems.map((p) => `  - ${p}`).join("\n"));
     process.exit(1);
@@ -77,5 +95,5 @@ function main() {
   }
 }
 
-module.exports = { forbiddenPath, addedLines, scanDiff };
+module.exports = { missingFromMapa, forbiddenPath, addedLines, scanDiff };
 if (require.main === module) main();

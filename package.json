@@ -8,7 +8,13 @@
   "scripts": {
     "sync": "node tools/sync.js",
     "sync:dry": "node tools/sync.js --dry-run",
+    "export:context": "node tools/export-context.js",
+    "export:claude-sessions": "node tools/export-claude-sessions.js",
+    "coordination": "node tools/coordination.js",
+    "hia": "node tools/hia.js",
     "ui": "node ui/server.js",
+    "remote": "node ui/server.js --remote",
+    "remote:tunnel": "node tools/tunnel.js",
     "opencode": "opencode serve --port 63186",
     "check": "node scripts/check.js",
     "test": "node --test \"tests/*.test.js\"",
