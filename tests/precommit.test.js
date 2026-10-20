@@ -2,7 +2,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const { forbiddenPath, addedLines, scanDiff } = require("../scripts/pre-commit");
+const { forbiddenPath, addedLines, scanDiff, missingFromMapa } = require("../scripts/pre-commit");
 const { findSecrets } = require("../tools/lib/redact");
 
 // Valores montados na hora: o repositório não guarda nada com cara de chave real.
@@ -74,4 +74,12 @@ test("o próprio repositório passa na varredura de segredos (código e testes n
     for (const h of findSecrets(text)) hits.push(`${rel}:${h.line} (${h.rule})`);
   }
   assert.deepEqual(hits, [], "acrescente allow-secret num comentário das linhas que são exemplos");
+});
+
+test("missingFromMapa: arquivo novo precisa estar no mapa, ou o mapa ser alterado no mesmo commit", () => {
+  const mapa = "| Chat | `ui/public/js/modules/chat-send.js` |\n| Deploy | `ui/public/js/deploy/` |\n| Skills | `skills-store.js` |";
+  const added = ["ui/public/js/modules/chat-send.js", "ui/public/js/deploy/novo.js", "tools/lib/skills-store.js",
+    "tools/lib/novo-modulo.js", "ui/public/css/x/.gitkeep", "tests/golden/a.txt", "MAPA.md"];
+  assert.deepEqual(missingFromMapa(added, mapa, false), ["tools/lib/novo-modulo.js"]);
+  assert.deepEqual(missingFromMapa(added, mapa, true), []);
 });
