@@ -1,0 +1,110 @@
+/* ==========================================================================
+   DAI HQ - Barra de Tarefas (Window Manager Taskbar)
+   Design Glassmorphism com estados reativos para janelas abertas e minimizadas
+   ========================================================================== */
+
+.window-taskbar {
+  position: fixed;
+  bottom: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(13, 17, 23, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 1px rgba(255, 255, 255, 0.1);
+  z-index: 1050;
+  max-width: 90vw;
+  overflow-x: auto;
+  scrollbar-width: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.window-taskbar::-webkit-scrollbar {
+  display: none;
+}
+
+.window-taskbar.is-empty {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(10px);
+}
+
+.taskbar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #c9d1d9;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.taskbar-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.taskbar-item.is-focused {
+  background: rgba(88, 166, 255, 0.18);
+  border-color: rgba(88, 166, 255, 0.6);
+  color: #58a6ff;
+  box-shadow: 0 0 12px rgba(88, 166, 255, 0.25);
+}
+
+.taskbar-item.is-focused i {
+  color: #58a6ff;
+}
+
+.taskbar-item.is-minimized {
+  opacity: 0.65;
+  background: rgba(0, 0, 0, 0.35);
+  border-style: dashed;
+}
+
+.taskbar-item.is-minimized:hover {
+  opacity: 0.95;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.taskbar-item-title {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.taskbar-item-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin-left: 2px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #8b949e;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.taskbar-item-close:hover {
+  background: rgba(248, 81, 73, 0.25);
+  color: #f85149;
+}

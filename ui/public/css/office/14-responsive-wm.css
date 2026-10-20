@@ -1,0 +1,59 @@
+/* Adaptações Responsivas e Breakpoints do Window Manager */
+
+/* Tablet & Mobile (< 1024px) */
+@media (max-width: 1023px) {
+  .dai-taskbar {
+    padding: 0 8px;
+    gap: 4px;
+  }
+
+  .taskbar-item {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}
+
+/* Mobile Estrito (< 768px) */
+@media (max-width: 767px) {
+  /* Alça de redimensionamento inoperante em telas móveis */
+  .drawer-resize-handle {
+    display: none !important;
+  }
+
+  /* Desativa cursor de arraste já que a janela ocupa o viewport */
+  .floating-window .drawer-header {
+    cursor: default !important;
+  }
+
+  /* Janela flutuante no mobile adapta cantos para layout fullscreen */
+  .floating-window {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+
+  /* Barra de tarefas móvel com rolagem suave por toque */
+  .dai-taskbar {
+    height: 48px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .dai-taskbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .taskbar-item {
+    min-width: 44px;
+    height: 36px;
+    padding: 0 10px;
+    flex-shrink: 0;
+  }
+
+  /* Indicadores e botões de cabeçalho otimizados para touch */
+  .drawer-header-actions button {
+    min-width: 32px;
+    min-height: 32px;
+  }
+}
