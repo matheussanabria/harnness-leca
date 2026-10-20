@@ -1,0 +1,6 @@
+/* --- studio: agregador dos módulos em studio/ (ordem preservada) --- */
+@import "./studio/01-studio-vibecoding-canvas.css";
+@import "./studio/02-floating-action-dock.css";
+@import "./studio/03-canvas-tela-cheia.css";
+@import "./studio/04-dai-chips.css";
+@import "./studio/05-source-editor.css";
