@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://harness-leca.internal/schemas/hia-model.schema.json",
+  "title": "HiaModelDefinition",
+  "description": "Contrato canônico do Model Registry para modelos locais e de nuvem do Harness.",
+  "type": "object",
+  "required": ["id", "name", "tier", "runtime", "contextWindow", "capabilities"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tier": {
+      "type": "string",
+      "enum": ["local_light", "local_standard", "cloud_fast", "cloud_reasoning", "cloud_frontier"]
+    },
+    "runtime": {
+      "type": "string",
+      "enum": ["ollama_cpu", "ollama_gpu", "cli_spawn", "http_api", "bridge_file"]
+    },
+    "contextWindow": {
+      "type": "integer",
+      "minimum": 1024
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["json_mode", "classification", "code_generation", "code_review", "ast_refactor", "summarization", "tool_use"]
+      }
+    },
+    "hardwareRequirements": {
+      "type": "object",
+      "properties": {
+        "minRamMb": { "type": "number", "minimum": 0 },
+        "recommendedThreads": { "type": "integer", "minimum": 1 },
+        "requiresGpu": { "type": "boolean", "default": false }
+      }
+    },
+    "pricing": {
+      "type": "object",
+      "properties": {
+        "isFree": { "type": "boolean", "default": true },
+        "inputPer1M": { "type": "number", "minimum": 0 },
+        "outputPer1M": { "type": "number", "minimum": 0 }
+      }
+    },
+    "benchmark": {
+      "type": "object",
+      "properties": {
+        "accuracyScore": { "type": "number", "minimum": 0, "maximum": 100 },
+        "tokensPerSecond": { "type": "number", "minimum": 0 },
+        "testedDate": { "type": "string" }
+      }
+    }
+  }
+}

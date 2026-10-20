@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://harness-leca.internal/schemas/hia-execution.schema.json",
+  "title": "HiaExecutionRecord",
+  "description": "Contrato canônico de execução (Execution) e telemetria para o Harness Intelligence.",
+  "type": "object",
+  "required": ["id", "taskId", "engineUsed", "status", "startedAt"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "taskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "engineUsed": {
+      "type": "string",
+      "enum": ["script", "local_llm", "claude", "codex", "gemini", "opencode"]
+    },
+    "modelUsed": {
+      "type": ["string", "null"]
+    },
+    "toolUsed": {
+      "type": ["string", "null"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "running", "completed", "failed", "cancelled", "quota_exhausted", "loop_detected"]
+    },
+    "startedAt": {
+      "type": "string"
+    },
+    "completedAt": {
+      "type": ["string", "null"]
+    },
+    "durationMs": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "tokensInput": { "type": "number", "minimum": 0 },
+        "tokensOutput": { "type": "number", "minimum": 0 },
+        "tokensCacheRead": { "type": "number", "minimum": 0 },
+        "tokensCacheWrite": { "type": "number", "minimum": 0 },
+        "tokensReasoning": { "type": "number", "minimum": 0 },
+        "metricSource": {
+          "type": "string",
+          "enum": ["reported", "estimated", "unavailable"]
+        },
+        "cpuPeakPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "ramPeakMb": { "type": "number", "minimum": 0 },
+        "attempts": { "type": "integer", "minimum": 1, "default": 1 },
+        "cacheHit": { "type": "boolean", "default": false }
+      }
+    },
+    "error": {
+      "type": ["object", "null"],
+      "properties": {
+        "code": { "type": "string" },
+        "message": { "type": "string" },
+        "retryable": { "type": "boolean" },
+        "detail": { "type": "string" }
+      }
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "evidence": { "type": "string" },
+        "data": { "type": "object" },
+        "outputFiles": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
