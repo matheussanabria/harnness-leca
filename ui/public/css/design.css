@@ -1,0 +1,14 @@
+/* --- design: agregador dos módulos em design/ (ordem preservada) --- */
+@import "./design/01-design-area-design.css";
+@import "./design/02-mapa-camadas.css";
+@import "./design/03-barra-camadas.css";
+@import "./design/04-auditoria-projeto.css";
+@import "./design/05-scrum.css";
+@import "./design/06-workspace-prototypes.css";
+@import "./design/07-layers-tree.css";
+@import "./design/08-prototype-catalog.css";
+@import "./design/09-scrum-story-details.css";
+@import "./design/10-scrum-lanes.css";
+@import "./design/11-scrum-lane-order.css";
+@import "./design/12-scrum-story-transitions.css";
+@import "./design/13-prototype-canvas.css";

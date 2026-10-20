@@ -1,0 +1,3 @@
+/* --- inspector: agregador dos módulos em inspector/ (ordem preservada) --- */
+@import "./inspector/01-inspetor-componentes-angular.css";
+@import "./inspector/02-codigo-exibido-modal.css";

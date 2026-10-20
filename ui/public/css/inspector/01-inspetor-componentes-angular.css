@@ -1,0 +1,247 @@
+/* --- Estilos do Inspetor de Componentes Angular no Studio --- */
+
+#btnInspectorToggle.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(217, 119, 87, 0.4);
+  font-weight: 600;
+}
+
+/* Faixa de Notificação quando o Inspetor está ativo */
+.inspector-active-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #1e3a8a, #2563eb);
+  color: #fff;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  animation: inspectorSlideDown 0.2s ease-out;
+  position: relative;
+  z-index: 20;
+}
+
+.inspector-active-banner .banner-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.inspector-active-banner .btn-banner-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: 0;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.inspector-active-banner .btn-banner-close:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+@keyframes inspectorSlideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Painel / Card de Resultado da Inspeção no Studio */
+.inspector-card {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  max-width: 620px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.36);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: inspectorCardPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes inspectorCardPop {
+  from { transform: translateY(20px) scale(0.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.inspector-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--panel2);
+  border-bottom: 1px solid var(--line);
+}
+
+.inspector-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.inspector-badge {
+  font-size: 10px;
+  font-family: monospace;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.inspector-badge.angular {
+  background: #dc2626;
+  color: #fff;
+}
+
+.inspector-badge.standalone {
+  background: #0284c7;
+  color: #fff;
+}
+
+.inspector-badge.selector {
+  background: rgba(217, 119, 87, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(217, 119, 87, 0.3);
+}
+
+.inspector-card-close {
+  background: transparent;
+  border: 0;
+  color: var(--mute);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.inspector-card-close:hover {
+  color: var(--text);
+  background: var(--line);
+}
+
+.inspector-card-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.inspector-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.inspector-comp-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: monospace;
+}
+
+.inspector-files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.inspector-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.inspector-file-label {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  width: 38px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.inspector-file-label.ts { background: #3178c6; color: #fff; }
+.inspector-file-label.html { background: #e44d26; color: #fff; }
+.inspector-file-label.style { background: #cc6699; color: #fff; }
+
+.inspector-file-path {
+  font-family: monospace;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  font-size: 11px;
+}
+
+.inspector-file-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.inspector-file-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--mute);
+  padding: 2px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.inspector-file-btn:hover {
+  background: var(--line);
+  color: var(--text);
+}
+
+.inspector-elem-preview {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--mute);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.inspector-elem-preview b {
+  color: var(--accent);
+}
+
+.inspector-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--panel2);
+  border-top: 1px solid var(--line);
+}

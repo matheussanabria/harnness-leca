@@ -1,0 +1,218 @@
+/* ui/public/css/design.css - Estilos da Área de Design do Harness Leca */
+
+.design-workspace {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 61px);
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+.design-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  gap: 12px;
+}
+
+.design-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.design-nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 6px 6px 0 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: 2.5px solid transparent;
+  color: var(--mute);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.design-nav-tab:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+.design-nav-tab.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-weight: 600;
+  border-color: transparent;
+  border-bottom: 2.5px solid #818cf8;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+.design-view-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 1. Quadro Kanban */
+.design-kanban-board {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  overflow-x: auto;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.kanban-col {
+  flex: 0 0 280px;
+  min-width: 280px;
+  max-width: 300px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 125px);
+}
+
+.kanban-col-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.kanban-col-count {
+  font-size: 11px;
+  background: var(--panel2);
+  color: var(--mute);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.kanban-cards-list {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.design-card {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.15s ease;
+}
+
+.design-card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.design-card.draft {
+  border: 1px dashed #eab308;
+  background: rgba(234, 179, 8, 0.05);
+}
+
+.design-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.design-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.design-card-selector {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--mute);
+}
+
+.design-card-dai {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+/* 6 marcas do checklist */
+.design-checklist {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.chk-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  color: var(--mute);
+}
+
+.chk-item.checked {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.chk-item.inferred {
+  color: #34d399;
+  opacity: 0.75;
+  font-style: italic;
+}
+
+.design-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.btn-card-action {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-card-action:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: #6366f1;
+}

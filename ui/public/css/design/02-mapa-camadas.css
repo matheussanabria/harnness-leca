@@ -1,0 +1,261 @@
+/* =====================================================================
+   02-mapa-camadas.css — Layout em Duas Colunas, Cabeçalho DIS e Viewports
+   ===================================================================== */
+
+.layers-workspace-canvas {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 20px 32px;
+  overflow-y: auto;
+  flex: 1;
+  background: #080c16;
+  color: #f1f5f9;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.layers-workspace-canvas > * {
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 1. Cabeçalho do Módulo DIS */
+.dis-module-header {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dis-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dis-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dis-badge-tag {
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dis-main-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.dis-subtitle {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+/* Seletor de Viewport (Desktop / Tablet / Mobile) */
+.dis-viewport-selector {
+  display: inline-flex;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.btn-dis-vp {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-dis-vp:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-dis-vp.active {
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Barra Horizontal Proporcional de Métricas */
+.dis-metrics-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dis-metrics-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.metrics-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metrics-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.metrics-pill {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.dis-metrics-progress {
+  height: 8px;
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  background: #1e293b;
+}
+
+.status-segment {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Barra de Legendas */
+.dis-legends-strip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+}
+
+.legend-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.legend-group-title {
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #cbd5e1;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-badge-text {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid;
+}
+
+.legend-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* =====================================================================
+   2. Layout Principal: Duas Colunas (46% / 54%)
+   ===================================================================== */
+.layers-two-columns-layout {
+  display: grid;
+  grid-template-columns: 46fr 54fr;
+  gap: 14px;
+  align-items: start;
+  width: 100%;
+}
+
+.layers-col-left {
+  min-width: 0;
+}
+
+.layers-col-right {
+  min-width: 0;
+}
+
+/* Viewport Responsivo */
+.layers-workspace-canvas.vp-mode-tablet .layers-two-columns-layout {
+  grid-template-columns: 1fr;
+}
+
+.layers-workspace-canvas.vp-mode-tablet {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.layers-workspace-canvas.vp-mode-mobile .layers-two-columns-layout {
+  grid-template-columns: 1fr;
+}
+
+.layers-workspace-canvas.vp-mode-mobile {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 10px 12px;
+}
+
+@media (max-width: 1024px) {
+  .layers-two-columns-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

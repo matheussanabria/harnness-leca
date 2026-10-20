@@ -1,0 +1,241 @@
+/* --- 07-layers-tree.css: Árvore Hierárquica de Componentes e Camadas do Inspetor --- */
+
+.inspector-tabs-bar {
+  display: flex;
+  background: var(--panel2);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.inspector-tab-btn {
+  flex: 1;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--mute);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.inspector-tab-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.inspector-tab-btn.active {
+  color: #ffffff;
+  border-bottom: 2px solid #818cf8;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Árvore de Camadas */
+.layers-tree-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.layers-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #0f172a;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.layers-search-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #090d16;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 6px;
+  gap: 6px;
+}
+
+.layers-search-icon {
+  font-size: 10px;
+  color: var(--mute);
+}
+
+.layers-search-input {
+  background: transparent;
+  border: none;
+  color: #f8fafc;
+  font-size: 11px;
+  width: 100%;
+  outline: none;
+}
+
+.btn-clear-layer-search {
+  background: transparent;
+  border: none;
+  color: var(--mute);
+  cursor: pointer;
+  padding: 0;
+  font-size: 10px;
+}
+
+.layers-count-badge {
+  font-size: 10px;
+  color: var(--mute);
+  background: var(--panel);
+  padding: 1px 5px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.layers-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0;
+}
+
+/* Linhas dos Itens da Árvore */
+.layer-item-row {
+  display: flex;
+  align-items: center;
+  height: 27px;
+  padding-right: 6px;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 4px;
+  margin: 1px 4px;
+  transition: all 0.12s ease;
+  font-size: 11.5px;
+  color: #cbd5e1;
+}
+
+.layer-item-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.layer-item-row.selected {
+  background: rgba(99, 102, 241, 0.22);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: inset 2.5px 0 0 0 #818cf8;
+}
+
+.layer-item-row.is-hidden {
+  opacity: 0.45;
+}
+
+.layer-item-row.is-locked {
+  color: #94a3b8;
+}
+
+.layer-chevron-slot {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-toggle-expand {
+  background: transparent;
+  border: none;
+  color: var(--mute);
+  cursor: pointer;
+  padding: 0;
+  font-size: 9px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-toggle-expand:hover {
+  color: #ffffff;
+}
+
+.layer-chevron-spacer {
+  width: 16px;
+  height: 16px;
+}
+
+.layer-node-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.layer-node-icon.nav { color: #60a5fa; }
+.layer-node-icon.text { color: #93c5fd; }
+.layer-node-icon.action { color: #f59e0b; }
+.layer-node-icon.form { color: #a78bfa; }
+.layer-node-icon.media { color: #34d399; }
+.layer-node-icon.table { color: #38bdf8; }
+.layer-node-icon.list { color: #fb923c; }
+.layer-node-icon.section { color: #818cf8; }
+.layer-node-icon.component { color: #c084fc; }
+.layer-node-icon.box { color: #94a3b8; }
+
+.layer-node-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layer-tag-badge {
+  font-size: 9.5px;
+  color: var(--mute);
+  background: #090d16;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.layer-item-actions {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+.layer-item-row:hover .layer-item-actions,
+.layer-item-row.selected .layer-item-actions {
+  display: flex;
+}
+
+.btn-layer-action {
+  background: transparent;
+  border: none;
+  color: var(--mute);
+  cursor: pointer;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.btn-layer-action:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
