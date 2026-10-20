@@ -1,0 +1,60 @@
+// @ts-check
+const PROVIDERS = {
+  claude: {
+    label: "Claude Code",
+    enabled: true,
+    autoDispatch: false,
+    transport: "inbox",
+    reason: "Revisao independente de arquitetura e seguranca.",
+  },
+  gemini: {
+    label: "Gemini / Antigravity",
+    enabled: true,
+    autoDispatch: false,
+    transport: "inbox",
+    reason: "Frente visual e experiencia.",
+  },
+  opencode: {
+    label: "OpenCode",
+    enabled: true,
+    autoDispatch: false,
+    transport: "inbox",
+    reason: "Tarefas deterministicas, benchmarks e extracao em lote.",
+  },
+  codex: {
+    label: "Codex",
+    enabled: true,
+    autoDispatch: false,
+    transport: "inbox",
+    reason: "Frente de plataforma, dados e backend.",
+  },
+};
+
+const EPIC_OWNERS = {
+  "EP-00": "codex",
+  "EP-01": "codex",
+  "EP-02": "gemini",
+  "EP-03": "gemini",
+  "EP-04": "codex",
+  "EP-05": "codex",
+  "EP-06": "gemini",
+  "EP-07": "codex",
+  "EP-08": "codex",
+  "EP-09": "gemini",
+  "EP-10": "codex",
+  "EP-11": "codex",
+  "EP-12": "codex",
+};
+
+const PROVIDER_ALIASES = {
+  antigravity: "gemini",
+  "claude-code": "claude",
+  "open-code": "opencode",
+};
+
+function normalizeProvider(value) {
+  const key = String(value || "").trim().toLowerCase();
+  return PROVIDER_ALIASES[key] || key;
+}
+
+module.exports = { PROVIDERS, EPIC_OWNERS, normalizeProvider };

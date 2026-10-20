@@ -1,0 +1,112 @@
+// @ts-check
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+const service = require("../tools/lib/coordination/service");
+
+function fixture() {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "harness-coordination-"));
+  fs.mkdirSync(path.join(root, "projects", "demo", "context"), { recursive: true });
+  fs.mkdirSync(path.join(root, "docs", "harness-evolution"), { recursive: true });
+  fs.writeFileSync(path.join(root, "docs", "harness-evolution", "00-index.md"), [
+    "- [x] [02.01](02-epics/02.01.md) Historia pronta",
+    "- [ ] 02.02 Historia visual",
+    "- [x] 05.01 Historia backend pronta",
+    "- [ ] 05.02 Historia backend",
+    "- [ ] 05.03 Historia backend dependente",
+  ].join("\n"));
+  return root;
+}
+
+test("inicializa os quatro provedores com politica ativa explicita", () => {
+  const root = fixture();
+  const state = service.init(root, "demo");
+  assert.equal(Object.keys(state.providers).length, 4);
+  assert.equal(state.providers.gemini.enabled, true);
+  assert.equal(state.providers.codex.enabled, true);
+  assert.equal(state.providers.claude.enabled, true);
+  assert.equal(state.providers.opencode.enabled, true);
+  assert.equal(state.stories["EP-02.02"].owner, "gemini");
+});
+
+test("claim e evento idempotente preservam uma unica revisao", () => {
+  const root = fixture();
+  service.init(root, "demo");
+  const input = { type: "story.claimed", provider: "codex", storyId: "EP-05.02", payload: {}, eventId: "claim-1" };
+  const first = service.mutate(root, "demo", input);
+  const second = service.mutate(root, "demo", input);
+  assert.equal(first.changed, true);
+  assert.equal(second.changed, false);
+  assert.equal(second.state.revision, 1);
+});
+
+test("handoff cria mensagem e projecao na caixa do destino", () => {
+  const root = fixture();
+  service.init(root, "demo");
+  service.mutate(root, "demo", {
+    type: "handoff.created",
+    provider: "codex",
+    storyId: "EP-05.02",
+    payload: { to: "gemini", message: "Revisar o contrato visual" },
+  });
+  const messages = service.inbox(root, "demo", "gemini");
+  assert.equal(messages.length, 1);
+  const inbox = path.join(root, "projects", "demo", "coordination", "inbox", "gemini.md");
+  assert.match(fs.readFileSync(inbox, "utf8"), /Revisar o contrato visual/);
+});
+
+test("provedor inativo nao pode assumir trabalho", () => {
+  const { PROVIDERS } = require("../tools/lib/coordination/config");
+  const previous = PROVIDERS.claude.enabled;
+  PROVIDERS.claude.enabled = false;
+  try {
+    const root = fixture();
+    service.init(root, "demo");
+    assert.throws(() => service.mutate(root, "demo", {
+      type: "story.claimed",
+      provider: "claude",
+      storyId: "EP-05.02",
+      payload: {},
+    }), /inativo/);
+  } finally {
+    PROVIDERS.claude.enabled = previous;
+  }
+});
+
+test("claim respeita dependencia anterior ainda pendente", () => {
+  const root = fixture();
+  service.init(root, "demo");
+  assert.throws(() => service.mutate(root, "demo", {
+    type: "story.claimed",
+    provider: "codex",
+    storyId: "EP-05.03",
+    payload: {},
+  }), /EP-05.02/);
+});
+
+test("notificacao comunica sem transferir responsabilidade", () => {
+  const root = fixture();
+  service.init(root, "demo");
+  service.mutate(root, "demo", {
+    type: "message.sent",
+    provider: "codex",
+    storyId: "EP-05.02",
+    payload: { to: "gemini", message: "Apenas um aviso" },
+  });
+  const state = service.get(root, "demo");
+  assert.equal(state.stories["EP-05.02"].owner, "codex");
+  assert.equal(service.inbox(root, "demo", "gemini").length, 1);
+});
+
+test("conclusao exige evidencia", () => {
+  const root = fixture();
+  service.init(root, "demo");
+  assert.throws(() => service.mutate(root, "demo", {
+    type: "story.completed",
+    provider: "codex",
+    storyId: "EP-05.02",
+    payload: {},
+  }), /evidence/);
+});
