@@ -1,0 +1,432 @@
+<div id="studioWorkspace" class="studio-workspace">
+  <!-- Barra de alternância exclusiva para smartphones -->
+  <div class="mobile-studio-nav" id="mobileStudioNav">
+    <button type="button" class="mobile-tab-btn active" id="btnMobileTabApp" onclick="setMobileStudioTab('app')">
+      <i class="fa-solid fa-mobile-screen-button"></i> <span>App Preview</span>
+    </button>
+    <button type="button" class="mobile-tab-btn" id="btnMobileTabChat" onclick="setMobileStudioTab('chat')">
+      <i class="fa-regular fa-comment"></i> <span>Chat IA</span>
+      <span class="mobile-chat-dot" id="mobileChatDot" style="display:none"></span>
+    </button>
+  </div>
+
+  <div class="studio-sidebar" id="studioSidebar">
+    <!-- Barra móvel exclusiva no topo do Chat -->
+    <div class="mobile-chat-topbar" id="mobileChatTopbar">
+      <button type="button" class="btn-back-to-app" onclick="setMobileStudioTab('app')">
+        <i class="fa-solid fa-mobile-screen-button"></i> <span>Voltar ao App Preview</span>
+      </button>
+      <button type="button" class="btn-chat-action" onclick="toggleStudioMode(false)" title="Voltar ao Dashboard">
+        <i class="fa-solid fa-arrow-left"></i> <span>Dashboard</span>
+      </button>
+    </div>
+
+    <!-- REGION A: CABEÇALHO COMPACTO -->
+    <header class="chat-header-compact">
+      <div class="chat-provider-wrap">
+        <button type="button" class="chat-provider-btn" id="studioProviderBtn" onclick="toggleStudioProviderDropdown()" title="Alternar Provedor de IA" aria-label="Provedor de IA" aria-haspopup="true">
+          <span class="chat-provider-icon" id="studioProviderIcon"><i class="fa-solid fa-asterisk" style="color:#d97757"></i></span>
+          <span class="chat-provider-name" id="studioProviderName">Claude Code</span>
+          <i class="fa-solid fa-chevron-down chat-chevron"></i>
+        </button>
+        <div class="chat-dropdown-menu" id="studioProviderDropdownMenu" style="display:none">
+          <button type="button" class="dropdown-item" data-eng="claude" onclick="selectProvider('claude')">
+            <i class="fa-solid fa-asterisk" style="color:#d97757"></i>
+            <span>Claude Code</span>
+          </button>
+          <button type="button" class="dropdown-item" data-eng="opencode" onclick="selectProvider('opencode')">
+            <i class="fa-solid fa-code" style="color:#3cb371"></i>
+            <span>OpenCode</span>
+          </button>
+        <button type="button" class="dropdown-item" data-eng="gemini" onclick="selectProvider('gemini')">
+            <i class="fa-solid fa-gem" style="color:#5c87f2"></i>
+            <span>Gemini</span>
+          </button>
+          <button type="button" class="dropdown-item" data-eng="codex" onclick="selectProvider('codex')">
+            <i class="fa-solid fa-terminal" style="color:#10a37f"></i>
+            <span>Codex</span>
+          </button>
+          <button type="button" class="dropdown-item" data-eng="ollama" onclick="selectProvider('ollama')">
+            <i class="fa-solid fa-microchip" style="color:#e06c75"></i>
+            <span>Ollama Local</span>
+          </button>
+          <div class="dropdown-divider"></div>
+          <button type="button" class="dropdown-item" data-eng="compare" onclick="selectProvider('compare')">
+            <i class="fa-solid fa-code-compare" style="color:#a78bfa"></i>
+            <span>Comparar Motores</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-header-title">Studio &amp; Protótipos</div>
+
+      <div class="chat-header-actions">
+        <button type="button" class="chat-header-icon-btn" id="btnToggleStudioCompareMode" onclick="toggleCompareMode()" title="Comparar Motores (Multi-IA)" aria-label="Comparar Motores">
+          <i class="fa-solid fa-code-compare"></i>
+        </button>
+        <button type="button" class="chat-header-icon-btn" onclick="openRemoteConnectModal()" title="Conectar smartphone via Wi-Fi ou Túnel" aria-label="Celular">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+        </button>
+        <button type="button" class="chat-header-icon-btn" onclick="minimizeCurrentChat('studio')" title="Minimizar para Widget" aria-label="Minimizar">
+          <i class="fa-solid fa-window-minimize"></i>
+        </button>
+        <button type="button" class="chat-header-icon-btn" onclick="toggleStudioMode(false)" title="Voltar ao Dashboard" aria-label="Dashboard">
+          <i class="fa-solid fa-table-cells-large"></i>
+        </button>
+        <div class="chat-more-wrap">
+          <button type="button" class="chat-header-icon-btn" id="btnStudioChatMore" onclick="toggleStudioChatMoreMenu()" title="Mais Ações" aria-label="Mais Ações" aria-haspopup="true">
+            <i class="fa-solid fa-ellipsis"></i>
+          </button>
+          <div class="chat-dropdown-menu dropdown-right" id="studioChatMoreMenu" style="display:none">
+            <button type="button" class="dropdown-item" onclick="resetChatSession(); closeAllChatMenus()">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>Novo Chat</span>
+            </button>
+            <button type="button" class="dropdown-item" onclick="openContinueChatModal(); closeAllChatMenus()">
+              <i class="fa-solid fa-folder-open"></i>
+              <span>Continuar Conversa</span>
+            </button>
+            <button type="button" class="dropdown-item" id="btnSaveStudioChat" onclick="saveCurrentChat(); closeAllChatMenus()" disabled>
+              <i class="fa-solid fa-floppy-disk"></i>
+              <span>Salvar no Projeto</span>
+            </button>
+            <div class="dropdown-divider"></div>
+            <button type="button" class="dropdown-item" onclick="syncProjectChats('all', true); closeAllChatMenus()">
+              <i class="fa-solid fa-rotate"></i>
+              <span>Sincronizar Conversas</span>
+            </button>
+            <button type="button" class="dropdown-item" onclick="openPermissionsDialog(); closeAllChatMenus()">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Permissões</span>
+            </button>
+            <button type="button" class="dropdown-item" onclick="minimizeCurrentChat(); closeAllChatMenus()">
+              <i class="fa-solid fa-window-minimize"></i>
+              <span>Minimizar para Widget</span>
+            </button>
+            <div class="dropdown-divider"></div>
+            <button type="button" class="dropdown-item text-danger" onclick="toggleStudioMode(false); closeAllChatMenus()">
+              <i class="fa-solid fa-xmark"></i>
+              <span>Fechar Studio</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- REGION B: BARRA DE CONTEXTO DA CONVERSA -->
+    <div class="chat-context-strip" id="studioChatContextStrip">
+      <div id="studioSingleControls" class="context-controls-single">
+        <div class="context-item context-agent">
+          <i class="fa-solid fa-robot context-item-icon"></i>
+          <select id="studioDaiSelect" class="context-select" onchange="onDaiAgentChange(this.value)" title="Selecionar Agente DAI">
+            <option value="">Assistente Geral</option>
+          </select>
+        </div>
+
+        <div class="context-item context-model">
+          <select id="studioModelSelect" class="context-select" onchange="onModelChange(this.value)" title="Selecionar Modelo">
+          </select>
+        </div>
+
+        <div class="context-settings-wrap">
+          <button type="button" class="chat-context-icon-btn" id="btnStudioChatSettings" onclick="toggleStudioChatSettingsPopover()" title="Configurações de Raciocínio e Contexto" aria-label="Configurações" aria-haspopup="true">
+            <i class="fa-solid fa-sliders"></i>
+          </button>
+          <div class="chat-popover-panel" id="studioChatSettingsPopover" style="display:none">
+            <div class="popover-panel-header">
+              <span><i class="fa-solid fa-sliders"></i> Raciocínio &amp; Contexto</span>
+              <button type="button" class="popover-close-btn" onclick="toggleStudioChatSettingsPopover(false)"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="popover-section">
+              <label class="popover-label">Nível de Raciocínio (Effort)</label>
+              <div class="effort-toggle-compact" id="studioEffortContainer"></div>
+            </div>
+            <div class="popover-section">
+              <label class="popover-label">Contexto Ativo</label>
+              <div class="popover-info-badge"><i class="fa-solid fa-file-code"></i> Protótipos &amp; Telas Carregadas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="studioCompareControls" class="context-controls-compare" style="display:none">
+        <div class="compare-chips-group">
+          <span class="compare-strip-title"><i class="fa-solid fa-code-compare"></i> Comparar:</span>
+          <label class="compare-chip active" id="studioChipClaude" onclick="toggleCompareEngine('claude')">
+            <input type="checkbox" id="chkStudioCompareClaude" checked onclick="event.stopPropagation();toggleCompareEngine('claude')">
+            <span style="color:#d97757;font-weight:600"><i class="fa-solid fa-asterisk"></i> Claude</span>
+          </label>
+          <label class="compare-chip active" id="studioChipGemini" onclick="toggleCompareEngine('gemini')">
+            <input type="checkbox" id="chkStudioCompareGemini" checked onclick="event.stopPropagation();toggleCompareEngine('gemini')">
+            <span style="color:#5c87f2;font-weight:600"><i class="fa-solid fa-gem"></i> Gemini</span>
+          </label>
+          <label class="compare-chip" id="studioChipOpencode" onclick="toggleCompareEngine('opencode')">
+            <input type="checkbox" id="chkStudioCompareOpencode" onclick="event.stopPropagation();toggleCompareEngine('opencode')">
+            <span style="color:#3cb371;font-weight:600"><i class="fa-solid fa-code"></i> OpenCode</span>
+          </label>
+          <label class="compare-chip" id="studioChipCodex" onclick="toggleCompareEngine('codex')">
+            <input type="checkbox" id="chkStudioCompareCodex" onclick="event.stopPropagation();toggleCompareEngine('codex')">
+            <span style="color:#10a37f;font-weight:600"><i class="fa-solid fa-terminal"></i> Codex</span>
+          </label>
+          <label class="compare-chip" id="studioChipOllama" onclick="toggleCompareEngine('ollama')">
+            <input type="checkbox" id="chkStudioCompareOllama" onclick="event.stopPropagation();toggleCompareEngine('ollama')">
+            <span style="color:#e06c75;font-weight:600"><i class="fa-solid fa-microchip"></i> Ollama</span>
+          </label>
+        </div>
+        <div id="studioCompareSummaryBadge" class="compare-summary-badge">
+          <span id="studioCompareEnginesDesc">2 motores selecionados</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dai-chips-bar" id="studioDaiChips" style="display:none"></div>
+
+    <div class="studio-2telas-banner" id="studio2TelasBanner" style="display:none;background:rgba(99,102,241,0.12);border-bottom:1px solid rgba(99,102,241,0.25);padding:6px 12px;align-items:center;justify-content:space-between;gap:8px">
+      <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1">
+        <span class="status-dot online"></span>
+        <span style="font-size:11.5px;font-weight:600;color:var(--text);white-space:nowrap"><i class="fa-regular fa-window-restore"></i> Modo 2 Telas</span>
+        <span style="font-size:11px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="bannerAppUrl"></span>
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        <button type="button" class="btn-vp" onclick="openStudioExternal()" style="font-size:11px;padding:2px 7px" title="Focar a aplicação na janela externa"><i class="fa-solid fa-arrow-up-right-from-square"></i> Focar App</button>
+        <button type="button" class="btn-vp" onclick="setStudioModeType('iframe')" style="font-size:11px;padding:2px 7px" title="Exibir o preview embutido nesta tela"><i class="fa-solid fa-desktop"></i> Preview</button>
+      </div>
+    </div>
+
+    <!-- REGION C: VIEWPORT DE MENSAGENS -->
+    <div class="chat-history" id="studioChatHistory" onscroll="handleChatHistoryScroll(this)">
+      <div class="empty chat-empty-hero">
+        <div class="chat-empty-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <h2 class="chat-empty-title">Studio &amp; Ateliê de Protótipos</h2>
+        <p class="chat-empty-sub">Gere interfaces, ajuste CSS, HTML e valide em tempo real com hot-reload.</p>
+      </div>
+    </div>
+
+    <!-- REGION D: COMPOSITOR DE MENSAGEM INTEGRADO -->
+    <div class="chat-composer-container">
+      <div id="studioChatAttachTray" class="chat-attach-tray" style="display:none"></div>
+      <div class="chat-composer-card">
+        <textarea id="studioChatInput" class="chat-composer-input" placeholder="Peça alterações visuais ou novas features... (Enter para enviar, Shift+Enter para nova linha)" rows="1" oninput="handleStudioChatInput(this)" onkeydown="handleStudioChatKey(event)"></textarea>
+
+        <div class="chat-composer-toolbar">
+          <div class="chat-composer-tools-left">
+            <div class="composer-popover-wrap">
+              <button type="button" class="composer-btn-tool" id="btnStudioComposerAdd" onclick="toggleStudioComposerAddMenu()" title="Adicionar arquivos, skills, memória..." aria-label="Adicionar">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+              <div class="composer-dropdown-menu" id="studioComposerAddMenu" style="display:none">
+                <button type="button" class="dropdown-item" onclick="pickChatFiles(); closeAllChatMenus()">
+                  <i class="fa-solid fa-paperclip"></i>
+                  <span>Upload de Arquivos</span>
+                </button>
+                <button type="button" class="dropdown-item" onclick="openSkillViewerModal(); closeAllChatMenus()">
+                  <i class="fa-solid fa-scroll"></i>
+                  <span>Ver Skills Disponíveis</span>
+                </button>
+                <button type="button" class="dropdown-item" onclick="openAddSkillModal(); closeAllChatMenus()">
+                  <i class="fa-solid fa-plug"></i>
+                  <span>Adicionar Nova Skill</span>
+                </button>
+                <button type="button" class="dropdown-item" onclick="openReviewMemoryModal(); closeAllChatMenus()">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                  <span>Revisar Memórias</span>
+                </button>
+              </div>
+            </div>
+
+            <button type="button" class="composer-btn-tool" onclick="pickChatFiles()" title="Anexar arquivo" aria-label="Anexar arquivo">
+              <i class="fa-solid fa-paperclip"></i>
+            </button>
+
+            <div class="composer-popover-wrap">
+              <button type="button" class="composer-btn-tool" id="btnStudioComposerTools" onclick="toggleStudioComposerToolsMenu()" title="Ações Rápidas de Desenvolvimento" aria-label="Ações Rápidas">
+                <i class="fa-solid fa-wrench"></i>
+              </button>
+              <div class="composer-dropdown-menu" id="studioComposerToolsMenu" style="display:none">
+                <div class="menu-section-label">Ações Rápidas</div>
+                <button type="button" class="dropdown-item" onclick="applyStudioQuickAction('design-system'); closeAllChatMenus()">
+                  <i class="fa-solid fa-palette" style="color:#a78bfa"></i>
+                  <span>Design System</span>
+                </button>
+                <button type="button" class="dropdown-item" onclick="applyStudioQuickAction('vibecoding-new'); closeAllChatMenus()">
+                  <i class="fa-solid fa-layer-group" style="color:#60a5fa"></i>
+                  <span>Nova Interface</span>
+                </button>
+                <button type="button" class="dropdown-item" onclick="applyStudioQuickAction('fix-layout'); closeAllChatMenus()">
+                  <i class="fa-solid fa-wand-magic-sparkles" style="color:#f59e0b"></i>
+                  <span>Corrigir Visual</span>
+                </button>
+                <button type="button" class="dropdown-item" onclick="applyStudioQuickAction('clean-refactor'); closeAllChatMenus()">
+                  <i class="fa-solid fa-code" style="color:#34d399"></i>
+                  <span>Clean Code</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-composer-tools-right">
+            <button id="btnSendStudioChat" class="composer-send-btn" onclick="sendStudioChatMessage()" title="Enviar mensagem" aria-label="Enviar">
+              <i class="fa-solid fa-arrow-up"></i>
+            </button>
+            <button id="btnCancelStudioChat" class="composer-cancel-btn" style="display:none" onclick="cancelChatStream()" title="Interromper geração" aria-label="Interromper">
+              <i class="fa-solid fa-square"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-composer-bottom">
+        <span id="studioChatStatusText" class="chat-status-text">Hot-Reload e preview em tempo real ativos</span>
+        <button type="button" id="studioChatScrollBottomBtn" class="chat-scroll-bottom-btn" onclick="scrollStudioChatToBottom()" style="display:none" title="Rolar até o fim" aria-label="Rolar até o fim">
+          <i class="fa-solid fa-arrow-down"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="studio-sidebar-resizer"
+    id="studioSidebarResizer"
+    role="separator"
+    tabindex="0"
+    aria-label="Redimensionar painel do chat"
+    aria-orientation="vertical"
+    aria-controls="studioSidebar"
+    aria-valuemin="300"
+    aria-valuemax="850"
+    aria-valuenow="440"
+    title="Arraste ou use as setas para redimensionar o painel"
+  ></div>
+
+  <div class="studio-canvas">
+    <div class="studio-canvas-header">
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+        <span id="canvasStatusDot" class="status-dot offline" title="Status da aplicação local"></span>
+        <input id="canvasUrlInput" class="canvas-url-input" value="http://localhost:8081/" onkeydown="if(event.key==='Enter') navigateCanvas(this.value)">
+        <div id="canvasRouteChips" class="canvas-route-chips"></div>
+        <div id="canvasProcControls" style="display:inline-flex;align-items:center;gap:4px;margin-left:4px">
+          <button type="button" id="btnCanvasStartSrv" class="btn-vp" onclick="startCurrentService()" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.3)" title="Iniciar servidor dev da aplicação"><i class="fa-solid fa-play"></i> Subir</button>
+          <button type="button" id="btnCanvasStopSrv" class="btn-vp" onclick="stopCurrentService()" style="display:none;background:rgba(239,68,68,0.15);color:#ef4444;border-color:rgba(239,68,68,0.3)" title="Parar processo dev"><i class="fa-solid fa-square"></i> Parar</button>
+          <button type="button" id="btnCanvasLogsSrv" class="btn-vp btn-vp-icon" onclick="openServiceLogsModal()" title="Ver terminal e logs do processo"><i class="fa-solid fa-file-lines"></i></button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="canvas-mode-group" style="display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:2px;gap:2px">
+          <button id="btnViewIframe" class="btn-vp active" onclick="setStudioModeType('iframe')" title="Modo Iframe embutido"><i class="fa-solid fa-desktop"></i> Embutido</button>
+          <button id="btnViewCompanion" class="btn-vp" onclick="setStudioModeType('companion')" title="Modo 2 Telas / Janela Aberta (Ideal para Keycloak/SSO)"><i class="fa-regular fa-window-restore"></i> 2 Telas</button>
+          <button id="btnViewSource" class="btn-vp" onclick="setStudioModeType('source')" title="Exibir e editar o código-fonte da aplicação"><i class="fa-solid fa-code"></i> Código</button>
+        </div>
+        <div class="canvas-viewport-bar" id="canvasViewportBar">
+          <button id="btnInspectorToggle" class="btn-vp" onclick="toggleInspectorMode()" title="Inspecionar componente Angular (Alt+I)"><i class="fa-solid fa-magnifying-glass"></i> Inspecionar</button>
+          <button class="btn-vp btn-vp-size" data-vp="375px" onclick="setStudioViewport('375px')"><i class="fa-solid fa-mobile-screen-button"></i> 375px</button>
+          <button class="btn-vp btn-vp-size" data-vp="768px" onclick="setStudioViewport('768px')"><i class="fa-solid fa-tablet-screen-button"></i> 768px</button>
+          <button class="btn-vp btn-vp-size active" data-vp="100%" onclick="setStudioViewport('100%')"><i class="fa-solid fa-display"></i> 100%</button>
+          <button class="btn-vp btn-vp-icon" onclick="reloadStudioIframe()" title="Recarregar preview"><i class="fa-solid fa-rotate-right"></i></button>
+          <button class="btn-vp btn-vp-icon" onclick="openStudioExternal()" title="Abrir em nova aba externa"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="studio-frame-wrapper" id="studioFrameWrapper">
+      <div class="studio-viewport-container" id="studioViewportContainer" style="width: 100%">
+        <div class="iframe-realm-notice" id="iframeRealmNotice">
+          <span><i class="fa-solid fa-shield-halved"></i> <b>Restrição de Realm/Keycloak?</b> Se o quadro abaixo ficar cinza ou bloqueado pelo Keycloak:</span>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button type="button" class="btn-vp" onclick="setStudioModeType('companion')" style="font-size:11px;padding:2px 8px;background:var(--accent);color:#fff;border-color:var(--accent)">Ativar Modo 2 Telas</button>
+            <button type="button" class="btn-vp" onclick="openStudioExternal()" style="font-size:11px;padding:2px 8px">Abrir Janela <i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+          </div>
+        </div>
+        <iframe id="studioIframe" class="studio-iframe" src="about:blank"></iframe>
+        <div id="studioOfflineOverlay" class="studio-offline-overlay">
+          <div class="offline-card">
+            <div style="font-size:36px;margin-bottom:8px;color:#f59e0b"><i class="fa-solid fa-bolt"></i></div>
+            <h3 style="margin:0 0 8px">Aplicação local não detectada</h3>
+            <p style="color:var(--mute);font-size:13px;margin:0 0 16px;max-width:360px">
+              O Vibecoding Studio tentou se conectar a <b id="offlineTargetUrl">http://localhost:8081</b>, mas o servidor local parece offline.
+            </p>
+            <div style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:16px;text-align:left">
+              <i class="fa-regular fa-lightbulb"></i> <b>Instruções de execução do projeto:</b>
+              <div id="offlineCmdHelp" style="margin-top:4px;font-family:monospace;color:var(--accent)">npm run dev (em 57multimarcas-web)</div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+              <button type="button" id="btnOfflineStart" class="btn-send" onclick="startCurrentService()" style="background:#10b981;display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:7px 16px">
+                <i class="fa-solid fa-play"></i> Subir Projeto Agora
+              </button>
+              <button type="button" class="btn-vp" onclick="openServiceLogsModal()" style="display:inline-flex;align-items:center;gap:4px;padding:7px 12px;font-size:13px">
+                <i class="fa-solid fa-file-lines"></i> Logs / Terminal
+              </button>
+              <button type="button" class="btn-vp" onclick="checkAppStatus(true)" style="padding:7px 12px;font-size:13px"><i class="fa-solid fa-rotate"></i> Checar Novamente</button>
+              <button type="button" class="btn-chat-action" onclick="forceLoadIframe()">Carregar Mesmo Assim</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="studio-companion-container" id="studioCompanionContainer">
+        <div class="companion-card">
+          <div class="companion-header">
+            <div>
+              <div style="font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.5px;font-weight:600">Aplicação Conectada</div>
+              <h2 id="companionAppName" style="margin:4px 0 0;font-size:20px">Dispensação Web</h2>
+            </div>
+            <div class="companion-badge">
+              <span id="companionStatusDot" class="status-dot online"></span>
+              <span id="companionStatusText">Online (HMR Ativo)</span>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-family:monospace;font-size:13px">
+            <span style="color:var(--mute)">URL:</span>
+            <span id="companionAppUrl" style="color:var(--accent);font-weight:600">http://localhost:8180/#/pacientes</span>
+          </div>
+
+          <div class="companion-actions">
+            <button type="button" class="btn-companion-open" onclick="openStudioExternal()">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Focar / Abrir Janela do Aplicativo
+            </button>
+            <button type="button" class="btn-vp" onclick="checkAppStatus(true)" style="padding:10px 14px;font-size:13px">
+              <i class="fa-solid fa-rotate"></i> Checar Status
+            </button>
+            <button type="button" class="btn-vp" onclick="setStudioModeType('iframe')" style="padding:10px 14px;font-size:13px">
+              <i class="fa-solid fa-desktop"></i> Tentar Modo Embutido
+            </button>
+          </div>
+
+          <div style="margin-top:16px">
+            <div style="font-size:12px;font-weight:600;color:var(--mute);margin-bottom:6px">Rotas Rápidas da Aplicação:</div>
+            <div class="companion-routes" id="companionRoutesList"></div>
+          </div>
+
+          <div class="companion-hint-box">
+            <div style="font-weight:600;color:var(--text);margin-bottom:4px"><i class="fa-solid fa-bolt"></i> Como funciona o Vibecoding em 2 Telas:</div>
+            <p style="margin:0 0 8px;color:var(--mute)">
+              Você está utilizando o setup perfeito para desenvolvimento: converse com os <b>Agentes DAI (Claude, Gemini ou OpenCode)</b> no painel da esquerda. Toda alteração gerada nos componentes TypeScript/HTML é automaticamente compilada pelo servidor local (ex: <code>ng serve</code>) e recarrega instantaneamente na janela da sua aplicação ao lado!
+            </p>
+            <div style="font-weight:600;color:var(--text);margin-top:12px;margin-bottom:4px"><i class="fa-solid fa-shield-halved"></i> Por que o Keycloak bloqueia o frame embutido?</div>
+            <p style="margin:0;color:var(--mute)">
+              O Keycloak/OIDC envia cabeçalhos anti-clickjacking (<code>X-Frame-Options: SAMEORIGIN</code> e <code>frame-ancestors 'self'</code>) e bloqueia cookies de terceiros entre origens diferentes. No Modo 2 Telas, sua sessão, tokens e permissões de usuário funcionam com 100% de estabilidade sem risco de desconexão.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cápsula Flutuante no Mobile (FAB Dock) -->
+    <div id="mobileStudioFloatingDock" class="mobile-studio-fab-dock">
+      <button type="button" class="fab-btn fab-btn-chat" onclick="setMobileStudioTab('chat')" title="Abrir Chat com Agentes DAI">
+        <span class="fab-icon"><i class="fa-regular fa-comment"></i></span>
+        <span class="fab-label">Chat IA</span>
+        <span class="mobile-chat-dot" id="mobileChatDotFab" style="display:none"></span>
+      </button>
+      <button type="button" class="fab-btn fab-btn-reload" onclick="reloadStudioIframe()" title="Recarregar Preview da Aplicação">
+        <span class="fab-icon"><i class="fa-solid fa-rotate-right"></i></span>
+      </button>
+      <button type="button" class="fab-btn fab-btn-menu" onclick="toggleMobileStudioDrawer(true)" title="Menu e Ferramentas do Studio">
+        <span class="fab-icon"><i class="fa-solid fa-gear"></i></span>
+        <span class="fab-label">Menu</span>
+      </button>
+      <button type="button" class="fab-btn fab-btn-dash" onclick="toggleStudioMode(false)" title="Voltar ao Dashboard">
+        <span class="fab-icon"><i class="fa-solid fa-arrow-left"></i></span>
+      </button>
+    </div>
+  </div>
+</div>

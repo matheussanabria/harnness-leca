@@ -1,0 +1,60 @@
+<!-- Bottom Sheet Deslizante: Menu e Ferramentas do Studio no Mobile -->
+<div id="mobileStudioDrawerBackdrop" class="mobile-studio-drawer-backdrop" onclick="toggleMobileStudioDrawer(false)"></div>
+<div id="mobileStudioDrawer" class="mobile-studio-drawer">
+  <div class="drawer-drag-handle" onclick="toggleMobileStudioDrawer(false)"></div>
+  <div class="drawer-header">
+    <h3><span><i class="fa-solid fa-wrench"></i></span> Controles do Studio</h3>
+    <button type="button" class="btn-close-drawer" onclick="toggleMobileStudioDrawer(false)" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="drawer-content">
+    <!-- 1. Endereço / URL do App -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Endereço da Aplicação</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="text" id="drawerUrlInput" class="canvas-url-input" style="flex:1;max-width:none" placeholder="http://localhost:8081/" onkeydown="if(event.key==='Enter') navigateFromDrawer(this.value)">
+        <button type="button" class="btn-vp" onclick="navigateFromDrawer($('drawerUrlInput').value)" style="padding:6px 12px;font-weight:600">Ir <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- 2. Rotas Rápidas do Projeto -->
+    <div class="drawer-section" id="drawerRoutesSection">
+      <div class="drawer-section-title">Rotas Rápidas do Projeto</div>
+      <div id="drawerRouteChips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    </div>
+
+    <!-- 3. Modos de Exibição -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Modo de Visualização</div>
+      <div style="grid-template-columns:1fr 1fr;gap:6px;display:grid">
+        <button type="button" id="btnDrawerIframe" class="btn-vp active" onclick="setStudioModeType('iframe'); toggleMobileStudioDrawer(false)"><i class="fa-solid fa-desktop"></i> Embutido</button>
+        <button type="button" id="btnDrawerCompanion" class="btn-vp" onclick="setStudioModeType('companion'); toggleMobileStudioDrawer(false)"><i class="fa-regular fa-window-restore"></i> 2 Telas (SSO)</button>
+      </div>
+    </div>
+
+    <!-- 4. Servidor Dev Local -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Servidor Dev Local</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <button type="button" id="btnDrawerStartSrv" class="btn-vp" onclick="startCurrentService()" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.3)"><i class="fa-solid fa-play"></i> Subir Servidor</button>
+        <button type="button" id="btnDrawerStopSrv" class="btn-vp" onclick="stopCurrentService()" style="display:none;background:rgba(239,68,68,0.15);color:#ef4444;border-color:rgba(239,68,68,0.3)"><i class="fa-solid fa-square"></i> Parar Servidor</button>
+        <button type="button" class="btn-vp" onclick="openServiceLogsModal()" style="padding:6px 10px"><i class="fa-solid fa-terminal"></i> Ver Terminal & Logs</button>
+      </div>
+    </div>
+
+    <!-- 5. Atalhos Rápidos -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Atalhos</div>
+      <div style="grid-template-columns:1fr 1fr;gap:6px;display:grid">
+        <button type="button" class="btn-vp" onclick="reloadStudioIframe(); toggleMobileStudioDrawer(false)"><i class="fa-solid fa-rotate-right"></i> Recarregar</button>
+        <button type="button" class="btn-vp" onclick="openStudioExternal()"><i class="fa-solid fa-arrow-up-right-from-square"></i> No Navegador</button>
+        <button type="button" class="btn-vp" onclick="openRemoteConnectModal(); toggleMobileStudioDrawer(false)"><i class="fa-solid fa-mobile-screen-button"></i> Conectar Celular</button>
+        <button type="button" class="btn-vp" onclick="toggleStudioMode(false)"><i class="fa-solid fa-arrow-left"></i> Dashboard</button>
+      </div>
+    </div>
+
+    <!-- 6. Aviso Realm/Keycloak -->
+    <div style="font-size:11.5px;color:var(--mute);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;line-height:1.4">
+      <i class="fa-solid fa-shield-halved"></i> <b>Keycloak / Realm:</b> Se a tela ficar cinza por proteção de iframe do Keycloak, use o <b>Modo 2 Telas</b> ou abra em nova aba.
+    </div>
+  </div>
+</div>

@@ -1,0 +1,117 @@
+/* Floating Action Dock & Bottom Sheet do Studio (Mobile) */
+.mobile-chat-topbar {
+  display: none;
+}
+
+.mobile-studio-fab-dock {
+  display: none;
+}
+
+.mobile-studio-drawer-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+.mobile-studio-drawer-backdrop.open {
+  display: block;
+  opacity: 1;
+}
+
+.mobile-studio-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 85vh;
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(105%);
+  transition: transform .28s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.mobile-studio-drawer.open {
+  transform: translateY(0);
+}
+
+.drawer-drag-handle {
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--line);
+  margin: 10px auto 4px;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.drawer-drag-handle:hover {
+  background: var(--accent);
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel2);
+}
+
+.drawer-header h3 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.btn-close-drawer {
+  background: none;
+  border: 0;
+  color: var(--mute);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.btn-close-drawer:hover {
+  color: var(--text);
+}
+
+.drawer-content {
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.drawer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.drawer-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mute);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}

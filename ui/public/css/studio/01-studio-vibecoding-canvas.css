@@ -1,0 +1,61 @@
+/* --- Estilos do Studio Vibecoding, Canvas, Mobile Dock e Preview --- */
+
+.btn-studio-toggle {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 500;
+  font-size: 12.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.btn-studio-toggle:hover {
+  background: var(--panel2);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text);
+}
+
+.btn-studio-toggle.active,
+.btn-studio-toggle.nav-module-active {
+  background: #5b46e8;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(91, 70, 232, 0.35);
+  font-weight: 600;
+}
+
+body.studio-active {
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.studio-active #mainDashboard {
+  display: none !important;
+}
+
+body.studio-active #studioWorkspace {
+  display: flex !important;
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+
+.studio-workspace {
+  display: none;
+  height: calc(100vh - 61px);
+  width: 100vw;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.mobile-studio-nav {
+  display: none;
+}
