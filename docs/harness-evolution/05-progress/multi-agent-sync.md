@@ -8,19 +8,21 @@ versao: 2.11.0
 
 > **Finalidade:** coordenar os dois chats ativos do Harness Leca — Gemini/Antigravity e Codex — e evitar sobreposição de arquivos, retrabalho e inconsistências de contratos. O [índice mestre](../00-index.md) define o backlog e [progress.md](progress.md) é a fonte oficial dos estados aceitos.
 
-OpenCode e Claude estão fora desta execução por decisão do usuário. Não devem receber histórias, ser acionados ou aparecer como substitutos automáticos.
+> **Frentes ativas (2026-10-21):** os três chats ativos usam o motor **OpenCode**; o que os diferencia é a **frente**, não o nome do motor. Por isso o owner no ledger é sempre `opencode/<frente>`: `opencode/qualidade`, `opencode/jira` e `opencode/deploy`. Cada chat commita apenas os arquivos da própria frente, por caminho (`git add <arquivos>`, nunca `-A` nem `.`).
 
-> **Exceção registrada em 2026-10-21:** por autorização explícita do usuário, uma sessão OpenCode concluiu EP-03.05 a EP-03.09, EP-05.06, EP-06.03 a EP-06.05, EP-07.01 a EP-07.05, EP-08.01 e EP-08.02. A alocação permanente das frentes continua com Gemini/Antigravity e Codex; a exceção não altera a política padrão.
+> **Exceção registrada em 2026-10-21:** por autorização explícita do usuário, uma sessão OpenCode concluiu EP-03.05 a EP-03.09, EP-05.06, EP-06.03 a EP-06.05, EP-07.01 a EP-07.05, EP-08.01 e EP-08.02. As frentes ativas da seção 1 substituem a alocação anterior por chat de motor.
 
 ---
 
 ## 1. Alocação oficial dos chats
 
-| Chat | Responsabilidade | Épicos | Domínio principal | Próximo trabalho |
-|---|---|---|---|---|
-| **Gemini / Antigravity — Chat A1 (Escritório)** | Experiência 3D/2.5D e cena | **EP-03** | `ui/public/js/office*`, `office2d/`, `office3d/` | **EP-03.09 concluída** (9/9 no EP-03, épico encerrado); sem pendências na alocação atual |
-| **Gemini / Antigravity — Chat A2 (Studio)** | Studio, layout, código e preview | **EP-06** | `ui/public/js/modules/studio*`, `ui/public/css/studio/` | **EP-06.05 concluída** (5/5 no EP-06, épico encerrado) |
-| **Codex — Chat B** | Plataforma, dados, workflows, integração e qualidade | **EP-04 → EP-05/EP-07 → EP-08/EP-11 → EP-10**; manutenção da EP-12 | Serviços backend, persistência, Scrum, artefatos, agentes, deploy, testes e documentação de coordenação | **EP-08 encerrada (5/5)**; próxima: **detalhar 09.01 ou EP-11** |
+| Chat | Owner | Responsabilidade | Épicos | Domínio principal | Próximo trabalho |
+|---|---|---|---|---|---|
+| **OpenCode — Chat C1** | `opencode/qualidade` | Regressão automatizada, tipos, registro canônico de sessões e event log | **EP-09**, **EP-11** | `ui/server/services/canonical-sessions/`, `ui/server/services/events/`, auditoria e testes | EP-09.02, EP-11.04 e EP-11.05 |
+| **OpenCode — Chat C2** | `opencode/jira` | Integração com o Jira: leitura viva, consulta local e panorama | **EP-05** | `tools/jira-*.js`, `tools/lib/jira-*.js`, `ui/server/services/project-scrum-jira-*.js`, botão Sincronizar Jira | 05.07 entregue; escrita no Jira bloqueada por identidade e destino (§6) |
+| **OpenCode — Chat C3** | `opencode/deploy` | Datacenter e deploys: pipelines, ambientes, saúde, histórico e ações autorizadas | **EP-10** | `ui/server/services/deploy/`, `ui/public/js/deploy/`, tela `/deploy` | 10.03 a 10.05 |
+
+> **Histórico:** a alocação anterior por motor (Gemini/Antigravity e Codex) valia para EP-03, EP-04, EP-06, EP-07 e EP-08, que já encerraram. As frentes ativas acima assumem EP-09, EP-10, EP-11 e EP-05.07.
 
 ### 1.1. Relação entre as trilhas
 
@@ -49,13 +51,13 @@ Ambos começam lendo `AGENTS.md`, `docs/harness-evolution/00-index.md`, este pai
 
 - **Gemini / Chat A1 (Escritório):** a 03.09 está concluída e o EP-03 encerrado; manter a paridade 2.5D, a telemetria, a iluminação dos agentes, a alternância de modos, a qualidade e a acessibilidade da cena. Sem nova história atribuída; não editar arquivos de Studio, Scrum ou backend.
 - **Gemini / Chat A2 (Studio):** as 06.01 a 06.05 estão concluídas; manter os limites responsivos, acessibilidade, guard de alterações e o mapeamento de elemento para arquivo/componente. EP-06 encerrado; não editar arquivos de Escritório ou Scrum.
-- **Codex / Chat B:** a 08.01, a 08.02, a 08.03, a 08.04 e a 08.05 estão concluídas (catálogo canônico de capacidades, catálogo de etapas do SDLC com agentes, vínculos de skills por projeto e raia, execução de workflows com eventos canônicos e rotinas com aprovação e histórico); o EP-08 está em 5/5 e encerrado; manter o hardening como validação transversal e detalhar 09.01 ou EP-11 conforme o gate. Não assumir arquivos de Chat, Escritório ou interfaces consumidoras do Studio.
+- **Codex / Chat B:** a 08.01, a 08.02, a 08.03, a 08.04 e a 08.05 estão concluídas (catálogo canônico de capacidades, catálogo de etapas do SDLC com agentes, vínculos de skills por projeto e raia, execução de workflows com eventos canônicos e rotinas com aprovação e histórico); o EP-08 está em 5/5 e encerrado; a 11.01 (matriz de auditoria com evidências) foi concluída e a 11.02 está liberada; manter o hardening como validação transversal. Não assumir arquivos de Chat, Escritório ou interfaces consumidoras do Studio.
 
 Ao terminar uma história, o chat responsável registra evidências e informa ao outro apenas os contratos que viraram dependência. Nenhum chat continua automaticamente para o épico seguinte sem conferir os gates desta página.
 
 ---
 
-## 2. Visão Consolidada de Progresso (89/104 Entregas Concluídas)
+## 2. Visão Consolidada de Progresso (93/105 Entregas Concluídas)
 
 ```
 [EP-00] Auditoria e Arquitetura          [████████████████████] 100% (4/4)   - CONCLUÍDO
@@ -63,12 +65,12 @@ Ao terminar uma história, o chat responsável registra evidências e informa ao
 [EP-02] Chat Universal e Conversas       [████████████████████] 100% (8/8)   - CONCLUÍDO
 [EP-03] Escritório 2.5D/3D              [████████████████████] 100% (9/9)   - CONCLUÍDO
 [EP-04] Projetos e Workspaces            [████████████████████] 100% (5/5)   - CONCLUÍDO
-[EP-05] Scrum & Sprints (DIS Jira)       [████████████████████] 100% (6/6)   - CONCLUÍDO
+[EP-05] Scrum & Sprints (DIS Jira)       [████████████████████] 100% (7/7)   - CONCLUÍDO
 [EP-06] Studio, Código e Preview         [████████████████████] 100% (5/5)   - CONCLUÍDO
 [EP-07] Artefatos e Documentação         [████████████████████] 100% (5/5)   - CONCLUÍDO
 [EP-08] Agentes, Skills e Workflows      [████████████████████] 100% (5/5)   - CONCLUÍDO
-[EP-09] Central de Sessões & Orquestração[░░░░░░░░░░░░░░░░░░░░]   0% (0/5)   - ESPECIFICADO
-[EP-10] Deploy e Datacenter              [░░░░░░░░░░░░░░░░░░░░]   0% (0/5)   - PLANEJADO
+[EP-09] Central de Sessões & Orquestração[████░░░░░░░░░░░░░░░░░░░]  20% (1/5)   - EM ANDAMENTO
+[EP-10] Deploy e Datacenter              [████░░░░░░░░░░░░░░░░]  20% (1/5)   - EM ANDAMENTO
 [EP-11] Auditoria e Qualidade            [░░░░░░░░░░░░░░░░░░░░]   0% (0/5)   - PLANEJADO
 [EP-12] Prototype Engine Multiframework  [████████████████████] 100% (32/32) - CONCLUÍDO (MARCO M3)
 ```
@@ -134,13 +136,14 @@ Ao terminar uma história, o chat responsável registra evidências e informa ao
   - 12.31 Piloto DIS Completo (3 telas, navegação circular e datasets): `tests/prototype-pilot-dis.test.js`.
   - 12.32 Homologação final Marco M3: `tests/marco-m3-validation.test.js` e `reports/M3-validation-report.md`.
 
-### 3.6. EP-05: Scrum & Histórias Reais DIS Jira (6/6 histórias aceitas - Concluído)
+### 3.6. EP-05: Scrum & Histórias Reais DIS Jira (7/7 histórias aceitas - Concluído)
 - **05.01 Migração compatível:** schema v2 aditivo, backup versionado, escrita atômica, rollback e compatibilidade entre `status` e `laneId`.
 - **05.02 Doze raias configuráveis:** catálogo canônico, persistência por projeto, API validada, Kanban por `laneId` e modal acessível.
 - **05.03 Reordenação horizontal:** ordem persistida dos 12 IDs, revisão otimista, conflito HTTP 409 e controles por arraste ou teclado no mesmo endpoint.
 - **05.04 Movimentação e transições:** matriz canônica adjacente, histórico atômico, preservação Jira, conflito HTTP 409 e controles acessíveis.
 - **05.05 Impedimentos, filtros e métricas:** `impediment`/`impedimentHistory`, rota dedicada, filtros compartilhados por texto/responsável/impedimento, métricas da visão filtrada e sinalização no cartão e drawer.
 - **05.06 Projeção do Kanban no telão:** abas físicas ao lado do painel (`war-screen-tabs.js`, `war-screen-tabs-model.js`), Orquestração preservada como padrão, Kanban selecionado por clique ou `E`, projeção somente leitura (`war-screen-scrum.js`, `war-screen-projection-model.js`), carga de `/scrum` no `officeState` e atualização por `dai:scrumChanged`; 5/5 testes focados.
+- **05.07 Integração com o Jira: leitura viva, consulta local e panorama (owner `opencode/jira`):** leitura ao vivo no servidor com PAT só do ambiente (`JIRA_BASE_URL`/`JIRA_PAT`), rota `POST /api/project/:slug/scrum/jira-sync` e botão Sincronizar Jira (`design-scrum-jira-sync.js`); extração de sprints do payload em `project-scrum-jira-sprints.js` (formato texto do Server e objeto do Cloud); consulta local por script (`tools/jira-query.js` com `issue`, `sprint`, `search`, `status` e `summary`), redação padrão de CPF/CNS/e-mail/telefone (`tools/lib/jira-redact.js`) e panorama determinístico em `context/jira-resumo.md` (`tools/lib/jira-summary.js`); sincronização que regenera o panorama (`tools/jira-refresh.js`); 14/14 testes focados (`tests/jira-query.test.js`). ADR-008. Bloqueio 10.9 (LGPD) registrado.
 - **Tripla fonte de dados:**
   1. `_jira-dis.json`: Snapshot somente leitura de issues reais do Jira interno (473 issues: 449 histórias e 24 épicos).
   2. `doc/scrum/DIS-*/user-story.md`: Documentação e critérios de aceite reais em Markdown.
@@ -170,6 +173,7 @@ Ao terminar uma história, o chat responsável registra evidências e informa ao
 - **08.04 Execução de workflows:** Concluído (`08.04-execucao-workflows.md`, `workflow-definitions.js`, `workflow-plan.service.js`, `workflow-runner.service.js`, `orchestration-workflows.controller.js`, `orchestration-workflow-runs.controller.js`, rotas de workflows e workflow-runs), com workflows `feature-delivery` (dez etapas) e `hotfix` (subconjunto ordenado), plano por projeto com agentes, skills reais, raia, gates e faltantes, ciclo de vida com eventos canônicos no event engine, `dryRun` sem eventos e escrita restrita ao loopback; 8/8 testes focados. `router.js` em 296 linhas. Com isso a suíte integral ficou verde (800/801, 1 skip de symlink no Windows) após a trilha do Codex corrigir as falhas de `coordination`/`hia-router`.
   - **Pendências alheias à trilha (resolvidas em 2026-10-21):** as falhas pré-existentes em `tests/coordination.test.js` (Codex marcado inativo por cota em `tools/lib/coordination/config.js`) e em `tests/hia-router.test.js` (esperava `qwen2.5-coder:1.5b`, mas `tools/lib/hia/router.js` devolve `ollama:qwen3.5:4b`) foram corrigidas. A suíte integral está verde (800/801, 1 skip de symlink no Windows).
 - **08.05 Rotinas com aprovação e histórico:** Concluído (`08.05-rotinas-aprovacao-historico.md`, `routine-definitions.js`, `routine-runner.service.js`, `workflow-approval.service.js`, `workflow-history.service.js`, `orchestration-routines.controller.js`, `orchestration-approvals.controller.js`, rotas de rotinas, aprovações e histórico), com três rotinas canônicas (`rotina-feature-delivery` diária, `rotina-entrega-manual` e `rotina-hotfix`), chave de idempotência determinística por data local, fila de aprovações pendentes, eventos `execution.approval_requested`/`approved`/`rejected` e histórico persistido em `projects/<slug>/workflow-runs.jsonl`; a aba Rotinas da Visão 360° (`design-routines.js`, `design-routines-api.js`, `21-rotinas.css`) executa rotinas e registra decisões. 7/7 testes do runner, 5/5 de HTTP e 4/4 de interface; `npm test` 816/817 (1 skip de symlink) e `npm run check` verde em 675 JS e 17 JSON. EP-08 encerrado em 5/5 e EP-09 liberado, inclusive a 09.05 (fila de aprovações).
+
 
 ---
 
@@ -209,3 +213,10 @@ Para garantir que os dois chats trabalhem no mesmo repositório sem quebrar cód
 | Codex EP-07 | Codex EP-11 | Inventário, importação, previews e relações de artefatos disponíveis para auditoria |
 
 Em todo handoff, o produtor registra contrato, testes e limitações na história. O consumidor não copia a lógica: importa ou adapta o contrato publicado.
+
+## 6. Bloqueios que dependem de decisão do PM
+
+| Bloqueio | Owner | Origem | Regra em vigor | Desbloqueia |
+|---|---|---|---|---|
+| **10.9 — LGPD nos comentários do Jira.** 199 das 473 issues do snapshot têm comentários com CPF de paciente e dados de servidores da Secretaria Municipal de Saúde. | `opencode/jira` | 05.07 | **Nenhum MCP ou rotina devolve comentários do Jira a um agente em nuvem sem decisão do PM.** A redação de CPF, CNS, e-mail e telefone é o padrão; `--raw` é uso local estrito e nunca entra em prompt, rotina ou MCP. | MCP de Jira, rotinas com comentários para agente externo e qualquer chamada do modelo à API do Jira |
+| **Escrita no Jira pelo quadro.** Movimentar um card no telão e gravar no Jira exige destino inequívoco (raia → transição), identidade do autor e reconciliação após timeout. | `opencode/jira` | 05.07 e diagnóstico `docs/harness-jira/01-diagnostico-integracao-jira.md` | Nenhuma escrita é gerada; o quadro continua local e o snapshot continua somente leitura para o agente. | Etapas 2 e 3 do diagnóstico (destino explícito + uma transição, com dry-run) |

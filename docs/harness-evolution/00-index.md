@@ -7,7 +7,7 @@ atualizado: 2026-10-21
 
 Documento mestre do programa de evolução. Cada entrega aceita tem um documento próprio em `02-epics/`, para que um agente receba só a história que vai implementar e as dependências dela.
 
-> Snapshot verificado em 2026-10-21: 91/104 entregas concluídas e links locais válidos. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
+> Snapshot verificado em 2026-10-21: 93/105 entregas concluídas e links locais válidos. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
 
 ## Como usar
 
@@ -29,12 +29,12 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-02](02-epics/EP-02-chat/README.md) | Chat universal e conversas | P0 | Concluído | 8/8 |
 | [EP-03](02-epics/EP-03-escritorio/README.md) | Escritório 2.5D/3D | P1 | Concluído | 9/9 |
 | [EP-04](02-epics/EP-04-projetos-workspaces/README.md) | Projetos e workspaces | P1 | Concluído | 5/5 |
-| [EP-05](02-epics/EP-05-scrum/README.md) | Scrum & Sprints | P1 | Concluído | 6/6 |
+| [EP-05](02-epics/EP-05-scrum/README.md) | Scrum & Sprints | P1 | Concluído | 7/7 |
 | [EP-06](02-epics/EP-06-studio/README.md) | Studio, código e preview | P1 | Concluído | 5/5 |
 | [EP-07](02-epics/EP-07-artefatos/README.md) | Artefatos e documentação | P1 | Concluído | 5/5 |
 | [EP-08](02-epics/EP-08-agentes/README.md) | Agentes, skills e workflows | P1 | Concluído | 5/5 |
-| [EP-09](02-epics/EP-09-observabilidade/README.md) | Central de sessões, observabilidade e orquestração | P1 | Em andamento; 09.01 (registro canônico) e 09.03 (Central) implementadas, 09.02 delegada a outra frente | 2/5 |
-| [EP-10](02-epics/EP-10-deploy/README.md) | Datacenter e deploys | P2 | Planejado; estação existente | 0/5 |
+| [EP-09](02-epics/EP-09-observabilidade/README.md) | Central de sessões, observabilidade e orquestração | P1 | Em andamento; 09.01 (registro canônico) e 09.03 (Central) aceitas, 09.02 (event log e SSE) em andamento na frente opencode/qualidade | 2/5 |
+| [EP-10](02-epics/EP-10-deploy/README.md) | Datacenter e deploys | P2 | Em andamento; 10.01 aceitas; frente opencode/deploy | 1/5 |
 | [EP-11](02-epics/EP-11-auditoria-qualidade/README.md) | Auditoria, testes e Design System | P2 | Planejado; base existente | 0/5 |
 | [EP-12](02-epics/EP-12-prototype-engine/README.md) | Prototype Engine & Design System Multiframework | P1 | Concluído | 32/32 |
 
@@ -52,7 +52,7 @@ flowchart TD
     MOD --> OPS["EP-09 a EP-12 Operação, qualidade e protótipos"]
 ```
 
-## 3. Backlog (91/104)
+## 3. Backlog (93/105)
 
 Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a criação e o aceite do documento da história. EP-12 detalha as 32 histórias do motor multiframework. `HAR-xxx` indica o item equivalente do [backlog da Fase 0](08-prioritized-backlog.md).
 
@@ -102,13 +102,14 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [x] [04.04](02-epics/EP-04-projetos-workspaces/04.04-templates-workspace.md) Templates: Desenvolvimento, Planejamento, Qualidade e Operações
 - [x] [04.05](02-epics/EP-04-projetos-workspaces/04.05-protecao-alteracoes-nao-salvas.md) Proteção de alterações não salvas na troca de workspace
 
-### EP-05 Scrum & Sprints (6/6)
+### EP-05 Scrum & Sprints (7/7)
 - [x] [05.01](02-epics/EP-05-scrum/05.01-migracao-compativel-status.md) Migração compatível de status (HAR-008)
 - [x] [05.02](02-epics/EP-05-scrum/05.02-doze-raias-configuraveis.md) Doze raias configuráveis (HAR-009)
 - [x] [05.03](02-epics/EP-05-scrum/05.03-reordenacao-horizontal.md) Reordenação horizontal persistida por projeto (HAR-010)
 - [x] [05.04](02-epics/EP-05-scrum/05.04-movimentacao-transicoes.md) Movimentação de histórias e transições (HAR-011)
 - [x] [05.05](02-epics/EP-05-scrum/05.05-impedimentos-filtros-metricas.md) Impedimentos, filtros e métricas
 - [x] [05.06](02-epics/EP-05-scrum/05.06-projecao-kanban-telao.md) Projeção do Kanban no telão
+- [x] [05.07](02-epics/EP-05-scrum/05.07-integracao-jira.md) Integração com o Jira: leitura viva, consulta local e panorama (opencode/jira)
 
 ### EP-06 Studio, código e preview (5/5)
 - [x] [06.01](02-epics/EP-06-studio/06.01-layout-responsivo.md) Layout responsivo e redimensionamento (HAR-006)
@@ -131,15 +132,15 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [x] [08.04](02-epics/EP-08-agentes/08.04-execucao-workflows.md) Execução de workflows
 - [x] [08.05](02-epics/EP-08-agentes/08.05-rotinas-aprovacao-historico.md) Rotinas com aprovação e histórico (HAR-017)
 
-### EP-09 Central de sessões, observabilidade e orquestração (0/5)
+### EP-09 Central de sessões, observabilidade e orquestração (2/5)
 - [x] [09.01](02-epics/EP-09-observabilidade/09.01-descoberta-registro-canonico.md) Descoberta e registro canônico de sessões (implementada)
 - [ ] 09.02 Event log persistente, projeções e recuperação SSE
 - [x] [09.03](02-epics/EP-09-observabilidade/09.03-central-lista-kanban.md) Central pesquisável em lista e Kanban (implementada)
 - [ ] 09.04 Navegação, retomada e integração com Chat/Escritório
 - [ ] 09.05 Atenção necessária, notificações e fila de aprovações
 
-### EP-10 Deploy e Datacenter (0/5)
-- [ ] 10.01 Integração de pipelines
+### EP-10 Deploy e Datacenter (1/5)
+- [x] [10.01](02-epics/EP-10-deploy/10.01-integracao-pipelines.md) Integração de pipelines
 - [ ] 10.02 Ambientes e indicadores de saúde
 - [ ] 10.03 Histórico e logs de deploy
 - [ ] 10.04 Ações de deploy autorizadas com confirmação
@@ -188,11 +189,15 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 
 ## Trabalho disponível agora
 
-1. **Frente Escritório/Studio (Chat A):** EP-03 encerrado (9/9) e EP-06 encerrado (5/5); 91/104 global. Sem história pendente na alocação atual; aguardar definição da próxima frente.
-2. **Codex / Chat B:** EP-05 encerrado (6/6), EP-07 encerrado (5/5) e EP-08 encerrado (5/5); 91/104 global. No EP-09, a 09.01 (registro canônico) e a 09.03 (Central) estão implementadas e a 09.02 (event log e SSE) foi delegada a outra frente.
-3. A próxima história de EP-09/EP-11 deve ser criada e aceita a partir do template antes da implementação.
-4. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
-5. A divisão completa e os handoffs obrigatórios estão no [painel Gemini + Codex](05-progress/multi-agent-sync.md).
+Os três chats usam o motor OpenCode; o que os distingue é a **frente**, e é ela que aparece no campo `owner` do ledger e nas assinaturas (`opencode/qualidade`, `opencode/jira`, `opencode/deploy`).
+
+1. **opencode/qualidade:** 09.02 (event log, projeções e recuperação SSE) em andamento; 09.04 e 09.05 detalhadas em documentação; 11.05 (regressão automatizada) e a dívida de tipos. Destrava o restante do EP-09.
+2. **opencode/deploy:** EP-10 em andamento (10.01 e 10.02 aceitas); próxima história: 10.03 (histórico e logs de deploy).
+3. **opencode/jira:** integração com o Jira (snapshot, consulta e sincronização com o quadro).
+4. EP-03 e EP-06 encerrados (9/9 e 5/5); 93/105 global. Cada chat commita apenas os arquivos da própria frente, por caminho.
+5. A próxima história de EP-09/EP-10/EP-11 deve ser criada e aceita a partir do template antes da implementação.
+6. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
+7. A divisão completa e os handoffs obrigatórios estão no [painel de coordenação](05-progress/multi-agent-sync.md).
 
 EP-00, EP-01, EP-02, EP-03, EP-04, EP-05, EP-06, EP-07, EP-08 e EP-12 estão encerrados.
 

@@ -15,3 +15,4 @@ Uma decisão vira ADR quando afeta mais de uma história ou é difícil de rever
 | [ADR-005](ADR-005-eventos-persistentes-sqlite.md) | Event store local persistente com SQLite nativo | proposta | 09.01, 09.02, 09.05 |
 | [ADR-006](ADR-006-estados-ortogonais.md) | Separar execução, workflow e atenção | proposta | 09.02, 09.03, 09.05 |
 | [ADR-007](ADR-007-ledger-coordenacao-agentes.md) | Ledger local para coordenação entre provedores | aceita | transversal |
+| [ADR-008](ADR-008-consulta-jira-sem-token.md) | Consulta ao Jira por script local, com redação de dados pessoais | proposta | 05.07 |

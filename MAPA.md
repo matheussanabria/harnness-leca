@@ -116,6 +116,11 @@ harness-leca/
 | **Rotinas de Workflow (Service)** | `ui/server/services/orchestration/routine-definitions.js` e `routine-runner.service.js` | Declara rotinas com gatilho e política de aprovação, resolve o catálogo no projeto e executa com chave de idempotência determinística por janela (EP-08.05). |
 | **Aprovação e Histórico (Service)** | `ui/server/services/orchestration/workflow-approval.service.js` e `workflow-history.service.js` | Decide aprovações de etapa sensível, publica `execution.approval_requested`/`approved`/`rejected` e persiste o histórico em `workflow-runs.jsonl` (EP-08.05). |
 | **Rotinas e Aprovações (Controllers)** | `ui/server/controllers/orchestration-routines.controller.js` e `orchestration-approvals.controller.js` | Expõem catálogo de rotinas, execução idempotente, fila de aprovações, decisão e histórico do projeto, com escrita restrita ao loopback (EP-08.05). |
+| **Pipelines de Deploy (Services)** | `ui/server/services/deploy/pipeline-definitions.js`, `pipeline-store.js` e `pipeline-runner.service.js` | Modelo canônico de pipeline, manifesto `global/deploy-pipelines.json`, execução por estágios com resultado real e histórico em `global/deploy-pipeline-runs.jsonl` (EP-10.01). |
+| **Configuração de Deploy (Service)** | `ui/server/services/deploy/deploy-config.service.js` | Fonte única de `global/deployments.json`, mascaramento de webhook e busca de ambiente, compartilhada entre o painel e os pipelines (EP-10.01). |
+| **Pipelines de Deploy (Controller)** | `ui/server/controllers/deploy-pipeline.controller.js` | Expõe catálogo, gravação, execução e histórico de pipelines, com escrita restrita ao loopback (EP-10.01). |
+| **Saúde dos Ambientes (Services)** | `ui/server/services/deploy/health-definitions.js`, `health-store.js` e `health-runner.service.js` | Verificações `http`/`command` com resultado real, latência medida, estado agregado por ambiente e histórico em `global/deploy-health-runs.jsonl` (EP-10.02). |
+| **Saúde dos Ambientes (Controller)** | `ui/server/controllers/deploy-health.controller.js` | Expõe o estado de saúde por ambiente, a gravação de verificações e a execução sob demanda, com escrita restrita ao loopback (EP-10.02). |
 
 ---
 
@@ -153,7 +158,8 @@ harness-leca/
 | **Vibecoding Studio** | [`ui/public/js/modules/studio.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/studio.js) | Live preview da aplicação, iframe com HMR, alternador de viewports e conexão móvel. |
 | **Layout e Splitter do Studio** | [`ui/public/js/modules/studio-layout.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/studio-layout.js) | Redimensionamento contínuo via Pointer Events, ARIA separator, teclado (setas, Home/End, PageUp/PageDown), duplo clique para reset (440px) e persistência isolada por projeto. |
 | **Editor de Código do Studio** | `ui/public/js/modules/studio-source.js`, `studio-source-tree.js`, `studio-source-highlight.js` e `ui/public/css/studio/05-source-editor.css` | Árvore recolhível de diretórios, edição manual com realce por linguagem e linhas numeradas, Ctrl+S, guard de alterações pendentes, registro em `windowManager.unsaved` e hot-reload. |
-| **Visualizações do Studio** | [`ui/public/js/modules/studio-views.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/studio-views.js) | Alterna Preview, Ateliê, Código e 2 Telas, normaliza aliases, monta conteúdo sob demanda, persiste por projeto e bloqueia a troca com alterações não salvas. |
+| **Visualizações do Studio** | [`ui/public/js/modules/studio-views.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/studio-views.js) | Alterna Preview, Ateliê e 2 Telas (Código abre como terceira coluna), normaliza aliases, monta conteúdo sob demanda, persiste por projeto e exige confirmação ao fechar o código não salvo. |
+| **Coluna de Código do Studio** | `ui/public/js/modules/studio-source-column.js` | Terceira coluna (chat \| preview \| código): abre/fecha pelo botão Código, redimensiona por arraste e persiste largura e estado por projeto. |
 | **Revisão de Memória** | [`ui/public/js/modules/review.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/review.js) | Diálogo de revisão de sugestões, promoção para `memory.md`, edição e descarte. |
 | **Gerenciador de Skills** | [`ui/public/js/modules/skills.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/skills.js) | CRUD de skills `.agents/skills`, visualizador de `references/`, catálogo DAI e importação. |
 | **Processos Dev** | [`ui/public/js/modules/services.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/services.js) | Início/parada de servidores de desenvolvimento locais e stream de logs em modal. |
@@ -391,7 +397,8 @@ Arquivos que passavam de 300 linhas viraram uma fachada fina (mesmos nomes expor
 | `tools/lib/proc-manager.js`, `network.js`, `qrcode.js` | `proc-manager-*.js`, `network-*.js`, `qrcode-*.js` na mesma pasta (`*-store.js` guarda o estado compartilhado) |
 | `tools/import-gemini-chats.js` | `tools/lib/gemini-import/` (`text`, `sessions`) |
 | `ui/server/services/project-scrum.service.js`, `project-screens.service.js`, `component-resolver.service.js`, `template-locator.service.js` | `project-scrum-*`, `project-screens-*`, `component-resolver-*`, `template-locator-*` na mesma pasta |
-| Fontes e reconciliação do Scrum | `project-scrum-jira-source.js` lê o snapshot; `project-scrum-doc-source.js` interpreta histórias; `project-scrum-resolver.js` compõe com o estado local |
+| Fontes e reconciliação do Scrum | `project-scrum-jira-source.js` lê o snapshot (comentários e sprints); `project-scrum-jira-sprints.js` extrai sprints do payload (Server/Cloud); `tools/export-jira-snapshot.js` (CLI) e `tools/lib/jira-export.js` (núcleo) geram o snapshot via REST v2 com `JIRA_BASE_URL`/`JIRA_PAT`; `scrum-jira-sync.controller.js` expõe `POST /scrum/jira-sync` e `design-scrum-jira-sync.js` traz o botão Sincronizar Jira; `project-scrum-doc-source.js` interpreta histórias; `project-scrum-resolver.js` compõe com o estado local |
+| Consulta local ao snapshot do Jira | `tools/jira-query.js` (CLI: `issue`, `sprint`, `search`, `status`, `summary`) consulta o snapshot e o quadro local sem rede e sem token; `tools/jira-refresh.js` sincroniza o snapshot e regenera o panorama; `tools/lib/jira-snapshot.js` (leitura, busca e sprints), `tools/lib/jira-redact.js` (redige CPF/CNS/e-mail/telefone) e `tools/lib/jira-summary.js` (panorama para `context/jira-resumo.md`); testes em `tests/jira-query.test.js` |
 | Configuração e ordem de raias Scrum | `project-scrum-lanes.js` valida catálogo/permutação; `design-scrum-lane-config.js` configura atributos; `design-scrum-lane-order-model.js` calcula a ordem visível; `design-scrum-lane-order.js` controla rede/drag/teclado; estilos em `css/design/10-scrum-lanes.css` e `11-scrum-lane-order.css` |
 | Movimentação de histórias Scrum | `project-scrum-transitions.js` contém as regras; `design-scrum-story-transition.js` integra endpoint, drag, botões, anúncio e foco; histórico no drawer e estilos em `css/design/12-scrum-story-transitions.css` |
 | Filtros e métricas Scrum | `design-scrum-filters.js` (seleção pura), `design-scrum-filter-bar.js` (barra compartilhada) e `design-scrum-metrics.js` (cálculo e strip); estilos em `css/design/13-scrum-filters-metrics.css` (EP-05.05) |
@@ -536,6 +543,8 @@ Fora deste repositório (workspace `C:/Users/matheuss.rodrigues/git/57multimarca
 | `tests/routine-runner.test.js` | Cobre catálogo de rotinas, gatilhos, chave de idempotência, aprovação e rejeição de etapa sensível e histórico persistido (EP-08.05). |
 | `tests/routine-http.test.js` | Cobre endpoints de rotinas, aprovações, decisão e histórico, com loopback, erros, rotas registradas e limites de arquivo (EP-08.05). |
 | `tests/routine-ui.test.js` | Cobre a aba Rotinas da interface: aba registrada, despacho em `design.js`, folha de estilo, FontAwesome e ausência de emoji (EP-08.05). |
+| `tests/deploy-pipeline.test.js` | Cobre o modelo de pipeline, o manifesto, a execução por estágios com resultado real, a confirmação, o mascaramento do webhook, os endpoints e a estrutura (EP-10.01). |
+| `tests/deploy-health.test.js` | Cobre o modelo de verificação, o manifesto, a verificação http e por comando, o agregado por ambiente, os endpoints e a estrutura (EP-10.02). |
 
 ## 11. Skills locais
 
@@ -633,21 +642,22 @@ Fora deste repositório (workspace `C:/Users/matheuss.rodrigues/git/57multimarca
 | `tests/canonical-session-discovery.test.js` | Testes da descoberta somente leitura e da reconciliação. |
 | `tests/canonical-session-http.test.js` | Testes da API: leitura, filtros, loopback, evidência e 404. |
 | `docs/harness-evolution/02-epics/EP-09-observabilidade/10-contrato-leitura-central.md` | Contrato de leitura congelado entre a 09.02 (event log) e a 09.03 (Central). |
+| `docs/harness-evolution/02-epics/EP-09-observabilidade/09.02-event-log-sse.md` | História do event log persistente, projeções e recuperação SSE. |
+| `docs/harness-evolution/02-epics/EP-09-observabilidade/09.04-navegacao-retomada.md` | História de navegação, retomada e integração com Chat e Escritório (detalhada). |
+| `docs/harness-evolution/02-epics/EP-09-observabilidade/09.05-atencao-aprovacoes.md` | História de atenção necessária, notificações e fila de aprovações (detalhada). |
+| `ui/server/services/events/event-store.js` | Log append-only por projeto em SQLite nativo, com cursor, idempotência e aliases de tipo. |
+| `ui/server/services/events/event-projector.js` | Projeções de sessões, execuções e atenção, reconstruíveis a partir do log. |
+| `ui/server/services/events/event-stream.js` | Stream SSE com cursor, keep-alive e fechamento limpo. |
+| `ui/server/controllers/central-events.controller.js` | API de eventos, projeções, stream recuperável e publicação (loopback). |
+| `ui/server/routes/central-events.routes.js` | Rotas `GET/POST /api/project/:slug/events`, `/projections` e `/sessions/stream`. |
+| `tests/central-events.test.js` | Testes do log, das projeções e do formato SSE. |
+| `tests/central-events-http.test.js` | Testes da API de eventos, das projeções e do stream. |
+| `tools/types-baseline.js` | Baseline de tipos: falha quando a divida de erros de JSDoc cresce (EP-11.05). |
+| `tools/lib/tsc-runner.js` | Runner do TypeScript (instalacao em cache) compartilhado entre `npm run types` e o baseline. |
+| `quality/types-baseline.json` | Baseline versionado da divida de tipos, com a data da medicao. |
+| `scripts/regressao.js` | Suite de regressao: check, testes, indice mestre e baseline de tipos (EP-11.05). |
 | `tools/verify-index.js` | Verificador do indice mestre: links, contagem por epico (tabela x checklist) e totais declarados contra a soma real. |
 | `tests/verify-index.test.js` | Testes do verificador do indice, incluindo a consistencia do indice real do repositorio. |
-
-## 16. Central de Sessões (EP-09.03)
-
-| Caminho | Responsabilidade |
-|---|---|
-| `ui/public/js/modules/central-sessions-model.js` | Modelo puro da Central: raias canônicas, rótulos e ícones por estado, filtros, ordenação, agrupamento e resumo. |
-| `ui/public/js/modules/central-sessions-api.js` | Cliente de leitura do read model (injetável) e adaptador determinístico para desenho e teste. |
-| `ui/public/js/modules/central-sessions-view.js` | Renderização pura: cabeçalho, barra de filtros, visão em lista, Kanban e painel de detalhe. |
-| `ui/public/js/modules/central-sessions.js` | Orquestrador: estado da visão, carga do read model, cache curto e listeners (busca, filtros, visão, seleção por teclado). |
-| `ui/public/css/design/23-central-sessoes.css` | Estilos da Central: cabeçalho, filtros, tabela, badges e detalhe. |
-| `ui/public/css/design/24-central-kanban.css` | Estilos do Kanban, cartões e responsividade da Central. |
-| `tests/central-sessions-model.test.js` | Testes do modelo puro: filtros, ordenação, raias, resumo e rótulos de estado. |
-| `tests/central-sessions-view.test.js` | Testes da view e do cliente: lista, Kanban, detalhe, filtros na API e limites de arquivo. |
-
+| `tools/lib/coordination/config.js` | Provedores do ledger e `STORY_OWNERS`: dono por história, para que a frente substitua o nome do motor. |
 
 

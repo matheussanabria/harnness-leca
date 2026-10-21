@@ -37,3 +37,4 @@ Cada história ganha um arquivo próprio a partir do [template](../../_templates
 | [05.04](05.04-movimentacao-transicoes.md) | Movimentação de histórias e transições — concluída |
 | [05.05](05.05-impedimentos-filtros-metricas.md) | Impedimentos, filtros e métricas — concluída |
 | [05.06](05.06-projecao-kanban-telao.md) | Projeção do Kanban no telão — concluída |
+| [05.07](05.07-integracao-jira.md) | Integração com o Jira: leitura viva, consulta local e panorama — concluída (owner `opencode/jira`) |
