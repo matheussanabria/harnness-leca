@@ -1,4 +1,6 @@
 // @ts-check
+// Frentes de trabalho do ledger. Tres chats usam o motor OpenCode; o que os diferencia
+// e a FRENTE, nao o nome do motor. Por isso o owner e sempre "opencode/<frente>".
 const PROVIDERS = {
   claude: {
     label: "Claude Code",
@@ -9,17 +11,31 @@ const PROVIDERS = {
   },
   gemini: {
     label: "Gemini / Antigravity",
-    enabled: true,
+    enabled: false,
     autoDispatch: false,
     transport: "inbox",
-    reason: "Frente visual e experiencia.",
+    reason: "Limite de cota/tokens estourado; temporariamente inativo.",
   },
-  opencode: {
-    label: "OpenCode",
+  "opencode/qualidade": {
+    label: "OpenCode — Qualidade e Sessoes",
     enabled: true,
     autoDispatch: false,
     transport: "inbox",
-    reason: "Tarefas deterministicas, plataforma e extracao em lote.",
+    reason: "Regressao automatizada, divida de tipos, registro canonico de sessoes e event log.",
+  },
+  "opencode/jira": {
+    label: "OpenCode — Jira",
+    enabled: true,
+    autoDispatch: false,
+    transport: "inbox",
+    reason: "Integracao com o Jira: snapshot, consulta e sincronizacao com o quadro.",
+  },
+  "opencode/deploy": {
+    label: "OpenCode — Deploy",
+    enabled: true,
+    autoDispatch: false,
+    transport: "inbox",
+    reason: "Datacenter e deploys: pipelines, ambientes, saude, historico e acoes autorizadas.",
   },
   codex: {
     label: "Codex",
@@ -40,16 +56,43 @@ const EPIC_OWNERS = {
   "EP-06": "gemini",
   "EP-07": "codex",
   "EP-08": "codex",
-  "EP-09": "gemini",
-  "EP-10": "codex",
-  "EP-11": "codex",
+  "EP-09": "opencode/qualidade",
+  "EP-10": "opencode/deploy",
+  "EP-11": "opencode/qualidade",
   "EP-12": "codex",
+};
+
+/**
+ * Owner por historia, quando a frente muda dentro de um epic.
+ * O `sync` reconcilia esse mapa com o ledger, sem derrubarclaim ativo.
+ */
+const STORY_OWNERS = {
+  "EP-05.07": "opencode/jira",
+  "EP-09.01": "opencode/qualidade",
+  "EP-09.02": "opencode/qualidade",
+  "EP-09.03": "opencode/qualidade",
+  "EP-09.04": "opencode/qualidade",
+  "EP-09.05": "opencode/qualidade",
+  "EP-10.01": "opencode/deploy",
+  "EP-10.02": "opencode/deploy",
+  "EP-10.03": "opencode/deploy",
+  "EP-10.04": "opencode/deploy",
+  "EP-10.05": "opencode/deploy",
+  "EP-11.01": "opencode/qualidade",
+  "EP-11.02": "opencode/qualidade",
+  "EP-11.03": "opencode/qualidade",
+  "EP-11.04": "opencode/qualidade",
+  "EP-11.05": "opencode/qualidade",
 };
 
 const PROVIDER_ALIASES = {
   antigravity: "gemini",
   "claude-code": "claude",
-  "open-code": "opencode",
+  "open-code": "opencode/qualidade",
+  opencode: "opencode/qualidade",
+  qualidade: "opencode/qualidade",
+  jira: "opencode/jira",
+  deploy: "opencode/deploy",
 };
 
 function normalizeProvider(value) {
@@ -57,4 +100,4 @@ function normalizeProvider(value) {
   return PROVIDER_ALIASES[key] || key;
 }
 
-module.exports = { PROVIDERS, EPIC_OWNERS, normalizeProvider };
+module.exports = { PROVIDERS, EPIC_OWNERS, STORY_OWNERS, normalizeProvider };
