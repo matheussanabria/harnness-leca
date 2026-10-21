@@ -2,10 +2,10 @@
 const PROVIDERS = {
   claude: {
     label: "Claude Code",
-    enabled: true,
+    enabled: false,
     autoDispatch: false,
     transport: "inbox",
-    reason: "Revisao independente de arquitetura e seguranca.",
+    reason: "Atuando em design e outras funcoes; atualmente inativo na fila.",
   },
   gemini: {
     label: "Gemini / Antigravity",
@@ -19,14 +19,14 @@ const PROVIDERS = {
     enabled: true,
     autoDispatch: false,
     transport: "inbox",
-    reason: "Tarefas deterministicas, benchmarks e extracao em lote.",
+    reason: "Tarefas deterministicas, plataforma e extracao em lote.",
   },
   codex: {
     label: "Codex",
-    enabled: true,
+    enabled: false,
     autoDispatch: false,
     transport: "inbox",
-    reason: "Frente de plataforma, dados e backend.",
+    reason: "Limite de cota/tokens estourado; temporariamente inativo.",
   },
 };
 

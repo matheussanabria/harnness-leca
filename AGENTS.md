@@ -41,6 +41,6 @@ A estrutura de pastas e as regras de memória e chats estão em `CLAUDE.md`; val
 - No início, consulte `projects/<ativo>/coordination/inbox/<provedor>.md` ou rode `node tools/coordination.js inbox --provider <provedor>`.
 - Antes de editar uma história, registre a posse com `claim` e depois `start`; use `heartbeat` em trabalhos longos.
 - Ao terminar, use `complete --evidence <arquivo-ou-comando>`. Para transferir, use `handoff --to <provedor> --message <texto>`; para avisar sem transferir, use `notify --to <provedor> --message <texto>`.
-- Gemini, Codex, Claude e OpenCode estão ativos (política atualizada pelo usuário em 2026-10-19). `autoDispatch` segue desligado: nenhum processo de IA é iniciado sem autorização.
+- Gemini e OpenCode estão ativos; Codex (limite de tokens esgotado) e Claude (em outras funções, como design) estão cadastrados, mas inativos (política atualizada pelo usuário em 2026-10-21). `autoDispatch` segue desligado: nenhum processo de IA é iniciado sem autorização.
 - Novas skills seguem a arquitetura de skills do DAI (`../dai/skills/00-skill-architecture/`), são criadas com `skill-architect` e sincronizadas com `../dai/skills/<dominio>/<skill-id>/`.
 - `projects/<ativo>/coordination/state.json` é a fonte canônica. `STATUS.md`, `context/coordination.md` e `inbox/*.md` são projeções geradas e não devem ser editadas manualmente.

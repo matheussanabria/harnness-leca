@@ -84,7 +84,7 @@ test("HIA Dispatcher - rota local_llm executa o motor Ollama e assina o turno", 
   let received = null;
   E.engines.set("ollama", {
     id: "ollama",
-    status: async () => ({ available: true, models: [], defaultModel: "qwen2.5-coder:1.5b" }),
+    status: async () => ({ available: true, models: [], defaultModel: "qwen3.5:4b" }),
     stream: (opts) => {
       received = opts;
       opts.onChunk({ type: "text", text: "resumo" });
@@ -110,11 +110,11 @@ test("HIA Dispatcher - rota local_llm executa o motor Ollama e assina o turno", 
 
   assert.equal(handled, true);
   assert.equal(fallbacks, 0, "motor local respondeu: não deve cair para a nuvem");
-  assert.equal(received.model, "qwen2.5-coder:1.5b", "modelo do targetId chega ao motor local");
+  assert.equal(received.model, "qwen3.5:4b", "modelo do targetId chega ao motor local");
   assert.match(chunks[0].text, /^\[HIA Local-First\]/);
   assert.ok(chunks.some((c) => c.text === "resumo" && c.hiaRoute === "local_llm"), "texto do motor local é marcado");
   assert.equal(done.hiaRoute, "local_llm");
-  assert.equal(done.hiaModel, "qwen2.5-coder:1.5b");
+  assert.equal(done.hiaModel, "qwen3.5:4b");
   assert.ok(done.sessionId, "a sessão local é devolvida para a interface");
 });
 
@@ -126,7 +126,7 @@ test("HIA Dispatcher - Ollama indisponível cai para o motor em nuvem sem quebra
 
   E.engines.set("ollama", {
     id: "ollama",
-    status: async () => ({ available: false, models: [], defaultModel: "qwen2.5-coder:1.5b" }),
+    status: async () => ({ available: false, models: [], defaultModel: "qwen3.5:4b" }),
     stream: (opts) => opts.onError(new Error("connect ECONNREFUSED")),
   });
 

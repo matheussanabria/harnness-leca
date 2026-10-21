@@ -5,6 +5,19 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const service = require("../tools/lib/coordination/service");
+const { PROVIDERS } = require("../tools/lib/coordination/config");
+
+// A política de provedores é configurável pelo usuário. Estes testes cobrem a mecânica
+// do ledger, não a política: por isso todos os provedores são ativados durante o cenário.
+function withActiveProviders(fn) {
+  const previous = Object.fromEntries(Object.entries(PROVIDERS).map(([id, p]) => [id, p.enabled]));
+  for (const p of Object.values(PROVIDERS)) p.enabled = true;
+  try {
+    return fn();
+  } finally {
+    for (const [id, enabled] of Object.entries(previous)) PROVIDERS[id].enabled = enabled;
+  }
+}
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "harness-coordination-"));
@@ -24,14 +37,13 @@ test("inicializa os quatro provedores com politica ativa explicita", () => {
   const root = fixture();
   const state = service.init(root, "demo");
   assert.equal(Object.keys(state.providers).length, 4);
-  assert.equal(state.providers.gemini.enabled, true);
-  assert.equal(state.providers.codex.enabled, true);
-  assert.equal(state.providers.claude.enabled, true);
-  assert.equal(state.providers.opencode.enabled, true);
+  for (const [id, provider] of Object.entries(state.providers)) {
+    assert.equal(provider.enabled, PROVIDERS[id].enabled, `politica de ${id} refletida no estado`);
+  }
   assert.equal(state.stories["EP-02.02"].owner, "gemini");
 });
 
-test("claim e evento idempotente preservam uma unica revisao", () => {
+test("claim e evento idempotente preservam uma unica revisao", () => withActiveProviders(() => {
   const root = fixture();
   service.init(root, "demo");
   const input = { type: "story.claimed", provider: "codex", storyId: "EP-05.02", payload: {}, eventId: "claim-1" };
@@ -40,9 +52,9 @@ test("claim e evento idempotente preservam uma unica revisao", () => {
   assert.equal(first.changed, true);
   assert.equal(second.changed, false);
   assert.equal(second.state.revision, 1);
-});
+}));
 
-test("handoff cria mensagem e projecao na caixa do destino", () => {
+test("handoff cria mensagem e projecao na caixa do destino", () => withActiveProviders(() => {
   const root = fixture();
   service.init(root, "demo");
   service.mutate(root, "demo", {
@@ -55,7 +67,7 @@ test("handoff cria mensagem e projecao na caixa do destino", () => {
   assert.equal(messages.length, 1);
   const inbox = path.join(root, "projects", "demo", "coordination", "inbox", "gemini.md");
   assert.match(fs.readFileSync(inbox, "utf8"), /Revisar o contrato visual/);
-});
+}));
 
 test("provedor inativo nao pode assumir trabalho", () => {
   const { PROVIDERS } = require("../tools/lib/coordination/config");
@@ -75,7 +87,7 @@ test("provedor inativo nao pode assumir trabalho", () => {
   }
 });
 
-test("claim respeita dependencia anterior ainda pendente", () => {
+test("claim respeita dependencia anterior ainda pendente", () => withActiveProviders(() => {
   const root = fixture();
   service.init(root, "demo");
   assert.throws(() => service.mutate(root, "demo", {
@@ -84,9 +96,9 @@ test("claim respeita dependencia anterior ainda pendente", () => {
     storyId: "EP-05.03",
     payload: {},
   }), /EP-05.02/);
-});
+}));
 
-test("notificacao comunica sem transferir responsabilidade", () => {
+test("notificacao comunica sem transferir responsabilidade", () => withActiveProviders(() => {
   const root = fixture();
   service.init(root, "demo");
   service.mutate(root, "demo", {
@@ -98,9 +110,9 @@ test("notificacao comunica sem transferir responsabilidade", () => {
   const state = service.get(root, "demo");
   assert.equal(state.stories["EP-05.02"].owner, "codex");
   assert.equal(service.inbox(root, "demo", "gemini").length, 1);
-});
+}));
 
-test("conclusao exige evidencia", () => {
+test("conclusao exige evidencia", () => withActiveProviders(() => {
   const root = fixture();
   service.init(root, "demo");
   assert.throws(() => service.mutate(root, "demo", {
@@ -109,4 +121,4 @@ test("conclusao exige evidencia", () => {
     storyId: "EP-05.02",
     payload: {},
   }), /evidence/);
-});
+}));
