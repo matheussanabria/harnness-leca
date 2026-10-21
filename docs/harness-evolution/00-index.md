@@ -188,8 +188,8 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 
 ## Trabalho disponível agora
 
-1. **Frente Escritório/Studio (Chat A):** EP-03 encerrado (9/9) e EP-06 encerrado (5/5); 89/104 global. Sem história pendente na alocação atual; aguardar definição da próxima frente.
-2. **Codex / Chat B:** EP-05 encerrado (6/6), EP-07 encerrado (5/5) e EP-08 encerrado (5/5); 90/104 global. No EP-09, a 09.01 (registro canônico) está implementada, a 09.02 (event log e SSE) foi delegada a outra frente e a 09.03 (Central) segue contra o contrato de leitura congelado.
+1. **Frente Escritório/Studio (Chat A):** EP-03 encerrado (9/9) e EP-06 encerrado (5/5); 91/104 global. Sem história pendente na alocação atual; aguardar definição da próxima frente.
+2. **Codex / Chat B:** EP-05 encerrado (6/6), EP-07 encerrado (5/5) e EP-08 encerrado (5/5); 91/104 global. No EP-09, a 09.01 (registro canônico) e a 09.03 (Central) estão implementadas e a 09.02 (event log e SSE) foi delegada a outra frente.
 3. A próxima história de EP-09/EP-11 deve ser criada e aceita a partir do template antes da implementação.
 4. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
 5. A divisão completa e os handoffs obrigatórios estão no [painel Gemini + Codex](05-progress/multi-agent-sync.md).
