@@ -135,6 +135,7 @@
       attrs,
       html: cleanHtml(targetEl),
       rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
+      ...(window.__hpProps ? window.__hpProps.snapshot(targetEl) : {}), // painel Posição e Layout
     });
   }
 
@@ -225,6 +226,9 @@
     clearTimeout(treeDebounce);
     treeDebounce = setTimeout(sendFullTree, 80);
   }
+
+  // Interface para scripts irmãos (arrastar para reordenar)
+  window.__harnessBridge = { send: sendToParent, mode: () => mode, select: selectElement };
 
   // Notifica que a ponte está ativa e envia a árvore de elementos
   sendToParent("HARNESS_PROTO_READY", {

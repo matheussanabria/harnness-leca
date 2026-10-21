@@ -91,6 +91,7 @@ export function renderAtelierHtml(model) {
             </div>
             <div id="inspectorPropsSection" class="proto-inspector-props">
               <div id="atelierNodeDetails"><i class="fa-solid fa-arrow-pointer"></i> Selecione uma camada ou um elemento no preview.</div>
+              <div id="atelierElementMap" class="atelier-element-map"><span><i class="fa-solid fa-diagram-project"></i> Selecione um elemento para mapear arquivo e componente.</span></div>
             </div>
           </div>
         </div>

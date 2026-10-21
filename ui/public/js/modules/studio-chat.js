@@ -38,10 +38,11 @@ export function formatContextBlock(type, payload = {}) {
     return `\n<contexto-codigo arquivo="${file}"${linesAttr}>\n${code.trim()}\n</contexto-codigo>\n`;
   }
   if (type === "element") {
-    const { nodeId = "", component = "", selector = "" } = payload;
+    const { nodeId = "", component = "", selector = "", file = "" } = payload;
+    const fileAttr = file ? ` arquivo="${file}"` : "";
     const compAttr = component ? ` componente="${component}"` : "";
     const selAttr = selector ? ` seletor="${selector}"` : "";
-    return `\n<contexto-elemento node-id="${nodeId}"${compAttr}${selAttr}></contexto-elemento>\n`;
+    return `\n<contexto-elemento node-id="${nodeId}"${fileAttr}${compAttr}${selAttr}></contexto-elemento>\n`;
   }
   if (type === "prompt") {
     return `\n${String(payload.text || "").trim()}\n`;

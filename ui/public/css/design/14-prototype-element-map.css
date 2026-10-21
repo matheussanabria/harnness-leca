@@ -1,0 +1,76 @@
+/* EP-06.05: painel de mapeamento de elemento -> arquivos/componente */
+.atelier-element-map {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #24304a;
+  border-radius: 6px;
+  background: #0b0f19;
+  color: #cbd5e1;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.element-map-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.element-map-badge {
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid #334155;
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.element-map-badge.is-registered {
+  border-color: #1d4d3f;
+  color: #6ee7b7;
+}
+
+.element-map-badge.is-fallback {
+  border-color: #5c1d24;
+  color: #fca5a5;
+}
+
+.element-map-component code,
+.element-map-files code {
+  color: #93c5fd;
+  word-break: break-all;
+}
+
+.element-map-files {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.element-map-files--components {
+  border-top: 1px solid #1e293b;
+  padding-top: 4px;
+}
+
+.element-map-entry {
+  font-size: 9px;
+  color: #fbbf24;
+  text-transform: uppercase;
+}
+
+.element-map-frameworks {
+  color: #94a3b8;
+}
+
+.element-map-send {
+  justify-content: center;
+}
+
+.element-map-error {
+  color: #fca5a5;
+}

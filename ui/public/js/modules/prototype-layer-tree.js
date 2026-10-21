@@ -1,5 +1,6 @@
 // @ts-check
 import { esc } from "../shared/dom.js";
+import { bindLayerDrag } from "./prototype-layer-drag.js";
 
 /**
  * Gerenciador da Árvore de Camadas (Layers Tree) do Inspetor de Protótipos.
@@ -10,7 +11,7 @@ let currentTree = [];
 let selectedNodeId = "";
 let expandedNodes = new Set();
 let searchQuery = "";
-let callbacks = { onSelect: null, onVisibility: null, onLock: null };
+let callbacks = { onSelect: null, onVisibility: null, onLock: null, onMove: null };
 
 const CATEGORY_ICONS = {
   nav: "fa-solid fa-compass",
@@ -29,9 +30,9 @@ function getNodeId(node) {
   return node ? (node.nodeId || node.pid || "") : "";
 }
 
-export function initLayerTree(tree, container, onSelect, onVisibility, onLock) {
+export function initLayerTree(tree, container, onSelect, onVisibility, onLock, onMove = null) {
   currentTree = tree || [];
-  callbacks = { onSelect, onVisibility, onLock };
+  callbacks = { onSelect, onVisibility, onLock, onMove };
 
   if (expandedNodes.size === 0) {
     expandTopLevels(currentTree, 0, 2);
@@ -131,7 +132,7 @@ function renderNodesList(nodes, depth, q) {
     const indentPx = depth * 14;
 
     html += `
-      <div class="layer-item-row ${isSelected ? 'selected' : ''} ${node.isHidden ? 'is-hidden' : ''} ${node.isLocked ? 'is-locked' : ''}" data-node-id="${esc(id)}" data-pid="${esc(id)}" style="padding-left:${indentPx + 6}px">
+      <div class="layer-item-row ${isSelected ? 'selected' : ''} ${node.isHidden ? 'is-hidden' : ''} ${node.isLocked ? 'is-locked' : ''}" data-node-id="${esc(id)}" data-pid="${esc(id)}" draggable="${node.isLocked ? "false" : "true"}" style="padding-left:${indentPx + 6}px">
         <span class="layer-chevron-slot">
           ${hasChildren ? `
             <button type="button" class="btn-toggle-expand" data-node-id="${esc(id)}" title="${isExpanded ? 'Recolher' : 'Expandir'}">
@@ -199,6 +200,8 @@ function bindTreeEvents(container) {
       if (callbacks.onSelect) callbacks.onSelect(id);
     });
   });
+
+  bindLayerDrag(container, (source, target, position) => callbacks.onMove?.(source, target, position));
 
   container.querySelectorAll(".btn-toggle-vis").forEach((btn) => {
     btn.addEventListener("click", (e) => {

@@ -47,17 +47,21 @@ function loadSandboxAssets(projectDir, protoDir, deps) {
   return { tokensCss, themeCss, componentsCss, protoCss, headHtml };
 }
 
+/** Scripts da ponte, na ordem de execução: medidas/prévia, ponte principal e arrastar para reordenar. */
+const BRIDGE_FILES = ["prototype-bridge-props.js", "prototype-bridge.js", "prototype-bridge-drag.js"];
+
 /**
- * Lê o script da ponte de comunicação do harness.
+ * Lê os scripts da ponte de comunicação do harness e os junta em um único bloco.
  * @param {object} deps
  * @returns {string}
  */
 function loadBridgeScript(deps) {
-  const bridgeScriptFile = deps.path.resolve(__dirname, "..", "..", "public", "js", "modules", "prototype-bridge.js");
-  if (deps.fs.existsSync(bridgeScriptFile)) {
-    try { return deps.fs.readFileSync(bridgeScriptFile, "utf8"); } catch {}
-  }
-  return "";
+  const dir = deps.path.resolve(__dirname, "..", "..", "public", "js", "modules");
+  return BRIDGE_FILES.map((name) => {
+    const file = deps.path.join(dir, name);
+    if (!deps.fs.existsSync(file)) return "";
+    try { return deps.fs.readFileSync(file, "utf8"); } catch { return ""; }
+  }).filter(Boolean).join("\n;\n");
 }
 
 /**

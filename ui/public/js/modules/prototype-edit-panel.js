@@ -1,5 +1,7 @@
 // @ts-check
 import { $, showToast, esc } from "../shared/dom.js";
+import { mountPropsPanel } from "./prototype-props-panel.js";
+import { notifyComponentChange } from "./prototype-element-map.js";
 
 let lastFingerprint = "";
 
@@ -11,8 +13,9 @@ let lastFingerprint = "";
  * @param {string} screenId
  * @param {object} node
  * @param {() => void} onApplySuccess
+ * @param {{ post?: (message: object) => void, getScreen?: () => string }} [extras] ligação com o iframe (prévia ao vivo do painel de propriedades)
  */
-export function renderNodeEditForm(panel, slug, protoId, screenId, node, onApplySuccess) {
+export function renderNodeEditForm(panel, slug, protoId, screenId, node, onApplySuccess, extras = {}) {
   if (!panel || !node) return;
 
   const classesStr = Array.isArray(node.classes) ? node.classes.join(" ") : "";
@@ -29,6 +32,9 @@ export function renderNodeEditForm(panel, slug, protoId, screenId, node, onApply
           PID: ${esc(node.pid)}
         </span>
       </div>
+
+      <!-- 1b. Posição e Layout (estilo Figma) -->
+      <div id="protoPropsHost"></div>
 
       <!-- 2. Conteúdo de Texto -->
       ${!isVoidTag ? `
@@ -104,6 +110,11 @@ export function renderNodeEditForm(panel, slug, protoId, screenId, node, onApply
     </div>
   `;
 
+  mountPropsPanel(/** @type {HTMLElement} */ (panel.querySelector("#protoPropsHost")), {
+    slug, protoId, node,
+    getScreen: extras.getScreen || (() => screenId),
+    post: extras.post || (() => {}),
+  });
   bindEditEvents(slug, protoId, screenId, node, onApplySuccess);
 }
 
@@ -200,7 +211,8 @@ function bindEditEvents(slug, protoId, screenId, node, onApplySuccess) {
         body: JSON.stringify({ name, screen: screenId, pid: node.pid }),
       });
       if (res.ok) {
-        showToast(`✔ Componente '${name}' registrado na coluna Protótipo / Extraído!`);
+        showToast(`Componente '${name}' registrado na coluna Extraído.`);
+        notifyComponentChange(slug);
       } else {
         showToast("Erro ao extrair componente.");
       }

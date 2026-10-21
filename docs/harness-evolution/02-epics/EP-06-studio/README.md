@@ -2,7 +2,7 @@
 id: EP-06
 titulo: Studio, código e preview
 prioridade: P1
-status: em-andamento
+status: concluido
 depende: [EP-02, EP-04]
 tags: [harness-evolution, epico]
 ---
@@ -34,4 +34,4 @@ Redimensionamento já em andamento na Fase 2 (HAR-006).
 | 06.02 | [Chat compartilhado no Studio](./06.02-chat-compartilhado.md) | Concluída |
 | 06.03 | [Visualizações Código, Design e Preview](./06.03-visualizacoes-codigo-design-preview.md) | Concluída |
 | 06.04 | [Preservação de alterações e seleção contextual](./06.04-preservacao-alteracoes-selecao.md) | Concluída |
-| 06.05 | Mapeamento de elementos visuais para arquivos e componentes | Planejada |
+| 06.05 | [Mapeamento de elementos visuais para arquivos e componentes](./06.05-mapeamento-elementos-visuais.md) | Concluída |

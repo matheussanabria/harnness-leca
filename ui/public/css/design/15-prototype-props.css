@@ -1,0 +1,78 @@
+/* --- 15-prototype-props.css: painel Posição e Layout do Ateliê (estilo Figma) --- */
+.pp-root { display: flex; flex-direction: column; border: 1px solid #1f2937; border-radius: 6px; background: #131c2e; overflow: hidden; }
+.pp-section { padding: 8px 10px 10px; border-bottom: 1px solid #1f2937; display: flex; flex-direction: column; gap: 6px; }
+.pp-title { margin: 0; font-size: 11px; font-weight: 700; color: #e2e8f0; letter-spacing: 0.02em; }
+.pp-label { font-size: 10px; font-weight: 600; color: #94a3b8; }
+.pp-muted { font-size: 10.5px; color: #94a3b8; line-height: 1.4; }
+.pp-muted code, .pp-label code { color: #93c5fd; font-size: 10px; }
+.pp-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.pp-row > * { flex: 1 1 0; min-width: 0; }
+.pp-field { display: flex; align-items: center; gap: 6px; background: #090d16; border: 1px solid #1f2937; border-radius: 4px; padding: 0 6px; height: 26px; }
+.pp-field:focus-within { border-color: #3b82f6; }
+.pp-lbl { font-size: 10px; font-weight: 700; color: #64748b; min-width: 10px; text-align: center; }
+.pp-input { width: 100%; min-width: 0; background: transparent; border: 0; outline: 0; color: #f8fafc; font-size: 11px; font-variant-numeric: tabular-nums; }
+.pp-select { height: 26px; background: #090d16; color: #cbd5e1; border: 1px solid #1f2937; border-radius: 4px; font-size: 10.5px; padding: 0 4px; }
+.pp-dim { flex-wrap: nowrap; }
+.pp-dim .pp-field { flex: 1 1 50%; }
+.pp-dim .pp-select { flex: 1 1 50%; }
+.pp-quad { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.pp-icon { flex: 0 0 auto; width: 28px; height: 26px; border: 1px solid #1f2937; background: #090d16; color: #94a3b8; border-radius: 4px; cursor: pointer; font-size: 11px; }
+.pp-icon:hover { color: #e2e8f0; border-color: #334155; }
+.pp-icon.is-on { color: #60a5fa; border-color: #3b82f6; background: #0f1b33; }
+.pp-align { flex-wrap: nowrap; }
+.pp-align .pp-icon { flex: 1 1 0; width: auto; }
+.pp-sep { flex: 0 0 1px; align-self: stretch; background: #1f2937; }
+.pp-check { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: #cbd5e1; cursor: pointer; }
+.pp-code { padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+.pp-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.pp-copy { border: 1px solid #334155; background: #090d16; color: #93c5fd; border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer; }
+.pp-pre { margin: 0; padding: 6px 8px; background: #030712; border-radius: 4px; color: #cbd5e1; font-size: 10.5px; overflow: auto; max-height: 160px; }
+.pp-color { flex: 0 0 28px; width: 28px; height: 26px; padding: 0; border: 1px solid #1f2937; border-radius: 4px; background: #090d16; cursor: pointer; }
+.pp-tokens summary { font-size: 10px; color: #94a3b8; cursor: pointer; padding: 2px 0; }
+.pp-tokens summary:hover { color: #e2e8f0; }
+.pp-swatches { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 0 2px; max-height: 96px; overflow: auto; }
+.pp-swatch { width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(148, 163, 184, 0.4); cursor: pointer; padding: 0; }
+.pp-swatch:hover { outline: 2px solid #3b82f6; outline-offset: 1px; }
+
+/* Aba de código: mesmo visual do bloco "Código" da vitrine do DS (painel e modal usam as mesmas regras) */
+.pc { --pc-bg: #0a1022; --pc-fg: #dbe4ff; --pc-line: #1f2a4a; --pc-mute: #93a3cc; display: flex; flex-direction: column; border: 1px solid var(--pc-line); background: var(--pc-bg); border-radius: 8px; overflow: hidden; min-width: 0; }
+.pc, .pc * { scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+.pc ::-webkit-scrollbar { width: 10px; height: 10px; }
+.pc ::-webkit-scrollbar-thumb { background: #334155; border-radius: 6px; border: 2px solid var(--pc-bg); }
+.pc ::-webkit-scrollbar-track, .pc ::-webkit-scrollbar-corner { background: transparent; }
+.pc-tabs { display: flex; align-items: center; gap: 2px; padding: 0 6px; border-bottom: 1px solid var(--pc-line); overflow-x: auto; flex: 0 0 auto; scrollbar-width: none; }
+.pc-tabs::-webkit-scrollbar { display: none; }
+.pc-tab { border: 1px solid transparent; background: none; color: var(--pc-mute); padding: 4px 10px; margin: 6px 0; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pc-tab:hover { color: #fff; }
+.pc-tab[aria-selected="true"] { color: #fff; background: #1e3a5f; border-color: #3b82f6; }
+.pc-sp { flex: 1; }
+.pc-copy { border: 0; background: none; color: var(--pc-mute); padding: 4px 8px; cursor: pointer; font-size: 11.5px; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; }
+.pc:not(.pc--big) .pc-copy span { display: none; }
+.pc-copy:hover { color: #fff; }
+.pc-note { padding: 7px 14px; font-size: 11.5px; color: var(--pc-mute); border-bottom: 1px solid var(--pc-line); overflow-wrap: anywhere; flex: 0 0 auto; }
+.pc-pre { margin: 0; padding: 14px 16px; overflow: auto; height: 280px; font-family: "Noto Sans Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 12.5px; line-height: 1.65; color: var(--pc-fg); tab-size: 2; }
+.pc-pre code { background: none; border: 0; padding: 0; font-size: inherit; white-space: pre; }
+.pc-empty, .pc .pp-muted { padding: 14px 16px; font-size: 11.5px; color: var(--pc-mute); }
+.pc .pp-pre { margin: 0 14px 12px; }
+/* Rodapé do cartão: selo do componente (mesmas cores do selo de Mapeamento) + arquivos */
+.pc-foot { display: flex; flex-direction: column; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--pc-line); background: rgba(255, 255, 255, 0.02); flex: 0 0 auto; }
+.pc-badge { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; max-width: 100%; border: 1px solid #334155; background: #0f172a; color: #cbd5e1; border-radius: 999px; font-size: 11px; padding: 3px 10px; }
+.pc-badge code { color: inherit; background: none; border: 0; padding: 0; font-size: inherit; overflow-wrap: anywhere; }
+.pc-badge em { font-style: normal; opacity: 0.8; }
+.pc-badge--extracted { border-color: #166534; background: rgba(34, 197, 94, 0.12); color: #86efac; }
+.pc-badge--ds { border-color: #1d4ed8; background: rgba(59, 130, 246, 0.14); color: #93c5fd; }
+.pc-files { display: flex; flex-wrap: wrap; gap: 5px; }
+.pc-file { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--pc-line); background: #0f172a; color: #cbd5e1; border-radius: 6px; font-size: 11px; padding: 4px 8px; cursor: pointer; }
+.pc-file:hover { border-color: #3b82f6; color: #fff; }
+.pc-file[aria-pressed="true"] { background: #1e3a5f; border-color: #3b82f6; color: #fff; }
+.pc-fw { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #8fb4ff; }
+.tk-c { color: #7f8fb8; font-style: italic; } .tk-s { color: #9be3b0; } .tk-k { color: #ffb38a; }
+.tk-t { color: #8fb4ff; } .tk-a { color: #f2d98d; } .tk-n { color: #f2a6d8; }
+
+/* Modal grande: só muda o tamanho, o cartão é o mesmo */
+.pc-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(2, 6, 16, 0.72); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.pc-dialog { width: min(1000px, 100%); height: min(82vh, 100%); display: flex; flex-direction: column; background: #0a1022; border: 1px solid #25335a; border-radius: 10px; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5); overflow: hidden; }
+.pc-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #1f2a4a; color: #e2e8f0; font-size: 13px; }
+.pc-dialog-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 12px 14px; }
+.pc--big { flex: 1; min-height: 0; }
+.pc--big .pc-pre { flex: 1; height: auto; min-height: 0; }

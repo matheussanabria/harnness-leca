@@ -69,6 +69,7 @@ function makeUnifiedDiff(fileName, oldText, newText) {
  * @param {object} op
  */
 function mutateHtmlByPid(html, pid, op) {
+  if (op.type === "moveTo") return require("./prototype-reorder.service").reorderHtml(html, pid, op.targetPid, op.position);
   const { findNodeRangeByPid } = require("./prototype-structural.service");
   const range = findNodeRangeByPid(html, pid);
   if (!range) {
@@ -164,22 +165,39 @@ function applyPrototypeEdit(projectDir, protoId, screenId, pid, op, expectedFing
     return { ok: false, conflict: true, error: "Conflito de concorrência: o arquivo foi alterado por outro processo (HTTP 409)." };
   }
 
-  const mutatedContent = mutateHtmlByPid(currentContent, pid, op);
+  // setStyles grava também styles/proto.css (classe própria do elemento)
+  const cssFile = deps.path.join(protoDir, "styles", "proto.css");
+  const currentCss = deps.fs.existsSync(cssFile) ? deps.fs.readFileSync(cssFile, "utf8") : "";
+  let mutatedContent;
+  let mutatedCss = null;
+  let styled = null;
+  if (op.type === "setStyles") {
+    styled = require("./prototype-style.service").applyStyleOp(currentContent, currentCss, pid, op.styles);
+    mutatedContent = styled.html;
+    mutatedCss = styled.css;
+  } else {
+    mutatedContent = mutateHtmlByPid(currentContent, pid, op);
+  }
 
   // Pilha de undo
   const stackKey = `${protoId}:${screenId || "home"}`;
   const stack = undoStacks.get(stackKey) || [];
-  stack.push({ screenFile, content: currentContent, version: Date.now() });
+  stack.push({ screenFile, content: currentContent, cssFile, css: mutatedCss === null ? null : currentCss, version: Date.now() });
   if (stack.length > MAX_UNDO_ITEMS) stack.shift();
   undoStacks.set(stackKey, stack);
 
-  // Gravação atômica
-  const tmpFile = `${screenFile}.tmp-${Date.now()}`;
-  deps.fs.writeFileSync(tmpFile, mutatedContent, "utf8");
-  deps.fs.renameSync(tmpFile, screenFile);
+  writeAtomic(deps, screenFile, mutatedContent);
+  if (mutatedCss !== null) writeAtomic(deps, cssFile, mutatedCss);
 
   const newFingerprint = calculateFingerprint(mutatedContent);
-  return { ok: true, newFingerprint };
+  return { ok: true, newFingerprint, ...(styled ? { cls: styled.cls, rule: styled.rule } : {}) };
+}
+
+/** Gravação atômica (arquivo temporário + rename). */
+function writeAtomic(deps, file, content) {
+  const tmpFile = `${file}.tmp-${Date.now()}`;
+  deps.fs.writeFileSync(tmpFile, content, "utf8");
+  deps.fs.renameSync(tmpFile, file);
 }
 
 /**
@@ -192,9 +210,8 @@ function undoPrototypeEdit(projectDir, protoId, screenId, deps = { fs, path }) {
 
   const lastState = stack.pop();
   if (lastState && deps.fs.existsSync(lastState.screenFile)) {
-    const tmpFile = `${lastState.screenFile}.tmp-${Date.now()}`;
-    deps.fs.writeFileSync(tmpFile, lastState.content, "utf8");
-    deps.fs.renameSync(tmpFile, lastState.screenFile);
+    writeAtomic(deps, lastState.screenFile, lastState.content);
+    if (typeof lastState.css === "string") writeAtomic(deps, lastState.cssFile, lastState.css);
     return { ok: true, newFingerprint: calculateFingerprint(lastState.content) };
   }
   return { ok: false, error: "Falha ao restaurar estado de undo." };

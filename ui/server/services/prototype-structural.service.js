@@ -220,8 +220,38 @@ function extractComponentCandidate(projectDir, protoId, candidate, deps = { fs, 
   return { ok: true, component: newEntry };
 }
 
+/**
+ * Desfaz a extração: remove o componente do proto.json (e do MAPA.md). O elemento volta a ser só HTML + CSS.
+ * @param {string} projectDir
+ * @param {string} protoId
+ * @param {{ id?: string, pid?: string, screen?: string }} target
+ * @param {object} [deps]
+ */
+function removeComponentCandidate(projectDir, protoId, target, deps = { fs, path }) {
+  const protoDir = deps.path.join(getPrototypesBaseDir(projectDir, deps), protoId);
+  const protoJsonFile = deps.path.join(protoDir, "proto.json");
+  if (!deps.fs.existsSync(protoJsonFile)) throw new Error("Protótipo não encontrado.");
+  const protoJson = JSON.parse(deps.fs.readFileSync(protoJsonFile, "utf8"));
+  const list = Array.isArray(protoJson.components) ? protoJson.components : [];
+  const removed = list.filter((c) => (target.id && c.id === target.id) || (target.pid && c.pid === target.pid && (!target.screen || !c.screen || c.screen === target.screen)));
+  if (!removed.length) throw new Error("Este elemento não está registrado como componente.");
+  protoJson.components = list.filter((c) => !removed.includes(c));
+  deps.fs.writeFileSync(protoJsonFile, JSON.stringify(protoJson, null, 2), "utf8");
+
+  const mapaFile = deps.path.join(protoDir, "MAPA.md");
+  if (deps.fs.existsSync(mapaFile)) {
+    try {
+      const ids = removed.map((c) => c.id);
+      const mapa = deps.fs.readFileSync(mapaFile, "utf8").split("\n").filter((l) => !ids.some((id) => l.startsWith("- **") && l.includes(`(\`${id}\`)`))).join("\n");
+      deps.fs.writeFileSync(mapaFile, mapa, "utf8");
+    } catch {}
+  }
+  return { ok: true, removed: removed.map((c) => c.id) };
+}
+
 module.exports = {
   findNodeRangeByPid,
   mutateStructuralHtml,
   extractComponentCandidate,
+  removeComponentCandidate,
 };

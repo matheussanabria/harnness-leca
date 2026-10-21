@@ -2,11 +2,14 @@
 import { $, showToast } from "../shared/dom.js";
 import { state } from "../shared/state.js";
 import { renderNodeEditForm } from "./prototype-edit-panel.js";
+import { updatePropsMetrics } from "./prototype-props-panel.js";
+import { applyEdit } from "./prototype-edit-api.js";
 import { setAtelierChatContext } from "./prototype-chat-bridge.js";
 import { initWorkspaceLayout } from "./prototype-workspace-layout.js";
 import { initLayerTree, selectLayerNode } from "./prototype-layer-tree.js";
 import { bindPrototypeCatalog, buildPrototypeCatalog } from "./prototype-catalog.js";
 import { renderAtelierHtml } from "./prototype-atelier-view.js";
+import { renderElementMapping } from "./prototype-element-map.js";
 import { bindCanvasMode, canvasHandleMessage, canvasPost, canvasReload, canvasSetInspector } from "./prototype-atelier-canvas.js";
 import { bindInspectorToggle, isInspectorOn, singleScreenMode } from "./prototype-inspector-toggle.js";
 
@@ -20,6 +23,7 @@ let activeViewportWidth = 1280;
 let allPrototypesList = [];
 let atelierOptions = { components: [], mcpServer: "", onSelect: null };
 let bridgeListenerInstalled = false;
+let pendingSelectPid = "";
 
 export function attachStudioSidebarToAtelier() {
   const host = $("atelierChatHost");
@@ -200,13 +204,23 @@ function handleBridgeMessage(event) {
   if (data.type === "HARNESS_PROTO_SELECT") {
     selectedNode = data;
     renderSelectedNodeDetails();
+    void renderElementMapping({ slug: currentSlug, protoId: currentProtoId, screenId: currentActiveScreen, node: data });
     const tree = $("atelierLayerTreeContainer");
     if (tree && data.pid) selectLayerNode(data.pid, tree);
+  } else if (data.type === "HARNESS_PROTO_METRICS") {
+    updatePropsMetrics(data);
+  } else if (data.type === "HARNESS_PROTO_REORDER") {
+    void moveElement(data.pid, data.targetPid, data.position);
   } else if (data.type === "HARNESS_PROTO_TREE") {
     renderLayerTree(data.tree);
   } else if (data.type === "HARNESS_PROTO_READY") {
     if (!isInspectorOn()) postToPrototype({ type: "HARNESS_PROTO_MODE", mode: singleScreenMode() });
     postToPrototype({ type: "HARNESS_PROTO_REQUEST_TREE" });
+    if (pendingSelectPid) {
+      const pid = pendingSelectPid;
+      pendingSelectPid = "";
+      setTimeout(() => postToPrototype({ type: "HARNESS_PROTO_SELECT_BY_PID", pid }), 120);
+    }
   } else if (data.type === "HARNESS_PROTO_GOTO" && data.screen) {
     currentActiveScreen = data.screen;
     const select = /** @type {HTMLSelectElement} */ ($("atelierScreenSelect"));
@@ -224,7 +238,16 @@ function renderLayerTree(treeData) {
     (pid) => postToPrototype({ type: "HARNESS_PROTO_SELECT_BY_PID", pid }),
     (pid) => postToPrototype({ type: "HARNESS_PROTO_TOGGLE_VISIBILITY", pid }),
     (pid) => postToPrototype({ type: "HARNESS_PROTO_TOGGLE_LOCK", pid }),
+    (pid, targetPid, position) => void moveElement(pid, targetPid, position),
   );
+}
+
+/** Reordena um elemento (arrastar no canvas ou na árvore): grava no HTML e recarrega mantendo a seleção. */
+async function moveElement(pid, targetPid, position) {
+  const res = await applyEdit({ slug: currentSlug, protoId: currentProtoId, screenId: currentActiveScreen, pid, op: { type: "moveTo", targetPid, position } });
+  if (!res.ok) { showToast(`Não foi possível mover: ${res.error}`); return; }
+  pendingSelectPid = pid;
+  reloadIframe();
 }
 
 function postToPrototype(message) {
@@ -241,5 +264,5 @@ function reloadIframe() {
 
 function renderSelectedNodeDetails() {
   const panel = $("atelierNodeDetails");
-  if (panel && selectedNode) renderNodeEditForm(panel, currentSlug, currentProtoId, currentActiveScreen, selectedNode, reloadIframe);
+  if (panel && selectedNode) renderNodeEditForm(panel, currentSlug, currentProtoId, currentActiveScreen, selectedNode, reloadIframe, { post: postToPrototype, getScreen: () => currentActiveScreen });
 }
