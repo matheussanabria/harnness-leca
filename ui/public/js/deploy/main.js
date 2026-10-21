@@ -4,6 +4,7 @@ import { init } from "./deploy-data.js";
 import "./deploy-run.js";
 import "./deploy-modals.js";
 import "./deploy-utils.js";
+import "./deploy-pipelines.js";
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);

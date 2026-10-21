@@ -38,21 +38,18 @@ const { apiEngines, apiDai, apiAppPing, apiChat, apiChatSave } = require("./cont
 const { apiChatUpload } = require("./controllers/upload.controller");
 const { apiSync, apiProjectSync } = require("./controllers/sync.controller");
 const { apiRemoteInfo, apiRemotePin } = require("./controllers/remote.controller");
-const { apiProjectInspectResolve, apiProjectInspectFile, apiProjectInspectComponents } = require("./controllers/inspect.controller");
 const { artifactRoutes } = require("./routes/artifact.routes");
 const { skillBindingRoutes } = require("./routes/skill-bindings.routes");
+const { auditRoutes } = require("./routes/audit.routes");
 const { canonicalSessionRoutes } = require("./routes/canonical-sessions.routes");
+const { centralEventRoutes } = require("./routes/central-events.routes");
+const { designRoutes } = require("./routes/design.routes");
+const { inspectRoutes } = require("./routes/inspect.routes");
 const {
   apiProjectSourceFiles,
   apiProjectSourceFileGet,
   apiProjectSourceFileSave,
 } = require("./controllers/source-workspace.controller");
-const {
-  apiProjectInspectEditPreview,
-  apiProjectInspectEditApply,
-  apiProjectInspectEditUndo,
-  apiProjectInspectDsClasses,
-} = require("./controllers/inspect-edit.controller");
 const {
   apiDeployConfigGet,
   apiDeployConfigSave,
@@ -61,40 +58,11 @@ const {
   apiDeployHistoryClear,
 } = require("./controllers/deploy.controller");
 const {
-  apiProjectDesignProfileGet,
-  apiProjectDesignProfileDetect,
-  apiProjectDesignProfileSave,
-  apiProjectDesignIndex,
-  apiProjectDesignLayers,
-  apiProjectDesignFile,
-  apiProjectDesignPrototype,
-  apiProjectDesignScreens,
-  apiProjectDesignAudit,
-} = require("./controllers/design.controller");
-const {
-  apiRegistryList,
-  apiRegistryGetComponent,
-  apiRegistryPreviewComponent,
-  apiRegistryExtractPilot,
-} = require("./controllers/design-registry.controller");
-const {
-  apiPrototypesList,
-  apiPrototypesCreate,
-  apiPrototypesImportArtifact,
-  apiPrototypesGet,
-  apiPrototypesRender,
-  apiPrototypesSaveFiles,
-  apiPrototypesVersionsGet,
-  apiPrototypesVersionRestore,
-  apiPrototypesEditPreview,
-  apiPrototypesEditApply,
-  apiPrototypesEditUndo,
-  apiPrototypesEditStructural,
-  apiPrototypesExtractComponent,
-  apiPrototypesExportSingleHtml,
-} = require("./controllers/prototype.controller");
-const { apiPrototypeTraceability } = require("./controllers/prototype-traceability.controller");
-const { apiPrototypesUnextractComponent } = require("./controllers/prototype-component.controller");
+  apiDeployPipelines,
+  apiDeployPipelinesSave,
+  apiDeployPipelineRun,
+  apiDeployPipelineRuns,
+} = require("./controllers/deploy-pipeline.controller");
 const {
   apiProjectScrumGet,
   apiProjectScrumStorySave,
@@ -108,6 +76,7 @@ const {
   apiProjectScrumLanesSave,
   apiProjectScrumLanesOrder,
 } = require("./controllers/scrum.controller");
+const { apiProjectScrumJiraSync } = require("./controllers/scrum-jira-sync.controller");
 const { apiProjectScrumStoryTransition } = require("./controllers/scrum-transition.controller");
 const {
   apiOrchestrationState,
@@ -127,6 +96,7 @@ function apiAgentsActive({ res }) {
 // method + caminho (texto exato ou RegExp). HEAD usa a rota do GET.
 const ROUTES = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/scrum$/, handler: apiProjectScrumGet },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/jira-sync$/, handler: apiProjectScrumJiraSync },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story$/, handler: apiProjectScrumStorySave },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/status$/, handler: apiProjectScrumStoryStatus },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/transition$/, handler: apiProjectScrumStoryTransition },
@@ -138,49 +108,17 @@ const ROUTES = [
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/status-mapping$/, handler: apiProjectScrumStatusMappingSave },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/lanes$/, handler: apiProjectScrumLanesSave },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/lanes\/order$/, handler: apiProjectScrumLanesOrder },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/profile$/, handler: apiProjectDesignProfileGet },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/profile\/detect$/, handler: apiProjectDesignProfileDetect },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/profile$/, handler: apiProjectDesignProfileSave },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/index$/, handler: apiProjectDesignIndex },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/screens$/, handler: apiProjectDesignScreens },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/audit$/, handler: apiProjectDesignAudit },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/layers$/, handler: apiProjectDesignLayers },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/file$/, handler: apiProjectDesignFile },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry$/, handler: apiRegistryList },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/registry\/extract-pilot$/, handler: apiRegistryExtractPilot },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry\/([\w.-]+)\/preview$/, handler: apiRegistryPreviewComponent },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry\/([\w.-]+)$/, handler: apiRegistryGetComponent },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes$/, handler: apiPrototypesList },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes$/, handler: apiPrototypesCreate },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/import-artifact\/([\w-]+)$/, handler: apiPrototypesImportArtifact },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)$/, handler: apiPrototypesGet },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/render(?:\/([\w-]+))?$/, handler: apiPrototypesRender },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/files$/, handler: apiPrototypesSaveFiles },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/edit\/preview$/, handler: apiPrototypesEditPreview },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/edit\/apply$/, handler: apiPrototypesEditApply },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/edit\/undo$/, handler: apiPrototypesEditUndo },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/edit\/structural$/, handler: apiPrototypesEditStructural },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/extract-component$/, handler: apiPrototypesExtractComponent },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/export\/single-html$/, handler: apiPrototypesExportSingleHtml },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/traceability$/, handler: apiPrototypeTraceability },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/unextract-component$/, handler: apiPrototypesUnextractComponent },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/versions$/, handler: apiPrototypesVersionsGet },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/versions\/(\d+)\/restore$/, handler: apiPrototypesVersionRestore },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototype(?:\/([\w-]+)(?:\/(.*))?)?$/, handler: apiProjectDesignPrototype },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/inspect\/components$/, handler: apiProjectInspectComponents },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/inspect\/resolve$/, handler: apiProjectInspectResolve },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/inspect\/file$/, handler: apiProjectInspectFile },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/inspect\/edit\/preview$/, handler: apiProjectInspectEditPreview },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/inspect\/edit\/apply$/, handler: apiProjectInspectEditApply },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/inspect\/edit\/undo$/, handler: apiProjectInspectEditUndo },
-  { method: "GET", path: /^\/api\/project\/([\w-]+)\/inspect\/ds-classes$/, handler: apiProjectInspectDsClasses },
+  ...designRoutes,
+  ...inspectRoutes,
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/source$/, handler: apiProjectSourceFiles },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/source\/file$/, handler: apiProjectSourceFileGet },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/source\/file$/, handler: apiProjectSourceFileSave },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/journal$/, handler: apiProjectJournal },
   ...artifactRoutes,
   ...skillBindingRoutes,
+  ...auditRoutes,
   ...canonicalSessionRoutes,
+  ...centralEventRoutes,
   { method: "GET", path: "/api/state", handler: apiState },
   { method: "GET", path: "/api/agents/active", handler: apiAgentsActive },
   { method: "GET", path: "/api/orchestration/state", handler: apiOrchestrationState },
@@ -231,6 +169,10 @@ const ROUTES = [
   { method: "POST", path: "/api/deploy/trigger", handler: apiDeployTrigger },
   { method: "GET", path: "/api/deploy/history", handler: apiDeployHistoryGet },
   { method: "POST", path: "/api/deploy/clear-history", handler: apiDeployHistoryClear },
+  { method: "GET", path: "/api/deploy/pipelines", handler: apiDeployPipelines },
+  { method: "POST", path: "/api/deploy/pipelines", handler: apiDeployPipelinesSave },
+  { method: "GET", path: "/api/deploy/pipelines/runs", handler: apiDeployPipelineRuns },
+  { method: "POST", path: /^\/api\/deploy\/pipelines\/([\w-]+)\/run$/, handler: apiDeployPipelineRun },
   { method: "GET", path: "/api/hia/metrics", handler: apiHiaMetrics },
 ];
 

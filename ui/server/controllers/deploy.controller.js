@@ -3,90 +3,16 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { send, readJsonBody, slugs } = require("../config");
-const { ROOT } = require("../../../tools/lib/root");
+const {
+  HISTORY_FILE,
+  loadDeployConfig,
+  saveDeployConfig,
+  maskWebhook,
+} = require("../services/deploy/deploy-config.service");
 
-const DEPLOY_CONFIG_FILE = path.join(ROOT, "global", "deployments.json");
-const DEPLOY_HISTORY_FILE = path.join(ROOT, "global", "deploy-history.json");
-
-function getDefaultConfig() {
-  return {
-    easypanelHost: "",
-    defaultTimeoutMs: 15000,
-    projects: [
-      {
-        id: "57multimarcas-web",
-        name: "57 Multimarcas · Web",
-        description: "Frontend / SPA hospedado no Easypanel (Hostinger VPS)",
-        environments: [
-          {
-            id: "hom",
-            name: "Homologação (HOM)",
-            type: "staging",
-            webhookUrl: "",
-            method: "POST",
-            requireConfirm: false,
-          },
-          {
-            id: "prod",
-            name: "Produção (PROD)",
-            type: "production",
-            webhookUrl: "",
-            method: "POST",
-            requireConfirm: true,
-          },
-        ],
-      },
-      {
-        id: "57multimarcas-back",
-        name: "57 Multimarcas · Backend",
-        description: "API / Backend hospedado no Easypanel (Hostinger VPS)",
-        environments: [
-          {
-            id: "hom",
-            name: "Homologação (HOM)",
-            type: "staging",
-            webhookUrl: "",
-            method: "POST",
-            requireConfirm: false,
-          },
-          {
-            id: "prod",
-            name: "Produção (PROD)",
-            type: "production",
-            webhookUrl: "",
-            method: "POST",
-            requireConfirm: true,
-          },
-        ],
-      },
-    ],
-  };
-}
-
-function loadConfig() {
-  try {
-    if (fs.existsSync(DEPLOY_CONFIG_FILE)) {
-      const raw = fs.readFileSync(DEPLOY_CONFIG_FILE, "utf8");
-      return JSON.parse(raw);
-    }
-  } catch (err) {
-    console.error("[deploy.controller] Erro ao ler deployments.json:", err);
-  }
-  const def = getDefaultConfig();
-  saveConfig(def);
-  return def;
-}
-
-function saveConfig(cfg) {
-  try {
-    fs.mkdirSync(path.dirname(DEPLOY_CONFIG_FILE), { recursive: true });
-    fs.writeFileSync(DEPLOY_CONFIG_FILE, JSON.stringify(cfg, null, 2), "utf8");
-    return true;
-  } catch (err) {
-    console.error("[deploy.controller] Erro ao gravar deployments.json:", err);
-    return false;
-  }
-}
+const DEPLOY_HISTORY_FILE = HISTORY_FILE;
+const loadConfig = loadDeployConfig;
+const saveConfig = saveDeployConfig;
 
 function loadHistory() {
   try {
@@ -104,22 +30,6 @@ function saveHistory(history) {
     fs.writeFileSync(DEPLOY_HISTORY_FILE, JSON.stringify(history.slice(0, 50), null, 2), "utf8");
   } catch (err) {
     console.error("[deploy.controller] Erro ao gravar deploy-history.json:", err);
-  }
-}
-
-function maskWebhook(url) {
-  if (!url) return "";
-  try {
-    const u = new URL(url);
-    if (u.searchParams.has("token")) {
-      const tok = u.searchParams.get("token") || "";
-      if (tok.length > 8) {
-        u.searchParams.set("token", tok.slice(0, 4) + "..." + tok.slice(-4));
-      }
-    }
-    return u.toString();
-  } catch {
-    return url.replace(/([?&]token=)([^&]{4})[^&]+/i, "$1$2...");
   }
 }
 

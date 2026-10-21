@@ -2,7 +2,7 @@
 id: EP-10
 titulo: Datacenter e deploys
 prioridade: P2
-status: planejado
+status: em-andamento
 depende: [EP-09]
 tags: [harness-evolution, epico]
 ---
@@ -31,8 +31,8 @@ Títulos a revisar depois do EP-00. Cada história ganha um arquivo próprio a p
 
 | ID | Título |
 |---|---|
-| 10.01 | Integração de pipelines |
-| 10.02 | Ambientes e indicadores de saúde |
+| [10.01](./10.01-integracao-pipelines.md) | Integração de pipelines (concluída) |
+| [10.02](./10.02-ambientes-indicadores-saude.md) | Ambientes e indicadores de saúde (concluída) |
 | 10.03 | Histórico e logs de deploy |
 | 10.04 | Ações de deploy autorizadas com confirmação |
 | 10.05 | Paridade entre painel tradicional e escritório |
