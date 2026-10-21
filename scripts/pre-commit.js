@@ -7,6 +7,7 @@
 //   4. `npm run check` ou `npm test` falham (pule os testes com HARNESS_SKIP_TESTS=1, ex.: commit só de documentação).
 // Nunca imprime o segredo achado: só arquivo, linha e tipo.
 const { spawnSync } = require("child_process");
+const fs = require("fs");
 const path = require("path");
 const { findSecrets } = require("../tools/lib/redact");
 
@@ -92,6 +93,18 @@ function main() {
   else {
     const r = spawnSync(process.execPath, ["--test", "tests/*.test.js"], { stdio: "inherit" });
     if (r.status !== 0) { console.error("✖ npm test falhou"); process.exit(1); }
+  }
+
+  // EP-11.05: a suíte de regressão completa (índice mestre e dívida de tipos) só passa a
+  // barrar o commit quando o arquivo de ativação existe — depois que as outras frentes
+  // committed o que é delas. Antes disso, roda em modo informativo.
+  const enforced = fs.existsSync(path.join(root, "quality", "regression-enforced"));
+  if (enforced || process.env.HARNESS_REGRESSION === "1") {
+    const { runRegression } = require("./regressao");
+    const result = runRegression();
+    if (!result.ok) { console.error("✖ regressão falhou"); process.exit(1); }
+  } else {
+    console.log("(regressão completa em modo informativo: crie quality/regression-enforced para barrar o commit)");
   }
 }
 
