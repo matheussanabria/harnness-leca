@@ -2,7 +2,7 @@
 id: EP-07
 titulo: Artefatos e documentação
 prioridade: P1
-status: planejado
+status: concluido
 depende: [EP-00]
 tags: [harness-evolution, epico]
 ---
@@ -24,15 +24,15 @@ Repositório lógico de artefatos integrado às histórias, conversas e componen
 Cada artefato tem origem identificável, acesso autorizado e relação verificável com seu projeto.
 
 ## Contexto conhecido
-Mapa em Camadas bloqueado por falta de referências visuais (HAR-012).
+Os relacionamentos e a navegação ponta a ponta do Mapa foram entregues em 07.05 (HAR-013). A fidelidade visual do Mapa continua bloqueada por falta de referências (HAR-012).
 
-## Histórias (provisórias)
-Títulos a revisar depois do EP-00. Cada história ganha um arquivo próprio a partir do [template](../../_templates/story-template.md) quando for detalhada.
+## Histórias
+Cada história ganha um arquivo próprio a partir do [template](../../_templates/story-template.md) quando for detalhada.
 
 | ID | Título |
 |---|---|
-| 07.01 | Inventário de artefatos por projeto |
-| 07.02 | Importação de arquivos e pastas |
-| 07.03 | Metadados de origem e controle de acesso |
-| 07.04 | Previews seguros |
-| 07.05 | Relacionamentos e Mapa em Camadas |
+| [07.01](./07.01-inventario-artefatos.md) | Inventário de artefatos por projeto (concluída) |
+| [07.02](./07.02-importacao-arquivos-pastas.md) | Importação de arquivos e pastas (concluída) |
+| [07.03](./07.03-metadados-origem-controle-acesso.md) | Metadados de origem e controle de acesso (concluída) |
+| [07.04](./07.04-previews-seguros.md) | Previews seguros (concluída) |
+| [07.05](./07.05-relacionamentos-mapa-camadas.md) | Relacionamentos e Mapa em Camadas (concluída) |

@@ -5,6 +5,8 @@ import { renderKanbanBoard } from "./design-board.js";
 import { renderLayersWorkspace } from "./design-layers.js";
 import { renderAuditWorkspace } from "./design-audit.js";
 import { renderPrototypesWorkspace } from "./design-prototypes.js";
+import { renderArtifactsWorkspace } from "./design-artifacts.js";
+import { renderRoutinesWorkspace } from "./design-routines.js";
 import { renderScrumWorkspace } from "./design-scrum.js";
 import { detachStudioSidebarFromAtelier } from "./prototype-atelier.js";
 
@@ -13,37 +15,61 @@ let currentScreensData = null;
 let currentAuditData = null;
 let currentScrumData = null;
 let currentProfileData = null;
-let currentView = "scrum"; // 'layers' | 'board' | 'scrum' | 'audit' | 'prototypes'
+let currentArtifactsData = null;
+let currentView = "scrum"; // 'layers' | 'board' | 'scrum' | 'audit' | 'prototypes' | 'artifacts'
 let isDesignActive = false;
 let lastLoadedSlug = "";
 
 /** @type {Map<string, any>} */
 const draftsBySlug = new Map();
 
+// Extrair ou desfazer componente no Ateliê: atualiza os dados e, se o quadro estiver aberto, redesenha (sem F5).
+if (typeof window !== "undefined") {
+  window.addEventListener("harness:design-index-changed", async (e) => {
+    const slug = /** @type {CustomEvent} */ (e).detail?.slug || state.P?.name || state.S?.active;
+    if (!slug) return;
+    await loadAllProjectDesignData(slug);
+    if (isDesignActive && currentView === "board") renderCurrentDesignView();
+  });
+
+  window.addEventListener("harness:open-layer-target", (e) => {
+    const detail = /** @type {CustomEvent} */ (e).detail || {};
+    if (!detail.route && !detail.screenId) return;
+    const win = /** @type {any} */ (window);
+    setDesignView("layers");
+    if (win.openLayersTarget?.(detail.route, detail.fieldId)) return;
+    win.selectActiveScreen?.(detail.screenId);
+    if (detail.fieldId) win.setFocusedField?.(detail.fieldId);
+    win.setLayerTab?.("ui");
+  });
+}
+
 export async function loadAllProjectDesignData(slug) {
   if (slug !== lastLoadedSlug) {
     lastLoadedSlug = slug;
   }
   try {
-    const [resProfile, resIndex, resScreens, resAudit, resScrum] = await Promise.all([
+    const [resProfile, resIndex, resScreens, resAudit, resScrum, resArtifacts] = await Promise.all([
       fetch(`/api/project/${encodeURIComponent(slug)}/design/profile`),
       fetch(`/api/project/${encodeURIComponent(slug)}/design/index`),
       fetch(`/api/project/${encodeURIComponent(slug)}/design/screens`),
       fetch(`/api/project/${encodeURIComponent(slug)}/design/audit`),
       fetch(`/api/project/${encodeURIComponent(slug)}/scrum`),
+      fetch(`/api/project/${encodeURIComponent(slug)}/artifacts`),
     ]);
 
     if (resProfile.ok) currentProfileData = await resProfile.json();
     if (resIndex.ok) currentDesignData = await resIndex.json();
     if (resScreens.ok) currentScreensData = await resScreens.json();
     if (resAudit.ok) currentAuditData = await resAudit.json();
+    if (resArtifacts.ok) currentArtifactsData = await resArtifacts.json();
     if (resScrum.ok) {
       const scrumJson = await resScrum.json();
       currentScrumData = scrumJson.scrum;
     }
 
     renderProfileBannerIfNeeded(slug);
-    return { profile: currentProfileData, design: currentDesignData, screens: currentScreensData, audit: currentAuditData, scrum: currentScrumData };
+    return { profile: currentProfileData, design: currentDesignData, screens: currentScreensData, audit: currentAuditData, scrum: currentScrumData, artifacts: currentArtifactsData };
   } catch (err) {
     showToast("Falha de conexão com os serviços de design e projeto.");
     return null;
@@ -154,6 +180,13 @@ function renderCurrentDesignView() {
       currentDesignData?.components || [],
       currentDesignData?.designSystem || {},
     );
+  } else if (currentView === "artifacts") {
+    renderArtifactsWorkspace(container, slug, currentArtifactsData, async () => {
+      await loadAllProjectDesignData(slug);
+      if (currentView === "artifacts") renderCurrentDesignView();
+    });
+  } else if (currentView === "routines") {
+    renderRoutinesWorkspace(container, slug);
   }
 }
 

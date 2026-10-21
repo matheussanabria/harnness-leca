@@ -1,0 +1,69 @@
+.artifact-meta {
+  display: block;
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 10.5px;
+}
+
+.artifact-access {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.artifact-access-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 10.5px;
+}
+
+.artifact-access-badge.is-project {
+  color: #93c5fd;
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+.artifact-access-badge.is-local-only {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.artifact-access-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel2);
+  color: var(--mute);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.artifact-access-toggle:hover {
+  color: var(--text);
+  border-color: #64748b;
+}
+
+.artifact-access-toggle:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+@media (max-width: 900px) {
+  .artifact-access {
+    gap: 4px;
+  }
+
+  .artifact-access-badge {
+    font-size: 10px;
+  }
+}
