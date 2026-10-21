@@ -1,6 +1,7 @@
 // @ts-check
 // Carga dos dados de Scrum; o catálogo de raias vem do backend.
 import { showToast } from "../shared/dom.js";
+import { officeState } from "../office-state.js";
 import { ds } from "./design-scrum-store.js";
 import { renderCurrentScrumView } from "./design-scrum-view.js";
 
@@ -13,6 +14,8 @@ export async function loadScrumData(slug) {
       return null;
     }
     ds.currentScrumData = data.scrum;
+    officeState.scrumData = data.scrum;
+    window.dispatchEvent(new CustomEvent("dai:scrumChanged", { detail: { slug, scrum: data.scrum } }));
     return ds.currentScrumData;
   } catch {
     showToast("Falha de conexao com o servico de Scrum.");

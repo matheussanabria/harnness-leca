@@ -4,6 +4,8 @@ import { drawCornerAccents } from "./office3d/war-screen/war-screen-helpers.js";
 import { renderColumnWorkflows } from "./office3d/war-screen/war-screen-workflows.js";
 import { renderColumnTasks } from "./office3d/war-screen/war-screen-tasks.js";
 import { renderColumnAgents } from "./office3d/war-screen/war-screen-agents.js";
+import { renderScrumProjection } from "./office3d/war-screen/war-screen-scrum.js";
+import { normalizeWarScreenPreset, isScrumProjection } from "./office/war-screen-tabs-model.js";
 
 export class WarRoomScreenRenderer {
   constructor() {
@@ -21,13 +23,17 @@ export class WarRoomScreenRenderer {
    * @param {Object} [data.agentsData]
    * @param {Object} [data.orchestrationState]
    * @param {Object} [data.journal]
+   * @param {string} [data.preset]
+   * @param {Object} [data.scrumData]
    */
-  render({ activeProject, projectData, agentsData, orchestrationState, journal }) {
+  render({ activeProject, projectData, agentsData, orchestrationState, journal, preset, scrumData }) {
     const ctx = this.ctx;
     if (!ctx) return this.canvas;
 
     const w = this.canvas.width;
     const h = this.canvas.height;
+    const activePreset = normalizeWarScreenPreset(preset);
+    const scrumMode = isScrumProjection(activePreset);
 
     // 1. Fundo Tecnológico com Gradiente e Grid Cibernético
     const bgGrad = ctx.createLinearGradient(0, 0, w, h);
@@ -66,7 +72,7 @@ export class WarRoomScreenRenderer {
 
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 32px 'Segoe UI', system-ui, sans-serif";
-    ctx.fillText("DAI HQ — WAR ROOM TACTICAL COMMAND", 54, 78);
+    ctx.fillText(scrumMode ? "DAI HQ — WAR ROOM KANBAN PROJECTION" : "DAI HQ — WAR ROOM TACTICAL COMMAND", 54, 78);
 
     const projName = (activeProject || "PROJETO").toUpperCase();
     ctx.fillStyle = "#ffaa00";
@@ -80,28 +86,27 @@ export class WarRoomScreenRenderer {
 
     ctx.fillStyle = "#e2e8f0";
     ctx.font = "600 18px 'Segoe UI', system-ui, sans-serif";
-    ctx.fillText("ORCHESTRATION ENGINE ONLINE", 1640, 77);
+    ctx.fillText(scrumMode ? "SCRUM PROJECTION ONLINE" : "ORCHESTRATION ENGINE ONLINE", 1640, 77);
 
-    // 3. Grid de 3 Colunas Operacionais Modularizadas
+    // 3. Conteúdo da aba ativa. A seleção é feita nas abas físicas ao lado do telão.
     const colY = 130;
     const colH = 880;
-    const colW = (w - 76) / 3;
 
-    // COLUNA 1: Workflows, Extração & Diário
-    renderColumnWorkflows(ctx, 28, colY, colW, colH, projectData, journal);
-
-    // COLUNA 2: Jobs Assíncronos, Background Tasks & Rotinas
-    renderColumnTasks(ctx, 28 + colW + 10, colY, colW, colH, projectData, orchestrationState);
-
-    // COLUNA 3: Telemetria de Agentes & Motores Conectados
-    renderColumnAgents(ctx, 28 + (colW + 10) * 2, colY, colW, colH, agentsData, orchestrationState);
+    if (scrumMode) {
+      renderScrumProjection(ctx, 28, colY, w - 56, colH, scrumData);
+    } else {
+      const colW = (w - 76) / 3;
+      renderColumnWorkflows(ctx, 28, colY, colW, colH, projectData, journal);
+      renderColumnTasks(ctx, 28 + colW + 10, colY, colW, colH, projectData, orchestrationState);
+      renderColumnAgents(ctx, 28 + (colW + 10) * 2, colY, colW, colH, agentsData, orchestrationState);
+    }
 
     // 4. Rodapé Tático com Atalhos e Telemetria
     ctx.fillStyle = "rgba(10, 16, 26, 0.95)";
     ctx.fillRect(24, h - 54, w - 48, 30);
     ctx.fillStyle = "#64748b";
     ctx.font = "14px 'Segoe UI', system-ui, sans-serif";
-    ctx.fillText("CONTROLES: [W,A,S,D] Andar  |  [Mover Mouse] Câmera  |  [C] 1ª/3ª Pessoa  |  [Alt/M] Liberar Cursor  |  [Esc] Sair do Foco", 48, h - 34);
+    ctx.fillText("CONTROLES: [W,A,S,D] Andar  |  [E] Selecionar aba ao lado do telão  |  [C] 1ª/3ª Pessoa  |  [Alt/M] Liberar Cursor", 48, h - 34);
 
     const now = new Date().toLocaleTimeString("pt-BR");
     ctx.fillStyle = "#00d2ff";

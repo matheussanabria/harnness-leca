@@ -2,27 +2,19 @@
 // Backlog do produto e área de épicos.
 import { esc } from "../shared/dom.js";
 import { ds } from "./design-scrum-store.js";
+import { visibleStories } from "./design-scrum-filters.js";
 
 /**
  * Renderiza a visão em lista do Backlog do Produto.
  * @param {any} scrum
  */
 export function renderProductBacklog(scrum) {
-  const allStories = scrum.stories || [];
   const epics = scrum.epics || [];
   const activeSprint = scrum.sprints?.find((s) => s.id === scrum.activeSprintId);
 
-  let filtered = allStories;
+  let filtered = visibleStories(scrum, { scope: "all" });
   if (ds.currentEpicFilter !== "all") {
     filtered = filtered.filter((s) => s.epicId === ds.currentEpicFilter);
-  }
-  if (ds.currentSearchQuery) {
-    const q = ds.currentSearchQuery.toLowerCase();
-    filtered = filtered.filter((s) =>
-      s.title.toLowerCase().includes(q) ||
-      s.key.toLowerCase().includes(q) ||
-      (s.description && s.description.toLowerCase().includes(q))
-    );
   }
 
   const epicFilterOptions = [
@@ -89,7 +81,6 @@ export function renderProductBacklog(scrum) {
           <select class="scrum-sprint-select" onchange="onEpicFilterChange(this.value)">
             ${epicFilterOptions}
           </select>
-          <input type="text" class="chats-search-input" style="width:180px" placeholder="Buscar história..." value="${esc(ds.currentSearchQuery)}" oninput="onScrumSearchInput(this.value)">
           <button type="button" class="btn-card-action" onclick="openNewStoryModal()"><i class="fa-solid fa-plus"></i> Nova História</button>
         </div>
       </div>

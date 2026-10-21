@@ -12,6 +12,8 @@ export function renderStoryCard(story, epics = [], transitions = {}, lanes = [])
   const relations = story.relationshipCount ?? story.relationships?.length ?? 0;
   const blockers = (story.relationships || []).filter((item) => item.direction === "inward" && item.relation.toLowerCase().includes("blocked")).length;
   const priorityClass = story.priority ? `priority-${esc(story.priority)}` : "";
+  const blocked = Boolean(story.impediment?.active);
+  const blockedReason = blocked ? story.impediment?.reason || "Sem motivo informado." : "";
   const previous = lanes.find((lane) => lane.id === transitions.backward);
   const next = lanes.find((lane) => lane.id === transitions.forward);
   return `
@@ -31,6 +33,7 @@ export function renderStoryCard(story, epics = [], transitions = {}, lanes = [])
       <div class="story-card-source-status">${icon("circle-dot")} ${esc(story.sourceStatus?.name || "Status local")}</div>
       <div class="story-card-foot">
         <div class="story-card-signals">
+          ${blocked ? `<span class="story-impediment-badge" title="${esc(blockedReason)}">${icon("triangle-exclamation", "Impedida")}</span>` : ""}
           ${story.priority ? `<span class="${priorityClass}">${icon("flag")} ${esc(story.priority)}</span>` : ""}
           <span title="Criterios de aceite">${icon("list-check")} ${criteria}</span>
           ${blockers ? `<span title="Bloqueadores">${icon("ban")} ${blockers}</span>` : ""}
@@ -40,6 +43,7 @@ export function renderStoryCard(story, epics = [], transitions = {}, lanes = [])
           <button type="button" class="btn-step-col story-drag-handle" aria-label="Arrastar ${esc(story.key)} para outra etapa" title="Arrastar historia"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>
           <button type="button" class="btn-step-col" ${previous ? "" : "disabled"} onclick="moveScrumStoryByStep('${esc(story.id)}',-1)" aria-label="Mover ${esc(story.key)} para etapa anterior${previous ? `: ${esc(previous.name)}` : ""}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button>
           <button type="button" class="btn-step-col" ${next ? "" : "disabled"} onclick="moveScrumStoryByStep('${esc(story.id)}',1)" aria-label="Mover ${esc(story.key)} para proxima etapa${next ? `: ${esc(next.name)}` : ""}"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+          <button type="button" class="btn-step-col story-impediment-toggle${blocked ? " is-blocked" : ""}" onclick="toggleStoryImpedimentById('${esc(story.id)}')" title="${blocked ? "Resolver impedimento" : "Marcar impedimento"}" aria-label="${blocked ? "Resolver impedimento" : "Marcar impedimento"}">${icon("triangle-exclamation")}</button>
           <button type="button" class="btn-step-col" onclick="openEditStoryById('${esc(story.id)}')" title="Editar historia" aria-label="Editar historia">${icon("pen")}</button>
           <button type="button" class="btn-step-col" onclick="sendStoryToChatById('${esc(story.id)}')" title="Enviar ao chat" aria-label="Enviar ao chat">${icon("message")}</button>
         </div>

@@ -71,6 +71,28 @@ function transitionHistoryHtml(story) {
   </li>`).join("")}</ol>`;
 }
 
+function impedimentHtml(story) {
+  const impediment = story.impediment;
+  const active = Boolean(impediment?.active);
+  const events = (ds.currentScrumData?.impedimentHistory || [])
+    .filter((item) => item.storyId === story.id || item.storyKey === story.key)
+    .slice().reverse();
+  const history = events.length
+    ? `<ol class="story-impediment-history">${events.map((item) => `<li>
+        <i class="fa-solid fa-${item.active ? "triangle-exclamation" : "circle-check"}" aria-hidden="true"></i>
+        <span><b>${item.active ? "Ativado" : "Resolvido"}</b>${item.reason ? `: ${esc(item.reason)}` : ""}<small>${esc(item.occurredAt)}</small></span>
+      </li>`).join("")}</ol>`
+    : '<p class="story-detail-empty">Nenhuma alteracao registrada.</p>';
+  return `<div class="story-impediment-panel${active ? " is-blocked" : ""}">
+    <p><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ${active ? "Impedimento ativo" : "Sem impedimento ativo"}</p>
+    ${active ? `<dl class="story-detail-metadata"><div><dt>Motivo</dt><dd>${esc(impediment.reason || "Nao informado")}</dd></div><div><dt>Desde</dt><dd>${esc(impediment.since)}</dd></div></dl>` : ""}
+    <button type="button" class="btn-card-action" onclick="toggleStoryImpedimentById('${esc(story.id)}')">
+      <i class="fa-solid fa-${active ? "circle-check" : "triangle-exclamation"}"></i> ${active ? "Resolver impedimento" : "Marcar impedimento"}
+    </button>
+    ${history}
+  </div>`;
+}
+
 function commentsHtml(items = []) {
   if (!items.length) return '<p class="story-detail-empty">Nenhum comentario registrado.</p>';
   return items.map((item, index) => {
@@ -99,6 +121,7 @@ export function renderStoryDetails(story) {
         <button type="button" class="btn-card-action" onclick="sendStoryToChatById('${esc(story.id)}')"><i class="fa-solid fa-message"></i> Enviar ao chat</button>
       </div>
       ${section("Metadados", "table-list", metadataHtml(story))}
+      ${section("Impedimento", "triangle-exclamation", impedimentHtml(story))}
       ${section("Historico de movimentacao", "clock-rotate-left", transitionHistoryHtml(story))}
       ${story.context ? section("Contexto", "circle-info", `<div class="story-detail-markdown">${md(story.context)}</div>`) : ""}
       ${section("Descricao", "align-left", story.description ? `<div class="story-detail-markdown">${md(story.description)}</div>` : '<p class="story-detail-empty">Nao informada.</p>')}

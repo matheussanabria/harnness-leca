@@ -3,6 +3,7 @@
 import { esc } from "../shared/dom.js";
 import { ds } from "./design-scrum-store.js";
 import { renderStoryCard } from "./design-scrum-story-card.js";
+import { visibleStories } from "./design-scrum-filters.js";
 
 export function renderSprintBanner(scrum) {
   const summary = scrum.summary || {};
@@ -45,11 +46,7 @@ export function renderSprintBanner(scrum) {
 }
 
 export function renderSprintKanban(scrum) {
-  const currentFilter = ds.selectedSprintFilter || (scrum.activeSprintId ? "active" : "all");
-  const targetSprintId = currentFilter === "active" ? scrum.activeSprintId : currentFilter;
-  const stories = currentFilter === "all"
-    ? (scrum.stories || [])
-    : (scrum.stories || []).filter((story) => story.sprintId === targetSprintId);
+  const stories = visibleStories(scrum, { scope: "sprint" });
 
   const visibleLanes = (scrum.lanes || []).filter((lane) => lane.visible);
   const columns = visibleLanes.map((lane, index) => {

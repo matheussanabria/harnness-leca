@@ -5,6 +5,7 @@ import { state } from "../shared/state.js";
 import { ds } from "./design-scrum-store.js";
 import { renderCurrentScrumView } from "./design-scrum-view.js";
 import { loadScrumData } from "./design-scrum-data.js";
+import { renderScrumFilterBar } from "./design-scrum-filter-bar.js";
 
 function findStory(id) {
   return ds.currentScrumData?.stories?.find((story) => story.id === id || story.key === id);
@@ -74,6 +75,43 @@ export function registerScrumActions() {
   window.onScrumSearchInput = (value) => {
     ds.currentSearchQuery = value;
     renderCurrentScrumView();
+  };
+  window.onScrumAssigneeFilterChange = (value) => {
+    ds.currentAssigneeFilter = value;
+    renderCurrentScrumView();
+  };
+  window.onScrumImpedimentFilterChange = (checked) => {
+    ds.onlyImpediments = Boolean(checked);
+    renderCurrentScrumView();
+  };
+  window.clearScrumFilters = () => {
+    ds.currentSearchQuery = "";
+    ds.currentAssigneeFilter = "all";
+    ds.onlyImpediments = false;
+    const bar = $("scrumFiltersBar");
+    if (bar) bar.innerHTML = renderScrumFilterBar(ds.currentScrumData || {});
+    renderCurrentScrumView();
+  };
+  window.toggleStoryImpedimentById = async (storyId) => {
+    const story = findStory(storyId);
+    if (!story) return;
+    const blocked = Boolean(story.impediment?.active);
+    let reason = "";
+    if (!blocked) {
+      const input = prompt(`Motivo do impedimento para ${story.key}:`);
+      if (input === null) return;
+      reason = input.trim();
+      if (!reason) {
+        showToast("Informe o motivo do impedimento.");
+        return;
+      }
+    } else if (!confirm(`Resolver o impedimento de ${story.key}?`)) {
+      return;
+    }
+    try {
+      await postScrum("story/impediment", { storyId: story.id, active: !blocked, reason });
+      showToast(blocked ? "Impedimento resolvido." : "Impedimento registrado.");
+    } catch (error) { showToast(error.message); }
   };
   window.sendStoryToChat = (story) => {
     const criteria = (story.acceptanceCriteria || []).map((item) => typeof item === "string" ? item : `${item.label}: ${item.content}`);

@@ -97,13 +97,45 @@ function moveStoryToLane(slug, projectDir, repoRoot, storyId, expectedLaneId, ta
   return persistAndReload(slug, projectDir, repoRoot, data);
 }
 
-function assignStorySprint(slug, projectDir, repoRoot, storyId, sprintId) {
-  const resolved = findResolved(slug, projectDir, repoRoot, storyId);
+function assignStorySprint(slug, projectDir, repoRoot, storyId, sprintId) {  const resolved = findResolved(slug, projectDir, repoRoot, storyId);
   if (!resolved) throw new Error(`Historia '${storyId}' nao encontrada.`);
   const data = loadStoredProjectScrum(slug, projectDir, repoRoot);
   const entry = resolved.source === "jira-snapshot" ? localEntry(data, resolved) : data.stories.find((story) => sameStory(story, storyId));
   entry.sprintId = sprintId || null;
   entry.updatedAt = new Date().toISOString();
+  return persistAndReload(slug, projectDir, repoRoot, data);
+}
+
+function setStoryImpediment(slug, projectDir, repoRoot, storyId, active, reason, now) {
+  const resolved = findResolved(slug, projectDir, repoRoot, storyId);
+  if (!resolved) throw new Error(`Historia '${storyId}' nao encontrada.`);
+  const data = loadStoredProjectScrum(slug, projectDir, repoRoot);
+  const entry = resolved.source === "jira-snapshot" ? localEntry(data, resolved) : data.stories.find((story) => sameStory(story, storyId));
+  const current = entry.impediment || null;
+  const isActive = Boolean(active);
+  const trimmedReason = String(reason || "").trim();
+  if (isActive && !trimmedReason) throw new Error("Informe o motivo do impedimento.");
+  if (isActive === Boolean(current?.active) && (!isActive || trimmedReason === current.reason)) {
+    return loadProjectScrum(slug, projectDir, repoRoot);
+  }
+
+  const occurredAt = now || new Date().toISOString();
+  entry.impediment = isActive
+    ? { active: true, reason: trimmedReason, since: current?.active ? current.since : occurredAt, resolvedAt: null }
+    : null;
+  entry.updatedAt = occurredAt;
+  data.impedimentHistory = [
+    ...(Array.isArray(data.impedimentHistory) ? data.impedimentHistory : []),
+    {
+      id: `${resolved.id}:${occurredAt}:${isActive ? "activate" : "resolve"}`,
+      storyId: resolved.id,
+      storyKey: resolved.key,
+      active: isActive,
+      reason: trimmedReason || current?.reason || "",
+      occurredAt,
+      storySource: resolved.source || "local",
+    },
+  ];
   return persistAndReload(slug, projectDir, repoRoot, data);
 }
 
@@ -181,4 +213,4 @@ function reorderLanes(slug, projectDir, repoRoot, laneIds, expectedRevision) {
   return persistAndReload(slug, projectDir, repoRoot, data);
 }
 
-module.exports = { upsertStory, updateStoryStatus, moveStoryToLane, assignStorySprint, deleteStory, upsertEpic, upsertSprint, updateStatusMapping, updateLanes, reorderLanes };
+module.exports = { upsertStory, updateStoryStatus, moveStoryToLane, assignStorySprint, setStoryImpediment, deleteStory, upsertEpic, upsertSprint, updateStatusMapping, updateLanes, reorderLanes };

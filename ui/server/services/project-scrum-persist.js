@@ -31,6 +31,7 @@ function loadStoredProjectScrum(slug, projectDir, repoRoot) {
   data.lanes = mergeLaneConfiguration(data.lanes);
   data.lanesRevision = Number.isInteger(data.lanesRevision) && data.lanesRevision >= 0 ? data.lanesRevision : 0;
   data.transitionHistory = Array.isArray(data.transitionHistory) ? data.transitionHistory : [];
+  data.impedimentHistory = Array.isArray(data.impedimentHistory) ? data.impedimentHistory : [];
   if (!data.activeSprintId && data.sprints.length) data.activeSprintId = data.sprints[0].id;
   return data;
 }
@@ -42,6 +43,8 @@ function buildSummary(data) {
   const sprintPointsTotal = sprintStories.reduce((total, story) => total + (story.points || 0), 0);
   const sprintPointsDone = sprintStories.filter((story) => story.status === "done")
     .reduce((total, story) => total + (story.points || 0), 0);
+  const blockedStories = data.stories.filter((story) => story.impediment?.active);
+  const blockedPointsTotal = blockedStories.reduce((total, story) => total + (story.points || 0), 0);
   return {
     activeSprint,
     sprintStoriesCount: sprintStories.length,
@@ -50,6 +53,9 @@ function buildSummary(data) {
     sprintPercent: sprintPointsTotal ? Math.round((sprintPointsDone / sprintPointsTotal) * 100) : 0,
     backlogStoriesCount: backlogStories.length,
     backlogPointsTotal: backlogStories.reduce((total, story) => total + (story.points || 0), 0),
+    blockedStoriesCount: blockedStories.length,
+    blockedPointsTotal,
+    impedimentRate: data.stories.length ? Math.round((blockedStories.length / data.stories.length) * 100) : 0,
     totalEpicsCount: data.epics.length,
     totalStoriesCount: data.stories.length,
   };
@@ -79,6 +85,7 @@ function saveProjectScrum(slug, projectDir, data) {
     lanes: mergeLaneConfiguration(data.lanes),
     lanesRevision: Number.isInteger(data.lanesRevision) && data.lanesRevision >= 0 ? data.lanesRevision : 0,
     transitionHistory: data.transitionHistory || [],
+    impedimentHistory: data.impedimentHistory || [],
     statusMapping: data.statusMapping || {},
     deletedSourceKeys: data.deletedSourceKeys || [],
   };

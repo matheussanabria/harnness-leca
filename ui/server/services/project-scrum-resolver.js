@@ -45,6 +45,7 @@ function mergeSourceStory(source, localStory, document, mapping) {
     documentLinks: document?.documentLinks || [],
     documentationFile: document?.sourceFile || null,
     ...override,
+    impediment: localStory?.impediment ?? null,
   };
   merged.acceptanceCriteriaCount = merged.acceptanceCriteria.length;
   merged.scenarioCount = merged.scenarios.length;
@@ -91,6 +92,7 @@ function resolveScrumData(local = {}, snapshot = {}, documents = new Map()) {
     lanes: mergeLaneConfiguration(local.lanes),
     lanesRevision: Number.isInteger(local.lanesRevision) ? local.lanesRevision : 0,
     transitionHistory: Array.isArray(local.transitionHistory) ? local.transitionHistory : [],
+    impedimentHistory: Array.isArray(local.impedimentHistory) ? local.impedimentHistory : [],
     statusMapping: Object.fromEntries(mapping.map((item) => [item.id || item.name, item.boardLaneId])),
     sourceStatuses: mapping,
     source: snapshot.meta || null,

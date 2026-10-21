@@ -8,6 +8,7 @@ const {
   upsertStory,
   updateStoryStatus,
   assignStorySprint,
+  setStoryImpediment,
   deleteStory,
   upsertEpic,
   upsertSprint,
@@ -231,11 +232,28 @@ async function apiProjectScrumLanesOrder({ req, res, params: [slug] }) {
   }
 }
 
+/** POST /api/project/:slug/scrum/story/impediment */
+async function apiProjectScrumStoryImpediment({ req, res, params: [slug] }) {
+  const projectDir = path.join(getProjects(), slug);
+  if (!fs.existsSync(projectDir)) return send(res, 404, { error: `Projeto '${slug}' nao encontrado.` });
+  try {
+    const { storyId, active, reason } = await readJsonBody(req);
+    if (!storyId || typeof active !== "boolean") {
+      return send(res, 400, { error: "Parametros 'storyId' e 'active' (booleano) sao obrigatorios." });
+    }
+    const { repo } = getProjectRepoInfo(slug);
+    return send(res, 200, setStoryImpediment(slug, projectDir, repo || projectDir, storyId, active, reason));
+  } catch (error) {
+    return send(res, 400, { error: error.message || String(error) });
+  }
+}
+
 module.exports = {
   apiProjectScrumGet,
   apiProjectScrumStorySave,
   apiProjectScrumStoryStatus,
   apiProjectScrumStoryAssignSprint,
+  apiProjectScrumStoryImpediment,
   apiProjectScrumStoryDelete,
   apiProjectScrumEpicSave,
   apiProjectScrumSprintSave,

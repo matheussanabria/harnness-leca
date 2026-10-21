@@ -4,6 +4,9 @@ import { $ } from "../shared/dom.js";
 import { ds } from "./design-scrum-store.js";
 import { renderSprintKanban } from "./design-scrum-sprint.js";
 import { renderProductBacklog, renderEpicsWorkspace } from "./design-scrum-backlog.js";
+import { renderScrumFilterBar } from "./design-scrum-filter-bar.js";
+import { computeStoryMetrics, renderScrumMetricsBar } from "./design-scrum-metrics.js";
+import { visibleStories } from "./design-scrum-filters.js";
 
 export function renderScrumWorkspace(container, projectSlug, scrumData) {
   ds.currentScrumData = scrumData;
@@ -16,6 +19,8 @@ export function renderScrumWorkspace(container, projectSlug, scrumData) {
       </div>
       <div class="scrum-nav-summary">Sprint: <b>${scrumData.summary?.sprintPointsTotal || 0} pts</b> · Backlog: <b>${scrumData.summary?.backlogPointsTotal || 0} pts</b></div>
     </nav>
+    <div id="scrumFiltersBar" class="scrum-filters-host">${renderScrumFilterBar(scrumData)}</div>
+    <div id="scrumMetricsBar" class="scrum-metrics-host"></div>
     <div class="scrum-content-body" id="scrumContentBody"></div>
     <aside id="scrumStoryDrawer" class="scrum-story-drawer" role="dialog" aria-modal="false" aria-labelledby="storyDrawerTitle" hidden></aside>
   </div>`;
@@ -25,6 +30,11 @@ export function renderScrumWorkspace(container, projectSlug, scrumData) {
 export function renderCurrentScrumView() {
   const body = $("scrumContentBody");
   if (!body || !ds.currentScrumData) return;
+  const metricsBar = $("scrumMetricsBar");
+  if (metricsBar) {
+    const stories = visibleStories(ds.currentScrumData, { scope: ds.currentScrumTab === "sprint" ? "sprint" : "all" });
+    metricsBar.innerHTML = renderScrumMetricsBar(computeStoryMetrics(stories, ds.currentScrumData.lanes || []));
+  }
   if (ds.currentScrumTab === "sprint") body.innerHTML = renderSprintKanban(ds.currentScrumData);
   else if (ds.currentScrumTab === "backlog") body.innerHTML = renderProductBacklog(ds.currentScrumData);
   else body.innerHTML = renderEpicsWorkspace(ds.currentScrumData);

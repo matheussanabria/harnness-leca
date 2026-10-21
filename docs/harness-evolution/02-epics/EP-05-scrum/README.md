@@ -2,7 +2,7 @@
 id: EP-05
 titulo: Scrum & Sprints
 prioridade: P1
-status: em-andamento
+status: concluido
 depende: [EP-04]
 tags: [harness-evolution, epico]
 ---
@@ -35,5 +35,5 @@ Cada história ganha um arquivo próprio a partir do [template](../../_templates
 | [05.02](05.02-doze-raias-configuraveis.md) | Doze raias configuráveis — concluída |
 | [05.03](05.03-reordenacao-horizontal.md) | Reordenação horizontal persistida por projeto — concluída |
 | [05.04](05.04-movimentacao-transicoes.md) | Movimentação de histórias e transições — concluída |
-| 05.05 | Impedimentos, filtros e métricas |
-| 05.06 | Projeção do Kanban no telão |
+| [05.05](05.05-impedimentos-filtros-metricas.md) | Impedimentos, filtros e métricas — concluída |
+| [05.06](05.06-projecao-kanban-telao.md) | Projeção do Kanban no telão — concluída |
