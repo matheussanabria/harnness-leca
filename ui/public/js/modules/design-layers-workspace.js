@@ -105,6 +105,19 @@ if (typeof window !== "undefined") {
   };
 
   // @ts-ignore
+  window.openLayersTarget = (route, fieldId) => {
+    const screens = dls.currentScreensData?.screens || [];
+    const screen = screens.find((item) => item.route === route) || screens.find((item) => item.id === route);
+    if (!screen) return false;
+    dls.activeScreenId = screen.id;
+    dls.focusedFieldId = fieldId && (screen.fields || []).some((field) => field.id === fieldId) ? fieldId : null;
+    dls.activeLayer = "ui";
+    const container = $("designViewContainer");
+    if (container) renderLayersWorkspace(container, "", dls.currentScreensData);
+    return true;
+  };
+
+  // @ts-ignore
   window.setLayersViewport = (vp) => {
     dls.activeViewport = vp;
     const container = $("designViewContainer");
