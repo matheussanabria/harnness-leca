@@ -37,7 +37,11 @@ function interceptShadowRequest({
       }).catch((err) => ({
         success: false,
         errors: [err instanceof Error ? err.message : String(err)],
-        isAutomatedExecution: false,
+        // Mesmos campos opcionais do resultado declarado: sem isso a uniao de tipos
+        // esconderia `classification` e `metrics` de quem consome o resultado.
+        classification: undefined,
+        metrics: undefined,
+        isAutomatedExecution: /** @type {false} */ (false),
       }));
 
       clearTimeout(timer);
