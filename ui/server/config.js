@@ -114,8 +114,9 @@ const postOk = (req) => {
   const origin = (req.headers.origin || "").replace(/\/+$/, "").toLowerCase();
   const host = (req.headers.host || "").toLowerCase();
   const ct = req.headers["content-type"] || "";
-  // O upload de anexos do chat manda o binário cru; todas as outras rotas POST continuam exigindo JSON.
-  const upload = /^\/api\/chat\/upload(\?|$)/.test(req.url || "") && /^application\/octet-stream\s*(;|$)/i.test(ct);
+  // Uploads de anexos e artefatos mandam o binário cru; as outras rotas POST continuam exigindo JSON.
+  const upload = /^\/api\/(?:chat\/upload|project\/[\w-]+\/artifacts\/import)(?:\?|$)/.test(req.url || "")
+    && /^application\/octet-stream\s*(;|$)/i.test(ct);
   const json = /^application\/json\s*(;|$)/i.test(ct) || upload;
   return json && (origin === `http://${host}` || origin === `https://${host}`);
 };

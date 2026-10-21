@@ -39,6 +39,10 @@ const EVENT_CATALOG = new Set([
   "execution.completed",
   "execution.failed",
   "execution.cancelled",
+  // Aprovação de etapa sensível (EP-08.05)
+  "execution.approval_requested",
+  "execution.approved",
+  "execution.rejected",
   // Agentes
   "agent.detected",
   "agent.status_changed",

@@ -20,7 +20,7 @@ OpenCode e Claude estão fora desta execução por decisão do usuário. Não de
 |---|---|---|---|---|
 | **Gemini / Antigravity — Chat A1 (Escritório)** | Experiência 3D/2.5D e cena | **EP-03** | `ui/public/js/office*`, `office2d/`, `office3d/` | **EP-03.09 concluída** (9/9 no EP-03, épico encerrado); sem pendências na alocação atual |
 | **Gemini / Antigravity — Chat A2 (Studio)** | Studio, layout, código e preview | **EP-06** | `ui/public/js/modules/studio*`, `ui/public/css/studio/` | **EP-06.05 concluída** (5/5 no EP-06, épico encerrado) |
-| **Codex — Chat B** | Plataforma, dados, workflows, integração e qualidade | **EP-04 → EP-05/EP-07 → EP-08/EP-11 → EP-10**; manutenção da EP-12 | Serviços backend, persistência, Scrum, artefatos, agentes, deploy, testes e documentação de coordenação | **08.04 concluída** (4/5 no EP-08); próxima: **08.05 ou EP-11** |
+| **Codex — Chat B** | Plataforma, dados, workflows, integração e qualidade | **EP-04 → EP-05/EP-07 → EP-08/EP-11 → EP-10**; manutenção da EP-12 | Serviços backend, persistência, Scrum, artefatos, agentes, deploy, testes e documentação de coordenação | **EP-08 encerrada (5/5)**; próxima: **detalhar 09.01 ou EP-11** |
 
 ### 1.1. Relação entre as trilhas
 
@@ -49,13 +49,13 @@ Ambos começam lendo `AGENTS.md`, `docs/harness-evolution/00-index.md`, este pai
 
 - **Gemini / Chat A1 (Escritório):** a 03.09 está concluída e o EP-03 encerrado; manter a paridade 2.5D, a telemetria, a iluminação dos agentes, a alternância de modos, a qualidade e a acessibilidade da cena. Sem nova história atribuída; não editar arquivos de Studio, Scrum ou backend.
 - **Gemini / Chat A2 (Studio):** as 06.01 a 06.05 estão concluídas; manter os limites responsivos, acessibilidade, guard de alterações e o mapeamento de elemento para arquivo/componente. EP-06 encerrado; não editar arquivos de Escritório ou Scrum.
-- **Codex / Chat B:** a 08.01, a 08.02, a 08.03 e a 08.04 estão concluídas (catálogo canônico de capacidades, catálogo de etapas do SDLC com agentes, vínculos de skills por projeto e raia e execução de workflows com eventos canônicos) e o EP-08 está em 4/5; manter o hardening como validação transversal e detalhar 08.05 ou EP-11 conforme o gate. Não assumir arquivos de Chat, Escritório ou interfaces consumidoras do Studio.
+- **Codex / Chat B:** a 08.01, a 08.02, a 08.03, a 08.04 e a 08.05 estão concluídas (catálogo canônico de capacidades, catálogo de etapas do SDLC com agentes, vínculos de skills por projeto e raia, execução de workflows com eventos canônicos e rotinas com aprovação e histórico); o EP-08 está em 5/5 e encerrado; manter o hardening como validação transversal e detalhar 09.01 ou EP-11 conforme o gate. Não assumir arquivos de Chat, Escritório ou interfaces consumidoras do Studio.
 
 Ao terminar uma história, o chat responsável registra evidências e informa ao outro apenas os contratos que viraram dependência. Nenhum chat continua automaticamente para o épico seguinte sem conferir os gates desta página.
 
 ---
 
-## 2. Visão Consolidada de Progresso (88/104 Entregas Concluídas)
+## 2. Visão Consolidada de Progresso (89/104 Entregas Concluídas)
 
 ```
 [EP-00] Auditoria e Arquitetura          [████████████████████] 100% (4/4)   - CONCLUÍDO
@@ -66,7 +66,7 @@ Ao terminar uma história, o chat responsável registra evidências e informa ao
 [EP-05] Scrum & Sprints (DIS Jira)       [████████████████████] 100% (6/6)   - CONCLUÍDO
 [EP-06] Studio, Código e Preview         [████████████████████] 100% (5/5)   - CONCLUÍDO
 [EP-07] Artefatos e Documentação         [████████████████████] 100% (5/5)   - CONCLUÍDO
-[EP-08] Agentes, Skills e Workflows      [████████████████░░░░]  80% (4/5)   - EM ANDAMENTO
+[EP-08] Agentes, Skills e Workflows      [████████████████████] 100% (5/5)   - CONCLUÍDO
 [EP-09] Central de Sessões & Orquestração[░░░░░░░░░░░░░░░░░░░░]   0% (0/5)   - ESPECIFICADO
 [EP-10] Deploy e Datacenter              [░░░░░░░░░░░░░░░░░░░░]   0% (0/5)   - PLANEJADO
 [EP-11] Auditoria e Qualidade            [░░░░░░░░░░░░░░░░░░░░]   0% (0/5)   - PLANEJADO
@@ -163,7 +163,7 @@ Ao terminar uma história, o chat responsável registra evidências e informa ao
 - **07.04 Previews seguros:** Concluído (`07.04-previews-seguros.md`, `artifact-preview.service.js`, `artifact-preview.controller.js`, `artifact.routes.js`, rota `GET /api/project/:slug/artifacts/preview`, JSON/raw com CSP, bloqueio remoto para `local` e painel na aba Artefatos); 7/8 testes focados (1 symlink ignorado no Windows).
 - **07.05 Relacionamentos e Mapa em Camadas:** Concluído (`07.05-relacionamentos-mapa-camadas.md`, `artifact-relationships.service.js`, `artifact-relationships.controller.js`, `design-artifacts-relationships.js`, chave estável por rota/tela/campo, escrita local atômica, vínculos órfãos e navegação para tela/campo/camada no Mapa); 8/8 testes focados; HAR-012 (fidelidade visual) permanece bloqueada.
 
-### 3.9. EP-08: Agentes, Skills e Workflows (4/5 histórias aceitas - Em andamento)
+### 3.9. EP-08: Agentes, Skills e Workflows (5/5 histórias aceitas - Concluído)
 - **08.01 Catálogo padronizado de capacidades:** Concluído (`08.01-catalogo-capacidades.md`, `capability-catalog.js`, `capability-definitions.js`, `capability-legacy.js`, `orchestration-capabilities.controller.js`, rotas `GET /api/orchestration/capabilities` e `/capabilities/:provider`), com sete provedores, estados `available`/`degraded`/`unavailable`/`unknown`, `resolveCapability` sem converter ausência em disponível, cancelamento externo rebaixado a `degraded` com escopo `harness_owned` e campos legados derivados; 6/6 testes focados e 6/6 de regressão de orquestração.
 - **08.02 Agentes associados às etapas do SDLC:** Concluído (`08.02-agentes-por-etapa-sdlc.md`, `agent-stage-definitions.js`, `agent-stage-catalog.js`, `orchestration-agent-stages.controller.js`, `ui/server/routes/orchestration.routes.js`, rotas `GET /api/orchestration/agent-stages` e `/agent-stages/:stage`), com dez etapas canônicas, 17 agentes DAI com papéis `executor`/`support`, `code-review` como agente `builtin`, consultas por etapa e por agente e 404 para etapa desconhecida; 5/5 testes focados. Rotas consolidadas em `orchestration.routes.js` mantêm `router.js` em 295 linhas.
 - **08.03 Vínculo de skills por projeto e raia:** Concluído (`08.03-skills-projeto-raia.md`, `skill-bindings.service.js`, `skill-bindings.controller.js`, `ui/server/routes/skill-bindings.routes.js`, rotas `GET`/`POST /api/project/:slug/skill-bindings`), com manifesto `skill-bindings.json` versionado, validação contra as 12 raias canônicas e as skills reais do projeto, relatório de órfãos, escrita atômica modo `600` restrita a loopback e leitura tolerante a manifesto inválido; 6/6 testes focados. `router.js` em 297 linhas.

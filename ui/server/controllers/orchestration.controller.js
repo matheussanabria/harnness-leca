@@ -50,59 +50,6 @@ function apiOrchestrationExecutionDetail({ res, params: [id] }) {
 }
 
 /**
- * GET /api/orchestration/capabilities
- * Retorna a matriz de capacidades reais comprovadas de cada integração
- */
-function apiOrchestrationCapabilities({ res }) {
-  return send(res, 200, {
-    timestamp: new Date().toISOString(),
-    capabilities: {
-      claude: {
-        provider: "claude",
-        label: "Claude Code",
-        streamSupported: true,
-        cancelSupported: true,
-        permissionsSupported: true,
-        pauseSupported: false, // Explicitamente desabilitado
-        externalProcessControl: false
-      },
-      gemini: {
-        provider: "gemini",
-        label: "Gemini (Antigravity)",
-        streamSupported: true,
-        cancelSupported: true,
-        permissionsSupported: false,
-        pauseSupported: false,
-        externalProcessControl: false
-      },
-      opencode: {
-        provider: "opencode",
-        label: "OpenCode",
-        streamSupported: true,
-        cancelSupported: true,
-        permissionsSupported: false,
-        pauseSupported: false,
-        externalProcessControl: false
-      },
-      proc_manager: {
-        provider: "proc_manager",
-        label: "Gerenciador de Processos Locais",
-        startSupported: true,
-        stopSupported: true,
-        streamLogsSupported: true,
-        killTreeSupported: true
-      },
-      routines: {
-        provider: "routines",
-        label: "Rotinas Agendadas DAI",
-        triggerImmediateSupported: true,
-        listSupported: true
-      }
-    }
-  });
-}
-
-/**
  * GET /api/orchestration/stream
  * Conexão SSE em tempo real com eventos incrementais e heartbeat
  */
@@ -266,7 +213,6 @@ module.exports = {
   apiOrchestrationState,
   apiOrchestrationEvents,
   apiOrchestrationExecutionDetail,
-  apiOrchestrationCapabilities,
   apiOrchestrationStream,
   apiOrchestrationOperation
 };

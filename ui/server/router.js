@@ -39,6 +39,8 @@ const { apiChatUpload } = require("./controllers/upload.controller");
 const { apiSync, apiProjectSync } = require("./controllers/sync.controller");
 const { apiRemoteInfo, apiRemotePin } = require("./controllers/remote.controller");
 const { apiProjectInspectResolve, apiProjectInspectFile, apiProjectInspectComponents } = require("./controllers/inspect.controller");
+const { artifactRoutes } = require("./routes/artifact.routes");
+const { skillBindingRoutes } = require("./routes/skill-bindings.routes");
 const {
   apiProjectSourceFiles,
   apiProjectSourceFileGet,
@@ -90,11 +92,14 @@ const {
   apiPrototypesExtractComponent,
   apiPrototypesExportSingleHtml,
 } = require("./controllers/prototype.controller");
+const { apiPrototypeTraceability } = require("./controllers/prototype-traceability.controller");
+const { apiPrototypesUnextractComponent } = require("./controllers/prototype-component.controller");
 const {
   apiProjectScrumGet,
   apiProjectScrumStorySave,
   apiProjectScrumStoryStatus,
   apiProjectScrumStoryAssignSprint,
+  apiProjectScrumStoryImpediment,
   apiProjectScrumStoryDelete,
   apiProjectScrumEpicSave,
   apiProjectScrumSprintSave,
@@ -107,10 +112,10 @@ const {
   apiOrchestrationState,
   apiOrchestrationEvents,
   apiOrchestrationExecutionDetail,
-  apiOrchestrationCapabilities,
   apiOrchestrationStream,
   apiOrchestrationOperation
 } = require("./controllers/orchestration.controller");
+const { orchestrationRoutes } = require("./routes/orchestration.routes");
 const { serveStatic } = require("./controllers/static.controller");
 const { getActiveAgentsSummary } = require("./services/agent-activity.service");
 
@@ -125,6 +130,7 @@ const ROUTES = [
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/status$/, handler: apiProjectScrumStoryStatus },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/transition$/, handler: apiProjectScrumStoryTransition },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/assign-sprint$/, handler: apiProjectScrumStoryAssignSprint },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/impediment$/, handler: apiProjectScrumStoryImpediment },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/delete$/, handler: apiProjectScrumStoryDelete },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/epic$/, handler: apiProjectScrumEpicSave },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/sprint$/, handler: apiProjectScrumSprintSave },
@@ -155,6 +161,8 @@ const ROUTES = [
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/edit\/structural$/, handler: apiPrototypesEditStructural },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/extract-component$/, handler: apiPrototypesExtractComponent },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/export\/single-html$/, handler: apiPrototypesExportSingleHtml },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/traceability$/, handler: apiPrototypeTraceability },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/unextract-component$/, handler: apiPrototypesUnextractComponent },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/versions$/, handler: apiPrototypesVersionsGet },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/versions\/(\d+)\/restore$/, handler: apiPrototypesVersionRestore },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototype(?:\/([\w-]+)(?:\/(.*))?)?$/, handler: apiProjectDesignPrototype },
@@ -169,12 +177,14 @@ const ROUTES = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/source\/file$/, handler: apiProjectSourceFileGet },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/source\/file$/, handler: apiProjectSourceFileSave },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/journal$/, handler: apiProjectJournal },
+  ...artifactRoutes,
+  ...skillBindingRoutes,
   { method: "GET", path: "/api/state", handler: apiState },
   { method: "GET", path: "/api/agents/active", handler: apiAgentsActive },
   { method: "GET", path: "/api/orchestration/state", handler: apiOrchestrationState },
   { method: "GET", path: "/api/orchestration/events", handler: apiOrchestrationEvents },
   { method: "GET", path: /^\/api\/orchestration\/executions\/([\w-]+)$/, handler: apiOrchestrationExecutionDetail },
-  { method: "GET", path: "/api/orchestration/capabilities", handler: apiOrchestrationCapabilities },
+  ...orchestrationRoutes,
   { method: "GET", path: "/api/orchestration/stream", handler: apiOrchestrationStream },
   { method: "POST", path: "/api/orchestration/operations", handler: apiOrchestrationOperation },
   { method: "GET", path: "/api/engines", handler: apiEngines },

@@ -113,6 +113,9 @@ harness-leca/
 | **Vínculo de Skills por Projeto e Raia (Service)** | [`ui/server/services/skill-bindings.service.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/server/services/skill-bindings.service.js) | Mantém `skill-bindings.json` versionado (raia → skills do projeto), valida limites, relata órfãos e grava atomicamente em modo `600` (EP-08.03). |
 | **Vínculo de Skills por Projeto e Raia (Controller)** | [`ui/server/controllers/skill-bindings.controller.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/server/controllers/skill-bindings.controller.js) | Expõe `GET`/`POST /api/project/:slug/skill-bindings`, com escrita restrita ao loopback. |
 | **Rotas de Vínculo de Skills** | [`ui/server/routes/skill-bindings.routes.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/server/routes/skill-bindings.routes.js) | Agrupa as rotas de vínculos de skills para manter `router.js` abaixo do teto. |
+| **Rotinas de Workflow (Service)** | `ui/server/services/orchestration/routine-definitions.js` e `routine-runner.service.js` | Declara rotinas com gatilho e política de aprovação, resolve o catálogo no projeto e executa com chave de idempotência determinística por janela (EP-08.05). |
+| **Aprovação e Histórico (Service)** | `ui/server/services/orchestration/workflow-approval.service.js` e `workflow-history.service.js` | Decide aprovações de etapa sensível, publica `execution.approval_requested`/`approved`/`rejected` e persiste o histórico em `workflow-runs.jsonl` (EP-08.05). |
+| **Rotinas e Aprovações (Controllers)** | `ui/server/controllers/orchestration-routines.controller.js` e `orchestration-approvals.controller.js` | Expõem catálogo de rotinas, execução idempotente, fila de aprovações, decisão e histórico do projeto, com escrita restrita ao loopback (EP-08.05). |
 
 ---
 
@@ -162,6 +165,8 @@ harness-leca/
 | **Acesso de Artefatos (UI)** | [`ui/public/js/modules/design-artifacts-access.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/design-artifacts-access.js) | Alterna o artefato importado entre projeto e somente local, com confirmação e recarga da lista. |
 | **Prévia de Artefatos (UI)** | [`ui/public/js/modules/design-artifacts-preview.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/design-artifacts-preview.js) | Abre texto escapado, HTML em iframe sandbox, imagem ou link de PDF, com fechar e mensagens de erro. |
 | **Vínculos de Artefatos (UI)** | [`ui/public/js/modules/design-artifacts-relationships.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/design-artifacts-relationships.js) | Painel de tela/campo, adição, remoção, órfãos e abertura do Mapa na tela e no campo do vínculo. |
+| **Aba de Rotinas (UI)** | [`ui/public/js/modules/design-routines.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/design-routines.js) | Aba Rotinas da Visão 360°: catálogo de rotinas, execução idempotente, fila de aprovações com decisão e histórico do projeto (EP-08.05). |
+| **Chamadas da Aba de Rotinas** | [`ui/public/js/modules/design-routines-api.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/design-routines-api.js) | Cliente HTTP de rotinas, aprovações, decisão e histórico do projeto. |
 | **View do Ateliê** | `ui/public/js/modules/prototype-atelier-view.js` | Renderiza a composição visual do Ateliê; o controlador `prototype-atelier.js` conserva somente estado e eventos. |
 | **Mapa do Elemento** | `ui/public/js/modules/prototype-element-map.js` | Consulta a rastreabilidade do nó selecionado, normaliza arquivos/componente/frameworks, renderiza `#atelierElementMap` e injeta `<contexto-elemento arquivo=...>` no chat (EP-06.05). |
 | **Rastreabilidade de protótipo modular** | `ui/server/services/prototype-traceability-modular.service.js` | Resolve arquivo, classe `px-<pid>`, regra CSS e código (HTML/Angular/React) de um elemento por `data-pid` em protótipos com telas em arquivos HTML; reconhece componente extraído (proto.json) e componente do DS (classe `ds-x` vira `dis.x` no registry), lê o código real de React/Angular; usado por `prototype-traceability.service.js` quando `screens` é array. |
@@ -516,6 +521,8 @@ Fora deste repositório (workspace `C:/Users/matheuss.rodrigues/git/57multimarca
 | `ui/public/js/modules/design-artifacts-access.js` | Alternância de acesso na aba Artefatos. |
 | `ui/public/js/modules/design-artifacts-preview.js` | Painel de prévia com HTML em sandbox, texto, imagem e PDF. |
 | `ui/public/js/modules/design-artifacts-relationships.js` | Painel de vínculos, seletor de tela/campo, remoção e abertura no Mapa em Camadas. |
+| `ui/public/js/modules/design-routines.js` | Aba Rotinas: catálogo, execução idempotente, fila de aprovações e histórico do projeto (EP-08.05). |
+| `ui/public/js/modules/design-routines-api.js` | Cliente HTTP das rotinas, aprovações, decisão e histórico (EP-08.05). |
 | `tests/artifact-inventory.test.js` | Cobre os sete tipos, estados, symlink, limite, controller e limites de arquivo. |
 | `tests/artifact-import.test.js` | Cobre importação, colisão, segurança, controller, rota binária e limites de arquivo. |
 | `tests/artifact-metadata.test.js` | Cobre manifesto, checksum, acesso local/projeto, filtro remoto, controller, rota e limites de arquivo. |
@@ -526,6 +533,9 @@ Fora deste repositório (workspace `C:/Users/matheuss.rodrigues/git/57multimarca
 | `tests/skill-bindings.test.js` | Cobre manifesto versionado, resolução, órfãos, limites, loopback, endpoints e limites de arquivo (EP-08.03). |
 | `tests/workflow-runner.test.js` | Cobre catálogo de workflows, políticas, plano por projeto, ciclo de vida com eventos, falha, cancelamento e dryRun (EP-08.04). |
 | `tests/workflow-http.test.js` | Cobre endpoints de workflows e execuções, loopback, erros, rotas registradas e limites de arquivo (EP-08.04). |
+| `tests/routine-runner.test.js` | Cobre catálogo de rotinas, gatilhos, chave de idempotência, aprovação e rejeição de etapa sensível e histórico persistido (EP-08.05). |
+| `tests/routine-http.test.js` | Cobre endpoints de rotinas, aprovações, decisão e histórico, com loopback, erros, rotas registradas e limites de arquivo (EP-08.05). |
+| `tests/routine-ui.test.js` | Cobre a aba Rotinas da interface: aba registrada, despacho em `design.js`, folha de estilo, FontAwesome e ausência de emoji (EP-08.05). |
 
 ## 11. Skills locais
 
