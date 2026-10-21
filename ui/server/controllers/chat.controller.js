@@ -108,6 +108,12 @@ async function apiChat({ req, res }) {
     else sink.onError(new E.PublicError(`Motor "${engine}" não suportado.`));
   };
 
+  // Modo Shadow do Local AI Runtime: classifica em background sem alterar o motor real nem atrasar a resposta
+  try {
+    const { interceptShadowRequest } = require("../../../tools/lib/runtime/shadow");
+    interceptShadowRequest({ prompt, slug, actualEngine: engine, correlationId: chatId });
+  } catch {}
+
   // HIA Script-First / Local-First: intercepta automações determinísticas antes de gastar cota
   handleChatWithHia({ engine, prompt, slug, sessionId, history, signal: ac.signal, sink, fallbackStream });
 }
