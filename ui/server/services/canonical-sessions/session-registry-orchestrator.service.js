@@ -46,7 +46,7 @@ function scanProject(slug, options = {}) {
  * Resumo para a Central: sessões, atenção e contagens por estado.
  * @param {string} slug
  * @param {object} [filters]
- * @returns {{ schemaVersion: number, generatedAt: string, sessions: object[], attention: object, totals: object, warnings: string[] }}
+ * @returns {{ schemaVersion: number, generatedAt: string, sessions: object[], attention: object, totals: object, warnings: string[], cursor: string }}
  */
 function readCentral(slug, filters = {}) {
   const { schemaVersion, sessions, warnings } = registry.readRegistry(slug);
@@ -69,10 +69,16 @@ function readCentral(slug, filters = {}) {
     if (session.attentionStatus === "open") bySeverity.medium += 1;
   }
 
+  // Paginação opaca: o cursor é o offset; a Central só precisa de uma página estável.
+  const limit = Math.min(Math.max(Number(filters.limit) || 50, 1), 200);
+  const offset = Math.max(Number(filters.cursor) || 0, 0);
+  const page = selected.slice(offset, offset + limit);
+  const nextOffset = offset + page.length;
+
   return {
     schemaVersion,
     generatedAt: new Date().toISOString(),
-    sessions: selected,
+    sessions: page,
     attention: { count: bySeverity.high + bySeverity.medium + bySeverity.low, bySeverity },
     totals: {
       total: selected.length,
@@ -81,6 +87,7 @@ function readCentral(slug, filters = {}) {
       byWorkflowStatus: countBy(selected, "workflowStatus"),
     },
     warnings,
+    cursor: nextOffset < selected.length ? String(nextOffset) : "",
   };
 }
 

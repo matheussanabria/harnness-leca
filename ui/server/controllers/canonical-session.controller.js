@@ -50,6 +50,8 @@ async function apiProjectSessions({ req, res, params: [slug] }) {
       attentionStatus: queryParam(req, "attentionStatus"),
       projectConfidence: queryParam(req, "projectConfidence"),
       q: queryParam(req, "q"),
+      limit: queryParam(req, "limit"),
+      cursor: queryParam(req, "cursor"),
     });
     return send(res, 200, payload);
   } catch (err) {

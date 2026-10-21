@@ -4,8 +4,9 @@ import { renderOverviewTab, renderAgentDetails, renderExecutionDetails } from ".
 import { renderJournalTab, renderJournalSessionCards } from "./office3d/orchestration/tab-journal.js";
 import { renderTimelineTab } from "./office3d/orchestration/tab-timeline.js";
 import { renderControlTab, setupControlOperations } from "./office3d/orchestration/tab-control.js";
+import { mountCentral } from "./modules/central-sessions.js";
 
-let activeTab = "overview"; // "overview", "journal", "timeline", "control"
+let activeTab = "overview"; // "overview", "journal", "timeline", "control", "sessions"
 
 /**
  * Renderiza o conteúdo do drawer para o Centro de Orquestração ou entidades do grafo
@@ -84,6 +85,9 @@ function renderMainOrchestrationPanel(orchState, events, activeProj, state) {
       <button class="orch-tab-btn ${activeTab === 'control' ? 'active' : ''}" data-tab="control" style="flex:1;padding:7px 4px;border:none;border-radius:6px;font-weight:700;font-size:11.5px;cursor:pointer;background:${activeTab === 'control' ? '#0284c7' : 'transparent'};color:${activeTab === 'control' ? '#fff' : '#94a3b8'}">
         ⚙️ Operações
       </button>
+      <button class="orch-tab-btn ${activeTab === 'sessions' ? 'active' : ''}" data-tab="sessions" style="flex:1;padding:7px 4px;border:none;border-radius:6px;font-weight:700;font-size:11.5px;cursor:pointer;background:${activeTab === 'sessions' ? '#0284c7' : 'transparent'};color:${activeTab === 'sessions' ? '#fff' : '#94a3b8'}" aria-pressed="${activeTab === 'sessions'}">
+        <i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Sessões
+      </button>
     </div>
 
     <div id="orchTabContent">
@@ -91,6 +95,7 @@ function renderMainOrchestrationPanel(orchState, events, activeProj, state) {
       ${activeTab === "journal" ? renderJournalTab(state, activeProj) : ""}
       ${activeTab === "timeline" ? renderTimelineTab(events) : ""}
       ${activeTab === "control" ? renderControlTab(orchState, activeProj) : ""}
+      ${activeTab === "sessions" ? `<div id="centralSessionsRoot" data-slug="${activeProj.replace(/"/g, "")}"></div>` : ""}
     </div>
   `;
 }
@@ -130,6 +135,15 @@ export function setupOrchestrationPanelListeners(state, reRenderFn) {
 
   agentFilter?.addEventListener("change", filterSessions);
   searchInput?.addEventListener("input", filterSessions);
+
+  // Central de Sessões (EP-09.03): monta apenas quando a aba está ativa.
+  const centralRoot = document.getElementById("centralSessionsRoot");
+  if (centralRoot) {
+    const slug = centralRoot.getAttribute("data-slug") || "";
+    mountCentral(centralRoot, { slug }).catch(() => {
+      centralRoot.innerHTML = `<p class="central-empty"><i class="fa-solid fa-triangle-exclamation"></i> Não foi possível carregar a Central de Sessões.</p>`;
+    });
+  }
 
   setupControlOperations(state);
 }

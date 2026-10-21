@@ -49,7 +49,7 @@ Nenhuma ação ou estado é apresentado como disponível ou concluído sem capac
 
 ## Incremento pós-aprovação
 
-O baseline técnico anterior à história 09.01 foi estabilizado: sync idempotente entre motores e entre fontes Claude duplicadas, além de encerramento confiável da árvore de processos. A Central e o registro canônico ainda não foram implementados.
+O baseline técnico anterior à história 09.01 foi estabilizado: sync idempotente entre motores e entre fontes Claude duplicadas, além de encerramento confiável da árvore de processos. O registro canônico (09.01) e a Central em lista e Kanban (09.03) estão implementados; a 09.02 (event log e SSE) está em andamento em outra frente, com o contrato de leitura já congelado.
 
 ## Decisões propostas
 
@@ -65,7 +65,7 @@ Os títulos abaixo substituem os títulos provisórios sem alterar a quantidade 
 |---|---|---|
 | [09.01](./09.01-descoberta-registro-canonico.md) | Descoberta e registro canônico de sessões | 02.02, 04.01, 08.05 |
 | 09.02 | Event log persistente, projeções e recuperação SSE | 09.01 |
-| 09.03 | Central pesquisável em lista e Kanban | 09.01, 09.02 |
+| [09.03](./09.03-central-lista-kanban.md) | Central pesquisável em lista e Kanban | 09.01, 09.02 |
 | 09.04 | Navegação, retomada e integração com Chat/Escritório | 02.06, 03.03, 09.03 |
 | 09.05 | Atenção necessária, notificações e fila de aprovações | 08.05, 09.02 |
 
