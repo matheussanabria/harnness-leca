@@ -1,0 +1,101 @@
+// @ts-check
+// Serviço de orquestração do registro canônico (EP-09.01).
+// Junta descoberta (somente leitura), reconciliação, registro e projeção de workflow.
+
+const { discoverSessions } = require("./discovery/session-discovery.service");
+const { reconcile } = require("./session-reconciler.service");
+const { linkWorkflowStates } = require("./session-workflow-linker");
+const registry = require("./session-registry.service");
+
+/**
+ * Executa uma varredura completa do projeto e grava o registro canônico.
+ * @param {string} slug
+ * @param {{ ports?: any[], persist?: boolean }} [options]
+ * @returns {{ sessions: object[], candidates: object[], artifacts: object[], warnings: string[], inserted: number, updated: number }}
+ */
+function scanProject(slug, options = {}) {
+  const projectDir = registry.projectDir(slug);
+  const discovery = discoverSessions(projectDir, { ports: options.ports });
+  const existing = registry.readRegistry(slug).sessions;
+  const reconciliation = reconcile(discovery.providerSessions, {
+    artifacts: discovery.artifacts,
+    existing,
+    projectId: slug,
+  });
+  const linked = linkWorkflowStates(projectDir, reconciliation.sessions);
+
+  const result = {
+    sessions: linked.sessions,
+    candidates: reconciliation.candidates,
+    artifacts: discovery.artifacts,
+    warnings: [...discovery.warnings, ...reconciliation.warnings, ...linked.warnings],
+    inserted: 0,
+    updated: 0,
+  };
+
+  if (options.persist !== false) {
+    const saved = registry.upsertSessions(slug, linked.sessions);
+    result.inserted = saved.inserted;
+    result.updated = saved.updated;
+  }
+
+  return result;
+}
+
+/**
+ * Resumo para a Central: sessões, atenção e contagens por estado.
+ * @param {string} slug
+ * @param {object} [filters]
+ * @returns {{ schemaVersion: number, generatedAt: string, sessions: object[], attention: object, totals: object, warnings: string[] }}
+ */
+function readCentral(slug, filters = {}) {
+  const { schemaVersion, sessions, warnings } = registry.readRegistry(slug);
+  const selected = sessions.filter((session) => {
+    if (filters.provider && session.primaryProvider !== filters.provider) return false;
+    if (filters.executionStatus && session.executionStatus !== filters.executionStatus) return false;
+    if (filters.workflowStatus && session.workflowStatus !== filters.workflowStatus) return false;
+    if (filters.attentionStatus && session.attentionStatus !== filters.attentionStatus) return false;
+    if (filters.projectConfidence && session.projectConfidence !== filters.projectConfidence) return false;
+    if (filters.q) {
+      const needle = String(filters.q).trim().toLowerCase();
+      const haystack = [session.title, session.id, session.projectId || ""].join(" ").toLowerCase();
+      if (!haystack.includes(needle)) return false;
+    }
+    return true;
+  });
+
+  const bySeverity = { high: 0, medium: 0, low: 0 };
+  for (const session of selected) {
+    if (session.attentionStatus === "open") bySeverity.medium += 1;
+  }
+
+  return {
+    schemaVersion,
+    generatedAt: new Date().toISOString(),
+    sessions: selected,
+    attention: { count: bySeverity.high + bySeverity.medium + bySeverity.low, bySeverity },
+    totals: {
+      total: selected.length,
+      byProvider: countBy(selected, "primaryProvider"),
+      byExecutionStatus: countBy(selected, "executionStatus"),
+      byWorkflowStatus: countBy(selected, "workflowStatus"),
+    },
+    warnings,
+  };
+}
+
+/**
+ * @param {object[]} sessions
+ * @param {string} field
+ * @returns {Record<string, number>}
+ */
+function countBy(sessions, field) {
+  const out = {};
+  for (const session of sessions) {
+    const key = String(session[field] || "unknown");
+    out[key] = (out[key] || 0) + 1;
+  }
+  return out;
+}
+
+module.exports = { scanProject, readCentral };

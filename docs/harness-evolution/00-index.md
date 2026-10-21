@@ -7,7 +7,7 @@ atualizado: 2026-10-21
 
 Documento mestre do programa de evolução. Cada entrega aceita tem um documento próprio em `02-epics/`, para que um agente receba só a história que vai implementar e as dependências dela.
 
-> Snapshot verificado em 2026-10-21: 89/104 entregas concluídas e links locais válidos. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
+> Snapshot verificado em 2026-10-21: 90/104 entregas concluídas e links locais válidos. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
 
 ## Como usar
 
@@ -33,7 +33,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-06](02-epics/EP-06-studio/README.md) | Studio, código e preview | P1 | Concluído | 5/5 |
 | [EP-07](02-epics/EP-07-artefatos/README.md) | Artefatos e documentação | P1 | Concluído | 5/5 |
 | [EP-08](02-epics/EP-08-agentes/README.md) | Agentes, skills e workflows | P1 | Concluído | 5/5 |
-| [EP-09](02-epics/EP-09-observabilidade/README.md) | Central de sessões, observabilidade e orquestração | P1 | Especificado; 09.01 detalhada, implementação não iniciada | 0/5 |
+| [EP-09](02-epics/EP-09-observabilidade/README.md) | Central de sessões, observabilidade e orquestração | P1 | Em andamento; 09.01 implementada (registro canônico), 09.02 delegada a outra frente | 1/5 |
 | [EP-10](02-epics/EP-10-deploy/README.md) | Datacenter e deploys | P2 | Planejado; estação existente | 0/5 |
 | [EP-11](02-epics/EP-11-auditoria-qualidade/README.md) | Auditoria, testes e Design System | P2 | Planejado; base existente | 0/5 |
 | [EP-12](02-epics/EP-12-prototype-engine/README.md) | Prototype Engine & Design System Multiframework | P1 | Concluído | 32/32 |
@@ -52,7 +52,7 @@ flowchart TD
     MOD --> OPS["EP-09 a EP-12 Operação, qualidade e protótipos"]
 ```
 
-## 3. Backlog (89/104)
+## 3. Backlog (90/104)
 
 Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a criação e o aceite do documento da história. EP-12 detalha as 32 histórias do motor multiframework. `HAR-xxx` indica o item equivalente do [backlog da Fase 0](08-prioritized-backlog.md).
 
@@ -132,7 +132,7 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [x] [08.05](02-epics/EP-08-agentes/08.05-rotinas-aprovacao-historico.md) Rotinas com aprovação e histórico (HAR-017)
 
 ### EP-09 Central de sessões, observabilidade e orquestração (0/5)
-- [ ] [09.01](02-epics/EP-09-observabilidade/09.01-descoberta-registro-canonico.md) Descoberta e registro canônico de sessões (detalhada)
+- [x] [09.01](02-epics/EP-09-observabilidade/09.01-descoberta-registro-canonico.md) Descoberta e registro canônico de sessões (implementada)
 - [ ] 09.02 Event log persistente, projeções e recuperação SSE
 - [ ] 09.03 Central pesquisável em lista e Kanban
 - [ ] 09.04 Navegação, retomada e integração com Chat/Escritório
@@ -189,7 +189,7 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 ## Trabalho disponível agora
 
 1. **Frente Escritório/Studio (Chat A):** EP-03 encerrado (9/9) e EP-06 encerrado (5/5); 89/104 global. Sem história pendente na alocação atual; aguardar definição da próxima frente.
-2. **Codex / Chat B:** EP-05 encerrado (6/6), EP-07 encerrado (5/5) e EP-08 encerrado (5/5); 89/104 global. Próxima história: implementar a 09.01 (registro canônico de sessões, já detalhada) ou iniciar o EP-11, conforme o gate de dependências.
+2. **Codex / Chat B:** EP-05 encerrado (6/6), EP-07 encerrado (5/5) e EP-08 encerrado (5/5); 90/104 global. No EP-09, a 09.01 (registro canônico) está implementada, a 09.02 (event log e SSE) foi delegada a outra frente e a 09.03 (Central) segue contra o contrato de leitura congelado.
 3. A próxima história de EP-09/EP-11 deve ser criada e aceita a partir do template antes da implementação.
 4. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
 5. A divisão completa e os handoffs obrigatórios estão no [painel Gemini + Codex](05-progress/multi-agent-sync.md).

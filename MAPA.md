@@ -616,4 +616,22 @@ Fora deste repositório (workspace `C:/Users/matheuss.rodrigues/git/57multimarca
 | `tests/runtime-ollama-engine.test.js` | Testes do caminho de motor local (texto livre, formato JSON e runner) com daemon fake. |
 | `tests/hia-local-runtime-panel.test.js` | Testes de renderização do bloco de runtime local no painel HIA. |
 
+## 15. Registro Canônico de Sessões (EP-09.01)
+
+| Caminho | Responsabilidade |
+|---|---|
+| `ui/server/services/canonical-sessions/session-model.js` | Modelo canônico: fingerprint, enums de estado, criação, migração aditiva e validação. |
+| `ui/server/services/canonical-sessions/session-registry.service.js` | Registro por projeto (`projects/<slug>/canonical-sessions.json`) com escrita atômica, leitura tolerante e vínculo explícito. |
+| `ui/server/services/canonical-sessions/session-registry-orchestrator.service.js` | Junta descoberta, reconciliação e registro; monta o read model da Central. |
+| `ui/server/services/canonical-sessions/session-reconciler.service.js` | Ordem de correspondência: exata, metadado explícito, origem reconciliada, inferida como candidata e sem vínculo. |
+| `ui/server/services/canonical-sessions/session-workflow-linker.js` | Projeta o estado de workflow da 08.05 sobre as sessões, sem duplicar a fonte de verdade. |
+| `ui/server/services/canonical-sessions/discovery/markdown-discovery.js` | Porta de descoberta das conversas em Markdown (somente leitura). |
+| `ui/server/services/canonical-sessions/discovery/session-discovery.service.js` | Orquestrador das portas de descoberta, com deduplicação por fingerprint. |
+| `ui/server/controllers/canonical-session.controller.js` | API de leitura e de vínculo do registro canônico. |
+| `ui/server/routes/canonical-sessions.routes.js` | Rotas `GET/POST /api/project/:slug/sessions[...]`. |
+| `tests/canonical-session-registry.test.js` | Testes do registro: escrita, migração, leitura tolerante, vínculo e filtros. |
+| `tests/canonical-session-discovery.test.js` | Testes da descoberta somente leitura e da reconciliação. |
+| `tests/canonical-session-http.test.js` | Testes da API: leitura, filtros, loopback, evidência e 404. |
+| `docs/harness-evolution/02-epics/EP-09-observabilidade/10-contrato-leitura-central.md` | Contrato de leitura congelado entre a 09.02 (event log) e a 09.03 (Central). |
+
 

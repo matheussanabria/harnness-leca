@@ -41,6 +41,7 @@ const { apiRemoteInfo, apiRemotePin } = require("./controllers/remote.controller
 const { apiProjectInspectResolve, apiProjectInspectFile, apiProjectInspectComponents } = require("./controllers/inspect.controller");
 const { artifactRoutes } = require("./routes/artifact.routes");
 const { skillBindingRoutes } = require("./routes/skill-bindings.routes");
+const { canonicalSessionRoutes } = require("./routes/canonical-sessions.routes");
 const {
   apiProjectSourceFiles,
   apiProjectSourceFileGet,
@@ -179,6 +180,7 @@ const ROUTES = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/journal$/, handler: apiProjectJournal },
   ...artifactRoutes,
   ...skillBindingRoutes,
+  ...canonicalSessionRoutes,
   { method: "GET", path: "/api/state", handler: apiState },
   { method: "GET", path: "/api/agents/active", handler: apiAgentsActive },
   { method: "GET", path: "/api/orchestration/state", handler: apiOrchestrationState },
