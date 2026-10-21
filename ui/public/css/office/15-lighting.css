@@ -1,0 +1,50 @@
+/* ==========================================================================
+   ILUMINAÇÃO FUNCIONAL DO ESCRITÓRIO (EP-03.06)
+   O modo vigente vem de [data-office-lighting] e das variáveis escritas por
+   office-lighting-dom.js. Aplica-se ao viewport 3D e ao canvas 2.5D.
+   ========================================================================== */
+
+:root {
+  --office-light-brightness: 0.96;
+  --office-light-contrast: 1.02;
+  --office-light-saturation: 0.95;
+  --office-light-overlay: rgba(148, 163, 184, 0.1);
+  --office-light-overlay-size: 70px;
+}
+
+#viewport3D,
+#canvas2D {
+  transition: filter 600ms ease, box-shadow 600ms ease;
+}
+
+#viewport3D {
+  filter: brightness(var(--office-light-brightness))
+    contrast(var(--office-light-contrast))
+    saturate(var(--office-light-saturation));
+}
+
+#canvas2D {
+  filter: brightness(var(--office-light-brightness))
+    contrast(var(--office-light-contrast))
+    saturate(var(--office-light-saturation));
+}
+
+html[data-office-lighting] #viewport3D,
+html[data-office-lighting] #canvas2D {
+  box-shadow: inset 0 0 var(--office-light-overlay-size) var(--office-light-overlay);
+}
+
+html[data-office-lighting="alert"] .dai-topbar {
+  box-shadow: inset 0 -2px 0 rgba(239, 68, 68, 0.55);
+}
+
+html[data-office-lighting="offline"] .dai-viewport-container {
+  opacity: 0.94;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #viewport3D,
+  #canvas2D {
+    transition: none;
+  }
+}

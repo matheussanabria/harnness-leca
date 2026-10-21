@@ -1,6 +1,6 @@
 // @ts-check
 // DAI HQ — Renderizador de Cenário, Chão, Paredes e Z-Sort Isométrico 2.5D
-import * as Furniture from "./iso-furniture.js";
+import { renderObjectSprite } from "./iso-object-renderers.js";
 
 export class IsoSceneRenderer {
   renderFloor(ctx, gridW, gridH, toScreen) {
@@ -134,7 +134,7 @@ export class IsoSceneRenderer {
   renderPlayer(ctx, player, toScreen, time) {
     const pos = toScreen(player.gx, player.gy);
     const isMoving = player.isMoving;
-    const bounce = isMoving ? Math.abs(Math.sin(player.animTimer)) * 3 : Math.sin(time * 2.5) * 1.5;
+    const bounce = player.seated ? 0 : (isMoving ? Math.abs(Math.sin(player.animTimer)) * 3 : Math.sin(time * 2.5) * 1.5);
 
     ctx.save();
     ctx.beginPath();
@@ -142,15 +142,17 @@ export class IsoSceneRenderer {
     ctx.fillStyle = "rgba(0,0,0,0.35)";
     ctx.fill();
 
-    const py = pos.y - 20 - bounce;
+    const py = pos.y - 20 - bounce + (player.seated ? 6 : 0);
     const legSwing = isMoving ? Math.sin(player.animTimer) * 4 : 0;
-    ctx.fillStyle = "#1e272e";
-    ctx.fillRect(pos.x - 5, py + 14, 4, 8 + legSwing);
-    ctx.fillRect(pos.x + 1, py + 14, 4, 8 - legSwing);
+    if (!player.seated) {
+      ctx.fillStyle = "#1e272e";
+      ctx.fillRect(pos.x - 5, py + 14, 4, 8 + legSwing);
+      ctx.fillRect(pos.x + 1, py + 14, 4, 8 - legSwing);
 
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(pos.x - 6, py + 20 + legSwing, 5, 3);
-    ctx.fillRect(pos.x + 1, py + 20 - legSwing, 5, 3);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(pos.x - 6, py + 20 + legSwing, 5, 3);
+      ctx.fillRect(pos.x + 1, py + 20 - legSwing, 5, 3);
+    }
 
     ctx.fillStyle = "#d97757";
     ctx.beginPath();
@@ -193,13 +195,16 @@ export class IsoSceneRenderer {
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 9px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("VOCÊ", pos.x, py - 16);
+    ctx.fillText(player.seated ? "SENTADO" : "VOCÊ", pos.x, py - 16);
     ctx.restore();
   }
 
   renderInteractionBubble(ctx, player, obj, toScreen) {
     const pos = toScreen(player.gx, player.gy);
     const by = pos.y - 68;
+    const label = player.seated || !obj
+      ? "[E] Levantar"
+      : `[E] Interagir: ${obj.name.split('(')[0].trim()}`;
 
     ctx.save();
     ctx.fillStyle = "rgba(20, 20, 19, 0.92)";
@@ -221,43 +226,11 @@ export class IsoSceneRenderer {
     ctx.fillStyle = "#f5f4ef";
     ctx.font = "bold 11px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(`[E] Interagir: ${obj.name.split('(')[0].trim()}`, pos.x, by + 17);
+    ctx.fillText(label, pos.x, by + 17);
     ctx.restore();
   }
 
   renderObject(ctx, obj, isHovered, toScreen, time) {
-    const pos = toScreen(obj.gx, obj.gy, obj.gz);
-
-    ctx.save();
-    if (isHovered) {
-      ctx.beginPath();
-      ctx.arc(pos.x, pos.y - 20, 32, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(217, 119, 87, 0.25)";
-      ctx.fill();
-    }
-
-    switch (obj.id) {
-      case "codex_station":
-      case "codex_desk": Furniture.drawDesk(ctx, pos, "#22c55e", "Codex", "codex", time); break;
-      case "claude_station":
-      case "claude_desk": Furniture.drawDesk(ctx, pos, "#d97757", "Claude Code", "claude", time); break;
-      case "gemini_station":
-      case "gemini_desk": Furniture.drawDesk(ctx, pos, "#5c87f2", "Gemini", "gemini", time); break;
-      case "opencode_station":
-      case "opencode_desk": Furniture.drawDesk(ctx, pos, "#3cb371", "OpenCode", "opencode", time); break;
-      case "server_rack": Furniture.drawServerRack(ctx, pos, time); break;
-      case "war_room_table_console":
-      case "meeting_table": Furniture.drawMeetingTable(ctx, pos); break;
-      case "file_cabinet": Furniture.drawCabinet(ctx, pos, isHovered); break;
-      case "whiteboard": Furniture.drawWhiteboard(ctx, pos, "memory"); break;
-      case "prototype_board": Furniture.drawWhiteboard(ctx, pos, "prototype"); break;
-      case "arcade_machine": Furniture.drawArcade(ctx, pos, time); break;
-      case "coffee_bar": Furniture.drawCoffeeBar(ctx, pos, time); break;
-      case "water_cooler": Furniture.drawWaterCooler(ctx, pos); break;
-      case "lounge_couch":
-      case "sofa": Furniture.drawSofa(ctx, pos); break;
-      case "plant": Furniture.drawPlant(ctx, pos, time); break;
-    }
-    ctx.restore();
+    renderObjectSprite(ctx, obj, isHovered, toScreen, time);
   }
 }

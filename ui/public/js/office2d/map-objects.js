@@ -12,32 +12,17 @@ export const DEFAULT_GRID_CONFIG = {
 };
 
 /**
- * Constrói a lista de objetos 2D a partir do catálogo canônico,
- * preservando IDs legados para compatibilidade com o renderizador de móveis.
+ * Constrói a lista de objetos 2D a partir do catálogo canônico.
+ * O modo 2.5D compartilha os mesmos IDs do 3D; aliases legados ficam no renderizador.
  */
 function build2DObjects() {
   const canonicalItems = getOfficeObjectsFor2D();
-  
-  // Mapa de remapeamento de ID para retrocompatibilidade de renderização de sprites/móveis
-  /** @type {Record<string, string>} */
-  const legacyIdMap = {
-    codex_station: "codex_desk",
-    claude_station: "claude_desk",
-    gemini_station: "gemini_desk",
-    opencode_station: "opencode_desk",
-    war_room_table_console: "meeting_table",
-    lounge_couch: "sofa"
-  };
 
   /** @type {Array<{ id: string, name: string, gx: number, gy: number, gz: number, w: number, h: number, icon: string, category: string }>} */
   const list = [];
 
   for (const item of canonicalItems) {
-    const renderedId = legacyIdMap[item.id] || item.id;
-    list.push({
-      ...item,
-      id: renderedId
-    });
+    list.push({ ...item });
   }
 
   // Elementos puramente decorativos sem interação direta

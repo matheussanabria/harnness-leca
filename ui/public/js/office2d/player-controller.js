@@ -16,6 +16,9 @@ export class Player2DController {
       isMoving: false,
       direction: "down", // "down", "up", "left", "right"
       animTimer: 0,
+      seated: false,
+      seatId: null,
+      standTarget: { gx: 5.5, gy: 5.5 },
     };
     this.nearbyObject = null;
   }
@@ -26,8 +29,46 @@ export class Player2DController {
     playStepSound();
   }
 
+  /**
+   * @param {string} seatId
+   * @param {number} gx
+   * @param {number} gy
+   * @param {number} standX
+   * @param {number} standY
+   */
+  seatAt(seatId, gx, gy, standX, standY) {
+    const p = this.player;
+    p.seated = true;
+    p.seatId = seatId;
+    p.gx = gx;
+    p.gy = gy;
+    p.targetGx = gx;
+    p.targetGy = gy;
+    p.standTarget = { gx: standX, gy: standY };
+    p.isMoving = false;
+    p.direction = "up";
+    this.nearbyObject = null;
+  }
+
+  /** @returns {boolean} */
+  standUp() {
+    const p = this.player;
+    if (!p.seated) return false;
+    p.seated = false;
+    p.seatId = null;
+    p.targetGx = p.standTarget.gx;
+    p.targetGy = p.standTarget.gy;
+    return true;
+  }
+
   update(dt, keys, objects, gridW, gridH) {
     const p = this.player;
+
+    if (p.seated) {
+      p.isMoving = false;
+      this.nearbyObject = null;
+      return;
+    }
 
     // 1. Movimento via Teclado (WASD / Setas)
     let moveX = 0;

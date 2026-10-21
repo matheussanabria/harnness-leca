@@ -147,6 +147,8 @@ export class OfficePointerController {
       sm.openAgentDossier("opencode");
     } else if (hitId === "war_room_codex_station") {
       sm.openAgentDossier("codex");
+    } else if (this.ctx.interactionManager?.interactById?.(hitId)) {
+      return;
     }
   }
 

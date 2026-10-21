@@ -1,5 +1,6 @@
 import { WarRoomScreenRenderer } from "../office-war-screen.js";
 import { officeState } from "../office-state.js";
+import { officeScreenPresets } from "../office/office-screen-presets.js";
 import { officeAgentState } from "../office/office-agent-state.js";
 import { avatarStateFor, padColorFor } from "../office/office-agent-telemetry.js";
 import { warRoomCorridorMethods } from "./war-room-corridor.js";
@@ -15,6 +16,7 @@ export class WarRoomBuilder {
     this.interactionManager = interactionManager;
 
     this.screenRenderer = new WarRoomScreenRenderer();
+    this.screenTabs = null;
     this.warRoomTexture = null;
     this.warRoomScreenMesh = null;
     this.holoCoreMesh = null;
@@ -24,6 +26,14 @@ export class WarRoomBuilder {
     this.timer = 0;
 
     officeAgentState.subscribe(() => this.applyAgentVisualState());
+
+    officeScreenPresets.subscribe(({ screenId, presetId }) => {
+      if (screenId !== "war_room_main_panel") return;
+      this.screenTabs?.setActive(presetId);
+      this.refreshScreen();
+    });
+
+    window.addEventListener("dai:scrumChanged", () => this.refreshScreen());
 
     window.addEventListener("dai:orchestrationState", (e) => {
       // @ts-ignore
@@ -77,7 +87,9 @@ export class WarRoomBuilder {
       projectData: officeState.projectData,
       agentsData: officeState.activeAgents,
       orchestrationState: officeState.orchestrationState,
-      journal: officeState.journal
+      journal: officeState.journal,
+      preset: officeScreenPresets.getPreset("war_room_main_panel"),
+      scrumData: officeState.scrumData
     });
     this.warRoomTexture.needsUpdate = true;
   }

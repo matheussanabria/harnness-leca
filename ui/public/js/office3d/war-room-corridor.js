@@ -1,6 +1,8 @@
 // @ts-check
 // Corredor e sala de guerra (mixin de WarRoomBuilder).
 import { officeState } from "../office-state.js";
+import { officeScreenPresets } from "../office/office-screen-presets.js";
+import { createWarScreenTabs } from "./war-screen/war-screen-tabs.js";
 import { OrchestrationGraph } from "./orchestration-graph.js";
 
 export const warRoomCorridorMethods = {
@@ -148,7 +150,9 @@ export const warRoomCorridorMethods = {
       projectData: officeState.projectData,
       agentsData: officeState.activeAgents,
       orchestrationState: officeState.orchestrationState,
-      journal: officeState.journal
+      journal: officeState.journal,
+      preset: officeScreenPresets.getPreset("war_room_main_panel"),
+      scrumData: officeState.scrumData
     });
 
     this.warRoomTexture = new THREE.CanvasTexture(canvas);
@@ -170,6 +174,17 @@ export const warRoomCorridorMethods = {
     this.warRoomScreenMesh.userData = { id: "war_room_main_panel", type: "war_screen" };
     warGroup.add(this.warRoomScreenMesh);
     this.interactionManager.addInteractiveMesh(this.warRoomScreenMesh);
+
+    this.screenTabs = createWarScreenTabs({
+      THREE,
+      group: warGroup,
+      interactionManager: this.interactionManager,
+      screenCenterX: centerX,
+      screenCenterY: 2.4,
+      screenWidth: screenW,
+      screenZ: -5.36,
+      onSelect: () => this.refreshScreen()
+    });
 
     // Mesa Central de Coordenação
     this.buildWarRoomTable(THREE, warGroup, centerX, -0.3);

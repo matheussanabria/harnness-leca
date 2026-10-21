@@ -1,0 +1,34 @@
+/* ==========================================================================
+   MODOS DE VISUALIZAÇÃO DO ESCRITÓRIO (EP-03.07)
+   O modo vigente vem de [data-office-view] e a câmera de
+   [data-office-camera], escritos por office-view-mode.js.
+   ========================================================================== */
+
+html[data-office-view] .mode-toggle-group {
+  transition: border-color 240ms ease, box-shadow 240ms ease;
+}
+
+html[data-office-view="3d"] .mode-toggle-group {
+  border-color: rgba(0, 136, 255, 0.42);
+}
+
+html[data-office-view="diorama"] .mode-toggle-group {
+  border-color: rgba(45, 212, 191, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(45, 212, 191, 0.12);
+}
+
+html[data-office-view="2.5d"] .mode-toggle-group {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(245, 158, 11, 0.12);
+}
+
+html[data-office-view] .btn-mode-pill i {
+  width: 14px;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-office-view] .mode-toggle-group {
+    transition: none;
+  }
+}

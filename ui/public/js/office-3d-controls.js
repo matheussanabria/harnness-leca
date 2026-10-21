@@ -1,12 +1,14 @@
 // @ts-check
 // Renderizadores, modos de visão, sentar/levantar e painéis (mixin de Office3D).
+import { clampPixelRatio } from "./office/scene-preferences.js";
 
 export const office3dControlsMethods = {
   initRenderers(w, h, THREE) {
+    const profile = this.performanceProfile || { maxPixelRatio: 2, shadows: true };
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
     this.renderer.setSize(w, h);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.shadowMap.enabled = true;
+    this.renderer.setPixelRatio(clampPixelRatio(window.devicePixelRatio, profile.maxPixelRatio));
+    this.renderer.shadowMap.enabled = profile.shadows !== false;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.15;
@@ -33,8 +35,21 @@ export const office3dControlsMethods = {
       this.orbitControls.minDistance = 0.8;
       this.orbitControls.maxDistance = 18;
       this.orbitControls.target.set(0, 1.25, 0.5);
+      this.orbitControls.enableDamping = !this.reducedMotion;
       this.orbitControls.enabled = false;
     }
+  },
+
+  applyRendererQuality(profile) {
+    if (!this.renderer) return;
+    const active = profile || this.performanceProfile || { maxPixelRatio: 2, shadows: true };
+    this.renderer.setPixelRatio(clampPixelRatio(window.devicePixelRatio, active.maxPixelRatio));
+    const shadows = active.shadows !== false;
+    if (this.renderer.shadowMap.enabled !== shadows) {
+      this.renderer.shadowMap.enabled = shadows;
+      this.renderer.shadowMap.needsUpdate = true;
+    }
+    this.onWindowResize();
   },
 
   setViewMode(mode) {

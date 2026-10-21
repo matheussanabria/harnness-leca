@@ -20,6 +20,7 @@ export const FACILITIES_DATA = [
     distance: 3.2,
     offsetY: 3.2,
     position3D: { x: -13.0, y: 0, z: -4.2 },
+    position2D: { gx: 7.5, gy: 0.8, gz: 0, w: 2.2, h: 1.0 },
     aliases: ["war_panel", "tactical_screen"]
   },
   {
@@ -37,6 +38,7 @@ export const FACILITIES_DATA = [
     distance: 1.6,
     offsetY: 1.3,
     position3D: { dynamic: "warChairPos" },
+    position2D: { gx: 8.8, gy: 1.6, gz: 0, w: 1.0, h: 1.0 },
     aliases: ["board_seat", "war_chair"]
   },
   {

@@ -2,7 +2,7 @@
 id: EP-03
 titulo: Escritório 2.5D/3D
 prioridade: P1
-status: em-andamento
+status: concluido
 depende: [EP-01]
 tags: [harness-evolution, epico]
 ---
@@ -15,7 +15,7 @@ tags: [harness-evolution, epico]
 Transformar objetos existentes em pontos operacionais de acesso aos módulos.
 
 ## Execução
-Catalogar objetos, padronizar ações, integrar estações ao Window Manager, presets dos telões, estados reais de agentes e iluminação funcional.
+Catalogar objetos, padronizar ações, integrar estações ao Window Manager, presets dos telões, estados reais de agentes, iluminação funcional, alternância de visão sem perda de contexto, desempenho e acessibilidade da cena.
 
 ## Entrega
 Escritório com objetos conectados a serviços compartilhados.
@@ -35,7 +35,7 @@ Código em `ui/public/js/office*`, `office2d/` e `office3d/`. Ver [current-state
 | 03.03 | [Estações abrindo janelas pelo Window Manager](./03.03-estacoes-janelas.md) | Concluída |
 | 03.04 | [Presets dos telões](./03.04-presets-teloes.md) | Concluída |
 | 03.05 | [Estado real dos agentes na cena](./03.05-estado-real-agentes.md) | Concluída |
-| 03.06 | Iluminação funcional | Planejada |
-| 03.07 | Alternância 3D, diorama e 2.5D sem perda de contexto | Planejada |
-| 03.08 | Paridade do modo 2.5D | Planejada |
-| 03.09 | Desempenho e acessibilidade da cena | Planejada |
+| 03.06 | [Iluminação funcional](./03.06-iluminacao-funcional.md) | Concluída |
+| 03.07 | [Alternância 3D, diorama e 2.5D sem perda de contexto](./03.07-alternancia-3d-diorama-25d.md) | Concluída |
+| 03.08 | [Paridade do modo 2.5D](./03.08-paridade-modo-25d.md) | Concluída |
+| 03.09 | [Desempenho e acessibilidade da cena](./03.09-desempenho-acessibilidade-cena.md) | Concluída |

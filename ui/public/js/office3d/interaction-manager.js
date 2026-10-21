@@ -106,6 +106,20 @@ export class InteractionManager {
   }
 
   /**
+   * Aciona uma interação registrada pelo ID (cliques em objetos sem atalho dedicado).
+   * @param {string} id
+   * @returns {boolean}
+   */
+  interactById(id) {
+    const target = this.registry.find((item) => item.id === id);
+    if (target && typeof target.onInteract === "function") {
+      target.onInteract();
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Raycasting para cliques
    * @param {number} clientX
    * @param {number} clientY

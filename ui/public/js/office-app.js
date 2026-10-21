@@ -12,9 +12,13 @@ import { TaskbarComponent } from "./window-manager/taskbar.js";
 import { windowManager } from "./window-manager/window-manager.js";
 import { executeOfficeAction } from "./office/office-action-dispatcher.js";
 import { bindChatExecutionTelemetry, bindOfficeStateTelemetry } from "./office/office-agent-telemetry.js";
+import { bindOfficeLightingDom } from "./office/office-lighting-bootstrap.js";
+import { OfficeViewModeController } from "./office/office-view-mode.js";
+import { OfficeScenePreferences } from "./office/office-scene-preferences.js";
 
 let engine2D = null;
 let engine3D = null;
+let viewModeController = null;
 let currentMode = "pov";
 let stationAdapter = null;
 let taskbar = null;
@@ -76,11 +80,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   btnCloseRightSidebar?.addEventListener("click", () => toggleRightSidebar(true));
 
   // Tecla H e evento customizado para alternar menus / Modo Imersivo
-  window.addEventListener("keydown", (e) => {
-    const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
-    if (activeTag === "input" || activeTag === "textarea" || activeTag === "select") return;
-    if (e.key.toLowerCase() === "h") toggleHUD();
-  });
   window.addEventListener("dai:toggleHud", () => toggleHUD());
 
   try {
@@ -92,6 +91,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Inicialização dos Motores
   engine2D = new Office2D(canvas2D, tooltipEl);
   engine3D = new Office3D(viewport3D, tooltipEl);
+
+  const scenePreferences = new OfficeScenePreferences({
+    doc: document,
+    win: window,
+    onChange: (state) => {
+      engine2D?.applyPerformanceProfile?.(state.profile);
+      engine2D?.setReducedMotion?.(state.reducedMotion);
+      engine3D?.applyPerformanceProfile?.(state.profile);
+      engine3D?.setReducedMotion?.(state.reducedMotion);
+    }
+  });
+  scenePreferences.init();
+
+  viewModeController = new OfficeViewModeController({
+    engines: { "3d": engine3D, "2.5d": engine2D },
+    doc: document,
+    getProject: () => officeState.activeProject || "global",
+    onCameraMode: applyCameraMode,
+    onViewChanged: (state) => {
+      updateViewChrome(state);
+      scenePreferences.announce(`Visualização ${state.label} ativa.`);
+    }
+  });
 
   // Seletor de Sensibilidade do Mouse
   const sensitivitySlider = /** @type {HTMLInputElement} */ (document.getElementById("mouseSensitivitySlider"));
@@ -171,6 +193,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   officeState.subscribe(updateUI);
   bindOfficeStateTelemetry(officeState);
   bindChatExecutionTelemetry();
+  bindOfficeLightingDom(document);
 
   setupOfficeShortcuts({
     switchMode: (m) => switchMode(m),
@@ -188,7 +211,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   await officeState.init();
-  await switchMode("third_person");
+  await viewModeController.restore();
 });
 
 function updateUI(state) {
@@ -221,70 +244,35 @@ function updateUI(state) {
   }
 }
 
+const CAMERA_HINTS = {
+  third_person: '<i class="fa-solid fa-person-walking"></i> <b>WASD</b> Andar · <b>Mover Mouse</b> Direcionar Câmera · <b>Shift</b> Correr · <b>M</b> Cursor Livre · <b>C</b> 1ª Pessoa · <b>E</b> Interagir · <b>H</b> Menus',
+  first_person: '<i class="fa-solid fa-eye"></i> Modo 1ª Pessoa: olhando pelos olhos do personagem · <b>C</b> 3ª Pessoa · <b>H</b> Menus',
+  workstation: '<i class="fa-solid fa-chair"></i> Utilizando a Estação de Trabalho · <b>E</b> ou <b>Esc</b> Levantar · <b>H</b> Menus',
+  war_room: '<i class="fa-solid fa-building-columns"></i> <b>Sala de Guerra DAI</b> · Aproxime-se da mesa ou telão · <b>E</b> Interagir · <b>H</b> Menus'
+};
+
+function applyCameraMode(cameraMode) {
+  if (cameraMode !== "war_room" && cameraMode !== "war_room_seated") return;
+  if (engine3D?.avatar) {
+    engine3D.avatar.position.set(-13.0, 0, 2.2);
+    engine3D.avatar.rotation = 0;
+    engine3D.avatar.targetRotation = 0;
+    engine3D.avatar.setState("idle");
+  }
+}
+
+function updateViewChrome(state) {
+  currentMode = state.mode === "3d" ? state.cameraMode : state.mode;
+  const hintText = document.getElementById("bottomHintText");
+  if (!hintText) return;
+  const hint = state.mode === "3d" ? CAMERA_HINTS[state.cameraMode] : state.hint;
+  if (hint) hintText.innerHTML = hint;
+}
+
 async function switchMode(mode) {
   playClickSound();
-  currentMode = mode;
-
-  const btn3rd = document.getElementById("btnMode3rdPerson");
-  const btn1st = document.getElementById("btnMode1stPerson");
-  const btnWorkstation = document.getElementById("btnModeWorkstation");
-  const btnWarRoom = document.getElementById("btnModeWarRoom");
-  const btnOrbit = document.getElementById("btnModeOrbit");
-  const btn2D = document.getElementById("btnMode2D");
-  const canvas2D = document.getElementById("canvas2D");
-  const viewport3D = document.getElementById("viewport3D");
-  const hintText = document.getElementById("bottomHintText");
-
-  btn3rd?.classList.remove("active");
-  btn1st?.classList.remove("active");
-  btnWorkstation?.classList.remove("active");
-  btnWarRoom?.classList.remove("active");
-  btnOrbit?.classList.remove("active");
-  btn2D?.classList.remove("active");
-
-  if (mode === "2d") {
-    btn2D?.classList.add("active");
-    if (viewport3D) viewport3D.style.display = "none";
-    if (canvas2D) canvas2D.style.display = "block";
-    if (engine3D) engine3D.stop();
-    if (engine2D) engine2D.start();
-    if (hintText) hintText.innerHTML = "<span>🎮</span><span>Ande com <b>WASD</b> · Pressione <b>[E]</b> Interagir · <b>H</b> Ocultar Menus</span>";
-  } else {
-    if (canvas2D) canvas2D.style.display = "none";
-    if (viewport3D) viewport3D.style.display = "block";
-    if (engine2D) engine2D.stop();
-
-    if (engine3D) {
-      const ok = await engine3D.init();
-      if (ok) {
-        engine3D.start();
-        if (mode === "war_room") {
-          btnWarRoom?.classList.add("active");
-          if (engine3D.avatar) {
-            engine3D.avatar.position.set(-13.0, 0, 2.2);
-            engine3D.avatar.rotation = 0;
-            engine3D.avatar.targetRotation = 0;
-            engine3D.avatar.setState("idle");
-          }
-          engine3D.setViewMode("third_person");
-          if (hintText) hintText.innerHTML = "<span>🏛️</span><span><b>Sala de Guerra DAI</b> · Aproxime-se da mesa ou telão · <b>E</b> Interagir · <b>H</b> Ocultar Menus</span>";
-        } else {
-          engine3D.setViewMode(mode);
-          if (mode === "third_person") {
-            btn3rd?.classList.add("active");
-            if (hintText) hintText.innerHTML = "<span>🚶‍♂️</span><span><b>WASD</b> Andar · <b>Mover Mouse</b> Direcionar Câmera · <b>Shift</b> Correr · <b>C</b> 1ª Pessoa · <b>[E]</b> Interagir · <b>H</b> Ocultar Menus</span>";
-          } else if (mode === "first_person") {
-            btn1st?.classList.add("active");
-            if (hintText) hintText.innerHTML = "<span>👁️</span><span>Modo 1ª Pessoa: Olhando pelos olhos do personagem · <b>C</b> 3ª Pessoa · <b>H</b> Ocultar Menus</span>";
-          } else if (mode === "workstation" || mode === "screen_focus") {
-            btnWorkstation?.classList.add("active");
-            if (hintText) hintText.innerHTML = "<span>💺</span><span>Utilizando a Estação de Trabalho · <b>E</b> ou <b>Esc</b> Levantar · <b>H</b> Ocultar Menus</span>";
-          } else if (mode === "orbit") {
-            btnOrbit?.classList.add("active");
-            if (hintText) hintText.innerHTML = "<span>🌐</span><span>Modo Diorama 360° · Arraste para orbitar · <b>H</b> Ocultar Menus</span>";
-          }
-        }
-      }
-    }
-  }
+  if (!viewModeController) return;
+  if (mode === "orbit") return viewModeController.switchTo("diorama");
+  if (mode === "2d") return viewModeController.switchTo("2.5d");
+  return viewModeController.switchTo("3d", { cameraMode: mode });
 }

@@ -1,0 +1,104 @@
+/* ==========================================================================
+   ACESSIBILIDADE E PREFERÊNCIAS DA CENA (EP-03.09)
+   ========================================================================== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+#viewport3D:focus-visible,
+#canvas2D:focus-visible {
+  outline: 3px solid var(--dai-cyan);
+  outline-offset: -3px;
+}
+
+.dai-scene-prefs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--dai-panel-card);
+  border: 1px solid var(--dai-border);
+  border-radius: 9px;
+  padding: 3px 6px;
+  color: var(--dai-text);
+}
+
+.dai-quality-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--dai-mute);
+  font-size: 11px;
+}
+
+.dai-quality-field select {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--dai-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 3px 2px;
+}
+
+.dai-quality-field select:focus-visible,
+.dai-motion-btn:focus-visible {
+  outline: 2px solid var(--dai-cyan);
+  outline-offset: 2px;
+  border-radius: 5px;
+}
+
+.dai-motion-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--dai-mute);
+  cursor: pointer;
+}
+
+.dai-motion-btn:hover {
+  color: #ffffff;
+  border-color: var(--dai-cyan);
+}
+
+.dai-motion-btn.active {
+  color: #ffffff;
+  background: rgba(0, 210, 255, 0.18);
+  border-color: var(--dai-cyan);
+}
+
+html[data-office-motion="reduce"] .btn-mode-pill,
+html[data-office-motion="reduce"] .dai-hud-toggle-btn,
+html[data-office-motion="reduce"] .dai-floating-hud-trigger {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dai-scene-prefs,
+  .dai-scene-prefs * {
+    transition: none;
+  }
+}
+
+@media (max-width: 1280px) {
+  .dai-tagline {
+    display: none;
+  }
+
+  .dai-scene-prefs {
+    padding: 2px 4px;
+  }
+}

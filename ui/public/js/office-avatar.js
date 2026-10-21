@@ -28,6 +28,7 @@ export class Avatar3D {
     this.state = "idle";
     this.animTime = 0;
     this.speed = 0;
+    this.reducedMotion = false;
 
     // Nós articulados (populados pelo construtor da malha)
     this.hips = null;
@@ -69,7 +70,8 @@ export class Avatar3D {
    * @param {number} dt Delta time em segundos
    */
   update(dt) {
-    this.animTime += dt;
+    const decorative = this.state === "idle" || this.state === "sit" || this.state === "typing";
+    this.animTime += this.reducedMotion && decorative ? 0 : dt;
     this.updatePosition();
 
     // Interpolação suave da rotação do personagem

@@ -4,15 +4,15 @@
 export function setupOfficeShortcuts({ switchMode, toggleCursor, onInteract, onStandUp, isSeated }) {
   window.addEventListener("keydown", (e) => {
     const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
-    if (activeTag === "input" || activeTag === "textarea" || document.activeElement?.getAttribute("contenteditable") === "true") {
+    if (activeTag === "input" || activeTag === "textarea" || activeTag === "select" || document.activeElement?.getAttribute("contenteditable") === "true") {
       return;
     }
 
     const k = e.key.toLowerCase();
     const code = e.code;
 
-    // 1. Alternância de Cursor do Mouse (Alt, Tab ou M)
-    if (k === "m" || k === "tab" || code === "AltLeft" || code === "AltRight") {
+    // 1. Alternância de Cursor do Mouse (M). Tab e Alt continuam com o navegador.
+    if (k === "m") {
       e.preventDefault();
       toggleCursor();
       return;

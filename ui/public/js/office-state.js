@@ -6,6 +6,7 @@ export const officeState = {
   projects: [],
   activeProject: "",
   projectData: null,
+  scrumData: null,
   engines: {},
   journal: [],
   activeAgents: {
@@ -155,15 +156,22 @@ export const officeState = {
   async loadProjectData(slug) {
     if (!slug) return;
     try {
-      const [projRes, journalRes] = await Promise.all([
+      const [projRes, journalRes, scrumRes] = await Promise.all([
         fetch(`/api/project/${encodeURIComponent(slug)}`),
-        fetch(`/api/project/${encodeURIComponent(slug)}/journal`).catch(() => null)
+        fetch(`/api/project/${encodeURIComponent(slug)}/journal`).catch(() => null),
+        fetch(`/api/project/${encodeURIComponent(slug)}/scrum`).catch(() => null)
       ]);
       this.projectData = await projRes.json();
       if (journalRes && journalRes.ok) {
         this.journal = await journalRes.json();
       } else {
         this.journal = [];
+      }
+      if (scrumRes && scrumRes.ok) {
+        const scrumPayload = await scrumRes.json();
+        this.scrumData = scrumPayload.scrum || null;
+      } else {
+        this.scrumData = null;
       }
     } catch (e) {
       console.error(`[OfficeState] Falha ao carregar projeto ${slug}:`, e);

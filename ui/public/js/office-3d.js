@@ -10,20 +10,25 @@ import { BrowserScreenManager } from "./office3d/browser-screen.js";
 import { MainWorkspaceBuilder } from "./office3d/world-main-workspace.js";
 import { WarRoomBuilder } from "./office3d/world-war-room.js";
 import { setupOfficeLights } from "./office3d/scene-lighting.js";
+import { bindOfficeLightingRig } from "./office/office-lighting-bootstrap.js";
 import { setupOfficeInteractions } from "./office3d/interactions-setup.js";
 import { SeatAndModeManager } from "./office3d/seat-and-mode-manager.js";
 import { AvatarMovementController } from "./office3d/avatar-movement.js";
 import { OfficePointerController } from "./office3d/pointer-controller.js";
 import { office3dControlsMethods } from "./office-3d-controls.js";
+import { FrameLoop } from "./office/frame-loop.js";
 
 export class Office3D {
   /**
    * @param {HTMLElement} container
    * @param {HTMLElement} tooltipEl
+   * @param {Object} [options]
+   * @param {Document | any} [options.doc]
    */
-  constructor(container, tooltipEl) {
+  constructor(container, tooltipEl, options = {}) {
     this.container = container;
     this.tooltip = tooltipEl;
+    this.doc = options.doc ?? (typeof document !== "undefined" ? document : null);
 
     this.scene = null;
     this.camera = null;
@@ -31,8 +36,9 @@ export class Office3D {
     this.cssScene = null;
     this.cssRenderer = null;
     this.orbitControls = null;
-    this.animId = null;
     this.isLoaded = false;
+    this.reducedMotion = false;
+    this.performanceProfile = null;
 
     // Coordenadas das Estações
     this.positions = {
@@ -51,11 +57,16 @@ export class Office3D {
     this.browserScreen = null;
     this.mainWorkspaceBuilder = null;
     this.warRoomBuilder = null;
+    this.lightingRig = null;
     this.seatManager = null;
     this.movementController = null;
     this.pointerController = null;
 
     this.onWindowResize = this.onWindowResize.bind(this);
+    this.loop = new FrameLoop({
+      doc: this.doc,
+      onFrame: (_time, dt) => this.renderFrame(dt)
+    });
   }
 
   get viewMode() {
@@ -105,7 +116,8 @@ export class Office3D {
     this.initRenderers(w, h, THREE);
 
     // 3. Luzes Cenográficas
-    setupOfficeLights(this.scene, THREE);
+    this.lightingRig = setupOfficeLights(this.scene, THREE);
+    bindOfficeLightingRig(this.lightingRig);
 
     // 4. Inicialização dos Gerenciadores Submódulos
     const promptEl = document.getElementById("interactionPrompt");
@@ -133,6 +145,7 @@ export class Office3D {
 
     // 6. Avatar Humano Jogável
     this.avatar = new Avatar3D(THREE);
+    this.avatar.reducedMotion = this.reducedMotion;
     this.avatar.position.set(0, 0, 2.2);
     this.avatar.rotation = Math.PI;
     this.avatar.targetRotation = Math.PI;
@@ -211,36 +224,36 @@ export class Office3D {
     }
   }
 
+  renderFrame(dt) {
+    this.update(dt);
+    const w = this.container.clientWidth || window.innerWidth;
+    const h = this.container.clientHeight || window.innerHeight;
+    this.interactionManager?.updateTooltip(this.camera, w, h);
+
+    if (this.renderer && this.scene && this.camera) {
+      this.renderer.render(this.scene, this.camera);
+    }
+    if (this.cssRenderer && this.cssScene && this.camera) {
+      this.cssRenderer.render(this.cssScene, this.camera);
+    }
+  }
+
   start() {
     this.container.style.display = "block";
     if (this.cssRenderer) this.cssRenderer.domElement.style.display = "block";
     this.onWindowResize();
+    this.loop.start();
+  }
 
-    if (this.animId) {
-      // Loop já ativo: evita duplicação de requestAnimationFrame
-      return;
-    }
+  applyPerformanceProfile(profile) {
+    if (profile) this.performanceProfile = profile;
+    this.applyRendererQuality?.(profile);
+  }
 
-    let lastT = performance.now();
-    const animate = (t) => {
-      this.animId = requestAnimationFrame(animate);
-      const dt = Math.min((t - lastT) * 0.001, 0.1);
-      lastT = t;
-
-      this.update(dt);
-
-      const w = this.container.clientWidth || window.innerWidth;
-      const h = this.container.clientHeight || window.innerHeight;
-      this.interactionManager?.updateTooltip(this.camera, w, h);
-
-      if (this.renderer && this.scene && this.camera) {
-        this.renderer.render(this.scene, this.camera);
-      }
-      if (this.cssRenderer && this.cssScene && this.camera) {
-        this.cssRenderer.render(this.cssScene, this.camera);
-      }
-    };
-    this.animId = requestAnimationFrame(animate);
+  setReducedMotion(reduced) {
+    this.reducedMotion = Boolean(reduced);
+    if (this.avatar) this.avatar.reducedMotion = this.reducedMotion;
+    if (this.orbitControls) this.orbitControls.enableDamping = !this.reducedMotion;
   }
 
   onProjectChanged(state) {
@@ -255,10 +268,7 @@ export class Office3D {
   stop() {
     this.container.style.display = "none";
     if (this.cssRenderer) this.cssRenderer.domElement.style.display = "none";
-    if (this.animId) {
-      cancelAnimationFrame(this.animId);
-      this.animId = null;
-    }
+    this.loop.stop();
     if (this.tooltip) this.tooltip.style.display = "none";
     this.interactionManager?.hidePrompt();
   }

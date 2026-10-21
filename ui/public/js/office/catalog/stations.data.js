@@ -20,6 +20,7 @@ export const STATIONS_DATA = [
     distance: 1.6,
     offsetY: 1.4,
     position3D: { dynamic: "chairPos" },
+    position2D: { gx: 7.5, gy: 3.4, gz: 0, w: 1.0, h: 1.0 },
     aliases: ["workstation"]
   },
   {
@@ -37,6 +38,7 @@ export const STATIONS_DATA = [
     distance: 1.8,
     offsetY: 1.65,
     position3D: { x: 0, y: 1.25, z: 0.15 },
+    position2D: { gx: 7.5, gy: 2.4, gz: 0, w: 1.2, h: 1.0 },
     aliases: ["browser_screen", "screen_3d", "big_screen"]
   },
   {

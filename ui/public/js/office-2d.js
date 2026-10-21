@@ -4,20 +4,30 @@ import { officeState } from "./office-state.js";
 import { DEFAULT_GRID_CONFIG, OFFICE_2D_OBJECTS } from "./office2d/map-objects.js";
 import { Player2DController } from "./office2d/player-controller.js";
 import { IsoSceneRenderer } from "./office2d/iso-scene-renderer.js";
+import { createOffice2DActionContext } from "./office2d/action-bridge.js";
+import { getOfficeObject } from "./office/office-object-catalog.js";
 import { isNavigationBlocked, handleNavigationKey } from "./window-manager/focus-manager.js";
 import { windowManager } from "./window-manager/window-manager.js";
 import { executeOfficeAction } from "./office/office-action-dispatcher.js";
+import { clampPixelRatio } from "./office/scene-preferences.js";
+import { FrameLoop } from "./office/frame-loop.js";
 
 export class Office2D {
   /**
    * @param {HTMLCanvasElement} canvas
    * @param {HTMLElement} tooltipEl
+   * @param {Object} [options]
+   * @param {Document | any} [options.doc]
+   * @param {Window | any} [options.win]
    */
-  constructor(canvas, tooltipEl) {
+  constructor(canvas, tooltipEl, options = {}) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.tooltip = tooltipEl;
-    this.animFrame = null;
+    this.doc = options.doc ?? (typeof document !== "undefined" ? document : null);
+    this.win = options.win ?? (typeof window !== "undefined" ? window : null);
+    this.reducedMotion = false;
+    this.maxPixelRatio = 2;
     this.time = 0;
 
     this.gridW = DEFAULT_GRID_CONFIG.gridW;
@@ -35,6 +45,23 @@ export class Office2D {
     this.objects = OFFICE_2D_OBJECTS;
     this.playerController = new Player2DController();
     this.renderer = new IsoSceneRenderer();
+    this.lastScreenFocus = null;
+    this.actionContext = createOffice2DActionContext({
+      officeState,
+      windowManager,
+      onSeat: (seatId) => this.seatPlayer(seatId),
+      onScreenFocus: (targetScreen, preset) => {
+        this.lastScreenFocus = { targetScreen, preset };
+      }
+    });
+    this.loop = new FrameLoop({
+      doc: this.doc,
+      onFrame: (time, dt) => {
+        this.time = time * 0.001;
+        this.update(dt);
+        this.render();
+      }
+    });
 
     this.onResize = this.onResize.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
@@ -43,9 +70,9 @@ export class Office2D {
     this.onKeyUp = this.onKeyUp.bind(this);
     this.toScreen = this.toScreen.bind(this);
 
-    window.addEventListener("resize", this.onResize);
-    window.addEventListener("keydown", this.onKeyDown);
-    window.addEventListener("keyup", this.onKeyUp);
+    this.win?.addEventListener?.("resize", this.onResize);
+    this.win?.addEventListener?.("keydown", this.onKeyDown);
+    this.win?.addEventListener?.("keyup", this.onKeyUp);
     this.canvas.addEventListener("mousemove", this.onMouseMove);
     this.canvas.addEventListener("click", this.onClick);
 
@@ -62,36 +89,38 @@ export class Office2D {
 
   start() {
     this.canvas.style.display = "block";
-    if (this.animFrame) return;
-
-    let lastT = performance.now();
-    const loop = (t) => {
-      const dt = Math.min((t - lastT) * 0.001, 0.1);
-      lastT = t;
-      this.time = t * 0.001;
-      this.update(dt);
-      this.render();
-      this.animFrame = requestAnimationFrame(loop);
-    };
-    this.animFrame = requestAnimationFrame(loop);
+    this.loop.start();
   }
 
   stop() {
     this.canvas.style.display = "none";
-    if (this.animFrame) {
-      cancelAnimationFrame(this.animFrame);
-      this.animFrame = null;
-    }
+    this.loop.stop();
     if (this.tooltip) this.tooltip.style.display = "none";
   }
 
+  applyPerformanceProfile(profile) {
+    this.maxPixelRatio = Number(profile?.maxPixelRatio) || 2;
+    this.onResize();
+  }
+
+  setReducedMotion(reduced) {
+    this.reducedMotion = Boolean(reduced);
+  }
+
   onResize() {
-    const dpr = window.devicePixelRatio || 1;
-    this.canvas.width = window.innerWidth * dpr;
-    this.canvas.height = window.innerHeight * dpr;
-    this.ctx.scale(dpr, dpr);
-    this.originX = window.innerWidth / 2;
-    this.originY = window.innerHeight / 2 - 80;
+    const width = this.win?.innerWidth || 0;
+    const height = this.win?.innerHeight || 0;
+    const dpr = clampPixelRatio(this.win?.devicePixelRatio || 1, this.maxPixelRatio);
+    const pixelWidth = Math.round(width * dpr);
+    const pixelHeight = Math.round(height * dpr);
+
+    if (this.canvas.width !== pixelWidth || this.canvas.height !== pixelHeight) {
+      this.canvas.width = pixelWidth;
+      this.canvas.height = pixelHeight;
+    }
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.originX = width / 2;
+    this.originY = height / 2 - 80;
   }
 
   toScreen(gx, gy, gz = 0) {
@@ -119,6 +148,11 @@ export class Office2D {
 
     const k = e.key.toLowerCase();
     this.keys[k] = true;
+    if ((k === "e" || k === " ") && this.player.seated) {
+      e.preventDefault();
+      this.playerController.standUp();
+      return;
+    }
     if ((k === "e" || k === " ") && this.nearbyObject) {
       e.preventDefault();
       this.interactWith(this.nearbyObject);
@@ -170,8 +204,14 @@ export class Office2D {
   }
 
   onClick() {
+    if (this.player.seated) {
+      this.playerController.standUp();
+      return;
+    }
+
     if (this.hoveredObject) {
-      this.interactWith(this.hoveredObject);
+      const result = this.interactWith(this.hoveredObject);
+      if (result?.actionType === "seat" || this.player.seated) return;
       this.playerController.moveToTarget(
         Math.max(0.5, this.hoveredObject.gx - 0.5),
         Math.max(0.5, this.hoveredObject.gy + 0.8)
@@ -189,8 +229,22 @@ export class Office2D {
   }
 
   interactWith(obj) {
-    if (!obj) return;
-    executeOfficeAction(obj.id, { officeState, windowManager });
+    if (!obj) return null;
+    return executeOfficeAction(obj.id, this.actionContext);
+  }
+
+  seatPlayer(seatId) {
+    const descriptor = getOfficeObject(seatId);
+    const spot = descriptor?.position2D;
+    if (!spot) return false;
+    this.playerController.seatAt(
+      seatId,
+      spot.gx,
+      spot.gy,
+      Math.min(this.gridW - 0.6, spot.gx + 0.9),
+      Math.min(this.gridH - 0.6, spot.gy + 0.9)
+    );
+    return true;
   }
 
   update(dt) {
@@ -199,8 +253,9 @@ export class Office2D {
 
   render() {
     const ctx = this.ctx;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const w = this.win?.innerWidth || 0;
+    const h = this.win?.innerHeight || 0;
+    const time = this.reducedMotion ? 0 : this.time;
     ctx.clearRect(0, 0, w, h);
 
     this.renderer.renderFloor(ctx, this.gridW, this.gridH, this.toScreen);
@@ -213,13 +268,13 @@ export class Office2D {
 
     for (const item of renderList) {
       if (item.type === "object") {
-        this.renderer.renderObject(ctx, item.data, this.hoveredObject === item.data, this.toScreen, this.time);
+        this.renderer.renderObject(ctx, item.data, this.hoveredObject === item.data, this.toScreen, time);
       } else {
-        this.renderer.renderPlayer(ctx, item.data, this.toScreen, this.time);
+        this.renderer.renderPlayer(ctx, item.data, this.toScreen, time);
       }
     }
 
-    if (this.nearbyObject) {
+    if (this.nearbyObject || this.player.seated) {
       this.renderer.renderInteractionBubble(ctx, this.player, this.nearbyObject, this.toScreen);
     }
   }
