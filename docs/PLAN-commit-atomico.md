@@ -221,6 +221,7 @@ telemetria do runtime na interface. Worktree de partida: 211 caminhos (75 modifi
 | `aa2e943` | `docs(harness): encerra o EP-08 com as rotinas aprovadas e o historico` |
 | `eb38407` | `docs(harness): registra as evidencias da 08.05 no progresso e no painel` |
 | `9516be4` | `docs(harness): normaliza a codificacao dos documentos de progresso` |
+| `ca8c932` | `test(runtime): leva os testes do runtime local para a suite principal` |
 
 ### Verificação final
 - `npm run check`: 675 arquivos `.js` e 17 `.json` sem erro.
@@ -236,6 +237,12 @@ telemetria do runtime na interface. Worktree de partida: 211 caminhos (75 modifi
   (opção do próprio hook) e os commits com verificação completa foram `3019e51` e a
   checagem final do topo.
 - **Sem `git add -A`:** todos os blocos foram montados com caminhos explícitos.
+- **Suíte honesta:** os testes do runtime local estavam em `test/` (singular), fora do
+  glob de `npm test` e do hook; migraram para `tests/` e deixaram de depender da RAM
+  real da máquina (`ca8c932`).
+- **Trilha paralela preservada:** durante a execução, outra trilha implementing o
+  EP-11.01 escreveu no mesmo worktree; os commits deste lote foram montados com caminhos
+  explícitos e um hunk isolado do `MAPA.md`, para não capturar trabalho em andamento.
 
 ### Pendências conhecidas
 - `npm run types` segue vermelho, com a dívida de tipos somada à do baseline.
