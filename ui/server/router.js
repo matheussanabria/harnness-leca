@@ -58,6 +58,10 @@ const {
   apiDeployHistoryClear,
 } = require("./controllers/deploy.controller");
 const {
+  apiDeployTimeline,
+  apiDeployLogs,
+} = require("./controllers/deploy-timeline.controller");
+const {
   apiDeployHealth,
   apiDeployHealthChecksSave,
   apiDeployHealthCheckRun,
@@ -181,6 +185,8 @@ const ROUTES = [
   { method: "GET", path: "/api/deploy/health", handler: apiDeployHealth },
   { method: "POST", path: "/api/deploy/health/checks", handler: apiDeployHealthChecksSave },
   { method: "POST", path: /^\/api\/deploy\/health\/checks\/([\w-]+)\/run$/, handler: apiDeployHealthCheckRun },
+  { method: "GET", path: "/api/deploy/timeline", handler: apiDeployTimeline },
+  { method: "GET", path: "/api/deploy/logs", handler: apiDeployLogs },
   { method: "GET", path: "/api/hia/metrics", handler: apiHiaMetrics },
 ];
 

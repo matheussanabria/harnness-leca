@@ -119,6 +119,24 @@
 
 
 
+  <!-- Seção de Histórico e Logs -->
+  <div class="history-section">
+    <div class="history-header">
+      <h3>
+        <span><i class="fa-solid fa-clock-rotate-left"></i></span>
+        <span>Histórico e Logs de Deploy</span>
+      </h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn-secondary" onclick="reloadTimeline()" style="font-size:12px;padding:4px 10px">
+          <i class="fa-solid fa-rotate"></i> Atualizar
+        </button>
+      </div>
+    </div>
+    <div id="timelinePanel" class="pipelines-panel">
+      <!-- Renderizado dinamicamente por js/deploy/deploy-timeline.js -->
+    </div>
+  </div>
+
   <!-- Seção de Saúde dos Ambientes -->
   <div class="history-section">
     <div class="history-header">

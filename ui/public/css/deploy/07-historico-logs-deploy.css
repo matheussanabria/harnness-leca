@@ -1,0 +1,107 @@
+/* Histórico e logs de deploy (EP-10.03) */
+
+.timeline-row .timeline-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #cbd5f5;
+}
+
+.timeline-row .timeline-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.timeline-row .timeline-status.is-ok {
+  color: #86efac;
+}
+
+.timeline-row .timeline-status.is-fail {
+  color: #fca5a5;
+}
+
+.timeline-logs-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(129, 140, 248, 0.4);
+  background: rgba(99, 102, 241, 0.16);
+  color: #c7d2fe;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.deploy-logs-host {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.deploy-logs {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--panel2, rgba(15, 23, 42, 0.4));
+}
+
+.deploy-logs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: var(--mute);
+}
+
+.deploy-logs-head h4 {
+  margin: 0;
+  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+}
+
+.deploy-log-line {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.deploy-log-line:first-of-type {
+  border-top: none;
+}
+
+.deploy-log-head {
+  font-size: 10.5px;
+  color: #a5b4fc;
+}
+
+.deploy-log-line.is-failed .deploy-log-head {
+  color: #fca5a5;
+}
+
+.deploy-log-output {
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(2, 6, 23, 0.6);
+  color: #cbd5f5;
+  font-size: 10.5px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 180px;
+  overflow: auto;
+}
