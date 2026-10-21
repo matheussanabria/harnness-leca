@@ -1,0 +1,158 @@
+/* Saúde dos ambientes (EP-10.02) */
+
+.health-panel {
+  padding: 16px 22px 22px;
+}
+
+.health-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 12px;
+  font-size: 11.5px;
+  color: var(--mute);
+}
+
+.health-summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.health-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: var(--panel2, rgba(15, 23, 42, 0.4));
+  border: 1px solid var(--line);
+}
+
+.health-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.health-card-head h4 {
+  margin: 0;
+  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.health-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  color: #cbd5f5;
+  white-space: nowrap;
+}
+
+.health-state.is-ok {
+  border-color: rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.12);
+  color: #86efac;
+}
+
+.health-state.is-warn {
+  border-color: rgba(234, 179, 8, 0.45);
+  background: rgba(234, 179, 8, 0.12);
+  color: #fcd34d;
+}
+
+.health-state.is-fail {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+}
+
+.health-state.is-unknown {
+  border-color: rgba(148, 163, 184, 0.4);
+  color: #94a3b8;
+}
+
+.health-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--mute);
+}
+
+.health-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.health-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.health-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.health-table th,
+.health-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  color: var(--text);
+}
+
+.health-table th {
+  color: var(--mute);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.health-table code {
+  font-size: 11px;
+  color: #a5b4fc;
+}
+
+.health-run-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(129, 140, 248, 0.4);
+  background: rgba(99, 102, 241, 0.16);
+  color: #c7d2fe;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.health-loading,
+.health-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  color: var(--mute);
+  font-size: 12px;
+}

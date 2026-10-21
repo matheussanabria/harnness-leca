@@ -19,11 +19,11 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-07 | 5/5 | **concluído** | 07.01 a 07.05 concluídas; inventário, importação, manifesto de origem, acesso local/projeto, prévia segura e vínculos navegáveis no Mapa em Camadas | Portão satisfeito; EP-11 liberado |
 | EP-08 | 5/5 | **concluído** | 08.01 a 08.05 concluídas; catálogo de capacidades por provedor, etapas do SDLC com agentes/papéis/gates, vínculos de skills por projeto e raia, execução de workflows com eventos canônicos e rotinas com aprovação e histórico | Portão satisfeito; EP-09 liberado |
 | EP-09 | 2/5 | **em andamento** | 09.01 (registro canônico com descoberta somente leitura, migração aditiva, leitura tolerante, reconciliação com `projectConfidence` e API restrita ao loopback) e 09.03 (Central em lista e Kanban na janela de Orquestração, com busca, filtros, painel de detalhe e estados textuais) implementadas; contrato de leitura congelado para a 09.02 | 09.02 delegada a outra frente; 09.04 e 09.05 dependem do event log e do stream |
-| EP-10 | 1/5 | em andamento | 10.01 concluída; pipelines de deploy com definição versionada, execução por estágios com resultado real e histórico em JSONL | 10.02 liberada |
+| EP-10 | 2/5 | em andamento | 10.01 e 10.02 concluídas; pipelines com execução real e indicadores de saúde por ambiente | 10.03 liberada |
 | EP-11 | 0/5 | planejado | | |
 | EP-12 | 32/32 | **concluído** | F0 a F7 concluídas; Marcos M1, M2 e M3 homologados | Portão satisfeito |
 
-**Total: 93/105**
+**Total: 94/105**
 
 ## Registro
 - [2026-10-21] EP-09.02 (event log persistente, projeções e recuperação SSE) em andamento na frente `opencode/qualidade`: log append-only por projeto em SQLite nativo, com cursor, idempotência e aliases de tipo; projeções de sessões, execuções e atenção, reconstruíveis a partir do log; stream SSE recuperável por cursor. A varredura da 09.01 passou a publicar `session.discovered`. 16/16 testes da história.

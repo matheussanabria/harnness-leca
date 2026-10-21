@@ -5,6 +5,7 @@ import "./deploy-run.js";
 import "./deploy-modals.js";
 import "./deploy-utils.js";
 import "./deploy-pipelines.js";
+import "./deploy-health.js";
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);

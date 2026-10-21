@@ -118,6 +118,25 @@
   </div>
 
 
+
+  <!-- Seção de Saúde dos Ambientes -->
+  <div class="history-section">
+    <div class="history-header">
+      <h3>
+        <span><i class="fa-solid fa-heart-pulse"></i></span>
+        <span>Saúde dos Ambientes</span>
+      </h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn-secondary" onclick="reloadHealth()" style="font-size:12px;padding:4px 10px">
+          <i class="fa-solid fa-rotate"></i> Atualizar
+        </button>
+      </div>
+    </div>
+    <div id="healthPanel" class="health-panel">
+      <!-- Renderizado dinamicamente por js/deploy/deploy-health.js -->
+    </div>
+  </div>
+
   <!-- Seção de Histórico de Execuções -->
   <div class="history-section">
     <div class="history-header">
