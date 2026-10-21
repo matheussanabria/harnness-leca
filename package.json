@@ -13,6 +13,8 @@
     "coordination": "node tools/coordination.js",
     "hia": "node tools/hia.js",
     "ui": "node ui/server.js",
+    "ui:dev": "node --watch-path=ui/server --watch-path=ui/server.js --watch-path=tools/lib --watch-path=tools/ds-docs --watch-preserve-output ui/server.js",
+    "ui:dev:remote": "node --watch-path=ui/server --watch-path=ui/server.js --watch-path=tools/lib --watch-path=tools/ds-docs --watch-preserve-output ui/server.js --remote",
     "remote": "node ui/server.js --remote",
     "remote:tunnel": "node tools/tunnel.js",
     "opencode": "opencode serve --port 63186",
