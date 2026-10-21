@@ -8,6 +8,8 @@
 //   node tools/extract-artifacts.js --project 57multimarcas --llm [--limit 10|all] [--model sonnet]
 //   node tools/extract-artifacts.js --project 57multimarcas --llm --engine opencode [--model opencode/<modelo>-free]
 //     (opencode: só modelos gratuitos por padrão; o modelo roda isolado, só com leitura, numa pasta vazia)
+//   node tools/extract-artifacts.js --project 57multimarcas --llm --engine ollama [--model qwen3.5:4b]
+//     (ollama: motor local, sem consumo de cota; exige o daemon rodando e RAM livre suficiente)
 //
 // Saídas (em projects/<slug>/context/):
 //   extraido-indice.md        resumo do que foi extraído
@@ -42,12 +44,14 @@ const slugify = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowe
 
 const slug = opt("project");
 if (!slug || !/^[a-z0-9][a-z0-9_-]{0,59}$/.test(slug) || slug === "_template") {
-  console.error("Uso: node tools/extract-artifacts.js --project <slug> [--llm] [--engine claude|opencode] [--limit N|all] [--model nome] [--allow-paid] [--dry-run]");
+  console.error("Uso: node tools/extract-artifacts.js --project <slug> [--llm] [--engine claude|opencode|ollama] [--limit N|all] [--model nome] [--allow-paid] [--dry-run]");
   process.exit(1);
 }
-if (opt("model") && !/^[\w.\-\/]+$/.test(opt("model"))) { console.error("--model inválido (use só letras, números, ponto, _, - e /)."); process.exit(1); }
 const engine = opt("engine") || "claude";
-if (!["claude", "opencode"].includes(engine)) { console.error("--engine inválido (use claude ou opencode)."); process.exit(1); }
+if (!["claude", "opencode", "ollama"].includes(engine)) { console.error("--engine inválido (use claude, opencode ou ollama)."); process.exit(1); }
+// No motor local o nome do modelo pode trazer a tag da versão (ex.: qwen3.5:4b).
+const MODEL_RE = engine === "ollama" ? /^[\w.\-/:]+$/ : /^[\w.\-\/]+$/;
+if (opt("model") && !MODEL_RE.test(opt("model"))) { console.error("--model inválido (use só letras, números, ponto, _, -, / e :)."); process.exit(1); }
 const projDir = path.join(ROOT, "projects", slug);
 const chatsDir = path.join(projDir, "chats");
 const ctxDir = path.join(projDir, "context");

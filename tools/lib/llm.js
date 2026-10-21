@@ -89,6 +89,24 @@ function askOpencode(prompt, model = DEFAULT_OPENCODE_MODEL, { allowPaid = false
   }
 }
 
+function askOllama(prompt, model = "qwen3.5:4b") {
+  // ask() é síncrono por legado de CLI, enquanto o cliente HTTP é assíncrono:
+  // o runner local é executado em processo próprio e lê o prompt no stdin.
+  const { spawnSync } = require("child_process");
+  const runner = path.join(__dirname, "runtime", "ollama-cli.js");
+  const r = spawnSync(process.execPath, [runner, "--model", model], {
+    input: prompt,
+    encoding: "utf8",
+    cwd: path.resolve(__dirname, "../.."),
+    timeout: TIMEOUT_MS,
+    maxBuffer: MAX_BUFFER,
+  });
+  if (r.status !== 0) throw new Error(String(r.stderr || r.error || "falha ao consultar Ollama local").slice(0, 300));
+  const out = r.stdout.trim();
+  if (!out) throw new Error("Ollama local devolveu uma resposta vazia");
+  return out;
+}
+
 /**
  * @param {{ engine?: string, model?: string, prompt: string, allowPaid?: boolean }} req
  * @returns {string}
@@ -96,7 +114,8 @@ function askOpencode(prompt, model = DEFAULT_OPENCODE_MODEL, { allowPaid = false
 function ask({ engine = "claude", model, prompt, allowPaid }) {
   if (engine === "claude") return askClaude(prompt, model);
   if (engine === "opencode") return askOpencode(prompt, model, { allowPaid });
-  throw new Error(`motor "${engine}" não suportado na extração (use claude ou opencode)`);
+  if (engine === "ollama") return askOllama(prompt, model);
+  throw new Error(`motor "${engine}" não suportado na extração (use claude, opencode ou ollama)`);
 }
 
-module.exports = { ask, askClaude, askOpencode, parseOpencodeEvents, opencodeConfig, isFreeOpencodeModel, DEFAULT_OPENCODE_MODEL };
+module.exports = { ask, askClaude, askOpencode, askOllama, parseOpencodeEvents, opencodeConfig, isFreeOpencodeModel, DEFAULT_OPENCODE_MODEL };

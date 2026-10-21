@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RuntimeExtractionResult",
+  "description": "Contrato estrito para resultados de extração estruturada local via Ollama",
+  "type": "object",
+  "required": ["decisoes", "regras", "termos", "resumo"],
+  "additionalProperties": false,
+  "properties": {
+    "decisoes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Decisões técnicas e arquiteturais identificadas no texto"
+    },
+    "regras": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Diretrizes, restrições e regras de negócio extraídas"
+    },
+    "termos": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Termos de domínio, siglas ou nomenclaturas específicas"
+    },
+    "resumo": {
+      "type": "string",
+      "description": "Síntese sucinta do conteúdo analisado em 1 ou 2 frases"
+    }
+  }
+}

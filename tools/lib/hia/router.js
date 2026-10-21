@@ -120,15 +120,15 @@ function routeTask(input) {
 
   // CAMADA 2: Local-First (Inferência leve em CPU com Ollama)
   const isCandidateForLocal =
-    /extraia o json|formate em json|classifique|resuma em poucas palavras|gere um teste simples/i.test(prompt) &&
-    prompt.length < 1500;
+    /extraia o json|formate em json|classifique|extrair artefatos|extrair entidades|resuma em poucas palavras|gere um teste simples/i.test(prompt) &&
+    prompt.length < 2500;
 
   if (isCandidateForLocal) {
     const hw = getHardwareSnapshot();
     if (hw.viable) {
       return {
         destination: "local_llm",
-        targetId: "ollama:qwen2.5-coder:1.5b",
+        targetId: "ollama:qwen3.5:4b",
         reason: "Tarefa leve com formato estrito; direcionada para Ollama local preservando cota de IA.",
         deterministic: false,
         estimatedTokensSaved: 800,
