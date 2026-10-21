@@ -11,6 +11,8 @@ Tudo roda localmente na sua máquina, sem dependências externas adicionais e co
 | Comando | Descrição |
 |---|---|
 | `npm run ui` | Inicia a interface web local em `http://localhost:4321` |
+| `npm run ui:dev` | Igual ao `ui`, mas reinicia o servidor sozinho ao salvar arquivos de `ui/server`, `tools/lib` ou `tools/ds-docs` (usa o `--watch` do Node, sem dependências). Mudanças em `ui/public` só pedem recarregar o navegador (Ctrl+F5) |
+| `npm run ui:dev:remote -- --pin 123456` | Igual ao `ui:dev`, mas com acesso remoto (`--remote`, escuta em 0.0.0.0). Passe `--pin` para o PIN não mudar a cada reinício; sem ele um PIN novo é sorteado e o celular perde o acesso. O túnel (`npm run remote:tunnel`) é outro processo e continua de pé, mas fica alguns segundos sem resposta enquanto o servidor reinicia |
 | `npm run sync` | Sincroniza conversas dos 3 motores (Claude, Gemini e opencode) para o harness |
 | `npm run export:context` | Exporta memórias, regras e tópicos para o contexto nativo do Claude Code e Gemini |
 | `npm run export:claude-sessions` | Converte os chats do harness em sessões `.jsonl` para o `claude --resume` |

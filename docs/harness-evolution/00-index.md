@@ -1,13 +1,13 @@
 ---
 tags: [harness-evolution, indice, programa]
-atualizado: 2026-10-20
+atualizado: 2026-10-21
 ---
 
 # Harness Leca: índice mestre de implementação
 
 Documento mestre do programa de evolução. Cada entrega aceita tem um documento próprio em `02-epics/`, para que um agente receba só a história que vai implementar e as dependências dela.
 
-> Snapshot verificado em 2026-10-20: 72/104 entregas concluídas e links locais válidos. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
+> Snapshot verificado em 2026-10-21: 88/104 entregas concluídas e links locais válidos. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
 
 ## Como usar
 
@@ -27,12 +27,12 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-00](02-epics/EP-00-auditoria/README.md) | Auditoria e arquitetura existente | P0 | Concluído | 4/4 |
 | [EP-01](02-epics/EP-01-window-manager/README.md) | Window Manager híbrido | P0 | Concluído | 10/10 |
 | [EP-02](02-epics/EP-02-chat/README.md) | Chat universal e conversas | P0 | Concluído | 8/8 |
-| [EP-03](02-epics/EP-03-escritorio/README.md) | Escritório 2.5D/3D | P1 | Em andamento | 5/9 |
+| [EP-03](02-epics/EP-03-escritorio/README.md) | Escritório 2.5D/3D | P1 | Concluído | 9/9 |
 | [EP-04](02-epics/EP-04-projetos-workspaces/README.md) | Projetos e workspaces | P1 | Concluído | 5/5 |
-| [EP-05](02-epics/EP-05-scrum/README.md) | Scrum & Sprints | P1 | Em andamento | 4/6 |
-| [EP-06](02-epics/EP-06-studio/README.md) | Studio, código e preview | P1 | Em andamento | 4/5 |
-| [EP-07](02-epics/EP-07-artefatos/README.md) | Artefatos e documentação | P1 | Planejado; base parcial | 0/5 |
-| [EP-08](02-epics/EP-08-agentes/README.md) | Agentes, skills e workflows | P1 | Planejado; base existente | 0/5 |
+| [EP-05](02-epics/EP-05-scrum/README.md) | Scrum & Sprints | P1 | Concluído | 6/6 |
+| [EP-06](02-epics/EP-06-studio/README.md) | Studio, código e preview | P1 | Concluído | 5/5 |
+| [EP-07](02-epics/EP-07-artefatos/README.md) | Artefatos e documentação | P1 | Concluído | 5/5 |
+| [EP-08](02-epics/EP-08-agentes/README.md) | Agentes, skills e workflows | P1 | Em andamento | 4/5 |
 | [EP-09](02-epics/EP-09-observabilidade/README.md) | Central de sessões, observabilidade e orquestração | P1 | Especificado; implementação não iniciada | 0/5 |
 | [EP-10](02-epics/EP-10-deploy/README.md) | Datacenter e deploys | P2 | Planejado; estação existente | 0/5 |
 | [EP-11](02-epics/EP-11-auditoria-qualidade/README.md) | Auditoria, testes e Design System | P2 | Planejado; base existente | 0/5 |
@@ -52,7 +52,7 @@ flowchart TD
     MOD --> OPS["EP-09 a EP-12 Operação, qualidade e protótipos"]
 ```
 
-## 3. Backlog (72/104)
+## 3. Backlog (88/104)
 
 Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a criação e o aceite do documento da história. EP-12 detalha as 32 histórias do motor multiframework. `HAR-xxx` indica o item equivalente do [backlog da Fase 0](08-prioritized-backlog.md).
 
@@ -84,16 +84,16 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [x] [02.07](02-epics/EP-02-chat/02.07-rolagem-ancorada.md) Rolagem ancorada na última mensagem
 - [x] [02.08](02-epics/EP-02-chat/02.08-sincronizacao-estados.md) Sincronização com estados reais de execução e hardening
 
-### EP-03 Escritório 2.5D/3D (5/9)
+### EP-03 Escritório 2.5D/3D (9/9)
 - [x] [03.01](02-epics/EP-03-escritorio/03.01-catalogo-objetos.md) Catálogo canônico de objetos interativos
 - [x] [03.02](02-epics/EP-03-escritorio/03.02-contrato-acoes.md) Contrato padrão de ações dos objetos
 - [x] [03.03](02-epics/EP-03-escritorio/03.03-estacoes-janelas.md) Estações abrindo janelas pelo Window Manager
 - [x] [03.04](02-epics/EP-03-escritorio/03.04-presets-teloes.md) Presets dos telões
 - [x] [03.05](02-epics/EP-03-escritorio/03.05-estado-real-agentes.md) Estado real dos agentes na cena
-- [ ] 03.06 Iluminação funcional
-- [ ] 03.07 Alternância 3D, diorama e 2.5D sem perda de contexto
-- [ ] 03.08 Paridade do modo 2.5D
-- [ ] 03.09 Desempenho e acessibilidade da cena
+- [x] [03.06](02-epics/EP-03-escritorio/03.06-iluminacao-funcional.md) Iluminação funcional
+- [x] [03.07](02-epics/EP-03-escritorio/03.07-alternancia-3d-diorama-25d.md) Alternância 3D, diorama e 2.5D sem perda de contexto
+- [x] [03.08](02-epics/EP-03-escritorio/03.08-paridade-modo-25d.md) Paridade do modo 2.5D
+- [x] [03.09](02-epics/EP-03-escritorio/03.09-desempenho-acessibilidade-cena.md) Desempenho e acessibilidade da cena
 
 ### EP-04 Projetos e workspaces (5/5)
 - [x] [04.01](02-epics/EP-04-projetos-workspaces/04.01-selecao-projeto-centralizada.md) Seleção de projeto centralizada
@@ -102,33 +102,33 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [x] [04.04](02-epics/EP-04-projetos-workspaces/04.04-templates-workspace.md) Templates: Desenvolvimento, Planejamento, Qualidade e Operações
 - [x] [04.05](02-epics/EP-04-projetos-workspaces/04.05-protecao-alteracoes-nao-salvas.md) Proteção de alterações não salvas na troca de workspace
 
-### EP-05 Scrum & Sprints (4/6)
+### EP-05 Scrum & Sprints (6/6)
 - [x] [05.01](02-epics/EP-05-scrum/05.01-migracao-compativel-status.md) Migração compatível de status (HAR-008)
-- [x] [05.02](02-epics/EP-05-scrum/05.02-doze-raias-configuraveis.md) Doze raias configuráveis
-- [x] [05.03](02-epics/EP-05-scrum/05.03-reordenacao-horizontal.md) Reordenação horizontal persistida por projeto (HAR-009)
-- [x] [05.04](02-epics/EP-05-scrum/05.04-movimentacao-transicoes.md) Movimentação de histórias e transições (HAR-010)
-- [ ] 05.05 Impedimentos, filtros e métricas (HAR-011)
-- [ ] 05.06 Projeção do Kanban no telão
+- [x] [05.02](02-epics/EP-05-scrum/05.02-doze-raias-configuraveis.md) Doze raias configuráveis (HAR-009)
+- [x] [05.03](02-epics/EP-05-scrum/05.03-reordenacao-horizontal.md) Reordenação horizontal persistida por projeto (HAR-010)
+- [x] [05.04](02-epics/EP-05-scrum/05.04-movimentacao-transicoes.md) Movimentação de histórias e transições (HAR-011)
+- [x] [05.05](02-epics/EP-05-scrum/05.05-impedimentos-filtros-metricas.md) Impedimentos, filtros e métricas
+- [x] [05.06](02-epics/EP-05-scrum/05.06-projecao-kanban-telao.md) Projeção do Kanban no telão
 
-### EP-06 Studio, código e preview (4/5)
+### EP-06 Studio, código e preview (5/5)
 - [x] [06.01](02-epics/EP-06-studio/06.01-layout-responsivo.md) Layout responsivo e redimensionamento (HAR-006)
 - [x] [06.02](02-epics/EP-06-studio/06.02-chat-compartilhado.md) Chat compartilhado no Studio
 - [x] [06.03](02-epics/EP-06-studio/06.03-visualizacoes-codigo-design-preview.md) Visualizações Código, Design e Preview
 - [x] [06.04](02-epics/EP-06-studio/06.04-preservacao-alteracoes-selecao.md) Preservação de alterações e seleção contextual
-- [ ] 06.05 Mapeamento de elementos visuais para arquivos e componentes
+- [x] [06.05](02-epics/EP-06-studio/06.05-mapeamento-elementos-visuais.md) Mapeamento de elementos visuais para arquivos e componentes
 
-### EP-07 Artefatos e documentação (0/5)
-- [ ] 07.01 Inventário de artefatos por projeto
-- [ ] 07.02 Importação de arquivos e pastas
-- [ ] 07.03 Metadados de origem e controle de acesso
-- [ ] 07.04 Previews seguros
-- [ ] 07.05 Relacionamentos e Mapa em Camadas (HAR-012, HAR-013)
+### EP-07 Artefatos e documentação (5/5)
+- [x] [07.01](02-epics/EP-07-artefatos/07.01-inventario-artefatos.md) Inventário de artefatos por projeto
+- [x] [07.02](02-epics/EP-07-artefatos/07.02-importacao-arquivos-pastas.md) Importação de arquivos e pastas
+- [x] [07.03](02-epics/EP-07-artefatos/07.03-metadados-origem-controle-acesso.md) Metadados de origem e controle de acesso
+- [x] [07.04](02-epics/EP-07-artefatos/07.04-previews-seguros.md) Previews seguros
+- [x] [07.05](02-epics/EP-07-artefatos/07.05-relacionamentos-mapa-camadas.md) Relacionamentos e Mapa em Camadas (HAR-012, HAR-013)
 
-### EP-08 Agentes, skills e workflows (0/5)
-- [ ] 08.01 Catálogo padronizado de capacidades
-- [ ] 08.02 Agentes associados às etapas do SDLC
-- [ ] 08.03 Vínculo de skills por projeto e raia (HAR-016)
-- [ ] 08.04 Execução de workflows
+### EP-08 Agentes, skills e workflows (4/5)
+- [x] [08.01](02-epics/EP-08-agentes/08.01-catalogo-capacidades.md) Catálogo padronizado de capacidades
+- [x] [08.02](02-epics/EP-08-agentes/08.02-agentes-por-etapa-sdlc.md) Agentes associados às etapas do SDLC
+- [x] [08.03](02-epics/EP-08-agentes/08.03-skills-projeto-raia.md) Vínculo de skills por projeto e raia (HAR-016)
+- [x] [08.04](02-epics/EP-08-agentes/08.04-execucao-workflows.md) Execução de workflows
 - [ ] 08.05 Rotinas com aprovação e histórico (HAR-017)
 
 ### EP-09 Central de sessões, observabilidade e orquestração (0/5)
@@ -188,13 +188,13 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 
 ## Trabalho disponível agora
 
-1. **Frente Escritório/Studio (Chat A):** EP-03.05 concluída (5/9 no EP-03), EP-06.03 e EP-06.04 concluídas (4/5 no EP-06, 72/104 global). Próximas: EP-03.06 (Iluminação funcional) e EP-06.05 (Mapeamento de elementos visuais).
-2. **Codex / Chat B:** EP-05.04 concluída (4/6 no EP-05); aguardar aceite antes de detalhar EP-05.05 — Impedimentos, filtros e métricas.
-3. Antes da implementação, criar e aceitar o documento da história a partir do template.
+1. **Frente Escritório/Studio (Chat A):** EP-03 encerrado (9/9) e EP-06 encerrado (5/5); 88/104 global. Sem história pendente na alocação atual; aguardar definição da próxima frente.
+2. **Codex / Chat B:** EP-05 encerrado (6/6), EP-07 encerrado (5/5) e EP-08 em 4/5 (08.01 a 08.04 concluídas); 88/104 global. Próxima história: 08.05 (Rotinas com aprovação e histórico) ou EP-11, conforme o gate de dependências.
+3. A próxima história de EP-08/EP-11 deve ser criada e aceita a partir do template antes da implementação.
 4. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
 5. A divisão completa e os handoffs obrigatórios estão no [painel Gemini + Codex](05-progress/multi-agent-sync.md).
 
-EP-00, EP-01, EP-02, EP-04 e EP-12 estão encerrados. EP-03, EP-05 e EP-06 estão em andamento em trilhas paralelas sem colisão.
+EP-00, EP-01, EP-02, EP-03, EP-04, EP-05, EP-06, EP-07 e EP-12 estão encerrados.
 
 ## Estrutura
 

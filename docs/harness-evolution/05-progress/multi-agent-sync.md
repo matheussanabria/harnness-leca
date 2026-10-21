@@ -1,7 +1,7 @@
 ---
 tags: [harness-evolution, multi-agent, sincronizacao, indice, progresso]
-atualizado: 2026-10-20
-versao: 2.0.1
+atualizado: 2026-10-21
+versao: 2.11.0
 ---
 
 # Painel de Coordenação Gemini + Codex
@@ -10,7 +10,7 @@ versao: 2.0.1
 
 OpenCode e Claude estão fora desta execução por decisão do usuário. Não devem receber histórias, ser acionados ou aparecer como substitutos automáticos.
 
-> **Exceção registrada em 2026-10-20:** por autorização explícita do usuário, uma sessão OpenCode concluiu EP-03.05, EP-06.03 e EP-06.04. A alocação permanente das frentes continua com Gemini/Antigravity e Codex; a exceção não altera a política padrão.
+> **Exceção registrada em 2026-10-21:** por autorização explícita do usuário, uma sessão OpenCode concluiu EP-03.05 a EP-03.09, EP-05.06, EP-06.03 a EP-06.05, EP-07.01 a EP-07.05, EP-08.01 e EP-08.02. A alocação permanente das frentes continua com Gemini/Antigravity e Codex; a exceção não altera a política padrão.
 
 ---
 
@@ -18,9 +18,9 @@ OpenCode e Claude estão fora desta execução por decisão do usuário. Não de
 
 | Chat | Responsabilidade | Épicos | Domínio principal | Próximo trabalho |
 |---|---|---|---|---|
-| **Gemini / Antigravity — Chat A1 (Escritório)** | Experiência 3D/2.5D e cena | **EP-03** | `ui/public/js/office*`, `office2d/`, `office3d/` | **EP-03.05 concluída** (5/9 no EP-03); detalhar e executar **EP-03.06** |
-| **Gemini / Antigravity — Chat A2 (Studio)** | Studio, layout, código e preview | **EP-06** | `ui/public/js/modules/studio*`, `ui/public/css/studio/` | **EP-06.04 concluída** (4/5 no EP-06); detalhar e executar **EP-06.05** |
-| **Codex — Chat B** | Plataforma, dados, workflows, integração e qualidade | **EP-04 → EP-05/EP-07 → EP-08/EP-11 → EP-10**; manutenção da EP-12 | Serviços backend, persistência, Scrum, artefatos, agentes, deploy, testes e documentação de coordenação | **05.04 concluída**; aguardar aceite para 05.05 |
+| **Gemini / Antigravity — Chat A1 (Escritório)** | Experiência 3D/2.5D e cena | **EP-03** | `ui/public/js/office*`, `office2d/`, `office3d/` | **EP-03.09 concluída** (9/9 no EP-03, épico encerrado); sem pendências na alocação atual |
+| **Gemini / Antigravity — Chat A2 (Studio)** | Studio, layout, código e preview | **EP-06** | `ui/public/js/modules/studio*`, `ui/public/css/studio/` | **EP-06.05 concluída** (5/5 no EP-06, épico encerrado) |
+| **Codex — Chat B** | Plataforma, dados, workflows, integração e qualidade | **EP-04 → EP-05/EP-07 → EP-08/EP-11 → EP-10**; manutenção da EP-12 | Serviços backend, persistência, Scrum, artefatos, agentes, deploy, testes e documentação de coordenação | **08.04 concluída** (4/5 no EP-08); próxima: **08.05 ou EP-11** |
 
 ### 1.1. Relação entre as trilhas
 
@@ -41,32 +41,32 @@ flowchart LR
     G09 --> C10["Codex: EP-10"]
 ```
 
-Codex executa apenas uma frente de implementação por vez. Entre EP-05 e EP-07, ou entre EP-08 e EP-11, assume primeiro a que estiver desbloqueada; o hardening continua como gate, não como terceira frente paralela.
+Codex executa apenas uma frente de implementação por vez. Com EP-03, EP-05 e EP-07 encerradas, segue entre EP-08 e EP-11 pela que estiver desbloqueada; depois, EP-10. O hardening continua como gate, não como terceira frente paralela.
 
 ### 1.2. Pacote inicial de cada chat
 
 Ambos começam lendo `AGENTS.md`, `docs/harness-evolution/00-index.md`, este painel e `docs/harness-evolution/05-progress/progress.md`.
 
-- **Gemini / Chat A1 (Escritório):** a 03.05 está concluída; manter a telemetria dos agentes e detalhar a 03.06. Não editar arquivos de Studio, Scrum ou backend.
-- **Gemini / Chat A2 (Studio):** as 06.01 a 06.04 estão concluídas; manter os limites responsivos, acessibilidade, guard de alterações e detalhar a 06.05. Não editar arquivos de Escritório ou Scrum.
-- **Codex / Chat B:** a 05.04 está concluída; manter o hardening como validação transversal e aguardar aceite antes de detalhar a 05.05. Não assumir arquivos de Chat, Escritório ou interfaces consumidoras do Studio.
+- **Gemini / Chat A1 (Escritório):** a 03.09 está concluída e o EP-03 encerrado; manter a paridade 2.5D, a telemetria, a iluminação dos agentes, a alternância de modos, a qualidade e a acessibilidade da cena. Sem nova história atribuída; não editar arquivos de Studio, Scrum ou backend.
+- **Gemini / Chat A2 (Studio):** as 06.01 a 06.05 estão concluídas; manter os limites responsivos, acessibilidade, guard de alterações e o mapeamento de elemento para arquivo/componente. EP-06 encerrado; não editar arquivos de Escritório ou Scrum.
+- **Codex / Chat B:** a 08.01, a 08.02, a 08.03 e a 08.04 estão concluídas (catálogo canônico de capacidades, catálogo de etapas do SDLC com agentes, vínculos de skills por projeto e raia e execução de workflows com eventos canônicos) e o EP-08 está em 4/5; manter o hardening como validação transversal e detalhar 08.05 ou EP-11 conforme o gate. Não assumir arquivos de Chat, Escritório ou interfaces consumidoras do Studio.
 
 Ao terminar uma história, o chat responsável registra evidências e informa ao outro apenas os contratos que viraram dependência. Nenhum chat continua automaticamente para o épico seguinte sem conferir os gates desta página.
 
 ---
 
-## 2. Visão Consolidada de Progresso (72/104 Entregas Concluídas)
+## 2. Visão Consolidada de Progresso (88/104 Entregas Concluídas)
 
 ```
 [EP-00] Auditoria e Arquitetura          [████████████████████] 100% (4/4)   - CONCLUÍDO
 [EP-01] Window Manager Híbrido           [████████████████████] 100% (10/10) - CONCLUÍDO
 [EP-02] Chat Universal e Conversas       [████████████████████] 100% (8/8)   - CONCLUÍDO
-[EP-03] Escritório 2.5D/3D              [███████████░░░░░░░░░]  56% (5/9)   - EM ANDAMENTO
+[EP-03] Escritório 2.5D/3D              [████████████████████] 100% (9/9)   - CONCLUÍDO
 [EP-04] Projetos e Workspaces            [████████████████████] 100% (5/5)   - CONCLUÍDO
-[EP-05] Scrum & Sprints (DIS Jira)       [█████████████░░░░░░░]  67% (4/6)   - EM ANDAMENTO
-[EP-06] Studio, Código e Preview         [████████████████░░░░]  80% (4/5)   - EM ANDAMENTO
-[EP-07] Artefatos e Documentação         [░░░░░░░░░░░░░░░░░░░░]   0% (0/5)   - PLANEJADO
-[EP-08] Agentes, Skills e Workflows      [░░░░░░░░░░░░░░░░░░░░]   0% (0/5)   - PLANEJADO
+[EP-05] Scrum & Sprints (DIS Jira)       [████████████████████] 100% (6/6)   - CONCLUÍDO
+[EP-06] Studio, Código e Preview         [████████████████████] 100% (5/5)   - CONCLUÍDO
+[EP-07] Artefatos e Documentação         [████████████████████] 100% (5/5)   - CONCLUÍDO
+[EP-08] Agentes, Skills e Workflows      [████████████████░░░░]  80% (4/5)   - EM ANDAMENTO
 [EP-09] Central de Sessões & Orquestração[░░░░░░░░░░░░░░░░░░░░]   0% (0/5)   - ESPECIFICADO
 [EP-10] Deploy e Datacenter              [░░░░░░░░░░░░░░░░░░░░]   0% (0/5)   - PLANEJADO
 [EP-11] Auditoria e Qualidade            [░░░░░░░░░░░░░░░░░░░░]   0% (0/5)   - PLANEJADO
@@ -105,12 +105,16 @@ Ao terminar uma história, o chat responsável registra evidências e informa ao
 - **02.07 Rolagem ancorada na última mensagem:** Concluído (`02.07-rolagem-ancorada.md`, `chat-presentations.js`, `chat-ui-interaction.js`, `chat-render.js`, `tests/chat-scroll-anchoring.test.js`).
 - **02.08 Sincronização com estados reais de execução e hardening:** Concluído (`02.08-sincronizacao-estados.md`, `02.08-sincronizacao-hardening.md`, `chat-execution-store.js`, `chat-send.js`, `chat-stream-ui.js`, `tests/chat-execution-sync.test.js`, `tests/chat-execution-hardening.test.js`). EP-02 encerrado formalmente em 8/8 com zero emojis e todos os 17 módulos de chat em compliance (< 300 linhas).
 
-### 3.4. EP-03: Escritório 2.5D/3D (5/9 concluídas - Em andamento)
+### 3.4. EP-03: Escritório 2.5D/3D (9/9 concluídas - Concluído)
 - **03.01 Catálogo canônico de objetos interativos:** Concluído (`03.01-catalogo-objetos.md`, `office-object-catalog.js`, `stations.data.js`, `facilities.data.js`, `map-objects.js`, `interactions-setup.js`, `tests/office-object-catalog.test.js`).
 - **03.02 Contrato padrão de ações dos objetos:** Concluído (`03.02-contrato-acoes.md`, `office-action-dispatcher.js`, áudio contextual automático, `tests/office-action-dispatcher.test.js`).
 - **03.03 Estações abrindo janelas pelo Window Manager:** Concluído (`03.03-estacoes-janelas.md`, `station-adapter.js`, foco automático, presets sidebar/floating, bloqueio de câmera WASD com restauração via Escape e `tests/office-station-windows.test.js`).
 - **03.04 Presets dos telões:** Concluído (`03.04-presets-teloes.md`, `office-screen-presets.js`, `office-screen.js`, `office-screen-views.js`, gerenciador observável `officeScreenPresets`, zero emojis e `tests/office-screen-presets.test.js`).
 - **03.05 Estado real dos agentes na cena:** Concluído (`03.05-estado-real-agentes.md`, `office-agent-state.js`, `office-agent-telemetry.js`, `chat-execution-store.js`, `world-war-room.js`, `war-room-table.js`, poses do Avatar3D, cor do pad, zero emojis e `tests/office-agent-state.test.js` com 8 testes aprovados).
+- **03.06 Iluminação funcional:** Concluído (`03.06-iluminacao-funcional.md`, `lighting-presets.js`, `office-lighting.js`, `office-lighting-dom.js`, `office-lighting-bootstrap.js`, `office3d/lighting-rig.js`, `15-lighting.css`, `data-office-lighting` e `tests/office-lighting.test.js` com 7 testes aprovados).
+- **03.07 Alternância 3D, diorama e 2.5D:** Concluído (`03.07-alternancia-3d-diorama-25d.md`, `view-modes.js`, `office-view-mode.js`, `16-view-modes.css`, `data-office-view`, persistência por projeto e `tests/office-view-modes.test.js` com 9 testes aprovados).
+- **03.08 Paridade do modo 2.5D:** Concluído (`03.08-paridade-modo-25d.md`, `action-bridge.js`, `iso-object-renderers.js`, `iso-parity-furniture.js`, posições 2D completas, assento/levantar e `tests/office-2d-parity.test.js` com 5 testes aprovados).
+- **03.09 Desempenho e acessibilidade da cena:** Concluído (`03.09-desempenho-acessibilidade-cena.md`, `scene-preferences.js`, `office-scene-preferences.js`, `frame-loop.js`, DPR limitado, pausa por visibilidade, movimento reduzido, foco/instruções/região viva e `tests/office-scene-accessibility.test.js` com 7 testes aprovados).
 
 ### 3.5. EP-12: Prototype Engine & Design System Multiframework (32/32 Concluídas - Marco M3 Homologado)
 - **F0 Diagnóstico (4/4):** 12.01 a 12.04 auditando HTMLs, MCP e baseline visual.
@@ -130,11 +134,13 @@ Ao terminar uma história, o chat responsável registra evidências e informa ao
   - 12.31 Piloto DIS Completo (3 telas, navegação circular e datasets): `tests/prototype-pilot-dis.test.js`.
   - 12.32 Homologação final Marco M3: `tests/marco-m3-validation.test.js` e `reports/M3-validation-report.md`.
 
-### 3.6. EP-05: Scrum & Histórias Reais DIS Jira (4/6 histórias aceitas)
+### 3.6. EP-05: Scrum & Histórias Reais DIS Jira (6/6 histórias aceitas - Concluído)
 - **05.01 Migração compatível:** schema v2 aditivo, backup versionado, escrita atômica, rollback e compatibilidade entre `status` e `laneId`.
 - **05.02 Doze raias configuráveis:** catálogo canônico, persistência por projeto, API validada, Kanban por `laneId` e modal acessível.
 - **05.03 Reordenação horizontal:** ordem persistida dos 12 IDs, revisão otimista, conflito HTTP 409 e controles por arraste ou teclado no mesmo endpoint.
 - **05.04 Movimentação e transições:** matriz canônica adjacente, histórico atômico, preservação Jira, conflito HTTP 409 e controles acessíveis.
+- **05.05 Impedimentos, filtros e métricas:** `impediment`/`impedimentHistory`, rota dedicada, filtros compartilhados por texto/responsável/impedimento, métricas da visão filtrada e sinalização no cartão e drawer.
+- **05.06 Projeção do Kanban no telão:** abas físicas ao lado do painel (`war-screen-tabs.js`, `war-screen-tabs-model.js`), Orquestração preservada como padrão, Kanban selecionado por clique ou `E`, projeção somente leitura (`war-screen-scrum.js`, `war-screen-projection-model.js`), carga de `/scrum` no `officeState` e atualização por `dai:scrumChanged`; 5/5 testes focados.
 - **Tripla fonte de dados:**
   1. `_jira-dis.json`: Snapshot somente leitura de issues reais do Jira interno (473 issues: 449 histórias e 24 épicos).
   2. `doc/scrum/DIS-*/user-story.md`: Documentação e critérios de aceite reais em Markdown.
@@ -143,11 +149,26 @@ Ao terminar uma história, o chat responsável registra evidências e informa ao
 - **Frontend:** módulos `design-scrum-story-*`, `design-scrum-lane-*`; estilos `09-scrum-story-details.css` a `12-scrum-story-transitions.css`.
 - **Testes dedicados:** fontes, raias, ordem e transições em `tests/project-scrum-*.test.js` e `tests/design-scrum-*.test.js`.
 
-### 3.7. EP-06: Studio, Código e Preview (4/5 histórias aceitas)
+### 3.7. EP-06: Studio, Código e Preview (5/5 histórias aceitas)
 - **06.01 Layout responsivo e redimensionamento:** Concluído (`06.01-layout-responsivo.md`, `studio-layout.js`, `studio-core.js`, `studio.js`, `tests/studio-layout.test.js`), com limites dinâmicos, ARIA separator e persistência por projeto.
 - **06.02 Chat compartilhado no Studio:** Concluído (`06.02-chat-compartilhado.md`, `studio-chat.js`, injeção contextual de código e de elementos visuais, `tests/studio-chat.test.js`).
 - **06.03 Visualizações Código, Design e Preview:** Concluído (`06.03-visualizacoes-codigo-design-preview.md`, `studio-views.js`, `studio-source.js`, `source-workspace.service.js`, `tests/studio-views.test.js`).
 - **06.04 Preservação de alterações e seleção contextual:** Concluído (`06.04-preservacao-alteracoes-selecao.md`, guard `canSwitchStudioView`, registro em `windowManager.unsaved` e fingerprint otimista).
+- **06.05 Mapeamento de elementos visuais:** Concluído (`06.05-mapeamento-elementos-visuais.md`, `prototype-element-map.js`, rota `traceability`, painel `#atelierElementMap` e injeção de `<contexto-elemento arquivo=...>`; 14/14 testes focados).
+
+### 3.8. EP-07: Artefatos e Documentação (5/5 histórias aceitas - Concluído)
+- **07.01 Inventário de artefatos por projeto:** Concluído (`07.01-inventario-artefatos.md`, `artifact-inventory-scan.service.js`, `artifact-inventory.service.js`, rota `GET /api/project/:slug/artifacts`, aba Artefatos em `design-artifacts.js`), com seis tipos originais, resumo por estado, bloqueio de symlink e caminhos fora do projeto; 7/7 testes focados.
+- **07.02 Importação de arquivos e pastas:** Concluído (`07.02-importacao-arquivos-pastas.md`, `artifact-import.service.js`, `artifact-import.controller.js`, rota `POST /api/project/:slug/artifacts/import`, preservação de subpastas, escrita sem sobrescrita e tipo `imported` no inventário); 8/8 testes focados.
+- **07.03 Metadados de origem e controle de acesso:** Concluído (`07.03-metadados-origem-controle-acesso.md`, `artifact-metadata.service.js`, `artifact-access.controller.js`, rota `POST /api/project/:slug/artifacts/access`, manifesto `artifacts/.metadata.json`, checksum, acesso `project`/`local` e filtro remoto); 9/9 testes focados.
+- **07.04 Previews seguros:** Concluído (`07.04-previews-seguros.md`, `artifact-preview.service.js`, `artifact-preview.controller.js`, `artifact.routes.js`, rota `GET /api/project/:slug/artifacts/preview`, JSON/raw com CSP, bloqueio remoto para `local` e painel na aba Artefatos); 7/8 testes focados (1 symlink ignorado no Windows).
+- **07.05 Relacionamentos e Mapa em Camadas:** Concluído (`07.05-relacionamentos-mapa-camadas.md`, `artifact-relationships.service.js`, `artifact-relationships.controller.js`, `design-artifacts-relationships.js`, chave estável por rota/tela/campo, escrita local atômica, vínculos órfãos e navegação para tela/campo/camada no Mapa); 8/8 testes focados; HAR-012 (fidelidade visual) permanece bloqueada.
+
+### 3.9. EP-08: Agentes, Skills e Workflows (4/5 histórias aceitas - Em andamento)
+- **08.01 Catálogo padronizado de capacidades:** Concluído (`08.01-catalogo-capacidades.md`, `capability-catalog.js`, `capability-definitions.js`, `capability-legacy.js`, `orchestration-capabilities.controller.js`, rotas `GET /api/orchestration/capabilities` e `/capabilities/:provider`), com sete provedores, estados `available`/`degraded`/`unavailable`/`unknown`, `resolveCapability` sem converter ausência em disponível, cancelamento externo rebaixado a `degraded` com escopo `harness_owned` e campos legados derivados; 6/6 testes focados e 6/6 de regressão de orquestração.
+- **08.02 Agentes associados às etapas do SDLC:** Concluído (`08.02-agentes-por-etapa-sdlc.md`, `agent-stage-definitions.js`, `agent-stage-catalog.js`, `orchestration-agent-stages.controller.js`, `ui/server/routes/orchestration.routes.js`, rotas `GET /api/orchestration/agent-stages` e `/agent-stages/:stage`), com dez etapas canônicas, 17 agentes DAI com papéis `executor`/`support`, `code-review` como agente `builtin`, consultas por etapa e por agente e 404 para etapa desconhecida; 5/5 testes focados. Rotas consolidadas em `orchestration.routes.js` mantêm `router.js` em 295 linhas.
+- **08.03 Vínculo de skills por projeto e raia:** Concluído (`08.03-skills-projeto-raia.md`, `skill-bindings.service.js`, `skill-bindings.controller.js`, `ui/server/routes/skill-bindings.routes.js`, rotas `GET`/`POST /api/project/:slug/skill-bindings`), com manifesto `skill-bindings.json` versionado, validação contra as 12 raias canônicas e as skills reais do projeto, relatório de órfãos, escrita atômica modo `600` restrita a loopback e leitura tolerante a manifesto inválido; 6/6 testes focados. `router.js` em 297 linhas.
+- **08.04 Execução de workflows:** Concluído (`08.04-execucao-workflows.md`, `workflow-definitions.js`, `workflow-plan.service.js`, `workflow-runner.service.js`, `orchestration-workflows.controller.js`, `orchestration-workflow-runs.controller.js`, rotas de workflows e workflow-runs), com workflows `feature-delivery` (dez etapas) e `hotfix` (subconjunto ordenado), plano por projeto com agentes, skills reais, raia, gates e faltantes, ciclo de vida com eventos canônicos no event engine, `dryRun` sem eventos e escrita restrita ao loopback; 8/8 testes focados. `router.js` em 296 linhas. Com isso a suíte integral ficou verde (800/801, 1 skip de symlink no Windows) após a trilha do Codex corrigir as falhas de `coordination`/`hia-router`.
+  - **Pendências alheias à trilha (resolvidas em 2026-10-21):** as falhas pré-existentes em `tests/coordination.test.js` (Codex marcado inativo por cota em `tools/lib/coordination/config.js`) e em `tests/hia-router.test.js` (esperava `qwen2.5-coder:1.5b`, mas `tools/lib/hia/router.js` devolve `ollama:qwen3.5:4b`) foram corrigidas. A suíte integral está verde (800/801, 1 skip de symlink no Windows).
 
 ---
 
@@ -180,10 +201,10 @@ Para garantir que os dois chats trabalhem no mesmo repositório sem quebrar cód
 | Gemini EP-02 | Gemini EP-06 | Contratos das apresentações e sessões estabilizados |
 | Codex EP-04 | Gemini EP-06 | Seleção, persistência, templates e guard `windowManager.unsaved` estabilizados; o Studio registra/limpa seu dirty state e trata `UNSAVED_CHANGES` |
 | Gemini EP-03 | Codex EP-05 | Contrato do telão necessário à projeção do Kanban |
-| Codex EP-05 | Codex EP-08 | Raias, transições e aprovação de workflow aceitas |
+| Codex EP-05 | Codex EP-08 | EP-05 encerrado: raias, transições, impedimentos e projeção no telão aceitos |
 | Codex EP-08 | EP-09 transversal | Workflow e políticas de aprovação com contrato estável |
 | EP-02/03/04/08 | EP-09 transversal | Chat, Escritório, projeto e workflow estabilizados |
 | EP-09 transversal | Codex EP-10 | Saúde, timeline, atenção e recuperação de estado disponíveis |
-| Codex EP-07 | Codex EP-11 | Inventário, previews e relações de artefatos disponíveis para auditoria |
+| Codex EP-07 | Codex EP-11 | Inventário, importação, previews e relações de artefatos disponíveis para auditoria |
 
 Em todo handoff, o produtor registra contrato, testes e limitações na história. O consumidor não copia a lógica: importa ou adapta o contrato publicado.
