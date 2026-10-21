@@ -8,11 +8,13 @@ const { getTelemetryMetrics } = require("../../../../tools/lib/hia/telemetry");
 const { getHardwareSnapshot } = require("../../../../tools/lib/hia/hardware-profiler");
 const { listTools } = require("../../../../tools/lib/hia/registry");
 const { listModels } = require("../../../../tools/lib/hia/model-registry");
+const { getRuntimeTelemetryMetrics } = require("../../../../tools/lib/runtime/telemetry");
 
 /**
  * Gera o payload completo para o dashboard de métricas HIA
  * @returns {{
  *   telemetry: object,
+ *   localRuntime: object,
  *   hardware: object,
  *   registry: { toolsCount: number, localModels: number, cloudModels: number },
  *   config: { routingEnabled: boolean, contextScope: string }
@@ -26,6 +28,7 @@ function buildDashboardPayload() {
 
   const localModels = models.filter((m) => m.tier === "local_llm").length;
   const cloudModels = models.filter((m) => m.tier !== "local_llm").length;
+  const localRuntime = getRuntimeTelemetryMetrics();
 
   return {
     telemetry: {
@@ -34,6 +37,7 @@ function buildDashboardPayload() {
       estimatedCostAvoided: Math.round((telemetry.totalTokensSaved / 1000) * 0.003 * 100) / 100,
       byExecutorType: telemetry.byExecutorType,
     },
+    localRuntime,
     hardware: {
       cpu: hardware.cpu.model,
       recommendedThreads: hardware.cpu.recommendedThreads,

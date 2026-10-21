@@ -3,6 +3,7 @@
 // Consome GET /api/hia/metrics e renderiza com design tokens do Harness.
 // Zero emojis. Ícones via FontAwesome (fa-solid).
 import { $, showToast } from "../shared/dom.js";
+import { renderLocalRuntime } from "./chat-hia-local-runtime.js";
 
 /** @type {ReturnType<typeof setInterval>|null} */
 let _refreshTimer = null;
@@ -112,6 +113,8 @@ function _render(containerId, data) {
         <span class="hia-hardware-bar__status ${hwClass}"></span>
         <span class="hia-hardware-bar__text"><i class="fa-solid fa-microchip"></i> ${hwText}</span>
       </div>
+
+      ${renderLocalRuntime(data.localRuntime)}
 
       <div>
         <span class="hia-routing-badge ${routingClass}">
