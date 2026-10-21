@@ -4,18 +4,28 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("node:path");
-const { pathToFileURL } = require("node:url");
 
 const ROOT = path.resolve(".");
 const RUNNER_PATH = path.join(ROOT, "tools", "lib", "runtime", "ollama-cli.js");
-const CLIENT_PATH = path.join(ROOT, "tools", "lib", "runtime", "ollama-client.js");
 
-async function loadClient() {
-  return import(pathToFileURL(CLIENT_PATH).href);
-}
+// A inferência local exige RAM livre: o perfil de memória é fixado como apto para
+// que o resultado não dependa da carga da máquina em que a suíte roda.
+const hwPath = require.resolve("../tools/lib/hia/hardware-profiler");
+const realHardware = require(hwPath);
+require.cache[hwPath] = {
+  id: hwPath,
+  filename: hwPath,
+  loaded: true,
+  exports: {
+    ...realHardware,
+    getMemoryProfile: () => ({ ...realHardware.getMemoryProfile(), freeMb: 8192, safeForInference: true }),
+    getHardwareSnapshot: () => ({ ...realHardware.getHardwareSnapshot(), viable: true, alert: undefined }),
+  },
+};
+
+const { generateText, generateStructured } = require("../tools/lib/runtime/ollama-client");
 
 test("motor local - generateText devolve texto livre sem exigir JSON", async () => {
-  const { generateText } = await loadClient();
   const originalFetch = globalThis.fetch;
   try {
     let sentBody = null;
@@ -47,7 +57,6 @@ test("motor local - generateText devolve texto livre sem exigir JSON", async () 
 });
 
 test("motor local - generateStructured mantém o formato JSON", async () => {
-  const { generateStructured } = await loadClient();
   const originalFetch = globalThis.fetch;
   try {
     let sentBody = null;
@@ -98,7 +107,9 @@ test("motor local - ask() com engine ollama devolve texto do daemon local", asyn
   });
 
   const previousUrl = process.env.OLLAMA_URL;
+  const previousMin = process.env.OLLAMA_MIN_FREE_MB;
   process.env.OLLAMA_URL = `http://127.0.0.1:${port}`;
+  process.env.OLLAMA_MIN_FREE_MB = "64";
 
   try {
     const { ask } = require("../tools/lib/llm");
@@ -113,6 +124,8 @@ test("motor local - ask() com engine ollama devolve texto do daemon local", asyn
   } finally {
     if (previousUrl === undefined) delete process.env.OLLAMA_URL;
     else process.env.OLLAMA_URL = previousUrl;
+    if (previousMin === undefined) delete process.env.OLLAMA_MIN_FREE_MB;
+    else process.env.OLLAMA_MIN_FREE_MB = previousMin;
     daemon.kill();
   }
 });
@@ -146,7 +159,7 @@ test("motor local - runner da CLI lê o prompt no stdin e devolve a resposta", a
   try {
     const result = await new Promise((resolve) => {
       const child = spawn(process.execPath, [RUNNER_PATH, "--model", "qwen3.5:4b"], {
-        env: { ...process.env, OLLAMA_URL: `http://127.0.0.1:${port}` },
+        env: { ...process.env, OLLAMA_URL: `http://127.0.0.1:${port}`, OLLAMA_MIN_FREE_MB: "64" },
       });
       let stdout = "";
       let stderr = "";

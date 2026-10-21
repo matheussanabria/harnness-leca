@@ -21,6 +21,8 @@ async function main() {
   if (!prompt.trim()) {
     throw new Error("Prompt vazio para o motor local.");
   }
+  // O piso de RAM é configurável para máquinas com menos memória livre; o padrão é o da CLI.
+  const minFreeMemMb = Number(process.env.OLLAMA_MIN_FREE_MB) || 1000;
   const res = await generateText({
     prompt,
     model: readModel(process.argv.slice(2)),
@@ -28,7 +30,7 @@ async function main() {
     numPredict: 1024,
     numCtx: 4096,
     think: false,
-    minFreeMemMb: 1000,
+    minFreeMemMb,
   });
   process.stdout.write(res.raw);
 }

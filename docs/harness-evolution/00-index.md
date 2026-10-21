@@ -33,7 +33,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-06](02-epics/EP-06-studio/README.md) | Studio, código e preview | P1 | Concluído | 5/5 |
 | [EP-07](02-epics/EP-07-artefatos/README.md) | Artefatos e documentação | P1 | Concluído | 5/5 |
 | [EP-08](02-epics/EP-08-agentes/README.md) | Agentes, skills e workflows | P1 | Concluído | 5/5 |
-| [EP-09](02-epics/EP-09-observabilidade/README.md) | Central de sessões, observabilidade e orquestração | P1 | Especificado; implementação não iniciada | 0/5 |
+| [EP-09](02-epics/EP-09-observabilidade/README.md) | Central de sessões, observabilidade e orquestração | P1 | Especificado; 09.01 detalhada, implementação não iniciada | 0/5 |
 | [EP-10](02-epics/EP-10-deploy/README.md) | Datacenter e deploys | P2 | Planejado; estação existente | 0/5 |
 | [EP-11](02-epics/EP-11-auditoria-qualidade/README.md) | Auditoria, testes e Design System | P2 | Planejado; base existente | 0/5 |
 | [EP-12](02-epics/EP-12-prototype-engine/README.md) | Prototype Engine & Design System Multiframework | P1 | Concluído | 32/32 |
@@ -132,7 +132,7 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [x] [08.05](02-epics/EP-08-agentes/08.05-rotinas-aprovacao-historico.md) Rotinas com aprovação e histórico (HAR-017)
 
 ### EP-09 Central de sessões, observabilidade e orquestração (0/5)
-- [ ] 09.01 Descoberta e registro canônico de sessões
+- [ ] [09.01](02-epics/EP-09-observabilidade/09.01-descoberta-registro-canonico.md) Descoberta e registro canônico de sessões (detalhada)
 - [ ] 09.02 Event log persistente, projeções e recuperação SSE
 - [ ] 09.03 Central pesquisável em lista e Kanban
 - [ ] 09.04 Navegação, retomada e integração com Chat/Escritório
@@ -189,7 +189,7 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 ## Trabalho disponível agora
 
 1. **Frente Escritório/Studio (Chat A):** EP-03 encerrado (9/9) e EP-06 encerrado (5/5); 89/104 global. Sem história pendente na alocação atual; aguardar definição da próxima frente.
-2. **Codex / Chat B:** EP-05 encerrado (6/6), EP-07 encerrado (5/5) e EP-08 encerrado (5/5); 89/104 global. Próxima história: detalhar 09.01 (registro canônico de sessões) ou EP-11, conforme o gate de dependências.
+2. **Codex / Chat B:** EP-05 encerrado (6/6), EP-07 encerrado (5/5) e EP-08 encerrado (5/5); 89/104 global. Próxima história: implementar a 09.01 (registro canônico de sessões, já detalhada) ou iniciar o EP-11, conforme o gate de dependências.
 3. A próxima história de EP-09/EP-11 deve ser criada e aceita a partir do template antes da implementação.
 4. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
 5. A divisão completa e os handoffs obrigatórios estão no [painel Gemini + Codex](05-progress/multi-agent-sync.md).

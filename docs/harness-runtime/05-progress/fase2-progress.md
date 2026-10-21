@@ -16,7 +16,7 @@
 | [06.02](../02-epics/EP-06-extraction/06.02-extractor-service.md) | EP-06 | Serviço de Extração Estruturada Local via Ollama | Concluída | `extractKnowledge` com prompt determinístico, `temperature 0.1`, `numCtx 4096` |
 | [07.01](../02-epics/EP-07-hia-router-integration/07.01-router-runtime-bridge.md) | EP-07 | Ponte entre HIA Router e Local Runtime | Concluída | `tools/lib/hia/router.js` — camada Local-First com `ollama:qwen3.5:4b` |
 | [08.01](../02-epics/EP-08-artifact-pipeline/08.01-local-artifacts-cli.md) | EP-08 | Extensão de Extração Local com `--engine ollama` | Concluída | `tools/lib/llm.js` (`askOllama`), `tools/lib/runtime/ollama-cli.js`, `generateText` |
-| [09.01](../02-epics/EP-09-test-suite/09.01-fase2-test-suite.md) | EP-09 | Suíte de Testes Unitários e de Integração da Fase 2 | Concluída | `test/runtime-fase2.test.js`, `test/runtime-ollama-engine.test.js`, `tests/hia-local-runtime-panel.test.js` |
+| [09.01](../02-epics/EP-09-test-suite/09.01-fase2-test-suite.md) | EP-09 | Suíte de Testes Unitários e de Integração da Fase 2 | Concluída | `tests/runtime-fase2.test.js`, `tests/runtime-ollama-engine.test.js`, `tests/hia-local-runtime-panel.test.js` |
 
 ## Itens Transversais Concluídos
 

@@ -10,4 +10,4 @@ A CLI de extração de artefatos passa a oferecer um motor local (`--engine olla
 - `tools/lib/llm.js` — `askOllama`.
 - `tools/lib/runtime/ollama-cli.js` — runner síncrono do motor local.
 - `tools/lib/runtime/ollama-client.js` — `generateText` (resposta em texto livre).
-- `test/runtime-ollama-engine.test.js` — testes do caminho local.
+- `tests/runtime-ollama-engine.test.js` — testes do caminho local.

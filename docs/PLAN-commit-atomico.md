@@ -196,3 +196,49 @@ ganharam commits próprios: 36 commits sobre `152b06f`.
 - `tests/engines.misc.test.js` fixava a mensagem acentuada; a correção veio
   junto do context engine, antes do primeiro commit temático.
 
+## 12. Segunda execução (2026-10-21)
+
+Novo lote acumulado após a execução anterior: EP-03.06 a EP-03.09, EP-05.05 e 05.06,
+EP-06.05, EP-07.01 a 07.05, EP-08.01 a 08.05, as fases 1 e 2 do Local AI Runtime e a
+telemetria do runtime na interface. Worktree de partida: 211 caminhos (75 modificados,
+136 novos).
+
+| Commit | Assunto |
+|---|---|
+| `f9dbde2` | `feat(runtime): runtime local com Ollama, classificador, shadow e telemetria` |
+| `394b516` | `feat(runtime): extracao estruturada local e motor ollama na CLI de artefatos` |
+| `aa5aa8b` | `feat(hia): telemetria do runtime local no painel e na API de metricas` |
+| `8c857d0` | `feat(office): iluminacao funcional, alternancia de cena, paridade 2.5D e acessibilidade` |
+| `455a33c` | `feat(scrum): impedimentos, filtros, metricas e projecao do Kanban no telao` |
+| `eb3481e` | `feat(prototype): props, formatacao de codigo, arraste e rastreabilidade modular no atelie` |
+| `c7b7194` | `feat(artifacts): inventario, importacao, metadados, previews e relacoes` |
+| `3019e51` | `feat(orchestration): capacidades, etapas do SDLC, skills, workflows, aprovacoes e historico` |
+| `1f5440f` | `feat(design): arraste de camadas e navegacao por alvo no Mapa em Camadas` |
+| `b8fa8ff` | `chore(coordination): atualiza a politica de provedores e alinha a suite` |
+| `ee5a3cb` | `chore(dev): scripts ui:dev com watch nativo do Node` |
+| `a982458` | `style(ui): agrega as folhas novas de scrum, prototipo, artefatos e escritorio` |
+| `c255d1f` | `docs(harness): atualiza indice, progresso e painel de coordenacao` |
+| `aa2e943` | `docs(harness): encerra o EP-08 com as rotinas aprovadas e o historico` |
+| `eb38407` | `docs(harness): registra as evidencias da 08.05 no progresso e no painel` |
+| `9516be4` | `docs(harness): normaliza a codificacao dos documentos de progresso` |
+
+### Verificação final
+- `npm run check`: 675 arquivos `.js` e 17 `.json` sem erro.
+- `npm test`: 831 testes, 830 passando, 1 skip (symlink no Windows).
+- `npm run types`: 403 erros (baseline era 349; o código novo acrescentou cerca de 54).
+- `git status`: limpo. Nenhum push ou PR executado.
+
+### Decisões desta execução
+- **Hubs no fim:** `router.js` e `config.js` entraram junto do bloco de orquestração, para
+  que o topo só exista com todas as rotas registradas.
+- **Testes da trilha paralela:** a suíte ficou vermelha por causa do EP-08.05 em
+  andamento no worktree; os commits intermediários rodaram com `HARNESS_SKIP_TESTS=1`
+  (opção do próprio hook) e os commits com verificação completa foram `3019e51` e a
+  checagem final do topo.
+- **Sem `git add -A`:** todos os blocos foram montados com caminhos explícitos.
+
+### Pendências conhecidas
+- `npm run types` segue vermelho, com a dívida de tipos somada à do baseline.
+- A trilha de orquestração (EP-08.05) foi executada em paralelo por outro agente durante
+  o lote; o bloco correspondente foi consolidado já com a suíte verde.
+

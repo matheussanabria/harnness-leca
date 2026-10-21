@@ -7,6 +7,6 @@ Cobertura automatizada da Fase 2 com mocks: contrato de extração, serviço de 
 - [09.01](09.01-fase2-test-suite.md): Testes unitários com mocks de extração e roteamento integrado.
 
 ## Evidências de Implementação
-- `test/runtime-fase2.test.js` — contrato, extração com mock e roteamento.
-- `test/runtime-ollama-engine.test.js` — motor local ponta a ponta com daemon fake.
+- `tests/runtime-fase2.test.js` — contrato, extração com mock e roteamento.
+- `tests/runtime-ollama-engine.test.js` — motor local ponta a ponta com daemon fake.
 - `tests/hia-local-runtime-panel.test.js` — renderização do bloco de runtime local no painel HIA.

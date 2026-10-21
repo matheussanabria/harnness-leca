@@ -6,6 +6,21 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
+// A inferência local exige RAM livre. Aqui o perfil de memória é fixado como apto para
+// que o resultado não dependa da carga da máquina em que a suíte roda.
+const hwPath = require.resolve("../tools/lib/hia/hardware-profiler");
+const realHardware = require(hwPath);
+require.cache[hwPath] = {
+  id: hwPath,
+  filename: hwPath,
+  loaded: true,
+  exports: {
+    ...realHardware,
+    getMemoryProfile: () => ({ ...realHardware.getMemoryProfile(), freeMb: 8192, safeForInference: true }),
+    getHardwareSnapshot: () => ({ ...realHardware.getHardwareSnapshot(), viable: true, alert: undefined }),
+  },
+};
+
 const { isLocalUrl, getBaseUrl, checkHealth, generateStructured } = require("../tools/lib/runtime/ollama-client");
 const { validateClassification } = require("../tools/lib/runtime/schema");
 const { classifyTask } = require("../tools/lib/runtime/classifier");

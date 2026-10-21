@@ -5,6 +5,21 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
+// A inferência local exige RAM livre: o perfil de memória é fixado como apto para
+// que o resultado não dependa da carga da máquina em que a suíte roda.
+const hwPath = require.resolve("../tools/lib/hia/hardware-profiler");
+const realHardware = require(hwPath);
+require.cache[hwPath] = {
+  id: hwPath,
+  filename: hwPath,
+  loaded: true,
+  exports: {
+    ...realHardware,
+    getMemoryProfile: () => ({ ...realHardware.getMemoryProfile(), freeMb: 8192, safeForInference: true }),
+    getHardwareSnapshot: () => ({ ...realHardware.getHardwareSnapshot(), viable: true, alert: undefined }),
+  },
+};
+
 const { validateExtraction, extractKnowledge } = require("../tools/lib/runtime/extractor");
 const { routeTask } = require("../tools/lib/hia/router");
 

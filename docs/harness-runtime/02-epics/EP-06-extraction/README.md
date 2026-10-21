@@ -10,4 +10,4 @@ Extração estruturada de conhecimento (decisões, regras, termos de domínio e 
 ## Evidências de Implementação
 - `schemas/runtime-extraction.schema.json` — contrato JSON Schema.
 - `tools/lib/runtime/extractor.js` — validador e serviço de extração.
-- `test/runtime-fase2.test.js` — testes de validação e mock de inferência.
+- `tests/runtime-fase2.test.js` — testes de validação e mock de inferência.

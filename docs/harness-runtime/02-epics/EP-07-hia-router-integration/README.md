@@ -9,4 +9,4 @@ O roteador HIA passa a reconhecer intenções de classificação e extração e 
 ## Evidências de Implementação
 - `tools/lib/hia/router.js` — camada 2 (Local-First) ampliada para extração.
 - `tools/lib/runtime/extractor.js` — destino da delegação.
-- `test/runtime-fase2.test.js` — caso "HIA Router delega extração estruturada para Local-First".
+- `tests/runtime-fase2.test.js` — caso "HIA Router delega extração estruturada para Local-First".

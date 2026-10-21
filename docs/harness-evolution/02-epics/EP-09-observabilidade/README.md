@@ -63,11 +63,12 @@ Os títulos abaixo substituem os títulos provisórios sem alterar a quantidade 
 
 | ID | Título | Dependências principais |
 |---|---|---|
-| 09.01 | Descoberta e registro canônico de sessões | 02.02, 04.01 |
+| [09.01](./09.01-descoberta-registro-canonico.md) | Descoberta e registro canônico de sessões | 02.02, 04.01, 08.05 |
 | 09.02 | Event log persistente, projeções e recuperação SSE | 09.01 |
 | 09.03 | Central pesquisável em lista e Kanban | 09.01, 09.02 |
 | 09.04 | Navegação, retomada e integração com Chat/Escritório | 02.06, 03.03, 09.03 |
 | 09.05 | Atenção necessária, notificações e fila de aprovações | 08.05, 09.02 |
+
 
 ## Fora do escopo da primeira etapa
 

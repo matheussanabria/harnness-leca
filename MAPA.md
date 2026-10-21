@@ -611,9 +611,9 @@ Fora deste repositório (workspace `C:/Users/matheuss.rodrigues/git/57multimarca
 | `tools/lib/runtime/shadow.js` | Interceptor assíncrono não bloqueante para modo shadow com zero fallback de nuvem. |
 | `tools/lib/runtime/telemetry.js` | Gravação sanitizada append-only de métricas de inferência em JSONL e agregação `getRuntimeTelemetryMetrics`. |
 | `ui/public/js/modules/chat-hia-local-runtime.js` | Bloco do painel HIA com métricas do runtime local: inferências, validade, tokens, duração e distribuições. |
-| `test/runtime-local.test.js` | Bateria de testes unitários com mocks da Fase 1. |
-| `test/runtime-fase2.test.js` | Bateria de testes unitários de extração e delegação HIA da Fase 2. |
-| `test/runtime-ollama-engine.test.js` | Testes do caminho de motor local (texto livre, formato JSON e runner) com daemon fake. |
+| `tests/runtime-local.test.js` | Bateria de testes unitários com mocks da Fase 1. |
+| `tests/runtime-fase2.test.js` | Bateria de testes unitários de extração e delegação HIA da Fase 2. |
+| `tests/runtime-ollama-engine.test.js` | Testes do caminho de motor local (texto livre, formato JSON e runner) com daemon fake. |
 | `tests/hia-local-runtime-panel.test.js` | Testes de renderização do bloco de runtime local no painel HIA. |
 
 
