@@ -195,3 +195,29 @@ test("mapeamento legado de status vira laneId sem substituir o status de origem"
   assert.equal(scrum.statusMapping["12321"], "em-revisao");
   assert.equal(scrum.lanes.length, 12);
 });
+
+test("le sprints (Server e Cloud) e comentarios do snapshot Jira", () => {
+  const legacy = "com.atlassian.greenhopper.service.sprint.Sprint@1a2b[id=12,rapidViewId=3,state=CLOSED,name=Sprint 2,startDate=2026-09-23T10:00:00.000Z,endDate=2026-10-07T10:00:00.000Z,goal=<null>]";
+  const current = "com.atlassian.greenhopper.service.sprint.Sprint@3c4d[id=13,rapidViewId=3,state=ACTIVE,name=Sprint 3,startDate=2026-10-07T10:00:00.000Z,endDate=2026-10-21T10:00:00.000Z,goal=Entrega]";
+  const comment = { id: "9", author: { displayName: "Ana" }, body: "Revisado", created: "2026-10-10T10:00:00.000Z" };
+  const issues = [
+    { id: "1", key: "DIS-1", fields: { summary: "A", issuetype: { name: "Historia" }, status: { name: "Feito" }, customfield_10020: [legacy, current], comment: { comments: [comment] } } },
+    { id: "2", key: "DIS-2", fields: { summary: "B", issuetype: { name: "Historia" }, status: { name: "Novo" }, customfield_10020: [{ id: 14, name: "Sprint 4", state: "future", boardId: 3 }] } },
+    { id: "3", key: "DIS-3", fields: { summary: "C", issuetype: { name: "Historia" }, status: { name: "Novo" }, customfield_10020: null } },
+  ];
+  const snapshot = normalizeJiraSnapshot(issues);
+  const [first, second, third] = snapshot.stories;
+
+  assert.equal(first.sprintId, "jira-13");
+  assert.equal(first.jiraSprints.length, 2);
+  assert.equal(second.sprintId, "jira-14");
+  assert.equal(third.sprintId, null);
+  assert.deepEqual(snapshot.sprints.map((sprint) => sprint.name), ["Sprint 2", "Sprint 3", "Sprint 4"]);
+  assert.equal(first.comments[0].body, "Revisado");
+  assert.equal("customfield_10020" in first.sourceFields.unmapped, false);
+
+  const resolved = resolveScrumData({ sprints: [{ id: "sprint-1", name: "Local" }], stories: [{ key: "DIS-1", sprintId: "sprint-1" }] }, snapshot);
+  assert.equal(resolved.stories.find((s) => s.key === "DIS-1").sprintId, "jira-13");
+  assert.equal(resolved.activeSprintId, "jira-13");
+  assert.equal(resolved.sprints.find((s) => s.id === "jira-12").status, "completed");
+});

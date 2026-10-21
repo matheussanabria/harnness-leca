@@ -6,6 +6,7 @@ import { renderSprintKanban } from "./design-scrum-sprint.js";
 import { renderProductBacklog, renderEpicsWorkspace } from "./design-scrum-backlog.js";
 import { renderScrumFilterBar } from "./design-scrum-filter-bar.js";
 import { computeStoryMetrics, renderScrumMetricsBar } from "./design-scrum-metrics.js";
+import { jiraSyncButtonHtml } from "./design-scrum-jira-sync.js";
 import { visibleStories } from "./design-scrum-filters.js";
 
 export function renderScrumWorkspace(container, projectSlug, scrumData) {
@@ -17,7 +18,7 @@ export function renderScrumWorkspace(container, projectSlug, scrumData) {
         <button type="button" class="scrum-nav-tab ${ds.currentScrumTab === "backlog" ? "active" : ""}" onclick="switchScrumTab('backlog')"><i class="fa-solid fa-list"></i> Product Backlog (${scrumData.summary?.backlogStoriesCount || 0})</button>
         <button type="button" class="scrum-nav-tab ${ds.currentScrumTab === "epics" ? "active" : ""}" onclick="switchScrumTab('epics')"><i class="fa-solid fa-layer-group"></i> Epicos & Metas (${scrumData.summary?.totalEpicsCount || 0})</button>
       </div>
-      <div class="scrum-nav-summary">Sprint: <b>${scrumData.summary?.sprintPointsTotal || 0} pts</b> · Backlog: <b>${scrumData.summary?.backlogPointsTotal || 0} pts</b></div>
+      <div class="scrum-nav-summary">${jiraSyncButtonHtml(scrumData)} Sprint: <b>${scrumData.summary?.sprintPointsTotal || 0} pts</b> · Backlog: <b>${scrumData.summary?.backlogPointsTotal || 0} pts</b></div>
     </nav>
     <div id="scrumFiltersBar" class="scrum-filters-host">${renderScrumFilterBar(scrumData)}</div>
     <div id="scrumMetricsBar" class="scrum-metrics-host"></div>

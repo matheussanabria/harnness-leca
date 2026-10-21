@@ -4,6 +4,7 @@ export { loadScrumData, setScrumSubTab } from "./design-scrum-data.js";
 export { renderScrumWorkspace } from "./design-scrum-view.js";
 
 import { registerScrumActions } from "./design-scrum-actions.js";
+import { registerJiraSync } from "./design-scrum-jira-sync.js";
 import { registerStoryModal } from "./design-scrum-story-modal.js";
 import { registerSprintEpicModals } from "./design-scrum-sprint-epic-modals.js";
 import { registerStoryDrawer } from "./design-scrum-story-drawer.js";
@@ -15,6 +16,7 @@ import { registerStoryTransitions } from "./design-scrum-story-transition.js";
 // Binds globais e ações da interface (handlers chamados por onclick no HTML gerado)
 if (typeof window !== "undefined") {
   registerScrumActions();
+  registerJiraSync();
   registerStoryModal();
   registerSprintEpicModals();
   registerStoryDrawer();

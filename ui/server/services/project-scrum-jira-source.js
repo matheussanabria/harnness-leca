@@ -3,6 +3,8 @@
 const fs = require("fs");
 const path = require("path");
 
+const { extractIssueSprints, currentSprint, isSprintField } = require("./project-scrum-jira-sprints");
+
 const snapshotCache = new Map();
 
 function fold(value) {
@@ -43,7 +45,8 @@ function normalizeIssue(issue, epicKeys, meta) {
   const key = String(issue.key || issue.id || "");
   const epicReference = fields.customfield_10101 ? String(fields.customfield_10101) : null;
   const knownFields = new Set(["summary", "issuetype", "status", "issuelinks", "customfield_10101", "description", "project", "priority", "assignee", "creator", "comment", "attachment", "created", "updated"]);
-  const unmapped = Object.fromEntries(Object.entries(fields).filter(([name]) => !knownFields.has(name)));
+  const unmapped = Object.fromEntries(Object.entries(fields).filter(([name, value]) => !knownFields.has(name) && !isSprintField(value)));
+  const sprints = extractIssueSprints(fields);
   return {
     id: key.toLowerCase(),
     jiraId: issue.id ? String(issue.id) : null,
@@ -69,7 +72,8 @@ function normalizeIssue(issue, epicKeys, meta) {
     attachments: Array.isArray(fields.attachment) ? fields.attachment : [],
     createdAt: fields.created || null,
     updatedAt: fields.updated || null,
-    sprintId: null,
+    sprintId: currentSprint(sprints)?.id || null,
+    jiraSprints: sprints,
     source: "jira-snapshot",
     synchronization: { sourceFile: meta.file || null, exportedAt: meta.exportedAt || null },
     sourceFields: { epicReference, unmapped },
@@ -93,10 +97,13 @@ function normalizeJiraSnapshot(issues, meta = {}) {
     source: "jira-snapshot",
     sourceStatus: issue.sourceStatus,
   }));
+  const sprintsById = new Map();
+  for (const issue of normalized) for (const sprint of issue.jiraSprints) sprintsById.set(sprint.id, sprint);
   return {
     available: true,
     stories: normalized.filter((issue) => !epicKeys.has(issue.key)),
     epics,
+    sprints: [...sprintsById.values()],
     meta: { ...snapshotMeta, issueCount: list.length },
   };
 }
@@ -104,7 +111,7 @@ function normalizeJiraSnapshot(issues, meta = {}) {
 /** Le o artefato local; nunca acessa rede nem credenciais. */
 function loadJiraSnapshot(repoRoot) {
   const file = path.resolve(repoRoot, "doc", "scrum", "_jira-dis.json");
-  if (!fs.existsSync(file)) return { available: false, stories: [], epics: [], meta: { file } };
+  if (!fs.existsSync(file)) return { available: false, stories: [], epics: [], sprints: [], meta: { file } };
   try {
     const mtimeMs = fs.statSync(file).mtimeMs;
     const cached = snapshotCache.get(file);

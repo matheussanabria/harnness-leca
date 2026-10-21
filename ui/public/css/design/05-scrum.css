@@ -268,3 +268,22 @@
   display: flex;
   flex-direction: column;
 }
+
+.scrum-jira-sync {
+  margin-right: 8px;
+}
+
+.scrum-jira-sync:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* Animacao propria: o fa-spin e desligado quando o sistema reduz animacoes. */
+.scrum-jira-sync.is-syncing .scrum-sync-icon {
+  display: inline-block;
+  animation: scrum-sync-rotate 0.9s linear infinite;
+}
+
+@keyframes scrum-sync-rotate {
+  to { transform: rotate(360deg); }
+}

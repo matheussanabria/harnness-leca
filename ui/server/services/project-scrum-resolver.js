@@ -32,7 +32,7 @@ function mergeSourceStory(source, localStory, document, mapping) {
   const status = localStory?.status || defaultBoardStatus(source.sourceStatus);
   const merged = {
     ...source,
-    sprintId: localStory?.sprintId ?? null,
+    sprintId: source.sprintId ?? localStory?.sprintId ?? null,
     status,
     laneId: isLaneId(localStory?.laneId) ? localStory.laneId : (mapped?.boardLaneId ?? legacyStatusToLane(status)),
     context: document?.context ?? null,
@@ -51,6 +51,7 @@ function mergeSourceStory(source, localStory, document, mapping) {
   merged.scenarioCount = merged.scenarios.length;
   merged.relationshipCount = merged.relationships.length;
   merged.provenance = {
+    sprint: source.sprintId ? "jira-snapshot" : (localStory?.sprintId ? "local" : "unavailable"),
     title: override.title !== undefined ? "local-override" : "jira-snapshot",
     sourceStatus: "jira-snapshot",
     relationships: "jira-snapshot",
@@ -63,6 +64,28 @@ function mergeSourceStory(source, localStory, document, mapping) {
     additionalInfo: document?.additionalInfo ? "documentation" : "unavailable",
   };
   return merged;
+}
+
+const { currentSprint } = require("./project-scrum-jira-sprints");
+
+const JIRA_STATE = { active: "active", closed: "completed", future: "planned" };
+
+function mergeSprints(localSprints = [], jiraSprints = []) {
+  const jira = jiraSprints.map((sprint) => ({
+    id: sprint.id,
+    name: sprint.name,
+    goal: sprint.goal || "",
+    startDate: sprint.startDate ? sprint.startDate.slice(0, 10) : null,
+    endDate: sprint.endDate ? sprint.endDate.slice(0, 10) : null,
+    status: JIRA_STATE[sprint.state] || "planned",
+    source: "jira-snapshot",
+  }));
+  return [...jira, ...localSprints.filter((sprint) => !jira.some((item) => item.id === sprint.id))];
+}
+
+function activeSprintId(local, jiraSprints = [], merged = []) {
+  if (local.activeSprintId && merged.some((sprint) => sprint.id === local.activeSprintId) && !jiraSprints.length) return local.activeSprintId;
+  return currentSprint(jiraSprints)?.id || local.activeSprintId || merged[0]?.id || null;
 }
 
 function resolveScrumData(local = {}, snapshot = {}, documents = new Map()) {
@@ -82,11 +105,12 @@ function resolveScrumData(local = {}, snapshot = {}, documents = new Map()) {
   const sourceEpics = snapshot.epics || [];
   const sourceEpicIds = new Set(sourceEpics.map((epic) => epic.id));
   const epics = [...sourceEpics, ...(local.epics || []).filter((epic) => !sourceEpicIds.has(epic.id))];
+  const sprints = mergeSprints(local.sprints, snapshot.sprints);
   return {
     schemaVersion: local.schemaVersion,
     migrationHistory: local.migrationHistory || [],
-    activeSprintId: local.activeSprintId || local.sprints?.[0]?.id || null,
-    sprints: local.sprints || [],
+    activeSprintId: activeSprintId(local, snapshot.sprints, sprints),
+    sprints,
     epics,
     stories,
     lanes: mergeLaneConfiguration(local.lanes),
