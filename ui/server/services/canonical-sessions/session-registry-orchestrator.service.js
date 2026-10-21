@@ -8,6 +8,32 @@ const { linkWorkflowStates } = require("./session-workflow-linker");
 const registry = require("./session-registry.service");
 
 /**
+ * Publica no event log (EP-09.02) o que a varredura descobriu.
+ * O log é a fonte da verdade das projeções; aqui só registramos o fato.
+ * @param {string} slug
+ * @param {object[]} sessions
+ * @param {number} inserted
+ */
+function publishDiscovered(slug, sessions, inserted) {
+  if (!inserted) return;
+  try {
+    // @ts-ignore - carregamento tardio evita acoplar o registro canonico ao event log
+    const { publish } = require("../events/event-stream");
+    for (const session of sessions) {
+      publish(slug, {
+        type: "session.discovered",
+        sessionId: session.id,
+        source: { provider: session.primaryProvider || "harness", kind: "discovery" },
+        trust: session.projectConfidence === "inferred" ? "inferred" : "observed",
+        payload: { provider: session.primaryProvider, title: session.title },
+      });
+    }
+  } catch {
+    // Falha de telemetria nunca impede a varredura.
+  }
+}
+
+/**
  * Executa uma varredura completa do projeto e grava o registro canônico.
  * @param {string} slug
  * @param {{ ports?: any[], persist?: boolean }} [options]
@@ -37,6 +63,7 @@ function scanProject(slug, options = {}) {
     const saved = registry.upsertSessions(slug, linked.sessions);
     result.inserted = saved.inserted;
     result.updated = saved.updated;
+    publishDiscovered(slug, linked.sessions, saved.inserted);
   }
 
   return result;
