@@ -633,6 +633,8 @@ Fora deste repositório (workspace `C:/Users/matheuss.rodrigues/git/57multimarca
 | `tests/canonical-session-discovery.test.js` | Testes da descoberta somente leitura e da reconciliação. |
 | `tests/canonical-session-http.test.js` | Testes da API: leitura, filtros, loopback, evidência e 404. |
 | `docs/harness-evolution/02-epics/EP-09-observabilidade/10-contrato-leitura-central.md` | Contrato de leitura congelado entre a 09.02 (event log) e a 09.03 (Central). |
+| `tools/verify-index.js` | Verificador do indice mestre: links, contagem por epico (tabela x checklist) e totais declarados contra a soma real. |
+| `tests/verify-index.test.js` | Testes do verificador do indice, incluindo a consistencia do indice real do repositorio. |
 
 ## 16. Central de Sessões (EP-09.03)
 
