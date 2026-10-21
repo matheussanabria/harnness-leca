@@ -49,7 +49,10 @@ test("executa coordination.status sem travar ledger", async () => {
   assert.equal(res.ok, true);
   assert.ok(typeof res.data.revision === "number");
   assert.ok(Array.isArray(res.data.activeProviders));
-  assert.ok(res.data.activeProviders.includes("gemini"));
+  // As frentes ativas sao as tres do OpenCode; o owner distingue a frente, nao o motor.
+  assert.ok(res.data.activeProviders.includes("opencode/qualidade"));
+  assert.ok(res.data.activeProviders.includes("opencode/jira"));
+  assert.ok(res.data.activeProviders.includes("opencode/deploy"));
 });
 
 test("executa context.list para o projeto harness-leca", async () => {

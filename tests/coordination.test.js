@@ -33,10 +33,10 @@ function fixture() {
   return root;
 }
 
-test("inicializa os quatro provedores com politica ativa explicita", () => {
+test("inicializa os seis provedores com politica ativa explicita", () => {
   const root = fixture();
   const state = service.init(root, "demo");
-  assert.equal(Object.keys(state.providers).length, 4);
+  assert.equal(Object.keys(state.providers).length, 6);
   for (const [id, provider] of Object.entries(state.providers)) {
     assert.equal(provider.enabled, PROVIDERS[id].enabled, `politica de ${id} refletida no estado`);
   }
