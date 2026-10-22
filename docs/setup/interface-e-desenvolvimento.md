@@ -18,7 +18,7 @@ node tools/export-context.js --dry-run      # simula sem gravar
 
 - **Claude Code:** Grava em `~/.claude/projects/<pasta>/memory/` (`MEMORY.md`, `regras-e-diretrizes.md`, `memorias-consolidadas.md` e `historico-conversas.md`). O Claude Code carrega esses arquivos automaticamente na abertura de qualquer nova sessão.
 - **Gemini / Antigravity:** Cria Knowledge Items em `~/.gemini/antigravity-ide/knowledge/ki-projeto-<slug>/` e atualiza a regra global em `~/.gemini/config/rules/harness-projects-overview.md`.
-- **Local:** Cria resumos rápidos em `.claude/context/<slug>.md` e `.gemini/context/<slug>.md` dentro do próprio harness.
+- **Local:** desde a EP-13.01 o export não gera mais cópias em `.claude/context/` e `.gemini/context/` (nenhum motor lia essas pastas); a fonte é `projects/<slug>/`.
 
 ### 2. Reidratar Histórico de Chats no Claude Code (`npm run export:claude-sessions`)
 
