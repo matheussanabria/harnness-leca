@@ -478,7 +478,7 @@ O `dis-design-system.html` carrega `window.DOCS` (código-fonte de cada componen
 | `docs/harness-evolution/09-activity-interface-deploy-index.md` | Índice multiagente das correções: ondas paralelas, ownership exclusivo, dependências, gates, handoffs e estimativas por camada. |
 | `docs/PLAN-commit-atomico.md` | Plano de fatiamento da worktree em 21 commits temáticos: diagnóstico, baseline, blocos, arquivos-hub, riscos e checkpoints. |
 | `docs/harness-evolution/implementation-progress.md` | Controle vivo por fase, evidências, pendências e próximo passo. |
-| `docs/harness-evolution/00-index.md` | Índice mestre do programa: 14 épicos (EP-00 a EP-13), dependências e backlog de entregas. |
+| `docs/harness-evolution/00-index.md` | Índice mestre do programa: 15 épicos (EP-00 a EP-14), dependências e backlog de entregas. |
 | `docs/harness-evolution/01-architecture/` | Estado atual (foco no escritório), arquitetura-alvo da apresentação compartilhada e mapa de dependências. |
 | `docs/harness-evolution/02-epics/EP-XX-*/README.md` | Objetivo, execução, entrega, aceite e histórias de cada épico (EP-00 a EP-12). |
 | `docs/harness-evolution/02-epics/EP-05-scrum/05-dev-notas.md` | Arquitetura das fontes reais do DIS, decisões de proveniência e evidências de validação. |
@@ -505,6 +505,7 @@ O `dis-design-system.html` carrega `window.DOCS` (código-fonte de cada componen
 | `docs/harness-evolution/02-epics/EP-02-chat/02.08-sincronizacao-estados.md` | Especificação e aceite de sincronização com estados reais de execução e hardening. |
 | `docs/harness-evolution/02-epics/EP-01-window-manager/piloto-estacao-gemini.md` | Plano, aceite e riscos do piloto do Window Manager. |
 | `docs/harness-evolution/02-epics/EP-13-memoria-agentes/` | EP-13 Memória e conhecimento dos agentes: README, diagnóstico da memória atual (`00-diagnostico.md`), arquitetura-alvo em três camadas (`01-arquitetura-alvo.md`) e histórias 13.01 a 13.09. |
+| `docs/harness-evolution/02-epics/EP-14-estado-das-telas/` | EP-14 Estado das telas persistido no servidor: README (decisões, ondas, branches) e 11 histórias (14.01 a 14.11) com a lista de arquivos que cada agente pode tocar. |
 | `docs/harness-evolution/03-decisions/ADR-009-memoria-um-fato-por-arquivo.md` | Decisão proposta: memória curada com um fato por arquivo, índice gerado e só a vitrine projetada para os motores. |
 | `docs/harness-evolution/03-decisions/README.md` | Índice de ADRs. |
 | `docs/harness-evolution/04-test-plans/README.md` | Índice de planos de teste e comandos. |
