@@ -16,3 +16,4 @@ Uma decisão vira ADR quando afeta mais de uma história ou é difícil de rever
 | [ADR-006](ADR-006-estados-ortogonais.md) | Separar execução, workflow e atenção | proposta | 09.02, 09.03, 09.05 |
 | [ADR-007](ADR-007-ledger-coordenacao-agentes.md) | Ledger local para coordenação entre provedores | aceita | transversal |
 | [ADR-008](ADR-008-consulta-jira-sem-token.md) | Consulta ao Jira por script local, com redação de dados pessoais | proposta | 05.07 |
+| [ADR-009](ADR-009-memoria-um-fato-por-arquivo.md) | Memória curada com um fato por arquivo e índice gerado | aceita | EP-13 |
