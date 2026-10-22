@@ -34,7 +34,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-07](02-epics/EP-07-artefatos/README.md) | Artefatos e documentação | P1 | Concluído | 5/5 |
 | [EP-08](02-epics/EP-08-agentes/README.md) | Agentes, skills e workflows | P1 | Concluído | 5/5 |
 | [EP-09](02-epics/EP-09-observabilidade/README.md) | Central de sessões, observabilidade e orquestração | P1 | Em andamento; 09.01 (registro canônico) e 09.03 (Central) aceitas, 09.02 (event log e SSE) em andamento na frente opencode/qualidade | 2/5 |
-| [EP-10](02-epics/EP-10-deploy/README.md) | Datacenter e deploys | P2 | Em andamento; 10.01, 10.02, 10.03, 10.04, 10.05 aceitas; frente opencode/deploy | 5/5 |
+| [EP-10](02-epics/EP-10-deploy/README.md) | Datacenter e deploys | P2 | Concluído; 10.01 a 10.05 aceitas; frente opencode/deploy | 5/5 |
 | [EP-11](02-epics/EP-11-auditoria-qualidade/README.md) | Auditoria, testes e Design System | P2 | Planejado; base existente | 0/5 |
 | [EP-12](02-epics/EP-12-prototype-engine/README.md) | Prototype Engine & Design System Multiframework | P1 | Concluído | 32/32 |
 
@@ -192,7 +192,7 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 Os três chats usam o motor OpenCode; o que os distingue é a **frente**, e é ela que aparece no campo `owner` do ledger e nas assinaturas (`opencode/qualidade`, `opencode/jira`, `opencode/deploy`).
 
 1. **opencode/qualidade:** 09.02 (event log, projeções e recuperação SSE) em andamento; 09.04 e 09.05 detalhadas em documentação; 11.05 (regressão automatizada) e a dívida de tipos. Destrava o restante do EP-09.
-2. **opencode/deploy:** EP-10 em andamento (10.01 e 10.02 aceitas); próxima história: 10.03 (histórico e logs de deploy).
+2. **opencode/deploy:** EP-10 encerrado (5/5): pipelines, saude por ambiente, linha do tempo com logs, acoes autorizadas e paridade com o escritorio; proxima frente: EP-11 (11.04 e 11.05) ou apoio ao EP-09.
 3. **opencode/jira:** integração com o Jira (snapshot, consulta e sincronização com o quadro).
 4. EP-03 e EP-06 encerrados (9/9 e 5/5); 97/105 global. Cada chat commita apenas os arquivos da própria frente, por caminho.
 5. A próxima história de EP-09/EP-10/EP-11 deve ser criada e aceita a partir do template antes da implementação.
