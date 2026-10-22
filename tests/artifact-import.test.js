@@ -4,6 +4,9 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const projectsRoot = fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifact-import-projects-"));
+process.env.HARNESS_PROJECTS_DIR = projectsRoot;
+test.after(() => fs.rmSync(projectsRoot, { recursive: true, force: true }));
 const { importArtifact } = require("../ui/server/services/artifact-import.service");
 const { inventoryProjectArtifacts } = require("../ui/server/services/artifact-inventory.service");
 
@@ -107,7 +110,7 @@ test("artifact-import: não escreve em pasta que é symlink", async (t) => {
 test("artifact-import: controller grava no projeto e valida slug, projeto e nome", async () => {
   const { apiProjectArtifactsImport } = require("../ui/server/controllers/artifact-import.controller");
   const slug = `tmp-artifact-import-${process.pid}-${Date.now()}`;
-  const dir = path.join(__dirname, "..", "projects", slug);
+  const dir = path.join(projectsRoot, slug);
   try {
     fs.mkdirSync(dir, { recursive: true });
     const ok = fakeRes();

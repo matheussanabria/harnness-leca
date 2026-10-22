@@ -7,6 +7,27 @@ const path = require("path");
 const { resolveProjectDesignProfile } = require("../ui/server/services/design-profile-resolver.service");
 const { getProjectDesignContext } = require("../ui/server/services/project-design-context.service");
 const { buildDesignIndex } = require("../ui/server/services/design-index.service");
+const { createProjectFixture } = require("./helpers/project-fixture");
+const { writeJson } = require("./helpers/project-fixture-files");
+
+function writeSharedDesignSystem(globalDir) {
+  writeJson(path.join(globalDir, "design", "defaults.json"), {
+    schema: 1,
+    designSystem: { provider: "fs", prefix: "ds-", tokensCss: "doc/design-system/ds.css", componentsDir: "doc/design-system" },
+    framework: { adapter: "static-html" },
+    docs: { layers: { adapter: "markdown-folders", featuresGlob: "doc/sistema/features/*" } },
+  });
+  writeJson(path.join(globalDir, "design", "design-systems", "procempa-dis.json"), {
+    designSystem: {
+      ref: "procempa-dis",
+      prefix: "ds-",
+      componentsDir: "doc/design-system",
+      tokensCss: "doc/design-system/ds.css",
+      allowedRepoDirs: ["doc/design-system", "doc/sistema/features"],
+    },
+    framework: { adapter: "angular" },
+  });
+}
 
 test("Design Multiprojeto - Teste de Zero Constantes Hardcoded", () => {
   const root = path.resolve(__dirname, "..");
@@ -47,16 +68,24 @@ test("Design Multiprojeto - Teste de Zero Constantes Hardcoded", () => {
 });
 
 test("Design Multiprojeto - Resolução em 3 Camadas (Defaults < DS Compartilhado < Projeto)", () => {
-  const root = path.resolve(__dirname, "..");
-  const globalDir = path.join(root, "global");
-  const projectDir = path.join(root, "projects", "saude-dispensacao");
+  const fixture = createProjectFixture({
+    slug: "projeto-camadas",
+    profile: {
+      schema: 1,
+      designSystem: { ref: "procempa-dis", prefix: "dis-" },
+    },
+  });
+  test.after(() => fixture.cleanup());
 
-  const profile = resolveProjectDesignProfile(projectDir, globalDir);
+  const globalDir = path.join(fixture.root, "global");
+  writeSharedDesignSystem(globalDir);
+
+  const profile = resolveProjectDesignProfile(fixture.dir, globalDir);
 
   assert.strictEqual(profile.schema, 1);
   assert.strictEqual(profile.framework.adapter, "angular");
   assert.strictEqual(profile.designSystem.ref, "procempa-dis");
-  assert.strictEqual(profile.designSystem.prefix, "ds-");
+  assert.strictEqual(profile.designSystem.prefix, "dis-");
   assert.strictEqual(profile.designSystem.componentsDir, "doc/design-system");
   assert.strictEqual(profile.designSystem.tokensCss, "doc/design-system/ds.css");
 });
@@ -79,14 +108,25 @@ test("Design Multiprojeto - Projeto Genérico Sem Perfil cai suavemente em Gener
 });
 
 test("Design Multiprojeto - Dois Projetos Lado a Lado (Procempa vs Genérico)", () => {
-  const root = path.resolve(__dirname, "..");
+  const fixtureA = createProjectFixture({
+    slug: "projeto-procempa",
+    profile: { schema: 1, designSystem: { ref: "procempa-dis", prefix: "dis-" } },
+  });
+  const fixtureB = createProjectFixture({ slug: "projeto-generico-teste", designSystem: false, prototype: false, designIndex: false });
+  test.after(() => {
+    fixtureA.cleanup();
+    fixtureB.cleanup();
+  });
+
+  const globalDirA = path.join(fixtureA.root, "global");
+  writeSharedDesignSystem(globalDirA);
 
   // 1. Contexto do Projeto A (Procempa)
   const ctxA = getProjectDesignContext(
-    "saude-dispensacao",
-    path.join(root, "projects", "saude-dispensacao"),
-    root,
-    { globalDir: path.join(root, "global") }
+    fixtureA.slug,
+    fixtureA.dir,
+    fixtureA.root,
+    { globalDir: globalDirA }
   );
 
   assert.strictEqual(ctxA.profile.framework.adapter, "angular");
@@ -96,9 +136,9 @@ test("Design Multiprojeto - Dois Projetos Lado a Lado (Procempa vs Genérico)", 
   // 2. Contexto do Projeto B (Genérico)
   const ctxB = getProjectDesignContext(
     "projeto-generico-teste",
-    path.join(root, "projects", "projeto-inexistente-123"),
-    root,
-    { globalDir: path.join(root, "global") }
+    path.join(fixtureB.root, "projects", "projeto-inexistente-123"),
+    fixtureB.root,
+    { globalDir: path.join(fixtureB.root, "global") }
   );
 
   assert.strictEqual(ctxB.profile.framework.adapter, "static-html");

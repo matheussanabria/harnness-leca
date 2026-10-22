@@ -1,6 +1,35 @@
 // @ts-check
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const { spawnSync } = require("node:child_process");
+
+const root = fs.mkdtempSync(path.join(os.tmpdir(), "harness-hia-registry-"));
+const projectDir = path.join(root, "projects", "harness-leca");
+fs.mkdirSync(path.join(projectDir, "context"), { recursive: true });
+fs.writeFileSync(path.join(projectDir, "context", "extraido-conversas.md"), "# Conversas\n", "utf8");
+fs.mkdirSync(path.join(projectDir, "coordination"), { recursive: true });
+fs.writeFileSync(path.join(projectDir, "coordination", "state.json"), JSON.stringify({
+  schemaVersion: 1,
+  project: "harness-leca",
+  revision: 7,
+  providers: {
+    "opencode/qualidade": { enabled: true },
+    "opencode/jira": { enabled: true },
+    "opencode/deploy": { enabled: true },
+    claude: { enabled: false },
+  },
+  stories: {},
+}, null, 2), "utf8");
+fs.writeFileSync(path.join(root, "package.json"), JSON.stringify({ name: "harness-fixture" }, null, 2), "utf8");
+fs.writeFileSync(path.join(root, "sample.js"), "module.exports = 1;\n", "utf8");
+spawnSync("git", ["init"], { cwd: root, encoding: "utf8", windowsHide: true });
+
+process.env.HARNESS_ROOT = root;
+test.after(() => fs.rmSync(root, { recursive: true, force: true }));
+
 const { listTools, getTool, registerTool } = require("../tools/lib/hia/registry");
 const { executeTool } = require("../tools/lib/hia/executor");
 
@@ -49,7 +78,6 @@ test("executa coordination.status sem travar ledger", async () => {
   assert.equal(res.ok, true);
   assert.ok(typeof res.data.revision === "number");
   assert.ok(Array.isArray(res.data.activeProviders));
-  // As frentes ativas sao as tres do OpenCode; o owner distingue a frente, nao o motor.
   assert.ok(res.data.activeProviders.includes("opencode/qualidade"));
   assert.ok(res.data.activeProviders.includes("opencode/jira"));
   assert.ok(res.data.activeProviders.includes("opencode/deploy"));

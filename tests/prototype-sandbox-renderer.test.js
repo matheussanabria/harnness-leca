@@ -3,9 +3,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { renderSandboxScreen } from "../ui/server/services/prototype-sandbox-renderer.service.js";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 
 const REPO_ROOT = path.resolve(".");
-const SAUDE_DIR = path.join(REPO_ROOT, "projects", "saude-dispensacao");
+const fixture = createProjectFixture();
+const SAUDE_DIR = fixture.dir;
+test.after(() => fixture.cleanup());
 
 test("EP-12.21: Engine de Renderização em Sandbox Iframe Segura", async (t) => {
   await t.test("retorna 404 para protótipo inexistente", () => {

@@ -319,6 +319,8 @@ node --test tests/prototype-reconstruction.test.js # Testa reconstrução comple
 | `.githooks/pre-push` | Roda a suíte completa no push (e a regressão completa quando `quality/regression-enforced` existe). |
 | `tests/affected-tests.test.js` | Regressão da seleção de testes afetados, do check restrito e do hook de pre-push. |
 
+- Fixtures de teste: `tests/helpers/project-fixture.js` (orquestrador), `project-fixture-design-system.js`, `project-fixture-prototype.js`, `project-fixture-design-index.js` e `project-fixture-files.js` criam um projeto temporário fora de `projects/` e devolvem `{ dir, slug, cleanup }`.
+
 ---
 
 ## 🏢 6. Escritório Virtual Imersivo DAI HQ (`ui/public/office.html`)

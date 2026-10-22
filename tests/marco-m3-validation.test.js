@@ -8,10 +8,13 @@ import { resolveNodeTraceability } from "../ui/server/services/prototype-traceab
 import { generateScreenCode } from "../ui/server/services/prototype-codegen.factory.js";
 import { validatePrototypeDefinition } from "../ui/server/services/prototype-validator.service.js";
 import { resolveNodeNavigation } from "../ui/server/services/prototype-schema.service.js";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 
 const REPO_ROOT = path.resolve(".");
-const SAUDE_DIR = path.join(REPO_ROOT, "projects", "saude-dispensacao");
+const fixture = createProjectFixture();
+const SAUDE_DIR = fixture.dir;
 const PROTO_PATH = path.join(SAUDE_DIR, "design", "prototypes", "dis-modular", "proto.json");
+test.after(() => fixture.cleanup());
 
 test("MARCO M3: Homologação Final do Studio Multiframework (EP-12)", async (t) => {
   assert.ok(fs.existsSync(PROTO_PATH), "proto.json deve existir");

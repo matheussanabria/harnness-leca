@@ -4,9 +4,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { generateScreenCode, getSupportedFrameworks } from "../ui/server/services/prototype-codegen.factory.js";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 
-const REPO_ROOT = path.resolve(".");
-const SAUDE_DIR = path.join(REPO_ROOT, "projects", "saude-dispensacao");
+const fixture = createProjectFixture();
+const SAUDE_DIR = fixture.dir;
+test.after(() => fixture.cleanup());
 
 test("EP-12.28: Matriz de Paridade Multiframework (Vanilla, Angular 18 e React 18+)", async (t) => {
   await t.test("factory reconhece os frameworks suportados e rejeita desconhecidos", () => {

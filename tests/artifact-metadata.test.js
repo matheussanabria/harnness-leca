@@ -13,6 +13,10 @@ const {
   updateArtifactAccess,
 } = require("../ui/server/services/artifact-metadata.service");
 
+const projectsRoot = fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifact-meta-projects-"));
+process.env.HARNESS_PROJECTS_DIR = projectsRoot;
+test.after(() => fs.rmSync(projectsRoot, { recursive: true, force: true }));
+
 function project() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifact-meta-"));
 }
@@ -46,7 +50,7 @@ function fakeReq({ local = true, body = {} } = {}) {
 }
 
 function seededProject(slug, file = "artifacts/docs/nota.md") {
-  const dir = path.join(__dirname, "..", "projects", slug);
+  const dir = path.join(projectsRoot, slug);
   fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
   fs.writeFileSync(path.join(dir, file), "# Nota\n", "utf8");
   return dir;

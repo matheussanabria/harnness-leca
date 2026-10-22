@@ -5,6 +5,9 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { Readable } = require("stream");
+const projectsRoot = fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifact-rel-projects-"));
+process.env.HARNESS_PROJECTS_DIR = projectsRoot;
+test.after(() => fs.rmSync(projectsRoot, { recursive: true, force: true }));
 const {
   RELATIONSHIPS_REL,
   MAX_LINKS,
@@ -44,7 +47,7 @@ function project() {
 }
 
 function seededProject(slug) {
-  const dir = path.join(__dirname, "..", "projects", slug);
+  const dir = path.join(projectsRoot, slug);
   fs.mkdirSync(path.join(dir, "artifacts"), { recursive: true });
   fs.writeFileSync(path.join(dir, "artifacts", "foto.png"), Buffer.from([0x89, 0x50, 0x4e, 0x47]));
   return dir;

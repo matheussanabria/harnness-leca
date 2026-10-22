@@ -6,9 +6,13 @@ const path = require("node:path");
 const { pathToFileURL } = require("node:url");
 const { handle } = require("../ui/server/router");
 const { resolveNodeTraceability } = require("../ui/server/services/prototype-traceability.service.js");
+const { createProjectFixture } = require("./helpers/project-fixture");
 
 const ROOT = path.resolve(".");
-const SAUDE_DIR = path.join(ROOT, "projects", "saude-dispensacao");
+const fixture = createProjectFixture();
+fixture.activate();
+test.after(() => fixture.cleanup());
+const SAUDE_DIR = fixture.dir;
 const MODULE_PATH = path.join(ROOT, "ui", "public", "js", "modules", "prototype-element-map.js");
 const CONTROLLER_PATH = path.join(ROOT, "ui", "server", "controllers", "prototype-traceability.controller.js");
 const CSS_PATH = path.join(ROOT, "ui", "public", "css", "design", "14-prototype-element-map.css");
@@ -126,7 +130,7 @@ test("EP-06.05: mapeamento de elementos visuais para arquivos e componentes", as
     };
 
     const mapping = await renderElementMapping({
-      slug: "saude-dispensacao",
+      slug: fixture.slug,
       protoId: "dis-modular",
       screenId: "home",
       node: { nodeId: "node-2", pid: "p-2" },
@@ -134,7 +138,7 @@ test("EP-06.05: mapeamento de elementos visuais para arquivos e componentes", as
       fetchImpl,
     });
 
-    assert.match(requestedUrl, /\/api\/project\/saude-dispensacao\/design\/prototypes\/dis-modular\/traceability\?/);
+    assert.match(requestedUrl, new RegExp(`/api/project/${fixture.slug}/design/prototypes/dis-modular/traceability\\?`));
     assert.match(requestedUrl, /nodeId=node-2/);
     assert.equal(mapping.componentId, "dis.header");
     assert.ok(host.innerHTML.includes("screens/home.html"));
@@ -145,7 +149,7 @@ test("EP-06.05: mapeamento de elementos visuais para arquivos e componentes", as
     const host = createHost();
     const fetchImpl = async () => ({ ok: false, status: 404, json: async () => ({ error: "No nao encontrado." }) });
     const mapping = await renderElementMapping({
-      slug: "saude-dispensacao",
+      slug: fixture.slug,
       protoId: "dis-modular",
       screenId: "home",
       node: { nodeId: "node-fantasma" },
@@ -171,14 +175,14 @@ test("EP-06.05: mapeamento de elementos visuais para arquivos e componentes", as
       return { statusCode, body };
     }
 
-    const okResponse = await call("/api/project/saude-dispensacao/design/prototypes/dis-modular/traceability?screenId=home&nodeId=node-2");
+    const okResponse = await call(`/api/project/${fixture.slug}/design/prototypes/dis-modular/traceability?screenId=home&nodeId=node-2`);
     assert.equal(okResponse.statusCode, 200);
     const json = JSON.parse(okResponse.body);
     assert.equal(json.ok, true);
     assert.equal(json.traceability.nodeId, "node-2");
     assert.equal(json.traceability.files.screen, "screens/home.html");
 
-    const badResponse = await call("/api/project/saude-dispensacao/design/prototypes/dis-modular/traceability?screenId=home");
+    const badResponse = await call(`/api/project/${fixture.slug}/design/prototypes/dis-modular/traceability?screenId=home`);
     assert.equal(badResponse.statusCode, 400);
     assert.match(badResponse.body, /nodeId/);
   });

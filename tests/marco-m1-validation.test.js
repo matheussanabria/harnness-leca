@@ -4,9 +4,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { getComponent, listRegistryComponents } from "../ui/server/services/design-registry.service.js";
 import { renderComponentPreview } from "../ui/server/services/design-preview.service.js";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 
-const projectDir = path.resolve(process.cwd(), "projects/saude-dispensacao");
+const fixture = createProjectFixture();
+const projectDir = fixture.dir;
 const dsDir = path.join(projectDir, "design", "ds");
+test.after(() => fixture.cleanup());
 
 test("EP-12.12: Homologação do Marco M1 (Extração Confiável de Componentes)", async (t) => {
   const components = listRegistryComponents(projectDir);

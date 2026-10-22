@@ -7,9 +7,12 @@ import { renderSandboxScreen } from "../ui/server/services/prototype-sandbox-ren
 import { mutateHtmlByPid } from "../ui/server/services/prototype-editor.service.js";
 import { mutateNodeProps } from "../ui/server/services/prototype-schema.service.js";
 import { validatePrototypeDefinition } from "../ui/server/services/prototype-validator.service.js";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 
 const REPO_ROOT = path.resolve(".");
-const SAUDE_DIR = path.join(REPO_ROOT, "projects", "saude-dispensacao");
+const fixture = createProjectFixture();
+const SAUDE_DIR = fixture.dir;
+test.after(() => fixture.cleanup());
 
 test("MARCO M2: Homologação do Protótipo Inspecionável (EP-12.21 a EP-12.24)", async (t) => {
   await t.test("M2.1 - Sandbox Renderer compila protótipo modular com CSP e isolamento", () => {

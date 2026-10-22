@@ -5,8 +5,15 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 
+const ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-export-context-root-"));
+process.env.HARNESS_ROOT = ROOT;
+const projectDir = path.join(ROOT, "projects", "dai");
+fs.mkdirSync(path.join(projectDir, "context"), { recursive: true });
+fs.writeFileSync(path.join(projectDir, "memory.md"), "- [2026-01-01] Memória curada de teste\n");
+fs.writeFileSync(path.join(projectDir, "context", "extraido-conversas.md"), `# Conversas\n\n${"Trecho de conversa que não deve vazar para o contexto exportado. ".repeat(3)}\n`);
+test.after(() => fs.rmSync(ROOT, { recursive: true, force: true }));
+
 const { run } = require("../tools/export-context");
-const { ROOT } = require("../tools/lib/root");
 
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];

@@ -9,8 +9,11 @@ import {
   hydrateNodePropsWithState,
   loadMockDataset,
 } from "../ui/server/services/prototype-state.service.js";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 
-const projectDir = path.resolve(process.cwd(), "projects/saude-dispensacao");
+const fixture = createProjectFixture();
+const projectDir = fixture.dir;
+test.after(() => fixture.cleanup());
 
 test("EP-12.15: Schema de Estado e Mocks de Dados Dinâmicos", async (t) => {
   await t.test("getValueByPath e setValueByPath manipulam objetos aninhados", () => {
