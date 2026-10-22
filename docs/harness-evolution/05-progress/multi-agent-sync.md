@@ -57,7 +57,7 @@ Ao terminar uma história, o chat responsável registra evidências e informa ao
 
 ---
 
-## 2. Visão Consolidada de Progresso (100/105 Entregas Concluídas)
+## 2. Visão Consolidada de Progresso (100/106 Entregas Concluídas)
 
 ```
 [EP-00] Auditoria e Arquitetura          [████████████████████] 100% (4/4)   - CONCLUÍDO
@@ -69,7 +69,7 @@ Ao terminar uma história, o chat responsável registra evidências e informa ao
 [EP-06] Studio, Código e Preview         [████████████████████] 100% (5/5)   - CONCLUÍDO
 [EP-07] Artefatos e Documentação         [████████████████████] 100% (5/5)   - CONCLUÍDO
 [EP-08] Agentes, Skills e Workflows      [████████████████████] 100% (5/5)   - CONCLUÍDO
-[EP-09] Central de Sessões & Orquestração[████████░░░░░░░░░░░░]  40% (2/5)   - EM ANDAMENTO
+[EP-09] Central de Sessões & Orquestração[███████░░░░░░░░░░░░░]  33% (2/6)   - EM ANDAMENTO
 [EP-10] Deploy e Datacenter              [████████████████████] 100% (5/5)   - CONCLUÍDO
 [EP-11] Auditoria e Qualidade            [████████████░░░░░░░░]  60% (3/5)   - EM ANDAMENTO
 [EP-12] Prototype Engine Multiframework  [████████████████████] 100% (32/32) - CONCLUÍDO (MARCO M3)
@@ -233,7 +233,7 @@ Em todo handoff, o produtor registra contrato, testes e limitações na históri
 | Teste `repo.check` leva cerca de 75 s e domina o pre-commit | opencode/qualidade | Aberta | Tirar o check completo de dentro da suíte (o pre-commit já roda `npm run check`). |
 | Bloco A do Jira: chamar `writeSummary` em `scrum-jira-sync.controller.js` (a mensagem do commit `c1b1c85` diz que regenera o panorama, o controller não faz) | opencode/jira | Aberta | Aplicar as 2 linhas, validar com `node --test tests/jira-query.test.js` e `npm run check`, e commitar. |
 | Basic Auth no adaptador do opencode (`OPENCODE_SERVER_PASSWORD`): hoje o `serve` roda sem senha e o adaptador não envia credencial | opencode/jira | Proposta | Registrar como história antes de implementar. |
-| Monitor de motores: detecção automática do opencode ao subir e estados de atividade dos demais motores | A definir | Proposta | Ver o desenho abaixo; exige história no EP-09 e ajuste do total do índice. |
+| Monitor de motores: detecção automática do opencode ao subir e estados de atividade dos demais motores | opencode/qualidade | História detalhada: [09.06](02-epics/EP-09-observabilidade/09.06-monitor-motores-atividade.md) | Aceitar a 09.06, esperar a 09.02 e implementar. O desenho abaixo virou a história. |
 | `prototype-atelier.js` com 277 linhas (meta de 250, teto de 300) | opencode/qualidade | Dívida | Dividir na próxima alteração do arquivo. |
 | `npm run types` vermelho por herança (EP-12 e módulos legados) | opencode/qualidade | Dívida | O baseline do 11.05 impede o crescimento; reduzir por módulo. |
 | HAR-012 fidelidade visual | A definir | Bloqueada | Depende da 11.04. |

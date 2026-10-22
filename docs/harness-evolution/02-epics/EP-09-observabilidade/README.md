@@ -59,7 +59,7 @@ O baseline técnico anterior à história 09.01 foi estabilizado: sync idempoten
 
 ## Histórias
 
-Os títulos abaixo substituem os títulos provisórios sem alterar a quantidade do backlog.
+Os títulos de 09.01 a 09.05 substituem os títulos provisórios sem alterar a quantidade do backlog. A 09.06 foi acrescentada em 2026-10-22 e eleva o backlog do programa de 105 para 106 histórias.
 
 | ID | Título | Dependências principais |
 |---|---|---|
@@ -68,6 +68,7 @@ Os títulos abaixo substituem os títulos provisórios sem alterar a quantidade 
 | [09.03](./09.03-central-lista-kanban.md) | Central pesquisável em lista e Kanban | 09.01, 09.02 |
 | [09.04](./09.04-navegacao-retomada.md) | Navegação, retomada e integração com Chat/Escritório | 02.06, 03.03, 09.03 |
 | [09.05](./09.05-atencao-aprovacoes.md) | Atenção necessária, notificações e fila de aprovações | 08.05, 09.02 |
+| [09.06](./09.06-monitor-motores-atividade.md) | Monitor de motores e estados de atividade | 09.01, 09.02 |
 
 
 ## Fora do escopo da primeira etapa
