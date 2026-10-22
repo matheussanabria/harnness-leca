@@ -220,3 +220,29 @@ Em todo handoff, o produtor registra contrato, testes e limitações na históri
 |---|---|---|---|---|
 | **10.9 — LGPD nos comentários do Jira.** 199 das 473 issues do snapshot têm comentários com CPF de paciente e dados de servidores da Secretaria Municipal de Saúde. | `opencode/jira` | 05.07 | **Nenhum MCP ou rotina devolve comentários do Jira a um agente em nuvem sem decisão do PM.** A redação de CPF, CNS, e-mail e telefone é o padrão; `--raw` é uso local estrito e nunca entra em prompt, rotina ou MCP. | MCP de Jira, rotinas com comentários para agente externo e qualquer chamada do modelo à API do Jira |
 | **Escrita no Jira pelo quadro.** Movimentar um card no telão e gravar no Jira exige destino inequívoco (raia → transição), identidade do autor e reconciliação após timeout. | `opencode/jira` | 05.07 e diagnóstico `docs/harness-jira/01-diagnostico-integracao-jira.md` | Nenhuma escrita é gerada; o quadro continua local e o snapshot continua somente leitura para o agente. | Etapas 2 e 3 do diagnóstico (destino explícito + uma transição, com dry-run) |
+
+## 7. Pendências do orquestrador (2026-10-22)
+
+| Pendência | Dono | Estado | Próximo passo |
+|---|---|---|---|
+| 09.02 Event log e SSE: há commit `8fccaa1`, mas a caixa segue desmarcada | opencode/qualidade | Aberta | Conferir os critérios de aceite; aceitar ou listar o que falta. |
+| 09.04 e 09.05 | opencode/qualidade | Bloqueadas pela 09.02 | Detalhar a documentação sem implementar nada que dependa do stream. |
+| 11.04 Design System e inconsistências visuais | opencode/qualidade | Liberada (Studio commitado) | Iniciar quando a frente estiver livre. |
+| 11.05 Regressão automatizada | opencode/qualidade | Parcial: suíte e baseline de tipos commitados | Hook de pre-commit estável e aceite no índice. |
+| Teste `killTree` falha dentro do commit no terminal do PM (253 ms e 268 ms), mas passa isolado e sob carga | opencode/qualidade | Sem causa conhecida | Rodar `node --test --test-name-pattern=killTree tests/engines.claude.test.js` no terminal do PM e enviar o AssertionError. Até lá, os commits usam `HARNESS_SKIP_TESTS=1` depois de rodar a suíte. |
+| Teste `repo.check` leva cerca de 75 s e domina o pre-commit | opencode/qualidade | Aberta | Tirar o check completo de dentro da suíte (o pre-commit já roda `npm run check`). |
+| Bloco A do Jira: chamar `writeSummary` em `scrum-jira-sync.controller.js` (a mensagem do commit `c1b1c85` diz que regenera o panorama, o controller não faz) | opencode/jira | Aberta | Aplicar as 2 linhas, validar com `node --test tests/jira-query.test.js` e `npm run check`, e commitar. |
+| Basic Auth no adaptador do opencode (`OPENCODE_SERVER_PASSWORD`): hoje o `serve` roda sem senha e o adaptador não envia credencial | opencode/jira | Proposta | Registrar como história antes de implementar. |
+| Monitor de motores: detecção automática do opencode ao subir e estados de atividade dos demais motores | A definir | Proposta | Ver o desenho abaixo; exige história no EP-09 e ajuste do total do índice. |
+| `prototype-atelier.js` com 277 linhas (meta de 250, teto de 300) | opencode/qualidade | Dívida | Dividir na próxima alteração do arquivo. |
+| `npm run types` vermelho por herança (EP-12 e módulos legados) | opencode/qualidade | Dívida | O baseline do 11.05 impede o crescimento; reduzir por módulo. |
+| HAR-012 fidelidade visual | A definir | Bloqueada | Depende da 11.04. |
+
+Decisão do PM ainda necessária: 10.9 (LGPD nos comentários do Jira), descrita na seção 6.
+
+### Desenho proposto: monitor de motores
+
+- **Sinal:** presença do processo e da porta (opencode), existência e idade da sessão mais recente de cada motor e telemetria de execução do chat. O que já existe: `tools/lib/opencode-detect.js` (processo e porta), a descoberta somente leitura da 09.01 e `office-agent-state` (estados dos agentes no escritório).
+- **Estados:** lendo, planejando, pensando, executando, testando, aguardando resposta, hibernando e inativo. Hibernando e inativo vêm só de tempo sem interação, com limiares configuráveis (por exemplo 15 minutos e 2 horas).
+- **Regra:** estado ativo vem de evidência observada (processo, evento ou telemetria); sem evidência, o estado é inativo, nunca ativo por suposição.
+- **Cuidado:** a variável `OPENCODE_URL` fixa a porta e desliga a detecção automática; deve ficar indefinida para o opencode ser achado sozinho ao subir.
