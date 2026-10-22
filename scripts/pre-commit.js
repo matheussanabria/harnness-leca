@@ -4,12 +4,15 @@
 //   2. uma linha ADICIONADA tem um segredo de formato conhecido (chave de API, JWT, webhook, chave privada...).
 //      Exemplos e fixtures: ponha "allow-secret" num comentário da mesma linha;
 //   3. entra arquivo novo e o MAPA.md nao foi atualizado no mesmo commit (e o arquivo, sua pasta ou seu nome nao aparecem no mapa);
-//   4. `npm run check` ou `npm test` falham (pule os testes com HARNESS_SKIP_TESTS=1, ex.: commit só de documentação).
+//   4. o check de sintaxe/JSON dos arquivos staged falha;
+//   5. os testes afetados pelos arquivos staged falham (EP-14.02). Commit só de documentação pula os testes,
+//      assim como HARNESS_SKIP_TESTS=1. A suíte completa roda no pre-push e no CI.
 // Nunca imprime o segredo achado: só arquivo, linha e tipo.
 const { spawnSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { findSecrets } = require("../tools/lib/redact");
+const { affectedTests } = require("./lib/affected-tests");
 
 // Dados locais que nunca devem ir para o repositório (o que o .gitignore já exclui; aqui vale mesmo com `git add -f`).
 function forbiddenPath(rel) {
@@ -58,6 +61,21 @@ function scanDiff(diff) {
   return found;
 }
 
+// Mesmo check do `npm run check`, limitado aos arquivos staged: sintaxe dos .js e validade dos .json.
+function checkStaged(root, files) {
+  const problems = [];
+  for (const rel of files) {
+    const file = path.join(root, rel);
+    if (rel.endsWith(".js")) {
+      const r = spawnSync(process.execPath, ["--check", file], { encoding: "utf8" });
+      if (r.status !== 0) problems.push(`${rel}: ${(r.stderr || "").trim().split("\n").slice(0, 4).join(" | ")}`);
+    } else if (rel.endsWith(".json")) {
+      try { JSON.parse(fs.readFileSync(file, "utf8").replace(/^\uFEFF/, "")); } catch (e) { problems.push(`${rel}: JSON inválido (${e.message})`); }
+    }
+  }
+  return problems;
+}
+
 function git(args) {
   const r = spawnSync("git", args, { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
   if (r.status !== 0) throw new Error(`git ${args.join(" ")} falhou: ${(r.stderr || "").trim()}`);
@@ -84,29 +102,31 @@ function main() {
     process.exit(1);
   }
 
-  const run = (label, script) => {
-    const r = spawnSync(process.execPath, [path.join(root, ...script)], { stdio: "inherit" });
-    if (r.status !== 0) { console.error(`✖ ${label} falhou`); process.exit(1); }
-  };
-  run("npm run check", ["scripts", "check.js"]);
-  if (process.env.HARNESS_SKIP_TESTS === "1") console.log("(testes pulados: HARNESS_SKIP_TESTS=1)");
-  else {
-    const r = spawnSync(process.execPath, ["--test", "tests/*.test.js"], { stdio: "inherit" });
-    if (r.status !== 0) { console.error("✖ npm test falhou"); process.exit(1); }
+  const checkProblems = checkStaged(root, staged);
+  if (checkProblems.length) {
+    console.error("✖ check dos arquivos staged falhou:\n" + checkProblems.map((p) => `  - ${p}`).join("\n"));
+    process.exit(1);
   }
 
-  // EP-11.05: a suíte de regressão completa (índice mestre e dívida de tipos) só passa a
-  // barrar o commit quando o arquivo de ativação existe — depois que as outras frentes
-  // committed o que é delas. Antes disso, roda em modo informativo.
-  const enforced = fs.existsSync(path.join(root, "quality", "regression-enforced"));
-  if (enforced || process.env.HARNESS_REGRESSION === "1") {
-    const { runRegression } = require("./regressao");
-    const result = runRegression();
-    if (!result.ok) { console.error("✖ regressão falhou"); process.exit(1); }
-  } else {
-    console.log("(regressão completa em modo informativo: crie quality/regression-enforced para barrar o commit)");
+  if (process.env.HARNESS_SKIP_TESTS === "1") {
+    console.log("(testes pulados: HARNESS_SKIP_TESTS=1)");
+    return;
   }
+
+  const affected = affectedTests(staged);
+  if (affected.docsOnly) {
+    console.log("(testes pulados: commit só de documentação)");
+    return;
+  }
+  if (!affected.tests.length) {
+    console.log("(nenhum teste afetado)");
+    return;
+  }
+  if (affected.unmatched.length) console.log(`(sem mapa: ${affected.unmatched.join(", ")}; rodando contrato fixo)`);
+  console.log(`(testes afetados: ${affected.tests.length})`);
+  const r = spawnSync(process.execPath, ["--test", ...affected.tests], { stdio: "inherit" });
+  if (r.status !== 0) { console.error("✖ testes afetados falharam"); process.exit(1); }
 }
 
-module.exports = { missingFromMapa, forbiddenPath, addedLines, scanDiff };
+module.exports = { missingFromMapa, forbiddenPath, addedLines, scanDiff, checkStaged };
 if (require.main === module) main();

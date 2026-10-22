@@ -312,6 +312,13 @@ node --test tests/prototype-screen-decomposer.test.js # Testa decomposição de 
 node --test tests/prototype-reconstruction.test.js # Testa reconstrução completa do protótipo DIS modular
 ```
 
+| Caminho | Responsabilidade |
+|---|---|
+| `scripts/pre-commit.js` | Hook de pre-commit: dados locais, segredos, MAPA, check dos arquivos staged e testes afetados (EP-14.02). |
+| `scripts/lib/affected-tests.js` | Mapeia arquivo staged para testes por nome e por `require`/`import` direto; sem mapa, usa o contrato fixo. |
+| `.githooks/pre-push` | Roda a suíte completa no push (e a regressão completa quando `quality/regression-enforced` existe). |
+| `tests/affected-tests.test.js` | Regressão da seleção de testes afetados, do check restrito e do hook de pre-push. |
+
 ---
 
 ## 🏢 6. Escritório Virtual Imersivo DAI HQ (`ui/public/office.html`)
