@@ -5,4 +5,7 @@ export const das = {
   currentAuditData: null,
   auditFilterMode: "all", // 'all' | 'covered' | 'uncovered'
   auditSearchQuery: "",
+  auditEvidenceState: "all", // 'all' | 'planned' | 'generated' | 'executed' | 'approved'
+  auditEvidenceData: null,
+  auditSlug: "",
 };

@@ -1,0 +1,283 @@
+/* Secao de evidencias de teste da aba Auditoria (EP-11.01) */
+
+.audit-evidence-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.audit-evidence-toolbar .view-mode-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.audit-evidence-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 11.5px;
+  color: var(--mute);
+}
+
+.audit-evidence-summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.audit-evidence-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  color: #7dd3fc;
+  font-size: 11.5px;
+}
+
+.audit-evidence-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.audit-evidence-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  color: #cbd5f5;
+}
+
+.audit-evidence-state.is-planned {
+  border-color: rgba(148, 163, 184, 0.45);
+  background: rgba(148, 163, 184, 0.12);
+  color: #cbd5e1;
+}
+
+.audit-evidence-state.is-generated {
+  border-color: rgba(56, 189, 248, 0.45);
+  background: rgba(56, 189, 248, 0.12);
+  color: #7dd3fc;
+}
+
+.audit-evidence-state.is-executed {
+  border-color: rgba(234, 179, 8, 0.45);
+  background: rgba(234, 179, 8, 0.12);
+  color: #fcd34d;
+}
+
+.audit-evidence-state.is-approved {
+  border-color: rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.12);
+  color: #86efac;
+}
+
+.audit-evidence-row .audit-evidence-meta {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--mute);
+}
+
+.audit-evidence-missing {
+  font-size: 11.5px;
+  color: var(--mute);
+  font-style: italic;
+}
+
+.audit-evidence-row code {
+  font-size: 11px;
+  color: #a5b4fc;
+}
+
+.audit-evidence-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 4px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  background: rgba(99, 102, 241, 0.12);
+  color: #c7d2fe;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.audit-evidence-action.is-enabled:hover {
+  background: rgba(99, 102, 241, 0.26);
+}
+
+.audit-evidence-action.is-disabled {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: rgba(148, 163, 184, 0.08);
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+/* Quadro de Componentes x Auditoria (EP-11.03) */
+
+.audit-component-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.audit-component-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 11px 12px;
+  border-radius: 9px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.audit-component-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.audit-component-head h4 {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--text);
+}
+
+.audit-component-situation {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #cbd5f5;
+}
+
+.audit-component-situation.is-empty {
+  border-color: rgba(148, 163, 184, 0.4);
+  color: #cbd5e1;
+}
+
+.audit-component-situation.is-warning {
+  border-color: rgba(234, 179, 8, 0.45);
+  background: rgba(234, 179, 8, 0.1);
+  color: #fcd34d;
+}
+
+.audit-component-situation.is-running {
+  border-color: rgba(56, 189, 248, 0.45);
+  background: rgba(56, 189, 248, 0.1);
+  color: #7dd3fc;
+}
+
+.audit-component-situation.is-approved {
+  border-color: rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.1);
+  color: #86efac;
+}
+
+.audit-component-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--mute);
+}
+
+.audit-component-marks {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.audit-component-mark {
+  color: #475569;
+  font-size: 11px;
+}
+
+.audit-component-mark.is-done {
+  color: #86efac;
+}
+
+.audit-component-rules {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  color: #cbd5f5;
+}
+
+.audit-component-rule-state {
+  display: inline-block;
+  margin-right: 5px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #cbd5f5;
+}
+
+.audit-component-rule-state.is-generated {
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #7dd3fc;
+}
+
+.audit-component-rule-state.is-executed {
+  border-color: rgba(234, 179, 8, 0.45);
+  color: #fcd34d;
+}
+
+.audit-component-rule-state.is-approved {
+  border-color: rgba(34, 197, 94, 0.45);
+  color: #86efac;
+}
+
+.audit-component-no-rule {
+  color: var(--mute);
+  font-style: italic;
+}
+
+.audit-orphan-rules {
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--mute);
+}
+
+.audit-orphan-rules summary {
+  cursor: pointer;
+  color: #fcd34d;
+}
+
+.audit-orphan-rules ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  color: #cbd5f5;
+}

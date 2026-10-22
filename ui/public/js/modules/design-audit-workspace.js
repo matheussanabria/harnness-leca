@@ -4,6 +4,8 @@ import { copyToClipboard, showToast, autoGrow } from "../shared/dom.js";
 import { das } from "./design-audit-store.js";
 import { renderScorecards, renderRulesMatrix } from "./design-audit-matrix.js";
 import { renderLegacyAudit, renderActionPlan } from "./design-audit-legacy.js";
+import { renderEvidenceSection } from "./design-audit-evidence.js";
+import { renderComponentSection } from "./design-audit-components.js";
 
 /**
  * Renderiza o painel completo de auditoria.
@@ -18,15 +20,38 @@ export function renderAuditWorkspace(container, projectSlug, auditData) {
   }
 
   das.currentAuditData = auditData;
+  const slug = projectSlug || das.auditSlug || "";
+  das.auditSlug = slug;
 
   container.innerHTML = `
     <div class="audit-workspace-layout">
       ${renderScorecards(auditData.scorecards)}
       ${renderActionPlan(auditData.actionPlan || [])}
       ${renderRulesMatrix(auditData.rulesMatrix || [])}
+      <div class="audit-panel-box">
+        <div class="audit-panel-header">
+          <div>
+            <h3 style="margin:0;font-size:15px;color:var(--text)">Evidencias de teste por regra</h3>
+            <div style="font-size:11.5px;color:var(--mute);margin-top:2px">Quatro estados distintos: planejada, gerada, executada e aprovada. Somente evidencia aprovada conta como cobertura comprovada.</div>
+          </div>
+        </div>
+        <div id="auditEvidenceBody"></div>
+      </div>
+      <div class="audit-panel-box">
+        <div class="audit-panel-header">
+          <div>
+            <h3 style="margin:0;font-size:15px;color:var(--text)">Quadro de Componentes x Auditoria</h3>
+            <div style="font-size:11.5px;color:var(--mute);margin-top:2px">Cada componente com as regras de negocio que sustenta e o estado da evidencia dessas regras.</div>
+          </div>
+        </div>
+        <div id="auditComponentsBody"></div>
+      </div>
       ${renderLegacyAudit(auditData.legacyAudit || {})}
     </div>
   `;
+
+  if (slug) renderEvidenceSection(container, slug);
+  if (slug) renderComponentSection(container, slug);
 }
 
 // Binds globais

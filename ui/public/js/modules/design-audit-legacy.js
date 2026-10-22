@@ -22,7 +22,7 @@ export function renderLegacyAudit(legacyAudit = {}) {
 
   const badgeForParity = (par, pm) => {
     let tag = "";
-    if (pm) tag += `<span class="audit-tag tag-pm">⚠️ SEM DECISÃO PM</span> `;
+    if (pm) tag += `<span class="audit-tag tag-pm"><i class="fa-solid fa-triangle-exclamation"></i> SEM DECISÃO PM</span> `;
     switch (par) {
       case "igual":
         tag += `<span class="audit-tag tag-ok">= IGUAL AO LEGADO</span>`;
@@ -31,7 +31,7 @@ export function renderLegacyAudit(legacyAudit = {}) {
         tag += `<span class="audit-tag tag-dif">≠ DIFERENTE DE PROPÓSITO</span>`;
         break;
       case "falta":
-        tag += `<span class="audit-tag tag-falta">✕ FALTA NO NOVO</span>`;
+        tag += `<span class="audit-tag tag-falta"><i class="fa-solid fa-xmark"></i> FALTA NO NOVO</span>`;
         break;
       case "fora":
         tag += `<span class="audit-tag tag-fora">– FORA DE ESCOPO</span>`;
@@ -102,7 +102,7 @@ export function renderActionPlan(actions = []) {
     return `
       <div class="audit-panel-box">
         <div style="padding:24px;text-align:center;color:#22c55e">
-          ✨ Nenhum gap crítico identificado! Todos os itens auditados estão em conformidade.
+          <i class="fa-solid fa-circle-check"></i> Nenhum gap crítico identificado! Todos os itens auditados estão em conformidade.
         </div>
       </div>
     `;
@@ -112,7 +112,7 @@ export function renderActionPlan(actions = []) {
     <div class="audit-action-item priority-${act.priority.toLowerCase()}">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
         <div style="display:flex;gap:10px">
-          <span style="font-size:22px">${esc(act.icon || '🚀')}</span>
+          <span style="font-size:22px"><i class="fa-solid ${esc(act.icon || 'fa-robot')}"></i></span>
           <div>
             <div style="display:flex;align-items:center;gap:6px">
               <span class="priority-badge ${act.priority.toLowerCase()}">${esc(act.priority)}</span>
@@ -125,7 +125,7 @@ export function renderActionPlan(actions = []) {
           </div>
         </div>
         <button type="button" class="btn-card-action" onclick='sendActionPlanToChat(${JSON.stringify(act)})' title="Enviar esta tarefa para o Agente executar no Chat">
-          💬 Executar com Agente
+          <i class="fa-solid fa-comment"></i> Executar com Agente
         </button>
       </div>
     </div>
@@ -139,7 +139,7 @@ export function renderActionPlan(actions = []) {
           <div style="font-size:11.5px;color:var(--mute);margin-top:2px">Recomendações técnicas geradas pela auditoria para resolução rápida pelos Agentes DAI.</div>
         </div>
         <button type="button" class="btn-card-action" onclick="copyFullActionPlan()" title="Copiar plano completo de auditoria para o clipboard">
-          📋 Copiar Plano Completo
+          <i class="fa-solid fa-clipboard-list"></i> Copiar Plano Completo
         </button>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px">

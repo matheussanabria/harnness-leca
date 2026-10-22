@@ -19,7 +19,7 @@ export function renderScorecards(scorecards = {}) {
     <div class="audit-scorecards-grid">
       <div class="audit-scorecard">
         <div class="scorecard-top">
-          <span class="scorecard-title">🧪 Cobertura de Regras</span>
+          <span class="scorecard-title"><i class="fa-solid fa-flask"></i> Cobertura de Regras</span>
           <span class="scorecard-badge" style="background:${getColor(cov)}20;color:${getColor(cov)}">${cov}%</span>
         </div>
         <div class="scorecard-value">${scorecards.coveredRules || 0} <span class="scorecard-sub">/ ${scorecards.totalRules || 0} regras</span></div>
@@ -33,7 +33,7 @@ export function renderScorecards(scorecards = {}) {
 
       <div class="audit-scorecard">
         <div class="scorecard-top">
-          <span class="scorecard-title">🏛️ Paridade com Legado</span>
+          <span class="scorecard-title"><i class="fa-solid fa-landmark"></i> Paridade com Legado</span>
           <span class="scorecard-badge" style="background:${getColor(leg)}20;color:${getColor(leg)}">${leg}%</span>
         </div>
         <div class="scorecard-value">${(scorecards.legacyCounts?.igual || 0) + (scorecards.legacyCounts?.dif || 0)} <span class="scorecard-sub">/ ${scorecards.totalLegacy || 0} itens</span></div>
@@ -47,7 +47,7 @@ export function renderScorecards(scorecards = {}) {
 
       <div class="audit-scorecard">
         <div class="scorecard-top">
-          <span class="scorecard-title">🏗️ Conformidade Arquitetural</span>
+          <span class="scorecard-title"><i class="fa-solid fa-building"></i> Conformidade Arquitetural</span>
           <span class="scorecard-badge" style="background:${getColor(arch)}20;color:${getColor(arch)}">${arch}%</span>
         </div>
         <div class="scorecard-value">Clean Arch <span class="scorecard-sub">Core isolado</span></div>
@@ -61,7 +61,7 @@ export function renderScorecards(scorecards = {}) {
 
       <div class="audit-scorecard">
         <div class="scorecard-top">
-          <span class="scorecard-title">📐 Aderência Design System</span>
+          <span class="scorecard-title"><i class="fa-solid fa-pen-ruler"></i> Aderência Design System</span>
           <span class="scorecard-badge" style="background:${getColor(ds)}20;color:${getColor(ds)}">${ds}%</span>
         </div>
         <div class="scorecard-value">Design System <span class="scorecard-sub">Tokens & UI</span></div>
@@ -103,15 +103,15 @@ export function renderRulesMatrix(rules = []) {
     switch (st) {
       case "auto":
       case "unit":
-        return `<span class="audit-tag tag-auto">✓ ${esc(st.toUpperCase())}</span>`;
+        return `<span class="audit-tag tag-auto"><i class="fa-solid fa-check"></i> ${esc(st.toUpperCase())}</span>`;
       case "bdd":
-        return `<span class="audit-tag tag-bdd">✓ BDD</span>`;
+        return `<span class="audit-tag tag-bdd"><i class="fa-solid fa-check"></i> BDD</span>`;
       case "req":
-        return `<span class="audit-tag tag-req">✓ REQ/API</span>`;
+        return `<span class="audit-tag tag-req"><i class="fa-solid fa-check"></i> REQ/API</span>`;
       case "viz":
-        return `<span class="audit-tag tag-viz">👁️ VISUAL</span>`;
+        return `<span class="audit-tag tag-viz"><i class="fa-solid fa-eye"></i> VISUAL</span>`;
       default:
-        return `<span class="audit-tag tag-none">✕ SEM CENÁRIO</span>`;
+        return `<span class="audit-tag tag-none"><i class="fa-solid fa-xmark"></i> SEM CENÁRIO</span>`;
     }
   };
 
@@ -129,7 +129,7 @@ export function renderRulesMatrix(rules = []) {
       </td>
       <td style="width:110px;text-align:right">
         <button type="button" class="btn-card-action" onclick="copyRuleTestPrompt('${esc(r.title)}', '${esc(r.telaNome)}')" title="Copiar prompt para o Agente gerar o teste">
-          🧪 Gerar Teste
+          <i class="fa-solid fa-flask"></i> Gerar Teste
         </button>
       </td>
     </tr>
