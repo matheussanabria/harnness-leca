@@ -92,7 +92,7 @@ function json(res) {
 }
 
 test("deploy-timeline: normalizacao das tres fontes", () => {
-  assert.deepEqual([...KINDS], ["webhook", "pipeline", "saude"]);
+  assert.deepEqual([...KINDS], ["webhook", "pipeline", "saude", "acao"]);
 
   const webhook = normalizeWebhook({ projectId: "web", envId: "prod", ok: true, status: 200, durationMs: 10, webhookMasked: "http://host/api?token=abcd...3456" });
   assert.equal(webhook.kind, "webhook");
@@ -113,7 +113,7 @@ test("deploy-timeline: linha do tempo reune as fontes e ordena por instante", ()
   const timeline = buildTimeline({});
   assert.equal(timeline.ok, true);
   assert.equal(timeline.entries.length, 3);
-  assert.deepEqual(timeline.totals, { webhook: 1, pipeline: 1, saude: 1, total: 3, returned: 3 });
+  assert.deepEqual(timeline.totals, { webhook: 1, pipeline: 1, saude: 1, acao: 0, total: 3, returned: 3 });
   const instantes = timeline.entries.map((entry) => entry.at);
   assert.deepEqual(instantes, [...instantes].sort().reverse());
 });

@@ -8,7 +8,8 @@ const { maskWebhook } = require("./deploy-config.service");
 const WEBHOOK_HISTORY_REL = path.join("global", "deploy-history.json");
 const PIPELINE_RUNS_REL = path.join("global", "deploy-pipeline-runs.jsonl");
 const HEALTH_RUNS_REL = path.join("global", "deploy-health-runs.jsonl");
-const KINDS = Object.freeze(["webhook", "pipeline", "saude"]);
+const ACTIONS_REL = path.join("global", "deploy-actions.jsonl");
+const KINDS = Object.freeze(["webhook", "pipeline", "saude", "acao"]);
 const DEFAULT_LIMIT = 60;
 const MAX_LIMIT = 200;
 
@@ -123,6 +124,23 @@ function normalizeHealth(item) {
   };
 }
 
+function normalizeAction(item) {
+  return {
+    at: String(item?.at || ""),
+    kind: "acao",
+    projectId: String(item?.projectId || ""),
+    projectName: String(item?.actionType || ""),
+    envId: String(item?.envId || ""),
+    envName: "",
+    status: item?.ok ? "sucesso" : "falha",
+    ok: Boolean(item?.ok),
+    durationMs: Number(item?.durationMs) || 0,
+    summary: `${item?.actionId || "acao"} · ${item?.actor || ""}`.trim(),
+    detail: String(item?.detail || ""),
+    reference: String(item?.id || ""),
+  };
+}
+
 /**
  * Constroi a linha do tempo unificada.
  * @param {{ projectId?: string, envId?: string, kind?: string, status?: string, limit?: number }} [filters]
@@ -132,11 +150,13 @@ function buildTimeline(filters = {}) {
   const webhooks = readJsonArray(WEBHOOK_HISTORY_REL, "Historico de deploys");
   const pipelines = readJsonLines(PIPELINE_RUNS_REL, "Historico de pipelines");
   const health = readJsonLines(HEALTH_RUNS_REL, "Historico de medicoes");
+  const actions = readJsonLines(ACTIONS_REL, "Historico de acoes");
 
   let entries = [
     ...webhooks.items.map(normalizeWebhook),
     ...pipelines.items.map(normalizePipeline),
     ...health.items.map(normalizeHealth),
+    ...actions.items.map(normalizeAction),
   ];
   entries.sort((a, b) => String(b.at).localeCompare(String(a.at)));
 
@@ -155,13 +175,14 @@ function buildTimeline(filters = {}) {
     webhook: entries.filter((entry) => entry.kind === "webhook").length,
     pipeline: entries.filter((entry) => entry.kind === "pipeline").length,
     saude: entries.filter((entry) => entry.kind === "saude").length,
+    acao: entries.filter((entry) => entry.kind === "acao").length,
   };
   return {
     ok: true,
     entries: entries.slice(0, limit),
     totals: { ...totals, total: entries.length, returned: Math.min(entries.length, limit) },
     kinds: KINDS,
-    warnings: [...webhooks.warnings, ...pipelines.warnings, ...health.warnings],
+    warnings: [...webhooks.warnings, ...pipelines.warnings, ...health.warnings, ...actions.warnings],
   };
 }
 
@@ -172,10 +193,12 @@ module.exports = {
   WEBHOOK_HISTORY_REL,
   PIPELINE_RUNS_REL,
   HEALTH_RUNS_REL,
+  ACTIONS_REL,
   readJsonArray,
   readJsonLines,
   normalizeWebhook,
   normalizePipeline,
   normalizeHealth,
+  normalizeAction,
   buildTimeline,
 };

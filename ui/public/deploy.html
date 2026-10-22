@@ -119,6 +119,24 @@
 
 
 
+  <!-- Seção de Ações Autorizadas -->
+  <div class="history-section">
+    <div class="history-header">
+      <h3>
+        <span><i class="fa-solid fa-user-check"></i></span>
+        <span>Ações Autorizadas</span>
+      </h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn-secondary" onclick="reloadActions()" style="font-size:12px;padding:4px 10px">
+          <i class="fa-solid fa-rotate"></i> Atualizar
+        </button>
+      </div>
+    </div>
+    <div id="actionsPanel" class="actions-panel">
+      <!-- Renderizado dinamicamente por js/deploy/deploy-actions.js -->
+    </div>
+  </div>
+
   <!-- Seção de Histórico e Logs -->
   <div class="history-section">
     <div class="history-header">

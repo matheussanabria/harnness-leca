@@ -544,6 +544,8 @@ Fora deste repositório (workspace `C:/Users/matheuss.rodrigues/git/57multimarca
 | `tests/routine-http.test.js` | Cobre endpoints de rotinas, aprovações, decisão e histórico, com loopback, erros, rotas registradas e limites de arquivo (EP-08.05). |
 | `tests/routine-ui.test.js` | Cobre a aba Rotinas da interface: aba registrada, despacho em `design.js`, folha de estilo, FontAwesome e ausência de emoji (EP-08.05). |
 | `tests/deploy-pipeline.test.js` | Cobre o modelo de pipeline, o manifesto, a execução por estágios com resultado real, a confirmação, o mascaramento do webhook, os endpoints e a estrutura (EP-10.01). |
+| `tests/deploy-actions.test.js` | Cobre o catálogo de ações, a autorização com prazo e uso único, a confirmação, o dry run, a execução e a estrutura (EP-10.04). |
+| `tests/deploy-timeline.test.js` | Cobre a linha do tempo unificada, os filtros, o histórico corrompido, os logs por execução e a estrutura (EP-10.03). |
 | `tests/deploy-health.test.js` | Cobre o modelo de verificação, o manifesto, a verificação http e por comando, o agregado por ambiente, os endpoints e a estrutura (EP-10.02). |
 
 ## 11. Skills locais
