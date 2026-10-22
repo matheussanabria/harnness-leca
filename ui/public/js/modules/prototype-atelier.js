@@ -31,6 +31,10 @@ export function attachStudioSidebarToAtelier() {
   if (!host || !sidebar) return;
   host.appendChild(sidebar);
   state.isStudioMode = true;
+  // Recolhimento é persistido: reaplica o estado minimizado ao reabrir o Ateliê.
+  const collapsed = Boolean(document.querySelector(".proto-col-chat.collapsed"));
+  document.body.classList.toggle("studio-chat-minimized", collapsed);
+  window.updateMiniChatWidget?.();
   if (window.syncStudioControls) window.syncStudioControls();
   if (window.renderChatHistory) window.renderChatHistory();
   if (window.updateEngineAuthBadge) window.updateEngineAuthBadge();
@@ -40,9 +44,13 @@ export function detachStudioSidebarFromAtelier() {
   const sidebar = $("studioSidebar");
   const workspace = $("studioWorkspace");
   if (sidebar && workspace && sidebar.parentElement !== workspace) workspace.prepend(sidebar);
+  // O minimizado do Ateliê não pode vazar para o Studio nem para o painel.
+  document.body.classList.remove("studio-chat-minimized");
 }
 
 export async function renderPrototypeAtelier(container, slug, protoId, options = {}) {
+  // Devolve o chat ao Studio antes de o innerHTML apagar o #atelierChatHost (senão o chat some).
+  detachStudioSidebarFromAtelier();
   currentSlug = slug;
   currentProtoId = protoId;
   const legacyList = Array.isArray(options) ? options : [];
@@ -76,6 +84,7 @@ export async function renderPrototypeAtelier(container, slug, protoId, options =
 }
 
 function renderAtelierLayout(container) {
+  detachStudioSidebarFromAtelier();
   container.innerHTML = renderAtelierHtml({
     slug: currentSlug,
     prototypeId: currentProtoId,

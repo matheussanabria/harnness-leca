@@ -5,6 +5,7 @@ import { state, saveActiveChatState } from "../shared/state.js";
 import { ENGINES, cs } from "./chat-store.js";
 import { openInteractiveChat } from "./chat-stream-ui.js";
 import { isChatStreamingFor } from "./chat-execution-store.js";
+import { setPanelCollapsed } from "./prototype-workspace-layout.js";
 
 export function scheduleDebouncedChatSave() {
   if (cs.chatSaveDebounceTimer) clearTimeout(cs.chatSaveDebounceTimer);
@@ -138,15 +139,14 @@ export function dismissMiniChat() {
 export function minimizeCurrentChat(origin = "") {
   const host = $("atelierChatHost");
   const inAtelier = host && host.contains($("studioSidebar"));
-  const detectedOrigin = origin || (inAtelier ? "atelier" : state.isStudioMode ? "studio" : "dialog");
+  // O chat reutilizado dentro do Ateliê tem prioridade: o cabeçalho dele chama com origem "studio".
+  const detectedOrigin = inAtelier ? "atelier" : origin || (state.isStudioMode ? "studio" : "dialog");
 
   cs.miniChatOrigin = detectedOrigin;
 
   if (detectedOrigin === "atelier") {
     const root = $("protoWorkspaceRoot");
-    if (root && window.togglePanelCollapse) {
-      window.togglePanelCollapse(root, "chat");
-    }
+    if (root) setPanelCollapsed(root, "chat", true);
     document.body.classList.add("studio-chat-minimized");
   } else if (detectedOrigin === "studio") {
     document.body.classList.add("studio-chat-minimized");
@@ -177,10 +177,7 @@ export function restoreChatFromMini() {
   if (origin === "atelier") {
     document.body.classList.remove("studio-chat-minimized");
     const root = $("protoWorkspaceRoot");
-    const chatCol = root?.querySelector(".proto-col-chat");
-    if (root && chatCol && chatCol.classList.contains("collapsed") && window.togglePanelCollapse) {
-      window.togglePanelCollapse(root, "chat");
-    }
+    if (root) setPanelCollapsed(root, "chat", false);
   } else if (origin === "studio") {
     document.body.classList.remove("studio-chat-minimized");
   } else {

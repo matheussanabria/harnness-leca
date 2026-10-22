@@ -122,6 +122,32 @@
 .source-editor-empty i { font-size: 30px; }
 .source-editor-footer { justify-content: space-between; min-height: 28px; border-top: 1px solid var(--line); border-bottom: 0; color: var(--mute); background: var(--panel); font-size: 10px; }
 
+/* Terceira coluna do Studio: chat | preview | código */
+.studio-source-col {
+  display: none;
+  width: 520px;
+  flex: 0 0 520px;
+  flex-direction: column;
+  border-left: 1px solid var(--line);
+}
+
+.studio-source-resizer { display: none; }
+
+body.studio-source-open #studioWorkspace .studio-source-col { display: flex; }
+body.studio-source-open #studioWorkspace .studio-source-resizer { display: block; }
+body.studio-source-open #studioWorkspace .studio-canvas { min-width: 280px; }
+
+.studio-source-col .source-explorer { width: 100%; min-width: 0; height: 34%; border-right: 0; border-bottom: 1px solid var(--line); }
+.studio-source-col .source-editor-pane { flex: 1; min-height: 0; }
+
+#studioWorkspace.mode-2telas .studio-source-col,
+#studioWorkspace.mode-2telas .studio-source-resizer { display: none !important; }
+
+@media (max-width: 768px) {
+  body.studio-source-open #studioWorkspace .studio-source-col,
+  body.studio-source-open #studioWorkspace .studio-source-resizer { display: none; }
+}
+
 @media (max-width: 700px) {
   .studio-source-workspace { flex-direction: column; }
   .source-explorer { width: 100%; min-width: 0; height: 34%; border-right: 0; border-bottom: 1px solid var(--line); }

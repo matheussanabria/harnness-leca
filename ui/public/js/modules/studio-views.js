@@ -4,6 +4,7 @@ import { $ } from "../shared/dom.js";
 import { state } from "../shared/state.js";
 import { sts } from "./studio-store.js";
 import { updateCompanionDetails } from "./studio-companion.js";
+import { isStudioSourceColumnOpen, setStudioSourceColumn, getStoredSourceColumnOpen } from "./studio-source-column.js";
 
 export const STUDIO_VIEW_MODES = {
   PREVIEW: "iframe",
@@ -47,17 +48,18 @@ export function canSwitchStudioView(targetMode) {
   const current = normalizeStudioViewMode(sts.currentStudioMode);
   const target = normalizeStudioViewMode(targetMode);
   if (current === target) return true;
-
-  if (current === STUDIO_VIEW_MODES.CODE) {
-    const appWindow = /** @type {any} */ (typeof window !== "undefined" ? window : globalThis);
-    if (appWindow.hasUnsavedStudioSource?.()) {
-      if (typeof window !== "undefined" && typeof window.confirm === "function") {
-        return window.confirm("Descartar as alterações manuais de código ainda não salvas?");
-      }
-      return false;
-    }
-  }
+  // O código vive em coluna própria; trocar a visão do preview não descarta o editor.
   return true;
+}
+
+function hasUnsavedSource() {
+  const appWindow = /** @type {any} */ (typeof window !== "undefined" ? window : globalThis);
+  return Boolean(appWindow.hasUnsavedStudioSource?.());
+}
+
+function confirmDiscardSource() {
+  if (typeof window === "undefined" || typeof window.confirm !== "function") return false;
+  return window.confirm("Descartar as alterações manuais de código ainda não salvas?");
 }
 
 /**
@@ -123,6 +125,15 @@ export async function loadStudioDesignContent(slug = state.activeProject) {
  */
 export function switchStudioView(targetMode, options = {}) {
   const mode = normalizeStudioViewMode(targetMode);
+
+  // Código é a terceira coluna (chat | preview | código): alterna sem trocar o modo do preview.
+  if (mode === STUDIO_VIEW_MODES.CODE) {
+    const open = !isStudioSourceColumnOpen();
+    if (!open && !options.force && hasUnsavedSource() && !confirmDiscardSource()) return false;
+    setStudioSourceColumn(open);
+    return true;
+  }
+
   if (!options.force && !canSwitchStudioView(mode)) {
     return false;
   }
@@ -140,23 +151,19 @@ export function switchStudioView(targetMode, options = {}) {
   const btnIframe = $("btnViewIframe");
   const btnCompanion = $("btnViewCompanion");
   const btnDesign = $("btnViewDesign");
-  const btnSource = $("btnViewSource");
 
   if (btnIframe) btnIframe.classList.toggle("active", mode === STUDIO_VIEW_MODES.PREVIEW);
   if (btnCompanion) btnCompanion.classList.toggle("active", mode === STUDIO_VIEW_MODES.COMPANION);
   if (btnDesign) btnDesign.classList.toggle("active", mode === STUDIO_VIEW_MODES.DESIGN);
-  if (btnSource) btnSource.classList.toggle("active", mode === STUDIO_VIEW_MODES.CODE);
 
   // Atualiza botões no drawer mobile se existirem
   const btnDrawerIframe = $("btnDrawerIframe");
   const btnDrawerCompanion = $("btnDrawerCompanion");
   const btnDrawerDesign = $("btnDrawerDesign");
-  const btnDrawerSource = $("btnDrawerSource");
 
   if (btnDrawerIframe) btnDrawerIframe.classList.toggle("active", mode === STUDIO_VIEW_MODES.PREVIEW);
   if (btnDrawerCompanion) btnDrawerCompanion.classList.toggle("active", mode === STUDIO_VIEW_MODES.COMPANION);
   if (btnDrawerDesign) btnDrawerDesign.classList.toggle("active", mode === STUDIO_VIEW_MODES.DESIGN);
-  if (btnDrawerSource) btnDrawerSource.classList.toggle("active", mode === STUDIO_VIEW_MODES.CODE);
 
   // Alterna classes de modo e visibilidade dos containers
   const ws = $("studioWorkspace");
@@ -164,14 +171,12 @@ export function switchStudioView(targetMode, options = {}) {
 
   const frameContainer = $("studioViewportContainer");
   const companionContainer = $("studioCompanionContainer");
-  const sourceContainer = $("studioSourceWorkspace");
   let designContainer = $("studioDesignWorkspace");
   const vpBar = $("canvasViewportBar");
   const banner = $("studio2TelasBanner");
 
   if (frameContainer) frameContainer.style.display = mode === STUDIO_VIEW_MODES.PREVIEW ? "flex" : "none";
   if (companionContainer) companionContainer.style.display = mode === STUDIO_VIEW_MODES.COMPANION ? "flex" : "none";
-  if (sourceContainer) sourceContainer.style.display = mode === STUDIO_VIEW_MODES.CODE ? "flex" : "none";
 
   if (mode === STUDIO_VIEW_MODES.DESIGN) {
     if (!designContainer) designContainer = mountStudioDesignWorkspace();
@@ -193,11 +198,6 @@ export function switchStudioView(targetMode, options = {}) {
   const appWindow = /** @type {any} */ (typeof window !== "undefined" ? window : globalThis);
   if (mode === STUDIO_VIEW_MODES.COMPANION) {
     updateCompanionDetails();
-  } else if (mode === STUDIO_VIEW_MODES.CODE) {
-    appWindow.loadStudioSourceWorkspace?.().then(() => {
-      const mountedSource = $("studioSourceWorkspace");
-      if (mountedSource) mountedSource.style.display = "flex";
-    });
   } else if (mode === STUDIO_VIEW_MODES.DESIGN) {
     loadStudioDesignContent();
   }
@@ -217,5 +217,8 @@ export function initStudioViews(preferredMode) {
       if (saved) mode = saved;
     } catch {}
   }
-  switchStudioView(mode || STUDIO_VIEW_MODES.PREVIEW, { force: true });
+  // Preferências antigas guardavam "source" como modo exclusivo: viram preview + coluna aberta.
+  const legacyCode = normalizeStudioViewMode(mode) === STUDIO_VIEW_MODES.CODE;
+  switchStudioView(legacyCode || !mode ? STUDIO_VIEW_MODES.PREVIEW : mode, { force: true });
+  if (legacyCode || getStoredSourceColumnOpen()) setStudioSourceColumn(true);
 }

@@ -8,7 +8,16 @@ globalThis.localStorage = {
   setItem: (key, value) => storage.set(key, String(value))
 };
 globalThis.window = globalThis;
+const bodyClasses = new Set();
 globalThis.document = {
+  body: {
+    classList: {
+      add: (c) => bodyClasses.add(c),
+      remove: (c) => bodyClasses.delete(c),
+      contains: (c) => bodyClasses.has(c),
+      toggle: (c, on) => { (on ?? !bodyClasses.has(c)) ? bodyClasses.add(c) : bodyClasses.delete(c); return bodyClasses.has(c); }
+    }
+  },
   getElementById: () => null,
   addEventListener: () => {},
   removeEventListener: () => {}
@@ -40,37 +49,47 @@ test("EP-06.03: normaliza aliases das visualizações Código, Design, Preview e
   assert.equal(normalizeStudioViewMode("companion"), STUDIO_VIEW_MODES.COMPANION);
 });
 
-test("EP-06.03: alterna a visualização e persiste a preferência por projeto", async () => {
-  window.loadStudioSourceWorkspace = () => Promise.resolve();
+test("EP-06.03: alterna a visualização do preview e persiste a preferência por projeto", () => {
   sts.currentStudioMode = STUDIO_VIEW_MODES.PREVIEW;
-
-  assert.equal(switchStudioView("code", { force: true }), true);
-  assert.equal(sts.currentStudioMode, STUDIO_VIEW_MODES.CODE);
-  assert.equal(storage.get(resolveViewStorageKey()), STUDIO_VIEW_MODES.CODE);
-
   assert.equal(switchStudioView("design", { force: true }), true);
   assert.equal(sts.currentStudioMode, STUDIO_VIEW_MODES.DESIGN);
-
-  storage.clear();
-  initStudioViews("code");
-  assert.equal(sts.currentStudioMode, STUDIO_VIEW_MODES.CODE);
+  assert.equal(storage.get(resolveViewStorageKey()), STUDIO_VIEW_MODES.DESIGN);
 });
 
-test("EP-06.04: alterações de código não salvas bloqueiam a troca de visualização", () => {
-  sts.currentStudioMode = STUDIO_VIEW_MODES.CODE;
+test("Studio: Código é a terceira coluna e não troca o modo do preview", () => {
+  window.loadStudioSourceWorkspace = () => Promise.resolve();
+  window.hasUnsavedStudioSource = () => false;
+  bodyClasses.clear();
+  sts.currentStudioMode = STUDIO_VIEW_MODES.PREVIEW;
+
+  assert.equal(switchStudioView("code"), true);
+  assert.equal(bodyClasses.has("studio-source-open"), true);
+  assert.equal(sts.currentStudioMode, STUDIO_VIEW_MODES.PREVIEW, "Preview permanece visível ao abrir o código");
+
+  assert.equal(switchStudioView("code"), true);
+  assert.equal(bodyClasses.has("studio-source-open"), false);
+});
+
+test("Studio: preferência antiga 'source' vira preview com a coluna de código aberta", () => {
+  bodyClasses.clear();
+  storage.clear();
+  initStudioViews("source");
+  assert.equal(sts.currentStudioMode, STUDIO_VIEW_MODES.PREVIEW);
+  assert.equal(bodyClasses.has("studio-source-open"), true);
+});
+
+test("EP-06.04: fechar a coluna com código não salvo exige confirmação", () => {
+  bodyClasses.clear();
+  bodyClasses.add("studio-source-open");
   window.hasUnsavedStudioSource = () => true;
 
   window.confirm = () => false;
-  assert.equal(canSwitchStudioView("preview"), false);
-  assert.equal(switchStudioView("preview"), false);
-  assert.equal(sts.currentStudioMode, STUDIO_VIEW_MODES.CODE, "Visualização original deve ser preservada");
+  assert.equal(switchStudioView("code"), false);
+  assert.equal(bodyClasses.has("studio-source-open"), true, "Coluna deve continuar aberta");
 
   window.confirm = () => true;
-  assert.equal(canSwitchStudioView("preview"), true);
+  assert.equal(switchStudioView("code"), true);
+  assert.equal(bodyClasses.has("studio-source-open"), false);
 
-  window.hasUnsavedStudioSource = () => false;
-  assert.equal(canSwitchStudioView("preview"), true);
-
-  sts.currentStudioMode = STUDIO_VIEW_MODES.PREVIEW;
-  assert.equal(canSwitchStudioView("preview"), true, "Trocar para o mesmo modo não exige confirmação");
+  assert.equal(canSwitchStudioView("design"), true, "Trocar o preview não descarta o editor");
 });

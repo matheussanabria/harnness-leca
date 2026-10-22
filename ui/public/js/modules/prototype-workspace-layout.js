@@ -84,6 +84,18 @@ export function togglePanelCollapse(root, panel) {
 }
 
 /**
+ * Define explicitamente o estado recolhido de um painel (idempotente).
+ * @param {HTMLElement} root
+ * @param {string} panel
+ * @param {boolean} collapsed
+ */
+export function setPanelCollapsed(root, panel, collapsed) {
+  if (!layoutState.collapsed.hasOwnProperty(panel)) return;
+  if (!!layoutState.collapsed[panel] === collapsed) return;
+  togglePanelCollapse(root, panel);
+}
+
+/**
  * Aplica as larguras e classes de colapso a todos os painéis.
  * @param {HTMLElement} root
  */

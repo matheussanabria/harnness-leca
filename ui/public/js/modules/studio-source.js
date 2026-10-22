@@ -18,11 +18,11 @@ const sourceState = {
 };
 
 function mountWorkspace() {
-  const wrapper = $("studioFrameWrapper");
-  if (!wrapper || $("studioSourceWorkspace")) return;
+  const host = $("studioWorkspace");
+  if (!host || $("studioSourceWorkspace")) return;
   const workspace = document.createElement("section");
   workspace.id = "studioSourceWorkspace";
-  workspace.className = "studio-source-workspace";
+  workspace.className = "studio-source-workspace studio-source-col";
   workspace.setAttribute("aria-label", "Editor de código-fonte");
   workspace.innerHTML = `
     <aside class="source-explorer">
@@ -58,7 +58,7 @@ function mountWorkspace() {
       </div>
       <div class="source-editor-footer"><span id="studioSourceStatus">Pronto</span><span id="studioSourcePosition">Ctrl+S para salvar</span></div>
     </div>`;
-  wrapper.appendChild(workspace);
+  host.appendChild(workspace);
 }
 
 async function responseJson(response) {
