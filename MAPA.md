@@ -21,7 +21,7 @@ harness-leca/
 │   └── <slug>/                # instructions.md, memory.md, chats/, context/, scheduled/
 ├── tools/                     # Scripts de CLI e automação do harness
 │   ├── sync.js                # Sincronização centralizada dos motores importados
-│   ├── export-context.js      # Exporta memórias e regras para o contexto dos agentes
+│   ├── export-context.js      # Fachada do export de memória curada para os motores (destinos em tools/lib/export/)
 │   ├── export-claude-sessions.js # Reidrata sessões do Claude Code (.jsonl) para claude --resume
 │   ├── import-codex-chats.js  # Importa sessões locais do Codex para os chats do Harness
 │   ├── import-ds-docs.js      # Recria o Design System (componentes, tokens e telas) a partir do dis-design-system.html
@@ -165,7 +165,7 @@ harness-leca/
 | **Processos Dev** | [`ui/public/js/modules/services.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/services.js) | Início/parada de servidores de desenvolvimento locais e stream de logs em modal. |
 | **Inspetor Angular** | [`ui/public/js/modules/inspector.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/inspector.js) | Modo inspetor visual no Studio com Ivy (`window.ng`), overlay de hover, atalho `Alt+I`, card de arquivos e injeção do bloco `<contexto-inspetor>` no chat. |
 | **Layout de Protótipos** | [`ui/public/js/modules/prototype-workspace-layout.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/prototype-workspace-layout.js) | Gerenciamento de painéis redimensionáveis (4 áreas), splitters com drag, collapse e persistência. |
-| **Catálogo de Protótipos** | `ui/public/js/modules/prototype-catalog.js` | Une artefatos HTML locais e protótipos editáveis do projeto, exibindo também componentes e boilerplates do MCP. |
+| **Catálogo de Protótipos** | `ui/public/js/modules/prototype-catalog.js` | Une artefatos HTML locais e protótipos editáveis do projeto, exibindo também componentes e boilerplates do MCP. Cada card tem botão de excluir (com confirmação). |
 | **Inventário de Artefatos** | [`ui/public/js/modules/design-artifacts.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/design-artifacts.js) | Aba Artefatos da Visão 360°: busca, filtro por tipo, resumo, tabela acessível, origem, acesso, prévia e botões de importação. |
 | **Importação de Artefatos (UI)** | [`ui/public/js/modules/design-artifacts-import.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/design-artifacts-import.js) | Envia arquivos e pastas em sequência com a origem, progresso, erros por arquivo e recarga do inventário. |
 | **Acesso de Artefatos (UI)** | [`ui/public/js/modules/design-artifacts-access.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/design-artifacts-access.js) | Alterna o artefato importado entre projeto e somente local, com confirmação e recarga da lista. |
@@ -173,7 +173,11 @@ harness-leca/
 | **Vínculos de Artefatos (UI)** | [`ui/public/js/modules/design-artifacts-relationships.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/design-artifacts-relationships.js) | Painel de tela/campo, adição, remoção, órfãos e abertura do Mapa na tela e no campo do vínculo. |
 | **Aba de Rotinas (UI)** | [`ui/public/js/modules/design-routines.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/design-routines.js) | Aba Rotinas da Visão 360°: catálogo de rotinas, execução idempotente, fila de aprovações com decisão e histórico do projeto (EP-08.05). |
 | **Chamadas da Aba de Rotinas** | [`ui/public/js/modules/design-routines-api.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/design-routines-api.js) | Cliente HTTP de rotinas, aprovações, decisão e histórico do projeto. |
-| **View do Ateliê** | `ui/public/js/modules/prototype-atelier-view.js` | Renderiza a composição visual do Ateliê; o controlador `prototype-atelier.js` conserva somente estado e eventos. |
+| **View do Ateliê** | `ui/public/js/modules/prototype-atelier-view.js` | Renderiza a composição visual do Ateliê; o controlador `prototype-atelier.js` conserva somente estado e eventos. Exporta opções de tela e lista de versões reutilizadas na atualização leve. |
+| **Chat do Ateliê (ponte do painel)** | `ui/public/js/modules/prototype-atelier-sidebar.js` | Anexa e devolve `#studioSidebar` ao Studio sem perder o painel em re-renders; guarda referência ao nó, reaplica o recolhimento e informa se o chat está dentro do Ateliê. |
+| **Atualização leve do protótipo** | `ui/public/js/modules/prototype-atelier.js` | Ao aplicar arquivos do chat, atualiza telas, versão e iframe no lugar, sem reescrever o layout do Ateliê (o chat e o inspetor permanecem). |
+| **Teste: chat do Ateliê** | `tests/prototype-atelier-chat.test.js` | Cobre devolução/reanexação do chat mesmo após o nó sair do documento. |
+| **Teste: preferências do chat** | `tests/chat-engine-settings.test.js` | Cobre persistência de motor, modelo e esforço em `localStorage`. |
 | **Mapa do Elemento** | `ui/public/js/modules/prototype-element-map.js` | Consulta a rastreabilidade do nó selecionado, normaliza arquivos/componente/frameworks, renderiza `#atelierElementMap` e injeta `<contexto-elemento arquivo=...>` no chat (EP-06.05). |
 | **Rastreabilidade de protótipo modular** | `ui/server/services/prototype-traceability-modular.service.js` | Resolve arquivo, classe `px-<pid>`, regra CSS e código (HTML/Angular/React) de um elemento por `data-pid` em protótipos com telas em arquivos HTML; reconhece componente extraído (proto.json) e componente do DS (classe `ds-x` vira `dis.x` no registry), lê o código real de React/Angular; usado por `prototype-traceability.service.js` quando `screens` é array. |
 | **Rota de desfazer componente** | `ui/server/controllers/prototype-component.controller.js` | `POST .../design/prototypes/:protoId/unextract-component` remove o componente do proto.json (via `removeComponentCandidate`), o elemento volta a ser só HTML + CSS. |
@@ -193,6 +197,11 @@ harness-leca/
 | **Teste: formatador de código** | `tests/prototype-code-format.test.js` | Cobre indentação de CSS/HTML, tags longas, blocos `pre`/`style` e idempotência. |
 | **CSS que atinge o elemento** | `ui/server/services/prototype-css-match.service.js` | Varre `design/ds/components.css` e `styles/proto.css` e devolve as regras que usam as classes do elemento (aba CSS do painel). |
 | **Teste: CSS que atinge o elemento** | `tests/prototype-css-match.test.js` | Cobre separação de blocos, casamento de classes sem confundir prefixos e junção de arquivos. |
+| **Exclusão de protótipo (serviço)** | `ui/server/services/prototype-delete.service.js` | `deletePrototype`: move a pasta do Ateliê para `design/prototypes/.trash/<id>-<timestamp>` (recuperável; o catálogo ignora pastas com ponto) e remove a entrada do `design/design.json`. Entrada de artefato sai só do índice; o HTML não é tocado. |
+| **Teste: exclusão de protótipo** | `tests/prototype-delete.test.js` | Cobre lixeira recuperável, remoção no design.json preservando o resto, artefato só por entrada, pasta sem entrada e ids inválidos. |
+| **Regras da exclusão (cliente)** | `ui/public/js/modules/prototype-delete-model.js` | Texto da confirmação, próximo item a abrir depois de excluir e URL da rota; sem DOM. |
+| **Diálogo de exclusão** | `ui/public/js/modules/prototype-delete-dialog.js` | Modal de confirmação próprio (Esc/Cancelar/Excluir), chama `POST .../prototypes/:id/delete` e avisa `harness:design-index-changed`. |
+| **Teste: regras da exclusão** | `tests/prototype-delete-model.test.js` | Cobre texto, escolha do próximo item e URL. |
 | **Teste: script de desenvolvimento** | `tests/dev-script.test.js` | Garante que `npm run ui:dev` e `ui:dev:remote` usam `node --watch` (sem dependência) e só observa pastas do servidor que existem. |
 | **Teste: realce de sintaxe** | `tests/prototype-code-highlight.test.js` | Cobre cores e escape do realce. |
 | **Painel: aba de código (modelo)** | `ui/public/js/modules/prototype-props-code-model.js` | Regras puras: abas, texto de cada aba e linhas de componente/arquivos. |
@@ -266,6 +275,12 @@ harness-leca/
 - [`tools/lib/dai.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/tools/lib/dai.js): Integração com o esquadrão DAI (17 agentes especialistas) e workflows.
 - [`tools/lib/network.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/tools/lib/network.js): Descoberta de IPs locais, geração de QR Code ASCII/SVG e proxies WebSocket.
 - [`tools/lib/proc-manager.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/tools/lib/proc-manager.js): Orquestrador de processos em background por projeto.
+- `tools/lib/export/managed-file.js`: Escrita não destrutiva do export (EP-13.01): bloco entre `harness:begin`/`harness:end`, reescrita só de arquivo com `harness:generated` e validação de caminho.
+- `tools/lib/export/claude.js`, `gemini.js`, `local.js`: Planejam o que o export grava em cada destino (ponteiro no `MEMORY.md` do Claude e Knowledge Item só com a memória curada).
+- `tools/lib/export/data.js`: Coleta `memory.md`, `instructions.md` e contagem de chats do projeto e resolve os diretórios de destino (injetáveis por variável de ambiente nos testes).
+- `tools/lib/export/housekeeping.js`: `--report` (bytes e tokens por destino) e `--prune` (lista arquivos antigos; só remove com `--yes`).
+- `tools/lib/memory/item.js`: Contrato do item de memória (EP-13.02): parse, serialização determinística, normalização, hash, slug e validação do frontmatter.
+- Testes: `tests/export-managed-file.test.js`, `tests/export-context.test.js` e `tests/memory-item.test.js`.
 
 ---
 
@@ -463,7 +478,7 @@ O `dis-design-system.html` carrega `window.DOCS` (código-fonte de cada componen
 | `docs/harness-evolution/09-activity-interface-deploy-index.md` | Índice multiagente das correções: ondas paralelas, ownership exclusivo, dependências, gates, handoffs e estimativas por camada. |
 | `docs/PLAN-commit-atomico.md` | Plano de fatiamento da worktree em 21 commits temáticos: diagnóstico, baseline, blocos, arquivos-hub, riscos e checkpoints. |
 | `docs/harness-evolution/implementation-progress.md` | Controle vivo por fase, evidências, pendências e próximo passo. |
-| `docs/harness-evolution/00-index.md` | Índice mestre do programa: 13 épicos (EP-00 a EP-12), dependências e backlog de entregas. |
+| `docs/harness-evolution/00-index.md` | Índice mestre do programa: 14 épicos (EP-00 a EP-13), dependências e backlog de entregas. |
 | `docs/harness-evolution/01-architecture/` | Estado atual (foco no escritório), arquitetura-alvo da apresentação compartilhada e mapa de dependências. |
 | `docs/harness-evolution/02-epics/EP-XX-*/README.md` | Objetivo, execução, entrega, aceite e histórias de cada épico (EP-00 a EP-12). |
 | `docs/harness-evolution/02-epics/EP-05-scrum/05-dev-notas.md` | Arquitetura das fontes reais do DIS, decisões de proveniência e evidências de validação. |
@@ -489,6 +504,8 @@ O `dis-design-system.html` carrega `window.DOCS` (código-fonte de cada componen
 | `docs/harness-evolution/02-epics/EP-02-chat/02.07-rolagem-ancorada.md` | Especificação e aceite de rolagem ancorada e botões nas 3 apresentações. |
 | `docs/harness-evolution/02-epics/EP-02-chat/02.08-sincronizacao-estados.md` | Especificação e aceite de sincronização com estados reais de execução e hardening. |
 | `docs/harness-evolution/02-epics/EP-01-window-manager/piloto-estacao-gemini.md` | Plano, aceite e riscos do piloto do Window Manager. |
+| `docs/harness-evolution/02-epics/EP-13-memoria-agentes/` | EP-13 Memória e conhecimento dos agentes: README, diagnóstico da memória atual (`00-diagnostico.md`), arquitetura-alvo em três camadas (`01-arquitetura-alvo.md`) e histórias 13.01 a 13.09. |
+| `docs/harness-evolution/03-decisions/ADR-009-memoria-um-fato-por-arquivo.md` | Decisão proposta: memória curada com um fato por arquivo, índice gerado e só a vitrine projetada para os motores. |
 | `docs/harness-evolution/03-decisions/README.md` | Índice de ADRs. |
 | `docs/harness-evolution/04-test-plans/README.md` | Índice de planos de teste e comandos. |
 | `docs/harness-evolution/05-progress/progress.md` | Status real por épico (60/104) e registro de entregas. |

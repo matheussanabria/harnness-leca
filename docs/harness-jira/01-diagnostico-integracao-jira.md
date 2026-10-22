@@ -205,7 +205,7 @@ Busca de cobertura (o que foi e o que não foi procurado): busca por `jira` em t
 
 ### 2.9 Limites de acesso e verificações executadas
 
-**[Fato]** Não foi inspecionada a instalação do Jira (sem credencial, sem rede autorizada); não foi lido nenhum arquivo de credencial; nenhum segredo foi impresso. O PAT do Jira vive em variável de ambiente fora do repositório, por decisão registrada em `.claude/context/saude-dispensacao.md:20`.
+**[Fato]** Não foi inspecionada a instalação do Jira (sem credencial, sem rede autorizada); não foi lido nenhum arquivo de credencial; nenhum segredo foi impresso. O PAT do Jira vive em variável de ambiente fora do repositório, por decisão registrada em `projects/saude-dispensacao/instructions.md:16`.
 
 Verificações locais **não destrutivas** executadas:
 
