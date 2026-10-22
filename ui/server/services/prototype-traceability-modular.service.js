@@ -72,6 +72,7 @@ function resolveModularTraceability(input, deps) {
       registryMeta: registered?.meta || null,
       manifest: registered?.manifest || null,
     },
+    outerHtml: outer,
     sources: sources.byPath,
     codeSource: { react18: sources.react?.path || null, angular18: sources.angular?.path || null },
     files: {

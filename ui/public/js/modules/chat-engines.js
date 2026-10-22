@@ -3,7 +3,7 @@
 import { $, esc, autoGrow } from "../shared/dom.js";
 import { state } from "../shared/state.js";
 import { updateMobileChatHeader } from "./mobile-chat.js";
-import { cs } from "./chat-store.js";
+import { cs, saveEngineSettings } from "./chat-store.js";
 import { chatPresentation } from "./chat-presentations.js";
 import { getEngineSession } from "./chat-session-store.js";
 
@@ -114,6 +114,7 @@ export function updateEngineControls() {
 export function onModelChange(val) {
   if (cs.currentEngine !== "compare") {
     cs.engineSettings[cs.currentEngine].model = val;
+    saveEngineSettings();
   }
   const stripModel = $("mobileStripModel");
   if (stripModel) stripModel.textContent = val;
@@ -126,6 +127,7 @@ export function onModelChange(val) {
 export function setEffort(lvl) {
   if (cs.currentEngine !== "compare") {
     cs.engineSettings[cs.currentEngine].effort = lvl;
+    saveEngineSettings();
     document.querySelectorAll(".effort-btn").forEach((btn) => {
       btn.classList.toggle("active", /** @type {HTMLElement} */ (btn).dataset.effort === lvl);
     });
@@ -204,6 +206,7 @@ export function updateCompareDesc() {
 export function switchEngine(eng) {
   cs.currentEngine = eng;
   state.currentEngine = eng;
+  saveEngineSettings();
   document.querySelectorAll(".eng-tab").forEach((tab) => {
     tab.classList.toggle("active", /** @type {HTMLElement} */ (tab).dataset.engine === eng);
   });

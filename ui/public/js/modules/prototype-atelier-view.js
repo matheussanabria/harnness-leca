@@ -2,11 +2,15 @@
 import { esc } from "../shared/dom.js";
 import { renderPrototypeCatalog } from "./prototype-catalog.js";
 
+export function renderScreenOptions(screens, activeScreen) {
+  return screens
+    .map((screen) => `<option value="${esc(screen.id)}" ${screen.id === activeScreen ? "selected" : ""}>${esc(screen.title || screen.id)}</option>`)
+    .join("");
+}
+
 export function renderAtelierHtml(model) {
   const screens = model.prototype.screens || [{ id: "home", title: "Início" }];
-  const screenOptions = screens.map((screen) =>
-    `<option value="${esc(screen.id)}" ${screen.id === model.activeScreen ? "selected" : ""}>${esc(screen.title || screen.id)}</option>`
-  ).join("");
+  const screenOptions = renderScreenOptions(screens, model.activeScreen);
   const catalog = renderPrototypeCatalog(model.catalog, model.prototypeId, model.components, model.mcpServer);
   const versions = renderVersions(model.versions, model.prototype.version);
 
@@ -46,7 +50,7 @@ export function renderAtelierHtml(model) {
         <div class="proto-panel-header proto-preview-header">
           <div class="proto-preview-heading">
             <span class="proto-preview-title"><i class="fa-solid fa-compass-drafting"></i> ${esc(model.prototype.title || model.prototypeId)}</span>
-            <span class="proto-card-badge">v${model.prototype.version || 1}</span>
+            <span class="proto-card-badge" id="atelierProtoVersionBadge">v${model.prototype.version || 1}</span>
             <label class="proto-screen-picker">Tela:
               <select id="atelierScreenSelect">${screenOptions}</select>
             </label>
@@ -108,7 +112,7 @@ function panelRail(panel, icon, title, buttonIcon) {
   return `<div class="proto-panel-rail"><button type="button" class="proto-panel-action-btn btn-expand-panel" data-panel="${panel}" title="Expandir"><i class="fa-solid ${buttonIcon}"></i></button><span class="rail-title-vertical"><i class="fa-solid ${icon}"></i> ${title}</span></div>`;
 }
 
-function renderVersions(versions, currentVersion) {
+export function renderVersions(versions, currentVersion) {
   if (!versions.length) return '<span class="proto-version-initial">v1 (Inicial)</span>';
   return versions.map((version) => `
     <button type="button" class="btn-restore-version btn-proto-vp" data-ver="${version.version}" title="${esc(version.message || "")} (${esc(version.createdAt || "")})">

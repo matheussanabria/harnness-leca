@@ -115,3 +115,19 @@ test("prototype-editor: preview, apply com fingerprint 409 e undo", () => {
   assert.equal(undoResult.ok, true);
   assert.match(memoryFs.get(norm(screenPath)), /Original/);
 });
+
+test("setHtml troca o componente inteiro, mantém o pid raiz e dá pid novo só aos elementos novos", () => {
+  const { mutateHtmlByPid } = require("../ui/server/services/prototype-editor.service");
+  const html = '<div data-pid="p-1"><section data-pid="p-2"><p data-pid="p-3">a</p></section><span data-pid="p-9">z</span></div>';
+  const out = mutateHtmlByPid(html, "p-2", { type: "setHtml", html: '<section><h2>t</h2><!-- <b> --><input value="x"/><p>b</p></section>' });
+  assert.equal(out, '<div data-pid="p-1"><section data-pid="p-2"><h2 data-pid="p-10">t</h2><!-- <b> --><input value="x" data-pid="p-11" /><p data-pid="p-12">b</p></section><span data-pid="p-9">z</span></div>');
+});
+
+test("setHtml preserva os pids que o HTML novo já traz e recusa mais de um elemento raiz", () => {
+  const { mutateHtmlByPid } = require("../ui/server/services/prototype-editor.service");
+  const html = '<div data-pid="p-1"><section data-pid="p-2"><p data-pid="p-3">a</p></section></div>';
+  const out = mutateHtmlByPid(html, "p-2", { type: "setHtml", html: '<section data-pid="p-2"><p data-pid="p-3">novo</p></section>' });
+  assert.match(out, /<p data-pid="p-3">novo<\/p>/);
+  assert.throws(() => mutateHtmlByPid(html, "p-2", { type: "setHtml", html: "<section>a</section><div>b</div>" }), /tags desbalanceadas/);
+  assert.throws(() => mutateHtmlByPid(html, "p-2", { type: "setHtml", html: "texto solto" }), /começar por um elemento/);
+});

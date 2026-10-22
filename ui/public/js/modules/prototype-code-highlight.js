@@ -6,7 +6,8 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 const KW = "import|export|from|as|const|let|var|function|return|if|else|for|while|new|class|extends|implements|type|interface|async|await|try|catch|finally|throw|of|in|typeof|void|null|undefined|true|false|this|default|switch|case|break|continue|readonly|private|public|protected|static|get|set|constructor|declare|enum|keyof";
 const RE_HTML = /(<!--[\s\S]*?-->)|(<\/?[A-Za-z][\w.:-]*)|(\/?>)|(\s[:@[\]()*#\w.-]+)(?==)|("[^"]*"|'[^']*')|(\{\{[\s\S]*?\}\})/g;
 const RE_JS = new RegExp("(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)|(`(?:\\\\.|[^`\\\\])*`)|('(?:\\\\.|[^'\\\\\\n])*'|\"(?:\\\\.|[^\"\\\\\\n])*\")|(<\\/?[A-Za-z][\\w.]*(?=[\\s>\\/]))|(\\b(?:" + KW + ")\\b)|(\\b\\d+(?:\\.\\d+)?\\b)|(@[A-Z]\\w*)", "g");
-const RE_CSS = /(\/\*[\s\S]*?\*\/)|("[^"]*"|'[^']*')|(@[\w-]+)|(--?[\w-]+)(?=\s*:)|(#[0-9a-fA-F]{3,8}\b|\b\d+(?:\.\d+)?(?:px|rem|em|%|s|ms|fr|vh|vw)?\b)/g;
+// Propriedade = nome inteiro (com hífens) logo depois de "{", ";" ou início da linha; número leva a unidade junto.
+const RE_CSS = /(\/\*[\s\S]*?\*\/)|("[^"]*"|'[^']*')|(@[\w-]+)|(?<=(?:^|[{;])\s*)(-{0,2}[a-zA-Z][\w-]*)(?=\s*:(?!:))|(#[0-9a-fA-F]{3,8}(?![\w-])|(?<![\w-])-?\d+(?:\.\d+)?(?:px|rem|em|%|ms|s|fr|vh|vw)?(?![\w-]))/gm;
 
 const HTML_CLS = ["", "tk-c", "tk-t", "tk-t", "tk-a", "tk-s", "tk-n"];
 const JS_CLS = ["", "tk-c", "", "tk-s", "tk-t", "tk-k", "tk-n", "tk-a"];

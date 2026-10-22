@@ -23,26 +23,56 @@ const RULES = `Você está no Ateliê de Protótipos do harness. Gere/edite o pr
 </arquivo>
 Caminhos permitidos: screens/<id>.html, styles/proto.css, data/*.json. Reescreva o arquivo inteiro quando alterá-lo. Depois dos blocos, explique em 1-2 frases o que mudou.`;
 
+/** Último contexto enviado ao motor: evita repetir regras e código a cada mensagem de uma sessão retomada. */
+let sent = null;
+
+/** Hash curto (djb2) para saber se o código do protótipo mudou desde o último envio. */
+function hashText(text) {
+  let h = 5381;
+  for (let i = 0; i < text.length; i += 1) h = ((h << 5) + h + text.charCodeAt(i)) | 0;
+  return String(h);
+}
+
+/** Esquece o que já foi enviado (próxima mensagem leva regras e código completos). */
+export function resetAtelierPromptState() {
+  sent = null;
+}
+
 /**
- * Prefixa o pedido do usuário com as regras e o código atual da tela.
+ * Monta o prompt do Ateliê. Sessão nova (ou outro protótipo): regras + código atual da tela.
+ * Sessão retomada: só o pedido, e o código apenas se a tela ou o arquivo mudou desde o último envio.
  * @param {string} text
+ * @param {{ resumed?: boolean }} [opts] resumed = o motor retoma uma sessão que já recebeu as regras
  * @returns {Promise<string>}
  */
-export async function wrapAtelierPrompt(text) {
+export async function wrapAtelierPrompt(text, opts = {}) {
   if (!active) return text;
   const { slug, protoId } = active;
   const screen = active.getScreen();
-  const mcpRule = active.mcpServer
-    ? `\n\nAntes de criar ou alterar markup, consulte o MCP ${active.mcpServer}. Use plan_screen para planejar e get_component_kit/get_boilerplate para reutilizar os componentes existentes; não invente componentes equivalentes.`
-    : "";
-  let current = "";
+  let html = "";
+  let css = "";
+  let loaded = false;
   try {
     const res = await fetch(`/api/project/${encodeURIComponent(slug)}/design/prototypes/${encodeURIComponent(protoId)}`);
     const data = await res.json();
     const f = data.files || {};
-    current = `\n\nProtótipo: ${protoId} (tela ativa: ${screen})\nCódigo atual:\n<arquivo caminho="screens/${screen}.html">\n${f[`screens/${screen}.html`] || ""}\n</arquivo>\n<arquivo caminho="styles/proto.css">\n${f["styles/proto.css"] || ""}\n</arquivo>`;
+    html = f[`screens/${screen}.html`] || "";
+    css = f["styles/proto.css"] || "";
+    loaded = true;
   } catch {}
-  return `${RULES}${mcpRule}${current}\n\nPedido do usuário:\n${text}`;
+  const hash = hashText(`${html}\u0000${css}`);
+  const fresh = !opts.resumed || !sent || sent.protoId !== protoId;
+  const changed = loaded && (fresh || sent.screen !== screen || sent.hash !== hash);
+  if (loaded) sent = { protoId, screen, hash };
+  else if (fresh) sent = null;
+  if (!fresh && !changed) return text;
+
+  const code = `Protótipo: ${protoId} (tela ativa: ${screen})\nCódigo atual:\n<arquivo caminho="screens/${screen}.html">\n${html}\n</arquivo>\n<arquivo caminho="styles/proto.css">\n${css}\n</arquivo>`;
+  if (!fresh) return `O protótipo mudou desde a última mensagem.\n${code}\n\nPedido do usuário:\n${text}`;
+  const mcpRule = active.mcpServer
+    ? `\n\nAntes de criar ou alterar markup, consulte o MCP ${active.mcpServer}. Use plan_screen para planejar e get_component_kit/get_boilerplate para reutilizar os componentes existentes; não invente componentes equivalentes.`
+    : "";
+  return `${RULES}${mcpRule}${loaded ? `\n\n${code}` : ""}\n\nPedido do usuário:\n${text}`;
 }
 
 /**

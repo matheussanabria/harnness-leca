@@ -67,6 +67,8 @@ async function apiAppPing({ res, url }) {
   }
 }
 
+const SSE_HEARTBEAT_MS = 15000;
+
 async function apiChat({ req, res }) {
   let body;
   try {
@@ -94,6 +96,14 @@ async function apiChat({ req, res }) {
     "X-Content-Type-Options": "nosniff",
     ...HEADERS,
   });
+  // Acesso remoto (túnel Cloudflare) devolve 524 se o servidor ficar ~100 s sem enviar bytes, o que acontece quando o motor
+  // "pensa" muito antes do primeiro texto (ex.: gerar um protótipo inteiro). Envia os cabeçalhos já e um comentário SSE de
+  // tempos em tempos; o cliente ignora linhas que não começam com "data: ".
+  res.flushHeaders?.();
+  const heartbeat = setInterval(() => {
+    if (!res.writableEnded && !res.destroyed) res.write(": ping\n\n");
+  }, SSE_HEARTBEAT_MS);
+  res.on("close", () => clearInterval(heartbeat));
   const sink = sseWriter(res, engine);
 
   // Pedidos de permissão do motor viram cartões no chat: cada conversa ganha um id que a ferramenta MCP usa para achar este stream.

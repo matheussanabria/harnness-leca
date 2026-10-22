@@ -62,6 +62,59 @@ function makeUnifiedDiff(fileName, oldText, newText) {
   ].join("\n");
 }
 
+
+/** Maior número N entre os data-pid="p-N" do documento. */
+function maxPidNumber(html) {
+  let max = 0;
+  for (const m of html.matchAll(/data-pid=["']p-(\d+)["']/g)) max = Math.max(max, Number(m[1]));
+  return max;
+}
+
+/**
+ * Dá data-pid novo (p-N+1, p-N+2...) aos elementos do trecho que ainda não têm um.
+ * Comentários, <script> e <style> ficam como estão.
+ */
+function assignMissingPids(fragment, startAfter) {
+  let next = startAfter;
+  const skip = /<!--[\s\S]*?-->|<(script|style)\b[\s\S]*?<\/\1\s*>/gi;
+  const tag = /<([a-zA-Z][\w-]*)((?:"[^"]*"|'[^']*'|[^'">])*)>/g;
+  const addPid = (chunk) => chunk.replace(tag, (m, name, attrs) => {
+    if (/\sdata-pid\s*=/i.test(attrs)) return m;
+    const selfClose = /\/\s*$/.test(attrs);
+    const base = selfClose ? attrs.replace(/\/\s*$/, "").trimEnd() : attrs;
+    next += 1;
+    return `<${name}${base} data-pid="p-${next}"${selfClose ? " /" : ""}>`;
+  });
+  let out = "";
+  let last = 0;
+  for (const m of fragment.matchAll(skip)) {
+    out += addPid(fragment.slice(last, m.index)) + m[0];
+    last = m.index + m[0].length;
+  }
+  return out + addPid(fragment.slice(last));
+}
+
+/** Troca o elemento inteiro (op setHtml): o raiz mantém o data-pid e os elementos novos ganham pid próprio. */
+function replaceNodeHtml(html, pid, range, rawHtml) {
+  const { sanitizeHtmlFragment } = require("./prototype-sanitizer.service");
+  const { findNodeRangeByPid } = require("./prototype-structural.service");
+  let fragment = sanitizeHtmlFragment(String(rawHtml || "")).trim();
+  if (!/^<[a-zA-Z]/.test(fragment)) throw new Error("O novo HTML precisa começar por um elemento.");
+  const rootTag = /^<([a-zA-Z][\w-]*)((?:"[^"]*"|'[^']*'|[^'">])*)>/.exec(fragment);
+  if (!rootTag) throw new Error("HTML do componente inválido.");
+  if (!/\sdata-pid\s*=/i.test(rootTag[2])) {
+    fragment = `<${rootTag[1]}${rootTag[2]} data-pid="${pid}">` + fragment.slice(rootTag[0].length);
+  }
+  const without = html.slice(0, range.startIndex) + html.slice(range.endIndex);
+  fragment = assignMissingPids(fragment, maxPidNumber(without));
+  const result = html.slice(0, range.startIndex) + fragment + html.slice(range.endIndex);
+  const check = findNodeRangeByPid(result, pid);
+  if (!check || check.startIndex !== range.startIndex || check.endIndex !== range.startIndex + fragment.length) {
+    throw new Error("O HTML enviado não fecha o elemento por inteiro (tags desbalanceadas).");
+  }
+  return result;
+}
+
 /**
  * Aplica mutação em memória no HTML baseado no data-pid.
  * @param {string} html
@@ -96,6 +149,8 @@ function mutateHtmlByPid(html, pid, op) {
     const replaced = isSelfClosing ? updatedTag : `${updatedTag}${innerContent}${closeTag}`;
     return html.slice(0, startIndex) + replaced + html.slice(endIndex);
   }
+
+  if (op.type === "setHtml") return replaceNodeHtml(html, pid, range, op.html);
 
   if (op.type === "setAttr") {
     const attrName = (op.name || "").toLowerCase().trim();
@@ -224,6 +279,7 @@ module.exports = {
   calculateFingerprint,
   makeUnifiedDiff,
   mutateHtmlByPid,
+  assignMissingPids,
   previewPrototypeEdit,
   applyPrototypeEdit,
   undoPrototypeEdit,

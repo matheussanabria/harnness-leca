@@ -14,7 +14,8 @@ import {
 } from "./studio-layout.js";
 
 export function toggleStudioMode(force) {
-  state.isStudioMode = force != null ? !!force : !state.isStudioMode;
+  // A classe do body é a fonte de verdade: o Ateliê move o chat do Studio e antes deixava state.isStudioMode "ligado" sem o modo estar ativo.
+  state.isStudioMode = force != null ? !!force : !document.body.classList.contains("studio-active");
   document.body.classList.toggle("studio-active", state.isStudioMode);
   const btn = $("btnToggleStudio");
   if (btn) {

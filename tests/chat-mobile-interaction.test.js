@@ -133,7 +133,8 @@ test("Chat minimizado compartilha renderização, anexos e streaming do chat pri
 
 test("Widget flutuante detecta o modal aberto sem interromper a atualização", () => {
   assert.match(miniJs, /const isModalOpen = Boolean\(dlg\?\.open\)/);
-  assert.match(miniJs, /isModalOpen \|\| isSidebarVisibleInStudio/);
+  assert.match(miniJs, /isModalOpen \|\| isSidebarVisible/);
+  assert.match(miniJs, /isSidebarInAtelier\(\)/);
 });
 
 test("Clique programático no input de arquivo não fecha o dialog", () => {

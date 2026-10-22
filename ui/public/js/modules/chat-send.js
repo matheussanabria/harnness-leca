@@ -155,7 +155,7 @@ export async function sendChatMessage(presentation = "main") {
                 if (data.fullText && !compTurn.responses[eng].text) {
                   compTurn.responses[eng].text = data.fullText;
                 }
-                if (state.isStudioMode && window.reloadStudioIframe) setTimeout(window.reloadStudioIframe, 350);
+                if (document.body.classList.contains("studio-active") && window.reloadStudioIframe) setTimeout(window.reloadStudioIframe, 350);
               }
             } catch {}
           }
@@ -212,7 +212,7 @@ export async function sendChatMessage(presentation = "main") {
       signal: ac.signal,
       body: JSON.stringify({
         engine: cs.currentEngine,
-        prompt: await wrapAtelierPrompt(promptText),
+        prompt: await wrapAtelierPrompt(promptText, { resumed: Boolean(getEngineSession(P.slug, chatId, cs.currentEngine)) }),
         slug: P.slug,
         sessionId: getEngineSession(P.slug, chatId, cs.currentEngine),
         history: state.chatTurns.slice(0, -2).map((t) => ({ role: t.role, text: t.text })),
@@ -272,7 +272,7 @@ export async function sendChatMessage(presentation = "main") {
             if (data.fullText && !assistantTurn.text) {
               assistantTurn.text = data.fullText;
             }
-            if (state.isStudioMode && window.reloadStudioIframe) setTimeout(window.reloadStudioIframe, 350);
+            if (document.body.classList.contains("studio-active") && window.reloadStudioIframe) setTimeout(window.reloadStudioIframe, 350);
           }
         } catch {}
       }

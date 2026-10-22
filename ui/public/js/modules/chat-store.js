@@ -30,3 +30,29 @@ export const cs = {
   continueChatFilter: "all",
   miniChatOrigin: "dialog",
 };
+
+const ENGINE_SETTINGS_KEY = "harness_chat_engine_settings";
+
+function loadEngineSettings() {
+  try {
+    const saved = JSON.parse(globalThis.localStorage?.getItem(ENGINE_SETTINGS_KEY) || "null");
+    if (!saved || typeof saved !== "object") return;
+    if (typeof saved.currentEngine === "string") cs.currentEngine = saved.currentEngine;
+    for (const [engine, settings] of Object.entries(saved.engineSettings || {})) {
+      if (!cs.engineSettings[engine] || !settings || typeof settings !== "object") continue;
+      cs.engineSettings[engine] = { ...cs.engineSettings[engine], ...settings };
+    }
+  } catch {}
+}
+
+/** Persiste motor, modelo e esforço para sobreviver a recargas e re-renders do Ateliê. */
+export function saveEngineSettings() {
+  try {
+    globalThis.localStorage?.setItem(
+      ENGINE_SETTINGS_KEY,
+      JSON.stringify({ currentEngine: cs.currentEngine, engineSettings: cs.engineSettings }),
+    );
+  } catch {}
+}
+
+loadEngineSettings();

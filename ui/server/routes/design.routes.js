@@ -34,7 +34,7 @@ const {
   apiPrototypesExportSingleHtml,
 } = require("../controllers/prototype.controller");
 const { apiPrototypeTraceability } = require("../controllers/prototype-traceability.controller");
-const { apiPrototypesUnextractComponent } = require("../controllers/prototype-component.controller");
+const { apiPrototypesUnextractComponent, apiPrototypesDelete } = require("../controllers/prototype-component.controller");
 
 const designRoutes = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/profile$/, handler: apiProjectDesignProfileGet },
@@ -63,6 +63,7 @@ const designRoutes = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/export\/single-html$/, handler: apiPrototypesExportSingleHtml },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/traceability$/, handler: apiPrototypeTraceability },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/unextract-component$/, handler: apiPrototypesUnextractComponent },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/delete$/, handler: apiPrototypesDelete },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/versions$/, handler: apiPrototypesVersionsGet },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/versions\/(\d+)\/restore$/, handler: apiPrototypesVersionRestore },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototype(?:\/([\w-]+)(?:\/(.*))?)?$/, handler: apiProjectDesignPrototype },

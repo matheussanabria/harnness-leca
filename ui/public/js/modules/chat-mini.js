@@ -6,6 +6,7 @@ import { ENGINES, cs } from "./chat-store.js";
 import { openInteractiveChat } from "./chat-stream-ui.js";
 import { isChatStreamingFor } from "./chat-execution-store.js";
 import { setPanelCollapsed } from "./prototype-workspace-layout.js";
+import { attachStudioSidebarToAtelier, isSidebarInAtelier } from "./prototype-atelier-sidebar.js";
 
 export function scheduleDebouncedChatSave() {
   if (cs.chatSaveDebounceTimer) clearTimeout(cs.chatSaveDebounceTimer);
@@ -20,8 +21,11 @@ export function updateMiniChatWidget() {
 
   const dlg = /** @type {any} */ ($("chatDlg"));
   const isModalOpen = Boolean(dlg?.open);
-  const isSidebarVisibleInStudio = state.isStudioMode && !document.body.classList.contains("studio-chat-minimized");
-  if (isModalOpen || isSidebarVisibleInStudio || !state.chatTurns.length || cs.isMiniChatDismissed) {
+  const minimized = document.body.classList.contains("studio-chat-minimized");
+  // Visível no Studio só com o modo ativo; dentro do Ateliê vale a posição real do painel.
+  const inStudio = state.isStudioMode && document.body.classList.contains("studio-active");
+  const isSidebarVisible = Boolean($("studioSidebar")) && !minimized && (inStudio || isSidebarInAtelier());
+  if (isModalOpen || isSidebarVisible || !state.chatTurns.length || cs.isMiniChatDismissed) {
     widget.style.display = "none";
     return;
   }
@@ -178,6 +182,7 @@ export function restoreChatFromMini() {
     document.body.classList.remove("studio-chat-minimized");
     const root = $("protoWorkspaceRoot");
     if (root) setPanelCollapsed(root, "chat", false);
+    attachStudioSidebarToAtelier();
   } else if (origin === "studio") {
     document.body.classList.remove("studio-chat-minimized");
   } else {

@@ -1,6 +1,5 @@
 // @ts-check
 import { $, showToast } from "../shared/dom.js";
-import { state } from "../shared/state.js";
 import { renderNodeEditForm } from "./prototype-edit-panel.js";
 import { updatePropsMetrics } from "./prototype-props-panel.js";
 import { applyEdit } from "./prototype-edit-api.js";
@@ -8,7 +7,8 @@ import { setAtelierChatContext } from "./prototype-chat-bridge.js";
 import { initWorkspaceLayout } from "./prototype-workspace-layout.js";
 import { initLayerTree, selectLayerNode } from "./prototype-layer-tree.js";
 import { bindPrototypeCatalog, buildPrototypeCatalog } from "./prototype-catalog.js";
-import { renderAtelierHtml } from "./prototype-atelier-view.js";
+import { renderAtelierHtml, renderScreenOptions, renderVersions } from "./prototype-atelier-view.js";
+import { attachStudioSidebarToAtelier, detachStudioSidebarFromAtelier } from "./prototype-atelier-sidebar.js";
 import { renderElementMapping } from "./prototype-element-map.js";
 import { bindCanvasMode, canvasHandleMessage, canvasPost, canvasReload, canvasSetInspector } from "./prototype-atelier-canvas.js";
 import { bindInspectorToggle, isInspectorOn, singleScreenMode } from "./prototype-inspector-toggle.js";
@@ -21,36 +21,11 @@ let currentVersions = [];
 let selectedNode = null;
 let activeViewportWidth = 1280;
 let allPrototypesList = [];
-let atelierOptions = { components: [], mcpServer: "", onSelect: null };
+let atelierOptions = { components: [], mcpServer: "", onSelect: null, onDelete: null };
 let bridgeListenerInstalled = false;
 let pendingSelectPid = "";
 
-export function attachStudioSidebarToAtelier() {
-  const host = $("atelierChatHost");
-  const sidebar = $("studioSidebar");
-  if (!host || !sidebar) return;
-  host.appendChild(sidebar);
-  state.isStudioMode = true;
-  // Recolhimento é persistido: reaplica o estado minimizado ao reabrir o Ateliê.
-  const collapsed = Boolean(document.querySelector(".proto-col-chat.collapsed"));
-  document.body.classList.toggle("studio-chat-minimized", collapsed);
-  window.updateMiniChatWidget?.();
-  if (window.syncStudioControls) window.syncStudioControls();
-  if (window.renderChatHistory) window.renderChatHistory();
-  if (window.updateEngineAuthBadge) window.updateEngineAuthBadge();
-}
-
-export function detachStudioSidebarFromAtelier() {
-  const sidebar = $("studioSidebar");
-  const workspace = $("studioWorkspace");
-  if (sidebar && workspace && sidebar.parentElement !== workspace) workspace.prepend(sidebar);
-  // O minimizado do Ateliê não pode vazar para o Studio nem para o painel.
-  document.body.classList.remove("studio-chat-minimized");
-}
-
 export async function renderPrototypeAtelier(container, slug, protoId, options = {}) {
-  // Devolve o chat ao Studio antes de o innerHTML apagar o #atelierChatHost (senão o chat some).
-  detachStudioSidebarFromAtelier();
   currentSlug = slug;
   currentProtoId = protoId;
   const legacyList = Array.isArray(options) ? options : [];
@@ -59,7 +34,10 @@ export async function renderPrototypeAtelier(container, slug, protoId, options =
     components: options.components || [],
     mcpServer: options.mcpServer || "",
     onSelect: typeof options.onSelect === "function" ? options.onSelect : null,
+    onDelete: typeof options.onDelete === "function" ? options.onDelete : null,
   };
+  // Devolve o chat ao Studio antes de o innerHTML apagar o #atelierChatHost (senão o chat some).
+  detachStudioSidebarFromAtelier();
   container.innerHTML = '<div class="proto-loading"><i class="fa-solid fa-spinner fa-spin"></i> Carregando Ateliê...</div>';
 
   try {
@@ -99,19 +77,44 @@ function renderAtelierLayout(container) {
   const root = $("protoWorkspaceRoot");
   if (root) initWorkspaceLayout(root);
   const catalog = document.querySelector(".proto-col-catalog");
-  if (catalog) bindPrototypeCatalog(catalog, navigateCatalog);
+  if (catalog) bindPrototypeCatalog(catalog, navigateCatalog, atelierOptions.onDelete);
   attachStudioSidebarToAtelier();
   setAtelierChatContext({
     slug: currentSlug,
     protoId: currentProtoId,
     getScreen: () => currentActiveScreen,
-    reload: () => renderPrototypeAtelier(container, currentSlug, currentProtoId, {
-      catalog: allPrototypesList,
-      ...atelierOptions,
-    }),
+    // Atualiza a tela sem reescrever o layout: o chat e o inspetor permanecem no lugar.
+    reload: () => void refreshAtelierPreview(),
     mcpServer: atelierOptions.mcpServer,
   });
   bindAtelierEvents(container);
+}
+
+/** Recarrega dados e preview do protótipo mantendo o DOM do Ateliê (e o chat) intacto. */
+async function refreshAtelierPreview() {
+  try {
+    const base = `/api/project/${encodeURIComponent(currentSlug)}/design/prototypes/${encodeURIComponent(currentProtoId)}`;
+    const [prototypeResponse, versionsResponse] = await Promise.all([fetch(base), fetch(`${base}/versions`)]);
+    if (prototypeResponse.ok) currentProtoData = (await prototypeResponse.json()).prototype || currentProtoData;
+    if (versionsResponse.ok) currentVersions = (await versionsResponse.json()).versions || [];
+    const screens = currentProtoData?.screens || [{ id: "home", title: "Início" }];
+    if (!screens.some((screen) => screen.id === currentActiveScreen)) {
+      currentActiveScreen = currentProtoData?.activeScreen || screens[0]?.id || "home";
+    }
+    const select = /** @type {HTMLSelectElement} */ ($("atelierScreenSelect"));
+    if (select) select.innerHTML = renderScreenOptions(screens, currentActiveScreen);
+    const versionBadge = $("atelierProtoVersionBadge");
+    if (versionBadge) versionBadge.textContent = `v${currentProtoData?.version || 1}`;
+    const versionsList = $("atelierVersionsList");
+    if (versionsList) {
+      versionsList.innerHTML = renderVersions(currentVersions, currentProtoData?.version);
+      bindVersionRestore();
+    }
+    pendingSelectPid = "";
+    reloadIframe();
+  } catch {
+    reloadIframe();
+  }
 }
 
 function navigateCatalog(id, kind) {
@@ -192,7 +195,7 @@ function bindVersionRestore() {
       try {
         const response = await fetch(`/api/project/${encodeURIComponent(currentSlug)}/design/prototypes/${encodeURIComponent(currentProtoId)}/versions/${version}/restore`, { method: "POST", headers: { "Content-Type": "application/json" } });
         showToast(response.ok ? `Versão v${version} restaurada.` : "Erro ao restaurar versão.");
-        if (response.ok) reloadIframe();
+        if (response.ok) await refreshAtelierPreview();
       } catch {
         showToast("Falha na requisição de restauração.");
       }
@@ -273,5 +276,5 @@ function reloadIframe() {
 
 function renderSelectedNodeDetails() {
   const panel = $("atelierNodeDetails");
-  if (panel && selectedNode) renderNodeEditForm(panel, currentSlug, currentProtoId, currentActiveScreen, selectedNode, reloadIframe, { post: postToPrototype, getScreen: () => currentActiveScreen });
+  if (panel && selectedNode) renderNodeEditForm(panel, currentSlug, currentProtoId, currentActiveScreen, selectedNode, reloadIframe, { post: postToPrototype, getScreen: () => currentActiveScreen, reselect: (pid) => { pendingSelectPid = pid; reloadIframe(); } });
 }

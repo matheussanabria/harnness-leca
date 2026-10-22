@@ -1,6 +1,7 @@
 // @ts-check
 import { $, showToast, esc } from "../shared/dom.js";
 import { mountPropsPanel } from "./prototype-props-panel.js";
+import { mountComponentPanel } from "./prototype-component-panel.js";
 import { notifyComponentChange } from "./prototype-element-map.js";
 
 let lastFingerprint = "";
@@ -13,7 +14,7 @@ let lastFingerprint = "";
  * @param {string} screenId
  * @param {object} node
  * @param {() => void} onApplySuccess
- * @param {{ post?: (message: object) => void, getScreen?: () => string }} [extras] ligação com o iframe (prévia ao vivo do painel de propriedades)
+ * @param {{ post?: (message: object) => void, getScreen?: () => string, reselect?: (pid: string) => void }} [extras] ligação com o iframe (prévia ao vivo do painel de propriedades)
  */
 export function renderNodeEditForm(panel, slug, protoId, screenId, node, onApplySuccess, extras = {}) {
   if (!panel || !node) return;
@@ -32,6 +33,9 @@ export function renderNodeEditForm(panel, slug, protoId, screenId, node, onApply
           PID: ${esc(node.pid)}
         </span>
       </div>
+
+      <!-- 1a. Propriedades do componente (campo, tabela, abas) -->
+      <div id="protoComponentHost"></div>
 
       <!-- 1b. Posição e Layout (estilo Figma) -->
       <div id="protoPropsHost"></div>
@@ -114,6 +118,11 @@ export function renderNodeEditForm(panel, slug, protoId, screenId, node, onApply
     slug, protoId, node,
     getScreen: extras.getScreen || (() => screenId),
     post: extras.post || (() => {}),
+  });
+  void mountComponentPanel(/** @type {HTMLElement | null} */ (panel.querySelector("#protoComponentHost")), {
+    slug, protoId, pid: node.pid,
+    getScreen: extras.getScreen || (() => screenId),
+    reselect: extras.reselect || (() => onApplySuccess()),
   });
   bindEditEvents(slug, protoId, screenId, node, onApplySuccess);
 }

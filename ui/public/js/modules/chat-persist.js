@@ -9,6 +9,7 @@ import { openInteractiveChat, setChatStatus, setStreamingUI } from "./chat-strea
 import { warnIfLocalInferenceUnsafe } from "./chat-hia-panel.js";
 import { renderChatHistory } from "./chat-render.js";
 import { getEngineSession, setEngineSession, activateEngineSessions, moveEngineSessions } from "./chat-session-store.js";
+import { isAtelierChatActive } from "./prototype-chat-bridge.js";
 
 // Motores que podem assinar um turno e assinar o cabeçalho da conversa.
 const ASSISTANT_ENGINES = new Set(["claude", "opencode", "gemini", "codex", "ollama"]);
@@ -86,7 +87,8 @@ export async function saveCurrentChat(auto = false) {
     }
 
     setChatStatus(auto ? `Salvo automaticamente em chats/${data.fileName}` : `Salvo com sucesso em chats/${data.fileName}!`);
-    if (window.load) await window.load(P.slug);
+    // Dentro do Ateliê, recarregar o projeto inteiro reescreveria o chat; a tela já foi atualizada localmente.
+    if (!isAtelierChatActive() && window.load) await window.load(P.slug);
   } catch (err) {
     setChatStatus(`Erro ao salvar${auto ? " automaticamente" : ""}: ${err.message}`);
     if (auto) return;

@@ -1,9 +1,13 @@
 // @ts-check
 import { esc, $ } from "../shared/dom.js";
 import { renderPrototypeAtelier } from "./prototype-atelier.js";
+import { parkStudioSidebar } from "./prototype-atelier-sidebar.js";
 import { bindPrototypeCatalog, buildPrototypeCatalog, renderPrototypeCatalog } from "./prototype-catalog.js";
+import { pickAfterDelete } from "./prototype-delete-model.js";
+import { deletePrototypeWithConfirm } from "./prototype-delete-dialog.js";
 
 let activeWorkspace = null;
+let currentOpenId = "";
 
 export function loadPrototypeInFrame(projectSlug, protoId, title = "") {
   const frame = /** @type {HTMLIFrameElement} */ ($("designPrototypeIframe"));
@@ -12,7 +16,7 @@ export function loadPrototypeInFrame(projectSlug, protoId, title = "") {
   if (label) label.textContent = title ? `Visualizando: ${title}` : `Protótipo: ${protoId}`;
 }
 
-export async function renderPrototypesWorkspace(container, projectSlug, artifacts = [], components = [], designSystem = {}) {
+export async function renderPrototypesWorkspace(container, projectSlug, artifacts = [], components = [], designSystem = {}, initial = null) {
   let editable = [];
   try {
     const response = await fetch(`/api/project/${encodeURIComponent(projectSlug)}/design/prototypes`);
@@ -25,7 +29,8 @@ export async function renderPrototypesWorkspace(container, projectSlug, artifact
     renderEmptyWorkspace(container, projectSlug);
     return;
   }
-  openCatalogItem(catalog[0].id, catalog[0].kind);
+  const first = (initial && catalog.find((item) => item.id === initial.id && item.kind === initial.kind)) || catalog[0];
+  openCatalogItem(first.id, first.kind);
 }
 
 function openCatalogItem(protoId, kind) {
@@ -33,6 +38,7 @@ function openCatalogItem(protoId, kind) {
   const { container, projectSlug, catalog, components, designSystem } = activeWorkspace;
   const selected = catalog.find((item) => item.id === protoId && item.kind === kind);
   if (!selected) return;
+  currentOpenId = protoId;
 
   if (kind === "atelier") {
     renderPrototypeAtelier(container, projectSlug, protoId, {
@@ -40,6 +46,7 @@ function openCatalogItem(protoId, kind) {
       components,
       mcpServer: designSystem?.mcpServer || "",
       onSelect: openCatalogItem,
+      onDelete: deleteCatalogItem,
     });
     return;
   }
@@ -47,6 +54,7 @@ function openCatalogItem(protoId, kind) {
 }
 
 function renderArtifactWorkspace(container, projectSlug, selected, catalog, components, designSystem) {
+  parkStudioSidebar(); // o innerHTML abaixo apagaria o chat se ele ainda estivesse no #atelierChatHost
   container.innerHTML = `
     <div class="proto-workspace-root">
       <div id="prototypeCatalog" class="proto-col-catalog proto-static-catalog">
@@ -71,11 +79,27 @@ function renderArtifactWorkspace(container, projectSlug, selected, catalog, comp
     </div>`;
 
   const catalogElement = $("prototypeCatalog");
-  if (catalogElement) bindPrototypeCatalog(catalogElement, openCatalogItem);
+  if (catalogElement) bindPrototypeCatalog(catalogElement, openCatalogItem, deleteCatalogItem);
   const createButton = $("btnSidebarCreateProto");
   if (createButton) createButton.onclick = () => createNewPrototypePrompt(container, projectSlug);
   const inspectButton = $("btnInspectArtifact");
   if (inspectButton) inspectButton.onclick = () => inspectArtifact(container, projectSlug, selected.id);
+}
+
+/** Exclui (com confirmação) e reabre o próximo item do catálogo. */
+async function deleteCatalogItem(protoId, kind) {
+  if (!activeWorkspace) return;
+  const { container, projectSlug, catalog, components, designSystem } = activeWorkspace;
+  const item = catalog.find((entry) => entry.id === protoId && entry.kind === kind);
+  if (!item) return;
+  try {
+    if (!(await deletePrototypeWithConfirm(projectSlug, item))) return;
+    const next = pickAfterDelete(catalog, protoId, currentOpenId);
+    const artifacts = catalog.filter((entry) => entry.kind === "artifact" && entry.id !== protoId);
+    await renderPrototypesWorkspace(container, projectSlug, artifacts, components, designSystem, next);
+  } catch (error) {
+    alert(error.message || "Falha ao excluir o protótipo.");
+  }
 }
 
 async function inspectArtifact(container, projectSlug, artifactId) {
@@ -95,6 +119,7 @@ async function inspectArtifact(container, projectSlug, artifactId) {
 }
 
 function renderEmptyWorkspace(container, projectSlug) {
+  parkStudioSidebar(); // o innerHTML abaixo apagaria o chat se ele ainda estivesse no #atelierChatHost
   container.innerHTML = `
     <div class="proto-empty-state">
       <i class="fa-solid fa-compass-drafting"></i>

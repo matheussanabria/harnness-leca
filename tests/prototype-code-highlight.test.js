@@ -25,3 +25,10 @@ test("highlight nunca deixa HTML solto do código passar", async () => {
     assert.ok(!/<img|<script/i.test(out.replace(/<span class="[^"]*">/g, "").replace(/<\/span>/g, "")), lang);
   }
 });
+
+test("highlight de CSS colore o nome inteiro da propriedade e o número com a unidade", async () => {
+  const { highlight } = await load();
+  const h = highlight(".a { margin-bottom: -1px; width: 100%; }", "css");
+  assert.match(h, /<span class="tk-a">margin-bottom<\/span>: <span class="tk-n">-1px<\/span>/);
+  assert.match(h, /<span class="tk-a">width<\/span>: <span class="tk-n">100%<\/span>/);
+});

@@ -2,6 +2,7 @@
 const path = require("path");
 const { getProjects, send, postOk } = require("../config");
 const { removeComponentCandidate } = require("../services/prototype-structural.service");
+const { deletePrototype } = require("../services/prototype-delete.service");
 
 function readJsonBody(req) {
   return new Promise((resolve, reject) => {
@@ -29,4 +30,15 @@ async function apiPrototypesUnextractComponent({ req, res, params: [slug, protoI
   }
 }
 
-module.exports = { apiPrototypesUnextractComponent };
+/** POST /api/project/:slug/design/prototypes/:protoId/delete — pasta vai para a lixeira do projeto */
+async function apiPrototypesDelete({ req, res, params: [slug, protoId] }) {
+  if (!postOk(req)) return send(res, 403, { error: "Acesso negado: PIN ou localhost obrigatório." });
+  try {
+    return send(res, 200, deletePrototype(path.join(getProjects(), slug), protoId));
+  } catch (err) {
+    const message = err.message || String(err);
+    return send(res, /não encontrado/.test(message) ? 404 : 400, { error: message });
+  }
+}
+
+module.exports = { apiPrototypesUnextractComponent, apiPrototypesDelete };

@@ -76,3 +76,22 @@
 .pc-dialog-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 12px 14px; }
 .pc--big { flex: 1; min-height: 0; }
 .pc--big .pc-pre { flex: 1; height: auto; min-height: 0; }
+
+/* Seção "Componente": propriedades do componente do DS selecionado */
+.cp .pp-title { display: flex; align-items: center; gap: 6px; }
+.cp .pp-title i { color: #34d399; }
+.cp-id { margin-left: auto; font-size: 10px; font-weight: 500; color: #94a3b8; }
+.cp-row { display: flex; gap: 6px; align-items: flex-end; flex-wrap: wrap; }
+.cp-field { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.cp-narrow { flex: 0 0 72px; }
+.cp-lbl { font-size: 10px; color: #94a3b8; }
+.cp-input { width: 100%; min-width: 0; box-sizing: border-box; background: #090d16; border: 1px solid #334155; border-radius: 4px; color: #f8fafc; font-size: 11px; padding: 4px 6px; }
+.cp-input:focus { outline: 1px solid #3b82f6; border-color: #3b82f6; }
+.cp-sub { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 4px; }
+.cp-col { display: flex; flex-direction: column; gap: 6px; padding: 8px; background: #131c2e; border: 1px solid #1f2937; border-radius: 6px; }
+.cp-col-head { display: flex; align-items: center; gap: 4px; }
+.cp-col-n { flex: 0 0 18px; height: 18px; border-radius: 9px; background: #0f172a; color: #94a3b8; font-size: 10px; display: grid; place-items: center; }
+.cp-col-label { flex: 1; }
+.cp-col .pp-icon:disabled { opacity: 0.35; cursor: not-allowed; }
+.cp-add { width: 100%; justify-content: center; color: #60a5fa; }
+.cp-note { font-size: 10px; color: #64748b; line-height: 1.4; }

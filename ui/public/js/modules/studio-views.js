@@ -5,6 +5,8 @@ import { state } from "../shared/state.js";
 import { sts } from "./studio-store.js";
 import { updateCompanionDetails } from "./studio-companion.js";
 import { isStudioSourceColumnOpen, setStudioSourceColumn, getStoredSourceColumnOpen } from "./studio-source-column.js";
+import { detachStudioSidebarFromAtelier } from "./prototype-atelier-sidebar.js";
+import { resetAtelierPromptState, setAtelierChatContext } from "./prototype-chat-bridge.js";
 
 export const STUDIO_VIEW_MODES = {
   PREVIEW: "iframe",
@@ -182,6 +184,10 @@ export function switchStudioView(targetMode, options = {}) {
     if (!designContainer) designContainer = mountStudioDesignWorkspace();
     if (designContainer) designContainer.style.display = "flex";
   } else if (designContainer) {
+    // Sair do Ateliê não pode esconder o chat junto com o workspace: devolve o painel ao Studio.
+    detachStudioSidebarFromAtelier();
+    setAtelierChatContext(null);
+    resetAtelierPromptState();
     designContainer.style.display = "none";
   }
 

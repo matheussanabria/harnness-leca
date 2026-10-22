@@ -8,7 +8,8 @@ import { renderPrototypesWorkspace } from "./design-prototypes.js";
 import { renderArtifactsWorkspace } from "./design-artifacts.js";
 import { renderRoutinesWorkspace } from "./design-routines.js";
 import { renderScrumWorkspace } from "./design-scrum.js";
-import { detachStudioSidebarFromAtelier } from "./prototype-atelier.js";
+import { detachStudioSidebarFromAtelier } from "./prototype-atelier-sidebar.js";
+import { resetAtelierPromptState, setAtelierChatContext } from "./prototype-chat-bridge.js";
 
 let currentDesignData = null;
 let currentScreensData = null;
@@ -149,6 +150,9 @@ async function openProfileAssistantModal(slug) {
 
 export function setDesignView(view) {
   detachStudioSidebarFromAtelier();
+  // Saiu do Ateliê: o chat volta a ser um chat comum (e o prompt perde o código do protótipo anterior).
+  setAtelierChatContext(null);
+  resetAtelierPromptState();
   currentView = view;
   const tabs = document.querySelectorAll(".design-nav-tab");
   tabs.forEach((t) => {
@@ -221,6 +225,8 @@ export async function toggleDesignMode(force, targetView) {
     }
   } else {
     detachStudioSidebarFromAtelier();
+    setAtelierChatContext(null);
+    resetAtelierPromptState();
     if (designWs) designWs.style.display = "none";
     if (mainDash) mainDash.style.display = "grid";
     if (btn) btn.classList.remove("active", "nav-module-active");
