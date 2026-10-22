@@ -23,9 +23,9 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-11 | 3/5 | **em andamento** | 11.01 a 11.03 concluídas; matriz de auditoria com evidências, quatro estados de teste distintos e Quadro de Componentes integrado | 11.04 e 11.05 pendentes |
 | EP-12 | 32/32 | **concluído** | F0 a F7 concluídas; Marcos M1, M2 e M3 homologados | Portão satisfeito |
 | EP-13 | 0/9 | **especificado** | Diagnóstico, arquitetura-alvo, ADR-009 e 9 histórias documentados | Frente `memoria`; começar por 13.01 e 13.02 (podem rodar em paralelo) |
-| EP-14 | 0/11 | **especificado** | README e 11 histórias; infraestrutura (fixtures, pre-commit, executor opencode) e estado de 13 telas | Um agente e uma branch `ep14/<id>` por história; merge em `ep14/integracao` |
+| EP-14 | 3/11 | **especificado** | README e 11 histórias; infraestrutura (fixtures, pre-commit, executor opencode) e estado de 13 telas | Um agente e uma branch `ep14/<id>` por história; merge em `ep14/integracao` |
 
-**Total: 100/126**
+**Total: 103/126**
 
 ## Registro
 
@@ -113,3 +113,4 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 - [2026-10-19] EP-05.01: schema Scrum v2 aditivo com `laneId`, migração idempotente, backup versionado, escrita atômica e rollback; status desconhecidos são preservados e auditados. 12/12 testes focados, 478/478 na suíte integral, tipos focados e `npm run check` verde em 459 JS e 10 JSON.
 - [2026-10-19] EP-05.02: catálogo canônico de 12 raias com IDs estáveis; configuração de nome, descrição, cor, visibilidade e ativação persistida no schema v2; Kanban projetado por `laneId`; API e modal acessível. 18/18 testes focados, 505/505 na suíte integral e `npm run check` verde em 476 JS e 10 JSON.
 - [2026-10-22] EP-14 especificado: "Estado das telas persistido no servidor" (endpoints `/api/screens/:id/state` e `/history`, um arquivo por tela). Inclui 14.01 (fixtures), 14.02 (pre-commit rápido) e 14.03 (executor do opencode em worktree). Execução por ondas, uma branch por agente.
+- [2026-10-22] EP-14 onda 0 integrada em `ep14/integracao`: 14.01 (fixtures), 14.02 (pre-commit com testes afetados) e 14.03 (executor do opencode). 14.01 e 14.02 foram feitas por agentes do opencode em worktrees; suíte completa 1048/1048. Incidente: hook exporta GIT_DIR e os testes antigos do executor poluíram o .git/config e criaram um commit indevido; corrigido com cleanEnv (GIT_*) e branches sempre avançadas até a base antes de commitar.

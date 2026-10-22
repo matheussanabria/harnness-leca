@@ -2,7 +2,7 @@
 id: EP-14
 titulo: Estado das telas persistido no servidor
 prioridade: P1
-status: especificado
+status: em-andamento
 depende: [EP-06, EP-09]
 tags: [harness-evolution, epico, ui, estado, persistencia]
 ---
