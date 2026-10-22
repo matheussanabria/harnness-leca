@@ -26,6 +26,10 @@ function isStageApproved(run, stageId) {
   return Boolean(approval && approval.decision === "approved");
 }
 
+/**
+ * @param {string} executionId
+ * @param {any} [params]
+ */
 function approveWorkflowRun(executionId, { stageId, decision, actor, note } = {}) {
   const run = getRun(executionId);
   if (!run) throw fail(404, "Execução não encontrada.");

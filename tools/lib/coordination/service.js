@@ -66,6 +66,12 @@ function sync(root, project) {
         state.stories[id].title = imported.title;
         state.stories[id].document = imported.document;
         state.stories[id].dependencies = imported.dependencies;
+        // Owner declarado no config: reconcilia quando a historia nao esta em trabalho.
+        const active = ["claimed", "in_progress", "review"].includes(state.stories[id].status);
+        if (!active && imported.owner && state.stories[id].owner !== imported.owner) {
+          state.stories[id].owner = imported.owner;
+          state.stories[id].lease = null;
+        }
         if (imported.status === "done" && state.stories[id].status !== "done") {
           state.stories[id].status = "done";
           state.stories[id].lease = null;

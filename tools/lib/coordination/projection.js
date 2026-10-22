@@ -110,7 +110,9 @@ function project(root, project, state) {
   fs.writeFileSync(target.status, renderStatus(state), "utf8");
   fs.writeFileSync(target.context, renderContext(state), "utf8");
   for (const provider of Object.keys(state.providers)) {
-    fs.writeFileSync(path.join(target.inbox, `${provider}.md`), renderInbox(state, provider), "utf8");
+    // O id da frente pode ter barra (opencode/qualidade): no arquivo, vira um nome seguro.
+    const file = `${String(provider).replace(/[^\w.-]+/g, "-")}.md`;
+    fs.writeFileSync(path.join(target.inbox, file), renderInbox(state, provider), "utf8");
   }
 }
 

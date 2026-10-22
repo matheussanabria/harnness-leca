@@ -36,6 +36,9 @@ function record(run, entry) {
   });
 }
 
+/**
+ * @param {any} params
+ */
 function startWorkflowRun({ slug, projectDir, workflowId, laneId, actor, dryRun, idempotencyKey, routineId }) {
   const plan = buildWorkflowPlan({ slug, projectDir, workflowId, laneId });
   if (dryRun) return { ok: true, dryRun: true, plan };
@@ -130,6 +133,10 @@ function requestApprovalIfNeeded(run) {
   record(run, { type: "execution.approval_requested", status: "awaiting_approval", stageId: current.id, note: current.label });
 }
 
+/**
+ * @param {string} executionId
+ * @param {any} [params]
+ */
 function advanceWorkflowRun(executionId, { stageId, status, note } = {}) {
   const run = getRun(executionId);
   if (!run) throw fail(404, "Execução não encontrada.");
@@ -198,6 +205,10 @@ function advanceWorkflowRun(executionId, { stageId, status, note } = {}) {
   return { ok: true, run: snapshot(run) };
 }
 
+/**
+ * @param {string} executionId
+ * @param {any} [params]
+ */
 function cancelWorkflowRun(executionId, { reason } = {}) {
   const run = getRun(executionId);
   if (!run) throw fail(404, "Execução não encontrada.");

@@ -6,6 +6,7 @@ const { getWorkflow, isValidWorkflow } = require("./workflow-definitions");
 const TRIGGER_TYPES = new Set(["manual", "daily", "weekly"]);
 const MAX_IDEMPOTENCY_WINDOW_HOURS = 24;
 
+/** @type {ReadonlyArray<any>} */
 const ROUTINE_DEFINITIONS = Object.freeze([
   Object.freeze({
     id: "rotina-feature-delivery",
@@ -39,6 +40,7 @@ const ROUTINE_DEFINITIONS = Object.freeze([
   }),
 ]);
 
+/** @type {Map<string, any>} */
 const ROUTINE_INDEX = new Map(ROUTINE_DEFINITIONS.map((routine) => [routine.id, routine]));
 
 /**

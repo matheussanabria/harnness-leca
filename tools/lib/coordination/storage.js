@@ -50,7 +50,9 @@ function acquireLock(root, project, staleMs = 300000) {
 function appendEvent(root, project, provider, event) {
   const dir = paths(root, project).events;
   fs.mkdirSync(dir, { recursive: true });
-  fs.appendFileSync(path.join(dir, `${provider}.jsonl`), `${JSON.stringify(event)}\n`, "utf8");
+  // O id da frente pode ter barra (opencode/qualidade): no arquivo, vira um nome seguro.
+  const file = `${String(provider).replace(/[^\w.-]+/g, "-")}.jsonl`;
+  fs.appendFileSync(path.join(dir, file), `${JSON.stringify(event)}\n`, "utf8");
 }
 
 module.exports = { paths, atomicJson, loadState, acquireLock, appendEvent };
