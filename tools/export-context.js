@@ -1,262 +1,113 @@
 #!/usr/bin/env node
 // @ts-check
-// Exporta e sincroniza as memórias, regras e histórico de conversas do Harness Leca
-// diretamente para o contexto nativo dos agentes:
-// 1. Claude Code: ~/.claude/projects/<pasta>/memory/ (MEMORY.md + tópicos)
-// 2. Gemini / Antigravity: ~/.gemini/antigravity-ide/knowledge/ki-projeto-<slug>/ + ~/.gemini/config/rules/
+// Exporta a memória curada do Harness Leca para o contexto nativo dos agentes:
+// 1. Claude Code: ~/.claude/projects/<pasta>/memory/MEMORY.md (só o bloco gerenciado)
+// 2. Gemini / Antigravity: Knowledge Item (memory.md) + regra global em ~/.gemini
 // 3. Pastas locais: .claude/context/ e .gemini/context/ no próprio harness-leca
 //
 // Uso:
 //   node tools/export-context.js                    sincroniza todos os projetos
 //   node tools/export-context.js --project <slug>   sincroniza um projeto específico
 //   node tools/export-context.js --dry-run          simula sem gravar nada
+//   node tools/export-context.js --report           mostra bytes e tokens (bytes/4) por projeto e destino
+//   node tools/export-context.js --prune [--yes]    lista arquivos antigos; só remove com --yes
+//
+// Destinos podem ser trocados por parâmetro (options) ou pelas variáveis
+// HARNESS_EXPORT_CLAUDE_PROJECTSe HARNESS_EXPORT_GEMINI_HOME.
 
 const fs = require("fs");
-const os = require("os");
-const path = require("path");
 
-const { ROOT } = require("./lib/root");
 const { existingSlugs, matchers, projectFromPath } = require("./lib/projects");
 const { flag, opt, CliError, runAsScript } = require("./lib/cli");
+const { collectProjectData, resolveTargets } = require("./lib/export/data");
+const { writeManagedBlock, writeGenerated, isInside } = require("./lib/export/managed-file");
+const { planClaude } = require("./lib/export/claude");
+const { planGeminiProject, planGeminiGlobal } = require("./lib/export/gemini");
+const { reportRows, printReport, prune } = require("./lib/export/housekeeping");
 
-const HOME = os.homedir();
-const CLAUDE_PROJECTS_DIR = path.join(HOME, ".claude", "projects");
-const GEMINI_KNOWLEDGE_DIR = path.join(HOME, ".gemini", "antigravity-ide", "knowledge");
-const GEMINI_RULES_DIR = path.join(HOME, ".gemini", "config", "rules");
-const LOCAL_CLAUDE_CTX = path.join(ROOT, ".claude", "context");
-const LOCAL_GEMINI_CTX = path.join(ROOT, ".gemini", "context");
-
-function readFileSafe(filePath) {
-  try {
-    if (fs.existsSync(filePath)) {
-      return fs.readFileSync(filePath, "utf8").replace(/^\uFEFF/, "").trim();
-    }
-  } catch {}
-  return "";
-}
-
-function countChats(chatsDir) {
-  try {
-    if (fs.existsSync(chatsDir)) {
-      return fs.readdirSync(chatsDir).filter((f) => f.endsWith(".md")).length;
-    }
-  } catch {}
-  return 0;
-}
-
-function collectProjectData(slug) {
-  const projDir = path.join(ROOT, "projects", slug);
-  const memoryMd = readFileSafe(path.join(projDir, "memory.md"));
-  const instructionsMd = readFileSafe(path.join(projDir, "instructions.md"));
-
-  const ctxDir = path.join(projDir, "context");
-  const memoriasConsolidadas = readFileSafe(path.join(ctxDir, "memorias-consolidadas.md"));
-  const extraidoMemorias = readFileSafe(path.join(ctxDir, "extraido-memorias.md"));
-  const extraidoRegras = readFileSafe(path.join(ctxDir, "extraido-regras.md"));
-  const extraidoConversas = readFileSafe(path.join(ctxDir, "extraido-conversas.md"));
-
-  const chatsDir = path.join(projDir, "chats");
-  const chatsCount = countChats(chatsDir);
-
-  return {
-    slug,
-    memoryMd,
-    instructionsMd,
-    memoriasConsolidadas: memoriasConsolidadas || extraidoMemorias,
-    extraidoRegras,
-    extraidoConversas,
-    chatsCount,
-  };
-}
-
-function generateClaudeMemory(data, today) {
-  const memoryLines = data.memoryMd
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l.startsWith("- [") || (l.startsWith("-") && !l.startsWith("<!--")));
-
-  const highlights = memoryLines.length
-    ? memoryLines.slice(0, 35).join("\n")
-    : "- Nenhuma memória formal gravada ainda.";
-
-  return `# Memória do Projeto: ${data.slug}
-<!-- Sincronizado do Harness Leca em ${today} - Total de conversas preservadas: ${data.chatsCount} -->
-
-## Decisões e Fatos Principais
-${highlights}
-
-## Tópicos Detalhados
-- [Regras e Diretrizes do Projeto](regras-e-diretrizes.md)
-- [Memórias e Conhecimento Consolidado](memorias-consolidadas.md)
-- [Histórico e Índice de Conversas](historico-conversas.md)
-`;
-}
-
-function ensureDir(dirPath, dryRun) {
-  if (!dryRun && !fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
+/** Mapeia pastas do Claude Code existentes em claudeProjectsDir por slug de projeto. */
+function mapClaudeDirs(claudeProjectsDir, ms) {
+  const bySlug = new Map();
+  if (!fs.existsSync(claudeProjectsDir)) return bySlug;
+  for (const d of fs.readdirSync(claudeProjectsDir, { withFileTypes: true }).filter((x) => x.isDirectory())) {
+    const slug = projectFromPath(d.name, ms);
+    if (!slug) continue;
+    if (!bySlug.has(slug)) bySlug.set(slug, []);
+    bySlug.get(slug).push(d.name);
   }
+  return bySlug;
 }
 
-function writeFile(filePath, content, dryRun) {
-  if (!dryRun) {
-    ensureDir(path.dirname(filePath), false);
-    fs.writeFileSync(filePath, content, "utf8");
+/** Aplica uma escrita planejada respeitando o tipo (bloco gerenciado ou arquivo gerado). */
+function apply(w, dryRun, io) {
+  if (!isInside(w.root, w.file)) {
+    io.log(`   [aviso] destino fora da pasta permitida, ignorado: ${w.file}`);
+    return { file: w.file, dest: w.dest, status: "skipped", bytes: 0 };
   }
+  const opts = { dryRun, log: (m) => io.log(m), legacy: w.legacy };
+  const r = w.kind === "managed" ? writeManagedBlock(w.file, w.content, opts) : writeGenerated(w.file, w.content, opts);
+  return { ...r, dest: w.dest };
 }
 
-function run(argv, io = console) {
+/**
+ * @param {string[]} argv
+ * @param {{ log: (m: string) => void }} [io]
+ * @param {{ claudeProjectsDir?: string, geminiHome?: string }} [options] destinos injetados
+ */
+function run(argv, io = console, options = {}) {
   const dryRun = flag("dry-run", argv);
   const targetProject = opt("project", argv);
   const today = new Date().toISOString().slice(0, 10);
+  const targets = resolveTargets(options);
 
   const slugs = existingSlugs();
   if (targetProject && !slugs.includes(targetProject)) {
     throw new CliError(`Projeto "${targetProject}" não encontrado. Projetos disponíveis: ${slugs.join(", ")}`);
   }
-
   const projectsToSync = targetProject ? [targetProject] : slugs;
-  const ms = matchers();
+  const claudeDirsBySlug = mapClaudeDirs(targets.claudeProjectsDir, matchers());
 
   io.log(`\n======================================================`);
   io.log(` Sincronizando contexto do Harness Leca -> Claude & Gemini`);
-  io.log(` Data: ${today} ${dryRun ? "[MODO SIMULAÇÃO - DRY RUN]" : ""}`);
+  io.log(` Data: ${today} ${dryRun ? "[MODO SIMULACAO - DRY RUN]" : ""}`);
   io.log(`======================================================\n`);
-
-  // Mapeia diretórios do Claude Code existentes em ~/.claude/projects
-  const claudeDirsBySlug = new Map();
-  if (fs.existsSync(CLAUDE_PROJECTS_DIR)) {
-    for (const d of fs.readdirSync(CLAUDE_PROJECTS_DIR, { withFileTypes: true }).filter((x) => x.isDirectory())) {
-      const slug = projectFromPath(d.name, ms);
-      if (slug) {
-        if (!claudeDirsBySlug.has(slug)) claudeDirsBySlug.set(slug, []);
-        claudeDirsBySlug.get(slug).push(d.name);
-      }
-    }
-  }
-
-  // Prepara pastas padrão caso não existam no ~/.claude/projects
-  const knownGitMappings = {
-    "57multimarcas": "c--Users-matheuss-rodrigues-git-57multimarcas",
-    "saude-dispensacao": "c--Users-matheuss-rodrigues-git-saude-dispensacao",
-    "saude-prontuario": "c--Users-matheuss-rodrigues-git-saude-prontuario",
-    "conversor-relatorio-maquininhas": "c--Users-matheuss-rodrigues-git-conversor-relatorio-maquininhas",
-    "conversor-relatorio-maquininhas-meu": "c--Users-matheuss-rodrigues-git-conversor-relatorio-maquininhas-meu",
-    "dai": "c--Users-matheuss-rodrigues-git-DAI",
-  };
 
   let totalClaudeFolders = 0;
   let totalGeminiKIs = 0;
-  const overviewList = [];
+  const overview = [];
+  const allLegacy = [];
+  const rows = [];
 
   for (const slug of projectsToSync) {
     const data = collectProjectData(slug);
-    io.log(`📦 Processando projeto: ${slug} (${data.chatsCount} conversas salvas)`);
+    io.log(`Processando projeto: ${slug} (${data.chatsCount} conversas salvas)`);
 
-    // -----------------------------------------------------------------
-    // 1. CLAUDE CODE: ~/.claude/projects/<dir>/memory/
-    // -----------------------------------------------------------------
-    let claudeDirs = claudeDirsBySlug.get(slug) || [];
-    if (!claudeDirs.length && knownGitMappings[slug]) {
-      claudeDirs = [knownGitMappings[slug]];
-    }
+    const claude = planClaude(data, claudeDirsBySlug.get(slug) || [], targets);
+    const gemini = planGeminiProject(data, targets);
+    // As copias locais em .claude/context e .gemini/context nao tinham leitor e deixaram de ser geradas.
+    const plan = [...claude.writes, ...gemini.writes];
+    const legacy = [...claude.legacy, ...gemini.legacy];
 
-    const claudeMemoryContent = generateClaudeMemory(data, today);
-    for (const cDir of claudeDirs) {
-      const memoryDir = path.join(CLAUDE_PROJECTS_DIR, cDir, "memory");
-      writeFile(path.join(memoryDir, "MEMORY.md"), claudeMemoryContent, dryRun);
+    const results = plan.map((w) => apply(w, dryRun, io));
+    allLegacy.push(...legacy);
+    rows.push(...reportRows(slug, results, legacy));
 
-      if (data.extraidoRegras) {
-        writeFile(path.join(memoryDir, "regras-e-diretrizes.md"), `# Regras e Diretrizes: ${slug}\n\n${data.extraidoRegras}`, dryRun);
-      }
-      if (data.memoriasConsolidadas) {
-        writeFile(path.join(memoryDir, "memorias-consolidadas.md"), `# Memórias Consolidadas: ${slug}\n\n${data.memoriasConsolidadas}`, dryRun);
-      }
-      if (data.extraidoConversas) {
-        writeFile(path.join(memoryDir, "historico-conversas.md"), `# Índice de Conversas Salvas: ${slug}\n\n${data.extraidoConversas}`, dryRun);
-      }
-      totalClaudeFolders++;
-      io.log(`   [Claude] -> ~/.claude/projects/${cDir}/memory/ (MEMORY.md + tópicos)`);
-    }
-
-    // -----------------------------------------------------------------
-    // 2. GEMINI / ANTIGRAVITY: Knowledge Item em ~/.gemini/antigravity-ide/knowledge/
-    // -----------------------------------------------------------------
-    const kiSlug = `ki-projeto-${slug}`;
-    const kiDir = path.join(GEMINI_KNOWLEDGE_DIR, kiSlug);
-    const kiArtifactsDir = path.join(kiDir, "artifacts");
-
-    const metadata = {
-      id: kiSlug,
-      title: `Projeto: ${slug} - Memória, Arquitetura e Regras`,
-      summary: `Contexto completo do projeto ${slug} preservado pelo Harness Leca. Contém ${data.chatsCount} conversas analisadas, regras de negócio, decisões arquiteturais e memórias duráveis.`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      tags: ["harness-leca", slug, "memoria", "regras", "contexto"],
-      references: [
-        path.join(ROOT, "projects", slug),
-      ],
-      artifacts: [
-        "artifacts/memory.md",
-        "artifacts/regras.md",
-        "artifacts/conversas-indice.md",
-      ],
-    };
-
-    writeFile(path.join(kiDir, "metadata.json"), JSON.stringify(metadata, null, 2) + "\n", dryRun);
-    writeFile(path.join(kiArtifactsDir, "memory.md"), `# Memórias e Arquitetura: ${slug}\n\n${data.memoryMd}\n\n## Detalhes Consolidados\n\n${data.memoriasConsolidadas || "Nenhum detalhe adicional"}`, dryRun);
-    writeFile(path.join(kiArtifactsDir, "regras.md"), `# Regras de Negócio e Diretrizes: ${slug}\n\n${data.extraidoRegras || "Nenhuma regra cadastrada"}`, dryRun);
-    writeFile(path.join(kiArtifactsDir, "conversas-indice.md"), `# Histórico de Conversas: ${slug}\n\n${data.extraidoConversas || `Total de conversas: ${data.chatsCount}`}`, dryRun);
+    totalClaudeFolders += claude.folders;
     totalGeminiKIs++;
-    io.log(`   [Gemini] -> Knowledge Item: ${kiSlug}`);
-
-    // -----------------------------------------------------------------
-    // 3. CONTEXTO LOCAL NO HARNESS-LECA: .claude/context/ e .gemini/context/
-    // -----------------------------------------------------------------
-    const localSummary = `# Contexto do Projeto: ${slug}
-Data de Sincronização: ${today} | Conversas Salvas: ${data.chatsCount}
-
-## Instruções
-${data.instructionsMd || "Nenhuma instrução específica."}
-
-## Memórias Ativas
-${data.memoryMd || "Nenhuma memória ativa."}
-
-## Regras
-${data.extraidoRegras || "Nenhuma regra adicional."}
-`;
-    writeFile(path.join(LOCAL_CLAUDE_CTX, `${slug}.md`), localSummary, dryRun);
-    writeFile(path.join(LOCAL_GEMINI_CTX, `${slug}.md`), localSummary, dryRun);
-
-    overviewList.push({
-      slug,
-      chatsCount: data.chatsCount,
-      hasMemory: Boolean(data.memoryMd),
-    });
+    io.log(`   [Claude] ${claude.folders} pasta(s) com bloco gerenciado em MEMORY.md`);
+    io.log(`   [Gemini] Knowledge Item: ki-projeto-${slug}`);
+    overview.push({ slug, chatsCount: data.chatsCount });
   }
 
-  // -----------------------------------------------------------------
-  // 4. GEMINI / ANTIGRAVITY: Regra Global em ~/.gemini/config/rules/
-  // -----------------------------------------------------------------
-  const globalRuleContent = `# Harness Leca: Conhecimento Global de Projetos
-<!-- Gerado automaticamente em ${today} - Não editar manualmente -->
-Este documento registra a lista e o estado dos projetos gerenciados pelo Harness Leca na máquina.
+  const globalRule = apply(planGeminiGlobal(overview, targets, today), dryRun, io);
+  io.log(`\n   [Gemini Global Rule] harness-projects-overview.md (${globalRule.status})`);
 
-## Projetos Ativos e Memórias Disponíveis:
-${overviewList.map((p) => `- **${p.slug}**: ${p.chatsCount} conversas salvas no harness-leca. Memórias e regras disponíveis nos Knowledge Items (\`ki-projeto-${p.slug}\`) e em \`projects/${p.slug}/\`.`).join("\n")}
-
-## Diretriz de Uso para o Gemini/Antigravity:
-Ao trabalhar em qualquer tarefa desses projetos, consulte os Knowledge Items correspondentes ou leia \`projects/<slug>/memory.md\` e \`projects/<slug>/context/\` para respeitar as preferências de código, arquitetura e decisões históricas.
-`;
-
-  writeFile(path.join(GEMINI_RULES_DIR, "harness-projects-overview.md"), globalRuleContent, dryRun);
-  io.log(`\n   [Gemini Global Rule] -> ~/.gemini/config/rules/harness-projects-overview.md`);
-
-  io.log(`\n✔ Concluído com sucesso!`);
+  io.log(`\nConcluido.`);
   io.log(`  - Pastas do Claude Code sincronizadas: ${totalClaudeFolders}`);
-  io.log(`  - Knowledge Items do Gemini criados: ${totalGeminiKIs}`);
-  io.log(`  - Regra global do Gemini atualizada em ~/.gemini/config/rules/`);
-  io.log(`  - Pastas locais .claude/context e .gemini/context geradas no workspace.`);
+  io.log(`  - Knowledge Items do Gemini: ${totalGeminiKIs}`);
+
+  if (flag("report", argv)) printReport(rows, io);
+  if (flag("prune", argv)) prune(allLegacy, { confirmed: flag("yes", argv), dryRun }, io);
 }
 
 module.exports = { run };
