@@ -37,6 +37,20 @@ const PROVIDERS = {
     transport: "inbox",
     reason: "Datacenter e deploys: pipelines, ambientes, saude, historico e acoes autorizadas.",
   },
+  "claude/memoria": {
+    label: "Claude Code — Memoria",
+    enabled: true,
+    autoDispatch: false,
+    transport: "inbox",
+    reason: "EP-13: export nao destrutivo e projecao da memoria para os motores.",
+  },
+  "opencode/memoria": {
+    label: "OpenCode — Memoria",
+    enabled: true,
+    autoDispatch: false,
+    transport: "inbox",
+    reason: "EP-13: contrato, indice e ferramentas da memoria curada.",
+  },
   codex: {
     label: "Codex",
     enabled: false,
@@ -60,6 +74,7 @@ const EPIC_OWNERS = {
   "EP-10": "opencode/deploy",
   "EP-11": "opencode/qualidade",
   "EP-12": "codex",
+  "EP-13": "opencode/memoria",
 };
 
 /**
@@ -83,6 +98,8 @@ const STORY_OWNERS = {
   "EP-11.03": "opencode/qualidade",
   "EP-11.04": "opencode/qualidade",
   "EP-11.05": "opencode/qualidade",
+  "EP-13.01": "claude/memoria",
+  "EP-13.02": "opencode/memoria",
 };
 
 const PROVIDER_ALIASES = {
