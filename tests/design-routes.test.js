@@ -1,15 +1,17 @@
 // @ts-check
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const http = require("node:http");
+const { createProjectFixture } = require("./helpers/project-fixture");
 const { handle } = require("../ui/server/router");
 
-// PENDENTE (pacote 0 do EP-14): depende de projects/saude-dispensacao (gitignored); migrar para fixture em tests/helpers.
-test.skip("design-routes: GET /api/project/:slug/design/index responde 200 com estrutura válida", async () => {
-  // Testa a chamada através do handler do router
+const fixture = createProjectFixture();
+fixture.activate();
+test.after(() => fixture.cleanup());
+
+test("design-routes: GET /api/project/:slug/design/index responde 200 com estrutura válida", async () => {
   const req = {
     method: "GET",
-    url: "/api/project/saude-dispensacao/design/index",
+    url: `/api/project/${fixture.slug}/design/index`,
     headers: { host: "localhost:4321" },
   };
 
@@ -36,7 +38,6 @@ test.skip("design-routes: GET /api/project/:slug/design/index responde 200 com e
   assert.equal(json.designSystem.mcpServer, "dis-design-system");
   assert.equal(Array.isArray(json.features), true);
 
-  // Confere se achou os componentes de doc/design-system/
   assert.equal(json.components.length >= 4, true);
   const headerComp = json.components.find((c) => c.id === "header-menu-dropdown");
   assert.ok(headerComp);
@@ -47,7 +48,7 @@ test.skip("design-routes: GET /api/project/:slug/design/index responde 200 com e
 test("design-routes: GET /api/project/:slug/design/layers responde 200 para funcionalidade existente", async () => {
   const req = {
     method: "GET",
-    url: "/api/project/saude-dispensacao/design/layers?feature=visao-geral-paciente",
+    url: `/api/project/${fixture.slug}/design/layers?feature=visao-geral-paciente`,
     headers: { host: "localhost:4321" },
   };
 
@@ -73,16 +74,15 @@ test("design-routes: GET /api/project/:slug/design/layers responde 200 para func
 test("design-routes: GET /api/project/:slug/design/file barra arquivos proibidos ou fora da whitelist", async () => {
   const req = {
     method: "GET",
-    url: "/api/project/saude-dispensacao/design/file?path=.env",
+    url: `/api/project/${fixture.slug}/design/file?path=.env`,
     headers: { host: "localhost:4321" },
   };
 
   let statusCode = 0;
-  let body = "";
   const res = {
     setHeader: () => {},
     writeHead: (code) => { statusCode = code; },
-    end: (data) => { body = data; },
+    end: () => {},
   };
 
   // @ts-ignore
@@ -93,7 +93,7 @@ test("design-routes: GET /api/project/:slug/design/file barra arquivos proibidos
 test("design-routes: GET /api/project/:slug/design/prototype?id=... redireciona para a base correta", async () => {
   const req = {
     method: "GET",
-    url: "/api/project/saude-dispensacao/design/prototype?id=dis-design-system",
+    url: `/api/project/${fixture.slug}/design/prototype?id=dis-design-system`,
     headers: { host: "localhost:4321" },
   };
 
@@ -108,14 +108,13 @@ test("design-routes: GET /api/project/:slug/design/prototype?id=... redireciona 
   // @ts-ignore
   await handle(req, res);
   assert.equal(statusCode, 302);
-  assert.equal(headers["Location"], "/api/project/saude-dispensacao/design/prototype/dis-design-system/");
+  assert.equal(headers["Location"], `/api/project/${fixture.slug}/design/prototype/dis-design-system/`);
 });
 
-// PENDENTE (pacote 0 do EP-14): depende de projects/saude-dispensacao (gitignored); migrar para fixture em tests/helpers.
-test.skip("design-routes: GET /api/project/:slug/design/prototype/:id/ retorna HTML com CSP sandbox", async () => {
+test("design-routes: GET /api/project/:slug/design/prototype/:id/ retorna HTML com CSP sandbox", async () => {
   const req = {
     method: "GET",
-    url: "/api/project/saude-dispensacao/design/prototype/dis-design-system/",
+    url: `/api/project/${fixture.slug}/design/prototype/dis-design-system/`,
     headers: { host: "localhost:4321" },
   };
 
@@ -136,11 +135,10 @@ test.skip("design-routes: GET /api/project/:slug/design/prototype/:id/ retorna H
   assert.equal(body.length > 1000, true);
 });
 
-// PENDENTE (pacote 0 do EP-14): depende de projects/saude-dispensacao (gitignored); migrar para fixture em tests/helpers.
-test.skip("design-routes: GET /api/project/:slug/design/prototype/:id/support.js serve asset relativo do prototipo", async () => {
+test("design-routes: GET /api/project/:slug/design/prototype/:id/support.js serve asset relativo do prototipo", async () => {
   const req = {
     method: "GET",
-    url: "/api/project/saude-dispensacao/design/prototype/dis-fluxo-paciente/support.js",
+    url: `/api/project/${fixture.slug}/design/prototype/dis-fluxo-paciente/support.js`,
     headers: { host: "localhost:4321" },
   };
 

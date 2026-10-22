@@ -5,6 +5,11 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { inventoryProjectArtifacts } = require("../ui/server/services/artifact-inventory.service");
+const { createProjectFixture } = require("./helpers/project-fixture");
+
+const projectFixture = createProjectFixture();
+projectFixture.activate();
+test.after(() => projectFixture.cleanup());
 
 function write(root, rel, content) {
   const file = path.join(root, rel);
@@ -137,7 +142,7 @@ function fakeRes() {
 test("artifact-inventory: controller valida slug e projeto", async () => {
   const { apiProjectArtifacts } = require("../ui/server/controllers/artifact.controller");
   const ok = fakeRes();
-  await apiProjectArtifacts({ res: ok, params: ["saude-dispensacao"] });
+  await apiProjectArtifacts({ res: ok, params: [projectFixture.slug] });
   const payload = JSON.parse(ok.body);
   assert.equal(ok.status, 200);
   assert.equal(payload.ok, true);

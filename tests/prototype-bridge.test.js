@@ -4,10 +4,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { renderSandboxScreen } from "../ui/server/services/prototype-sandbox-renderer.service.js";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 
 const REPO_ROOT = path.resolve(".");
 const BRIDGE_PATH = path.join(REPO_ROOT, "ui", "public", "js", "modules", "prototype-bridge.js");
-const SAUDE_DIR = path.join(REPO_ROOT, "projects", "saude-dispensacao");
+const fixture = createProjectFixture();
+const SAUDE_DIR = fixture.dir;
+test.after(() => fixture.cleanup());
 
 test("EP-12.22: Ponte de Comunicação Bidirecional (prototype-bridge.js)", async (t) => {
   await t.test("arquivo prototype-bridge.js existe e cumpre o limite estrito de linhas", () => {

@@ -5,6 +5,11 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 
+const root = fs.mkdtempSync(path.join(os.tmpdir(), "harness-claude-export-root-"));
+fs.mkdirSync(path.join(root, "projects", "57multimarcas", "chats"), { recursive: true });
+process.env.HARNESS_ROOT = root;
+test.after(() => fs.rmSync(root, { recursive: true, force: true }));
+
 const { convertChatMdToJsonl, run } = require("../tools/export-claude-sessions");
 
 test("convertChatMdToJsonl: converte chat markdown em eventos jsonl válidos do Claude Code", () => {

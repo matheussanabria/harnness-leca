@@ -312,6 +312,8 @@ node --test tests/prototype-screen-decomposer.test.js # Testa decomposição de 
 node --test tests/prototype-reconstruction.test.js # Testa reconstrução completa do protótipo DIS modular
 ```
 
+- Fixtures de teste: `tests/helpers/project-fixture.js` (orquestrador), `project-fixture-design-system.js`, `project-fixture-prototype.js`, `project-fixture-design-index.js` e `project-fixture-files.js` criam um projeto temporário fora de `projects/` e devolvem `{ dir, slug, cleanup }`.
+
 ---
 
 ## 🏢 6. Escritório Virtual Imersivo DAI HQ (`ui/public/office.html`)

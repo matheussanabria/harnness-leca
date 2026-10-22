@@ -1,10 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import path from "node:path";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 import { renderComponentPreview } from "../ui/server/services/design-preview.service.js";
 import { apiRegistryPreviewComponent } from "../ui/server/controllers/design-registry.controller.js";
 
-const projectDir = path.resolve(process.cwd(), "projects/saude-dispensacao");
+const fixture = createProjectFixture();
+fixture.activate();
+const projectDir = fixture.dir;
+test.after(() => fixture.cleanup());
 
 test("EP-12.11: Harness de Preview Isolado de Componentes", async (t) => {
   await t.test("renderComponentPreview gera HTML válido para dis.annotation-list", () => {
@@ -35,7 +38,7 @@ test("EP-12.11: Harness de Preview Isolado de Componentes", async (t) => {
     let headers = {};
     let body = "";
 
-    const req = { url: "http://localhost/api/project/saude-dispensacao/design/registry/dis.button/preview" };
+    const req = { url: `http://localhost/api/project/${fixture.slug}/design/registry/dis.button/preview` };
     const res = {
       writeHead(code, h) {
         statusCode = code;
@@ -46,7 +49,7 @@ test("EP-12.11: Harness de Preview Isolado de Componentes", async (t) => {
       }
     };
 
-    await apiRegistryPreviewComponent({ req, res, params: ["saude-dispensacao", "dis.button"] });
+    await apiRegistryPreviewComponent({ req, res, params: [fixture.slug, "dis.button"] });
 
     assert.equal(statusCode, 200);
     assert.equal(headers["Content-Type"], "text/html; charset=utf-8");

@@ -4,10 +4,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { resolveNodeTraceability } from "../ui/server/services/prototype-traceability.service.js";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 
 const REPO_ROOT = path.resolve(".");
-const SAUDE_DIR = path.join(REPO_ROOT, "projects", "saude-dispensacao");
+const fixture = createProjectFixture();
+const SAUDE_DIR = fixture.dir;
 const SERVICE_PATH = path.join(REPO_ROOT, "ui", "server", "services", "prototype-traceability.service.js");
+test.after(() => fixture.cleanup());
 
 test("EP-12.30: Rastreabilidade End-to-End (Tela -> Nó -> Componente -> Código)", async (t) => {
   await t.test("serviço cumpre o limite de 250 linhas e não contém emojis", () => {

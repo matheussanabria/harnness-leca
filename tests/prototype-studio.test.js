@@ -4,9 +4,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { getPrototypeStudioWorkspace } from "../ui/server/services/prototype-studio.service.js";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 
-const REPO_ROOT = path.resolve(".");
-const SAUDE_DIR = path.join(REPO_ROOT, "projects", "saude-dispensacao");
+const fixture = createProjectFixture();
+const SAUDE_DIR = fixture.dir;
+test.after(() => fixture.cleanup());
 
 test("EP-12.29: Integração da Árvore do Motor ao Studio Unificado", async (t) => {
   await t.test("lança erro para protótipo inexistente", () => {

@@ -212,6 +212,10 @@ test("M2 Adaptador OpenCode: mapeia subagentes reais via parent_id no SQLite", (
 });
 
 test("M2 API HTTP: endpoints de estado, eventos, capabilities e operações", async () => {
+  const { createProjectFixture } = require("./helpers/project-fixture");
+  const fixture = createProjectFixture();
+  const previousProjectsDir = process.env.HARNESS_PROJECTS_DIR;
+  fixture.activate();
   const { createServer } = require("../ui/server");
   const server = createServer();
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -255,7 +259,7 @@ test("M2 API HTTP: endpoints de estado, eventos, capabilities e operações", as
     const syncOpRes = await fetch(`${base}/api/orchestration/operations`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Origin": base },
-      body: JSON.stringify({ action: "project.sync", target: { projectId: "saude-dispensacao" } })
+      body: JSON.stringify({ action: "project.sync", target: { projectId: fixture.slug } })
     });
     assert.equal(syncOpRes.status, 200);
     const syncData = await syncOpRes.json();
@@ -272,5 +276,8 @@ test("M2 API HTTP: endpoints de estado, eventos, capabilities e operações", as
   } finally {
     server.closeAllConnections();
     server.close();
+    if (previousProjectsDir === undefined) delete process.env.HARNESS_PROJECTS_DIR;
+    else process.env.HARNESS_PROJECTS_DIR = previousProjectsDir;
+    fixture.cleanup();
   }
 });

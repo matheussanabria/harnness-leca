@@ -8,10 +8,12 @@ import { validatePrototypeDefinition } from "../ui/server/services/prototype-val
 import { resolveNodeNavigation } from "../ui/server/services/prototype-schema.service.js";
 import { generateScreenCode } from "../ui/server/services/prototype-codegen.factory.js";
 import { installDispensationPilot } from "../ui/server/services/prototype-pilot-dis.service.js";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 
-const REPO_ROOT = path.resolve(".");
-const SAUDE_DIR = path.join(REPO_ROOT, "projects", "saude-dispensacao");
+const fixture = createProjectFixture();
+const SAUDE_DIR = fixture.dir;
 const PROTO_DIR = path.join(SAUDE_DIR, "design", "prototypes", "dis-modular");
+test.after(() => fixture.cleanup());
 
 test("EP-12.31: Piloto Completo do Fluxo DIS Dispensação de Medicamentos", async (t) => {
   const protoPath = path.join(PROTO_DIR, "proto.json");

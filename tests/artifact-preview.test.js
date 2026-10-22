@@ -4,6 +4,9 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const projectsRoot = fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifact-preview-projects-"));
+process.env.HARNESS_PROJECTS_DIR = projectsRoot;
+test.after(() => fs.rmSync(projectsRoot, { recursive: true, force: true }));
 const { Readable } = require("stream");
 const { MAX_TEXT_BYTES, buildArtifactPreview, readArtifactPreviewRaw } = require("../ui/server/services/artifact-preview.service");
 const { updateArtifactAccess } = require("../ui/server/services/artifact-metadata.service");
@@ -180,7 +183,7 @@ test("artifact-preview: tipos sem prévia retornam aviso", () => {
 
 test("artifact-preview: controller responde JSON, bytes e bloqueia local remoto", async () => {
   const slug = `preview-test-${process.pid}-${Date.now()}`;
-  const projectDir = path.join(__dirname, "..", "projects", slug);
+  const projectDir = path.join(projectsRoot, slug);
   try {
     writeFile(projectDir, "context/extraidos/documentos/tela.html", "<h1>Tela</h1>");
     writeFile(projectDir, "artifacts/privado.md", "# Privado\n");

@@ -5,8 +5,11 @@ import os from "node:os";
 import path from "node:path";
 import { reconstructPrototypeFromArtifact } from "../ui/server/services/prototype-reconstructor.service.js";
 import { validatePrototypeDefinition } from "../ui/server/services/prototype-validator.service.js";
+import { createProjectFixture } from "./helpers/project-fixture.js";
 
-const sourceProjectDir = path.resolve(process.cwd(), "projects/saude-dispensacao");
+const fixture = createProjectFixture();
+const sourceProjectDir = fixture.dir;
+test.after(() => fixture.cleanup());
 
 test("EP-12.19 & EP-12.20: Reconstrução Completa do Protótipo DIS", async (t) => {
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "harness-reconstruction-"));

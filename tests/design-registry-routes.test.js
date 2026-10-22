@@ -1,7 +1,12 @@
 // @ts-check
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const { createProjectFixture } = require("./helpers/project-fixture");
 const { handle } = require("../ui/server/router");
+
+const fixture = createProjectFixture();
+fixture.activate();
+test.after(() => fixture.cleanup());
 
 /**
  * Helper para simular chamada HTTP no router
@@ -32,7 +37,7 @@ async function mockRequest(method, url) {
 }
 
 test("design-registry routes: GET /api/project/:slug/design/registry lista componentes", async () => {
-  const res = await mockRequest("GET", "/api/project/saude-dispensacao/design/registry");
+  const res = await mockRequest("GET", `/api/project/${fixture.slug}/design/registry`);
   assert.equal(res.status, 200);
   const body = res.json();
   assert.equal(body.ok, true);
@@ -40,13 +45,13 @@ test("design-registry routes: GET /api/project/:slug/design/registry lista compo
   assert.ok(body.components.some((c) => c.id === "dis.annotation-list"));
 
   // GET detalhe do componente
-  const resDetail = await mockRequest("GET", "/api/project/saude-dispensacao/design/registry/dis.annotation-list");
+  const resDetail = await mockRequest("GET", `/api/project/${fixture.slug}/design/registry/dis.annotation-list`);
   assert.equal(resDetail.status, 200);
   const bodyDetail = resDetail.json();
   assert.equal(bodyDetail.ok, true);
   assert.equal(bodyDetail.component.id, "dis.annotation-list");
 
   // 404 para inexistente
-  const res404 = await mockRequest("GET", "/api/project/saude-dispensacao/design/registry/inexistente");
+  const res404 = await mockRequest("GET", `/api/project/${fixture.slug}/design/registry/inexistente`);
   assert.equal(res404.status, 404);
 });

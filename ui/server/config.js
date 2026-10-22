@@ -40,7 +40,9 @@ const TYPES = {
 };
 
 const getRoot = () => require("../../tools/lib/root").ROOT;
-const getProjects = () => path.join(getRoot(), "projects");
+const getProjects = () => process.env.HARNESS_PROJECTS_DIR
+  ? path.resolve(process.env.HARNESS_PROJECTS_DIR)
+  : path.join(getRoot(), "projects");
 
 const read = (p) => {
   try {

@@ -3,6 +3,10 @@ const test = require("node:test");
 const assert = require("node:assert");
 const fs = require("node:fs");
 const path = require("node:path");
+const { createProjectFixture } = require("./helpers/project-fixture");
+
+const fixture = createProjectFixture();
+test.after(() => fixture.cleanup());
 
 const {
   validateComponentManifest,
@@ -104,7 +108,7 @@ test("Design Registry - Registro de Implementações de Framework", () => {
 });
 
 test("Design Extractor - Execução do Piloto AnnotationList", () => {
-  const saudeProjectDir = path.resolve(__dirname, "..", "projects", "saude-dispensacao");
+  const saudeProjectDir = fixture.dir;
   const manifest = extractAnnotationListPilot(saudeProjectDir);
 
   assert.strictEqual(manifest.id, "dis.annotation-list");

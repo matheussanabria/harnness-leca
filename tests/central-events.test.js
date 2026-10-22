@@ -7,7 +7,9 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 
-const ROOT = path.resolve(".");
+const ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-events-root-"));
+process.env.HARNESS_ROOT = ROOT;
+test.after(() => fs.rmSync(ROOT, { recursive: true, force: true }));
 
 const { appendEvent, readEvents, storeStats, closeStore, normalizeEvent, TYPE_ALIASES } = require("../ui/server/services/events/event-store");
 const { projectSessions, projectWorkflows, projectAttention } = require("../ui/server/services/events/event-projector");
