@@ -119,6 +119,23 @@
 
 
 
+  <!-- Seção de Resumo Operacional -->
+  <div class="history-section">
+    <div class="history-header">
+      <h3>
+        <span><i class="fa-solid fa-gauge-high"></i></span>
+        <span>Resumo Operacional</span>
+      </h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn-secondary" onclick="reloadDeployStatus()" style="font-size:12px;padding:4px 10px">
+          <i class="fa-solid fa-rotate"></i> Atualizar
+        </button>
+      </div>
+    </div>
+    <div id="deployStatusPanel" class="pipelines-panel">
+      <!-- Renderizado dinamicamente por js/deploy/deploy-status.js -->
+    </div>
+  </div>
   <!-- Seção de Ações Autorizadas -->
   <div class="history-section">
     <div class="history-header">

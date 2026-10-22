@@ -3,6 +3,7 @@
 import { getOrchestrationDrawerData, setupOrchestrationPanelListeners } from "../office-orchestration-panel.js";
 import { renderAgentInteractiveDesk } from "./office-desk-chat.js";
 import { renderOfficeChatWindow } from "./office-chat-window.js";
+import { renderOfficeDatacenterStatus } from "./office-datacenter-status.js";
 
 /**
  * Renderiza o conteúdo do drawer com base no objeto selecionado
@@ -135,22 +136,22 @@ export function renderDrawerContent(objKey, state) {
     case "server_rack": {
       iconEl.textContent = "🖥️";
       titleEl.textContent = "Datacenter & Deploys";
-      subtitleEl.textContent = "Servidores Hostinger VPS & Easypanel";
+      subtitleEl.textContent = "Estado real dos ambientes de deploy";
       bodyEl.innerHTML = `
         <div class="drawer-card">
           <div class="drawer-card-title">Infraestrutura em Nuvem</div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-            <span class="pill-dot online" style="width:12px;height:12px"></span>
-            <span style="font-weight:600">Easypanel VPS Conectado</span>
+          <div id="officeDatacenterStatus" class="office-datacenter-status">
+            <div class="office-datacenter-line"><i class="fa-solid fa-spinner fa-spin"></i> Carregando estado real dos ambientes...</div>
           </div>
-          <p style="font-size:12.5px;color:var(--office-mute);margin:0 0 14px">
-            Monitore e dispare deploys de staging e produção com 1 clique direto para seus contêineres Docker na nuvem.
+          <p style="font-size:12.5px;color:var(--office-mute);margin:14px 0">
+            O estado vem das mesmas medicoes do painel de deploys: nada e considerado conectado sem medicao registrada.
           </p>
           <a href="/deploy" class="header-nav-btn" style="display:flex;justify-content:center;text-decoration:none">
             🚀 Abrir Painel de Deploys
           </a>
         </div>
       `;
+      renderOfficeDatacenterStatus(document.getElementById("officeDatacenterStatus"));
       break;
     }
 

@@ -1,0 +1,37 @@
+/* Resumo operacional no painel de deploy (EP-10.05) */
+
+.deploy-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  color: #cbd5f5;
+  white-space: nowrap;
+}
+
+.deploy-state.is-ok {
+  border-color: rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.12);
+  color: #86efac;
+}
+
+.deploy-state.is-warn {
+  border-color: rgba(234, 179, 8, 0.45);
+  background: rgba(234, 179, 8, 0.12);
+  color: #fcd34d;
+}
+
+.deploy-state.is-fail {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+}
+
+.deploy-state.is-unknown {
+  border-color: rgba(148, 163, 184, 0.4);
+  color: #94a3b8;
+}

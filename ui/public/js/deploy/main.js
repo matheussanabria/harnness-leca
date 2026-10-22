@@ -8,6 +8,7 @@ import "./deploy-pipelines.js";
 import "./deploy-health.js";
 import "./deploy-timeline.js";
 import "./deploy-actions.js";
+import "./deploy-status.js";
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);

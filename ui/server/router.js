@@ -66,6 +66,7 @@ const {
   apiDeployActionAuthorize,
   apiDeployActionExecute,
 } = require("./controllers/deploy-actions.controller");
+const { apiDeployStatus } = require("./controllers/deploy-status.controller");
 const {
   apiDeployHealth,
   apiDeployHealthChecksSave,
@@ -193,6 +194,7 @@ const ROUTES = [
   { method: "GET", path: "/api/deploy/timeline", handler: apiDeployTimeline },
   { method: "GET", path: "/api/deploy/logs", handler: apiDeployLogs },
   { method: "GET", path: "/api/deploy/actions", handler: apiDeployActions },
+  { method: "GET", path: "/api/deploy/status", handler: apiDeployStatus },
   { method: "POST", path: /^\/api\/deploy\/actions\/([\w-]+)\/authorize$/, handler: apiDeployActionAuthorize },
   { method: "POST", path: /^\/api\/deploy\/actions\/([\w-]+)\/execute$/, handler: apiDeployActionExecute },
   { method: "GET", path: "/api/hia/metrics", handler: apiHiaMetrics },

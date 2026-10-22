@@ -1,0 +1,45 @@
+/* Resumo operacional do Datacenter no Escritorio (EP-10.05) */
+
+.office-datacenter-status {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.office-datacenter-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--office-text, #e2e8f0);
+}
+
+.office-datacenter-line i.is-ok {
+  color: #22c55e;
+}
+
+.office-datacenter-line i.is-warn {
+  color: #eab308;
+}
+
+.office-datacenter-line i.is-fail {
+  color: #ef4444;
+}
+
+.office-datacenter-line i.is-unknown {
+  color: #94a3b8;
+}
+
+.office-datacenter-target {
+  font-weight: 600;
+}
+
+.office-datacenter-meta {
+  color: var(--office-mute, #94a3b8);
+}
+
+.office-datacenter-totals {
+  padding-top: 6px;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
