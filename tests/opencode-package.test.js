@@ -9,6 +9,7 @@ const { parseStory, toPattern, EPIC_DIR } = require("../tools/lib/opencode-packa
 const { findViolations, patternToRegExp } = require("../tools/lib/opencode-package/guard");
 const { packageConfig, AGENT } = require("../tools/lib/opencode-package/config");
 const { buildPrompt } = require("../tools/lib/opencode-package/prompt");
+const { cleanEnv } = require("../tools/lib/opencode-package/worktree");
 const { runPackage, verifyStory } = require("../tools/lib/opencode-package/run");
 
 const REAL_ROOT = path.resolve(__dirname, "..");
@@ -36,7 +37,7 @@ nada
 /** Repositório git temporário com uma história e a branch base ep14/integracao. */
 function tempRepo() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "hl-pkg-test-"));
-  const sh = (/** @type {string[]} */ ...a) => spawnSync("git", a, { cwd: root, encoding: "utf8" });
+  const sh = (/** @type {string[]} */ ...a) => spawnSync("git", a, { cwd: root, encoding: "utf8", env: cleanEnv() });
   sh("init", "-q", "-b", "main");
   sh("config", "user.email", "t@t");
   sh("config", "user.name", "t");
@@ -58,6 +59,7 @@ test("parseStory lê branch, dependências e a lista permitida das histórias re
   const s = parseStory(REAL_ROOT, "14.03");
   assert.equal(s.branch, "ep14/14.03-executor-opencode");
   assert.ok(s.allowed.includes("tools/opencode-package.js"));
+  assert.ok(s.allowed.includes("MAPA.md"), "MAPA.md é sempre permitido");
   assert.deepEqual(parseStory(REAL_ROOT, "14.05").deps, ["14.04"]);
   assert.throws(() => parseStory(REAL_ROOT, "14.99"), /não encontrada/);
   assert.throws(() => parseStory(REAL_ROOT, "../x"), /inválido/);
@@ -111,6 +113,8 @@ test("runPackage em dry-run cria worktree/branch e não chama o opencode; verify
     fs.writeFileSync(path.join(String(report.dir), "fora.js"), "x");
     const v = verifyStory(root, "99.01");
     assert.deepEqual(v.violations, ["fora.js"]);
+    fs.appendFileSync(path.join(String(report.dir), "README.md"), "y");
+    assert.ok(verifyStory(root, "99.01").changed.includes("README.md"), "primeiro caminho do status não pode perder o 1º caractere");
     assert.ok(v.changed.includes("src/a.js"));
     assert.throws(() => runPackage(root, { id: "99.01", dryRun: true }), /já existe/);
   } finally {
@@ -142,5 +146,19 @@ test("runPackage executa o opencode com OPENCODE_CONFIG fora do worktree e falha
     sh("worktree", "prune");
     fs.rmSync(root, { recursive: true, force: true });
     fs.rmSync(pkgDir, { recursive: true, force: true });
+  }
+});
+
+test("cleanEnv remove as variáveis GIT_* herdadas de um hook", () => {
+  process.env.GIT_DIR = "/x";
+  process.env.GIT_INDEX_FILE = "/y";
+  try {
+    const env = cleanEnv();
+    assert.equal(env.GIT_DIR, undefined);
+    assert.equal(env.GIT_INDEX_FILE, undefined);
+    assert.ok(env.PATH || env.Path);
+  } finally {
+    delete process.env.GIT_DIR;
+    delete process.env.GIT_INDEX_FILE;
   }
 });

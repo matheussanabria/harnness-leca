@@ -35,6 +35,8 @@ function parseStory(root, id) {
     .map(toPattern)
     .filter(Boolean);
   if (!allowed.length) throw new Error(`História ${id} sem lista de arquivos permitidos (seção 5).`);
+  // O repositório exige atualizar o MAPA.md ao criar arquivos: vale para toda história.
+  if (!allowed.includes("MAPA.md")) allowed.push("MAPA.md");
   return { id, file, slug, branch: `ep14/${id}-${slug}`, title, allowed, body, deps };
 }
 

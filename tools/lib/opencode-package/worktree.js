@@ -5,10 +5,13 @@ const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
 
+/** Ambiente sem as variáveis GIT_* que um hook exporta (GIT_DIR, GIT_INDEX_FILE...): elas desviariam o git do `cwd`. */
+const cleanEnv = () => Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith("GIT_")));
+
 /** @param {string[]} args @param {string} cwd */
 function git(args, cwd) {
-  const r = spawnSync("git", args, { cwd, encoding: "utf8", shell: false, windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
-  return { ok: r.status === 0, out: String(r.stdout || "").trim(), err: String(r.stderr || "").trim() };
+  const r = spawnSync("git", args, { cwd, encoding: "utf8", shell: false, windowsHide: true, maxBuffer: 64 * 1024 * 1024, env: cleanEnv() });
+  return { ok: r.status === 0, out: String(r.stdout || "").replace(/\s+$/, ""), err: String(r.stderr || "").trim() };
 }
 
 const worktreeDir = (/** @type {string} */ id) => path.join(process.env.HARNESS_PACKAGE_DIR || (process.platform === "win32" ? "C:/Temp" : os.tmpdir()), `hl-${id.replace(".", "-")}`);
@@ -36,4 +39,4 @@ function changedFiles(dir) {
   return r.out.split("\n").filter(Boolean).map((l) => l.slice(3).replace(/^.* -> /, "").replace(/^"|"$/g, ""));
 }
 
-module.exports = { git, worktreeDir, createWorktree, changedFiles };
+module.exports = { git, cleanEnv, worktreeDir, createWorktree, changedFiles };
