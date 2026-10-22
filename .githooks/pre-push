@@ -1,0 +1,11 @@
+#!/bin/sh
+# Pre-push do harness (ativar: npm run setup:hooks). O pre-commit roda só os testes
+# afetados (EP-14.02); aqui roda a suíte completa. Com a regressão ativada, roda a
+# cadeia completa (check, testes, índice mestre e dívida de tipos).
+set -e
+root="$(git rev-parse --show-toplevel)"
+cd "$root" || exit 1
+if [ -f quality/regression-enforced ] || [ "$HARNESS_REGRESSION" = "1" ]; then
+  exec node scripts/regressao.js
+fi
+exec node --test "tests/*.test.js"
