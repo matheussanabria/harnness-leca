@@ -106,7 +106,7 @@ test("EP-14.04: campos fora do esquema e valores invalidos sao descartados", () 
   assert.deepEqual(sanitizeState("chats", { pageSize: 101 }), {});
   assert.deepEqual(sanitizeState("chats", { pageSize: 100 }), { pageSize: 100 });
   assert.deepEqual(sanitizeState("chats", { sortAsc: true }), { sortAsc: true });
-  assert.deepEqual(sanitizeState("chats", { activeChat: { texto: "a".repeat(70000) } }), {});
+  assert.deepEqual(sanitizeState("chats", { assignments: { texto: "a".repeat(70000) } }), {});
   assert.deepEqual(sanitizeState("office", { mouseSensitivity: 11 }), {});
   assert.deepEqual(sanitizeState("office", { mouseSensitivity: 10 }), { mouseSensitivity: 10 });
 });
@@ -124,7 +124,7 @@ test("EP-14.04: saneamento nao propaga proto e isola a copia do estado", () => {
 test("EP-14.04: estado acima de 64 KB e rejeitado", () => {
   assert.equal(MAX_STATE_BYTES, 64 * 1024);
   const grande = {
-    activeChat: { texto: "a".repeat(59000) },
+    assignments: { texto: "a".repeat(59000) },
     draft: "b".repeat(20000),
   };
   assert.ok(stateBytes(grande) > MAX_STATE_BYTES);
@@ -156,7 +156,7 @@ test("EP-14.04: toda chave de localStorage do cliente esta migraDe ou em excluso
   const uncovered = keys.filter((key) => !isStorageKeyCovered(key));
   assert.deepEqual(uncovered, [], `chaves sem destino: ${uncovered.join(", ")}`);
 
-  for (const expected of ["harness_groups_", "harness_chat_draft_", "harness_deploy_config", "dai:wm:layout:"]) {
+  for (const expected of ["harness_chats_view_mode", "harness_deploy_config", "dai:wm:layout:"]) {
     assert.equal(keys.includes(expected), true, `varredura deve achar ${expected}`);
   }
 });

@@ -1,7 +1,7 @@
 // @ts-check
 // Atribuição de conversas a grupos e sugestão individual.
 import { esc } from "../shared/dom.js";
-import { state } from "../shared/state.js";
+import { state, persistChatScreenState, logChatAction, CHAT_ACTIONS } from "../shared/state.js";
 import { getProjectGroups, getGroupById, saveGroupsData } from "./groups-data.js";
 
 export function openAssignChatGroupModal(chatName) {
@@ -123,9 +123,11 @@ export async function saveChatGroupAssignment() {
     c.subgroup = subgroup || "";
   }
 
-  try {
-    localStorage.setItem("harness_groups_" + P.slug, JSON.stringify(P.groups));
-  } catch {}
+  persistChatScreenState({
+    groups: P.groups.groups || [],
+    assignments: P.groups.assignments || {},
+  });
+  void logChatAction(CHAT_ACTIONS.GROUP, assigningChatName);
 
   try {
     await fetch("/api/project/" + encodeURIComponent(P.slug) + "/chat-group", {
@@ -159,9 +161,11 @@ export async function removeChatGroupAssignment() {
     c.group = "";
     c.subgroup = "";
   }
-  try {
-    localStorage.setItem("harness_groups_" + P.slug, JSON.stringify(P.groups));
-  } catch {}
+  persistChatScreenState({
+    groups: (P.groups && P.groups.groups) || [],
+    assignments: (P.groups && P.groups.assignments) || {},
+  });
+  void logChatAction(CHAT_ACTIONS.GROUP, assigningChatName);
   try {
     await fetch("/api/project/" + encodeURIComponent(P.slug) + "/chat-group", {
       method: "POST",

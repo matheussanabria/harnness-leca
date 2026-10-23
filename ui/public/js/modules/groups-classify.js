@@ -1,7 +1,7 @@
 // @ts-check
 // Classificação automática em lote.
 import { esc } from "../shared/dom.js";
-import { state } from "../shared/state.js";
+import { state, persistChatScreenState, logChatAction, CHAT_ACTIONS } from "../shared/state.js";
 import { gs } from "./groups-store.js";
 import { renderManageGroupsList } from "./groups-manage.js";
 
@@ -119,7 +119,11 @@ export async function applyBatchClassifySuggestions() {
 
     // Atualiza estado do projeto
     P.groups = { groups: data.groups || [], assignments: data.assignments || {} };
-    localStorage.setItem("harness_groups_" + P.slug, JSON.stringify(P.groups));
+    persistChatScreenState({
+      groups: P.groups.groups,
+      assignments: P.groups.assignments,
+    });
+    void logChatAction(CHAT_ACTIONS.GROUP, `${itemsToApply.length} conversas`);
 
     // Atualiza chats em memória
     const assigns = P.groups.assignments || {};

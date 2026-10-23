@@ -139,7 +139,7 @@ harness-leca/
 | **Markdown & Parsers** | [`ui/public/js/shared/markdown.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/markdown.js) | `md(t)`, `parseChat(src)`, `renderChat(src)`, `parseFrontmatter(content)`. |
 | **Parsing de Código & Tags** | [`ui/public/js/shared/markdown-code.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/markdown-code.js) | Extração de blocos `<arquivo caminho="...">` e crases com renderização de `.code-block-card`. |
 | **Ações de Código do Chat** | [`ui/public/js/modules/chat-code-actions.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/chat-code-actions.js) | Copiar código (`copyCodeFromContainer`) e aplicar granularmente no Ateliê de Protótipos (`applySingleAtelierFile`). |
-| **Estado Global** | [`ui/public/js/shared/state.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/state.js) | Estado reativo `state`, persistência de rascunhos de chat e paleta de cores. |
+| **Estado Global** | [`ui/public/js/shared/state.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/state.js) | Estado reativo `state`, hidratação da tela de conversas pelo cliente de estado (filtros, visão, página, rascunho, grupos e chat ativo), registro de ações e paleta de cores (EP-14.07). |
 | **Seleção Compartilhada de Projeto** | [`ui/public/js/shared/project-selection.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/project-selection.js) | Resolve precedência, sincroniza URL/storage/backend e publica trocas confirmadas de projeto. |
 | **Cliente de Estado das Telas** | [`ui/public/js/shared/screen-state.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/screen-state.js) | `loadScreen`, `patchScreen` e `logAction`: hidrata antes da renderização, cache em memória, debounce de 400 ms, `sendBeacon` no `pagehide`, reserva em `localStorage` e retentativa quando o servidor volta (EP-14.06). |
 | **Migração do Estado das Telas** | [`ui/public/js/shared/screen-state-migrate.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/screen-state-migrate.js) | Espelha escopos e `migraDe` do registro do servidor, lê e remove as chaves antigas do `localStorage` na primeira carga, filtrando pelo projeto (EP-14.06). |
@@ -318,6 +318,7 @@ node --test tests/prototype-screen-decomposer.test.js # Testa decomposição de 
 node --test tests/prototype-reconstruction.test.js # Testa reconstrução completa do protótipo DIS modular
 node --test tests/screen-registry.test.js           # Testa registro das 13 telas, saneamento e cobertura das chaves antigas
 node --test tests/screen-state-client.test.js       # Testa hidratação, debounce, migração, reserva offline e retentativa do cliente
+node --test tests/chats-screen-state.test.js        # Testa adoção do estado nas telas de conversas, grupos e projetos (EP-14.07)
 ```
 
 | Caminho | Responsabilidade |
@@ -329,6 +330,7 @@ node --test tests/screen-state-client.test.js       # Testa hidratação, deboun
 | `tests/screen-registry.test.js` | Regressão do registro das 13 telas, do saneamento de campos, do limite de 64 KB e da cobertura das chaves antigas do `localStorage` (EP-14.04). |
 | `tests/screen-state-store.test.js` e `tests/screen-state-http.test.js` | Regressão do armazenamento e dos endpoints de estado/histórico por tela: persistência, merge, 409 por `rev`, 413, anel de 500, slug, rotas e arquivos de apoio (EP-14.05). |
 | `tests/screen-state-client.test.js` | Regressão do cliente de estado das telas: espelho do registro, hidratação e cache, migração, debounce de 400 ms, `sendBeacon`, reserva offline e retentativa (EP-14.06). |
+| `tests/chats-screen-state.test.js` | Regressão da adoção nas conversas, grupos e projetos: hidratação de filtros/visão/página/rascunho/grupos, registro de ações de troca de projeto, abertura de chat e mudança de grupo, além da ausência de `localStorage` direto (EP-14.07). |
 
 - Fixtures de teste: `tests/helpers/project-fixture.js` (orquestrador), `project-fixture-design-system.js`, `project-fixture-prototype.js`, `project-fixture-design-index.js` e `project-fixture-files.js` criam um projeto temporário fora de `projects/` e devolvem `{ dir, slug, cleanup }`.
 
