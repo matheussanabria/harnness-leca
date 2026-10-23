@@ -50,6 +50,26 @@ function patchFromBody(body) {
   return { patch, rev };
 }
 
+/**
+ * POST /api/screens/:id/state: mesmo efeito do PATCH, para o navigator.sendBeacon (que só faz POST).
+ * Na saída da página vale a última gravação: o rev do cliente pode estar defasado, então é ignorado.
+ */
+async function apiScreenStateBeacon(ctx) {
+  const { req, res, params, url } = ctx;
+  let body;
+  try {
+    body = await readJsonBody(req);
+  } catch {
+    return send(res, 400, { error: "JSON inválido.", code: "INVALID_JSON" });
+  }
+  try {
+    const { patch } = patchFromBody(body);
+    return send(res, 200, patchScreenState(params[0], projectFrom(url), patch, undefined));
+  } catch (error) {
+    return fail(res, error);
+  }
+}
+
 async function apiScreenStatePatch({ req, res, params, url }) {
   let body;
   try {
@@ -95,6 +115,7 @@ module.exports = {
   apiScreensCatalog,
   apiScreenStateGet,
   apiScreenStatePatch,
+  apiScreenStateBeacon,
   apiScreenHistoryGet,
   apiScreenHistoryPost,
 };

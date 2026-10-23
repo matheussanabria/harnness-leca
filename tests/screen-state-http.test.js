@@ -17,6 +17,7 @@ const {
   apiScreensCatalog,
   apiScreenStateGet,
   apiScreenStatePatch,
+  apiScreenStateBeacon,
   apiScreenHistoryGet,
   apiScreenHistoryPost,
 } = require("../ui/server/controllers/screen-state.controller");
@@ -210,4 +211,16 @@ test("screen-state-http: rotas registradas, arquivos enxutos, MAPA e gitignore",
   assert.match(mapa, /screen-state\/store\.js/);
   assert.match(mapa, /screen-state\.controller\.js/);
   assert.match(mapa, /screens\.routes\.js/);
+});
+
+test("screen-state-http: POST /state (beacon) grava como o PATCH e ignora um rev defasado", async () => {
+  const first = await patchScreen("scrum", { sprint: "S1" });
+  assert.equal(first.status, 200);
+  const res = fakeRes();
+  await apiScreenStateBeacon({ req: fakeReq({ state: { sprint: "S2" }, rev: 0 }), res, params: ["scrum"], url: urlFor() });
+  assert.equal(res.status, 200);
+  assert.equal(json(res).state.sprint, "S2");
+  assert.ok(json(res).rev > json(first).rev);
+  const route = screensRoutes.find((r) => r.method === "POST" && typeof r.path !== "string" && r.path.test("/api/screens/scrum/state"));
+  assert.equal(route?.handler?.name, "apiScreenStateBeacon");
 });
