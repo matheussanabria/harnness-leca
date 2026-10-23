@@ -3,8 +3,6 @@
  * Gerenciador de Layout e Redimensionamento das 4 Áreas do Workspace de Protótipos.
  * Painéis: Catálogo (1), Chat IA (2), Preview Central (3) e Inspetor (4).
  */
-const STORAGE_KEY = "harness_proto_workspace_layout";
-
 const DEFAULTS = {
   widths: { catalog: 220, chat: 380, inspector: 290 },
   collapsed: { catalog: false, chat: false, inspector: false },
@@ -43,7 +41,7 @@ export function normalizeWorkspaceLayout(raw) {
   return { widths, collapsed };
 }
 
-let layoutState = loadLayoutState();
+let layoutState = JSON.parse(JSON.stringify(DEFAULTS));
 const layoutListeners = new Set();
 
 function notifyLayoutChange() {
@@ -53,26 +51,6 @@ function notifyLayoutChange() {
       listener(snapshot);
     } catch {}
   }
-}
-
-function loadLayoutState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return JSON.parse(JSON.stringify(DEFAULTS));
-    const parsed = JSON.parse(raw);
-    return {
-      widths: { ...DEFAULTS.widths, ...(parsed.widths || {}) },
-      collapsed: { ...DEFAULTS.collapsed, ...(parsed.collapsed || {}) },
-    };
-  } catch {
-    return JSON.parse(JSON.stringify(DEFAULTS));
-  }
-}
-
-function saveLayoutState() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(layoutState));
-  } catch {}
 }
 
 /** Cópia do layout atual (larguras e recolhimento) para persistência. */
@@ -148,7 +126,6 @@ export function initWorkspaceLayout(root) {
 export function togglePanelCollapse(root, panel) {
   if (!layoutState.collapsed.hasOwnProperty(panel)) return;
   layoutState.collapsed[panel] = !layoutState.collapsed[panel];
-  saveLayoutState();
   applyAllWidths(root);
   notifyLayoutChange();
 }
@@ -238,7 +215,6 @@ function setupResizer(root, resizer, targetKey, direction) {
     isDragging = false;
     resizer.classList.remove("dragging");
     document.body.classList.remove("proto-resizing");
-    saveLayoutState();
     notifyLayoutChange();
 
     window.removeEventListener("mousemove", onMouseMove);

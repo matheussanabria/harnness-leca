@@ -35,11 +35,7 @@ export class OfficeScenePreferences {
 
   /** @private */
   _defaultStorage() {
-    try {
-      return this.win?.localStorage || null;
-    } catch (_) {
-      return null;
-    }
+    return null;
   }
 
   /** @returns {any} */

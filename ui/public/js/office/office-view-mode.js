@@ -39,11 +39,7 @@ const BUTTON_IDS = [
  * @returns {{ getItem: Function, setItem: Function, removeItem: Function } | null}
  */
 export function defaultOfficeStorage() {
-  try {
-    return typeof localStorage !== "undefined" ? localStorage : null;
-  } catch (_) {
-    return null;
-  }
+  return null;
 }
 
 export class OfficeViewModeController {

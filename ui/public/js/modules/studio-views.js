@@ -146,12 +146,6 @@ export function switchStudioView(targetMode, options = {}) {
 
   sts.currentStudioMode = mode;
 
-  // Persiste a preferência se houver storage
-  if (typeof localStorage !== "undefined") {
-    try {
-      localStorage.setItem(resolveViewStorageKey(), mode);
-    } catch {}
-  }
   void saveStudioState({ activeView: mode });
 
   // Atualiza botões no grupo de visualização
@@ -221,13 +215,7 @@ export function switchStudioView(targetMode, options = {}) {
  * @param {string} [preferredMode]
  */
 export function initStudioViews(preferredMode) {
-  let mode = preferredMode;
-  if (!mode && typeof localStorage !== "undefined") {
-    try {
-      const saved = localStorage.getItem(resolveViewStorageKey());
-      if (saved) mode = saved;
-    } catch {}
-  }
+  const mode = preferredMode;
   // Preferências antigas guardavam "source" como modo exclusivo: viram preview + coluna aberta.
   const legacyCode = normalizeStudioViewMode(mode) === STUDIO_VIEW_MODES.CODE;
   switchStudioView(legacyCode || !mode ? STUDIO_VIEW_MODES.PREVIEW : mode, { force: true });

@@ -18,6 +18,7 @@ const TELAS = {
       { padrao: "harness_chat_draft_*", campo: "draft", ler: "texto" },
       { padrao: "harness_groups_*", campo: "groups", ler: "json" },
       { padrao: "harness_chat_engine_settings", campo: "engineFilter", ler: "motor" },
+      { padrao: "harness_chat_engine_settings", campo: "engineSettings", ler: "engineSettings" },
     ],
   },
   studio: {
@@ -165,6 +166,15 @@ function parseValue(raw, tipo) {
         const parsed = JSON.parse(raw);
         const motor = parsed?.currentEngine;
         return typeof motor === "string" && motor.trim() ? motor.trim() : undefined;
+      } catch {
+        return undefined;
+      }
+    }
+    case "engineSettings": {
+      try {
+        const parsed = JSON.parse(raw);
+        const settings = parsed?.engineSettings;
+        return settings && typeof settings === "object" && !Array.isArray(settings) ? settings : undefined;
       } catch {
         return undefined;
       }

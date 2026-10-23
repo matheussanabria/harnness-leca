@@ -5,13 +5,7 @@ import { $ } from "../shared/dom.js";
  * Liga/desliga o inspetor do Ateliê. Desligado, a tela roda "de verdade" (sem contornos, sem seleção de
  * elementos e com os scripts ativos); ligado, o clique seleciona o elemento para edição.
  */
-const KEY = "harness.atelier.inspector";
-
-function readStored() {
-  try { return localStorage.getItem(KEY) !== "off"; } catch { return true; }
-}
-
-let enabled = readStored();
+let enabled = true;
 
 export const isInspectorOn = () => enabled;
 
@@ -21,7 +15,6 @@ export const isInspectorOn = () => enabled;
  */
 export function setInspectorEnabled(value) {
   enabled = value !== false;
-  try { localStorage.setItem(KEY, enabled ? "on" : "off"); } catch {}
   return enabled;
 }
 
@@ -43,7 +36,6 @@ export function bindInspectorToggle(apply) {
   reflect(button);
   button.addEventListener("click", () => {
     enabled = !enabled;
-    try { localStorage.setItem(KEY, enabled ? "on" : "off"); } catch {}
     reflect(button);
     apply(enabled);
   });

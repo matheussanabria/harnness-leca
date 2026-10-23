@@ -50,6 +50,18 @@ export function normalizeAtelierState(raw) {
   const viewport = text(data.viewport, VIEWPORT_LIMIT);
   if (viewport) state.viewport = viewport;
 
+  const canvas = record(data.canvas);
+  if (canvas) {
+    /** @type {Record<string, string>} */
+    const valid = {};
+    for (const [key, value] of Object.entries(canvas)) {
+      if (key.startsWith("harness.canvas.v1.") && typeof value === "string" && value.length <= 100000) {
+        valid[key] = value;
+      }
+    }
+    if (Object.keys(valid).length) state.canvas = valid;
+  }
+
   return state;
 }
 

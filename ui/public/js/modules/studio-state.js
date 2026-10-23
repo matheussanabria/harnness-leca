@@ -74,6 +74,12 @@ export function normalizeStudioState(raw, viewportWidth) {
   const activeScreen = text(data.activeScreen, NAME_LIMIT);
   if (activeScreen) state.activeScreen = activeScreen;
 
+  const designView = text(data.designView, VIEW_LIMIT);
+  if (designView) state.designView = designView;
+
+  const designOpen = boolean(data.designOpen);
+  if (designOpen !== undefined) state.designOpen = designOpen;
+
   return state;
 }
 

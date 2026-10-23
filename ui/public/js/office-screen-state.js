@@ -2,6 +2,7 @@
 // Estado da tela do escritório (EP-14.10): HUD, sensibilidade do mouse e modo
 // de visualização hidratados do servidor e gravados pelo cliente de telas.
 import { viewModeStorageKey } from "./office/view-modes.js";
+import { SCENE_STORAGE_KEY } from "./office/scene-preferences.js";
 
 export const MIN_SENSITIVITY = 1;
 export const MAX_SENSITIVITY = 10;
@@ -52,6 +53,10 @@ export function normalizeOfficeState(raw, project = "global") {
     hudHidden: state.hudHidden === true,
     mouseSensitivity: normalizeSensitivity(state.mouseSensitivity),
     viewMode: normalizeViewMap(state.viewMode, project),
+    windowLayout: isRecord(state.windowLayout) ? state.windowLayout : {},
+    windowState: isRecord(state.windowState) ? state.windowState : {},
+    workspaces: isRecord(state.workspaces) ? state.workspaces : {},
+    scenePreferences: isRecord(state.scenePreferences) ? state.scenePreferences : {},
   };
 }
 
@@ -87,6 +92,33 @@ export class OfficeScreenState {
   /** @param {string} [project] */
   viewState(project = this.project) {
     return this.state.viewMode[project] || null;
+  }
+
+  /**
+   * Adaptador síncrono da preferência de cena usado por OfficeScenePreferences.
+   */
+  sceneStorage() {
+    return {
+      getItem: (key) => {
+        if (key !== SCENE_STORAGE_KEY) return null;
+        const value = this.state.scenePreferences;
+        return Object.keys(value).length ? JSON.stringify(value) : null;
+      },
+      setItem: (key, raw) => {
+        if (key !== SCENE_STORAGE_KEY) return;
+        try {
+          const parsed = JSON.parse(raw);
+          if (!isRecord(parsed)) return;
+          this.state.scenePreferences = parsed;
+          void this.#save({ scenePreferences: parsed });
+        } catch {}
+      },
+      removeItem: (key) => {
+        if (key !== SCENE_STORAGE_KEY) return;
+        this.state.scenePreferences = {};
+        void this.#save({ scenePreferences: {} });
+      },
+    };
   }
 
   /** @param {unknown} hidden */

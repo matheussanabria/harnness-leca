@@ -78,7 +78,7 @@ export function saveStoredSidebarWidth(storage, width, projectSlug) {
  * @param {string} [projectSlug]
  * @returns {number}
  */
-export function applySidebarWidth(sidebar, resizer, width, persist = false, storage = typeof localStorage !== "undefined" ? localStorage : null, projectSlug = "") {
+export function applySidebarWidth(sidebar, resizer, width, persist = false, storage = null, projectSlug = "") {
   const next = clampSidebarWidth(width);
   const { min, max } = calculateSidebarBounds();
   sidebar.style.width = `${next}px`;
@@ -98,6 +98,7 @@ export function applySidebarWidth(sidebar, resizer, width, persist = false, stor
  * @param {HTMLElement} [options.sidebarEl]
  * @param {HTMLElement} [options.workspaceEl]
  * @param {string} [options.projectSlug]
+ * @param {Storage | null} [options.storage]
  */
 export function initStudioSidebarResizer(options = {}) {
   if (studioResizerInitialized && !options.resizerEl) return;
@@ -110,7 +111,7 @@ export function initStudioSidebarResizer(options = {}) {
   if (!resizer || !sidebar || !ws) return;
 
   studioResizerInitialized = true;
-  const storage = typeof localStorage !== "undefined" ? localStorage : null;
+  const storage = options.storage || null;
   const projectSlug = options.projectSlug || "";
 
   // Restaura largura inicial em telas maiores que mobile

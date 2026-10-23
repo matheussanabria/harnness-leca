@@ -4,6 +4,7 @@ import { setupArtifactImport } from "./design-artifacts-import.js";
 import { setupArtifactAccess } from "./design-artifacts-access.js";
 import { setupArtifactPreview } from "./design-artifacts-preview.js";
 import { setupArtifactRelationships } from "./design-artifacts-relationships.js";
+import { logArtifactsAction, readArtifactsState, saveArtifactsState } from "./design-artifacts-state.js";
 
 const KIND_META = {
   prototype: { label: "Protótipo", icon: "fa-file-code" },
@@ -59,7 +60,7 @@ function renderAccess(item, canManage) {
   return `<span class="artifact-access"><span class="artifact-access-badge ${access.className}"><i class="fa-solid ${access.icon}"></i> ${access.label}</span>${button}</span>`;
 }
 
-function renderRow(item, canManage) {
+function renderRow(item, canManage, selectedKey = "") {
   const kind = KIND_META[item.kind] || { label: item.kind, icon: "fa-box-archive" };
   const availability = AVAILABILITY[item.availability] || AVAILABILITY.invalid;
   const canPreview = item.availability === "local" && Boolean(item.file);
@@ -72,7 +73,7 @@ function renderRow(item, canManage) {
   const detail = item.kind === "atelier"
     ? `${item.screenCount || 1} tela(s) · v${item.version || 1}`
     : item.externalUrl || item.file || "sem arquivo";
-  return `<tr data-artifact-key="${esc(item.key)}">
+  return `<tr data-artifact-key="${esc(item.key)}" class="${item.key === selectedKey ? "is-selected" : ""}" aria-selected="${item.key === selectedKey}">
     <td>
       <span class="artifact-name"><i class="fa-solid ${kind.icon}"></i> ${esc(item.title || item.id)}${preview}${relate}</span>
       <span class="artifact-path" title="${esc(detail)}">${esc(detail)}</span>
@@ -87,7 +88,7 @@ function renderRow(item, canManage) {
   </tr>`;
 }
 
-export function renderArtifactsWorkspace(container, slug, data, onChanged) {
+export async function renderArtifactsWorkspace(container, slug, data, onChanged) {
   if (!data?.ok) {
     container.innerHTML = `<div class="artifact-empty">
       <i class="fa-solid fa-box-archive"></i>
@@ -100,8 +101,10 @@ export function renderArtifactsWorkspace(container, slug, data, onChanged) {
   const summary = data.summary || { total: 0, byKind: {} };
   const canManage = data.canManageAccess === true;
   const filters = ["all", ...Object.keys(KIND_META).filter((kind) => summary.byKind?.[kind])];
-  let currentFilter = "all";
-  let query = "";
+  const saved = await readArtifactsState();
+  let currentFilter = filters.includes(saved.kindFilter) ? saved.kindFilter : "all";
+  let query = saved.query;
+  let selectedKey = saved.selectedKey;
 
   container.innerHTML = `<section class="artifact-inventory" aria-label="Inventário de artefatos do projeto">
     <header class="artifact-header">
@@ -133,7 +136,7 @@ export function renderArtifactsWorkspace(container, slug, data, onChanged) {
         ${filters.map((kind) => {
           const meta = KIND_META[kind] || { label: "Todos", icon: "fa-layer-group" };
           const count = kind === "all" ? summary.total : summary.byKind[kind];
-          return `<button type="button" class="artifact-filter ${kind === "all" ? "active" : ""}" data-filter="${kind}" aria-pressed="${kind === "all"}">
+          return `<button type="button" class="artifact-filter ${kind === currentFilter ? "active" : ""}" data-filter="${kind}" aria-pressed="${kind === currentFilter}">
             <i class="fa-solid ${meta.icon}"></i> ${meta.label} <span>${count}</span>
           </button>`;
         }).join("")}
@@ -170,11 +173,16 @@ export function renderArtifactsWorkspace(container, slug, data, onChanged) {
         item.metadata?.originalName, item.metadata?.source,
       ].some((value) => String(value || "").toLowerCase().includes(needle));
     });
-    rows.innerHTML = visible.map((item) => renderRow(item, canManage)).join("");
+    rows.innerHTML = visible.map((item) => renderRow(item, canManage, selectedKey)).join("");
     empty.hidden = visible.length > 0;
     total.textContent = String(visible.length);
   };
 
+  const persist = () => {
+    void saveArtifactsState({ kindFilter: currentFilter, query, selectedKey });
+  };
+
+  search.value = query;
   container.querySelectorAll("[data-filter]").forEach((button) => {
     button.addEventListener("click", () => {
       const element = /** @type {HTMLElement} */ (button);
@@ -184,11 +192,26 @@ export function renderArtifactsWorkspace(container, slug, data, onChanged) {
         other.classList.toggle("active", active);
         other.setAttribute("aria-pressed", String(active));
       });
+      persist();
+      void logArtifactsAction("filtrar-artefatos", currentFilter);
       paint();
     });
   });
   search.addEventListener("input", () => {
     query = search.value;
+    persist();
+    paint();
+  });
+  search.addEventListener("change", () => {
+    void logArtifactsAction("buscar-artefatos", query.slice(0, 120));
+  });
+  rows.addEventListener("click", (event) => {
+    const target = /** @type {HTMLElement} */ (event.target);
+    const row = /** @type {HTMLElement | null} */ (target.closest("tr[data-artifact-key]"));
+    if (!row) return;
+    selectedKey = row.dataset.artifactKey || "";
+    persist();
+    void logArtifactsAction("selecionar-artefato", selectedKey);
     paint();
   });
   paint();

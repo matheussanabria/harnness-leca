@@ -32,7 +32,7 @@ export class WorkspacePersistenceManager {
    */
   constructor(store, options = {}) {
     this.store = store;
-    this.storage = options.storage || globalThis.localStorage;
+    this.storage = options.storage || null;
     this.getProjectSlug = options.getProjectSlug || (() => "");
     this.getViewport = options.getViewport || (() => ({ width: 1280, height: 720 }));
     this.getAllowedModuleIds = options.getAllowedModuleIds || (() => []);
