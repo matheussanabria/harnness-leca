@@ -3,7 +3,6 @@
  * Gerenciador de Layout e Redimensionamento das 4 Áreas do Workspace de Protótipos.
  * Painéis: Catálogo (1), Chat IA (2), Preview Central (3) e Inspetor (4).
  */
-
 const STORAGE_KEY = "harness_proto_workspace_layout";
 
 const DEFAULTS = {
@@ -17,7 +16,44 @@ const LIMITS = {
   inspector: { min: 220, max: 460 },
 };
 
+const PANELS = Object.freeze(Object.keys(DEFAULTS.widths));
+
+/**
+ * Normaliza larguras e recolhimento dos painéis, aplicando os limites canônicos.
+ * @param {unknown} raw
+ * @returns {{ widths: Record<string, number>, collapsed: Record<string, boolean> } | undefined}
+ */
+export function normalizeWorkspaceLayout(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  const data = /** @type {Record<string, any>} */ (raw);
+  const sourceWidths = data.widths && typeof data.widths === "object" ? data.widths : {};
+  const sourceCollapsed = data.collapsed && typeof data.collapsed === "object" ? data.collapsed : {};
+  /** @type {Record<string, number>} */ const widths = {};
+  /** @type {Record<string, boolean>} */ const collapsed = {};
+  const limites = /** @type {Record<string, { min: number, max: number }>} */ (LIMITS);
+  const padroes = /** @type {Record<string, number>} */ (DEFAULTS.widths);
+  for (const panel of PANELS) {
+    const { min, max } = limites[panel];
+    const value = sourceWidths[panel];
+    widths[panel] = typeof value === "number" && Number.isFinite(value)
+      ? Math.max(min, Math.min(max, Math.round(value)))
+      : padroes[panel];
+    collapsed[panel] = sourceCollapsed[panel] === true;
+  }
+  return { widths, collapsed };
+}
+
 let layoutState = loadLayoutState();
+const layoutListeners = new Set();
+
+function notifyLayoutChange() {
+  const snapshot = getWorkspaceLayout();
+  for (const listener of layoutListeners) {
+    try {
+      listener(snapshot);
+    } catch {}
+  }
+}
 
 function loadLayoutState() {
   try {
@@ -37,6 +73,39 @@ function saveLayoutState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(layoutState));
   } catch {}
+}
+
+/** Cópia do layout atual (larguras e recolhimento) para persistência. */
+export function getWorkspaceLayout() {
+  return {
+    widths: { ...layoutState.widths },
+    collapsed: { ...layoutState.collapsed },
+  };
+}
+
+/**
+ * Aplica um layout vindo do estado da tela, com limites canônicos.
+ * @param {HTMLElement} root
+ * @param {unknown} layout
+ * @returns {boolean}
+ */
+export function applyWorkspaceLayout(root, layout) {
+  const normalized = normalizeWorkspaceLayout(layout);
+  if (!root || !normalized) return false;
+  layoutState = normalized;
+  applyAllWidths(root);
+  return true;
+}
+
+/**
+ * Observa mudanças de layout feitas por arraste ou recolhimento.
+ * @param {(layout: { widths: Record<string, number>, collapsed: Record<string, boolean> }) => void} listener
+ * @returns {() => void}
+ */
+export function onWorkspaceLayoutChange(listener) {
+  if (typeof listener !== "function") return () => {};
+  layoutListeners.add(listener);
+  return () => layoutListeners.delete(listener);
 }
 
 /**
@@ -81,6 +150,7 @@ export function togglePanelCollapse(root, panel) {
   layoutState.collapsed[panel] = !layoutState.collapsed[panel];
   saveLayoutState();
   applyAllWidths(root);
+  notifyLayoutChange();
 }
 
 /**
@@ -169,6 +239,7 @@ function setupResizer(root, resizer, targetKey, direction) {
     resizer.classList.remove("dragging");
     document.body.classList.remove("proto-resizing");
     saveLayoutState();
+    notifyLayoutChange();
 
     window.removeEventListener("mousemove", onMouseMove);
     window.removeEventListener("mouseup", onMouseUp);

@@ -2,12 +2,25 @@
 // Terceira coluna do Studio (chat | preview | código-fonte): abrir/fechar e redimensionar.
 import { $ } from "../shared/dom.js";
 import { state } from "../shared/state.js";
+import { saveStudioState } from "./studio-state.js";
 
 const OPEN_KEY = "harness_studio_source_open";
 const WIDTH_KEY = "harness_studio_source_width";
 const DEFAULT_WIDTH = 520;
 const MIN_WIDTH = 320;
 const MIN_PREVIEW = 280;
+
+let pendingWidth = null;
+let pendingProject = "";
+
+function rememberWidth(width) {
+  pendingWidth = width;
+  pendingProject = state.activeProject || "";
+}
+
+function currentPendingWidth() {
+  return pendingProject === (state.activeProject || "") ? pendingWidth : null;
+}
 
 /** @param {string} prefix */
 const keyFor = (prefix) => (state.activeProject ? `${prefix}_${state.activeProject}` : prefix);
@@ -41,9 +54,22 @@ function applyWidth(width, persist = false) {
   const pane = $("studioSourceWorkspace");
   if (!pane) return;
   const next = clampWidth(width);
+  rememberWidth(next);
   pane.style.width = `${next}px`;
   pane.style.flex = `0 0 ${next}px`;
-  if (persist) writeStorage(keyFor(WIDTH_KEY), String(next));
+  if (persist) {
+    writeStorage(keyFor(WIDTH_KEY), String(next));
+    void saveStudioState({ sourceWidth: next });
+  }
+}
+
+/**
+ * Aplica a largura vinda do estado da tela (durante a restauração).
+ * @param {number} width
+ */
+export function setStudioSourceColumnWidth(width) {
+  rememberWidth(width);
+  applyWidth(width);
 }
 
 function bindResizer(resizer) {
@@ -98,12 +124,14 @@ export function setStudioSourceColumn(open) {
   const appWindow = /** @type {any} */ (window);
   document.body.classList.toggle("studio-source-open", open);
   writeStorage(keyFor(OPEN_KEY), open ? "1" : "0");
+  void saveStudioState({ sourceOpen: open });
   $("btnViewSource")?.classList.toggle("active", open);
   $("btnDrawerSource")?.classList.toggle("active", open);
   if (!open) return;
   Promise.resolve(appWindow.loadStudioSourceWorkspace?.()).then(() => {
     ensureSourceColumnResizer();
     const stored = Number(readStorage(keyFor(WIDTH_KEY)));
-    applyWidth(Number.isFinite(stored) && stored > 0 ? stored : DEFAULT_WIDTH);
+    const width = currentPendingWidth() ?? (Number.isFinite(stored) && stored > 0 ? stored : DEFAULT_WIDTH);
+    applyWidth(width);
   });
 }

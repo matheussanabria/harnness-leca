@@ -5,6 +5,7 @@ import { state } from "../shared/state.js";
 import { windowManager } from "../window-manager/window-manager.js";
 import { renderSourceTree } from "./studio-source-tree.js";
 import { highlightSourceCode, sourceLanguage } from "./studio-source-highlight.js";
+import { logStudioAction } from "./studio-state.js";
 
 const UNSAVED_SOURCE_ID = "studio-source";
 
@@ -217,6 +218,7 @@ export async function saveStudioSourceFile() {
     sourceState.fingerprint = data.fingerprint;
     setDirty(false);
     setStatus(`Salvo agora · ${data.size} bytes`);
+    void logStudioAction("salvar arquivo", sourceState.path);
     showToast("Arquivo salvo. O servidor da aplicação aplicará o hot-reload.");
   } catch (err) {
     setStatus(err.message || String(err));

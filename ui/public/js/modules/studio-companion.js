@@ -5,6 +5,7 @@ import { state } from "../shared/state.js";
 import { sts } from "./studio-store.js";
 import { sendChatMessage } from "./chat-send.js";
 import { handleStudioChatKey as baseHandleKey } from "./studio-chat.js";
+import { saveStudioState } from "./studio-state.js";
 
 export function updateCompanionDetails() {
   const P = state.P;
@@ -89,6 +90,7 @@ export function setStudioViewport(vp) {
   if (!cont) return;
   cont.style.width = vp;
   cont.classList.toggle("device-frame", vp !== "100%");
+  void saveStudioState({ viewport: vp });
 }
 
 export function handleStudioChatKey(e) {
