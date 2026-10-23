@@ -129,6 +129,7 @@ Requisitos e ajustes:
 
 ## Guias complementares
 
+- Getting-started series in English: [01 overview](docs/setup/01-overview.md), [02 installation](docs/setup/02-installation.md), [03 engines and credentials](docs/setup/03-engines-and-credentials.md), [04 first sync](docs/setup/04-first-sync.md), [05 adopt existing projects](docs/setup/05-adopt-existing-projects.md). Agents: [docs/agents/BOOTSTRAP.md](docs/agents/BOOTSTRAP.md).
 - [Importadores e extração de conversas](docs/setup/importadores.md): Claude Code, Antigravity/Gemini e extração de regras, memórias e documentos.
 - [Rotinas, revisão de memória e sincronização](docs/setup/rotinas-e-sync.md): tarefas recorrentes, sugestões de memória, `sync` dos 3 motores e uso com outros agentes.
 - [Exportar contexto, interface web e desenvolvimento](docs/setup/interface-e-desenvolvimento.md): exportação para os agentes, interface web, testes, privacidade e problemas comuns.

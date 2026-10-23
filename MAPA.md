@@ -22,6 +22,7 @@ harness-leca/
 ├── tools/                     # Scripts de CLI e automação do harness
 │   ├── sync.js                # Sincronização centralizada dos motores importados
 │   ├── export-context.js      # Fachada do export de memória curada para os motores (destinos em tools/lib/export/)
+│   ├── adopt-project.js       # Adota uma pasta existente: detecta a stack, cria projects/<slug> com instructions.md e memory.md e grava o apelido em .sources.json (lib em tools/lib/adopt/)
 │   ├── export-claude-sessions.js # Reidrata sessões do Claude Code (.jsonl) para claude --resume
 │   ├── import-codex-chats.js  # Importa sessões locais do Codex para os chats do Harness
 │   ├── import-ds-docs.js      # Recria o Design System (componentes, tokens e telas) a partir do dis-design-system.html
@@ -192,6 +193,9 @@ harness-leca/
 | **Árvore de Camadas** | [`ui/public/js/modules/prototype-layer-tree.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/prototype-layer-tree.js) | Modelo hierárquico navegável, busca de nós, expansão/recolhimento e sincronização bidirecional com preview. |
 | **Canvas do Ateliê (Fachada)** | `ui/public/js/modules/prototype-canvas-mode.js` | Fachada do modo canvas: monta motor, interações, barra de ferramentas e Play; roteia mensagens da ponte por `event.source` e fala com o quadro selecionado. |
 | **Canvas do Ateliê (Cola)** | `ui/public/js/modules/prototype-atelier-canvas.js` | Liga os botões Canvas/Iniciar do cabeçalho do Ateliê ao modo canvas e expõe roteamento de mensagens, `postMessage` e reload para o controlador. |
+| **Histórico do Ateliê (servidor)** | `ui/server/services/prototype-history.service.js`, `ui/server/controllers/prototype-history.controller.js` | Desfazer/refazer de tudo o que muda no protótipo: journal + blobs por conteúdo em `.history/` (proto.json, head, MAPA, screens, styles, data); mudanças externas viram "Alteração externa". Rotas `history`, `history/undo`, `history/redo`, `history/goto` em `design.routes.js`; `prototype.controller.js` grava cada ação via `withHistory`. |
+| **Histórico do Ateliê (cliente)** | `ui/public/js/modules/prototype-history-model.js`, `ui/public/js/modules/prototype-history-panel.js`, `ui/public/css/design/25-prototype-history.css` | Botões Desfazer/Refazer/Histórico, painel com a linha do tempo e atalhos Ctrl+Z, Ctrl+Shift+Z e Ctrl+Y (inclusive dentro do iframe via `HARNESS_PROTO_SHORTCUT`). |
+| **Seleção múltipla e grupos do Ateliê** | `ui/public/js/modules/prototype-multiselect-model.js` | Regras puras: Ctrl alterna, Shift pega intervalo, só agrupa irmãos; Ctrl+G agrupa num `<div data-group>` real (ops `group`/`ungroup` em `prototype-structural.service.js`) e Ctrl+Shift+G desagrupa. O controlador `prototype-atelier.js` liga preview (`HARNESS_PROTO_MULTI_CLICK`, `HARNESS_PROTO_SET_MULTI`) e camadas. |
 | **Inspetor do Ateliê** | `ui/public/js/modules/prototype-inspector-toggle.js` | Botão Inspetor liga/desliga contornos e seleção; desligado, as telas rodam ao vivo (modo play) tanto na tela única quanto no canvas. |
 | **Painel Posição e Layout** | `ui/public/js/modules/prototype-props-panel.js`, `prototype-props-view.js`, `prototype-props-model.js` | Painel de propriedades estilo Figma (alinhamento, deslocamento X/Y, rotação, dimensões fixo/ajustar/preencher, exibição flex, gap, padding, margem): prévia ao vivo no iframe e gravação em classe `px-<pid>` + `styles/proto.css`, com bloco de código da classe. |
 | **Painel: Aparência, Preenchimento, Contorno e Efeitos** | `ui/public/js/modules/prototype-props-style-view.js` | Seções do painel de propriedades: opacidade, raio (e cantos), cor de fundo e de contorno (seletor, hex, tokens do DS), largura/estilo da borda, sombra (tokens `--shadow-*` ou personalizada) e desfoque. Os tokens vêm do iframe via `prototype-bridge-props.js`. |
@@ -436,6 +440,8 @@ Arquivos que passavam de 300 linhas viraram uma fachada fina (mesmos nomes expor
 | `tools/lib/skills.js` | `tools/lib/skills/` (`frontmatter`, `targets`, `reader`, `writer`, `templates`, `recognized`, `catalog-web`, `catalog-api`) |
 | `tools/lib/proc-manager.js`, `network.js`, `qrcode.js` | `proc-manager-*.js`, `network-*.js`, `qrcode-*.js` na mesma pasta (`*-store.js` guarda o estado compartilhado) |
 | `tools/import-gemini-chats.js` | `tools/lib/gemini-import/` (`text`, `sessions`) |
+| `ui/server/services/dc-artifact-adapter.service.js` | `dc-runtime-config.service.js` (constantes e verificação do runtime), `dc-artifact-parser.service.js` (leitura e validação), `dc-inspection-writer.service.js` (gravação das partes) |
+| `ui/server/services/prototype-sandbox-renderer.service.js` | `prototype-sandbox-common.service.js` (estilos, ponte, CSP) e `prototype-sandbox-dc.service.js` (ramo DC) |
 | `ui/server/services/project-scrum.service.js`, `project-screens.service.js`, `component-resolver.service.js`, `template-locator.service.js` | `project-scrum-*`, `project-screens-*`, `component-resolver-*`, `template-locator-*` na mesma pasta |
 | Fontes e reconciliação do Scrum | `project-scrum-jira-source.js` lê o snapshot (comentários e sprints); `project-scrum-jira-sprints.js` extrai sprints do payload (Server/Cloud); `tools/export-jira-snapshot.js` (CLI) e `tools/lib/jira-export.js` (núcleo) geram o snapshot via REST v2 com `JIRA_BASE_URL`/`JIRA_PAT`; `scrum-jira-sync.controller.js` expõe `POST /scrum/jira-sync` e `design-scrum-jira-sync.js` traz o botão Sincronizar Jira; `project-scrum-doc-source.js` interpreta histórias; `project-scrum-resolver.js` compõe com o estado local |
 | Consulta local ao snapshot do Jira | `tools/jira-query.js` (CLI: `issue`, `sprint`, `search`, `status`, `summary`) consulta o snapshot e o quadro local sem rede e sem token; `tools/jira-refresh.js` sincroniza o snapshot e regenera o panorama; `tools/lib/jira-snapshot.js` (leitura, busca e sprints), `tools/lib/jira-redact.js` (redige CPF/CNS/e-mail/telefone) e `tools/lib/jira-summary.js` (panorama para `context/jira-resumo.md`); testes em `tests/jira-query.test.js` |
@@ -452,6 +458,9 @@ Arquivos que passavam de 300 linhas viraram uma fachada fina (mesmos nomes expor
 | `ui/public/overview.html` | `css/overview.css` e `js/overview.js` |
 | `ui/public/css/*.css` grandes | agregador `css/<nome>.css` importa `css/<nome>/NN-*.css` em ordem |
 | `SETUP.md` | `docs/setup/` (importadores, rotinas e sync, interface e desenvolvimento) |
+| Getting started (English) | `docs/setup/01-overview.md` (what the harness does), `02-installation.md` (clone, `.env`, hook), `03-engines-and-credentials.md` (install, login and credential location per engine), `04-first-sync.md` (first import, sync, export), `05-adopt-existing-projects.md` (adoption guide) |
+| Agent guides (English) | `docs/agents/BOOTSTRAP.md` (phased setup and first sync with checks and stop rules) and `docs/agents/ADOPTION.md` (adoption procedure for agents) |
+| Adopt an existing project | `tools/adopt-project.js` (CLI, `npm run adopt`), `tools/lib/adopt/detect-stack.js` (read-only stack detection from manifests) and `tools/lib/adopt/render.js` (seed `instructions.md` and `memory.md`); tests in `tests/adopt-project.test.js` |
 
 > Regra: arquivo novo exige o `MAPA.md` atualizado. O pre-commit (`scripts/pre-commit.js`, função `missingFromMapa`) barra o commit quando entra arquivo novo sem o mapa ser alterado no mesmo commit e sem que o caminho, o nome ou a pasta do arquivo apareçam aqui.
 
@@ -556,7 +565,15 @@ Fora deste repositório (workspace `C:/Users/matheuss.rodrigues/git/57multimarca
 
 | Caminho | Responsabilidade |
 |---|---|
-| `ui/server/services/prototype-artifact-import.service.js` | Converte um artefato HTML estático em cópia modular editável, mantendo a origem intacta. |
+| `ui/server/services/prototype-artifact-import.service.js` | Converte um artefato em cópia de inspeção, sem alterar a origem: HTML estático vira `screens/home.html`; `.dc.html` (com `<x-dc>`) vira partes em `dc/`. |
+| `ui/server/services/dc-artifact-adapter.service.js` | Fachada do adaptador de `.dc.html` (Claude Design). Módulos: `dc-runtime-config`, `dc-artifact-parser` e `dc-inspection-writer`. |
+| `ui/server/services/dc-runtime-config.service.js` | Hashes aceitos do runtime (`support.js` e SRI do React) e verificação dos arquivos em `ui/public/js/vendor/dc-runtime/`. Runtime alterado é recusado. |
+| `ui/server/services/dc-artifact-parser.service.js` | Lê o `.dc.html` (template, helmet, lógica, `data-props`), valida (sem `import`/`require`, sem `</script`, sem `<script` no template, avisa recursos externos) e acha assets relativos. |
+| `ui/server/services/dc-inspection-writer.service.js` | Grava `dc/template.html`, `logic.js`, `helmet.html`, `manifest.json` e `dc/assets/`. Idempotente pelo hash do original; bloqueio de validação sai com status 422. |
+| `ui/server/services/prototype-sandbox-renderer.service.js` | Fachada do sandbox de protótipos. `metadata.runtime === "dc"` segue para o ramo DC; os demais seguem para `screens/<id>.html`. |
+| `ui/server/services/prototype-sandbox-dc.service.js` | Renderiza protótipo DC com runtime local, CSP do sandbox, tela inicial via `startScreen.default` antes do boot, assets em data URI e `data-pid` estável por `data-dc-tpl`. |
+| `ui/server/services/prototype-sandbox-common.service.js` | Estilos, ponte do harness e cabeçalhos CSP compartilhados pelos ramos estático e DC. |
+| `ui/public/js/vendor/dc-runtime/` | React 18.3.1, ReactDOM 18.3.1 e `support.js` do Claude Design, byte a byte (SRI conferido). Servidos de `'self'` para a CSP do sandbox. |
 | `ui/server/services/artifact-inventory-scan.service.js` | Varre as fontes de artefatos do projeto com validação de caminho, symlink e limite de leitura de título. |
 | `ui/server/services/artifact-inventory.service.js` | Deduplica, mescla metadados, filtra acesso local, ordena, resume e limita o inventário de artefatos. |
 | `ui/server/controllers/artifact.controller.js` | Rota `GET /api/project/:slug/artifacts` com validação de slug, projeto e filtro remoto. |

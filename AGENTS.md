@@ -26,6 +26,7 @@ A estrutura de pastas e as regras de memória e chats estão em `CLAUDE.md`; val
 
 
 ## Tarefas disponíveis
+- Set up the repository and run the first import/sync/export: follow `docs/agents/BOOTSTRAP.md`. Adopt an existing project folder: `node tools/adopt-project.js --path <folder> --dry-run`, then `docs/agents/ADOPTION.md`.
 - Atualizar as conversas dos 3 motores (Claude Code, Gemini, opencode): `node tools/sync.js` (veja `SETUP.md`).
 - Mapeamento das conversas e pendências: tabela em `projects/<slug>/context/extraido-conversas.md` ou `node tools/extraction-state.js --project <slug> status`.
 - Extrair regras, memórias e decisões das conversas: skill `.agents/skills/extrair-artefatos/SKILL.md`.

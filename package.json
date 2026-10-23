@@ -8,6 +8,7 @@
   "scripts": {
     "sync": "node tools/sync.js",
     "sync:dry": "node tools/sync.js --dry-run",
+    "adopt": "node tools/adopt-project.js",
     "export:context": "node tools/export-context.js",
     "export:claude-sessions": "node tools/export-claude-sessions.js",
     "coordination": "node tools/coordination.js",

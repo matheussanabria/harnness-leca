@@ -14,6 +14,7 @@ Tudo roda localmente na sua máquina, sem dependências externas adicionais e co
 | `npm run ui:dev` | Igual ao `ui`, mas reinicia o servidor sozinho ao salvar arquivos de `ui/server`, `tools/lib` ou `tools/ds-docs` (usa o `--watch` do Node, sem dependências). Mudanças em `ui/public` só pedem recarregar o navegador (Ctrl+F5) |
 | `npm run ui:dev:remote -- --pin 123456` | Igual ao `ui:dev`, mas com acesso remoto (`--remote`, escuta em 0.0.0.0). Passe `--pin` para o PIN não mudar a cada reinício; sem ele um PIN novo é sorteado e o celular perde o acesso. O túnel (`npm run remote:tunnel`) é outro processo e continua de pé, mas fica alguns segundos sem resposta enquanto o servidor reinicia |
 | `npm run sync` | Sincroniza conversas dos 3 motores (Claude, Gemini e opencode) para o harness |
+| `npm run adopt -- --path <pasta>` | Adota um projeto já existente: detecta a stack e cria `instructions.md`, `memory.md` e o apelido de conversas (veja `docs/setup/05-adopt-existing-projects.md`) |
 | `npm run export:context` | Exporta memórias, regras e tópicos para o contexto nativo do Claude Code e Gemini |
 | `npm run export:claude-sessions` | Converte os chats do harness em sessões `.jsonl` para o `claude --resume` |
 | `npm test` | Executa os testes automatizados da suíte (`node:test`) |
@@ -23,6 +24,8 @@ Tudo roda localmente na sua máquina, sem dependências externas adicionais e co
 
 ## 📚 Documentação
 
+- **Getting started (English):** [overview](docs/setup/01-overview.md), [installation](docs/setup/02-installation.md), [engines and credentials](docs/setup/03-engines-and-credentials.md), [first import, sync and export](docs/setup/04-first-sync.md), [adopting existing projects](docs/setup/05-adopt-existing-projects.md).
+- **For AI agents:** [docs/agents/BOOTSTRAP.md](docs/agents/BOOTSTRAP.md) (setup and first sync) and [docs/agents/ADOPTION.md](docs/agents/ADOPTION.md) (adopting a project).
 - 📐 **[docs/sdlc/README.md](file:///c:/Users/matheuss.rodrigues/git/harness-leca/docs/sdlc/README.md):** Especificação oficial de requisitos de software (SDLC), domínios de negócio (DDD), regras de negócio, RFs e RNFs.
 - 🗺️ **[MAPA.md](file:///c:/Users/matheuss.rodrigues/git/harness-leca/MAPA.md):** Mapa arquitetural detalhado do código e das responsabilidades de cada arquivo.
 - 📖 **[SETUP.md](file:///c:/Users/matheuss.rodrigues/git/harness-leca/SETUP.md):** Guia completo de instalação, arquitetura, importadores, rotinas programadas e restauração de contexto.
