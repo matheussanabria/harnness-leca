@@ -2,6 +2,7 @@
 // Histórico, confirmação, modais genéricos e utilitários de formatação.
 import { dp } from "./deploy-store.js";
 import { renderStats, renderHistory } from "./deploy-render.js";
+import { patchScreen } from "../shared/screen-state.js";
 
 const win = typeof window !== "undefined" ? window : globalThis;
 
@@ -24,10 +25,13 @@ win.clearHistory = async function () {
 };
 
 export async function persistConfig() {
+  dp.deployState.config = dp.deployConfig;
+  let savedInState = false;
   try {
-    if (typeof localStorage !== "undefined") {
-      localStorage.setItem("harness_deploy_config", JSON.stringify(dp.deployConfig));
-    }
+    await patchScreen("deploy", { config: dp.deployConfig });
+    savedInState = true;
+  } catch {}
+  try {
     const res = await fetch("/api/deploy/config", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -35,8 +39,8 @@ export async function persistConfig() {
     });
     if (!res.ok) throw new Error("Erro ao salvar config no servidor");
   } catch (err) {
-    // Se a API ainda não está disponível porque o server não reiniciou, o localStorage garante persistência
-    console.warn("Config salva localmente no navegador:", err);
+    // A reserva do estado de tela mantém a configuração quando o servidor não responde.
+    console.warn(savedInState ? "Config mantida no estado da tela:" : "Config não persistida:", err);
   }
 }
 

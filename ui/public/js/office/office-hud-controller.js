@@ -2,6 +2,16 @@
 // DAI HQ — Módulo de Controle do HUD, Menus e Telemetria Lateral
 import { playClickSound } from "../office-audio.js";
 
+let persistHud = null;
+
+/**
+ * Liga a gravação da visibilidade do HUD ao estado da tela (EP-14.10).
+ * @param {((hidden: boolean) => void) | null} handler
+ */
+export function setHudPersistence(handler) {
+  persistHud = typeof handler === "function" ? handler : null;
+}
+
 /**
  * Controla a visibilidade global do HUD (Modo Imersivo)
  * @param {boolean} visible
@@ -24,7 +34,7 @@ export function setHudVisibility(visible) {
   }
 
   try {
-    localStorage.setItem("dai_office_hud_hidden", isHidden ? "1" : "0");
+    persistHud?.(isHidden);
   } catch (_) {}
 }
 
