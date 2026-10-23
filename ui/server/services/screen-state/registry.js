@@ -106,8 +106,10 @@ const SCREENS = [
     "harness_deploy_config", "harness_deploy_history",
   ]),
   tela("diario", "Diário", "global", "/diario", "fa-book", {
-    query: texto(200), agentFilter: texto(32), sortField: texto(32),
+    project: texto(120), query: texto(200), agentFilter: texto(32),
+    dateFrom: texto(10), dateTo: texto(10), sortField: texto(32),
     sortAsc: booleano(), page: inteiro(100000), pageSize: inteiro(100),
+    allClosed: booleano(),
   }),
 ];
 
