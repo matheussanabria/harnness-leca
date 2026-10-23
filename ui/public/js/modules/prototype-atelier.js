@@ -12,6 +12,8 @@ import { attachStudioSidebarToAtelier, detachStudioSidebarFromAtelier } from "./
 import { renderElementMapping } from "./prototype-element-map.js";
 import { bindCanvasMode, canvasHandleMessage, canvasPost, canvasReload, canvasSetInspector } from "./prototype-atelier-canvas.js";
 import { bindInspectorToggle, isInspectorOn, singleScreenMode } from "./prototype-inspector-toggle.js";
+import { bindInspectorTabs } from "./prototype-atelier-inspector-tabs.js";
+import { applyAtelierLayout, beginAtelierAdoption, bindAtelierLayout, persistAtelierActive, persistAtelierInspector, persistAtelierNode, persistAtelierScreen, persistAtelierViewport, restoredAtelierNode, restoredAtelierScreen, restoredAtelierViewport } from "./prototype-atelier-adoption.js";
 
 let currentSlug = "";
 let currentProtoId = "";
@@ -36,6 +38,10 @@ export async function renderPrototypeAtelier(container, slug, protoId, options =
     onSelect: typeof options.onSelect === "function" ? options.onSelect : null,
     onDelete: typeof options.onDelete === "function" ? options.onDelete : null,
   };
+  // Primeira montagem da página reabre o protótipo salvo, quando ele ainda existe.
+  const adoption = await beginAtelierAdoption({ protoId, catalog: allPrototypesList, onSelect: atelierOptions.onSelect });
+  if (adoption.redirect) return;
+
   // Devolve o chat ao Studio antes de o innerHTML apagar o #atelierChatHost (senão o chat some).
   detachStudioSidebarFromAtelier();
   container.innerHTML = '<div class="proto-loading"><i class="fa-solid fa-spinner fa-spin"></i> Carregando Ateliê...</div>';
@@ -51,7 +57,11 @@ export async function renderPrototypeAtelier(container, slug, protoId, options =
       return;
     }
     currentProtoData = (await prototypeResponse.json()).prototype || {};
-    currentActiveScreen = currentProtoData.activeScreen || "home";
+    currentActiveScreen = restoredAtelierScreen(
+      currentProtoData.screens || [],
+      currentProtoData.activeScreen || "home",
+    );
+    activeViewportWidth = restoredAtelierViewport();
     if (versionsResponse.ok) currentVersions = (await versionsResponse.json()).versions || [];
     if (listResponse?.ok) allPrototypesList = buildPrototypeCatalog([], (await listResponse.json()).prototypes || []);
     renderAtelierLayout(container);
@@ -75,7 +85,12 @@ function renderAtelierLayout(container) {
     mcpServer: atelierOptions.mcpServer,
   });
   const root = $("protoWorkspaceRoot");
-  if (root) initWorkspaceLayout(root);
+  if (root) {
+    initWorkspaceLayout(root);
+    applyAtelierLayout(root);
+    bindAtelierLayout();
+  }
+  pendingSelectPid = restoredAtelierNode();
   const catalog = document.querySelector(".proto-col-catalog");
   if (catalog) bindPrototypeCatalog(catalog, navigateCatalog, atelierOptions.onDelete);
   attachStudioSidebarToAtelier();
@@ -88,6 +103,7 @@ function renderAtelierLayout(container) {
     mcpServer: atelierOptions.mcpServer,
   });
   bindAtelierEvents(container);
+  persistAtelierActive(currentProtoId, currentActiveScreen);
 }
 
 /** Recarrega dados e preview do protótipo mantendo o DOM do Ateliê (e o chat) intacto. */
@@ -125,6 +141,7 @@ function bindAtelierEvents(container) {
   const screenSelect = /** @type {HTMLSelectElement} */ ($("atelierScreenSelect"));
   if (screenSelect) screenSelect.onchange = () => {
     currentActiveScreen = screenSelect.value;
+    persistAtelierScreen(currentActiveScreen);
     reloadIframe();
   };
   document.querySelectorAll(".btn-viewport").forEach((button) => {
@@ -136,7 +153,10 @@ function bindAtelierEvents(container) {
   if (createButton) createButton.onclick = () => window.promptCreateNewPrototype?.(container, currentSlug);
   bindInspectorTabs();
   bindVersionRestore();
-  bindInspectorToggle(applyInspector);
+  bindInspectorToggle((on) => {
+    persistAtelierInspector(on);
+    applyInspector(on);
+  });
   bindCanvasMode({
     slug: currentSlug,
     protoId: currentProtoId,
@@ -158,6 +178,7 @@ function selectCanvasScreen(screen) {
     currentActiveScreen = screen;
     const select = /** @type {HTMLSelectElement} */ ($("atelierScreenSelect"));
     if (select) select.value = screen;
+    persistAtelierScreen(currentActiveScreen);
   }
   setTimeout(() => postToPrototype({ type: "HARNESS_PROTO_REQUEST_TREE" }), 0);
 }
@@ -168,23 +189,7 @@ function selectViewport(button) {
   activeViewportWidth = Number.parseInt(button.dataset.w || "1280", 10);
   const frame = $("atelierFrameContainer");
   if (frame) frame.style.width = `${activeViewportWidth}px`;
-}
-
-function bindInspectorTabs() {
-  document.querySelectorAll(".inspector-tab-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      document.querySelectorAll(".inspector-tab-btn").forEach((item) => item.classList.remove("active"));
-      button.classList.add("active");
-      const tab = /** @type {HTMLElement} */ (button).dataset.tab;
-      const layers = $("inspectorLayersSection");
-      const properties = $("inspectorPropsSection");
-      if (!layers || !properties) return;
-      layers.style.display = tab === "props" ? "none" : "flex";
-      properties.style.display = tab === "layers" ? "none" : "block";
-      layers.style.flex = "1";
-      properties.style.flex = "1";
-    });
-  });
+  persistAtelierViewport(activeViewportWidth);
 }
 
 function bindVersionRestore() {
@@ -215,6 +220,7 @@ function handleBridgeMessage(event) {
   if (canvasHandleMessage(event)) return;
   if (data.type === "HARNESS_PROTO_SELECT") {
     selectedNode = data;
+    persistAtelierNode(data.pid || "");
     renderSelectedNodeDetails();
     void renderElementMapping({ slug: currentSlug, protoId: currentProtoId, screenId: currentActiveScreen, node: data });
     const tree = $("atelierLayerTreeContainer");
@@ -237,6 +243,7 @@ function handleBridgeMessage(event) {
     currentActiveScreen = data.screen;
     const select = /** @type {HTMLSelectElement} */ ($("atelierScreenSelect"));
     if (select) select.value = data.screen;
+    persistAtelierScreen(currentActiveScreen);
     reloadIframe();
   }
 }

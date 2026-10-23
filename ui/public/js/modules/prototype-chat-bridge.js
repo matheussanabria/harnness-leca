@@ -1,6 +1,7 @@
 // @ts-check
 // Liga o chat do Studio ao Ateliê: instrui o modelo sobre o protótipo aberto e grava a resposta nele.
 import { showToast } from "../shared/dom.js";
+import { logAtelierAction } from "./prototype-atelier-state.js";
 
 /** @type {{ slug: string, protoId: string, getScreen: () => string, reload: () => void, mcpServer?: string } | null} */
 let active = null;
@@ -75,6 +76,12 @@ export async function wrapAtelierPrompt(text, opts = {}) {
   return `${RULES}${mcpRule}${loaded ? `\n\n${code}` : ""}\n\nPedido do usuário:\n${text}`;
 }
 
+/** Lista curta dos caminhos gravados, usada como alvo da ação registrada. */
+function prototypeFilesTarget(fullText) {
+  const paths = [...String(fullText || "").matchAll(/caminho="([^"]+)"/g)].map((match) => match[1]);
+  return (paths.join(", ") || "protótipo").slice(0, 120);
+}
+
 /**
  * Grava no protótipo os blocos <arquivo> da resposta e recarrega o canvas.
  * @param {string} fullText
@@ -90,6 +97,7 @@ export async function applyAtelierReply(fullText) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    void logAtelierAction("salvar arquivo", prototypeFilesTarget(fullText));
     showToast(`Protótipo atualizado (v${data.version})`);
     active.reload();
   } catch (err) {
@@ -125,6 +133,7 @@ export async function applySingleFileToAtelier(filePath, content) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    void logAtelierAction("salvar arquivo", filePath);
     showToast(`Arquivo ${filePath} aplicado com sucesso (v${data.version})`);
     active.reload();
   } catch (err) {

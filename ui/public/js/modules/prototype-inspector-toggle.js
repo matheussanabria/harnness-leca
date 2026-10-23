@@ -15,6 +15,16 @@ let enabled = readStored();
 
 export const isInspectorOn = () => enabled;
 
+/**
+ * Define o inspetor a partir do estado restaurado (sem clique do usuário).
+ * @param {boolean} value
+ */
+export function setInspectorEnabled(value) {
+  enabled = value !== false;
+  try { localStorage.setItem(KEY, enabled ? "on" : "off"); } catch {}
+  return enabled;
+}
+
 /** Modo da ponte para a tela única: "legacy" (seleciona e navega) ou "play" (executa). */
 export const singleScreenMode = () => (enabled ? "legacy" : "play");
 

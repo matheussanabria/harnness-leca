@@ -7,6 +7,8 @@ import { updateCompanionDetails } from "./studio-companion.js";
 import { isStudioSourceColumnOpen, setStudioSourceColumn, getStoredSourceColumnOpen } from "./studio-source-column.js";
 import { detachStudioSidebarFromAtelier } from "./prototype-atelier-sidebar.js";
 import { resetAtelierPromptState, setAtelierChatContext } from "./prototype-chat-bridge.js";
+import { readAtelierState } from "./prototype-atelier-state.js";
+import { saveStudioState } from "./studio-state.js";
 
 export const STUDIO_VIEW_MODES = {
   PREVIEW: "iframe",
@@ -102,7 +104,9 @@ export async function loadStudioDesignContent(slug = state.activeProject) {
   try {
     const designProtoMod = await import("./design-prototypes.js").catch(() => null);
     if (designProtoMod && typeof designProtoMod.renderPrototypesWorkspace === "function") {
-      await designProtoMod.renderPrototypesWorkspace(host, slug);
+      const saved = await readAtelierState().catch(() => null);
+      const initial = saved?.activePrototype ? { id: String(saved.activePrototype), kind: "atelier" } : null;
+      await designProtoMod.renderPrototypesWorkspace(host, slug, [], [], {}, initial);
       return;
     }
   } catch (err) {
@@ -148,6 +152,7 @@ export function switchStudioView(targetMode, options = {}) {
       localStorage.setItem(resolveViewStorageKey(), mode);
     } catch {}
   }
+  void saveStudioState({ activeView: mode });
 
   // Atualiza botões no grupo de visualização
   const btnIframe = $("btnViewIframe");
