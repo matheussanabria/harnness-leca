@@ -141,6 +141,8 @@ harness-leca/
 | **Ações de Código do Chat** | [`ui/public/js/modules/chat-code-actions.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/chat-code-actions.js) | Copiar código (`copyCodeFromContainer`) e aplicar granularmente no Ateliê de Protótipos (`applySingleAtelierFile`). |
 | **Estado Global** | [`ui/public/js/shared/state.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/state.js) | Estado reativo `state`, persistência de rascunhos de chat e paleta de cores. |
 | **Seleção Compartilhada de Projeto** | [`ui/public/js/shared/project-selection.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/project-selection.js) | Resolve precedência, sincroniza URL/storage/backend e publica trocas confirmadas de projeto. |
+| **Cliente de Estado das Telas** | [`ui/public/js/shared/screen-state.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/screen-state.js) | `loadScreen`, `patchScreen` e `logAction`: hidrata antes da renderização, cache em memória, debounce de 400 ms, `sendBeacon` no `pagehide`, reserva em `localStorage` e retentativa quando o servidor volta (EP-14.06). |
+| **Migração do Estado das Telas** | [`ui/public/js/shared/screen-state-migrate.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/screen-state-migrate.js) | Espelha escopos e `migraDe` do registro do servidor, lê e remove as chaves antigas do `localStorage` na primeira carga, filtrando pelo projeto (EP-14.06). |
 | **Alterações Não Salvas** | `ui/public/js/shared/unsaved-changes.js` | Registra pendências por projeto/workspace e bloqueia transições com erro estruturado. |
 | **Cliente de API** | [`ui/public/js/shared/api.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/shared/api.js) | Fetch wrappers e leitor de streaming SSE (`readSSEStream`). |
 | **Listagem & Projetos** | [`ui/public/js/modules/projects.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/ui/public/js/modules/projects.js) | `load(slug)`, busca, filtros por motor, ordenação, paginação e mapeamento de conversas. |
@@ -315,6 +317,7 @@ node --test tests/prototype-semantic-parser.test.js # Testa parsing de tags x-im
 node --test tests/prototype-screen-decomposer.test.js # Testa decomposição de telas e anotação de data-node-id
 node --test tests/prototype-reconstruction.test.js # Testa reconstrução completa do protótipo DIS modular
 node --test tests/screen-registry.test.js           # Testa registro das 13 telas, saneamento e cobertura das chaves antigas
+node --test tests/screen-state-client.test.js       # Testa hidratação, debounce, migração, reserva offline e retentativa do cliente
 ```
 
 | Caminho | Responsabilidade |
@@ -325,6 +328,7 @@ node --test tests/screen-registry.test.js           # Testa registro das 13 tela
 | `tests/affected-tests.test.js` | Regressão da seleção de testes afetados, do check restrito e do hook de pre-push. |
 | `tests/screen-registry.test.js` | Regressão do registro das 13 telas, do saneamento de campos, do limite de 64 KB e da cobertura das chaves antigas do `localStorage` (EP-14.04). |
 | `tests/screen-state-store.test.js` e `tests/screen-state-http.test.js` | Regressão do armazenamento e dos endpoints de estado/histórico por tela: persistência, merge, 409 por `rev`, 413, anel de 500, slug, rotas e arquivos de apoio (EP-14.05). |
+| `tests/screen-state-client.test.js` | Regressão do cliente de estado das telas: espelho do registro, hidratação e cache, migração, debounce de 400 ms, `sendBeacon`, reserva offline e retentativa (EP-14.06). |
 
 - Fixtures de teste: `tests/helpers/project-fixture.js` (orquestrador), `project-fixture-design-system.js`, `project-fixture-prototype.js`, `project-fixture-design-index.js` e `project-fixture-files.js` criam um projeto temporário fora de `projects/` e devolvem `{ dir, slug, cleanup }`.
 
