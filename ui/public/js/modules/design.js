@@ -10,6 +10,7 @@ import { renderRoutinesWorkspace } from "./design-routines.js";
 import { renderScrumWorkspace } from "./design-scrum.js";
 import { detachStudioSidebarFromAtelier } from "./prototype-atelier-sidebar.js";
 import { resetAtelierPromptState, setAtelierChatContext } from "./prototype-chat-bridge.js";
+import { persistDesignView, restoredDesignView } from "./design-view-state.js";
 
 let currentDesignData = null;
 let currentScreensData = null;
@@ -154,6 +155,7 @@ export function setDesignView(view) {
   setAtelierChatContext(null);
   resetAtelierPromptState();
   currentView = view;
+  persistDesignView(view, true);
   const tabs = document.querySelectorAll(".design-nav-tab");
   tabs.forEach((t) => {
     // @ts-ignore
@@ -203,7 +205,10 @@ export async function toggleDesignMode(force, targetView) {
 
   if (targetView) {
     currentView = targetView;
+  } else if (isDesignActive) {
+    currentView = await restoredDesignView();
   }
+  persistDesignView(currentView, isDesignActive);
 
   if (isDesignActive) {
     if (state.isStudioMode && window.toggleStudioMode) {

@@ -17,6 +17,7 @@ import { bindChatExecutionTelemetry, bindOfficeStateTelemetry } from "./office/o
 import { bindOfficeLightingDom } from "./office/office-lighting-bootstrap.js";
 import { OfficeViewModeController } from "./office/office-view-mode.js";
 import { OfficeScenePreferences } from "./office/office-scene-preferences.js";
+import { bindOfficeSessionClient, hydrateOfficeSession } from "./office/office-session-storage.js";
 
 let engine2D = null;
 let engine3D = null;
@@ -63,8 +64,11 @@ window.openOfficeChatConversation = function(chatFile) {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const officeScreenState = new OfficeScreenState({ client: getScreenStateClient() });
+  const screenClient = getScreenStateClient();
+  const officeScreenState = new OfficeScreenState({ client: screenClient });
   await officeScreenState.hydrate();
+  hydrateOfficeSession(officeScreenState.state);
+  bindOfficeSessionClient(screenClient);
   setHudPersistence((hidden) => { void officeScreenState.setHudHidden(hidden); });
 
   const canvas2D = /** @type {HTMLCanvasElement} */ (document.getElementById("canvas2D"));
@@ -97,6 +101,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const scenePreferences = new OfficeScenePreferences({
     doc: document,
     win: window,
+    storage: officeScreenState.sceneStorage(),
     onChange: (state) => {
       engine2D?.applyPerformanceProfile?.(state.profile);
       engine2D?.setReducedMotion?.(state.reducedMotion);

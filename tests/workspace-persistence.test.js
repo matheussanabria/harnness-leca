@@ -95,21 +95,25 @@ test("WorkspacePersistenceManager rejeita contexto não serializável e projeto 
   assert.equal(scoped.storage.values.size, 0);
 });
 
-test("windowManager.persistence usa o projeto do seletor central", async () => {
-  const storage = createStorage();
-  globalThis.localStorage = storage;
+test("windowManager.persistence usa o projeto do seletor central e o storage da tela", async () => {
+  const localStorage = createStorage();
+  globalThis.localStorage = localStorage;
   const { projectSelection } = await import("../ui/public/js/shared/project-selection.js");
   projectSelection.configure(["Projeto-Central"]);
   await projectSelection.select("projeto-central", { syncBackend: false, notify: false });
   const { windowManager } = await import("../ui/public/js/window-manager/window-manager.js");
+  const { officeSessionStorage } = await import("../ui/public/js/office/office-session-storage.js");
 
   windowManager.reset();
   windowManager.open("scrum", { resourceId: "DIS-444" });
+  const key = `${WORKSPACE_STATE_STORAGE_PREFIX}Projeto-Central`;
   const saved = windowManager.persistence.save({ filters: { scrum: { status: "doing" } } });
   assert.equal(saved?.projectId, "Projeto-Central");
-  assert.ok(storage.values.has(`${WORKSPACE_STATE_STORAGE_PREFIX}Projeto-Central`));
+  assert.ok(officeSessionStorage.getItem(key), "grava no storage da tela do escritório");
+  assert.equal(localStorage.values.has(key), false, "não grava no localStorage");
   assert.equal(typeof windowManager.persistence.restore, "function");
   assert.equal(windowManager.persistence.clear(), true);
+  assert.equal(officeSessionStorage.getItem(key), null);
 
   delete globalThis.localStorage;
 });

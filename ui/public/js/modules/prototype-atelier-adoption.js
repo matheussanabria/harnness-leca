@@ -2,6 +2,7 @@
 // Liga o estado persistido do Ateliê (EP-14.08) ao controlador do protótipo.
 import { applyWorkspaceLayout, onWorkspaceLayoutChange } from "./prototype-workspace-layout.js";
 import { setInspectorEnabled } from "./prototype-inspector-toggle.js";
+import { hydrateCanvasDocs } from "./prototype-canvas/canvas-store.js";
 import {
   pickAtelierScreen,
   readAtelierState,
@@ -22,6 +23,7 @@ let unbindLayout = null;
  */
 export async function beginAtelierAdoption(options = {}) {
   saved = await readAtelierState({ client: options.client }).catch(() => null);
+  hydrateCanvasDocs(saved?.canvas);
   if (!bootChecked) {
     bootChecked = true;
     const target = shouldRedirectToSavedPrototype(saved, options.protoId || "", options.catalog || []);
@@ -92,6 +94,7 @@ export function persistAtelierInspector(on) {
 export function resetAtelierAdoption() {
   saved = null;
   bootChecked = false;
+  setInspectorEnabled(true);
   unbindLayout?.();
   unbindLayout = null;
 }

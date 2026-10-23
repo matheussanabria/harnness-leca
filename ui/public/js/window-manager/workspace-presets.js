@@ -26,7 +26,7 @@ export class WorkspacePresetManager {
    * @param {import("./window-store").WindowStore} store
    * @param {Storage | { getItem: (key: string) => string | null, setItem: (key: string, value: string) => void, removeItem: (key: string) => void }} [storage]
    */
-  constructor(store, storage = typeof window !== "undefined" ? window.localStorage : undefined) {
+  constructor(store, storage = null) {
     this.store = store;
     this.storage = storage;
   }

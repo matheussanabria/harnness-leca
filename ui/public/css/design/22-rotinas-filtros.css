@@ -1,0 +1,50 @@
+/* Barra de busca e filtros da view de Rotinas (EP-14.12): o estado persiste via estado de tela. */
+.routine-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.routine-search,
+.routine-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.routine-search {
+  flex: 1 1 240px;
+}
+
+.routine-search input,
+.routine-filter select {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.routine-filter select option {
+  background: #0f172a;
+  color: var(--text);
+}
+
+.routine-search:focus-within,
+.routine-filter:focus-within {
+  border-color: rgba(96, 165, 250, 0.65);
+}
+
+.routine-card.is-selected {
+  border-color: rgba(96, 165, 250, 0.7);
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.35);
+}

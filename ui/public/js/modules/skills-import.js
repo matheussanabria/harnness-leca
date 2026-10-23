@@ -3,6 +3,7 @@
 import { esc } from "../shared/dom.js";
 import { state } from "../shared/state.js";
 import { sks } from "./skills-store.js";
+import { persistSkillsState } from "./skills-state.js";
 
 export async function loadRecognizedSkills() {
   const P = state.P;
@@ -33,6 +34,10 @@ export function filterImportSkills(filterText) {
   if (filterText !== undefined) sks.currentImportFilterText = filterText.toLowerCase();
   const sel = $("importSkillSourceSelect");
   if (sel) sks.currentImportSourceFilter = sel.value;
+  persistSkillsState({
+    importFilter: filterText !== undefined ? filterText : sks.currentImportFilterText,
+    importSource: sks.currentImportSourceFilter,
+  });
 
   const container = $("importSkillsList");
   if (!container || !P) return;

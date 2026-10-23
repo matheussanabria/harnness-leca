@@ -39,6 +39,8 @@ const SCREENS = [
     groupFilter: texto(120), subgroupFilter: texto(120), searchQuery: texto(200),
     sortField: texto(32), sortAsc: booleano(), draft: texto(20000),
     groups: lista(200), assignments: objeto(60000),
+    engineSettings: objeto(8192), skillSubTab: texto(16),
+    skillImportFilter: texto(200), skillImportSource: texto(32),
   }, [
     "harness_chats_view_mode", "harness_chats_page_size", "harness_chat_draft_*",
     "harness_groups_*", "harness_chat_engine_settings",
@@ -47,6 +49,7 @@ const SCREENS = [
     activeView: texto(32), sidebarWidth: inteiro(720, 160), sourceOpen: booleano(),
     sourceWidth: inteiro(720, 160), viewport: texto(16), route: texto(300),
     dockMaximized: booleano(), activePrototype: texto(120), activeScreen: texto(120),
+    designView: texto(32), designOpen: booleano(),
   }, [
     "harness_studio_sidebar_width", "harness_studio_sidebar_width_*",
     "harness_studio_source_open", "harness_studio_source_width",

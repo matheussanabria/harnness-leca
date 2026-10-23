@@ -49,11 +49,12 @@ test("EP-06.03: normaliza aliases das visualizações Código, Design, Preview e
   assert.equal(normalizeStudioViewMode("companion"), STUDIO_VIEW_MODES.COMPANION);
 });
 
-test("EP-06.03: alterna a visualização do preview e persiste a preferência por projeto", () => {
+test("EP-06.03: alterna a visualização do preview sem gravar no localStorage", () => {
   sts.currentStudioMode = STUDIO_VIEW_MODES.PREVIEW;
+  storage.clear();
   assert.equal(switchStudioView("design", { force: true }), true);
   assert.equal(sts.currentStudioMode, STUDIO_VIEW_MODES.DESIGN);
-  assert.equal(storage.get(resolveViewStorageKey()), STUDIO_VIEW_MODES.DESIGN);
+  assert.equal(storage.get(resolveViewStorageKey()), undefined);
 });
 
 test("Studio: Código é a terceira coluna e não troca o modo do preview", () => {
@@ -70,12 +71,13 @@ test("Studio: Código é a terceira coluna e não troca o modo do preview", () =
   assert.equal(bodyClasses.has("studio-source-open"), false);
 });
 
-test("Studio: preferência antiga 'source' vira preview com a coluna de código aberta", () => {
+test("Studio: preferência antiga 'source' vira preview com a coluna aberta sem localStorage", () => {
   bodyClasses.clear();
   storage.clear();
   initStudioViews("source");
   assert.equal(sts.currentStudioMode, STUDIO_VIEW_MODES.PREVIEW);
   assert.equal(bodyClasses.has("studio-source-open"), true);
+  assert.equal(storage.size, 0);
 });
 
 test("EP-06.04: fechar a coluna com código não salvo exige confirmação", () => {

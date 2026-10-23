@@ -12,6 +12,7 @@ import { WorkspaceSession } from "./workspace-session.js";
 import { WorkspacePersistenceManager } from "./workspace-persistence.js";
 import { projectSelection } from "../shared/project-selection.js";
 import { unsavedChanges } from "../shared/unsaved-changes.js";
+import { officeSessionStorage } from "../office/office-session-storage.js";
 
 /** @typedef {import("../types/window-manager").WindowInstance} WindowInstance */
 /** @typedef {import("../types/window-manager").WindowManagerState} WindowManagerState */
@@ -20,7 +21,7 @@ import { unsavedChanges } from "../shared/unsaved-changes.js";
 
 export const store = new WindowStore(registry);
 export const workspaceSession = new WorkspaceSession(
-  new WorkspacePresetManager(store),
+  new WorkspacePresetManager(store, officeSessionStorage),
   {
     getProjectSlug: () => projectSelection.activeProject,
     getViewport: () => ({
@@ -31,6 +32,7 @@ export const workspaceSession = new WorkspaceSession(
   }
 );
 export const workspacePersistence = new WorkspacePersistenceManager(store, {
+  storage: officeSessionStorage,
   getProjectSlug: () => projectSelection.activeProject,
   getViewport: () => ({
     width: globalThis.innerWidth || 1280,
