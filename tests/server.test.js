@@ -199,3 +199,43 @@ test("revisão de memória: lista pendentes, promove/descarta, valida e não vaz
   assert.equal((await fetch(base + "/api/project/demo/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })).status, 403, "POST sem Origin continua barrado");
   assert.equal((await get("/api/project/demo/review", { method: "DELETE" })).status, 405);
 });
+
+test("estado de tela pela rede (EP-14): PATCH e POST gravam, sem origem é 403, outro servidor lê o mesmo estado", async () => {
+  const send = (method, p, body, extra = {}) => fetch(base + p, {
+    method, headers: { "Content-Type": "application/json", Origin: base, ...extra }, body: JSON.stringify(body),
+  });
+  const url = "/api/screens/scrum/state?project=demo";
+
+  const patched = await send("PATCH", url, { sprint: "S7", filter: "abertas" });
+  assert.equal(patched.status, 200, "PATCH precisa passar pelo servidor, não só pelo controller");
+  assert.equal((await patched.json()).state.sprint, "S7");
+
+  const beacon = await send("POST", url, { state: { tab: "backlog" }, rev: 0 });
+  assert.equal(beacon.status, 200, "o beacon grava mesmo com rev defasado");
+
+  const crossSite = await send("PATCH", url, { sprint: "invasor" }, { Origin: "http://evil.example" });
+  assert.equal(crossSite.status, 403);
+  const noOrigin = await fetch(base + url, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sprint: "x" }) });
+  assert.equal(noOrigin.status, 403);
+
+  const second = createServer();
+  await new Promise((resolve) => second.listen(0, "127.0.0.1", resolve));
+  try {
+    const read = await (await fetch(`http://127.0.0.1:${second.address().port}${url}`)).json();
+    assert.deepEqual({ sprint: read.state.sprint, filter: read.state.filter, tab: read.state.tab }, { sprint: "S7", filter: "abertas", tab: "backlog" });
+  } finally {
+    second.closeAllConnections();
+    second.close();
+  }
+
+  const cleared = await send("PATCH", url, { filter: null });
+  assert.equal("filter" in (await cleared.json()).state, false, "null remove o campo");
+  await send("POST", "/api/screens/scrum/history?project=demo", { acao: "transicao", alvo: "DIS-1" });
+  // O cliente (screen-state.js) manda o projeto no corpo, sem query string.
+  const bodyOnly = await send("POST", "/api/screens/scrum/history", { project: "demo", acao: "corpo", alvo: "DIS-2", ts: Date.now() });
+  assert.equal(bodyOnly.status, 200, "histórico com projeto só no corpo");
+  const bodyPatch = await send("PATCH", "/api/screens/scrum/state", { project: "demo", state: { tab: "corpo" } });
+  assert.equal(bodyPatch.status, 200, "estado com projeto só no corpo");
+  const hist = await (await fetch(`${base}/api/screens/scrum/history?project=demo`)).json();
+  assert.deepEqual(hist.history.slice(0, 2).map((h) => h.acao), ["corpo", "transicao"], "mais recente primeiro");
+});

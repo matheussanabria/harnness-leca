@@ -8,13 +8,13 @@ const netLib = require("../tools/lib/network");
 function createServer() {
   const server = http.createServer(async (req, res) => {
     try {
-      if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "POST") {
+      if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "POST" && req.method !== "PATCH") {
         return send(res, 405, { error: "método não permitido" });
       }
       if (!hostOk(req)) {
         return send(res, 403, { error: "host não permitido" });
       }
-      if (req.method === "POST" && !postOk(req)) {
+      if ((req.method === "POST" || req.method === "PATCH") && !postOk(req)) {
         return send(res, 403, { error: "origem não permitida" });
       }
       await handle(req, res);

@@ -79,7 +79,8 @@ async function apiScreenStatePatch({ req, res, params, url }) {
   }
   try {
     const { patch, rev } = patchFromBody(body);
-    return send(res, 200, patchScreenState(params[0], projectFrom(url), patch, rev));
+    const project = projectFrom(url) || (body && typeof body.project === "string" ? body.project : "");
+    return send(res, 200, patchScreenState(params[0], project, patch, rev));
   } catch (error) {
     return fail(res, error);
   }
@@ -105,7 +106,9 @@ async function apiScreenHistoryPost({ req, res, params, url }) {
     const input = body && typeof body === "object" && body.entry && typeof body.entry === "object"
       ? body.entry
       : body;
-    return send(res, 200, appendScreenHistory(params[0], projectFrom(url), input));
+    // O cliente manda o projeto no corpo; a query string continua valendo e tem prioridade.
+    const project = projectFrom(url) || (input && typeof input.project === "string" ? input.project : "");
+    return send(res, 200, appendScreenHistory(params[0], project, input));
   } catch (error) {
     return fail(res, error);
   }

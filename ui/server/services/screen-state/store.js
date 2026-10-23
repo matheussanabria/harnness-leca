@@ -210,7 +210,10 @@ function normalizeHistoryEntry(input) {
   if (typeof alvo !== "string" || alvo.length > HISTORY_MAX_ALVO) {
     throw new ScreenStoreError("O campo alvo deve ser texto de até 300 caracteres.", "INVALID_HISTORY", 400);
   }
-  const ts = input.ts === undefined || input.ts === null ? new Date().toISOString() : input.ts;
+  // O cliente manda o instante em milissegundos; o arquivo guarda texto ISO.
+  const rawTs = typeof input.ts === "number" && Number.isFinite(input.ts) && input.ts > 0 && input.ts < 8.64e15
+    ? new Date(input.ts).toISOString() : input.ts;
+  const ts = rawTs === undefined || rawTs === null ? new Date().toISOString() : rawTs;
   if (typeof ts !== "string" || !ts || ts.length > HISTORY_MAX_TS) {
     throw new ScreenStoreError("O campo ts deve ser texto de até 64 caracteres.", "INVALID_HISTORY", 400);
   }
