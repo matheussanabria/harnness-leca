@@ -35,6 +35,7 @@ O estado de uso vive em cerca de 15 chaves de `localStorage` espalhadas ou se pe
 | [14.08](14.08-telas-studio-atelie.md) | Adoção no Studio e no Ateliê | P1 | 14.05, 14.06 |
 | [14.09](14.09-telas-design.md) | Adoção em scrum, layers, board, audit, artifacts e routines | P1 | 14.05, 14.06 |
 | [14.10](14.10-telas-paginas.md) | Adoção em deploy, office, overview e diário | P1 | 14.05, 14.06 |
+| [14.12](14.12-lacunas-adocao.md) | Lacunas de adoção: view ativa, artefatos, rotinas, diário e módulos restantes | P1 | 14.07, 14.08, 14.09, 14.10 |
 | [14.11](14.11-fechamento-ep14.md) | Fechamento: documentação, MAPA e verificação | P2 | 14.07, 14.08, 14.09, 14.10 |
 
 ```mermaid
@@ -50,9 +51,9 @@ flowchart LR
     S06 --> S08
     S06 --> S09
     S06 --> S10
-    S07 --> S11["14.11 Fechamento"]
-    S08 --> S11
-    S09 --> S11
+    S07 --> S12
+    S08 --> S12
+    S09 --> S12
     S10 --> S11
 ```
 
@@ -67,7 +68,8 @@ Cada história roda numa branch `ep14/<id>-<slug>`, com um worktree e um agente.
 | 1 | 14.04 | Contrato do registro, usado por todas as demais. |
 | 2 | 14.05 e 14.06 em paralelo | Servidor e cliente não dividem arquivo. |
 | 3 | 14.07, 14.08, 14.09 e 14.10 em paralelo | Telas distintas; cada uma só toca os módulos da sua lista. |
-| 4 | 14.11 | Fechamento. |
+| 4 | 14.12 | Fecha as lacunas deixadas pelas listas de arquivos das adoções. |
+| 5 | 14.11 | Fechamento e roteiro de F5 no navegador. |
 
 ## Regras de coordenação
 - Cada agente se registra no ledger do [multi-agent-sync](../../05-progress/multi-agent-sync.md) como `<motor>/<id>` antes de editar.
