@@ -62,10 +62,13 @@ const SCREENS = [
   tela("scrum", "Scrum", "projeto", "/?p=<slug>&view=scrum", "fa-list-check", {
     sprint: texto(120), filter: texto(120), selectedStory: texto(120),
     tab: texto(32), sortField: texto(32), sortAsc: booleano(),
+    epicFilter: texto(120), assigneeFilter: texto(120), onlyImpediments: booleano(),
   }),
   tela("layers", "Mapa em Camadas", "projeto", "/?p=<slug>&view=layers", "fa-layer-group", {
     componentFilter: texto(120), selectedLayer: texto(120), tab: texto(32),
     expanded: lista(500), zoom: inteiro(200, 25),
+    activeScreen: texto(120), focusedField: texto(120), filterOnlyFocused: booleano(),
+    viewport: texto(16),
   }),
   tela("board", "Quadro", "projeto", "/?p=<slug>&view=board", "fa-table-columns", {
     sprint: texto(120), filter: texto(120), selectedCard: texto(120),
@@ -74,6 +77,7 @@ const SCREENS = [
   tela("audit", "Auditoria", "projeto", "/?p=<slug>&view=audit", "fa-clipboard-check", {
     componentFilter: texto(120), matrixFilter: texto(120),
     selectedComponent: texto(120), tab: texto(32), severity: texto(16),
+    evidenceState: texto(32),
   }),
   tela("artifacts", "Artefatos", "projeto", "/?p=<slug>&view=artifacts", "fa-box-archive", {
     kindFilter: texto(32), accessFilter: texto(16), query: texto(200),

@@ -7,6 +7,7 @@ import { renderStagesNav } from "./design-layers/layers-stages-nav.js";
 import { renderLayersTabsNav } from "./design-layers/layers-tabs-nav.js";
 import { renderScreenReplica } from "./design-layers/layers-screen-replica.js";
 import { renderLayersRightColumn } from "./design-layers/layers-right-content.js";
+import { hydrateLayersState, persistLayersState, isLayersStateHydrated } from "./design-layers-state.js";
 
 /**
  * Retorna a tela atualmente selecionada.
@@ -67,6 +68,12 @@ export function renderLayersWorkspace(container, projectSlug, screensData) {
       </div>
     </div>
   `;
+
+  if (!isLayersStateHydrated()) {
+    hydrateLayersState().then((changed) => {
+      if (changed) renderLayersWorkspace(container, projectSlug, screensData);
+    });
+  }
 }
 
 // Binds globais para os manipuladores onclick da interface
@@ -75,6 +82,7 @@ if (typeof window !== "undefined") {
   window.selectActiveScreen = (id) => {
     dls.activeScreenId = id;
     dls.focusedFieldId = null;
+    void persistLayersState({ activeScreen: id, focusedField: "" });
     const container = $("designViewContainer");
     if (container && dls.currentScreensData) {
       renderLayersWorkspace(container, "", dls.currentScreensData);
@@ -84,6 +92,7 @@ if (typeof window !== "undefined") {
   // @ts-ignore
   window.setLayerTab = (layer) => {
     dls.activeLayer = layer;
+    void persistLayersState({ selectedLayer: layer });
     const container = $("designViewContainer");
     if (container && dls.currentScreensData) {
       renderLayersWorkspace(container, "", dls.currentScreensData);
@@ -98,6 +107,7 @@ if (typeof window !== "undefined") {
     } else {
       dls.focusedFieldId = fid;
     }
+    void persistLayersState({ focusedField: dls.focusedFieldId || "" });
     const container = $("designViewContainer");
     if (container && dls.currentScreensData) {
       renderLayersWorkspace(container, "", dls.currentScreensData);
@@ -112,6 +122,7 @@ if (typeof window !== "undefined") {
     dls.activeScreenId = screen.id;
     dls.focusedFieldId = fieldId && (screen.fields || []).some((field) => field.id === fieldId) ? fieldId : null;
     dls.activeLayer = "ui";
+    void persistLayersState({ activeScreen: screen.id, focusedField: dls.focusedFieldId || "", selectedLayer: "ui" });
     const container = $("designViewContainer");
     if (container) renderLayersWorkspace(container, "", dls.currentScreensData);
     return true;
@@ -120,6 +131,17 @@ if (typeof window !== "undefined") {
   // @ts-ignore
   window.setLayersViewport = (vp) => {
     dls.activeViewport = vp;
+    void persistLayersState({ viewport: vp });
+    const container = $("designViewContainer");
+    if (container && dls.currentScreensData) {
+      renderLayersWorkspace(container, "", dls.currentScreensData);
+    }
+  };
+
+  // @ts-ignore
+  window.toggleFilterOnlyFocused = () => {
+    dls.filterOnlyFocused = !dls.filterOnlyFocused;
+    void persistLayersState({ filterOnlyFocused: dls.filterOnlyFocused });
     const container = $("designViewContainer");
     if (container && dls.currentScreensData) {
       renderLayersWorkspace(container, "", dls.currentScreensData);
