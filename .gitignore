@@ -20,6 +20,10 @@ global/deploy*.json
 bridge/*.jsonl
 logs/
 
+# Estado e histórico de uso das telas (dados locais)
+global/ui-state/
+projects/*/ui-state/
+
 # Scratch e testes descartáveis
 tools/scratch_*.js
 tools/test_*.js

@@ -122,6 +122,9 @@ harness-leca/
 | **Saúde dos Ambientes (Services)** | `ui/server/services/deploy/health-definitions.js`, `health-store.js` e `health-runner.service.js` | Verificações `http`/`command` com resultado real, latência medida, estado agregado por ambiente e histórico em `global/deploy-health-runs.jsonl` (EP-10.02). |
 | **Saúde dos Ambientes (Controller)** | `ui/server/controllers/deploy-health.controller.js` | Expõe o estado de saúde por ambiente, a gravação de verificações e a execução sob demanda, com escrita restrita ao loopback (EP-10.02). |
 | **Registro de Estado das Telas** | `ui/server/services/screen-state/registry.js` | Declara as 13 telas, o escopo, os campos permitidos com tipo/limite, as chaves antigas de `localStorage`, as exclusões justificadas e o saneamento com teto de 64 KB (EP-14.04). |
+| **Armazenamento de Estado das Telas (Service)** | `ui/server/services/screen-state/store.js` | Lê e grava `projects/<slug>/ui-state/<tela>.json` e `.history.jsonl` (telas globais em `global/ui-state/`) com escrita atômica, concorrência por `rev`, teto de 64 KB e anel de 500 ações (EP-14.05). |
+| **Estado e Histórico das Telas (Controller)** | `ui/server/controllers/screen-state.controller.js` | Expõe o catálogo, a leitura/gravação do estado por tela e a leitura/registro do histórico, traduzindo validação, conflito e tamanho em respostas HTTP (EP-14.05). |
+| **Rotas de Estado das Telas** | `ui/server/routes/screens.routes.js` | Agrupa `GET /api/screens` e as rotas de estado/histórico por tela para manter `router.js` abaixo do teto (EP-14.05). |
 
 ---
 
@@ -321,6 +324,7 @@ node --test tests/screen-registry.test.js           # Testa registro das 13 tela
 | `.githooks/pre-push` | Roda a suíte completa no push (e a regressão completa quando `quality/regression-enforced` existe). |
 | `tests/affected-tests.test.js` | Regressão da seleção de testes afetados, do check restrito e do hook de pre-push. |
 | `tests/screen-registry.test.js` | Regressão do registro das 13 telas, do saneamento de campos, do limite de 64 KB e da cobertura das chaves antigas do `localStorage` (EP-14.04). |
+| `tests/screen-state-store.test.js` e `tests/screen-state-http.test.js` | Regressão do armazenamento e dos endpoints de estado/histórico por tela: persistência, merge, 409 por `rev`, 413, anel de 500, slug, rotas e arquivos de apoio (EP-14.05). |
 
 - Fixtures de teste: `tests/helpers/project-fixture.js` (orquestrador), `project-fixture-design-system.js`, `project-fixture-prototype.js`, `project-fixture-design-index.js` e `project-fixture-files.js` criam um projeto temporário fora de `projects/` e devolvem `{ dir, slug, cleanup }`.
 
