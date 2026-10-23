@@ -25,6 +25,7 @@
   }
 
   function computeDisplayName(el, tag, classes) {
+    if (el.hasAttribute("data-group")) return el.getAttribute("data-group-name") || "Grupo";
     if (el.hasAttribute("data-component")) return el.getAttribute("data-component") || tag;
     if (el.id) return `#${el.id}`;
     const directText = Array.from(el.childNodes)
@@ -58,7 +59,7 @@
     const classes = Array.from(el.classList).filter((c) => c !== "harness-highlight");
     const isHidden = el.style.display === "none" || el.classList.contains("is-hidden");
     const isLocked = el.getAttribute("data-locked") === "true";
-    const category = el.hasAttribute("data-component") ? "component" : getCategoryForTag(tag, classes);
+    const category = el.hasAttribute("data-group") ? "group" : el.hasAttribute("data-component") ? "component" : getCategoryForTag(tag, classes);
     const displayName = computeDisplayName(el, tag, classes);
     const directText = (el.textContent || "").trim().slice(0, 40);
 
@@ -79,6 +80,7 @@
       text: directText,
       isHidden,
       isLocked,
+      isGroup: el.hasAttribute("data-group"),
       children,
     };
   }
@@ -159,6 +161,7 @@
     // @ts-ignore
     const target = e.target;
     if (!target) return;
+    if (window.__harnessBridge?.onModifiedClick?.(e, target, mode)) return;
     const actionEl = target.closest("[data-action]");
     if (actionEl && mode !== "inspect") {
       const action = actionEl.getAttribute("data-action") || "";
@@ -182,9 +185,6 @@
     e.stopPropagation();
     selectElement(nodeEl);
   }, true);
-
-  // Esc dentro do iframe não chega à janela-mãe; repassa para o canvas sair do modo Iniciar
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") sendToParent("HARNESS_PROTO_KEY", { key: "Escape" }); });
 
   // 2. Escuta ordens da janela-mãe
   window.addEventListener("message", (e) => {
@@ -227,8 +227,8 @@
     treeDebounce = setTimeout(sendFullTree, 80);
   }
 
-  // Interface para scripts irmãos (arrastar para reordenar)
-  window.__harnessBridge = { send: sendToParent, mode: () => mode, select: selectElement };
+  // Interface para scripts irmãos (arrastar para reordenar, seleção múltipla)
+  window.__harnessBridge = { send: sendToParent, mode: () => mode, select: selectElement, find: findElementById };
 
   // Notifica que a ponte está ativa e envia a árvore de elementos
   sendToParent("HARNESS_PROTO_READY", {

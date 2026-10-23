@@ -9,6 +9,7 @@ import { bindLayerDrag } from "./prototype-layer-drag.js";
 
 let currentTree = [];
 let selectedNodeId = "";
+let multiIds = new Set();
 let expandedNodes = new Set();
 let searchQuery = "";
 let callbacks = { onSelect: null, onVisibility: null, onLock: null, onMove: null };
@@ -22,6 +23,7 @@ const CATEGORY_ICONS = {
   table: "fa-solid fa-table",
   list: "fa-solid fa-list-ul",
   section: "fa-solid fa-folder",
+  group: "fa-solid fa-object-group",
   component: "fa-solid fa-cube",
   box: "fa-solid fa-box",
 };
@@ -51,6 +53,12 @@ function expandTopLevels(nodes, currentDepth, maxDepth) {
   }
 }
 
+/** Marca vários itens como selecionados (seleção múltipla); lista vazia limpa. */
+export function setLayerMulti(ids, container) {
+  multiIds = new Set(ids || []);
+  if (container) renderTree(container);
+}
+
 export function selectLayerNode(targetId, container) {
   selectedNodeId = targetId;
   expandAncestors(currentTree, targetId);
@@ -77,6 +85,8 @@ function expandAncestors(nodes, targetId, parents = []) {
 
 export function renderTree(container) {
   if (!container) return;
+  // O innerHTML recria a lista; guardamos a rolagem para não voltar ao topo a cada clique.
+  const previousScroll = container.querySelector("#layersListScroll")?.scrollTop ?? 0;
   const totalCount = countNodes(currentTree);
   const q = searchQuery.toLowerCase().trim();
 
@@ -95,6 +105,8 @@ export function renderTree(container) {
       </div>
     </div>
   `;
+  const scroller = container.querySelector("#layersListScroll");
+  if (scroller) scroller.scrollTop = previousScroll;
   bindTreeEvents(container);
 }
 
@@ -127,7 +139,7 @@ function renderNodesList(nodes, depth, q) {
     const id = getNodeId(node);
     const hasChildren = node.children && node.children.length > 0;
     const isExpanded = q ? true : expandedNodes.has(id);
-    const isSelected = id === selectedNodeId;
+    const isSelected = multiIds.size ? multiIds.has(id) : id === selectedNodeId;
     const iconClass = CATEGORY_ICONS[node.category] || "fa-solid fa-box";
     const indentPx = depth * 14;
 
@@ -195,9 +207,11 @@ function bindTreeEvents(container) {
     row.addEventListener("click", (e) => {
       const id = /** @type {HTMLElement} */ (row).dataset.nodeId;
       if (!id) return;
-      selectedNodeId = id;
+      const mods = { ctrl: /** @type {MouseEvent} */ (e).ctrlKey || /** @type {MouseEvent} */ (e).metaKey, shift: /** @type {MouseEvent} */ (e).shiftKey };
+      if (!mods.ctrl && !mods.shift) selectedNodeId = id;
+      if (!mods.ctrl && !mods.shift) multiIds = new Set();
       renderTree(container);
-      if (callbacks.onSelect) callbacks.onSelect(id);
+      if (callbacks.onSelect) callbacks.onSelect(id, mods);
     });
   });
 

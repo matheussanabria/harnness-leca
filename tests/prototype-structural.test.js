@@ -117,3 +117,52 @@ test("prototype-exporter: compileSingleHtmlPrototype compila HTML único com aba
   assert.match(html, /showScreen/);
   assert.match(html, /data-action/);
 });
+
+test("prototype-structural: agrupar irmãos num div data-group e desagrupar volta ao original", () => {
+  const { groupElements, ungroupElement, nextPid } = require("../ui/server/services/prototype-structural.service");
+  const html = `<main data-pid="p-1">
+  <h1 data-pid="p-2">Título</h1>
+  <p data-pid="p-3">A</p>
+  <p data-pid="p-4">B</p>
+  <footer data-pid="p-5"><span data-pid="p-6">x</span></footer>
+</main>`;
+  assert.equal(nextPid(html), "p-7");
+  const grouped = groupElements(html, ["p-3", "p-4"], "p-7");
+  assert.match(grouped, /<div data-group="true" data-pid="p-7">\n<p data-pid="p-3">A<\/p>\n<p data-pid="p-4">B<\/p>\n<\/div>/);
+  assert.ok(grouped.indexOf('data-pid="p-2"') < grouped.indexOf('data-pid="p-7"'));
+  assert.ok(grouped.indexOf('data-pid="p-7"') < grouped.indexOf('data-pid="p-5"'));
+  // via mutateStructuralHtml
+  assert.equal(mutateStructuralHtml(html, "p-3", { type: "group", pids: ["p-3", "p-4"], newPid: "p-7" }), grouped);
+  const back = ungroupElement(grouped, "p-7");
+  assert.equal(back.replace(/\s+/g, ""), html.replace(/\s+/g, ""));
+  assert.throws(() => ungroupElement(html, "p-3"), /não é um grupo/);
+});
+
+test("prototype-structural: agrupar recusa pais diferentes, aninhados e menos de 2", () => {
+  const { groupElements } = require("../ui/server/services/prototype-structural.service");
+  const html = `<div data-pid="p-1"><p data-pid="p-2">a</p></div><div data-pid="p-3"><p data-pid="p-4">b</p><img data-pid="p-5" src="x"><p data-pid="p-6">c</p></div>`;
+  assert.throws(() => groupElements(html, ["p-2", "p-4"]), /mesmo pai/);
+  assert.throws(() => groupElements(html, ["p-3", "p-4"]), /dentro dele/);
+  assert.throws(() => groupElements(html, ["p-2"]), /pelo menos 2/);
+  assert.throws(() => groupElements(html, ["p-2", "p-99"]), /não encontrado/);
+  const ok = groupElements(html, ["p-4", "p-5", "p-6"], "p-7");
+  assert.match(ok, /<div data-pid="p-3"><div data-group="true" data-pid="p-7">/);
+});
+
+test("prototype-structural: excluir e duplicar vários de uma vez (e ignorar filho já removido com o pai)", () => {
+  const html = `<div data-pid="p-1"><p data-pid="p-2">a</p><p data-pid="p-3">b</p></div><p data-pid="p-4">c</p>`;
+  assert.equal(mutateStructuralHtml(html, "p-2", { type: "remove", pids: ["p-2", "p-4"] }), `<div data-pid="p-1"><p data-pid="p-3">b</p></div>`);
+  assert.equal(mutateStructuralHtml(html, "p-1", { type: "remove", pids: ["p-1", "p-2"] }), `<p data-pid="p-4">c</p>`);
+  const dup = mutateStructuralHtml(html, "p-2", { type: "duplicate", pids: ["p-2", "p-4"] });
+  assert.equal((dup.match(/>a</g) || []).length, 2);
+  assert.equal((dup.match(/>c</g) || []).length, 2);
+  assert.throws(() => mutateStructuralHtml(html, "p-99", { type: "remove", pids: ["p-99", "p-2"] }), /não encontrado/); // o primeiro precisa existir
+});
+
+test("prototype-structural: validateScreenHtml acusa pid repetido e tags sem par, ignora void e fim opcional", () => {
+  const { validateScreenHtml } = require("../ui/server/services/prototype-structural.service");
+  assert.deepEqual(validateScreenHtml(`<div data-pid="p-1"><p data-pid="p-2">a<br><img src="x"></p><ul><li>a<li>b</ul></div>`), []);
+  assert.deepEqual(validateScreenHtml(`<div data-pid="p-1"><span data-pid="p-1">a</div>`).sort(), ["Tag <span> não fechada", "data-pid repetido: p-1"]);
+  assert.deepEqual(validateScreenHtml(`<div>a</div></section>`), ["Tag </section> sem abertura"]);
+  assert.deepEqual(validateScreenHtml(`<div><script>if (a<b) {}</script></div>`), []);
+});

@@ -11,7 +11,7 @@ export function renderScreenOptions(screens, activeScreen) {
 export function renderAtelierHtml(model) {
   const screens = model.prototype.screens || [{ id: "home", title: "Início" }];
   const screenOptions = renderScreenOptions(screens, model.activeScreen);
-  const catalog = renderPrototypeCatalog(model.catalog, model.prototypeId, model.components, model.mcpServer);
+  const catalog = renderPrototypeCatalog(model.catalog, model.prototypeId, model.protoComponents, model.mcpServer);
   const versions = renderVersions(model.versions, model.prototype.version);
 
   return `
@@ -59,11 +59,27 @@ export function renderAtelierHtml(model) {
             ${viewportButton(1280, "fa-desktop", model.viewportWidth)}
             ${viewportButton(768, "fa-tablet-screen-button", model.viewportWidth)}
             ${viewportButton(390, "fa-mobile-screen-button", model.viewportWidth)}
+            <button type="button" id="btnAtelierUndo" class="btn-proto-vp" title="Desfazer (Ctrl+Z)" aria-label="Desfazer" disabled><i class="fa-solid fa-rotate-left"></i></button>
+            <button type="button" id="btnAtelierRedo" class="btn-proto-vp" title="Refazer (Ctrl+Shift+Z ou Ctrl+Y)" aria-label="Refazer" disabled><i class="fa-solid fa-rotate-right"></i></button>
+            <button type="button" id="btnAtelierHistory" class="btn-proto-vp" title="Histórico de tudo o que mudou neste protótipo" aria-expanded="false"><i class="fa-solid fa-list-ul"></i> Histórico <span class="history-count" id="atelierHistoryCount">0</span></button>
             <button type="button" id="btnAtelierInspector" class="btn-proto-vp active" title="Ligar ou desligar o inspetor" aria-pressed="true"><i class="fa-solid fa-crosshairs"></i> <span>Inspetor</span></button>
             <button type="button" id="btnAtelierModeCanvas" class="btn-proto-vp" title="Alternar entre tela única e canvas"><i class="fa-solid fa-object-group"></i> Canvas</button>
             <button type="button" id="btnAtelierPlay" class="btn-proto-vp" title="Iniciar a navegação (cada tela vira um quadro do canvas)"><i class="fa-solid fa-play"></i> Iniciar</button>
             <button type="button" id="btnReloadProtoFrame" class="btn-proto-vp" title="Recarregar tela"><i class="fa-solid fa-rotate"></i></button>
           </div>
+        </div>
+        <div id="atelierHistoryPanel" class="proto-history" hidden>
+          <div class="proto-history__head"><i class="fa-solid fa-clock-rotate-left"></i> Histórico <small>mais recente primeiro</small><button type="button" class="btn-proto-vp" data-history-mark title="Marcar o estado atual com um nome; nunca é apagado do histórico"><i class="fa-solid fa-star"></i> Marcar ponto</button><button type="button" class="proto-panel-action-btn" data-history-close title="Fechar"><i class="fa-solid fa-xmark"></i></button></div>
+          <ul id="atelierHistoryList" class="proto-history__list"></ul>
+          <div class="proto-history__hint">Clique em um item para voltar a esse ponto. Ctrl+Z desfaz, Ctrl+Shift+Z refaz.</div>
+        </div>
+        <div id="atelierSelectionBar" class="proto-selbar" hidden>
+          <span id="atelierSelectionLabel" class="proto-selbar__label"></span>
+          <button type="button" id="btnAtelierGroup" class="btn-proto-vp" title="Agrupar (Ctrl+G)"><i class="fa-solid fa-object-group"></i> Agrupar</button>
+          <button type="button" id="btnAtelierUngroup" class="btn-proto-vp" title="Desagrupar (Ctrl+Shift+G)"><i class="fa-solid fa-object-ungroup"></i> Desagrupar</button>
+          <button type="button" id="btnAtelierDuplicateSel" class="btn-proto-vp" title="Duplicar selecionados (Ctrl+D)"><i class="fa-solid fa-clone"></i> Duplicar</button>
+          <button type="button" id="btnAtelierDeleteSel" class="btn-proto-vp" title="Excluir selecionados (Delete)"><i class="fa-solid fa-trash"></i> Excluir</button>
+          <button type="button" id="btnAtelierClearSel" class="btn-proto-vp" title="Limpar seleção (Esc)"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="proto-canvas-wrap">
           <div id="atelierFrameContainer" class="proto-frame-box" style="width:${model.viewportWidth}px">

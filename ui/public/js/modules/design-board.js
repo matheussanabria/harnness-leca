@@ -11,6 +11,9 @@ const STAGE_COLUMNS = [
   { id: "documented", title: "Documentado" },
 ];
 
+/** Último quadro desenhado: a busca redesenha sem pedir os dados de novo. */
+let boardState = { components: [], draft: null, query: "" };
+
 /**
  * Formata o bloco de contexto para envio ao chat de acordo com a metodologia de design.
  * @param {any} comp
@@ -78,6 +81,18 @@ function renderCheckItem(label, meta = {}) {
 }
 
 /**
+ * Linha de uso: em quantas telas dos protótipos o componente aparece.
+ * @param {any} usage
+ */
+function renderUsage(usage) {
+  if (!usage) return "";
+  const text = usage.screens
+    ? `Em ${usage.screens} tela(s) de ${usage.prototypes} protótipo(s)`
+    : "Ainda não usado em protótipos";
+  return `<div class="design-card-usage" style="font-size:10.5px;color:var(--mute);margin-bottom:4px"><i class="fa-solid fa-layer-group"></i> ${esc(text)}</div>`;
+}
+
+/**
  * Renderiza um cartão individual de componente no Kanban.
  * @param {any} comp
  * @param {boolean} [isDraft]
@@ -85,6 +100,9 @@ function renderCheckItem(label, meta = {}) {
 function renderDesignCard(comp, isDraft = false) {
   const chk = comp.checklist || {};
   const dai = comp.dai || {};
+  const registered = comp.registryId
+    ? `<span title="Registrado no Design System: ${esc(comp.registryId)}" style="font-size:10px;color:#22c55e;border:1px solid rgba(34,197,94,0.35);border-radius:4px;padding:1px 5px"><i class="fa-solid fa-circle-check"></i> DS</span>`
+    : "";
 
   return `
     <div class="design-card ${isDraft ? 'draft' : ''}" id="card_${esc(comp.id)}">
@@ -93,8 +111,13 @@ function renderDesignCard(comp, isDraft = false) {
           <div class="design-card-title">${esc(comp.name)} ${isDraft ? '<span style="font-size:10px;background:#eab308;color:#000;padding:1px 5px;border-radius:3px;font-weight:bold">RASCUNHO</span>' : ''}</div>
           <div class="design-card-selector">&lt;${esc(comp.selector || comp.id)}&gt;</div>
         </div>
-        ${comp.isOverridden ? '<span title="Etapa definida manualmente" style="font-size:10px;color:var(--mute)">✏️ manual</span>' : ''}
+        <div style="display:flex;gap:4px;align-items:center">
+          ${registered}
+          ${comp.isOverridden ? '<span title="Etapa definida manualmente" style="font-size:10px;color:var(--mute)"><i class="fa-solid fa-pen"></i> manual</span>' : ''}
+        </div>
       </div>
+
+      ${renderUsage(comp.usage)}
 
       <div class="design-card-dai" title="Próximo passo: ${esc(dai.nextAction || '')}">
         <span>${esc(dai.icon || '🤖')}</span>
@@ -103,7 +126,7 @@ function renderDesignCard(comp, isDraft = false) {
 
       ${comp.alreadyExists ? `
         <div style="font-size:10.5px;color:#38bdf8;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);border-radius:4px;padding:3px 6px;margin-bottom:4px" title="${esc(comp.existingPath || '')}">
-          ⚡ Já existe no app: <code style="font-size:10px">${esc(comp.existingPath ? comp.existingPath.split('/').pop() : '')}</code>
+          <i class="fa-solid fa-bolt"></i> Já existe no app: <code style="font-size:10px">${esc(comp.existingPath ? comp.existingPath.split('/').pop() : '')}</code>
         </div>
       ` : ''}
 
@@ -116,37 +139,52 @@ function renderDesignCard(comp, isDraft = false) {
         ${renderCheckItem("No App", chk.meta?.isImplemented || { checked: chk.isImplemented })}
         ${renderCheckItem("Documentado", chk.meta?.isDocumented || { checked: chk.isDocumented })}
       </div>
-      ${chk.hasBoilerplate && !chk.isImplemented ? '<div style="font-size:10.5px;color:var(--mute);margin-top:-2px">ℹ️ Ainda não aplicado ao app</div>' : ''}
+      ${chk.hasBoilerplate && !chk.isImplemented ? '<div style="font-size:10.5px;color:var(--mute);margin-top:-2px">Ainda não aplicado ao app</div>' : ''}
 
       <div class="design-card-actions">
-        <button type="button" class="btn-card-action" onclick='copyDesignCardContext(${JSON.stringify(comp)})' title="Copiar bloco <contexto-design>">📋 Copiar</button>
-        <button type="button" class="btn-card-action" onclick='sendDesignCardContext(${JSON.stringify(comp)})' title="Inserir no chat ativo">💬 No Chat</button>
+        <button type="button" class="btn-card-action" onclick='copyDesignCardContext(${JSON.stringify(comp)})' title="Copiar bloco <contexto-design>"><i class="fa-regular fa-copy"></i> Copiar</button>
+        <button type="button" class="btn-card-action" onclick='sendDesignCardContext(${JSON.stringify(comp)})' title="Inserir no chat ativo"><i class="fa-regular fa-comment"></i> No Chat</button>
       </div>
     </div>
   `;
 }
 
 /**
- * Renderiza o quadro Kanban completo.
+ * Componente casa com a busca (nome, id ou seletor)?
+ * @param {any} comp
+ * @param {string} query  já em minúsculas
+ */
+function matchesQuery(comp, query) {
+  if (!query) return true;
+  return [comp.name, comp.id, comp.selector].some((value) => String(value || "").toLowerCase().includes(query));
+}
+
+/**
+ * Renderiza o quadro Kanban completo, com busca por nome, id ou seletor.
  * @param {HTMLElement} container
  * @param {any[]} components
  * @param {any} [draftComponent]
  */
 export function renderKanbanBoard(container, components = [], draftComponent = null) {
+  boardState = { components, draft: draftComponent, query: boardState.query };
+  const query = boardState.query.trim().toLowerCase();
+  const visible = components.filter((comp) => matchesQuery(comp, query));
+  const draftVisible = draftComponent && matchesQuery(draftComponent, query) ? draftComponent : null;
+
   const cardsByCol = {};
   for (const col of STAGE_COLUMNS) {
     cardsByCol[col.id] = [];
   }
 
   // Se houver rascunho em memória, insere na etapa deduzida ou em 'extracted'
-  if (draftComponent) {
-    const draftStage = draftComponent.stage || "extracted";
+  if (draftVisible) {
+    const draftStage = draftVisible.stage || "extracted";
     if (cardsByCol[draftStage]) {
-      cardsByCol[draftStage].push(renderDesignCard(draftComponent, true));
+      cardsByCol[draftStage].push(renderDesignCard(draftVisible, true));
     }
   }
 
-  for (const comp of components) {
+  for (const comp of visible) {
     const stage = comp.stage || "prototype";
     if (cardsByCol[stage]) {
       cardsByCol[stage].push(renderDesignCard(comp, false));
@@ -170,7 +208,27 @@ export function renderKanbanBoard(container, components = [], draftComponent = n
     `;
   }).join("");
 
-  container.innerHTML = `<div class="design-kanban-board">${columnsHtml}</div>`;
+  const total = components.length + (draftComponent ? 1 : 0);
+  const shown = visible.length + (draftVisible ? 1 : 0);
+  container.innerHTML = `
+    <div class="design-board-tools" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <input type="search" id="designBoardSearch" placeholder="Buscar componente (nome, id ou seletor)..." aria-label="Buscar componente" value="${esc(boardState.query)}" style="flex:1;max-width:360px;padding:5px 8px;border-radius:6px;border:1px solid var(--line,#2b2f3a);background:transparent;color:inherit">
+      <span style="font-size:11px;color:var(--mute)">${query ? `${shown} de ${total}` : `${total} componente(s)`}</span>
+    </div>
+    <div class="design-kanban-board">${columnsHtml}</div>`;
+
+  const input = /** @type {HTMLInputElement | null} */ (container.querySelector("#designBoardSearch"));
+  if (input) {
+    input.oninput = () => {
+      boardState.query = input.value;
+      renderKanbanBoard(container, boardState.components, boardState.draft);
+      const again = /** @type {HTMLInputElement | null} */ (container.querySelector("#designBoardSearch"));
+      if (again) {
+        again.focus();
+        again.setSelectionRange(again.value.length, again.value.length);
+      }
+    };
+  }
 }
 
 // Binds globais para eventos de clique inline dos botões dos cartões

@@ -208,4 +208,5 @@ function buildFileMap(componentId, screen, screenId, componentManifest, register
 
 module.exports = {
   resolveNodeTraceability,
+  resolveComponentDir,
 };

@@ -17,6 +17,7 @@ const {
   apiRegistryPreviewComponent,
   apiRegistryExtractPilot,
 } = require("../controllers/design-registry.controller");
+const { apiRegistryComponentSource, apiPrototypeComponents } = require("../controllers/prototype-components.controller");
 const {
   apiPrototypesList,
   apiPrototypesCreate,
@@ -35,6 +36,13 @@ const {
 } = require("../controllers/prototype.controller");
 const { apiPrototypeTraceability } = require("../controllers/prototype-traceability.controller");
 const { apiPrototypesUnextractComponent, apiPrototypesDelete } = require("../controllers/prototype-component.controller");
+const {
+  apiPrototypesHistoryList,
+  apiPrototypesHistoryUndo,
+  apiPrototypesHistoryRedo,
+  apiPrototypesHistoryGoto,
+  apiPrototypesHistoryCheckpoint,
+} = require("../controllers/prototype-history.controller");
 
 const designRoutes = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/profile$/, handler: apiProjectDesignProfileGet },
@@ -48,11 +56,13 @@ const designRoutes = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry$/, handler: apiRegistryList },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/registry\/extract-pilot$/, handler: apiRegistryExtractPilot },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry\/([\w.-]+)\/preview$/, handler: apiRegistryPreviewComponent },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry\/([\w.-]+)\/source$/, handler: apiRegistryComponentSource },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry\/([\w.-]+)$/, handler: apiRegistryGetComponent },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes$/, handler: apiPrototypesList },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes$/, handler: apiPrototypesCreate },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/import-artifact\/([\w-]+)$/, handler: apiPrototypesImportArtifact },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)$/, handler: apiPrototypesGet },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/components$/, handler: apiPrototypeComponents },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/render(?:\/([\w-]+))?$/, handler: apiPrototypesRender },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/files$/, handler: apiPrototypesSaveFiles },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/edit\/preview$/, handler: apiPrototypesEditPreview },
@@ -66,6 +76,11 @@ const designRoutes = [
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/delete$/, handler: apiPrototypesDelete },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/versions$/, handler: apiPrototypesVersionsGet },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/versions\/(\d+)\/restore$/, handler: apiPrototypesVersionRestore },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/history$/, handler: apiPrototypesHistoryList },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/history\/undo$/, handler: apiPrototypesHistoryUndo },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/history\/redo$/, handler: apiPrototypesHistoryRedo },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/history\/goto$/, handler: apiPrototypesHistoryGoto },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/history\/checkpoint$/, handler: apiPrototypesHistoryCheckpoint },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototype(?:\/([\w-]+)(?:\/(.*))?)?$/, handler: apiProjectDesignPrototype },
 ];
 

@@ -3,6 +3,7 @@ const path = require("path");
 const { getProjects, send, postOk } = require("../config");
 const { removeComponentCandidate } = require("../services/prototype-structural.service");
 const { deletePrototype } = require("../services/prototype-delete.service");
+const History = require("../services/prototype-history.service");
 
 function readJsonBody(req) {
   return new Promise((resolve, reject) => {
@@ -23,7 +24,8 @@ async function apiPrototypesUnextractComponent({ req, res, params: [slug, protoI
   if (!postOk(req)) return send(res, 403, { error: "Acesso negado: PIN ou localhost obrigatório." });
   try {
     const body = await readJsonBody(req);
-    const result = removeComponentCandidate(path.join(getProjects(), slug), protoId, body);
+    const projectDir = path.join(getProjects(), slug);
+    const result = History.withHistory(projectDir, protoId, { label: "Desfazer extração de componente", kind: "component" }, () => removeComponentCandidate(projectDir, protoId, body));
     return send(res, 200, result);
   } catch (err) {
     return send(res, 400, { error: err.message || String(err) });

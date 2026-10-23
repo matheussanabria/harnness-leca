@@ -80,6 +80,111 @@ function findNodeRangeByPid(html, pid) {
   };
 }
 
+
+const VOID_TAGS = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
+
+/** Posição de início do elemento pai de quem começa em `index` (-1 = raiz do documento). */
+function parentStartOf(html, index) {
+  const stack = [];
+  const re = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][\w-]*)\b[^>]*?(\/?)>/g;
+  let m;
+  while ((m = re.exec(html)) !== null && m.index < index) {
+    if (!m[2]) continue;
+    const tag = m[2].toLowerCase();
+    if (m[1]) {
+      const at = stack.map((n) => n.tag).lastIndexOf(tag);
+      if (at >= 0) stack.length = at;
+    } else if (!m[3] && !VOID_TAGS.has(tag)) {
+      stack.push({ tag, start: m.index });
+      if (tag === "script" || tag === "style") {
+        const close = html.toLowerCase().indexOf(`</${tag}`, re.lastIndex);
+        if (close >= 0) re.lastIndex = close;
+      }
+    }
+  }
+  return stack.length ? stack[stack.length - 1].start : -1;
+}
+
+/** Próximo data-pid numérico livre (p-N com N maior que todos os existentes). */
+function nextPid(html) {
+  let max = 0;
+  for (const m of html.matchAll(/data-pid=["']p-(\d+)["']/g)) max = Math.max(max, Number(m[1]));
+  return `p-${max + 1}`;
+}
+
+/**
+ * Envolve irmãos num <div data-group="true"> (fica na posição do primeiro).
+ * @param {string} html
+ * @param {string[]} pids
+ * @param {string} [newPid]
+ */
+function groupElements(html, pids, newPid) {
+  const unique = [...new Set((pids || []).filter(Boolean))];
+  if (unique.length < 2) throw new Error("Selecione pelo menos 2 elementos para agrupar.");
+  const ranges = unique.map((pid) => {
+    const range = findNodeRangeByPid(html, pid);
+    if (!range) throw new Error(`Elemento com data-pid="${pid}" não encontrado.`);
+    return range;
+  }).sort((a, b) => a.startIndex - b.startIndex);
+  for (let i = 1; i < ranges.length; i += 1) {
+    if (ranges[i].startIndex < ranges[i - 1].endIndex) throw new Error("Não dá para agrupar um elemento junto com algo que está dentro dele.");
+  }
+  const parent = parentStartOf(html, ranges[0].startIndex);
+  if (ranges.some((r) => parentStartOf(html, r.startIndex) !== parent)) throw new Error("Só dá para agrupar elementos que estão no mesmo bloco (mesmo pai).");
+  const pid = newPid || nextPid(html);
+  const group = `<div data-group="true" data-pid="${pid}">\n${ranges.map((r) => r.fullMatch).join("\n")}\n</div>`;
+  let out = html;
+  for (let i = ranges.length - 1; i >= 0; i -= 1) {
+    const r = ranges[i];
+    out = out.slice(0, r.startIndex) + (i === 0 ? group : "") + out.slice(r.endIndex);
+  }
+  return out;
+}
+
+/** Desfaz um grupo: o conteúdo do <div data-group> volta para o lugar do div. */
+function ungroupElement(html, pid) {
+  const range = findNodeRangeByPid(html, pid);
+  if (!range) throw new Error(`Elemento com data-pid="${pid}" não encontrado.`);
+  if (!/\sdata-group=/.test(range.openTag)) throw new Error("Este elemento não é um grupo.");
+  return html.slice(0, range.startIndex) + range.innerContent.trim() + html.slice(range.endIndex);
+}
+
+const OPTIONAL_END = new Set(["p", "li", "td", "th", "tr", "thead", "tbody", "tfoot", "option", "dt", "dd", "colgroup"]);
+
+/**
+ * Problemas de estrutura de um HTML de tela: data-pid repetido e tags sem par.
+ * @param {string} html
+ * @returns {string[]}
+ */
+function validateScreenHtml(html) {
+  const problems = [];
+  const seen = new Set();
+  const dup = new Set();
+  for (const m of html.matchAll(/data-pid=["']([^"']+)["']/g)) { if (seen.has(m[1])) dup.add(m[1]); seen.add(m[1]); }
+  for (const pid of dup) problems.push(`data-pid repetido: ${pid}`);
+  const stack = [];
+  const re = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][\w-]*)\b[^>]*?(\/?)>/g;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    if (!m[2]) continue;
+    const tag = m[2].toLowerCase();
+    if (m[1]) {
+      const at = stack.lastIndexOf(tag);
+      if (at < 0) { problems.push(`Tag </${tag}> sem abertura`); continue; }
+      for (const lost of stack.slice(at + 1)) if (!OPTIONAL_END.has(lost)) problems.push(`Tag <${lost}> não fechada`);
+      stack.length = at;
+    } else if (!m[3] && !VOID_TAGS.has(tag)) {
+      stack.push(tag);
+      if (tag === "script" || tag === "style") {
+        const close = html.toLowerCase().indexOf(`</${tag}`, re.lastIndex);
+        if (close >= 0) re.lastIndex = close;
+      }
+    }
+  }
+  for (const left of stack) if (!OPTIONAL_END.has(left)) problems.push(`Tag <${left}> não fechada`);
+  return [...new Set(problems)];
+}
+
 /**
  * Executa mutações estruturais (remove, duplicate, move, insertBlock) sobre um nó por data-pid.
  * @param {string} html
@@ -88,6 +193,15 @@ function findNodeRangeByPid(html, pid) {
  * @param {string} [snippetHtml]
  */
 function mutateStructuralHtml(html, pid, op, snippetHtml = "") {
+  if ((op.type === "remove" || op.type === "duplicate") && Array.isArray(op.pids) && op.pids.length) {
+    let out = html;
+    [...new Set([pid, ...op.pids].filter(Boolean))].forEach((p, i) => {
+      try { out = mutateStructuralHtml(out, p, { type: op.type }); } catch (err) { if (i === 0 || !/não encontrado/.test(err.message)) throw err; }
+    });
+    return out;
+  }
+  if (op.type === "group") return groupElements(html, [pid, ...(op.pids || [])], op.newPid);
+  if (op.type === "ungroup") return ungroupElement(html, pid);
   const range = findNodeRangeByPid(html, pid);
   if (!range) {
     throw new Error(`Elemento com data-pid="${pid}" não encontrado.`);
@@ -251,6 +365,11 @@ function removeComponentCandidate(projectDir, protoId, target, deps = { fs, path
 
 module.exports = {
   findNodeRangeByPid,
+  groupElements,
+  ungroupElement,
+  validateScreenHtml,
+  nextPid,
+  parentStartOf,
   mutateStructuralHtml,
   extractComponentCandidate,
   removeComponentCandidate,

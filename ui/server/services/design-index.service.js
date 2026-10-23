@@ -4,6 +4,8 @@ const path = require("path");
 const { enrichComponentStage } = require("./design-stage.service");
 const { scanRepositoryLayers, isInside } = require("./design-layers.service");
 const { listComponents } = require("./component-resolver.service");
+const { registryComponentsForIndex } = require("./design-registry-index.service");
+const { countComponentUsage } = require("./prototype-components-list.service");
 
 /**
  * Valida se uma URL externa é estritamente segura (HTTPS).
@@ -110,7 +112,7 @@ function loadDesignJson(projectDir, deps = { fs, path }) {
   if (!deps.fs.existsSync(jsonFile)) return null;
 
   try {
-    const raw = deps.fs.readFileSync(jsonFile, "utf8").replace(/^\uFEFF/, "");
+    const raw = deps.fs.readFileSync(jsonFile, "utf8").replace(/^﻿/, "");
     const data = JSON.parse(raw);
     if (data.schema !== 1) {
       throw new Error(`Esquema do design.json não suportado: ${data.schema} (esperado: 1).`);
@@ -244,10 +246,25 @@ function buildDesignIndex(projectDir, repoRoot, options = {}) {
     }
   } catch {}
 
+  // B3. Mescla o registro do Design System do projeto (design/ds/registry.json, publicado por tools/ds-sync.js)
+  try {
+    for (const rc of registryComponentsForIndex(projectDir, deps)) {
+      const existing = compMap.get(rc.id) || {};
+      compMap.set(rc.id, { ...rc, ...existing, inDesignSystem: true, sync: rc.sync, registryId: rc.registryId });
+    }
+  } catch {}
+
   // C. Enriquece todos os componentes com o checklist e etapa deduzida
   const components = [];
   for (const comp of compMap.values()) {
     components.push(enrichComponentStage(comp, context));
+  }
+
+  // D. Uso nas telas dos protótipos (contagem exibida no cartão)
+  let usage = new Map();
+  try { usage = countComponentUsage(projectDir, deps); } catch {}
+  for (const comp of components) {
+    comp.usage = usage.get(comp.id) || { prototypes: 0, screens: 0 };
   }
 
   // 3. Protótipos: catálogo explícito e isolado do projeto do Harness.

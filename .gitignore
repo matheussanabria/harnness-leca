@@ -31,3 +31,5 @@ tools/test_*.js
 .claude/settings.local.json
 node_modules/
 
+# Histórico de desfazer do Ateliê (local, regenerável)
+projects/*/design/prototypes/*/.history/

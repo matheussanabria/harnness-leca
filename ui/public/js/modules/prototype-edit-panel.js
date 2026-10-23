@@ -1,4 +1,5 @@
 // @ts-check
+import { refreshHistorySoon } from "./prototype-history-panel.js";
 import { $, showToast, esc } from "../shared/dom.js";
 import { mountPropsPanel } from "./prototype-props-panel.js";
 import { mountComponentPanel } from "./prototype-component-panel.js";
@@ -270,6 +271,7 @@ function bindEditEvents(slug, protoId, screenId, node, onApplySuccess) {
       });
       if (res.ok) {
         showToast("✔ Alteração desfeita.");
+        refreshHistorySoon();
         onApplySuccess();
       } else {
         showToast("Nenhum histórico para desfazer.");

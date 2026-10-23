@@ -1,5 +1,6 @@
 // @ts-check
 import { esc } from "../shared/dom.js";
+import { renderComponentSection } from "./prototype-component-catalog.js";
 
 export function buildPrototypeCatalog(artifacts = [], editable = []) {
   // Um protótipo do Ateliê registrado no design.json aparece nas duas listas; mostra só a versão editável,
@@ -11,7 +12,13 @@ export function buildPrototypeCatalog(artifacts = [], editable = []) {
   ];
 }
 
-export function renderPrototypeCatalog(items, activeId, components = [], mcpServer = "") {
+/**
+ * @param {any[]} items
+ * @param {string} activeId
+ * @param {any} componentsOrProto  componentes do protótipo (`{ components: [...] }`, do Ateliê) ou a lista do DS (array, tela de design)
+ * @param {string} [mcpServer]
+ */
+export function renderPrototypeCatalog(items, activeId, componentsOrProto = null, mcpServer = "") {
   const prototypesHtml = items.map((item) => {
     const active = item.id === activeId;
     const detail = item.kind === "atelier"
@@ -31,24 +38,32 @@ export function renderPrototypeCatalog(items, activeId, components = [], mcpServ
       </div>`;
   }).join("");
 
-  const componentHtml = components.slice(0, 30).map((component) => `
-    <div class="proto-component-card" title="${esc(component.dai?.nextAction || "")}">
-      <span><i class="fa-solid fa-cube"></i> ${esc(component.name || component.id)}</span>
-      <span class="proto-card-badge">${component.checklist?.hasBoilerplate ? "boilerplate" : esc(component.stageLabel || component.stage || "DS")}</span>
-    </div>`).join("");
+  const componentsHtml = Array.isArray(componentsOrProto)
+    ? renderDsComponents(componentsOrProto, mcpServer)
+    : (componentsOrProto ? renderComponentSection(componentsOrProto, mcpServer) : "");
 
   return `
     <div class="proto-catalog-list">
       <div class="proto-catalog-section-title">Protótipos do projeto (${items.length})</div>
       ${prototypesHtml || '<div class="proto-catalog-empty">Nenhum protótipo no projeto.</div>'}
-      ${components.length ? `
-        <div class="proto-catalog-section-title proto-components-title">
-          Componentes reutilizáveis (${components.length})
-        </div>
-        ${componentHtml}
-        ${mcpServer ? `<div class="proto-mcp-hint"><i class="fa-solid fa-plug"></i> Boilerplates via MCP <code>${esc(mcpServer)}</code></div>` : ""}
-      ` : ""}
+      ${componentsHtml}
     </div>`;
+}
+
+/** Lista do Design System inteiro (usada na tela de design; o Ateliê mostra os componentes do protótipo). */
+function renderDsComponents(components, mcpServer) {
+  if (!components.length) return "";
+  const componentHtml = components.slice(0, 30).map((component) => `
+    <div class="proto-component-card" title="${esc(component.dai?.nextAction || "")}">
+      <span><i class="fa-solid fa-cube"></i> ${esc(component.name || component.id)}</span>
+      <span class="proto-card-badge">${component.checklist?.hasBoilerplate ? "boilerplate" : esc(component.stageLabel || component.stage || "DS")}</span>
+    </div>`).join("");
+  return `
+    <div class="proto-catalog-section-title proto-components-title">
+      Componentes reutilizáveis (${components.length})
+    </div>
+    ${componentHtml}
+    ${mcpServer ? `<div class="proto-mcp-hint"><i class="fa-solid fa-plug"></i> Boilerplates via MCP <code>${esc(mcpServer)}</code></div>` : ""}`;
 }
 
 export function bindPrototypeCatalog(container, onSelect, onDelete) {

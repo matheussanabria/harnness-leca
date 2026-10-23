@@ -220,6 +220,7 @@ harness-leca/
 | **API de Edição Direta** | `ui/public/js/modules/prototype-edit-api.js` | Chamada em fila ao `edit/apply` (setStyles e moveTo) usada pelo painel, pelo arrastar no canvas e pela árvore de camadas. |
 | **Arrastar Camadas** | `ui/public/js/modules/prototype-layer-drag.js` | Arrastar e soltar na árvore de camadas: reordena antes, depois ou dentro da camada de destino. |
 | **Ponte: medidas e arrastar** | `ui/public/js/modules/prototype-bridge-props.js`, `prototype-bridge-drag.js` | Scripts do iframe: lê medidas e a regra `px-*` do elemento, aplica prévia de estilos e arrasta elementos no canvas com linha de encaixe (`HARNESS_PROTO_REORDER`). |
+| **Ponte: seleção múltipla e atalhos** | `ui/public/js/modules/prototype-bridge-multi.js` | Script do iframe (usa `window.__harnessBridge`): contorno da seleção múltipla, clique com Shift/Ctrl, Esc e atalhos Ctrl+Z/Y/G, Delete e Ctrl+D enviados à janela-mãe. Separado do `prototype-bridge.js` para respeitar o limite de 250 linhas. |
 | **Estilos do Painel (servidor)** | `ui/server/services/prototype-style.service.js` | Valida propriedades permitidas, cria a classe `px-<pid>`, grava a regra no `proto.css` e remove o estilo inline conflitante. |
 | **Reordenar Elementos (servidor)** | `ui/server/services/prototype-reorder.service.js` | Move um nó por `data-pid` para antes, depois ou dentro de outro, sem permitir mover para dentro de si mesmo. |
 | **CSS do Painel** | `ui/public/css/design/15-prototype-props.css` | Estilos do painel Posição e Layout. |

@@ -19,6 +19,7 @@ const {
 const { parseDelimitedFiles } = require("../services/prototype-sanitizer.service");
 const { buildDesignIndex } = require("../services/design-index.service");
 const { importArtifactForInspection } = require("../services/prototype-artifact-import.service");
+const History = require("../services/prototype-history.service");
 
 function readJsonBody(req) {
   return new Promise((resolve, reject) => {
@@ -146,11 +147,12 @@ async function apiPrototypesSaveFiles({ req, res, params: [slug, protoId] }) {
       return send(res, 400, { error: "Nenhum arquivo válido encontrado para gravar." });
     }
 
-    const result = savePrototypeFiles(projectDir, protoId, files, {
+    const label = body.message || "Atualização via Ateliê";
+    const result = History.withHistory(projectDir, protoId, { label, kind: "files", detail: files.map((f) => f.path).join(", ") }, () => savePrototypeFiles(projectDir, protoId, files, {
       engine: body.engine || "chat",
       author: body.author || "user",
-      message: body.message || "Atualização via Ateliê",
-    });
+      message: label,
+    }));
 
     return send(res, 200, result);
   } catch (err) {
@@ -179,7 +181,7 @@ async function apiPrototypesVersionRestore({ req, res, params: [slug, protoId, v
     return send(res, 400, { error: "Número de versão inválido." });
   }
 
-  const result = restorePrototypeVersion(protoDir, targetVer);
+  const result = History.withHistory(path.join(getProjects(), slug), protoId, { label: `Restaurar versão v${targetVer}`, kind: "restore" }, () => restorePrototypeVersion(protoDir, targetVer));
   if (!result.ok) return send(res, 400, { error: result.error });
   return send(res, 200, { ok: true, message: `Versão v${targetVer} restaurada com sucesso.` });
 }
@@ -204,12 +206,18 @@ async function apiPrototypesEditApply({ req, res, params: [slug, protoId] }) {
   try {
     const body = await readJsonBody(req);
     const { applyPrototypeEdit } = require("../services/prototype-editor.service");
-    const result = applyPrototypeEdit(projectDir, protoId, body.screen, body.pid, body.op, body.fingerprint);
+    const { validateScreenHtml } = require("../services/prototype-structural.service");
+    const editFile = path.join(getPrototypesBaseDir(projectDir), protoId, "screens", `${body.screen || "home"}.html`);
+    let beforeProblems = [];
+    try { beforeProblems = validateScreenHtml(fs.readFileSync(editFile, "utf8")); } catch {}
+    const result = History.withHistory(projectDir, protoId, { label: History.labelForEditOp(body.op), kind: "edit", detail: `${body.pid || ""} @ ${body.screen || "home"}` }, () => applyPrototypeEdit(projectDir, protoId, body.screen, body.pid, body.op, body.fingerprint));
     if (!result.ok) {
       const statusCode = result.conflict ? 409 : 400;
       return send(res, statusCode, { error: result.error });
     }
-    return send(res, 200, result);
+    let warnings = [];
+    try { warnings = validateScreenHtml(fs.readFileSync(editFile, "utf8")).filter((w) => !beforeProblems.includes(w)); } catch {}
+    return send(res, 200, { ...result, warnings });
   } catch (err) {
     return send(res, 400, { error: err.message || String(err) });
   }
@@ -221,10 +229,12 @@ async function apiPrototypesEditUndo({ req, res, params: [slug, protoId] }) {
   const projectDir = path.join(getProjects(), slug);
   try {
     const body = await readJsonBody(req);
-    const { undoPrototypeEdit } = require("../services/prototype-editor.service");
-    const result = undoPrototypeEdit(projectDir, protoId, body.screen);
+    const { calculateFingerprint } = require("../services/prototype-editor.service");
+    const result = History.undoHistory(projectDir, protoId);
     if (!result.ok) return send(res, 400, { error: result.error });
-    return send(res, 200, result);
+    let newFingerprint;
+    try { newFingerprint = calculateFingerprint(fs.readFileSync(path.join(getPrototypesBaseDir(projectDir), protoId, "screens", `${body.screen || "home"}.html`), "utf8")); } catch {}
+    return send(res, 200, { ...result, newFingerprint });
   } catch (err) {
     return send(res, 400, { error: err.message || String(err) });
   }
@@ -238,13 +248,19 @@ async function apiPrototypesEditStructural({ req, res, params: [slug, protoId] }
     const body = await readJsonBody(req);
     const screenFile = path.join(getPrototypesBaseDir(projectDir), protoId, "screens", `${body.screen || "home"}.html`);
     if (!fs.existsSync(screenFile)) return send(res, 404, { error: "Tela não encontrada." });
-    const { mutateStructuralHtml } = require("../services/prototype-structural.service");
-    const currentHtml = fs.readFileSync(screenFile, "utf8");
-    const mutated = mutateStructuralHtml(currentHtml, body.pid, body.op, body.snippetHtml);
-    const tmp = `${screenFile}.tmp-${Date.now()}`;
-    fs.writeFileSync(tmp, mutated, "utf8");
-    fs.renameSync(tmp, screenFile);
-    return send(res, 200, { ok: true });
+    const { mutateStructuralHtml, nextPid, validateScreenHtml } = require("../services/prototype-structural.service");
+    const result = History.withHistory(projectDir, protoId, { label: History.labelForStructuralOp(body.op), kind: body.op && (body.op.type === "group" || body.op.type === "ungroup") ? "group" : "structure", detail: `${body.pid || ""} @ ${body.screen || "home"}` }, () => {
+      const currentHtml = fs.readFileSync(screenFile, "utf8");
+      const op = body.op && body.op.type === "group" ? { ...body.op, newPid: nextPid(currentHtml) } : body.op;
+      const mutated = mutateStructuralHtml(currentHtml, body.pid, op, body.snippetHtml);
+      const tmp = `${screenFile}.tmp-${Date.now()}`;
+      fs.writeFileSync(tmp, mutated, "utf8");
+      fs.renameSync(tmp, screenFile);
+      const before = validateScreenHtml(currentHtml);
+      const warnings = validateScreenHtml(mutated).filter((w) => !before.includes(w));
+      return { ok: true, warnings, ...(op && op.newPid ? { groupPid: op.newPid } : {}) };
+    });
+    return send(res, 200, { ok: true, warnings: result.warnings || [], ...(result && result.groupPid ? { groupPid: result.groupPid } : {}) });
   } catch (err) {
     return send(res, 400, { error: err.message || String(err) });
   }
@@ -257,7 +273,8 @@ async function apiPrototypesExtractComponent({ req, res, params: [slug, protoId]
   try {
     const body = await readJsonBody(req);
     const { extractComponentCandidate } = require("../services/prototype-structural.service");
-    const result = extractComponentCandidate(projectDir, protoId, body.candidate || body);
+    const candidate = body.candidate || body;
+    const result = History.withHistory(projectDir, protoId, { label: `Extrair componente ${candidate.name || candidate.id || ""}`.trim(), kind: "component" }, () => extractComponentCandidate(projectDir, protoId, candidate));
     return send(res, 200, result);
   } catch (err) {
     return send(res, 400, { error: err.message || String(err) });
