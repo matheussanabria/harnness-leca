@@ -23,6 +23,8 @@ function fixture() {
     docs: { bundle: "foo.bundle.js", demo: "foo.demo.js" },
     implementations: { vanilla: { framework: "vanilla", entryFile: "foo.html", files: ["foo.html", "foo.css", "foo.js"], styles: ["foo.css"], status: "available" } },
   };
+  // O namespace e a vitrine vêm de design/ds/ds-config.json; sem ele valem os padrões (namespace "ds").
+  fs.writeFileSync(path.join(design, "ds", "ds-config.json"), JSON.stringify({ schema: 1, namespace: "dis", vitrine: "vit" }));
   fs.writeFileSync(path.join(comp, "manifest.json"), JSON.stringify(manifest));
   fs.writeFileSync(path.join(comp, "foo.html"), '<!-- demo -->\n<div class="dis-foo">\n  <span>oi</span>\n</div>\n');
   fs.writeFileSync(path.join(comp, "foo.css"), ".dis-foo { margin-bottom: 8px; }\n");
@@ -92,5 +94,15 @@ test("addComponent publica página, menu, navegação, registry, bundle e demo",
   await addComponent({ root, project: "p", vitrine: "vit", slug: "foo", after: "a" });
   assert.equal(read("head.html"), head);
   assert.equal(read("screens/foo.html"), foo);
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("sem ds-config.json o namespace padrão é ds e um manifest dis.* é recusado com a causa", async () => {
+  const { root, design } = fixture();
+  fs.rmSync(path.join(design, "ds", "ds-config.json"));
+  await assert.rejects(
+    addComponent({ root, project: "p", slug: "foo", vitrine: "vit" }),
+    /id deve ser "ds\.foo"/,
+  );
   fs.rmSync(root, { recursive: true, force: true });
 });

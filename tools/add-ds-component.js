@@ -2,19 +2,22 @@
 // @ts-check
 "use strict";
 /**
- * Publica um componente do DS: registro (registry.json), página na vitrine (`dis-ds-vitrine`), item no menu de
+ * Publica um componente do DS: registro (registry.json), página na vitrine, item no menu de
  * todas as telas, navegação anterior/próximo e, se houver, componente React + demo ao vivo no head da vitrine.
  *
  * A fonte da verdade é a pasta `design/ds/components/<slug>/` com `manifest.json` (ver a skill ds-component).
+ * O namespace (id `<namespace>.<slug>`) e a vitrine vêm de `design/ds/ds-config.json` do projeto.
  *
  * Uso: node tools/add-ds-component.js <slug> --after <slug-do-item-anterior-no-menu>
- *        [--project saude-dispensacao] [--vitrine dis-ds-vitrine] [--root <repo>] [--dry-run]
+ *        [--project <slug>] [--vitrine <id>] [--root <repo>] [--dry-run]
  */
 const fs = require("fs");
 const path = require("path");
 const { pathToFileURL } = require("url");
 const { registerComponent } = require("../ui/server/services/design-registry.service");
 const P = require("./ds-docs/component-page");
+const { loadDsConfig } = require("./lib/ds-config");
+const { activeProject } = require("./ds-sync");
 
 /** Lê um arquivo de texto da pasta do componente (null se não existir). */
 function readIf(dir, file) {
@@ -24,9 +27,9 @@ function readIf(dir, file) {
 }
 
 /** Valida o manifest.json do componente antes de publicar. Devolve a lista de problemas. */
-function validateManifest(manifest, slug, dir) {
+function validateManifest(manifest, slug, dir, namespace = "dis") {
   const problems = [];
-  if (manifest.id !== `dis.${slug}`) problems.push(`id deve ser "dis.${slug}" (está "${manifest.id}").`);
+  if (manifest.id !== `${namespace}.${slug}`) problems.push(`id deve ser "${namespace}.${slug}" (está "${manifest.id}").`);
   for (const key of ["name", "category", "description"]) if (!manifest[key]) problems.push(`falta "${key}".`);
   if (!Array.isArray(manifest.usage) || !manifest.usage.length) problems.push('falta "usage" (lista de orientações de uso).');
   if (!manifest.props || typeof manifest.props !== "object") problems.push('falta "props".');
@@ -77,17 +80,20 @@ function patchHead(head, manifest, docs) {
 }
 
 /**
- * @param {{ root: string, project: string, vitrine: string, slug: string, after: string, dryRun?: boolean }} opts
+ * @param {{ root: string, project: string, vitrine?: string, slug: string, after: string, dryRun?: boolean }} opts
  */
 async function addComponent(opts) {
   const projectDir = path.join(opts.root, "projects", opts.project);
   const dsDir = path.join(projectDir, "design", "ds");
   const dir = path.join(dsDir, "components", opts.slug);
-  const vitrineDir = path.join(projectDir, "design", "prototypes", opts.vitrine);
+  const config = loadDsConfig(projectDir);
+  const vitrine = opts.vitrine || config.vitrine;
+  if (!vitrine) throw new Error(`Defina a vitrine em design/ds/ds-config.json ou com --vitrine.`);
+  const vitrineDir = path.join(projectDir, "design", "prototypes", vitrine);
   const manifestFile = path.join(dir, "manifest.json");
   if (!fs.existsSync(manifestFile)) throw new Error(`Falta ${path.relative(opts.root, manifestFile)}.`);
   const manifest = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
-  const problems = validateManifest(manifest, opts.slug, dir);
+  const problems = validateManifest(manifest, opts.slug, dir, config.namespace);
   if (problems.length) throw new Error(`manifest.json inválido:\n- ${problems.join("\n- ")}`);
 
   const protoFile = path.join(vitrineDir, "proto.json");
@@ -148,19 +154,20 @@ async function addComponent(opts) {
     registerComponent(projectDir, manifest);
     for (const [file, content] of writes) fs.writeFileSync(file, content, "utf8");
   }
-  return { id: manifest.id, pages: pages.size, prev: prev?.slug, next: next?.slug, written: writes.map(([f]) => path.relative(opts.root, f)), dryRun: Boolean(opts.dryRun) };
+  return { id: manifest.id, vitrine, pages: pages.size, prev: prev?.slug, next: next?.slug, written: writes.map(([f]) => path.relative(opts.root, f)), dryRun: Boolean(opts.dryRun) };
 }
 
 function main() {
   const argv = process.argv.slice(2);
-  const args = { root: process.cwd(), project: "saude-dispensacao", vitrine: "dis-ds-vitrine", slug: "", after: "", dryRun: false };
+  const args = { root: process.cwd(), project: "", vitrine: "", slug: "", after: "", dryRun: false };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === "--dry-run") args.dryRun = true;
     else if (argv[i].startsWith("--")) args[argv[i].slice(2)] = argv[(i += 1)];
     else args.slug = argv[i];
   }
-  if (!args.slug || !args.after) {
-    console.error("Uso: node tools/add-ds-component.js <slug> --after <slug-do-item-anterior> [--project ...] [--vitrine ...] [--dry-run]");
+  args.project = args.project || activeProject(args.root);
+  if (!args.slug || !args.after || !args.project) {
+    console.error("Uso: node tools/add-ds-component.js <slug> --after <slug-do-item-anterior> [--project <slug>] [--vitrine <id>] [--dry-run]");
     process.exit(2);
   }
   addComponent(args).then((r) => console.log(JSON.stringify(r, null, 2)), (e) => { console.error(e.message); process.exit(1); });
