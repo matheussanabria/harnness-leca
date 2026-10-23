@@ -53,6 +53,7 @@ export class Office3D {
     // Submódulos especializados (SOLID / SRP)
     this.physics = new PhysicsEngine();
     this.cameraController = null;
+    this.pendingMouseSensitivity = null;
     this.interactionManager = null;
     this.browserScreen = null;
     this.mainWorkspaceBuilder = null;
@@ -107,10 +108,9 @@ export class Office3D {
     this.scene.add(this.camera);
 
     this.cameraController = new CameraController(this.camera);
-    try {
-      const savedSens = localStorage.getItem("dai_mouse_sensitivity");
-      if (savedSens) this.cameraController.setSensitivity(Number(savedSens));
-    } catch (_) {}
+    if (this.pendingMouseSensitivity != null) {
+      this.cameraController.setSensitivity(this.pendingMouseSensitivity);
+    }
 
     // 2. Renderers (WebGL + CSS3D)
     this.initRenderers(w, h, THREE);

@@ -5,7 +5,9 @@ import { Office2D } from "./office-2d.js";
 import { Office3D } from "./office-3d.js";
 import { toggleSound, isSoundEnabled, playClickSound, playDrawerSound, playCoffeeSound } from "./office-audio.js";
 import { renderDrawerContent } from "./office/office-drawer-views.js";
-import { setHudVisibility, toggleHUD, toggleLeftPanel, toggleRightSidebar, updateHUD } from "./office/office-hud-controller.js";
+import { setHudPersistence, setHudVisibility, toggleHUD, toggleLeftPanel, toggleRightSidebar, updateHUD } from "./office/office-hud-controller.js";
+import { getScreenStateClient } from "./shared/screen-state.js";
+import { OfficeScreenState } from "./office-screen-state.js";
 import { setupOfficeShortcuts } from "./office/office-shortcuts.js";
 import { attachStationAdapter } from "./window-manager/station-adapter.js";
 import { TaskbarComponent } from "./window-manager/taskbar.js";
@@ -15,6 +17,7 @@ import { bindChatExecutionTelemetry, bindOfficeStateTelemetry } from "./office/o
 import { bindOfficeLightingDom } from "./office/office-lighting-bootstrap.js";
 import { OfficeViewModeController } from "./office/office-view-mode.js";
 import { OfficeScenePreferences } from "./office/office-scene-preferences.js";
+import { bindOfficeSessionClient, hydrateOfficeSession } from "./office/office-session-storage.js";
 
 let engine2D = null;
 let engine3D = null;
@@ -61,6 +64,13 @@ window.openOfficeChatConversation = function(chatFile) {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
+  const screenClient = getScreenStateClient();
+  const officeScreenState = new OfficeScreenState({ client: screenClient });
+  await officeScreenState.hydrate();
+  hydrateOfficeSession(officeScreenState.state);
+  bindOfficeSessionClient(screenClient);
+  setHudPersistence((hidden) => { void officeScreenState.setHudHidden(hidden); });
+
   const canvas2D = /** @type {HTMLCanvasElement} */ (document.getElementById("canvas2D"));
   const viewport3D = /** @type {HTMLElement} */ (document.getElementById("viewport3D"));
   const tooltipEl = /** @type {HTMLElement} */ (document.getElementById("officeTooltip"));
@@ -82,11 +92,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Tecla H e evento customizado para alternar menus / Modo Imersivo
   window.addEventListener("dai:toggleHud", () => toggleHUD());
 
-  try {
-    if (localStorage.getItem("dai_office_hud_hidden") === "1") {
-      setHudVisibility(false);
-    }
-  } catch (_) {}
+  if (officeScreenState.hudHidden) setHudVisibility(false);
 
   // Inicialização dos Motores
   engine2D = new Office2D(canvas2D, tooltipEl);
@@ -95,6 +101,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const scenePreferences = new OfficeScenePreferences({
     doc: document,
     win: window,
+    storage: officeScreenState.sceneStorage(),
     onChange: (state) => {
       engine2D?.applyPerformanceProfile?.(state.profile);
       engine2D?.setReducedMotion?.(state.reducedMotion);
@@ -107,6 +114,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   viewModeController = new OfficeViewModeController({
     engines: { "3d": engine3D, "2.5d": engine2D },
     doc: document,
+    storage: officeScreenState.viewStorage(() => officeState.activeProject || "global"),
     getProject: () => officeState.activeProject || "global",
     onCameraMode: applyCameraMode,
     onViewChanged: (state) => {
@@ -118,20 +126,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Seletor de Sensibilidade do Mouse
   const sensitivitySlider = /** @type {HTMLInputElement} */ (document.getElementById("mouseSensitivitySlider"));
   const sensitivityVal = document.getElementById("mouseSensitivityVal");
-  try {
-    const savedSens = localStorage.getItem("dai_mouse_sensitivity") || "5";
-    if (sensitivitySlider) sensitivitySlider.value = savedSens;
-    if (sensitivityVal) sensitivityVal.textContent = savedSens;
-    engine3D.setMouseSensitivity(Number(savedSens));
-  } catch (_) {}
+  const savedSens = String(officeScreenState.mouseSensitivity);
+  if (sensitivitySlider) sensitivitySlider.value = savedSens;
+  if (sensitivityVal) sensitivityVal.textContent = savedSens;
+  engine3D.pendingMouseSensitivity = Number(savedSens);
+  engine3D.setMouseSensitivity(Number(savedSens));
 
   sensitivitySlider?.addEventListener("input", (e) => {
     const val = Number(/** @type {HTMLInputElement} */ (e.target).value) || 5;
     if (sensitivityVal) sensitivityVal.textContent = String(val);
+    engine3D.pendingMouseSensitivity = val;
     engine3D.setMouseSensitivity(val);
-    try {
-      localStorage.setItem("dai_mouse_sensitivity", String(val));
-    } catch (_) {}
+    void officeScreenState.setMouseSensitivity(val);
   });
 
   // Setup dos Modos de Câmera

@@ -1,5 +1,6 @@
 // @ts-check
 // Estado compartilhado do chat (mutável, importado pelos módulos chat-*).
+import { getScreenStateClient } from "../shared/screen-state.js";
 
 export const ENGINES = {
   claude: { icon: '<i class="fa-solid fa-asterisk"></i>', name: "Claude Code", color: "#d97757" },
@@ -31,28 +32,46 @@ export const cs = {
   miniChatOrigin: "dialog",
 };
 
-const ENGINE_SETTINGS_KEY = "harness_chat_engine_settings";
+let hydrated = false;
 
-function loadEngineSettings() {
+/** @param {unknown} saved */
+export function applyEngineSettings(saved) {
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) return;
+  const data = /** @type {Record<string, any>} */ (saved);
+  if (typeof data.engineFilter === "string" && (data.engineFilter in cs.engineSettings || data.engineFilter === "compare")) {
+    cs.currentEngine = data.engineFilter;
+  } else if (typeof data.currentEngine === "string" && (data.currentEngine in cs.engineSettings || data.currentEngine === "compare")) {
+    cs.currentEngine = data.currentEngine;
+  }
+  const settings = data.engineSettings;
+  if (!settings || typeof settings !== "object" || Array.isArray(settings)) return;
+  for (const [engine, value] of Object.entries(settings)) {
+    if (!cs.engineSettings[engine] || !value || typeof value !== "object") continue;
+    const entry = /** @type {Record<string, any>} */ (value);
+    cs.engineSettings[engine] = {
+      model: typeof entry.model === "string" ? entry.model : cs.engineSettings[engine].model,
+      effort: typeof entry.effort === "string" ? entry.effort : cs.engineSettings[engine].effort,
+    };
+  }
+}
+
+/** Hidrata motor, modelo e esforço a partir do estado da tela de conversas. */
+export async function hydrateEngineSettings(options = {}) {
+  if (hydrated && !options.client) return;
+  const client = options.client || getScreenStateClient();
   try {
-    const saved = JSON.parse(globalThis.localStorage?.getItem(ENGINE_SETTINGS_KEY) || "null");
-    if (!saved || typeof saved !== "object") return;
-    if (typeof saved.currentEngine === "string") cs.currentEngine = saved.currentEngine;
-    for (const [engine, settings] of Object.entries(saved.engineSettings || {})) {
-      if (!cs.engineSettings[engine] || !settings || typeof settings !== "object") continue;
-      cs.engineSettings[engine] = { ...cs.engineSettings[engine], ...settings };
-    }
+    applyEngineSettings(await client.loadScreen("chats"));
+    hydrated = true;
   } catch {}
 }
 
-/** Persiste motor, modelo e esforço para sobreviver a recargas e re-renders do Ateliê. */
-export function saveEngineSettings() {
+/** Persiste motor, modelo e esforço no estado da tela para sobreviver a recargas. */
+export function saveEngineSettings(options = {}) {
   try {
-    globalThis.localStorage?.setItem(
-      ENGINE_SETTINGS_KEY,
-      JSON.stringify({ currentEngine: cs.currentEngine, engineSettings: cs.engineSettings }),
-    );
+    const client = options.client || getScreenStateClient();
+    void client.patchScreen("chats", {
+      engineFilter: cs.currentEngine,
+      engineSettings: cs.engineSettings,
+    });
   } catch {}
 }
-
-loadEngineSettings();

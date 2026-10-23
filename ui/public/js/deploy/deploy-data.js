@@ -1,12 +1,25 @@
 // @ts-check
-// Carga e persistência da configuração e do histórico de deploy.
+// Carga e persistência da configuração e do histórico de deploy (EP-14.10).
+// O histórico tem uma única fonte, `/api/deploy/history`; o estado da tela
+// guarda apenas a configuração para a reserva offline do cliente.
 import { dp } from "./deploy-store.js";
 import { renderAll } from "./deploy-render.js";
+import { loadScreen, patchScreen } from "../shared/screen-state.js";
+import { defaultDeployConfig, hasDeployProjects, normalizeDeployState } from "./deploy-state.js";
 
 export async function init() {
+  await hydrateState();
   await fetchConfig();
   await fetchHistory();
   renderAll();
+}
+
+async function hydrateState() {
+  try {
+    dp.deployState = normalizeDeployState(await loadScreen("deploy"));
+  } catch {
+    dp.deployState = normalizeDeployState(null);
+  }
 }
 
 export async function fetchConfig() {
@@ -16,51 +29,19 @@ export async function fetchConfig() {
       const data = await res.json();
       if (data.config) {
         dp.deployConfig = data.config;
-        localStorage.setItem("harness_deploy_config", JSON.stringify(dp.deployConfig));
+        dp.deployState.config = data.config;
+        void saveConfigToState(data.config);
       }
       if (data.availableProjects) dp.availableProjects = data.availableProjects;
       return;
     }
   } catch {}
 
-  // Fallback para cache local se o servidor ainda não foi reiniciado
-  try {
-    const cached = localStorage.getItem("harness_deploy_config");
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      // Se continha a lista antiga automática com mais de 2 projetos incluindo saude-dispensacao, substitui
-      if (parsed.projects && parsed.projects.length > 2 && parsed.projects.some((p) => p.id === "saude-dispensacao")) {
-        localStorage.removeItem("harness_deploy_config");
-      } else {
-        dp.deployConfig = parsed;
-      }
-    }
-    if (!dp.deployConfig.projects || dp.deployConfig.projects.length === 0) {
-      dp.deployConfig.projects = [
-        {
-          id: "57multimarcas-web",
-          name: "57 Multimarcas · Web",
-          description: "Frontend / SPA hospedado no Easypanel (Hostinger VPS)",
-          environments: [
-            { id: "hom", name: "Homologação (HOM)", type: "staging", webhookUrl: "", method: "POST", requireConfirm: false },
-            { id: "prod", name: "Produção (PROD)", type: "production", webhookUrl: "", method: "POST", requireConfirm: true },
-          ],
-        },
-        {
-          id: "57multimarcas-back",
-          name: "57 Multimarcas · Backend",
-          description: "API / Backend hospedado no Easypanel (Hostinger VPS)",
-          environments: [
-            { id: "hom", name: "Homologação (HOM)", type: "staging", webhookUrl: "", method: "POST", requireConfirm: false },
-            { id: "prod", name: "Produção (PROD)", type: "production", webhookUrl: "", method: "POST", requireConfirm: true },
-          ],
-        },
-      ];
-      localStorage.setItem("harness_deploy_config", JSON.stringify(dp.deployConfig));
-    }
-  } catch (e) {
-    console.warn("Erro ao ler cache local:", e);
+  if (hasDeployProjects(dp.deployState.config)) {
+    dp.deployConfig = dp.deployState.config;
+    return;
   }
+  dp.deployConfig = defaultDeployConfig();
 }
 
 export async function fetchHistory() {
@@ -68,14 +49,23 @@ export async function fetchHistory() {
     const res = await fetch("/api/deploy/history");
     if (res.ok) {
       const data = await res.json();
-      dp.deployHistory = data.history || [];
-      localStorage.setItem("harness_deploy_history", JSON.stringify(dp.deployHistory));
-      return;
+      dp.deployHistory = Array.isArray(data.history) ? data.history : [];
+      return dp.deployHistory;
     }
   } catch {}
 
+  // Sem cópia local: uma falha de rede mantém apenas o histórico em memória.
+  if (!Array.isArray(dp.deployHistory)) dp.deployHistory = [];
+  return dp.deployHistory;
+}
+
+/** @param {unknown} config */
+export async function saveConfigToState(config) {
+  if (!config || typeof config !== "object") return false;
   try {
-    const cached = localStorage.getItem("harness_deploy_history");
-    if (cached) dp.deployHistory = JSON.parse(cached);
-  } catch {}
+    await patchScreen("deploy", { config });
+    return true;
+  } catch {
+    return false;
+  }
 }

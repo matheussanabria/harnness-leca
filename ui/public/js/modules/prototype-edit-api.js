@@ -5,6 +5,7 @@
  */
 import { showToast } from "../shared/dom.js";
 import { refreshHistorySoon } from "./prototype-history-panel.js";
+import { logAtelierAction } from "./prototype-atelier-state.js";
 
 /** Avisa de HTML quebrado (tag sem par, data-pid repetido) criado pela alteração; o histórico permite desfazer. */
 function warn(data) {
@@ -46,7 +47,11 @@ export function applyEdit({ slug, protoId, screenId, pid, op }) {
         body: JSON.stringify({ screen: screenId, pid, op }),
       });
       const data = await res.json().catch(() => ({}));
-      if (res.ok) { refreshHistorySoon(); warn(data); }
+      if (res.ok) {
+        refreshHistorySoon();
+        warn(data);
+        void logAtelierAction("aplicar edição", `${protoId}/${screenId}/${pid}`.slice(0, 120));
+      }
       return res.ok ? { ok: true, ...data } : { ok: false, error: data.error || `Falha HTTP ${res.status}` };
     } catch {
       return { ok: false, error: "Falha de rede ao gravar a edição." };

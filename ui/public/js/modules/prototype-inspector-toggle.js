@@ -5,15 +5,18 @@ import { $ } from "../shared/dom.js";
  * Liga/desliga o inspetor do Ateliê. Desligado, a tela roda "de verdade" (sem contornos, sem seleção de
  * elementos e com os scripts ativos); ligado, o clique seleciona o elemento para edição.
  */
-const KEY = "harness.atelier.inspector";
-
-function readStored() {
-  try { return localStorage.getItem(KEY) !== "off"; } catch { return true; }
-}
-
-let enabled = readStored();
+let enabled = true;
 
 export const isInspectorOn = () => enabled;
+
+/**
+ * Define o inspetor a partir do estado restaurado (sem clique do usuário).
+ * @param {boolean} value
+ */
+export function setInspectorEnabled(value) {
+  enabled = value !== false;
+  return enabled;
+}
 
 /** Modo da ponte para a tela única: "legacy" (seleciona e navega) ou "play" (executa). */
 export const singleScreenMode = () => (enabled ? "legacy" : "play");
@@ -33,7 +36,6 @@ export function bindInspectorToggle(apply) {
   reflect(button);
   button.addEventListener("click", () => {
     enabled = !enabled;
-    try { localStorage.setItem(KEY, enabled ? "on" : "off"); } catch {}
     reflect(button);
     apply(enabled);
   });

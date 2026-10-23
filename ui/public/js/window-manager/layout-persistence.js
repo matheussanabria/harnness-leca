@@ -146,7 +146,7 @@ export class LayoutPersistenceManager {
    * @param {import("./window-store").WindowStore} store
    * @param {Storage | { getItem: (k: string) => string | null, setItem: (k: string, v: string) => void, removeItem: (k: string) => void }} [storage]
    */
-  constructor(store, storage = typeof window !== "undefined" ? window.localStorage : undefined) {
+  constructor(store, storage = null) {
     this.store = store;
     this.storage = storage;
   }

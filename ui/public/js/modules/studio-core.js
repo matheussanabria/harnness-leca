@@ -5,12 +5,13 @@ import { state } from "../shared/state.js";
 import { sts } from "./studio-store.js";
 import { renderCanvasRouteChips, checkAppStatus, setStudioModeType } from "./studio-canvas.js";
 import { updateCompanionDetails } from "./studio-companion.js";
+import { initStudioAdoption } from "./studio-adoption.js";
+import { saveStudioState } from "./studio-state.js";
 import {
   STUDIO_RESIZE_STEP,
   STUDIO_DEFAULT_SIDEBAR_WIDTH,
   calculateSidebarBounds,
-  getStoredSidebarWidth,
-  applySidebarWidth,
+  clampSidebarWidth,
 } from "./studio-layout.js";
 
 export function toggleStudioMode(force) {
@@ -31,6 +32,7 @@ export function toggleStudioMode(force) {
       window.toggleDesignMode(false);
     }
     if (window.hideMiniChatWidget) window.hideMiniChatWidget();
+    void initStudioAdoption();
     syncStudioControls();
     if (window.renderChatHistory) window.renderChatHistory();
     checkAppStatus();
@@ -155,7 +157,9 @@ function setStudioSidebarWidth(sidebar, resizer, width, persist = false) {
   resizer.setAttribute("aria-valuemin", String(min));
   resizer.setAttribute("aria-valuemax", String(max));
   resizer.setAttribute("aria-valuenow", String(next));
-  if (persist) localStorage.setItem("harness_studio_sidebar_width", String(next));
+  if (persist) {
+    void saveStudioState({ sidebarWidth: next });
+  }
   return next;
 }
 
@@ -167,12 +171,7 @@ export function initStudioSidebarResizer() {
   if (!resizer || !sidebar || !ws) return;
   studioResizerInitialized = true;
 
-  const savedWidth = localStorage.getItem("harness_studio_sidebar_width");
-  if (savedWidth && window.innerWidth > 768) {
-    setStudioSidebarWidth(sidebar, resizer, Number(savedWidth));
-  } else {
-    setStudioSidebarWidth(sidebar, resizer, sidebar.getBoundingClientRect().width || STUDIO_DEFAULT_SIDEBAR_WIDTH);
-  }
+  setStudioSidebarWidth(sidebar, resizer, sidebar.getBoundingClientRect().width || STUDIO_DEFAULT_SIDEBAR_WIDTH);
 
   let startX = 0;
   let startW = 0;

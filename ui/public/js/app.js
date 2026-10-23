@@ -3,6 +3,7 @@ import { $, esc, clean, fmt, autoGrow, copyToClipboard, showToast, section, open
 import { md, parseChat, renderChat, parseFrontmatter } from "./shared/markdown.js";
 import { state, GROUP_PALETTE, getActiveChatStorageKey, saveActiveChatState, restoreActiveChatState, clearActiveChatState } from "./shared/state.js";
 import { projectSelection } from "./shared/project-selection.js";
+import { createScreenStateClient } from "./shared/screen-state.js";
 import * as groupsMod from "./modules/groups.js";
 import * as projectsMod from "./modules/projects.js";
 import * as reviewMod from "./modules/review.js";
@@ -12,6 +13,7 @@ import * as studioMod from "./modules/studio.js";
 import * as chatMod from "./modules/chat.js";
 import * as inspectorMod from "./modules/inspector.js";
 import * as designMod from "./modules/design.js";
+import { restoredDesignState } from "./modules/design-view-state.js";
 import * as mobileChatMod from "./modules/mobile-chat.js";
 import * as chatAttachMod from "./modules/chat-attachments.js";
 import * as chatCodeActionsMod from "./modules/chat-code-actions.js";
@@ -115,6 +117,10 @@ Object.assign(window, {
   }
   await projectsMod.load(start);
 
+  const projectClient = createScreenStateClient({ project: start });
+  await chatMod.hydrateEngineSettings({ client: projectClient });
+  await skillsMod.hydrateSkillsState({ client: projectClient });
+
   const chatFromUrl = urlParams.get("chat");
   if (chatFromUrl) await chatMod.resumeExistingChat(chatFromUrl, false);
 
@@ -125,6 +131,9 @@ Object.assign(window, {
     await designMod.toggleDesignMode(true, wantView || "scrum");
   } else if (wantModule === "studio") {
     await studioMod.toggleStudioMode(true);
+  } else if (!wantModule) {
+    const savedDesign = await restoredDesignState();
+    if (savedDesign.open) await designMod.toggleDesignMode(true, savedDesign.view);
   }
 
   // Link de sincronização entre o objeto state.P e window.P para módulos legados

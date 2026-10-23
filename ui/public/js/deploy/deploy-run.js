@@ -99,10 +99,8 @@ export async function executeDeploy(projectId, envId, proj, env) {
         durationMs: data.durationMs,
         snippet: data.snippet || data.bodySnippet || "",
       });
-      localStorage.setItem("harness_deploy_history", JSON.stringify(dp.deployHistory.slice(0, 50)));
-    } else {
-      await fetchHistory();
     }
+    await fetchHistory();
     renderStats();
     renderHistory();
   } catch (err) {

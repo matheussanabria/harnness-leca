@@ -8,6 +8,7 @@ import {
   decideApproval,
   fetchWorkflowHistory,
 } from "./design-routines-api.js";
+import { readRoutinesState, saveRoutinesState } from "./design-routines-state.js";
 
 const TRIGGER_LABEL = {
   manual: { label: "Manual", icon: "fa-hand-pointer" },
@@ -28,14 +29,14 @@ function triggerLabel(routine) {
   return meta.label;
 }
 
-function renderRoutineCard(routine) {
+function renderRoutineCard(routine, selectedRoutine = "") {
   const meta = TRIGGER_LABEL[routine.trigger?.type] || TRIGGER_LABEL.manual;
   const due = routine.due ? `<span class="routine-badge is-due"><i class="fa-solid fa-bell"></i> Vencida</span>` : "";
   const last = routine.lastRun
     ? `<span class="routine-last">Última execução: ${esc(formatDate(routine.lastRun.startedAt))} · ${esc(routine.lastRun.status)}</span>`
     : `<span class="routine-last">Sem execução registrada</span>`;
   const warnings = (routine.plan?.warnings || []).map((warning) => `<li>${esc(warning)}</li>`).join("");
-  return `<article class="routine-card" data-routine-id="${esc(routine.id)}">
+  return `<article class="routine-card ${routine.id === selectedRoutine ? "is-selected" : ""}" data-routine-id="${esc(routine.id)}" aria-selected="${routine.id === selectedRoutine}">
     <header class="routine-card-head">
       <h4><i class="fa-solid fa-repeat"></i> ${esc(routine.label)}</h4>
       ${due}
@@ -115,15 +116,38 @@ export async function renderRoutinesWorkspace(container, slug) {
   const items = routines.routines || [];
   const pending = approvals.approvals || [];
   const entries = history.entries || [];
+  const saved = await readRoutinesState();
+  const needle = saved.filter.trim().toLowerCase();
+  const pendingWorkflows = new Set(pending.map((item) => item.workflowId).filter(Boolean));
+  const byApproval = saved.approvalFilter === "pending"
+    ? items.filter((routine) => pendingWorkflows.has(routine.workflowId))
+    : items;
+  const visibleItems = needle
+    ? byApproval.filter((routine) => [routine.label, routine.id, routine.description, routine.workflowLabel]
+      .some((value) => String(value || "").toLowerCase().includes(needle)))
+    : byApproval;
 
   container.innerHTML = `<section class="routine-panel" aria-label="Rotinas e aprovações do projeto">
     <header class="routine-header">
       <h3><i class="fa-solid fa-repeat"></i> Rotinas, aprovações e histórico</h3>
-      <p>${items.length} rotina(s) · ${pending.length} aprovação(ões) pendente(s) · ${entries.length} registro(s) no histórico.</p>
+      <p>${visibleItems.length} de ${items.length} rotina(s) · ${pending.length} aprovação(ões) pendente(s) · ${entries.length} registro(s) no histórico.</p>
     </header>
     <p class="routine-status" id="routineStatus" role="status" aria-live="polite"></p>
+    <div class="routine-toolbar">
+      <label class="routine-search" for="routineSearch">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="routineSearch" type="search" placeholder="Buscar rotina" value="${esc(saved.filter)}" autocomplete="off">
+      </label>
+      <label class="routine-filter" for="routineApprovalFilter">
+        <i class="fa-solid fa-user-check"></i>
+        <select id="routineApprovalFilter">
+          <option value="all" ${saved.approvalFilter === "all" ? "selected" : ""}>Todas as rotinas</option>
+          <option value="pending" ${saved.approvalFilter === "pending" ? "selected" : ""}>Só pendências</option>
+        </select>
+      </label>
+    </div>
     <div class="routine-grid">
-      ${items.map(renderRoutineCard).join("")}
+      ${visibleItems.map((routine) => renderRoutineCard(routine, saved.selectedRoutine)).join("")}
     </div>
     <section class="routine-section">
       <h4><i class="fa-solid fa-user-check"></i> Aprovações pendentes</h4>
@@ -141,6 +165,29 @@ export async function renderRoutinesWorkspace(container, slug) {
       ${history.warnings?.length ? `<p class="routine-warning"><i class="fa-solid fa-triangle-exclamation"></i> ${history.warnings.map(esc).join(" ")}</p>` : ""}
     </section>
   </section>`;
+
+  const search = /** @type {HTMLInputElement | null} */ ($("routineSearch"));
+  const approvalFilter = /** @type {HTMLSelectElement | null} */ ($("routineApprovalFilter"));
+  search?.addEventListener("input", () => {
+    void saveRoutinesState({ filter: search.value, selectedRoutine: saved.selectedRoutine, approvalFilter: approvalFilter?.value || saved.approvalFilter });
+  });
+  approvalFilter?.addEventListener("change", () => {
+    void saveRoutinesState({ filter: search?.value || saved.filter, selectedRoutine: saved.selectedRoutine, approvalFilter: approvalFilter.value });
+    void refresh();
+  });
+  container.querySelectorAll(".routine-card").forEach((card) => {
+    card.addEventListener("click", (event) => {
+      if (/** @type {HTMLElement} */ (event.target).closest("button")) return;
+      const element = /** @type {HTMLElement} */ (card);
+      const selected = element.dataset.routineId || "";
+      void saveRoutinesState({ filter: search?.value || saved.filter, selectedRoutine: selected, approvalFilter: approvalFilter?.value || saved.approvalFilter });
+      container.querySelectorAll(".routine-card").forEach((other) => {
+        const on = other === card;
+        other.classList.toggle("is-selected", on);
+        other.setAttribute("aria-selected", String(on));
+      });
+    });
+  });
 
   const refresh = async () => {
     await renderRoutinesWorkspace(container, slug);

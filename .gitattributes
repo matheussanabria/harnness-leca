@@ -3,3 +3,5 @@
 tests/golden/** -text
 .githooks/* text eol=lf
 *.sh text eol=lf
+# Runtime vendorizado do Claude Design: os bytes precisam bater com os hashes aceitos (sem conversao de fim de linha).
+ui/public/js/vendor/dc-runtime/** -text

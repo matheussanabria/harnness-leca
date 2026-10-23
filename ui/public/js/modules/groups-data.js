@@ -1,17 +1,12 @@
 // @ts-check
 // Leitura e gravação dos grupos e atribuições do projeto.
-import { state } from "../shared/state.js";
+import { state, getChatScreenState, persistChatScreenState } from "../shared/state.js";
 
 export function getProjectGroups() {
   const P = state.P;
   if (P && P.groups && Array.isArray(P.groups.groups)) return P.groups.groups;
-  try {
-    const raw = localStorage.getItem("harness_groups_" + (P ? P.slug : ""));
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && Array.isArray(parsed.groups)) return parsed.groups;
-    }
-  } catch {}
+  const cached = getChatScreenState();
+  if (Array.isArray(cached.groups)) return cached.groups;
   return [];
 }
 
@@ -20,13 +15,10 @@ export function getProjectAssignments() {
   if (P && P.groups && typeof P.groups.assignments === "object" && P.groups.assignments !== null) {
     return P.groups.assignments;
   }
-  try {
-    const raw = localStorage.getItem("harness_groups_" + (P ? P.slug : ""));
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && parsed.assignments) return parsed.assignments;
-    }
-  } catch {}
+  const cached = getChatScreenState();
+  if (cached.assignments && typeof cached.assignments === "object" && !Array.isArray(cached.assignments)) {
+    return cached.assignments;
+  }
   return {};
 }
 
@@ -50,9 +42,10 @@ export async function saveGroupsData(groupsList, assignmentsMap) {
     c.subgroup = a ? a.subgroup || "" : "";
   });
 
-  try {
-    localStorage.setItem("harness_groups_" + P.slug, JSON.stringify(P.groups));
-  } catch {}
+  persistChatScreenState({
+    groups: P.groups.groups || [],
+    assignments: P.groups.assignments || {},
+  });
 
   try {
     await fetch("/api/project/" + encodeURIComponent(P.slug) + "/groups", {

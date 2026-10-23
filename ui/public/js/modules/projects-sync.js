@@ -2,7 +2,7 @@
 // Sincronização de conversas e abertura de arquivos do projeto.
 import { esc, clean, openDlg } from "../shared/dom.js";
 import { renderChat } from "../shared/markdown.js";
-import { state } from "../shared/state.js";
+import { state, logChatAction, CHAT_ACTIONS } from "../shared/state.js";
 import { ps } from "./projects-store.js";
 import { load } from "./projects-load.js";
 
@@ -88,6 +88,7 @@ export async function openFile(dir, name) {
   const rawContent = r.content || "";
   const text = rawContent.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "");
   if (dir === "chats") {
+    await logChatAction(CHAT_ACTIONS.OPEN_CHAT, name);
     const c = P.chats.find((x) => x.name === name);
     const actionsHtml = `
       <div style="display:flex;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center">

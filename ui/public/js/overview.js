@@ -3,21 +3,88 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp
 const kb = n => (n / 1024).toFixed(1).replace(".", ",") + " KB";
 const dateBR = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-"); return `${d}/${m}/${y}`; };
 
-// Estado da página (page/pageSize também ficam na URL para sobreviver ao refresh).
-const Q = new URLSearchParams(location.search);
+// Estado da tela persistido no servidor (EP-14.10); a URL não carrega mais filtros.
 const SIZES = [10, 25, 50];
+const SORT_FIELDS = ["lastChat", "chats", "memoryBytes", "slug"];
 let OV = {
-  page: Number(Q.get("page")) || 1,
-  pageSize: SIZES.includes(Number(Q.get("pageSize"))) ? Number(Q.get("pageSize")) : 10,
+  page: 1,
+  pageSize: 10,
+  sortField: "lastChat",
+  sortAsc: false,
+  query: "",
   total: 0, pages: 1, projects: [],
 };
 $("selSize").value = String(OV.pageSize);
 
-function syncUrl() {
-  const q = new URLSearchParams();
-  if (OV.page !== 1) q.set("page", OV.page);
-  if (OV.pageSize !== 10) q.set("pageSize", OV.pageSize);
-  history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : ""));
+function normalizeOverviewState(raw) {
+  const value = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+  const page = Math.max(1, Math.floor(Number(value.page)) || 1);
+  const size = Number(value.pageSize);
+  return {
+    page,
+    pageSize: SIZES.includes(size) ? size : 10,
+    sortField: SORT_FIELDS.includes(value.sortField) ? value.sortField : "lastChat",
+    sortAsc: typeof value.sortAsc === "boolean" ? value.sortAsc : false,
+    query: typeof value.query === "string" ? value.query.slice(0, 200) : "",
+  };
+}
+
+function overviewStatePatch() {
+  return {
+    page: OV.page,
+    pageSize: OV.pageSize,
+    sortField: OV.sortField,
+    sortAsc: OV.sortAsc,
+    query: OV.query,
+  };
+}
+
+function persistOverviewState() {
+  const patch = overviewStatePatch();
+  const hook = globalThis.__HARNESS_SCREEN_STATE_PATCH__;
+  if (typeof hook === "function") {
+    try { hook("overview", patch); } catch {}
+    return;
+  }
+  if (typeof window === "undefined") return;
+  import("/js/shared/screen-state.js")
+    .then(mod => mod.patchScreen("overview", patch))
+    .catch(() => {});
+}
+
+async function hydrateOverviewState() {
+  const hook = globalThis.__HARNESS_SCREEN_STATE_LOAD__;
+  let raw = null;
+  if (typeof hook === "function") {
+    try { raw = await hook("overview"); } catch {}
+  } else if (typeof window !== "undefined") {
+    try {
+      const mod = await import("/js/shared/screen-state.js");
+      raw = await mod.loadScreen("overview");
+    } catch {}
+  }
+  if (!raw) return;
+  OV = { ...OV, ...normalizeOverviewState(raw) };
+  $("selSize").value = String(OV.pageSize);
+}
+
+function sortProjects(projects) {
+  const field = OV.sortField, direction = OV.sortAsc ? 1 : -1;
+  return [...projects].sort((a, b) => {
+    const left = a[field] == null ? "" : a[field];
+    const right = b[field] == null ? "" : b[field];
+    if (typeof left === "number" && typeof right === "number") return (left - right) * direction;
+    return String(left).localeCompare(String(right), "pt-BR") * direction;
+  });
+}
+
+function visibleProjects() {
+  let projects = OV.projects || [];
+  if (OV.query) {
+    const query = OV.query.toLowerCase();
+    projects = projects.filter(item => String(item.slug || "").toLowerCase().includes(query));
+  }
+  return sortProjects(projects);
 }
 
 async function loadOverview() {
@@ -26,14 +93,23 @@ async function loadOverview() {
     if (!r.ok) throw new Error("HTTP " + r.status);
     OV = { ...OV, ...await r.json() };
     render();
-    syncUrl();
   } catch (err) {
     $("rows").innerHTML = `<tr><td colspan="6" class="empty">Não foi possível carregar a visão geral (${esc(err.message)}).</td></tr>`;
   }
 }
 
-function goPage(p) { if (p < 1 || p > OV.pages || p === OV.page) return; OV.page = p; loadOverview(); }
-function setSize(v) { OV.pageSize = Number(v) || 10; OV.page = 1; loadOverview(); }
+function goPage(p) {
+  if (p < 1 || p > OV.pages || p === OV.page) return;
+  OV.page = p;
+  persistOverviewState();
+  loadOverview();
+}
+function setSize(v) {
+  OV.pageSize = Number(v) || 10;
+  OV.page = 1;
+  persistOverviewState();
+  loadOverview();
+}
 
 function chips(c) {
   if (!c || !c.total) return '<span class="status-badge status-none">sem conversas</span>';
@@ -45,7 +121,7 @@ function chips(c) {
 }
 
 function render() {
-  const p = OV.projects || [];
+  const p = visibleProjects();
   $("sub").innerHTML = `${OV.total} projeto${OV.total === 1 ? "" : "s"} no harness · ${OV.active ? `ativo: <b>${esc(OV.active)}</b>` : "nenhum projeto ativo em <code>projects/.active</code>"}`;
   $("totBadge").textContent = `${OV.total} projeto${OV.total === 1 ? "" : "s"}`;
   $("pageInfo").textContent = OV.total ? `página ${OV.page} de ${OV.pages}` : "";
@@ -64,8 +140,8 @@ function render() {
       <td class="cell-num">${kb(x.memoryBytes || 0)}</td>
       <td>
         <div class="acts">
-          <button class="btn-row sync" title="Sincronizar conversas deste projeto (Claude, Gemini e OpenCode)" onclick="syncRow('${esc(x.slug)}', this)">🔄 Sync</button>
-          <button class="btn-row" onclick="openProject('${esc(x.slug)}')">Abrir →</button>
+          <button class="btn-row sync" title="Sincronizar conversas deste projeto (Claude, Gemini e OpenCode)" onclick="syncRow('${esc(x.slug)}', this)"><i class="fa-solid fa-rotate"></i> Sync</button>
+          <button class="btn-row" onclick="openProject('${esc(x.slug)}')">Abrir <i class="fa-solid fa-arrow-right"></i></button>
         </div>
       </td>
     </tr>`).join("")
@@ -105,7 +181,7 @@ async function syncRow(slug, btn) {
     rowMsg(`${slug}: ${data.mensagem || (novo ? `${novo} conversa(s) atualizada(s)` : "tudo em dia")}`, novo ? "ok" : "");
     await loadOverview();
   } catch (err) {
-    rowMsg(`⚠ ${slug}: ${err.message}`, "err");
+    rowMsg(`Erro em ${slug}: ${err.message}`, "err");
   } finally {
     rowBusy = false;
     btn.disabled = false; btn.textContent = old;
@@ -162,22 +238,22 @@ async function runSyncAll() {
         if (!chunk.startsWith("data: ")) continue;
         const ev = JSON.parse(chunk.slice(6));
         if (ev.type === "log") logLine(esc(ev.line));
-        else if (ev.type === "error") { logLine(`<span style="color:#ef4444">⚠ ${esc(ev.error)}</span>`); fim = { code: -1, ms: 0 }; }
+        else if (ev.type === "error") { logLine(`<span style="color:#ef4444"><i class="fa-solid fa-triangle-exclamation"></i> ${esc(ev.error)}</span>`); fim = { code: -1, ms: 0 }; }
         else if (ev.type === "done") fim = ev;
       }
     }
     if (!fim) throw new Error("conexão interrompida");
     if (fim.code === 0) {
       setRunState(`concluído em ${(fim.ms / 1000).toFixed(1).replace(".", ",")}s`, "ok");
-      logLine(logEsc("✔ sincronização concluída"));
+      logLine(`<i class="fa-solid fa-check"></i> ${logEsc("sincronização concluída")}`);
     } else {
       setRunState(`finalizou com código ${fim.code}`, "err");
-      logLine(`<span style="color:#ef4444">⚠ sincronização terminou com código ${fim.code}</span>`);
+      logLine(`<span style="color:#ef4444"><i class="fa-solid fa-triangle-exclamation"></i> sincronização terminou com código ${fim.code}</span>`);
     }
     await loadOverview();
   } catch (err) {
     setRunState("falhou", "err");
-    logLine(`<span style="color:#ef4444">⚠ ${esc(err.message || String(err))}</span>`);
+    logLine(`<span style="color:#ef4444"><i class="fa-solid fa-triangle-exclamation"></i> ${esc(err.message || String(err))}</span>`);
   } finally {
     running = false;
     $("btnRun").disabled = false;
@@ -185,4 +261,8 @@ async function runSyncAll() {
   }
 }
 
-loadOverview();
+async function startOverview() {
+  await hydrateOverviewState();
+  await loadOverview();
+}
+startOverview();

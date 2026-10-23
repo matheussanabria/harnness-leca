@@ -35,18 +35,21 @@ function tela(id, titulo, escopo, rota, icone, campos, migraDe = []) {
 
 const SCREENS = [
   tela("chats", "Conversas", "projeto", "/?p=<slug>", "fa-comments", {
-    viewMode: texto(16), pageSize: inteiro(100), engineFilter: texto(32),
+    viewMode: texto(16), pageSize: inteiro(100), page: inteiro(100000), engineFilter: texto(32),
     groupFilter: texto(120), subgroupFilter: texto(120), searchQuery: texto(200),
     sortField: texto(32), sortAsc: booleano(), draft: texto(20000),
-    activeChat: objeto(60000), groups: lista(200),
+    groups: lista(200), assignments: objeto(60000),
+    engineSettings: objeto(8192), skillSubTab: texto(16),
+    skillImportFilter: texto(200), skillImportSource: texto(32),
   }, [
     "harness_chats_view_mode", "harness_chats_page_size", "harness_chat_draft_*",
-    "harness_active_chat_*", "harness_groups_*", "harness_chat_engine_settings",
+    "harness_groups_*", "harness_chat_engine_settings",
   ]),
   tela("studio", "Studio", "projeto", "/?p=<slug>&studio=1", "fa-columns", {
     activeView: texto(32), sidebarWidth: inteiro(720, 160), sourceOpen: booleano(),
     sourceWidth: inteiro(720, 160), viewport: texto(16), route: texto(300),
     dockMaximized: booleano(), activePrototype: texto(120), activeScreen: texto(120),
+    designView: texto(32), designOpen: booleano(),
   }, [
     "harness_studio_sidebar_width", "harness_studio_sidebar_width_*",
     "harness_studio_source_open", "harness_studio_source_width",
@@ -55,16 +58,20 @@ const SCREENS = [
   tela("prototypes", "Ateliê de Protótipos", "projeto", "/?p=<slug>&view=atelier", "fa-object-group", {
     activePrototype: texto(120), activeScreen: texto(120), selectedNode: texto(120),
     inspector: booleano(), workspaceLayout: objeto(8192), canvas: objeto(32768),
+    viewport: texto(16),
   }, [
     "harness.atelier.inspector", "harness_proto_workspace_layout", "harness.canvas.v1*",
   ]),
   tela("scrum", "Scrum", "projeto", "/?p=<slug>&view=scrum", "fa-list-check", {
     sprint: texto(120), filter: texto(120), selectedStory: texto(120),
     tab: texto(32), sortField: texto(32), sortAsc: booleano(),
+    epicFilter: texto(120), assigneeFilter: texto(120), onlyImpediments: booleano(),
   }),
   tela("layers", "Mapa em Camadas", "projeto", "/?p=<slug>&view=layers", "fa-layer-group", {
     componentFilter: texto(120), selectedLayer: texto(120), tab: texto(32),
     expanded: lista(500), zoom: inteiro(200, 25),
+    activeScreen: texto(120), focusedField: texto(120), filterOnlyFocused: booleano(),
+    viewport: texto(16),
   }),
   tela("board", "Quadro", "projeto", "/?p=<slug>&view=board", "fa-table-columns", {
     sprint: texto(120), filter: texto(120), selectedCard: texto(120),
@@ -73,6 +80,7 @@ const SCREENS = [
   tela("audit", "Auditoria", "projeto", "/?p=<slug>&view=audit", "fa-clipboard-check", {
     componentFilter: texto(120), matrixFilter: texto(120),
     selectedComponent: texto(120), tab: texto(32), severity: texto(16),
+    evidenceState: texto(32),
   }),
   tela("artifacts", "Artefatos", "projeto", "/?p=<slug>&view=artifacts", "fa-box-archive", {
     kindFilter: texto(32), accessFilter: texto(16), query: texto(200),
@@ -101,8 +109,10 @@ const SCREENS = [
     "harness_deploy_config", "harness_deploy_history",
   ]),
   tela("diario", "Diário", "global", "/diario", "fa-book", {
-    query: texto(200), agentFilter: texto(32), sortField: texto(32),
+    project: texto(120), query: texto(200), agentFilter: texto(32),
+    dateFrom: texto(10), dateTo: texto(10), sortField: texto(32),
     sortAsc: booleano(), page: inteiro(100000), pageSize: inteiro(100),
+    allClosed: booleano(),
   }),
 ];
 
@@ -111,6 +121,7 @@ const EXCLUSOES = Object.freeze([
   Object.freeze({ chave: "harness_pin", motivo: "Credencial do acesso remoto; não é estado de tela e não deve ir para o servidor." }),
   Object.freeze({ chave: "harness_active_project", motivo: "Seleção de projeto anterior a qualquer tela; permanece como reserva offline compartilhada." }),
   Object.freeze({ chave: "harness_chat_open", motivo: "Sinal efêmero da mini conversa, apenas removido; não guarda estado a restaurar." }),
+  Object.freeze({ chave: "harness_active_chat_*", motivo: "Conteúdo da conversa em andamento; volumoso demais para o limite de 64 KB do estado de tela, permanece no localStorage." }),
   Object.freeze({ chave: "hia_tokens_saved", motivo: "Contador local de telemetria HIA; não é estado de tela." }),
 ]);
 
@@ -162,7 +173,7 @@ function matchesPattern(pattern, key) {
  * @param {string} key
  */
 function isStorageKeyCovered(key) {
-  if (EXCLUSOES.some((entry) => entry.chave === key)) return true;
+  if (EXCLUSOES.some((entry) => matchesPattern(entry.chave, key))) return true;
   return SCREENS.some((entry) => entry.migraDe.some((pattern) => matchesPattern(pattern, key)));
 }
 

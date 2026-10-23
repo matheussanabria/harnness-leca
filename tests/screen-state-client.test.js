@@ -105,7 +105,6 @@ test("EP-14.06: migra migraDe na primeira carga e remove as chaves antigas", asy
     harness_chats_view_mode: "cards", harness_chats_page_size: "30",
     harness_chat_draft_demo: "rascunho do projeto", harness_chat_draft_outro: "nao e deste projeto",
     harness_groups_demo: JSON.stringify([{ id: "g1" }]),
-    harness_active_chat_demo: JSON.stringify({ engine: "claude" }),
     harness_chat_engine_settings: JSON.stringify({ currentEngine: "gemini" }),
   });
   const server = createServer();
@@ -116,10 +115,9 @@ test("EP-14.06: migra migraDe na primeira carga e remove as chaves antigas", asy
   assert.equal(state.draft, "rascunho do projeto");
   assert.equal(state.engineFilter, "gemini");
   assert.deepEqual(state.groups, [{ id: "g1" }]);
-  assert.deepEqual(state.activeChat, { engine: "claude" });
   for (const key of [
     "harness_chats_view_mode", "harness_chats_page_size", "harness_chat_draft_demo",
-    "harness_groups_demo", "harness_active_chat_demo", "harness_chat_engine_settings",
+    "harness_groups_demo", "harness_chat_engine_settings",
   ]) {
     assert.equal(storage.getItem(key), null, `chave ${key} deve ser removida`);
   }

@@ -1,6 +1,7 @@
 // @ts-check
 import { esc } from "../shared/dom.js";
 import { deleteConfirmText, deleteUrl } from "./prototype-delete-model.js";
+import { logAtelierAction } from "./prototype-atelier-state.js";
 
 /**
  * Diálogo de confirmação próprio (o confirm() do navegador não combina com o resto da interface
@@ -52,6 +53,7 @@ export async function deletePrototypeWithConfirm(slug, item) {
   const response = await fetch(deleteUrl(slug, item.id), { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || "Não foi possível excluir o protótipo.");
+  void logAtelierAction("excluir protótipo", item.id);
   if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("harness:design-index-changed", { detail: { slug } }));
   return true;
 }

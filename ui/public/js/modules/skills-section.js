@@ -4,6 +4,7 @@ import { esc } from "../shared/dom.js";
 import { md } from "../shared/markdown.js";
 import { state } from "../shared/state.js";
 import { sks } from "./skills-store.js";
+import { persistSkillsState } from "./skills-state.js";
 
 export function renderSkillsSection() {
   const P = state.P;
@@ -131,6 +132,7 @@ export async function openSkillViewerModal(targetId, skillName) {
 
 export function showSkillSubTab(tab) {
   sks.currentSkillSubTab = tab;
+  persistSkillsState({ subTab: tab });
   $("subtabSkillMd").classList.toggle("active", tab === "md");
   $("subtabSkillRefs").classList.toggle("active", tab === "refs");
   $("skillMdBody").style.display = tab === "md" ? "block" : "none";

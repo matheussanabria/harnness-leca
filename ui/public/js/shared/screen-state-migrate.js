@@ -9,7 +9,6 @@ const TELAS = {
       "harness_chats_view_mode",
       "harness_chats_page_size",
       "harness_chat_draft_*",
-      "harness_active_chat_*",
       "harness_groups_*",
       "harness_chat_engine_settings",
     ],
@@ -17,9 +16,9 @@ const TELAS = {
       { padrao: "harness_chats_view_mode", campo: "viewMode", ler: "texto" },
       { padrao: "harness_chats_page_size", campo: "pageSize", ler: "inteiro" },
       { padrao: "harness_chat_draft_*", campo: "draft", ler: "texto" },
-      { padrao: "harness_active_chat_*", campo: "activeChat", ler: "json" },
       { padrao: "harness_groups_*", campo: "groups", ler: "json" },
       { padrao: "harness_chat_engine_settings", campo: "engineFilter", ler: "motor" },
+      { padrao: "harness_chat_engine_settings", campo: "engineSettings", ler: "engineSettings" },
     ],
   },
   studio: {
@@ -167,6 +166,15 @@ function parseValue(raw, tipo) {
         const parsed = JSON.parse(raw);
         const motor = parsed?.currentEngine;
         return typeof motor === "string" && motor.trim() ? motor.trim() : undefined;
+      } catch {
+        return undefined;
+      }
+    }
+    case "engineSettings": {
+      try {
+        const parsed = JSON.parse(raw);
+        const settings = parsed?.engineSettings;
+        return settings && typeof settings === "object" && !Array.isArray(settings) ? settings : undefined;
       } catch {
         return undefined;
       }

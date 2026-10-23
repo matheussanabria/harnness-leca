@@ -7,6 +7,8 @@ import { updateCompanionDetails } from "./studio-companion.js";
 import { isStudioSourceColumnOpen, setStudioSourceColumn, getStoredSourceColumnOpen } from "./studio-source-column.js";
 import { detachStudioSidebarFromAtelier } from "./prototype-atelier-sidebar.js";
 import { resetAtelierPromptState, setAtelierChatContext } from "./prototype-chat-bridge.js";
+import { readAtelierState } from "./prototype-atelier-state.js";
+import { saveStudioState } from "./studio-state.js";
 
 export const STUDIO_VIEW_MODES = {
   PREVIEW: "iframe",
@@ -102,7 +104,9 @@ export async function loadStudioDesignContent(slug = state.activeProject) {
   try {
     const designProtoMod = await import("./design-prototypes.js").catch(() => null);
     if (designProtoMod && typeof designProtoMod.renderPrototypesWorkspace === "function") {
-      await designProtoMod.renderPrototypesWorkspace(host, slug);
+      const saved = await readAtelierState().catch(() => null);
+      const initial = saved?.activePrototype ? { id: String(saved.activePrototype), kind: "atelier" } : null;
+      await designProtoMod.renderPrototypesWorkspace(host, slug, [], [], {}, initial);
       return;
     }
   } catch (err) {
@@ -142,12 +146,7 @@ export function switchStudioView(targetMode, options = {}) {
 
   sts.currentStudioMode = mode;
 
-  // Persiste a preferência se houver storage
-  if (typeof localStorage !== "undefined") {
-    try {
-      localStorage.setItem(resolveViewStorageKey(), mode);
-    } catch {}
-  }
+  void saveStudioState({ activeView: mode });
 
   // Atualiza botões no grupo de visualização
   const btnIframe = $("btnViewIframe");
@@ -216,13 +215,7 @@ export function switchStudioView(targetMode, options = {}) {
  * @param {string} [preferredMode]
  */
 export function initStudioViews(preferredMode) {
-  let mode = preferredMode;
-  if (!mode && typeof localStorage !== "undefined") {
-    try {
-      const saved = localStorage.getItem(resolveViewStorageKey());
-      if (saved) mode = saved;
-    } catch {}
-  }
+  const mode = preferredMode;
   // Preferências antigas guardavam "source" como modo exclusivo: viram preview + coluna aberta.
   const legacyCode = normalizeStudioViewMode(mode) === STUDIO_VIEW_MODES.CODE;
   switchStudioView(legacyCode || !mode ? STUDIO_VIEW_MODES.PREVIEW : mode, { force: true });

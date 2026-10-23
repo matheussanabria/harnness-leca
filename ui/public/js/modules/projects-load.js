@@ -1,17 +1,28 @@
 // @ts-check
 // Carga do projeto e tabela de mapeamento.
 import { esc, clean, openDlg, section } from "../shared/dom.js";
-import { state, restoreActiveChatState } from "../shared/state.js";
+import {
+  state,
+  restoreActiveChatState,
+  hydrateChatState,
+  logChatAction,
+  CHAT_ACTIONS,
+} from "../shared/state.js";
 import { renderServicesSection } from "./services.js";
 import { renderSkillsSection } from "./skills.js";
 import { renderProjectChats } from "./projects-chat-render.js";
 import { showIns, showMem, openFile } from "./projects-sync.js";
 
 export async function load(slug) {
+  const previousSlug = state.P && state.P.slug;
   state.chatCurrentPage = 1;
   state.P = await (await fetch("/api/project/" + slug)).json();
   const P = state.P;
+  await hydrateChatState(slug);
   restoreActiveChatState(slug);
+  if (previousSlug !== slug) {
+    void logChatAction(CHAT_ACTIONS.PROJECT, slug);
+  }
   $("title").textContent = slug.charAt(0).toUpperCase() + slug.slice(1);
   const ext = P.extraction;
   const extMeta =

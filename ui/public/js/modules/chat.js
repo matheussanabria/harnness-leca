@@ -1,6 +1,6 @@
 // @ts-check
 // Fachada do chat: reexporta a API pública dos módulos chat-* (app.js e outros importam daqui).
-export { ENGINES } from "./chat-store.js";
+export { ENGINES, hydrateEngineSettings } from "./chat-store.js";
 export {
   scheduleDebouncedChatSave,
   updateMiniChatWidget,

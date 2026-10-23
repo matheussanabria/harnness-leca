@@ -111,9 +111,9 @@ test("EP-02.04: Lógica do resizer em studio-core.js suporta ponteiro, teclado, 
   assert.match(studioResizerCode, /e\.key === "Home"/);
   assert.match(studioResizerCode, /e\.key === "End"/);
 
-  // Persistência em localStorage
-  assert.match(studioResizerCode, /localStorage\.setItem\(/);
-  assert.match(studioResizerCode, /harness_studio_sidebar_width/);
+  // Persistência no estado da tela, sem localStorage
+  assert.match(studioResizerCode, /saveStudioState\(\{ sidebarWidth: next \}\)/);
+  assert.doesNotMatch(studioResizerCode, /localStorage\.setItem\(/);
 
   // Limites e atualização de ARIA
   assert.match(studioResizerCode, /(?:function studioSidebarBounds|calculateSidebarBounds)/);
