@@ -1,12 +1,13 @@
 // @ts-check
 // Filtros, ordenação, visão e paginação da lista de conversas.
 import { $ } from "../shared/dom.js";
-import { state } from "../shared/state.js";
+import { state, persistChatScreenState, logChatAction, CHAT_ACTIONS } from "../shared/state.js";
 import { renderProjectChats } from "./projects-chat-render.js";
 
 export function setChatEngineFilter(engine) {
   state.chatEngineFilter = engine;
   state.chatCurrentPage = 1;
+  persistChatScreenState({ engineFilter: engine, page: 1 });
   renderProjectChats();
 }
 
@@ -19,6 +20,12 @@ export function setChatGroupFilter(groupId) {
     state.chatSubgroupFilter = "all";
   }
   state.chatCurrentPage = 1;
+  persistChatScreenState({
+    groupFilter: state.chatGroupFilter,
+    subgroupFilter: state.chatSubgroupFilter,
+    page: 1,
+  });
+  void logChatAction(CHAT_ACTIONS.GROUP, groupId);
   renderProjectChats();
 }
 
@@ -29,18 +36,21 @@ export function setChatSubgroupFilter(sub) {
     state.chatSubgroupFilter = sub;
   }
   state.chatCurrentPage = 1;
+  persistChatScreenState({ subgroupFilter: state.chatSubgroupFilter, page: 1 });
   renderProjectChats();
 }
 
 export function onChatSearchInput(query) {
   state.chatSearchQuery = query;
   state.chatCurrentPage = 1;
+  persistChatScreenState({ searchQuery: query, page: 1 });
   renderProjectChats();
 }
 
 export function clearChatSearch() {
   state.chatSearchQuery = "";
   state.chatCurrentPage = 1;
+  persistChatScreenState({ searchQuery: "", page: 1 });
   const inp = /** @type {HTMLInputElement} */ ($("chatSearchInput"));
   if (inp) inp.value = "";
   renderProjectChats();
@@ -51,6 +61,7 @@ export function onChatSortSelectChange(value) {
   state.chatSortField = field;
   state.chatSortAsc = dir === "asc";
   state.chatCurrentPage = 1;
+  persistChatScreenState({ sortField: field, sortAsc: state.chatSortAsc, page: 1 });
   renderProjectChats();
 }
 
@@ -65,14 +76,13 @@ export function toggleSort(field) {
   const sel = /** @type {HTMLSelectElement} */ ($("chatSortSelect"));
   if (sel) sel.value = selVal;
   state.chatCurrentPage = 1;
+  persistChatScreenState({ sortField: state.chatSortField, sortAsc: state.chatSortAsc, page: 1 });
   renderProjectChats();
 }
 
 export function setChatViewMode(mode) {
   state.chatViewMode = mode;
-  try {
-    localStorage.setItem("harness_chats_view_mode", mode);
-  } catch {}
+  persistChatScreenState({ viewMode: mode });
   renderProjectChats();
 }
 
@@ -82,6 +92,13 @@ export function resetAllChatFilters() {
   state.chatSubgroupFilter = "all";
   state.chatSearchQuery = "";
   state.chatCurrentPage = 1;
+  persistChatScreenState({
+    engineFilter: "all",
+    groupFilter: "all",
+    subgroupFilter: "all",
+    searchQuery: "",
+    page: 1,
+  });
   const inp = /** @type {HTMLInputElement} */ ($("chatSearchInput"));
   if (inp) inp.value = "";
   renderProjectChats();
@@ -93,6 +110,7 @@ export function changeChatPage(page) {
   if (page < 1) page = 1;
   if (page > maxPage) page = maxPage;
   state.chatCurrentPage = page;
+  persistChatScreenState({ page });
   renderProjectChats();
   const el = $("chatsControlPanel");
   if (el) {
@@ -108,9 +126,7 @@ export function changeChatPageSize(size) {
   if (!isNaN(parsed) && parsed > 0) {
     state.chatPageSize = parsed;
     state.chatCurrentPage = 1;
-    try {
-      localStorage.setItem("harness_chats_page_size", String(parsed));
-    } catch {}
+    persistChatScreenState({ pageSize: parsed, page: 1 });
     renderProjectChats();
   }
 }

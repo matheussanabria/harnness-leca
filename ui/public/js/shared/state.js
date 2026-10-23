@@ -3,6 +3,14 @@
 /**
  * Estado reativo compartilhado do Harness Leca Frontend.
  */
+import { createScreenStateClient } from "./screen-state.js";
+
+export const CHATS_SCREEN = "chats";
+export const CHAT_ACTIONS = Object.freeze({
+  PROJECT: "troca de projeto",
+  OPEN_CHAT: "abertura de chat",
+  GROUP: "mudança de grupo",
+});
 
 export const state = {
   // Dados do servidor
@@ -16,7 +24,7 @@ export const state = {
   chatSearchQuery: "",
   chatSortField: "mtime", // 'mtime' | 'title' | 'agent' | 'group' | 'status' | 'turns'
   chatSortAsc: false, // false = desc, true = asc
-  chatViewMode: localStorage.getItem("harness_chats_view_mode") || "table",
+  chatViewMode: "table",
   chatCurrentPage: 1,
   chatPageSize: 15,
   lastFilteredChatsCount: 0,
@@ -63,14 +71,6 @@ export const state = {
   reviewPageSize: 10,
 };
 
-try {
-  const savedPageSize = localStorage.getItem("harness_chats_page_size");
-  if (savedPageSize) {
-    const parsed = parseInt(savedPageSize, 10);
-    if (!isNaN(parsed) && parsed > 0) state.chatPageSize = parsed;
-  }
-} catch {}
-
 export const GROUP_PALETTE = [
   { name: "Laranja Coral", hex: "#d97757" },
   { name: "Azul Gemini", hex: "#5c87f2" },
@@ -82,6 +82,101 @@ export const GROUP_PALETTE = [
   { name: "Grafite Neutro", hex: "#94a3b8" },
 ];
 
+/** @type {Record<string, any>} */
+let chatScreen = {};
+let hydratedProject = null;
+/** @type {any} */
+let injectedClient = null;
+const projectClients = new Map();
+
+/** @param {string} [slug] */
+function currentProject(slug) {
+  const value = slug || (state.P && state.P.slug) || hydratedProject || "";
+  return typeof value === "string" ? value.trim() : "";
+}
+
+/** @param {string} [project] */
+function chatClient(project) {
+  if (injectedClient) return injectedClient;
+  const key = project || "auto";
+  if (!projectClients.has(key)) {
+    projectClients.set(key, createScreenStateClient(project ? { project } : {}));
+  }
+  return projectClients.get(key);
+}
+
+/**
+ * Substitui o cliente por um dublê nos testes; em produção usa o singleton
+ * por projeto criado sob demanda.
+ * @param {any} client
+ */
+export function setChatScreenStateClient(client) {
+  injectedClient = client || null;
+  hydratedProject = null;
+  chatScreen = {};
+}
+
+/** @param {unknown} value */
+function isText(value) {
+  return typeof value === "string";
+}
+
+/** @param {Record<string, any>} loaded */
+function applyChatScreenState(loaded) {
+  if (!loaded || typeof loaded !== "object" || Array.isArray(loaded)) return;
+  if (loaded.viewMode === "table" || loaded.viewMode === "list") state.chatViewMode = loaded.viewMode;
+  if (Number.isInteger(loaded.pageSize) && loaded.pageSize > 0) state.chatPageSize = loaded.pageSize;
+  if (Number.isInteger(loaded.page) && loaded.page > 0) state.chatCurrentPage = loaded.page;
+  if (isText(loaded.engineFilter)) state.chatEngineFilter = loaded.engineFilter;
+  if (isText(loaded.groupFilter)) state.chatGroupFilter = loaded.groupFilter;
+  if (isText(loaded.subgroupFilter)) state.chatSubgroupFilter = loaded.subgroupFilter;
+  if (isText(loaded.searchQuery)) state.chatSearchQuery = loaded.searchQuery;
+  if (isText(loaded.sortField)) state.chatSortField = loaded.sortField;
+  if (typeof loaded.sortAsc === "boolean") state.chatSortAsc = loaded.sortAsc;
+}
+
+/**
+ * Hidrata a tela de conversas uma única vez por projeto e aplica o estado
+ * persistido antes da primeira renderização.
+ * @param {string} [slug]
+ */
+export async function hydrateChatState(slug) {
+  const project = currentProject(slug);
+  if (hydratedProject === project) return { ...chatScreen };
+  const loaded = await chatClient(project).loadScreen(CHATS_SCREEN);
+  chatScreen = { ...(loaded || {}) };
+  applyChatScreenState(chatScreen);
+  hydratedProject = project;
+  return { ...chatScreen };
+}
+
+/**
+ * Atualiza o cache, aplica os campos conhecidos e grava no cliente de estado
+ * com debounce (a gravação local imediata é responsabilidade do cliente).
+ * @param {Record<string, unknown>} partial
+ */
+export function persistChatScreenState(partial) {
+  if (!partial || typeof partial !== "object" || Array.isArray(partial)) {
+    return Promise.resolve({});
+  }
+  chatScreen = { ...chatScreen, ...partial };
+  applyChatScreenState(partial);
+  const result = chatClient(currentProject()).patchScreen(CHATS_SCREEN, partial);
+  if (result && typeof result.catch === "function") result.catch(() => {});
+  return result;
+}
+
+/** @param {string} acao @param {string} [alvo] */
+export function logChatAction(acao, alvo = "") {
+  return chatClient(currentProject()).logAction(CHATS_SCREEN, acao, alvo);
+}
+
+/** Cópia do estado bruto da tela de conversas (inclui grupos e rascunho). */
+export function getChatScreenState() {
+  return { ...chatScreen };
+}
+
+// O conteúdo da conversa em andamento fica no localStorage: é volumoso demais para o limite de 64 KB do estado de tela.
 export function getActiveChatStorageKey(slug) {
   return "harness_active_chat_" + (slug || (state.P ? state.P.slug : "global"));
 }
@@ -140,28 +235,15 @@ export function clearActiveChatState(slug) {
   } catch {}
 }
 
-export function getChatDraft(slug) {
-  try {
-    return localStorage.getItem("harness_chat_draft_" + (slug || (state.P ? state.P.slug : "global"))) || "";
-  } catch {
-    return "";
-  }
+export function getChatDraft() {
+  return typeof chatScreen.draft === "string" ? chatScreen.draft : "";
 }
 
 export function saveChatDraft(slug, text) {
-  try {
-    const key = "harness_chat_draft_" + (slug || (state.P ? state.P.slug : "global"));
-    if (text && text.trim()) {
-      localStorage.setItem(key, text);
-    } else {
-      localStorage.removeItem(key);
-    }
-  } catch {}
+  const value = text && text.trim() ? text : null;
+  persistChatScreenState({ draft: value });
 }
 
-export function clearChatDraft(slug) {
-  try {
-    localStorage.removeItem("harness_chat_draft_" + (slug || (state.P ? state.P.slug : "global")));
-  } catch {}
+export function clearChatDraft() {
+  persistChatScreenState({ draft: null });
 }
-

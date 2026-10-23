@@ -35,13 +35,13 @@ function tela(id, titulo, escopo, rota, icone, campos, migraDe = []) {
 
 const SCREENS = [
   tela("chats", "Conversas", "projeto", "/?p=<slug>", "fa-comments", {
-    viewMode: texto(16), pageSize: inteiro(100), engineFilter: texto(32),
+    viewMode: texto(16), pageSize: inteiro(100), page: inteiro(100000), engineFilter: texto(32),
     groupFilter: texto(120), subgroupFilter: texto(120), searchQuery: texto(200),
     sortField: texto(32), sortAsc: booleano(), draft: texto(20000),
-    activeChat: objeto(60000), groups: lista(200),
+    groups: lista(200), assignments: objeto(60000),
   }, [
     "harness_chats_view_mode", "harness_chats_page_size", "harness_chat_draft_*",
-    "harness_active_chat_*", "harness_groups_*", "harness_chat_engine_settings",
+    "harness_groups_*", "harness_chat_engine_settings",
   ]),
   tela("studio", "Studio", "projeto", "/?p=<slug>&studio=1", "fa-columns", {
     activeView: texto(32), sidebarWidth: inteiro(720, 160), sourceOpen: booleano(),
@@ -111,6 +111,7 @@ const EXCLUSOES = Object.freeze([
   Object.freeze({ chave: "harness_pin", motivo: "Credencial do acesso remoto; não é estado de tela e não deve ir para o servidor." }),
   Object.freeze({ chave: "harness_active_project", motivo: "Seleção de projeto anterior a qualquer tela; permanece como reserva offline compartilhada." }),
   Object.freeze({ chave: "harness_chat_open", motivo: "Sinal efêmero da mini conversa, apenas removido; não guarda estado a restaurar." }),
+  Object.freeze({ chave: "harness_active_chat_*", motivo: "Conteúdo da conversa em andamento; volumoso demais para o limite de 64 KB do estado de tela, permanece no localStorage." }),
   Object.freeze({ chave: "hia_tokens_saved", motivo: "Contador local de telemetria HIA; não é estado de tela." }),
 ]);
 
@@ -162,7 +163,7 @@ function matchesPattern(pattern, key) {
  * @param {string} key
  */
 function isStorageKeyCovered(key) {
-  if (EXCLUSOES.some((entry) => entry.chave === key)) return true;
+  if (EXCLUSOES.some((entry) => matchesPattern(entry.chave, key))) return true;
   return SCREENS.some((entry) => entry.migraDe.some((pattern) => matchesPattern(pattern, key)));
 }
 
