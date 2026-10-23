@@ -121,6 +121,7 @@ harness-leca/
 | **Pipelines de Deploy (Controller)** | `ui/server/controllers/deploy-pipeline.controller.js` | Expõe catálogo, gravação, execução e histórico de pipelines, com escrita restrita ao loopback (EP-10.01). |
 | **Saúde dos Ambientes (Services)** | `ui/server/services/deploy/health-definitions.js`, `health-store.js` e `health-runner.service.js` | Verificações `http`/`command` com resultado real, latência medida, estado agregado por ambiente e histórico em `global/deploy-health-runs.jsonl` (EP-10.02). |
 | **Saúde dos Ambientes (Controller)** | `ui/server/controllers/deploy-health.controller.js` | Expõe o estado de saúde por ambiente, a gravação de verificações e a execução sob demanda, com escrita restrita ao loopback (EP-10.02). |
+| **Registro de Estado das Telas** | `ui/server/services/screen-state/registry.js` | Declara as 13 telas, o escopo, os campos permitidos com tipo/limite, as chaves antigas de `localStorage`, as exclusões justificadas e o saneamento com teto de 64 KB (EP-14.04). |
 
 ---
 
@@ -310,6 +311,7 @@ node --test tests/renderer-components-css.test.js   # Testa a injeção de compo
 node --test tests/prototype-semantic-parser.test.js # Testa parsing de tags x-import e extração de nós
 node --test tests/prototype-screen-decomposer.test.js # Testa decomposição de telas e anotação de data-node-id
 node --test tests/prototype-reconstruction.test.js # Testa reconstrução completa do protótipo DIS modular
+node --test tests/screen-registry.test.js           # Testa registro das 13 telas, saneamento e cobertura das chaves antigas
 ```
 
 | Caminho | Responsabilidade |
@@ -318,6 +320,7 @@ node --test tests/prototype-reconstruction.test.js # Testa reconstrução comple
 | `scripts/lib/affected-tests.js` | Mapeia arquivo staged para testes por nome e por `require`/`import` direto; sem mapa, usa o contrato fixo. |
 | `.githooks/pre-push` | Roda a suíte completa no push (e a regressão completa quando `quality/regression-enforced` existe). |
 | `tests/affected-tests.test.js` | Regressão da seleção de testes afetados, do check restrito e do hook de pre-push. |
+| `tests/screen-registry.test.js` | Regressão do registro das 13 telas, do saneamento de campos, do limite de 64 KB e da cobertura das chaves antigas do `localStorage` (EP-14.04). |
 
 - Fixtures de teste: `tests/helpers/project-fixture.js` (orquestrador), `project-fixture-design-system.js`, `project-fixture-prototype.js`, `project-fixture-design-index.js` e `project-fixture-files.js` criam um projeto temporário fora de `projects/` e devolvem `{ dir, slug, cleanup }`.
 
@@ -520,6 +523,7 @@ O `dis-design-system.html` carrega `window.DOCS` (código-fonte de cada componen
 | `docs/harness-evolution/02-epics/EP-01-window-manager/piloto-estacao-gemini.md` | Plano, aceite e riscos do piloto do Window Manager. |
 | `docs/harness-evolution/02-epics/EP-13-memoria-agentes/` | EP-13 Memória e conhecimento dos agentes: README, diagnóstico da memória atual (`00-diagnostico.md`), arquitetura-alvo em três camadas (`01-arquitetura-alvo.md`) e histórias 13.01 a 13.09. |
 | `docs/harness-evolution/02-epics/EP-14-estado-das-telas/` | EP-14 Estado das telas persistido no servidor: README (decisões, ondas, branches) e 11 histórias (14.01 a 14.11) com a lista de arquivos que cada agente pode tocar. |
+| `docs/ui/catalogo-de-telas.md` | Catálogo das 13 telas: escopo, rota, o que cada uma persiste, campos permitidos, chaves antigas migradas e exclusões justificadas (EP-14.04). |
 | `docs/harness-evolution/03-decisions/ADR-009-memoria-um-fato-por-arquivo.md` | Decisão proposta: memória curada com um fato por arquivo, índice gerado e só a vitrine projetada para os motores. |
 | `docs/harness-evolution/03-decisions/README.md` | Índice de ADRs. |
 | `docs/harness-evolution/04-test-plans/README.md` | Índice de planos de teste e comandos. |
