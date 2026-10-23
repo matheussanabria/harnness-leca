@@ -5,6 +5,7 @@ import { state } from "../shared/state.js";
 import { ds } from "./design-scrum-store.js";
 import { loadScrumData } from "./design-scrum-data.js";
 import { renderCurrentScrumView } from "./design-scrum-view.js";
+import { logScrumAction } from "./design-scrum-state.js";
 
 let draggedStory = null;
 
@@ -43,6 +44,7 @@ async function persistTransition(storyId, fromLaneId, toLaneId) {
   renderCurrentScrumView();
   focusStory(storyId);
   const lane = data.scrum.lanes?.find((item) => item.id === toLaneId);
+  void logScrumAction("transicao-de-historia", `${story?.key || storyId}:${lane?.name || toLaneId}`);
   notify(`${story?.key || storyId} movida para ${lane?.name || toLaneId}.`);
 }
 

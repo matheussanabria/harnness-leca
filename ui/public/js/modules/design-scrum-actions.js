@@ -6,6 +6,7 @@ import { ds } from "./design-scrum-store.js";
 import { renderCurrentScrumView } from "./design-scrum-view.js";
 import { loadScrumData } from "./design-scrum-data.js";
 import { renderScrumFilterBar } from "./design-scrum-filter-bar.js";
+import { persistScrumState, logScrumAction } from "./design-scrum-state.js";
 
 function findStory(id) {
   return ds.currentScrumData?.stories?.find((story) => story.id === id || story.key === id);
@@ -34,9 +35,12 @@ export function registerScrumActions() {
   window.switchScrumTab = (tab) => {
     ds.currentScrumTab = tab;
     renderCurrentScrumView();
+    void persistScrumState({ tab });
   };
   window.onSelectSprintChange = async (sprintId) => {
     ds.selectedSprintFilter = sprintId;
+    void logScrumAction("mudanca-de-sprint", sprintId);
+    void persistScrumState({ sprint: sprintId });
     if (sprintId && sprintId !== "all") {
       const slug = state.P?.name || state.S?.active;
       try {
@@ -52,6 +56,7 @@ export function registerScrumActions() {
     try {
       await postScrum("story/status", { storyId, status });
       showToast("Status da historia atualizado.");
+      void logScrumAction("transicao-de-historia", `${storyId}:${status}`);
     } catch (error) { showToast(error.message); }
   };
   window.assignStoryToSprint = async (storyId, sprintId) => {
@@ -71,18 +76,22 @@ export function registerScrumActions() {
   window.onEpicFilterChange = (value) => {
     ds.currentEpicFilter = value;
     renderCurrentScrumView();
+    void persistScrumState({ epicFilter: value });
   };
   window.onScrumSearchInput = (value) => {
     ds.currentSearchQuery = value;
     renderCurrentScrumView();
+    void persistScrumState({ filter: value });
   };
   window.onScrumAssigneeFilterChange = (value) => {
     ds.currentAssigneeFilter = value;
     renderCurrentScrumView();
+    void persistScrumState({ assigneeFilter: value });
   };
   window.onScrumImpedimentFilterChange = (checked) => {
     ds.onlyImpediments = Boolean(checked);
     renderCurrentScrumView();
+    void persistScrumState({ onlyImpediments: Boolean(checked) });
   };
   window.clearScrumFilters = () => {
     ds.currentSearchQuery = "";
@@ -91,6 +100,7 @@ export function registerScrumActions() {
     const bar = $("scrumFiltersBar");
     if (bar) bar.innerHTML = renderScrumFilterBar(ds.currentScrumData || {});
     renderCurrentScrumView();
+    void persistScrumState();
   };
   window.toggleStoryImpedimentById = async (storyId) => {
     const story = findStory(storyId);

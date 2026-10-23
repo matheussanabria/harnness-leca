@@ -8,6 +8,12 @@ import { renderScrumFilterBar } from "./design-scrum-filter-bar.js";
 import { computeStoryMetrics, renderScrumMetricsBar } from "./design-scrum-metrics.js";
 import { jiraSyncButtonHtml } from "./design-scrum-jira-sync.js";
 import { visibleStories } from "./design-scrum-filters.js";
+import { hydrateScrumState, isScrumStateHydrated } from "./design-scrum-state.js";
+
+function restoreSelectedStory() {
+  if (!ds.selectedStoryId || typeof window === "undefined") return;
+  window.openStoryDetailsById?.(ds.selectedStoryId);
+}
 
 export function renderScrumWorkspace(container, projectSlug, scrumData) {
   ds.currentScrumData = scrumData;
@@ -26,6 +32,18 @@ export function renderScrumWorkspace(container, projectSlug, scrumData) {
     <aside id="scrumStoryDrawer" class="scrum-story-drawer" role="dialog" aria-modal="false" aria-labelledby="storyDrawerTitle" hidden></aside>
   </div>`;
   renderCurrentScrumView();
+
+  if (isScrumStateHydrated()) {
+    restoreSelectedStory();
+    return;
+  }
+  hydrateScrumState().then((changed) => {
+    if (!changed || ds.currentScrumData !== scrumData) {
+      restoreSelectedStory();
+      return;
+    }
+    renderScrumWorkspace(container, projectSlug, scrumData);
+  });
 }
 
 export function renderCurrentScrumView() {

@@ -3,6 +3,7 @@
 import { esc } from "../shared/dom.js";
 import { md } from "../shared/markdown.js";
 import { ds } from "./design-scrum-store.js";
+import { persistScrumState } from "./design-scrum-state.js";
 
 function storyById(id) {
   return ds.currentScrumData?.stories?.find((story) => story.id === id || story.key === id);
@@ -143,6 +144,7 @@ export function registerStoryDrawer() {
     if (!story) return;
     ds.selectedStoryId = story.id;
     ds.storyDrawerReturnFocus = document.activeElement;
+    void persistScrumState({ selectedStory: story.id });
     const drawer = document.getElementById("scrumStoryDrawer");
     if (!drawer) return;
     drawer.innerHTML = renderStoryDetails(story);
@@ -155,6 +157,8 @@ export function registerStoryDrawer() {
     if (!drawer) return;
     drawer.classList.remove("is-open");
     drawer.hidden = true;
+    ds.selectedStoryId = null;
+    void persistScrumState({ selectedStory: "" });
     ds.storyDrawerReturnFocus?.focus?.();
   };
   window.addEventListener("keydown", (event) => {
