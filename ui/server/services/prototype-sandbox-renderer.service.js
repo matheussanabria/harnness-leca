@@ -3,69 +3,12 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { getPrototypesBaseDir } = require("./prototype-storage.service");
-
-/**
- * Carrega estilos auxiliares e de tokens para o sandbox.
- * @param {string} projectDir
- * @param {string} protoDir
- * @param {object} deps
- * @returns {{ tokensCss: string, themeCss: string, componentsCss: string, protoCss: string, headHtml: string }}
- */
-function loadSandboxAssets(projectDir, protoDir, deps) {
-  let tokensCss = "";
-  let themeCss = "";
-  let componentsCss = "";
-  let protoCss = "";
-  let headHtml = "";
-
-  const dsDir = deps.path.join(projectDir, "design", "ds");
-  const tokensFile = deps.path.join(dsDir, "tokens.css");
-  const themeFile = deps.path.join(dsDir, "theme.css");
-
-  if (deps.fs.existsSync(tokensFile)) {
-    try { tokensCss = deps.fs.readFileSync(tokensFile, "utf8"); } catch {}
-  }
-  if (deps.fs.existsSync(themeFile)) {
-    try { themeCss = deps.fs.readFileSync(themeFile, "utf8"); } catch {}
-  }
-
-  const componentsFile = deps.path.join(dsDir, "components.css");
-  if (deps.fs.existsSync(componentsFile)) {
-    try { componentsCss = deps.fs.readFileSync(componentsFile, "utf8"); } catch {}
-  }
-
-  const protoCssFile = deps.path.join(protoDir, "styles", "proto.css");
-  if (deps.fs.existsSync(protoCssFile)) {
-    try { protoCss = deps.fs.readFileSync(protoCssFile, "utf8"); } catch {}
-  }
-
-  const headFile = deps.path.join(protoDir, "head.html");
-  if (deps.fs.existsSync(headFile)) {
-    try { headHtml = deps.fs.readFileSync(headFile, "utf8"); } catch {}
-  }
-
-  return { tokensCss, themeCss, componentsCss, protoCss, headHtml };
-}
-
-/** Scripts da ponte, na ordem de execução: medidas/prévia, ponte principal e arrastar para reordenar. */
-const BRIDGE_FILES = ["prototype-bridge-props.js", "prototype-bridge.js", "prototype-bridge-drag.js"];
-
-/**
- * Lê os scripts da ponte de comunicação do harness e os junta em um único bloco.
- * @param {object} deps
- * @returns {string}
- */
-function loadBridgeScript(deps) {
-  const dir = deps.path.resolve(__dirname, "..", "..", "public", "js", "modules");
-  return BRIDGE_FILES.map((name) => {
-    const file = deps.path.join(dir, name);
-    if (!deps.fs.existsSync(file)) return "";
-    try { return deps.fs.readFileSync(file, "utf8"); } catch { return ""; }
-  }).filter(Boolean).join("\n;\n");
-}
+const { loadSandboxAssets, loadBridgeScript, buildSandboxHeaders } = require("./prototype-sandbox-common.service");
+const { renderDcScreen } = require("./prototype-sandbox-dc.service");
 
 /**
  * Renderiza uma tela de protótipo em sandbox iframe isolada e segura.
+ * Protótipos com metadata.runtime === "dc" (importados de .dc.html) seguem pelo ramo DC.
  * @param {string} projectDir
  * @param {string} repoRoot
  * @param {string} protoId
@@ -87,6 +30,10 @@ function renderSandboxScreen(projectDir, repoRoot, protoId, screenId, options = 
     try {
       protoManifest = JSON.parse(deps.fs.readFileSync(protoJsonFile, "utf8"));
     } catch {}
+  }
+
+  if (protoManifest?.metadata?.runtime === "dc") {
+    return renderDcScreen(projectDir, protoDir, protoId, protoManifest, screenId, deps);
   }
 
   const targetScreen = screenId || protoManifest?.screens?.[0]?.id || "home";
@@ -131,28 +78,13 @@ ${safeScreenHtml}
 </body>
 </html>`;
 
-  const cspHeader = [
-    "default-src 'none'",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
-    "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
-    "img-src 'self' data: blob:",
-    `script-src 'self' https://cdnjs.cloudflare.com 'nonce-${nonce}' 'unsafe-eval'`,
-    "connect-src 'none'",
-    "frame-src 'none'",
-  ].join("; ");
-
   return {
     ok: true,
     status: 200,
     html: fullHtml,
     nonce,
     manifest: protoManifest,
-    headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      "Content-Security-Policy": cspHeader,
-      "X-Content-Type-Options": "nosniff",
-      "X-Frame-Options": "SAMEORIGIN",
-    },
+    headers: buildSandboxHeaders(nonce),
   };
 }
 
