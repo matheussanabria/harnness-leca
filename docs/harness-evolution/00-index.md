@@ -7,7 +7,7 @@ atualizado: 2026-10-21
 
 Documento mestre do programa de evolução. Cada entrega aceita tem um documento próprio em `02-epics/`, para que um agente receba só a história que vai implementar e as dependências dela.
 
-> Snapshot verificado em 2026-10-22: 104/126 entregas concluídas e links locais válidos. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
+> Snapshot verificado em 2026-10-22: 106/126 entregas concluídas e links locais válidos. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
 
 ## Como usar
 
@@ -38,7 +38,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-11](02-epics/EP-11-auditoria-qualidade/README.md) | Auditoria, testes e Design System | P2 | Em andamento; 11.01, 11.02 e 11.03 aceitas; frente opencode/qualidade | 3/5 |
 | [EP-12](02-epics/EP-12-prototype-engine/README.md) | Prototype Engine & Design System Multiframework | P1 | Concluído | 32/32 |
 | [EP-13](02-epics/EP-13-memoria-agentes/README.md) | Memória e conhecimento dos agentes | P1 | Especificado; frente `memoria`, aberta a qualquer motor | 0/9 |
-| [EP-14](02-epics/EP-14-estado-das-telas/README.md) | Estado das telas persistido no servidor | P1 | Especificado; branches `ep14/<id>`, delegável ao opencode | 4/11 |
+| [EP-14](02-epics/EP-14-estado-das-telas/README.md) | Estado das telas persistido no servidor | P1 | Especificado; branches `ep14/<id>`, delegável ao opencode | 6/11 |
 
 ## 2. Dependências
 
@@ -54,7 +54,7 @@ flowchart TD
     MOD --> OPS["EP-09 a EP-12 Operação, qualidade e protótipos"]
 ```
 
-## 3. Backlog (104/126)
+## 3. Backlog (106/126)
 
 Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a criação e o aceite do documento da história. EP-12 detalha as 32 histórias do motor multiframework. `HAR-xxx` indica o item equivalente do [backlog da Fase 0](08-prioritized-backlog.md).
 
@@ -201,13 +201,13 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [ ] [13.08](02-epics/EP-13-memoria-agentes/13.08-colheita-memorias-nativas.md) Colheita das memórias nativas para a oficina
 - [ ] [13.09](02-epics/EP-13-memoria-agentes/13.09-faxina-periodica.md) Faxina periódica com relatório
 
-### EP-14 Estado das telas persistido no servidor (4/11)
+### EP-14 Estado das telas persistido no servidor (6/11)
 - [x] [14.01](02-epics/EP-14-estado-das-telas/14.01-fixtures-testes.md) Fixtures de teste independentes de projects/
 - [x] [14.02](02-epics/EP-14-estado-das-telas/14.02-pre-commit-rapido.md) Pre-commit rápido com testes afetados
 - [x] [14.03](02-epics/EP-14-estado-das-telas/14.03-executor-opencode.md) Executor de pacotes do opencode em worktree
 - [x] [14.04](02-epics/EP-14-estado-das-telas/14.04-registro-telas.md) Registro e catálogo das 13 telas
-- [ ] [14.05](02-epics/EP-14-estado-das-telas/14.05-endpoints-estado.md) Serviço e endpoints de estado e histórico por tela
-- [ ] [14.06](02-epics/EP-14-estado-das-telas/14.06-cliente-estado.md) Cliente de estado de tela
+- [x] [14.05](02-epics/EP-14-estado-das-telas/14.05-endpoints-estado.md) Serviço e endpoints de estado e histórico por tela
+- [x] [14.06](02-epics/EP-14-estado-das-telas/14.06-cliente-estado.md) Cliente de estado de tela
 - [ ] [14.07](02-epics/EP-14-estado-das-telas/14.07-telas-chat-grupos.md) Adoção em chats, grupos, skills e projetos
 - [ ] [14.08](02-epics/EP-14-estado-das-telas/14.08-telas-studio-atelie.md) Adoção no Studio e no Ateliê
 - [ ] [14.09](02-epics/EP-14-estado-das-telas/14.09-telas-design.md) Adoção em scrum, layers, board, audit, artifacts e routines
@@ -221,7 +221,7 @@ Os três chats usam o motor OpenCode; o que os distingue é a **frente**, e é e
 1. **opencode/qualidade:** 09.02 (event log, projeções e recuperação SSE) em andamento; 09.04 e 09.05 detalhadas em documentação; 11.05 (regressão automatizada) e a dívida de tipos. Destrava o restante do EP-09.
 2. **opencode/deploy:** EP-10 encerrado (5/5): pipelines, saude por ambiente, linha do tempo com logs, acoes autorizadas e paridade com o escritorio; proxima frente: EP-11 (11.04 e 11.05) ou apoio ao EP-09.
 3. **opencode/jira:** integração com o Jira (snapshot, consulta e sincronização com o quadro).
-4. EP-03 e EP-06 encerrados (9/9 e 5/5); 104/126 global; EP-13 especificado, com 13.01 e 13.02 prontas para iniciar na frente `memoria` (qualquer motor, registrado no ledger). Cada chat commita apenas os arquivos da própria frente, por caminho.
+4. EP-03 e EP-06 encerrados (9/9 e 5/5); 106/126 global; EP-13 especificado, com 13.01 e 13.02 prontas para iniciar na frente `memoria` (qualquer motor, registrado no ledger). Cada chat commita apenas os arquivos da própria frente, por caminho.
 5. A próxima história de EP-09/EP-10/EP-11 deve ser criada e aceita a partir do template antes da implementação.
 6. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
 7. A divisão completa e os handoffs obrigatórios estão no [painel de coordenação](05-progress/multi-agent-sync.md).
