@@ -46,5 +46,11 @@ if (require.main === module) {
     } catch {
       /* o servidor segue sem o scanner */
     }
+    // Uso por chamada do Claude Code a partir dos transcritos (T3.1): HARNESS_USAGE=0 desliga.
+    try {
+      require("./server/services/usage-ingest/usage-runtime").startUsageIngest();
+    } catch {
+      /* o servidor segue sem a ingestao de uso */
+    }
   });
 }

@@ -60,3 +60,33 @@
 | `ui/public/js/office/office-engine-summary.js` | Shared per-engine summary used by Central cards, war-room board and HUD (larger of canonical state and running executions). |
 | `tests/office-presence-reducer.test.js` | Tests for the office reducer rule with external sessions: processing, open, no double counting, older servers, staleness. |
 | `tests/office-engine-summary.test.js` | Tests for the dossier formatter, the engine summary, the rendered Central card and the war board. |
+| `tools/lib/pricing/prices.json` | Versioned price table (per million tokens) from official provider pages, each model with sourceUrl and retrievedAt; `reviewStatus: pending-user-review`. |
+| `tools/lib/pricing/index.js` | `estimateCost`: API-equivalent cost estimate from token counts; null when model or counts are unknown, never turns null into 0. |
+| `tools/lib/pricing/loader.js` | Loads and validates `prices.json` (rejects entries without source), memoised. |
+| `tools/pricing.js` | CLI to list the price table and estimate a cost from token counts. |
+| `tests/pricing.test.js` | Tests for the estimator: arithmetic, null handling, model id normalisation, cache rates, table validation. |
+| `ui/server/services/usage-ingest/usage-config.js` | Constants and limits of the Claude usage ingest, with notes on the real transcript shape. |
+| `ui/server/services/usage-ingest/transcript-reader.js` | Incremental byte reader of transcripts: complete lines only, holds a partial last line. |
+| `ui/server/services/usage-ingest/call-normalizer.js` | Allow-list extraction of usage per call, streaming merge to the final value, `usage.observed` body (no text kept). |
+| `ui/server/services/usage-ingest/file-discovery.js` | Stat-only discovery of transcript and subagent files with cold-file caching. |
+| `ui/server/services/usage-ingest/checkpoint-store.js` | Per-project checkpoint JSON (offset, size, mtime) written atomically. |
+| `ui/server/services/usage-ingest/usage-cost.js` | Guarded call to the pricing estimator: missing module, null or error gives cost null. |
+| `ui/server/services/usage-ingest/usage-ingestor.js` | Bounded ingest tick: reads appended bytes, merges calls, publishes `usage.observed` idempotently. |
+| `ui/server/services/usage-ingest/usage-runtime.js` | Starts the usage ingest at server boot (`HARNESS_USAGE=0` disables), exposes stats. |
+| `ui/server/services/usage-ingest/usage-summary.js` | SQL read model for `GET /api/project/:slug/usage/summary` with coverage. |
+| `tests/usage-ingest.test.js` | Tests for the usage ingest: dedup, incremental reads, replay, truncation, null vs zero, sidechain, privacy sentinels, bounds. |
+| `tests/usage-ingest-http.test.js` | Tests for the usage summary endpoint, runtime disable and error counting. |
+| `tests/usage-ingest-fixtures.js` | Shared transcript fixtures for the usage ingest tests (not a test file). |
+| `ui/server/services/usage-ingest/usage-range.js` | Parses `since`/`window`/`until` for the usage summary (24h, 7d, 14d, all); invalid or conflicting input is a 400. |
+| `ui/server/services/usage-ingest/usage-pricing-info.js` | Reads pricing table metadata (version, reviewStatus, retrievedAt) for the summary; null fields when the module is unavailable. |
+| `tests/usage-summary-extended.test.js` | Tests for origin split, `groupBy=origin`, unpriced models, pricing metadata, window presets, 400s and 20k-event timing. |
+| `ui/public/js/modules/usage-format.js` | Formatters of the consumption panel: compact K/M/B with exact title, cost, share percent; null renders as n/d. |
+| `ui/public/js/modules/usage-view-model.js` | Builds the consumption view model: cards, main vs subagent split, per-day buckets, models, sessions, coverage, notices. |
+| `ui/public/js/modules/usage-view.js` | HTML sections of the consumption panel. |
+| `ui/public/js/modules/usage-render.js` | Composes loading, error, disabled, empty and ready states of the consumption panel. |
+| `ui/public/js/modules/usage-api.js` | Fetches `/usage/summary` for day, model and session groupings with an abort signal. |
+| `ui/public/js/modules/usage-panel.js` | Controller of the consumption panel: 30 s polling only while visible, abort, window selector, retry. |
+| `ui/public/js/office3d/orchestration/tab-usage.js` | The Consumo tab of the Centro de Orquestracao (render, setup, unmount). |
+| `ui/public/css/office/19-usage-panel.css` | Styles of the consumption panel using the office dark theme tokens. |
+| `tests/usage-tab-model.test.js` | Tests for the consumption pure logic: formatters, view model, split math, null-never-zero. |
+| `tests/usage-tab-panel.test.js` | Fake-DOM tests for the consumption panel: states, polling stop when hidden, abort, retry. |
