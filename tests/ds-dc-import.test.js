@@ -64,10 +64,12 @@ test("buildTokensCss reports tokens the palette does not define", () => {
 
 test("buildIndex is compact and names the palette, tokens and components", () => {
   const { components } = extractDcDocs(FIXTURE);
-  const index = buildIndex(components, ["--primary-dark"], "T");
+  const index = buildIndex(components, ["--primary-dark", "--danger-muted", "--unknown-token"], "T");
   assert.ok(index.includes("Palette: T"));
   assert.ok(index.includes("- button | Button | default · hover | classes: btn btn--primary"));
-  assert.ok(index.includes("--primary-dark"));
+  assert.ok(index.includes("--primary-dark: hover and pressed state of primary actions"));
+  assert.ok(index.includes("--danger-muted: danger status border"));
+  assert.ok(/^--unknown-token$/m.test(index), "tokens without a known role are still listed");
 });
 
 test("run writes tokens, components, index and per-component files, and flags missing tokens", () => {

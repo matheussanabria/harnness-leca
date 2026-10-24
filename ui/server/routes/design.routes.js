@@ -35,6 +35,7 @@ const {
   apiPrototypesExportSingleHtml,
 } = require("../controllers/prototype.controller");
 const { apiPrototypeTraceability } = require("../controllers/prototype-traceability.controller");
+const { apiAtelierQualityContext } = require("../controllers/atelier-quality.controller");
 const { apiPrototypesUnextractComponent, apiPrototypesDelete } = require("../controllers/prototype-component.controller");
 const {
   apiPrototypesHistoryList,
@@ -59,6 +60,7 @@ const designRoutes = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry\/([\w.-]+)\/source$/, handler: apiRegistryComponentSource },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/registry\/([\w.-]+)$/, handler: apiRegistryGetComponent },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes$/, handler: apiPrototypesList },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/atelier\/quality-context$/, handler: apiAtelierQualityContext },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes$/, handler: apiPrototypesCreate },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/import-artifact\/([\w-]+)$/, handler: apiPrototypesImportArtifact },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)$/, handler: apiPrototypesGet },

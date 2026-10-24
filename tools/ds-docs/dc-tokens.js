@@ -26,20 +26,47 @@ function buildComponentsCss(components) {
   return components.map((c) => `/* ${c.name} (${c.id}) */\n${c.css.trim()}\n`).join("\n");
 }
 
+const TOKEN_ROLES = {
+  "--primary-interactive": "buttons, links and active controls",
+  "--primary-dark": "hover and pressed state of primary actions",
+  "--primary-headings": "headings and strong brand text",
+  "--primary-background": "soft brand-tinted surfaces",
+  "--neutral-dark": "strong text",
+  "--neutral-base": "secondary text and icons",
+  "--neutral-muted": "borders of inputs and controls",
+  "--neutral-light": "dividers and disabled fills",
+  "--neutral-background": "page and card surfaces",
+  "--highlight-focus": "keyboard focus ring",
+  "--highlight-dark": "environment banner",
+  "--font-sans": "body text",
+  "--font-display": "display headings",
+  "--font-mono": "labels and code",
+  "--spacing-scale-base": "grid gap and spacing unit",
+};
+const STATUS_ROLES = { base: "status colour", dark: "status text", background: "status surface", muted: "status border" };
+
+/** Short purpose of a token, or an empty string when unknown. */
+function tokenRole(name) {
+  if (TOKEN_ROLES[name]) return TOKEN_ROLES[name];
+  const status = /^--(danger|success|warning)-(base|dark|background|muted)$/.exec(name);
+  return status ? `${status[1]} ${STATUS_ROLES[status[2]]}` : "";
+}
+
 /**
- * Compact index the prompt reads: one line per component plus the token names.
+ * Compact index the prompt reads: token names with their roles, then one line per component.
  * @param {Array<{id:string,name:string,states:string,html:string}>} components
  * @param {string[]} tokenNames
  */
 function buildIndex(components, tokenNames, paletteName = "palette") {
   const rows = components.map((c) => `- ${c.id} | ${c.name} | ${c.states} | classes: ${classNames(c.html).slice(0, 8).join(" ")}`);
+  const tokenRows = tokenNames.map((name) => (tokenRole(name) ? `${name}: ${tokenRole(name)}` : name));
   return [
     "# Design System index",
     "",
     `Palette: ${paletteName}. Use these components and class names; do not invent equivalents. Colours, spacing and fonts come from the tokens below.`,
     "",
-    "## Tokens",
-    tokenNames.join(" "),
+    "## Tokens (name: role)",
+    ...tokenRows,
     "",
     "## Components (id | name | states | classes)",
     ...rows,
