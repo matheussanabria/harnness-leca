@@ -19,7 +19,11 @@ fs.writeFileSync(path.join(proj, "chats", "2026-01-01-a-aaaaaaaa.md"), '---\ntit
 fs.writeFileSync(path.join(proj, "context", "ref.md"), "contexto\n");
 fs.writeFileSync(path.join(proj, "extraction-state.json"), "{}"); // existe, mas /api/file não pode servir
 fs.writeFileSync(path.join(TMP_ROOT, "global", "instructions.md"), "global");
-test.after(() => fs.rmSync(TMP_ROOT, { recursive: true, force: true }));
+test.after(() => {
+  // O chat publica o ciclo de vida no event log (SQLite); no Windows o handle aberto bloqueia a remocao.
+  require("../ui/server/services/events/event-store").closeStore("demo");
+  fs.rmSync(TMP_ROOT, { recursive: true, force: true });
+});
 
 const E = require("../tools/lib/engines");
 const { createServer } = require("../ui/server");

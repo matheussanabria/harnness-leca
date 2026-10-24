@@ -10,6 +10,8 @@ const registry = require("./session-registry.service");
 /**
  * Publica no event log (EP-09.02) o que a varredura descobriu.
  * O log é a fonte da verdade das projeções; aqui só registramos o fato.
+ * Idempotente: cada sessão usa a chave `session.discovered:<id>` (por provider), então uma nova
+ * varredura que descobre UMA sessão nova não republica as já conhecidas (o log deduplica).
  * @param {string} slug
  * @param {object[]} sessions
  * @param {number} inserted
@@ -24,6 +26,7 @@ function publishDiscovered(slug, sessions, inserted) {
         type: "session.discovered",
         sessionId: session.id,
         source: { provider: session.primaryProvider || "harness", kind: "discovery" },
+        idempotencyKey: `session.discovered:${session.id}`,
         trust: session.projectConfidence === "inferred" ? "inferred" : "observed",
         payload: { provider: session.primaryProvider, title: session.title },
       });
@@ -132,4 +135,4 @@ function countBy(sessions, field) {
   return out;
 }
 
-module.exports = { scanProject, readCentral };
+module.exports = { scanProject, readCentral, publishDiscovered };

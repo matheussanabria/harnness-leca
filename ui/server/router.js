@@ -133,8 +133,9 @@ const ROUTES = [
   ...artifactRoutes,
   ...skillBindingRoutes,
   ...auditRoutes,
-  ...canonicalSessionRoutes,
+  // centralEventRoutes antes: /sessions/stream precisa vencer /sessions/([^/]+) (primeiro match ganha).
   ...centralEventRoutes,
+  ...canonicalSessionRoutes,
   ...screensRoutes,
   { method: "GET", path: "/api/state", handler: apiState },
   { method: "GET", path: "/api/agents/active", handler: apiAgentsActive },

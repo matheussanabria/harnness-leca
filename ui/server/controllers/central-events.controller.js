@@ -7,7 +7,9 @@ const netLib = require("../../../tools/lib/network");
 const { getProjects, send } = require("../config");
 const { readEvents, storeStats } = require("../services/events/event-store");
 const { projectSessions, projectWorkflows, projectAttention } = require("../services/events/event-projector");
-const { createEventStream, publish } = require("../services/events/event-stream");
+const { createEventStream, resolveResumeCursor } = require("../services/events/event-stream");
+const { ingestEvent, IngestError } = require("../services/events/event-ingest");
+const { getPresenceStats } = require("../services/external-presence/presence-runtime");
 
 const SLUG_RE = /^[a-z0-9][a-z0-9_-]{0,59}$/i;
 
@@ -23,6 +25,16 @@ function queryParam(req, name) {
   } catch {
     return "";
   }
+}
+
+/**
+ * @param {any} req
+ * @param {string} name cabecalho em minusculas
+ * @returns {string}
+ */
+function headerValue(req, name) {
+  const value = req?.headers?.[name];
+  return String(Array.isArray(value) ? value[0] : value || "").trim();
 }
 
 /**
@@ -49,7 +61,7 @@ async function apiProjectEvents({ req, res, params: [slug] }) {
     types,
     sessionId: queryParam(req, "sessionId"),
   });
-  return send(res, 200, { events, cursor, stats: storeStats(slug) });
+  return send(res, 200, { events, cursor, stats: storeStats(slug), presence: getPresenceStats() });
 }
 
 /** GET /api/project/:slug/projections */
@@ -76,7 +88,7 @@ async function apiProjectEventStream({ req, res, params: [slug] }) {
   const types = queryParam(req, "types").split(",").map((item) => item.trim()).filter(Boolean);
   const stream = createEventStream(slug, {
     res,
-    cursor: queryParam(req, "cursor"),
+    cursor: resolveResumeCursor(headerValue(req, "last-event-id"), queryParam(req, "cursor")),
     types,
     sessionId: queryParam(req, "sessionId"),
   });
@@ -106,8 +118,14 @@ async function apiProjectEventPublish({ req, res, params: [slug] }) {
   } catch (err) {
     return send(res, 400, { error: err instanceof Error ? err.message : "Corpo inválido." });
   }
-  const result = publish(slug, body);
-  return send(res, 201, { event: result.event, cursor: result.cursor, duplicated: result.duplicated });
+  try {
+    const result = ingestEvent(slug, body);
+    return send(res, 201, { event: result.event, cursor: result.cursor, duplicated: result.duplicated, sanitized: result.sanitized });
+  } catch (err) {
+    // Mensagem publica generica e estavel; detalhe interno nunca vai ao cliente.
+    if (err instanceof IngestError) return send(res, err.status, { error: err.message, code: err.code });
+    throw err;
+  }
 }
 
 module.exports = { apiProjectEvents, apiProjectProjections, apiProjectEventStream, apiProjectEventPublish };

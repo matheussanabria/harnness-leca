@@ -40,5 +40,11 @@ if (require.main === module) {
       console.log(`Harness UI: http://localhost:${PORT}`);
       console.log(`(Para habilitar acesso pelo celular no Wi-Fi/4G, inicie com: npm run remote)`);
     }
+    // Presenca de sessoes externas (T2.4): HARNESS_PRESENCE=0 desliga; erros sao contados, nunca fatais.
+    try {
+      require("./server/services/external-presence/presence-runtime").startPresenceScanner();
+    } catch {
+      /* o servidor segue sem o scanner */
+    }
   });
 }

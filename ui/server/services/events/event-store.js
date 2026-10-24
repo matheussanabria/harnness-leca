@@ -9,9 +9,13 @@ const path = require("path");
 const crypto = require("crypto");
 const { DatabaseSync } = require("node:sqlite");
 const { ROOT } = require("../../../../tools/lib/root");
+const { ID_FIELDS, normalizeEnvelope, rowToEvent } = require("./event-envelope");
+const { migrate } = require("./event-migrations");
+const retention = require("./event-retention");
 
 const DB_REL = "coordination/events.sqlite";
-const MAX_EVENTS = 20000;
+/** Teto de eventos OPERACIONAIS por projeto; `usage.observed` tem regra propria (event-retention.js). */
+const MAX_EVENTS = retention.RETENTION.operationalMax;
 
 /** Alias aceitos na entrada para o evento canonico (migracao sem reescrever historico). */
 const TYPE_ALIASES = {
@@ -35,6 +39,9 @@ const TRUST_VALUES = new Set(["observed", "inferred", "declared"]);
  * @property {string | null} sessionId
  * @property {string | null} executionId
  * @property {object} payload
+ * Envelope v1 (aditivo, anulavel): schemaVersion, ingestedAt, relation e os ids de ID_FIELDS.
+ * @property {number} [schemaVersion]
+ * @property {string | null} [ingestedAt]
  */
 
 /**
@@ -59,25 +66,8 @@ function openStore(slug) {
   const file = dbPath(slug);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const db = new DatabaseSync(file);
-  db.exec(`
-    PRAGMA journal_mode = WAL;
-    CREATE TABLE IF NOT EXISTS events (
-      seq INTEGER PRIMARY KEY AUTOINCREMENT,
-      id TEXT NOT NULL UNIQUE,
-      type TEXT NOT NULL,
-      at TEXT NOT NULL,
-      source_provider TEXT NOT NULL DEFAULT '',
-      source_kind TEXT NOT NULL DEFAULT '',
-      trust TEXT NOT NULL DEFAULT 'observed',
-      project_id TEXT,
-      session_id TEXT,
-      execution_id TEXT,
-      payload TEXT NOT NULL DEFAULT '{}'
-    );
-    CREATE INDEX IF NOT EXISTS events_type ON events(type);
-    CREATE INDEX IF NOT EXISTS events_session ON events(session_id);
-    CREATE INDEX IF NOT EXISTS events_execution ON events(execution_id);
-  `);
+  db.exec("PRAGMA journal_mode = WAL");
+  migrate(db);
   connections.set(slug, db);
   return db;
 }
@@ -105,27 +95,29 @@ function normalizeEvent(input, projectId) {
     sessionId: String(input?.sessionId || "") || null,
     executionId: String(input?.executionId || "") || null,
     payload: input?.payload && typeof input.payload === "object" ? input.payload : {},
+    ...normalizeEnvelope(input),
   };
 }
 
+const ENVELOPE_COLUMN_LIST = ID_FIELDS.map(([, column]) => column);
+const INSERT_SQL = `INSERT INTO events (id, type, at, source_provider, source_kind, trust, project_id, session_id, execution_id, payload,
+  schema_version, ingested_at, relation, ${ENVELOPE_COLUMN_LIST.join(", ")})
+  VALUES (${new Array(13 + ENVELOPE_COLUMN_LIST.length).fill("?").join(", ")})
+  ON CONFLICT DO NOTHING`;
+
 /**
- * Grava um evento. Reprocessar o mesmo `id` nao duplica nada.
+ * Grava um evento. Reprocessar o mesmo `id` ou a mesma `idempotencyKey` (por source.provider)
+ * e um no-op que devolve o evento ja armazenado. ON CONFLICT DO NOTHING deixa a unicidade
+ * no banco, sem corrida entre SELECT e INSERT (ADR-TEL-004).
  * @param {string} slug
  * @param {any} input
  * @returns {{ event: HarnessEvent, cursor: string, duplicated: boolean }}
  */
 function appendEvent(slug, input) {
   const db = openStore(slug);
-  const event = normalizeEvent(input, slug);
-  const existing = db.prepare("SELECT seq FROM events WHERE id = ?").get(event.id);
-  if (existing) {
-    return { event, cursor: String(existing.seq), duplicated: true };
-  }
+  const event = /** @type {Record<string, any>} */ (normalizeEvent(input, slug));
   const info = db
-    .prepare(
-      `INSERT INTO events (id, type, at, source_provider, source_kind, trust, project_id, session_id, execution_id, payload)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    )
+    .prepare(INSERT_SQL)
     .run(
       event.id,
       event.type,
@@ -137,27 +129,25 @@ function appendEvent(slug, input) {
       event.sessionId,
       event.executionId,
       JSON.stringify(event.payload),
+      event.schemaVersion,
+      event.ingestedAt,
+      event.relation,
+      ...ID_FIELDS.map(([key]) => event[key]),
     );
-  const seq = Number(info.lastInsertRowid);
-  prune(db);
-  return { event, cursor: String(seq), duplicated: false };
-}
-
-/**
- * @param {DatabaseSync} db
- */
-function prune(db) {
-  const total = Number(db.prepare("SELECT COUNT(*) AS total FROM events").get().total || 0);
-  if (total <= MAX_EVENTS) return;
-  const cut = Number(db.prepare("SELECT seq FROM events ORDER BY seq DESC LIMIT 1 OFFSET ?").get(MAX_EVENTS).seq);
-  db.prepare("DELETE FROM events WHERE seq <= ?").run(cut);
+  if (Number(info.changes) === 0) {
+    const row = db.prepare("SELECT * FROM events WHERE id = ?").get(event.id)
+      || db.prepare("SELECT * FROM events WHERE source_provider = ? AND idempotency_key = ?").get(event.source.provider, event.idempotencyKey);
+    if (row) return { event: /** @type {HarnessEvent} */ (rowToEvent(row)), cursor: String(row.seq), duplicated: true };
+  }
+  retention.afterInsert(db, event.type);
+  return { event: /** @type {HarnessEvent} */ (event), cursor: String(Number(info.lastInsertRowid)), duplicated: false };
 }
 
 /**
  * Lê eventos a partir de um cursor (exclusivo), em ordem.
  * @param {string} slug
  * @param {{ cursor?: string, limit?: number, types?: string[], sessionId?: string }} [options]
- * @returns {{ events: HarnessEvent[], cursor: string }}
+ * @returns {{ events: HarnessEvent[], cursor: string, cursors: string[] }} `cursors[i]` e o cursor do evento i
  */
 function readEvents(slug, options = {}) {
   const db = openStore(slug);
@@ -176,19 +166,23 @@ function readEvents(slug, options = {}) {
   const rows = db
     .prepare(`SELECT * FROM events WHERE ${clauses.join(" AND ")} ORDER BY seq ASC LIMIT ?`)
     .all(...params, limit);
-  const events = rows.map((row) => ({
-    id: String(row.id),
-    type: String(row.type),
-    at: String(row.at),
-    source: { provider: String(row.source_provider || ""), kind: String(row.source_kind || "") },
-    trust: String(row.trust || "observed"),
-    projectId: row.project_id ? String(row.project_id) : null,
-    sessionId: row.session_id ? String(row.session_id) : null,
-    executionId: row.execution_id ? String(row.execution_id) : null,
-    payload: JSON.parse(String(row.payload || "{}")),
-  }));
+  const events = rows.map((row) => /** @type {HarnessEvent} */ (rowToEvent(row)));
   const last = rows.length ? String(rows[rows.length - 1].seq) : String(since);
-  return { events, cursor: last };
+  return { events, cursor: last, cursors: rows.map((row) => String(row.seq)) };
+}
+
+/**
+ * Detecta lacuna depois de um cursor: o primeiro evento sobrevivente nao e o cursor + 1, ou seja,
+ * eventos foram podados e um cliente com esse cursor perdeu historico.
+ * @param {string} slug
+ * @param {string | number} cursor
+ * @returns {{ gap: boolean, firstCursor: string }} firstCursor = primeiro cursor sobrevivente apos `cursor`
+ */
+function gapAfter(slug, cursor) {
+  const since = Math.max(Number(cursor) || 0, 0);
+  const next = openStore(slug).prepare("SELECT MIN(seq) AS seq FROM events WHERE seq > ?").get(since);
+  if (!next || next.seq === null || next.seq === undefined) return { gap: false, firstCursor: String(since) };
+  return { gap: Number(next.seq) > since + 1, firstCursor: String(next.seq) };
 }
 
 /**
@@ -219,6 +213,7 @@ function storeStats(slug) {
 function closeStore(slug) {
   const db = connections.get(slug);
   if (!db) return;
+  retention.forget(db);
   try {
     db.close();
   } catch {
@@ -234,6 +229,7 @@ module.exports = {
   openStore,
   appendEvent,
   readEvents,
+  gapAfter,
   storeStats,
   closeStore,
   normalizeEvent,

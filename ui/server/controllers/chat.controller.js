@@ -4,6 +4,7 @@ const E = require("../../../tools/lib/engines");
 const DAI = require("../../../tools/lib/dai");
 const perms = require("../../../tools/lib/permissions");
 const { handleChatWithHia } = require("../services/hia-chat-dispatcher.service");
+const { createChatRunTracker, recordCapacityRejected } = require("../services/chat-run-telemetry.service");
 const crypto = require("crypto");
 
 let runningChats = 0;
@@ -80,7 +81,10 @@ async function apiChat({ req, res }) {
   const eff = E.safeEffort(effort || (temperature != null ? effortFromTemperature(temperature) : "medium"));
   if (typeof prompt !== "string" || !prompt || !slug) return send(res, 400, { error: "prompt e slug são obrigatórios" });
   if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
-  if (runningChats >= MAX_CHATS) return send(res, 429, { error: `Já há ${MAX_CHATS} respostas em andamento. Aguarde uma terminar.` });
+  if (runningChats >= MAX_CHATS) {
+    recordCapacityRejected({ slug, engine, running: runningChats, limit: MAX_CHATS, runId: crypto.randomUUID(), traceId: body.traceId });
+    return send(res, 429, { error: `Já há ${MAX_CHATS} respostas em andamento. Aguarde uma terminar.` });
+  }
 
   runningChats++;
   const ac = new AbortController();
@@ -112,10 +116,16 @@ async function apiChat({ req, res }) {
   res.on("close", () => perms.detachChat(chatId));
   const permissionUrl = `http://127.0.0.1:${req.socket.localPort}`;
 
+  // T2.2: ciclo de vida da execucao no event log (runId = chatId); so metadados, nunca bloqueia o chat.
+  const tracker = createChatRunTracker({ slug, engine, runId: chatId, traceId: body.traceId, model, effort: eff, sessionId });
+  const tracked = tracker.wrapSink(sink, ac.signal);
+  res.on("close", () => tracker.onClose(res.writableFinished));
+  tracker.start();
+
   const fallbackStream = () => {
     const impl = E.engines.get(engine);
-    if (impl) impl.stream({ prompt, slug, sessionId, history, model, effort: eff, daiAgent, chatId, permissionUrl, signal: ac.signal, ...sink });
-    else sink.onError(new E.PublicError(`Motor "${engine}" não suportado.`));
+    if (impl) impl.stream({ prompt, slug, sessionId, history, model, effort: eff, daiAgent, chatId, permissionUrl, signal: ac.signal, ...tracked });
+    else tracked.onError(new E.PublicError(`Motor "${engine}" não suportado.`));
   };
 
   // Modo Shadow do Local AI Runtime: classifica em background sem alterar o motor real nem atrasar a resposta
@@ -125,7 +135,7 @@ async function apiChat({ req, res }) {
   } catch {}
 
   // HIA Script-First / Local-First: intercepta automações determinísticas antes de gastar cota
-  handleChatWithHia({ engine, prompt, slug, sessionId, history, signal: ac.signal, sink, fallbackStream });
+  handleChatWithHia({ engine, prompt, slug, sessionId, history, signal: ac.signal, sink: tracked, fallbackStream });
 }
 
 async function apiChatSave({ req, res }) {

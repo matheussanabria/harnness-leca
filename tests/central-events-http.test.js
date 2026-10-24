@@ -154,3 +154,21 @@ test("API de eventos - o store fecha sem quebrar a suite", () => {
   closeStore(SLUG);
   assert.ok(true);
 });
+
+test("API de eventos - POST rejeita tipo desconhecido e trust declared com erro claro", async () => {
+  const unknown = fakeRes();
+  await apiProjectEventPublish({ req: fakeReq({ body: { type: "made.up" } }), res: unknown, params: [SLUG] });
+  assert.equal(unknown.status, 422);
+  assert.equal(JSON.parse(unknown.body).code, "unknown_type");
+
+  const declared = fakeRes();
+  await apiProjectEventPublish({ req: fakeReq({ body: { type: "run.started", trust: "declared" } }), res: declared, params: [SLUG] });
+  assert.equal(declared.status, 422);
+  assert.equal(JSON.parse(declared.body).code, "trust_declared_forbidden");
+
+  const ok = fakeRes();
+  await apiProjectEventPublish({ req: fakeReq({ body: { type: "usage.observed", idempotencyKey: "k1", payload: { apiKey: "x" } } }), res: ok, params: [SLUG] });
+  assert.equal(ok.status, 201);
+  assert.equal(JSON.parse(ok.body).event.payload.apiKey, "[redacted]");
+  closeStore(SLUG);
+});
