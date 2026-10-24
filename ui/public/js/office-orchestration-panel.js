@@ -4,9 +4,10 @@ import { renderOverviewTab, renderAgentDetails, renderExecutionDetails } from ".
 import { renderJournalTab, renderJournalSessionCards } from "./office3d/orchestration/tab-journal.js";
 import { renderTimelineTab } from "./office3d/orchestration/tab-timeline.js";
 import { renderControlTab, setupControlOperations } from "./office3d/orchestration/tab-control.js";
+import { renderUsageTab, setupUsageTab } from "./office3d/orchestration/tab-usage.js";
 import { mountCentral } from "./modules/central-sessions.js";
 
-let activeTab = "overview"; // "overview", "journal", "timeline", "control", "sessions"
+let activeTab = "overview"; // "overview", "journal", "timeline", "control", "sessions", "usage"
 
 /**
  * Renderiza o conteúdo do drawer para o Centro de Orquestração ou entidades do grafo
@@ -88,6 +89,9 @@ function renderMainOrchestrationPanel(orchState, events, activeProj, state) {
       <button class="orch-tab-btn ${activeTab === 'sessions' ? 'active' : ''}" data-tab="sessions" style="flex:1;padding:7px 4px;border:none;border-radius:6px;font-weight:700;font-size:11.5px;cursor:pointer;background:${activeTab === 'sessions' ? '#0284c7' : 'transparent'};color:${activeTab === 'sessions' ? '#fff' : '#94a3b8'}" aria-pressed="${activeTab === 'sessions'}">
         <i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Sessões
       </button>
+      <button class="orch-tab-btn ${activeTab === 'usage' ? 'active' : ''}" data-tab="usage" style="flex:1;padding:7px 4px;border:none;border-radius:6px;font-weight:700;font-size:11.5px;cursor:pointer;background:${activeTab === 'usage' ? '#0284c7' : 'transparent'};color:${activeTab === 'usage' ? '#fff' : '#94a3b8'}" aria-pressed="${activeTab === 'usage'}">
+        <i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Consumo
+      </button>
     </div>
 
     <div id="orchTabContent">
@@ -96,6 +100,7 @@ function renderMainOrchestrationPanel(orchState, events, activeProj, state) {
       ${activeTab === "timeline" ? renderTimelineTab(events) : ""}
       ${activeTab === "control" ? renderControlTab(orchState, activeProj) : ""}
       ${activeTab === "sessions" ? `<div id="centralSessionsRoot" data-slug="${activeProj.replace(/"/g, "")}"></div>` : ""}
+      ${activeTab === "usage" ? renderUsageTab(activeProj) : ""}
     </div>
   `;
 }
@@ -146,4 +151,5 @@ export function setupOrchestrationPanelListeners(state, reRenderFn) {
   }
 
   setupControlOperations(state);
+  setupUsageTab();
 }
