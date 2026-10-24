@@ -174,7 +174,7 @@ test("registro: aba Consumo no painel, desmonta ao re-renderizar e CSS importado
   assert.match(panel, /data-tab="usage"/);
   assert.match(panel, /renderUsageTab\(activeProj\)/);
   assert.match(panel, /setupUsageTab\(\)/);
-  assert.match(fs.readFileSync(path.resolve("ui/public/css/office.css"), "utf8"), /19-usage-panel\.css/);
+  assert.match(fs.readFileSync(path.resolve("ui/public/css/office.css"), "utf8"), /20-usage-panel\.css/);
   const tab = await mod("office3d/orchestration/tab-usage.js");
   assert.match(tab.renderUsageTab('a"b'), /id="usagePanelRoot" class="usage-root" data-slug="ab"/);
   const doc = { getElementById: () => null };

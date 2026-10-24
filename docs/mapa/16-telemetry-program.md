@@ -87,6 +87,6 @@
 | `ui/public/js/modules/usage-api.js` | Fetches `/usage/summary` for day, model and session groupings with an abort signal. |
 | `ui/public/js/modules/usage-panel.js` | Controller of the consumption panel: 30 s polling only while visible, abort, window selector, retry. |
 | `ui/public/js/office3d/orchestration/tab-usage.js` | The Consumo tab of the Centro de Orquestracao (render, setup, unmount). |
-| `ui/public/css/office/19-usage-panel.css` | Styles of the consumption panel using the office dark theme tokens. |
+| `ui/public/css/office/20-usage-panel.css` | Styles of the consumption panel using the office dark theme tokens. |
 | `tests/usage-tab-model.test.js` | Tests for the consumption pure logic: formatters, view model, split math, null-never-zero. |
 | `tests/usage-tab-panel.test.js` | Fake-DOM tests for the consumption panel: states, polling stop when hidden, abort, retry. |
