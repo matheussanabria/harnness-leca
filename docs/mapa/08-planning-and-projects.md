@@ -28,6 +28,7 @@
 | `docs/harness-evolution/02-epics/EP-04-projetos-workspaces/04.03-persistencia-contexto-workspace.md` | Contrato e aceite do snapshot de janelas, filtros e recursos selecionados por projeto. |
 | `docs/harness-evolution/02-epics/EP-04-projetos-workspaces/04.04-templates-workspace.md` | Contrato e aceite dos quatro templates canônicos de workspace. |
 | `docs/harness-evolution/02-epics/EP-04-projetos-workspaces/04.05-protecao-alteracoes-nao-salvas.md` | Contrato, aceite e handoff do guard compartilhado de alterações não salvas. |
+| `docs/harness-evolution/02-epics/EP-08-agentes/08.06-ui-workflows.md` | História da aba Workflows: catálogo, plano por etapa, dry run, execução e avanço/cancelamento (EP-08.06). |
 | `docs/harness-evolution/02-epics/EP-09-observabilidade/` | Dossiê da Central de Sessões: diagnóstico, reuso, capacidades, modelo canônico, workflow, eventos, UI, integração e roadmap. |
 | `docs/harness-evolution/03-decisions/ADR-004-*.md` a `ADR-006-*.md` | Decisões propostas do registro canônico, persistência SQLite e estados ortogonais. |
 | `docs/harness-evolution/04-test-plans/TP-09-central-sessoes.md` | Critérios de aceite e estratégia de testes da Central de Sessões e Orquestração. |
