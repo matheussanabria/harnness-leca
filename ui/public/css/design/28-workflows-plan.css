@@ -1,0 +1,159 @@
+/* Plano, etapas e skills da aba de Workflows (EP-08.06) */
+
+.workflow-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.workflow-plan.is-dry-run {
+  border-color: rgba(45, 212, 191, 0.45);
+}
+
+.workflow-plan-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-plan-head h4 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.workflow-plan-summary {
+  margin: 0;
+  font-size: 12px;
+  color: var(--mute);
+}
+
+.workflow-warnings {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 11.5px;
+  color: #fbbf24;
+}
+
+.workflow-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.workflow-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(2, 6, 23, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.workflow-stage-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-stage-head h5 {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.workflow-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #c7d2fe;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.workflow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: #cbd5f5;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.workflow-badge.is-approval {
+  border-color: rgba(251, 191, 36, 0.5);
+  background: rgba(251, 191, 36, 0.12);
+  color: #fcd34d;
+}
+
+.workflow-badge.is-dry-run {
+  border-color: rgba(45, 212, 191, 0.5);
+  background: rgba(45, 212, 191, 0.12);
+  color: #99f6e4;
+}
+
+.workflow-agent,
+.workflow-gate,
+.workflow-permissions {
+  margin: 0;
+  font-size: 12px;
+  color: #cbd5f5;
+}
+
+.workflow-gate,
+.workflow-permissions {
+  color: var(--mute);
+}
+
+.workflow-skills {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.workflow-skill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #cbd5f5;
+}
+
+.workflow-skill.is-missing {
+  color: #fca5a5;
+}
+
+.workflow-skill.is-available i {
+  color: #86efac;
+}
+
+.workflow-skill.is-missing i {
+  color: #f87171;
+}
+
+.workflow-skill-state {
+  color: var(--mute);
+}
+
+.workflow-missing {
+  margin: 0;
+  font-size: 11.5px;
+  color: #fca5a5;
+}

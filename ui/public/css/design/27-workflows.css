@@ -1,0 +1,239 @@
+/* Aba de Workflows: catálogo, plano por etapa e execuções (EP-08.06) */
+
+.workflow-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  height: 100%;
+  overflow: auto;
+}
+
+.workflow-header h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.workflow-header p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--mute);
+}
+
+.workflow-header code {
+  color: #a5b4fc;
+}
+
+.workflow-notice:empty {
+  display: none;
+}
+
+.workflow-notice {
+  margin: 0;
+  font-size: 12px;
+  color: #93c5fd;
+}
+
+.workflow-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.workflow-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.workflow-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.workflow-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.workflow-card strong {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.workflow-card p {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--mute);
+}
+
+.workflow-card.is-selected {
+  border-color: rgba(96, 165, 250, 0.7);
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.35);
+}
+
+.workflow-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.workflow-actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.workflow-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.workflow-start,
+.workflow-refresh,
+.workflow-advance,
+.workflow-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(129, 140, 248, 0.4);
+  background: rgba(99, 102, 241, 0.16);
+  color: #c7d2fe;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.workflow-start:hover,
+.workflow-refresh:hover,
+.workflow-advance:hover {
+  background: rgba(99, 102, 241, 0.3);
+}
+
+.workflow-cancel {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.14);
+  color: #fca5a5;
+}
+
+.workflow-advance:disabled,
+.workflow-cancel:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.workflow-runs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.workflow-runs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.workflow-runs-head h4 {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.workflow-table-wrap {
+  overflow: auto;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 8px;
+}
+
+.workflow-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.workflow-table th,
+.workflow-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  text-align: left;
+  color: var(--text);
+}
+
+.workflow-table th {
+  color: var(--mute);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.workflow-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.workflow-caption {
+  caption-side: bottom;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--mute);
+  text-align: left;
+}
+
+.workflow-loading,
+.workflow-empty,
+.workflow-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px;
+  text-align: center;
+  color: var(--mute);
+  font-size: 12.5px;
+}
+
+.workflow-error {
+  color: #fca5a5;
+}
+
+.workflow-error i,
+.workflow-empty i {
+  font-size: 20px;
+}
+
+.workflow-empty-line {
+  margin: 0;
+  font-size: 12px;
+  color: var(--mute);
+}
+
+@media (max-width: 760px) {
+  .workflow-layout {
+    grid-template-columns: 1fr;
+  }
+}
