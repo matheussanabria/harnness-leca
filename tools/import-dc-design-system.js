@@ -37,7 +37,7 @@ function run(args) {
   const designRoot = path.join(args.out, "projects", args.project, "design");
   const files = [
     { rel: "ds/tokens.css", content: tokensCss },
-    { rel: "ds/components.css", content: buildComponentsCss(components) },
+    { rel: "ds/components.css", content: buildComponentsCss(components, typeof palette.overrides === "string" ? palette.overrides : "") },
     { rel: "ds/ds-index.md", content: buildIndex(components, required, palette.name) },
     ...components.flatMap((c) => [
       { rel: `ds/components/${slug(c.id)}/${slug(c.id)}.html`, content: c.html },

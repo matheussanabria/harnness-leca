@@ -79,6 +79,11 @@ function pageChecks(opts) {
     ? all.filter((el) => /^(BUTTON|INPUT|SELECT|TEXTAREA)$/.test(el.tagName) || /\bbtn\b/.test(String(el.className))).filter((el) => { const r = el.getBoundingClientRect(); return r.height < 43.5 || r.width < 43.5; }).map((el) => ({ element: sel(el), size: `${Math.round(el.getBoundingClientRect().width)}x${Math.round(el.getBoundingClientRect().height)}`, text: textOf(el) }))
     : [];
 
+  // In-page links that point at an id which does not exist.
+  const brokenAnchors = [...document.querySelectorAll('a[href^="#"]')]
+    .filter((a) => a.getAttribute("href").length > 1 && !document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))))
+    .map((a) => ({ element: sel(a), href: a.getAttribute("href"), text: textOf(a) }));
+
   const structure = {
     h1: document.querySelectorAll("h1").length,
     landmarks: ["header", "nav", "main", "footer"].filter((t) => document.querySelector(t)),
@@ -87,7 +92,7 @@ function pageChecks(opts) {
   };
 
   const cut = (list) => ({ count: list.length, items: list.slice(0, max) });
-  return { width: vw, overflow, lowContrast: cut(lowContrast), unstyledLinks: cut(unstyledLinks), defaultFont: cut(defaultFont), smallTargets: cut(smallTargets), structure };
+  return { width: vw, overflow, lowContrast: cut(lowContrast), unstyledLinks: cut(unstyledLinks), defaultFont: cut(defaultFont), smallTargets: cut(smallTargets), brokenAnchors: cut(brokenAnchors), structure };
 }
 
 module.exports = { pageChecks };
