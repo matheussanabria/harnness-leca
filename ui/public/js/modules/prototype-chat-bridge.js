@@ -2,6 +2,7 @@
 // Liga o chat do Studio ao Ateliê: instrui o modelo sobre o protótipo aberto e grava a resposta nele.
 import { showToast } from "../shared/dom.js";
 import { logAtelierAction } from "./prototype-atelier-state.js";
+import { buildQualityRules, directionsReminder, loadQualityContext, parseQualityCommand } from "./prototype-prompt-quality.js";
 
 /** @type {{ slug: string, protoId: string, getScreen: () => string, reload: () => void, mcpServer?: string } | null} */
 let active = null;
@@ -66,13 +67,27 @@ export async function wrapAtelierPrompt(text, opts = {}) {
   const changed = loaded && (fresh || sent.screen !== screen || sent.hash !== hash);
   if (loaded) sent = { protoId, screen, hash };
   else if (fresh) sent = null;
-  if (!fresh && !changed) return text;
+  // Opt-in quality prompt (project profile flag). Off keeps the legacy prompt below exactly as before.
+  const cmd = parseQualityCommand(text);
+  const quality = fresh || cmd.mode === "directions" ? await loadQualityContext(slug) : { enabled: false };
+  if (quality.reason === "design-system-missing") showToast("Quality prompt is on but the Design System is not imported for this project. Using the standard prompt.");
+  const q = quality.enabled;
+  const directions = q && cmd.mode === "directions";
+  const request = q ? cmd.text : text;
+  if (!fresh && !changed) return directions ? `${directionsReminder()}\n\nUser request:\n${request}` : text;
 
-  const code = `Protótipo: ${protoId} (tela ativa: ${screen})\nCódigo atual:\n<arquivo caminho="screens/${screen}.html">\n${html}\n</arquivo>\n<arquivo caminho="styles/proto.css">\n${css}\n</arquivo>`;
-  if (!fresh) return `O protótipo mudou desde a última mensagem.\n${code}\n\nPedido do usuário:\n${text}`;
+  const blocks = `<arquivo caminho="screens/${screen}.html">\n${html}\n</arquivo>\n<arquivo caminho="styles/proto.css">\n${css}\n</arquivo>`;
+  const code = q
+    ? `Prototype: ${protoId} (active screen: ${screen})\nCurrent code:\n${blocks}`
+    : `Protótipo: ${protoId} (tela ativa: ${screen})\nCódigo atual:\n${blocks}`;
+  if (!fresh) {
+    if (!q) return `O protótipo mudou desde a última mensagem.\n${code}\n\nPedido do usuário:\n${text}`;
+    return `The prototype changed since the last message.\n${code}${directions ? `\n\n${directionsReminder()}` : ""}\n\nUser request:\n${request}`;
+  }
   const mcpRule = active.mcpServer
     ? `\n\nAntes de criar ou alterar markup, consulte o MCP ${active.mcpServer}. Use plan_screen para planejar e get_component_kit/get_boilerplate para reutilizar os componentes existentes; não invente componentes equivalentes.`
     : "";
+  if (q) return `${buildQualityRules(quality, directions ? "directions" : "compose")}${mcpRule}${loaded ? `\n\n${code}` : ""}\n\nUser request:\n${request}`;
   return `${RULES}${mcpRule}${loaded ? `\n\n${code}` : ""}\n\nPedido do usuário:\n${text}`;
 }
 

@@ -159,6 +159,8 @@ function savePrototypeFiles(projectDir, protoId, files, metadata = {}, deps = { 
     ...(protoJson.metadata || {}),
     updatedAt: new Date().toISOString(),
     lastEngine: metadata.engine || "manual",
+    // The sandbox loads the Design System component CSS only for prototypes that ask for it.
+    ...(metadata.dsComponents === true ? { dsComponents: true } : {}),
   };
 
   deps.fs.writeFileSync(protoJsonFile, JSON.stringify(protoJson, null, 2), "utf8");
