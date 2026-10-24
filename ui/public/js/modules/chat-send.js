@@ -13,6 +13,7 @@ import { chatPresentation } from "./chat-presentations.js";
 import { isChatStreamingFor, setChatStreaming, setChatAbortController } from "./chat-execution-store.js";
 import { getEngineSession, setEngineSession } from "./chat-session-store.js";
 import { hiaStatusFromThinking, applyHiaDone, applyHiaFeedback } from "./chat-hia-feedback.js";
+import { newComparisonTraceId } from "./chat-trace-id.js";
 
 export async function sendChatMessage(presentation = "main") {
   const P = state.P;
@@ -50,7 +51,7 @@ export async function sendChatMessage(presentation = "main") {
 
   // MODO COMPARATIVO: dispara todos os motores selecionados em paralelo
   if (cs.currentEngine === "compare") {
-    const activeEngines = [...cs.compareSelectedEngines];
+    const activeEngines = [...cs.compareSelectedEngines], traceId = newComparisonTraceId(); // 1 por comparação
     if (!activeEngines.length) {
       alert("Selecione pelo menos um motor para comparar.");
       return;
@@ -91,7 +92,7 @@ export async function sendChatMessage(presentation = "main") {
           headers: { "Content-Type": "application/json" },
           signal: ac.signal,
           body: JSON.stringify({
-            engine: eng,
+            engine: eng, traceId,
             prompt: promptText,
             slug: P.slug,
             sessionId: getEngineSession(P.slug, chatId, eng),

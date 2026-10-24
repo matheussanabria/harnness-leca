@@ -1,5 +1,7 @@
 // @ts-check
 // DAI HQ — M2 Orquestração: Aba de Visão Geral & Dossiês de Entidades
+import { officeAgentState } from "../../office/office-agent-state.js";
+import { summarizeEngine } from "../../office/office-engine-summary.js";
 
 /**
  * Aba 1: Visão Geral de Orquestração
@@ -18,10 +20,13 @@ export function renderOverviewTab(orchState, activeProj) {
   ];
 
   const intCardsHtml = providers.map(p => {
-    const isConn = p.info?.status === "connected";
-    const statusText = isConn ? "CONECTADO" : (p.info?.status || "STANDBY").toUpperCase();
+    // Mesmo resumo do telão e do dossiê: execução em andamento ou sessão aberta nunca aparece como STANDBY.
+    const sum = summarizeEngine(p.key, { agentState: officeAgentState.getAgentState(p.key), executions, integration: p.info });
+    const isConn = p.info?.status === "connected" || sum.state !== "integration";
+    const statusText = sum.state === "working" ? "ATIVO" : isConn ? "CONECTADO" : (p.info?.status || "STANDBY").toUpperCase();
     const statusColor = isConn ? "#22c55e" : (p.info?.status === "error" ? "#ef4444" : "#94a3b8");
-    const count = p.info?.activeCount || 0;
+    const count = sum.activeCount;
+    const openNote = sum.openCount > 0 ? ` · ${sum.openCount} ${sum.openCount === 1 ? "aberta" : "abertas"}` : "";
     const latency = p.info?.latencyMs ? `${p.info.latencyMs}ms` : "-";
 
     return `
@@ -31,7 +36,7 @@ export function renderOverviewTab(orchState, activeProj) {
           <span style="font-size:10px;font-weight:800;color:${statusColor};background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px">● ${statusText}</span>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#94a3b8">
-          <span>Execuções: <b style="color:#f8fafc">${count}</b></span>
+          <span>Execuções: <b style="color:#f8fafc">${count}</b>${openNote}</span>
           <span>Latência: <b style="color:#f8fafc">${latency}</b></span>
         </div>
       </div>

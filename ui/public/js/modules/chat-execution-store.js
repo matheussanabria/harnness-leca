@@ -35,9 +35,9 @@ export function isChatStreamingFor(slug, chatId) {
   return chatExecutionFor(slug, chatId).streaming;
 }
 
-function notifyExecution(slug, chatId) {
+function notifyExecution(slug, chatId, finalState = null) {
   const key = chatSessionKey(slug, chatId);
-  const state = executionByChat.get(key);
+  const state = finalState || executionByChat.get(key);
   if (!state) return;
   const subs = listenersByChat.get(key);
   const snapshot = {
@@ -47,6 +47,7 @@ function notifyExecution(slug, chatId) {
     errorMessage: state.errorMessage,
     startedAt: state.startedAt,
     controllersCount: state.controllers.size,
+    controllerEngines: [...state.controllers.keys()],
   };
   if (subs) {
     subs.forEach((cb) => {
@@ -56,6 +57,37 @@ function notifyExecution(slug, chatId) {
   globalListeners.forEach((cb) => {
     try { cb({ slug, chatId, ...snapshot }); } catch {}
   });
+}
+
+function isWorking(execution) {
+  return execution.streaming || execution.status === "waiting_approval";
+}
+
+/**
+ * Engines a chat is running on: its currentEngine plus every engine holding an abort
+ * controller (compare mode registers one controller per compared engine).
+ */
+function enginesOf(execution) {
+  const engines = new Set(execution.controllers.keys());
+  if (execution.currentEngine) engines.add(execution.currentEngine);
+  return engines;
+}
+
+/**
+ * Counts, across all projects and chats of this document, the chats working for an engine.
+ * Browser-local: it does not see chats running in other tabs.
+ * @param {string} engine
+ * @returns {{ count: number, waitingApproval: number }}
+ */
+export function countActiveByEngine(engine) {
+  let count = 0;
+  let waitingApproval = 0;
+  executionByChat.forEach((execution) => {
+    if (!isWorking(execution) || !enginesOf(execution).has(engine)) return;
+    count += 1;
+    if (execution.status === "waiting_approval") waitingApproval += 1;
+  });
+  return { count, waitingApproval };
 }
 
 export function subscribeAllChatExecutions(callback) {
@@ -127,6 +159,9 @@ export function cancelChatExecution(slug, chatId, engine) {
 
 export function resetChatExecution(slug, chatId) {
   const key = chatSessionKey(slug, chatId);
+  const previous = executionByChat.get(key);
   executionByChat.delete(key);
-  notifyExecution(slug, chatId);
+  if (!previous) return;
+  // Tell listeners the chat is gone, keeping the engine so aggregators can recompute it.
+  notifyExecution(slug, chatId, { ...previous, status: "idle", streaming: false, errorMessage: "" });
 }

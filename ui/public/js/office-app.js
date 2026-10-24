@@ -13,7 +13,8 @@ import { attachStationAdapter } from "./window-manager/station-adapter.js";
 import { TaskbarComponent } from "./window-manager/taskbar.js";
 import { windowManager } from "./window-manager/window-manager.js";
 import { executeOfficeAction } from "./office/office-action-dispatcher.js";
-import { bindChatExecutionTelemetry, bindOfficeStateTelemetry } from "./office/office-agent-telemetry.js";
+import { bindChatExecutionTelemetry, bindOfficeStateTelemetry, recomputeLocalEngines } from "./office/office-agent-telemetry.js";
+import { bindProjectionTelemetry } from "./office/office-projection-bridge.js";
 import { bindOfficeLightingDom } from "./office/office-lighting-bootstrap.js";
 import { OfficeViewModeController } from "./office/office-view-mode.js";
 import { OfficeScenePreferences } from "./office/office-scene-preferences.js";
@@ -199,6 +200,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   officeState.subscribe(updateUI);
   bindOfficeStateTelemetry(officeState);
   bindChatExecutionTelemetry();
+  bindProjectionTelemetry(officeState, { onFallback: recomputeLocalEngines });
   bindOfficeLightingDom(document);
 
   setupOfficeShortcuts({

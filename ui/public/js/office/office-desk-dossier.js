@@ -1,6 +1,8 @@
 // @ts-check
 // Dossiê do agente na estação (renderização).
 import { renderAgentSessionList } from "./office-desk-interaction.js";
+import { officeAgentState } from "./office-agent-state.js";
+import { formatEngineActivity } from "./office-engine-activity-format.js";
 
 /**
  * Renderiza o dossiê e chat interativo de um Agente
@@ -9,7 +11,6 @@ import { renderAgentSessionList } from "./office-desk-interaction.js";
  * @param {{ iconEl: HTMLElement, titleEl: HTMLElement, subtitleEl: HTMLElement, bodyEl: HTMLElement }} elements
  */
 export function renderAgentInteractiveDesk(agentKey, state, { iconEl, titleEl, subtitleEl, bodyEl }) {
-  const activeAg = state.activeAgents?.agents || {};
   const activeProj = state.activeProject || "projeto";
 
   const meta = {
@@ -18,7 +19,6 @@ export function renderAgentInteractiveDesk(agentKey, state, { iconEl, titleEl, s
       icon: "✦",
       color: "#5c87f2",
       role: "Motor Multimodal & Modelagem 3D",
-      info: activeAg.gemini || { activeCount: 2, currentTask: "2 chats ativos · Construindo Escritório 3D" },
       welcome: `✦ Olá! Sou o Gemini conectado via Antigravity IDE. Estou pronto para responder perguntas, gerar código ou debugar funcionalidades no projeto "${activeProj}".`
     },
     claude: {
@@ -26,7 +26,6 @@ export function renderAgentInteractiveDesk(agentKey, state, { iconEl, titleEl, s
       icon: "🤖",
       color: "#d97757",
       role: "Especialista em Engenharia & Refatoração",
-      info: activeAg.claude || { activeCount: 1, currentTask: "1 chat ativo · Orquestrando no terminal (claude --resume)" },
       welcome: `🤖 Olá! Sou o Claude Code. Posso executar instruções de código, testes e refatorações no projeto "${activeProj}".`
     },
     opencode: {
@@ -34,7 +33,6 @@ export function renderAgentInteractiveDesk(agentKey, state, { iconEl, titleEl, s
       icon: "◆",
       color: "#3cb371",
       role: "Motor Local Autônomo & Gratuito",
-      info: activeAg.opencode || { activeCount: 0, currentTask: "Em espera (Standby)" },
       welcome: `◆ Olá! Sou o OpenCode rodando em localhost sem custos de API. Pronto para tarefas locais no projeto "${activeProj}".`
     },
     codex: {
@@ -42,7 +40,6 @@ export function renderAgentInteractiveDesk(agentKey, state, { iconEl, titleEl, s
       icon: "</>",
       color: "#22c55e",
       role: "Agente de Engenharia & Terminal",
-      info: activeAg.codex || { activeCount: 0, currentTask: "Aguardando uma conversa" },
       welcome: `Codex pronto para atuar no projeto "${activeProj}".`
     }
   }[agentKey] || {
@@ -50,9 +47,11 @@ export function renderAgentInteractiveDesk(agentKey, state, { iconEl, titleEl, s
     icon: "🤖",
     color: "#38bdf8",
     role: "Agente Autônomo DAI",
-    info: { activeCount: 1, currentTask: "Ativo" },
     welcome: "Pronto para atuar no projeto."
   };
+
+  // Atividade vem do estado canônico (projeção EP-09 ou fallback local); sem dado, é zero, nunca 1.
+  const activity = formatEngineActivity(officeAgentState.getAgentState(agentKey));
 
   iconEl.textContent = meta.icon;
   titleEl.textContent = `Estação ${meta.name}`;
@@ -77,12 +76,13 @@ export function renderAgentInteractiveDesk(agentKey, state, { iconEl, titleEl, s
     <div class="drawer-card">
       <div class="drawer-card-title">Telemetria & Atividade em Tempo Real</div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <span class="pill-dot online" style="width:12px;height:12px"></span>
-        <span style="font-weight:700;color:${meta.color};font-size:14px">${meta.info.activeCount || 1} chat(s) em andamento</span>
+        <span class="pill-dot ${activity.working ? "online" : ""}" style="width:12px;height:12px"></span>
+        <span style="font-weight:700;color:${meta.color};font-size:14px">${activity.headline}</span>
+        ${activity.openLine ? `<span style="font-size:12px;color:#94a3b8">· ${activity.openLine}</span>` : ""}
       </div>
-      <p style="background:${meta.color}18;border:1px solid ${meta.color}44;padding:10px 14px;border-radius:8px;color:#f8fafc;font-size:12.5px;margin:0 0 10px">
-        ⚡ <b>Tarefa em execução:</b> ${meta.info.currentTask || 'Operando no projeto ' + activeProj}
-      </p>
+      ${activity.task ? `<p style="background:${meta.color}18;border:1px solid ${meta.color}44;padding:10px 14px;border-radius:8px;color:#f8fafc;font-size:12.5px;margin:0 0 10px">
+        <i class="fa-solid fa-bolt"></i> <b>Tarefa em execução:</b> ${activity.task}
+      </p>` : ""}
     </div>
 
     <!-- Card 2: Central de chat nativa, reutilizada sem duplicar streaming/renderização -->

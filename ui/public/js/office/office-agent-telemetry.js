@@ -1,7 +1,8 @@
 // @ts-check
 // Ponte de telemetria entre execuções reais e o estado canônico dos agentes (EP-03.05).
 import { AGENT_KEYS, STATUS_THEMES, officeAgentState } from "./office-agent-state.js";
-import { subscribeAllChatExecutions } from "../modules/chat-execution-store.js";
+import { countActiveByEngine, subscribeAllChatExecutions } from "../modules/chat-execution-store.js";
+import { isServerTruth } from "./office-telemetry-source.js";
 
 const CHAT_STATUS = Object.freeze({
   idle: "idle",
@@ -71,6 +72,8 @@ export function syncAgentFromChatExecution(agentKey, snapshot = {}) {
  * @param {{ agents?: Record<string, any> }} [activeAgents]
  */
 export function syncAgentsFromActivity(activeAgents = {}) {
+  // Com o stream do servidor conectado, a projeção é a fonte (office-telemetry-source.js).
+  if (isServerTruth()) return;
   const agents = activeAgents.agents || {};
   for (const key of AGENT_KEYS) {
     const agent = agents[key];
@@ -87,14 +90,52 @@ export function syncAgentsFromActivity(activeAgents = {}) {
 }
 
 /**
+ * Recalcula um motor a partir de TODOS os chats em execução (não só do snapshot que mudou).
+ * Ocupado enquanto count > 0; erro só aparece se nenhum outro chat do motor estiver rodando.
+ * @param {string} engine
+ * @param {{ status?: string, errorMessage?: string, currentEngine?: string }} snapshot
+ */
+function recomputeEngine(engine, snapshot) {
+  const { count, waitingApproval } = countActiveByEngine(engine);
+  if (count > 0) {
+    const status = waitingApproval > 0 ? "waiting_approval" : "streaming";
+    officeAgentState.setAgentState(engine, {
+      status,
+      activeCount: count,
+      currentTask: count > 1 ? `${count} execuções ativas` : `Execução ${status}`
+    });
+    return;
+  }
+  const triggered = snapshot.currentEngine === engine;
+  const current = officeAgentState.getAgentState(engine);
+  if (!triggered && !TRANSIENT.has(current.status)) return;
+  const status = triggered ? mapChatExecutionStatus(snapshot.status) : "idle";
+  officeAgentState.setAgentState(engine, {
+    status: TRANSIENT.has(status) ? "idle" : status,
+    activeCount: 0,
+    currentTask: ""
+  });
+}
+
+/**
+ * Recalcula todos os motores a partir do store local (usado quando o stream do servidor cai).
+ */
+export function recomputeLocalEngines() {
+  for (const engine of AGENT_KEYS) recomputeEngine(engine, {});
+}
+
+/**
  * Liga as execuções de chat ao estado dos agentes.
+ * Compare mode: o snapshot traz currentEngine "compare" (fora de AGENT_KEYS); os motores
+ * comparados vêm das chaves de controllers no store, então todos os motores são recalculados.
+ * Limitação: contagem é local ao documento (não enxerga chats de outras abas); por isso só vale
+ * como fallback: com o stream do servidor conectado (T2.3), o listener abaixo não escreve nada.
  * @returns {() => void}
  */
 export function bindChatExecutionTelemetry() {
   return subscribeAllChatExecutions((snapshot) => {
-    const engine = snapshot && snapshot.currentEngine;
-    if (!engine) return;
-    syncAgentFromChatExecution(engine, snapshot);
+    if (isServerTruth() || !snapshot || !snapshot.currentEngine) return;
+    for (const engine of AGENT_KEYS) recomputeEngine(engine, snapshot);
   });
 }
 

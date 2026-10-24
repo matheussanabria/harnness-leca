@@ -1,6 +1,8 @@
 // @ts-check
 // DAI HQ — Módulo de Controle do HUD, Menus e Telemetria Lateral
 import { playClickSound } from "../office-audio.js";
+import { officeAgentState } from "./office-agent-state.js";
+import { summarizeEngine } from "./office-engine-summary.js";
 
 let persistHud = null;
 
@@ -173,17 +175,7 @@ export function updateHUD(state) {
 
   if (welcomeStats) {
     const orch = state.orchestrationState;
-    const act = state.activeAgents || {};
-    
-    let cCount = act.agents?.claude?.activeCount || 0;
-    let gCount = act.agents?.gemini?.activeCount || 0;
-    let oCount = act.agents?.opencode?.activeCount || 0;
-
-    if (orch?.executions) {
-      cCount = orch.executions.filter(e => e.provider === 'claude' && e.status === 'running').length;
-      gCount = orch.executions.filter(e => e.provider === 'gemini' && e.status === 'running').length;
-      oCount = orch.executions.filter(e => e.provider === 'opencode' && e.status === 'running').length;
-    }
+    const [cCount, gCount, oCount] = engineCounts(orch);
 
     const totalAct = cCount + gCount + oCount;
     welcomeStats.innerHTML = `Hoje temos <b>${totalAct} execuções ativas</b> (${cCount} no Claude, ${gCount} no Gemini, ${oCount} no OpenCode) e <b>${chats.length} conversas</b> no projeto.`;
@@ -192,17 +184,7 @@ export function updateHUD(state) {
   const agentListEl = document.querySelector(".agent-status-list");
   if (agentListEl) {
     const orch = state.orchestrationState;
-    const a = state.activeAgents?.agents || {};
-    
-    let cCount = a.claude?.activeCount || 0;
-    let gCount = a.gemini?.activeCount || 0;
-    let oCount = a.opencode?.activeCount || 0;
-
-    if (orch?.executions) {
-      cCount = orch.executions.filter(e => e.provider === 'claude' && e.status === 'running').length;
-      gCount = orch.executions.filter(e => e.provider === 'gemini' && e.status === 'running').length;
-      oCount = orch.executions.filter(e => e.provider === 'opencode' && e.status === 'running').length;
-    }
+    const [cCount, gCount, oCount] = engineCounts(orch);
 
     agentListEl.innerHTML = `
       <div class="agent-status-row">
@@ -223,4 +205,10 @@ export function updateHUD(state) {
       </div>
     `;
   }
+}
+
+/** Contagens claude/gemini/opencode pelo mesmo resumo da Central e do telão. */
+function engineCounts(orch) {
+  return ["claude", "gemini", "opencode"].map((id) =>
+    summarizeEngine(id, { agentState: officeAgentState.getAgentState(id), executions: orch?.executions }).activeCount);
 }
