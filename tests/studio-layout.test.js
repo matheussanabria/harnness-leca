@@ -115,3 +115,114 @@ test("studio-layout: applySidebarWidth atualiza style.width e atributos ARIA do 
   assert.equal(resizer.getAttribute("aria-valuemax"), "850");
   assert.equal(storage.getItem("harness_studio_sidebar_width_meu-projeto"), "550");
 });
+
+function createInteractiveElement(initialWidth) {
+  /** @type {Record<string, string>} */
+  const attrs = {};
+  /** @type {Record<string, Function[]>} */
+  const listeners = {};
+  const element = {
+    style: { width: `${initialWidth}px` },
+    setAttribute(key, val) {
+      attrs[key] = String(val);
+    },
+    getAttribute(key) {
+      return attrs[key] !== undefined ? attrs[key] : null;
+    },
+    addEventListener(type, handler) {
+      (listeners[type] ||= []).push(handler);
+    },
+    dispatch(type, event = {}) {
+      for (const handler of listeners[type] || []) handler(event);
+    },
+    getBoundingClientRect() {
+      const width = parseInt(element.style.width, 10);
+      return { width: Number.isFinite(width) ? width : initialWidth, height: 600, top: 0, left: 0 };
+    },
+    setPointerCapture() {},
+    releasePointerCapture() {},
+  };
+  return element;
+}
+
+test("studio-layout: initStudioSidebarResizer usa PageUp/PageDown e duplo clique restaura 440px", async () => {
+  globalThis.window = globalThis;
+  globalThis.window.innerWidth = 1920;
+  const bodyClasses = new Set();
+  globalThis.document = {
+    body: {
+      classList: {
+        add: (name) => bodyClasses.add(name),
+        remove: (name) => bodyClasses.delete(name),
+      },
+    },
+  };
+
+  const { initStudioSidebarResizer } = await import(moduleUrl("ui/public/js/modules/studio-layout.js"));
+  const sidebar = createInteractiveElement(600);
+  const resizer = createInteractiveElement(600);
+  const workspace = createInteractiveElement(600);
+  const storage = createMockStorage();
+  const persisted = [];
+
+  initStudioSidebarResizer({
+    resizerEl: resizer,
+    sidebarEl: sidebar,
+    workspaceEl: workspace,
+    storage,
+    projectSlug: "projeto-paginas",
+    onPersist: (width) => persisted.push(width),
+  });
+
+  assert.equal(sidebar.style.width, "600px", "Restaura a largura inicial");
+
+  let prevented = false;
+  resizer.dispatch("keydown", { key: "PageUp", preventDefault: () => { prevented = true; } });
+  assert.equal(prevented, true, "PageUp previne a rolagem padrão");
+  assert.equal(sidebar.style.width, "664px", "PageUp avança quatro passos");
+
+  resizer.dispatch("keydown", { key: "PageDown", preventDefault: () => {} });
+  assert.equal(sidebar.style.width, "600px", "PageDown recua quatro passos");
+
+  assert.deepEqual(persisted, [664, 600], "Cada tecla persistida notifica o estado da tela");
+  assert.equal(storage.getItem("harness_studio_sidebar_width_projeto-paginas"), "600");
+
+  resizer.dispatch("dblclick", {});
+  assert.equal(sidebar.style.width, "440px", "Duplo clique restaura a largura padrão");
+  assert.equal(storage.getItem("harness_studio_sidebar_width_projeto-paginas"), "440");
+  assert.equal(persisted[persisted.length - 1], 440);
+});
+
+test("studio-layout: initStudioSidebarResizer limita setas e extremos ao viewport", async () => {
+  globalThis.window = globalThis;
+  globalThis.window.innerWidth = 1920;
+  globalThis.document = {
+    body: {
+      classList: { add: () => {}, remove: () => {} },
+    },
+  };
+
+  const { initStudioSidebarResizer } = await import(moduleUrl("ui/public/js/modules/studio-layout.js"));
+  const sidebar = createInteractiveElement(440);
+  const resizer = createInteractiveElement(440);
+  const workspace = createInteractiveElement(440);
+
+  initStudioSidebarResizer({
+    resizerEl: resizer,
+    sidebarEl: sidebar,
+    workspaceEl: workspace,
+    storage: createMockStorage(),
+  });
+
+  resizer.dispatch("keydown", { key: "End", preventDefault: () => {} });
+  assert.equal(sidebar.style.width, "850px", "End vai ao máximo do viewport");
+
+  resizer.dispatch("keydown", { key: "Home", preventDefault: () => {} });
+  assert.equal(sidebar.style.width, "300px", "Home vai ao mínimo");
+
+  resizer.dispatch("keydown", { key: "ArrowRight", preventDefault: () => {} });
+  assert.equal(sidebar.style.width, "316px", "ArrowRight soma um passo");
+
+  resizer.dispatch("keydown", { key: "ArrowLeft", preventDefault: () => {} });
+  assert.equal(sidebar.style.width, "300px", "ArrowLeft subtrai um passo");
+});

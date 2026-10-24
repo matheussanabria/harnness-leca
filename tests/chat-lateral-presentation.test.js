@@ -96,20 +96,23 @@ test("EP-02.04: Divisor studioSidebarResizer possui marcação semântica e aces
   assert.match(studioHtml, /id="studioSidebarResizer"[\s\S]*?aria-valuenow="440"/);
 });
 
-test("EP-02.04: Lógica do resizer em studio-core.js suporta ponteiro, teclado, limites e persistência", () => {
-  // Ponteiro com setPointerCapture
-  assert.match(studioResizerCode, /resizer\.setPointerCapture\?\.\(e\.pointerId\)/);
-  assert.match(studioResizerCode, /resizer\.releasePointerCapture\?\.\(e\.pointerId\)/);
+test("EP-02.04: Lógica do resizer em studio-layout.js suporta ponteiro, teclado, limites e persistência", () => {
+  // Ponteiro com captura opcional
+  assert.match(studioResizerCode, /resizer\.setPointerCapture/);
+  assert.match(studioResizerCode, /resizer\.releasePointerCapture/);
   assert.match(studioResizerCode, /addEventListener\("pointerdown"/);
   assert.match(studioResizerCode, /addEventListener\("pointermove"/);
   assert.match(studioResizerCode, /addEventListener\("pointerup"/);
 
-  // Teclado com passos e extremos
+  // Teclado com passos, extremos, páginas e reset por duplo clique
   assert.match(studioResizerCode, /addEventListener\("keydown"/);
   assert.match(studioResizerCode, /e\.key === "ArrowLeft"/);
   assert.match(studioResizerCode, /e\.key === "ArrowRight"/);
+  assert.match(studioResizerCode, /e\.key === "PageDown"/);
+  assert.match(studioResizerCode, /e\.key === "PageUp"/);
   assert.match(studioResizerCode, /e\.key === "Home"/);
   assert.match(studioResizerCode, /e\.key === "End"/);
+  assert.match(studioResizerCode, /addEventListener\("dblclick"/);
 
   // Persistência no estado da tela, sem localStorage
   assert.match(studioResizerCode, /saveStudioState\(\{ sidebarWidth: next \}\)/);
