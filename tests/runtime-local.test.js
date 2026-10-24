@@ -5,6 +5,13 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const os = require("node:os");
+
+// Telemetria grava em <ROOT>/logs/telemetry. ROOT e lido ao carregar root.js:
+// a raiz temporaria precisa existir ANTES de qualquer require de tools/.
+const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "runtime-local-"));
+process.env.HARNESS_ROOT = TMP_ROOT;
+test.after(() => fs.rmSync(TMP_ROOT, { recursive: true, force: true }));
 
 // A inferência local exige RAM livre. Aqui o perfil de memória é fixado como apto para
 // que o resultado não dependa da carga da máquina em que a suíte roda.

@@ -1,6 +1,16 @@
 // @ts-check
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+
+// Telemetria grava em <ROOT>/logs/telemetry. ROOT e lido uma vez, ao carregar root.js,
+// entao a raiz temporaria precisa existir ANTES de qualquer require de tools/.
+const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "hia-guard-"));
+process.env.HARNESS_ROOT = TMP_ROOT;
+test.after(() => fs.rmSync(TMP_ROOT, { recursive: true, force: true }));
+
 const { ExecutionQueue, LoopGuard } = require("../tools/lib/hia/guard");
 const { recordExecution, getTelemetryMetrics } = require("../tools/lib/hia/telemetry");
 
