@@ -207,7 +207,7 @@ test("screen-state-http: rotas registradas, arquivos enxutos, MAPA e gitignore",
   assert.match(gitignore, /global\/ui-state\//);
   assert.match(gitignore, /projects\/\*\/ui-state\//);
 
-  const mapa = fs.readFileSync(path.join(__dirname, "..", "MAPA.md"), "utf8");
+  const mapa = require("../scripts/lib/read-mapa").readMapaText();
   assert.match(mapa, /screen-state\/store\.js/);
   assert.match(mapa, /screen-state\.controller\.js/);
   assert.match(mapa, /screens\.routes\.js/);

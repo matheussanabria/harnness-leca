@@ -2,7 +2,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const { forbiddenPath, addedLines, scanDiff, missingFromMapa } = require("../scripts/pre-commit");
+const { forbiddenPath, addedLines, scanDiff, missingFromMapa, isMapFile } = require("../scripts/pre-commit");
 const { findSecrets } = require("../tools/lib/redact");
 
 // Valores montados na hora: o repositório não guarda nada com cara de chave real.
@@ -82,4 +82,14 @@ test("missingFromMapa: arquivo novo precisa estar no mapa, ou o mapa ser alterad
     "tools/lib/novo-modulo.js", "ui/public/css/x/.gitkeep", "tests/golden/a.txt", "MAPA.md"];
   assert.deepEqual(missingFromMapa(added, mapa, false), ["tools/lib/novo-modulo.js"]);
   assert.deepEqual(missingFromMapa(added, mapa, true), []);
+});
+
+test("isMapFile: MAPA.md e os arquivos de docs/mapa/ contam como o mapa", () => {
+  assert.equal(isMapFile("MAPA.md"), true);
+  assert.equal(isMapFile("docs/mapa/02-backend.md"), true);
+  assert.equal(isMapFile("docs\\mapa\\02-backend.md"), true);
+  assert.equal(isMapFile("docs/mapa/sub/x.md"), false);
+  assert.equal(isMapFile("docs/setup/01-overview.md"), false);
+  const added = ["tools/lib/novo-modulo.js", "docs/mapa/99-novo.md"];
+  assert.deepEqual(missingFromMapa(added, "", false), ["tools/lib/novo-modulo.js"]);
 });

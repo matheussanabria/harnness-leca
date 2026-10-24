@@ -116,3 +116,19 @@ test("getProjectContext preserva retrocompatibilidade com motores existentes", (
   assert.ok(ctx.includes("<contexto_do_harness>"));
   assert.ok(ctx.includes("</contexto_do_harness>"));
 });
+
+test("getMapSection reads the map split across docs/mapa and returns multi-part sections whole", () => {
+  const dir = path.join(ROOT, "docs", "mapa");
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "03-a.md"), "## 3. Frontend (part 1/2)\n\nlinha-parte-um\n");
+  fs.writeFileSync(path.join(dir, "03-b.md"), "## 3. Frontend (part 2/2)\n\nlinha-parte-dois\n\n## 4. Motores\n\nlinha-motores\n");
+  try {
+    const sec = getMapSection(3);
+    assert.ok(sec.content.includes("linha-parte-um") && sec.content.includes("linha-parte-dois"));
+    assert.ok(!sec.content.includes("linha-motores"));
+    assert.ok(getMapSection("motores").content.includes("linha-motores"));
+    assert.ok(getMapSection(1).content.includes("harness-leca/"));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});

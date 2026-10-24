@@ -32,32 +32,43 @@ function estimateTokens(text) {
  * @returns {{ sectionTitle: string, content: string, tokensEst: number } | null}
  */
 function getMapSection(query) {
-  if (!fs.existsSync(DEFAULT_MAP_PATH)) return null;
-  const { content } = readWithCache(DEFAULT_MAP_PATH);
+  const content = readMapContent();
   if (!content) return null;
 
   const rawSections = content.split(/^##\s+/gm);
   const qStr = String(query).trim().toLowerCase();
+  const titleOf = (body) => (body.split(/\r?\n/)[0] || "").replace(/^[^\w\s]*\s*/, "").trim();
+  const numberOf = (title) => (/^(\d+)(?:[.\s]|$)/.exec(title) || [])[1];
 
   for (let i = 1; i < rawSections.length; i++) {
-    const sectionBody = rawSections[i];
-    const firstLine = sectionBody.split(/\r?\n/)[0] || "";
-    const cleanTitle = firstLine.replace(/^[^\w\s]*\s*/, "").trim();
-
+    const cleanTitle = titleOf(rawSections[i]);
     const matchesNumber = new RegExp(`^${qStr}\\b`).test(cleanTitle);
     const matchesKeyword = cleanTitle.toLowerCase().includes(qStr);
+    if (!matchesNumber && !matchesKeyword) continue;
 
-    if (matchesNumber || matchesKeyword) {
-      const fullSection = `## ${sectionBody.trim()}`;
-      return {
-        sectionTitle: cleanTitle,
-        content: fullSection,
-        tokensEst: estimateTokens(fullSection).tokensEst,
-      };
-    }
+    // A section split across docs/mapa files ("(part 2/3)") or with a "6.1" continuation comes back whole.
+    const num = numberOf(cleanTitle);
+    const bodies = [rawSections[i]];
+    for (let j = i + 1; num && j < rawSections.length && numberOf(titleOf(rawSections[j])) === num; j++) bodies.push(rawSections[j]);
+    const fullSection = bodies.map((b) => `## ${b.trim()}`).join("\n\n");
+    return {
+      sectionTitle: cleanTitle,
+      content: fullSection,
+      tokensEst: estimateTokens(fullSection).tokensEst,
+    };
   }
 
   return null;
+}
+
+/** MAPA.md followed by every docs/mapa/*.md in name order (the map is split by area to save tokens). */
+function readMapContent() {
+  const files = [DEFAULT_MAP_PATH];
+  try {
+    const dir = path.join(path.dirname(DEFAULT_MAP_PATH), "docs", "mapa");
+    for (const name of fs.readdirSync(dir).filter((n) => n.endsWith(".md")).sort()) files.push(path.join(dir, name));
+  } catch { /* no split map: MAPA.md alone */ }
+  return files.filter((f) => fs.existsSync(f)).map((f) => readWithCache(f).content || "").join("\n");
 }
 
 /**

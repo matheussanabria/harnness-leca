@@ -191,8 +191,8 @@ test("EP-14.10: registro cobre os novos campos do diario e o MAPA lista os arqui
     dateFrom: "2026-10-01", allClosed: true,
   });
 
-  const mapa = read("MAPA.md");
+  const mapa = require("../scripts/lib/read-mapa").readMapaText();
   for (const file of ["deploy/deploy-state.js", "office-screen-state.js", "diario-state.js"]) {
-    assert.ok(mapa.includes(file), `${file} precisa estar no MAPA.md`);
+    assert.ok(mapa.includes(file), `${file} precisa estar no mapa (MAPA.md ou docs/mapa/)`);
   }
 });
