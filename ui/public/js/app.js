@@ -4,6 +4,8 @@ import { md, parseChat, renderChat, parseFrontmatter } from "./shared/markdown.j
 import { state, GROUP_PALETTE, getActiveChatStorageKey, saveActiveChatState, restoreActiveChatState, clearActiveChatState } from "./shared/state.js";
 import { projectSelection } from "./shared/project-selection.js";
 import { createScreenStateClient } from "./shared/screen-state.js";
+import { guardUnsavedTransition } from "./shared/unsaved-dialog.js";
+import { unsavedChanges } from "./shared/unsaved-changes.js";
 import * as groupsMod from "./modules/groups.js";
 import * as projectsMod from "./modules/projects.js";
 import * as reviewMod from "./modules/review.js";
@@ -107,9 +109,20 @@ Object.assign(window, {
       const select = /** @type {HTMLSelectElement} */ (e.target);
       select.disabled = true;
       try {
-        const selected = await projectSelection.select(select.value);
-        state.S.active = selected;
-        await projectsMod.load(selected);
+        const selected = await guardUnsavedTransition(async ({ force }) => {
+          const next = await projectSelection.select(select.value, { force });
+          state.S.active = next;
+          await projectsMod.load(next);
+          return next;
+        }, {
+          title: "Trocar de projeto",
+          message: "Há alterações não salvas no Studio. Como deseja continuar?",
+          save: typeof globalThis.saveStudioSourceFile === "function"
+            ? () => globalThis.saveStudioSourceFile()
+            : undefined,
+          clear: (id) => unsavedChanges.clear(id)
+        });
+        if (!selected) select.value = projectSelection.activeProject;
       } catch (error) {
         select.value = projectSelection.activeProject;
         showToast(error instanceof Error ? error.message : "Não foi possível trocar de projeto.");

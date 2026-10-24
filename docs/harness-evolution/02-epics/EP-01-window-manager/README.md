@@ -47,6 +47,8 @@ Agrupamentos técnicos, não estimativas de duração.
 | [01.08](01.08-persistencia.md) | Persistência e restauração | 01.06 | **concluída** |
 | [01.09](01.09-layouts-responsivos.md) | Layouts responsivos | 01.07 | **concluída** |
 | [01.10](01.10-workspaces-nomeados.md) | Workspaces nomeados | 01.08 | **concluída** |
+| [01.11](01.11-fiacao-window-manager-escritorio.md) | Wire the Window Manager facade into the office UI | 01.05, 01.08, 01.10 | **planejada** |
+| [01.12](01.12-host-multi-janela-docking.md) | Multi-window host and docking in the office | 01.11 | **planejada** |
 
 ## Contratos iniciais
 Contrato conceitual. Antes de implementar, o EP-00 precisa confirmar se já existe gerenciamento de painéis e como os módulos são representados. O projeto usa ES Modules sem build; o contrato vira JSDoc ou um `.d.ts` em `ui/public/js/types/`.

@@ -1,6 +1,7 @@
 // @ts-check
 // Secao "Pipelines de Deploy" da tela /deploy (EP-10.01).
 import { esc } from "../../shared/dom.js";
+import { requestConfirmation } from "../shared/confirm-dialog.js";
 
 const STAGE_META = {
   command: { label: "Comando", icon: "fa-terminal" },
@@ -94,7 +95,11 @@ export async function renderPipelinesPanel() {
       const element = /** @type {HTMLElement} */ (button);
       const pipelineId = element.dataset.pipelineRun || "";
       const pipeline = pipelines.find((item) => item.id === pipelineId);
-      const confirmed = !pipeline?.requireConfirm || window.confirm("Executar o pipeline em ambiente protegido?");
+      const confirmed = !pipeline?.requireConfirm || await requestConfirmation({
+        title: "Pipeline protegido",
+        message: "Executar o pipeline em ambiente protegido?",
+        confirmLabel: "Executar"
+      });
       if (!confirmed) return;
       element.setAttribute("disabled", "disabled");
       const result = await runPipeline(pipelineId, confirmed);

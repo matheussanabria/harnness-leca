@@ -12,6 +12,7 @@ import { setupOfficeShortcuts } from "./office/office-shortcuts.js";
 import { attachStationAdapter } from "./window-manager/station-adapter.js";
 import { TaskbarComponent } from "./window-manager/taskbar.js";
 import { windowManager } from "./window-manager/window-manager.js";
+import { bootOfficeWindowManager, switchOfficeProject } from "./office/office-wm-controller.js";
 import { executeOfficeAction } from "./office/office-action-dispatcher.js";
 import { bindChatExecutionTelemetry, bindOfficeStateTelemetry, recomputeLocalEngines } from "./office/office-agent-telemetry.js";
 import { bindProjectionTelemetry } from "./office/office-projection-bridge.js";
@@ -184,10 +185,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     windowManager
   });
 
-  projectSelect?.addEventListener("change", async (e) => {
-    const slug = /** @type {HTMLSelectElement} */ (e.target).value;
-    playClickSound();
-    await officeState.setProject(slug);
+  projectSelect?.addEventListener("change", (e) => {
+    playClickSound(); void switchOfficeProject(/** @type {HTMLSelectElement} */ (e.target));
   });
 
   btnAudioToggle?.addEventListener("click", () => {
@@ -219,6 +218,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   await officeState.init();
+  bootOfficeWindowManager();
   await viewModeController.restore();
 });
 

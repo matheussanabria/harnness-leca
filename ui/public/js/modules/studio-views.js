@@ -2,6 +2,7 @@
 // Gerenciador de alternância entre as visualizações do Studio: Código, Design e Preview.
 import { $ } from "../shared/dom.js";
 import { state } from "../shared/state.js";
+import { requestUnsavedResolution } from "../shared/unsaved-dialog.js";
 import { sts } from "./studio-store.js";
 import { updateCompanionDetails } from "./studio-companion.js";
 import { isStudioSourceColumnOpen, setStudioSourceColumn, getStoredSourceColumnOpen } from "./studio-source-column.js";
@@ -61,9 +62,18 @@ function hasUnsavedSource() {
   return Boolean(appWindow.hasUnsavedStudioSource?.());
 }
 
-function confirmDiscardSource() {
-  if (typeof window === "undefined" || typeof window.confirm !== "function") return false;
-  return window.confirm("Descartar as alterações manuais de código ainda não salvas?");
+async function confirmDiscardSource() {
+  const choice = await requestUnsavedResolution({
+    blockers: [{ id: "studio-source", label: "Código do Studio" }],
+    message: "Descartar as alterações manuais de código ainda não salvas?",
+    canSave: typeof globalThis.saveStudioSourceFile === "function"
+  });
+  if (choice === "cancel") return false;
+  if (choice === "save") {
+    await globalThis.saveStudioSourceFile?.();
+    return !hasUnsavedSource();
+  }
+  return true;
 }
 
 /**
@@ -129,13 +139,13 @@ export async function loadStudioDesignContent(slug = state.activeProject) {
  * @param {boolean} [options.force]
  * @returns {boolean} Retorna true se a troca foi executada
  */
-export function switchStudioView(targetMode, options = {}) {
+export async function switchStudioView(targetMode, options = {}) {
   const mode = normalizeStudioViewMode(targetMode);
 
   // Código é a terceira coluna (chat | preview | código): alterna sem trocar o modo do preview.
   if (mode === STUDIO_VIEW_MODES.CODE) {
     const open = !isStudioSourceColumnOpen();
-    if (!open && !options.force && hasUnsavedSource() && !confirmDiscardSource()) return false;
+    if (!open && !options.force && hasUnsavedSource() && !(await confirmDiscardSource())) return false;
     setStudioSourceColumn(open);
     return true;
   }
@@ -214,10 +224,10 @@ export function switchStudioView(targetMode, options = {}) {
  * Inicializa a visualização do Studio restaurando a preferência salva ou o padrão.
  * @param {string} [preferredMode]
  */
-export function initStudioViews(preferredMode) {
+export async function initStudioViews(preferredMode) {
   const mode = preferredMode;
   // Preferências antigas guardavam "source" como modo exclusivo: viram preview + coluna aberta.
   const legacyCode = normalizeStudioViewMode(mode) === STUDIO_VIEW_MODES.CODE;
-  switchStudioView(legacyCode || !mode ? STUDIO_VIEW_MODES.PREVIEW : mode, { force: true });
+  await switchStudioView(legacyCode || !mode ? STUDIO_VIEW_MODES.PREVIEW : mode, { force: true });
   if (legacyCode || getStoredSourceColumnOpen()) setStudioSourceColumn(true);
 }

@@ -132,10 +132,10 @@ export const officeState = {
     }
   },
 
-  async setProject(slug) {
+  async setProject(slug, options = {}) {
     if (!slug) return;
     try {
-      const selected = await projectSelection.select(slug);
+      const selected = await projectSelection.select(slug, { force: options.force === true });
       if (this.activeProject === selected && this.projectData) return selected;
       this.activeProject = selected;
     } catch (error) {

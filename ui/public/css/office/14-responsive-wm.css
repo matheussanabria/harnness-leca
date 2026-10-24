@@ -2,7 +2,7 @@
 
 /* Tablet & Mobile (< 1024px) */
 @media (max-width: 1023px) {
-  .dai-taskbar {
+  .window-taskbar {
     padding: 0 8px;
     gap: 4px;
   }
@@ -21,26 +21,26 @@
   }
 
   /* Desativa cursor de arraste já que a janela ocupa o viewport */
-  .floating-window .drawer-header {
+  .office-drawer.floating .drawer-header {
     cursor: default !important;
   }
 
   /* Janela flutuante no mobile adapta cantos para layout fullscreen */
-  .floating-window {
+  .office-drawer.floating {
     border-radius: 0 !important;
     border-left: none !important;
     border-right: none !important;
   }
 
   /* Barra de tarefas móvel com rolagem suave por toque */
-  .dai-taskbar {
+  .window-taskbar {
     height: 48px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
 
-  .dai-taskbar::-webkit-scrollbar {
+  .window-taskbar::-webkit-scrollbar {
     display: none;
   }
 
@@ -52,7 +52,7 @@
   }
 
   /* Indicadores e botões de cabeçalho otimizados para touch */
-  .drawer-header-actions button {
+  .drawer-actions button {
     min-width: 32px;
     min-height: 32px;
   }

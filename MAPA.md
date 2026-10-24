@@ -68,7 +68,7 @@ harness-leca/
 | `docs/mapa/03-frontend-js-design-atelier.md` | 3 (2/3) | Frontend JS: inspector, artifacts, routines, Atelier, props panel, delete/history | 12.6 KB |
 | `docs/mapa/04-engines-and-tests.md` | 4, 5 | AI engines and extractors (`tools/lib/`); how to run tests | 6.9 KB |
 | `docs/mapa/06-office-3d.md` | 6 | DAI HQ virtual office (`ui/public/office.html`) | 9.7 KB |
-| `docs/mapa/06-office-window-manager.md` | 6.1 | Hybrid Window Manager (`ui/public/js/window-manager/`) | 12.9 KB |
+| `docs/mapa/06-office-window-manager.md` | 6.1 | Hybrid Window Manager (`ui/public/js/window-manager/`) | 15.6 KB |
 | `docs/mapa/07-split-files-and-features.md` | 7 | Files split by size (facade + modules), Jira, setup docs, getting started, adoption, prototype catalog, Design System recreation | 8.7 KB |
 | `docs/mapa/08-planning-and-projects.md` | 8, 9 | Product evolution planning; 57multimarcas local Maven setup | 8.0 KB |
 | `docs/mapa/10-artifacts-skills-coordination.md` | 10, 11, 12 | Artifact inspection, preview and links; local skills; agent coordination | 8.3 KB |

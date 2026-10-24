@@ -3,6 +3,7 @@
 import { showToast } from "../shared/dom.js";
 import { state } from "../shared/state.js";
 import { windowManager } from "../window-manager/window-manager.js";
+import { requestUnsavedResolution } from "../shared/unsaved-dialog.js";
 import { renderSourceTree } from "./studio-source-tree.js";
 import { highlightSourceCode, sourceLanguage } from "./studio-source-highlight.js";
 import { logStudioAction } from "./studio-state.js";
@@ -73,6 +74,21 @@ function setStatus(message) {
   if (status) status.textContent = message;
 }
 
+async function confirmDiscardSourceChanges() {
+  if (!sourceState.dirty) return true;
+  const choice = await requestUnsavedResolution({
+    blockers: [{ id: UNSAVED_SOURCE_ID, label: "Código do Studio" }],
+    message: "Descartar as alterações manuais ainda não salvas?",
+    canSave: true
+  });
+  if (choice === "cancel") return false;
+  if (choice === "save") {
+    await saveStudioSourceFile();
+    return !sourceState.dirty;
+  }
+  return true;
+}
+
 function setDirty(dirty) {
   sourceState.dirty = dirty;
   const badge = $("studioSourceDirty");
@@ -117,7 +133,7 @@ export async function loadStudioSourceWorkspace(force = false) {
   const slug = state.P?.slug;
   if (!slug || sourceState.loading) return;
   if (!force && sourceState.slug === slug && sourceState.files.length) return;
-  if (sourceState.dirty && !window.confirm("Descartar as alterações manuais ainda não salvas?")) return;
+  if (!(await confirmDiscardSourceChanges())) return;
   sourceState.loading = true;
   setStatus("Carregando arquivos...");
   try {
@@ -138,7 +154,8 @@ export async function loadStudioSourceWorkspace(force = false) {
 }
 
 export async function openStudioSourceFile(filePath) {
-  if (!filePath || (sourceState.dirty && !window.confirm("Descartar as alterações manuais ainda não salvas?"))) return;
+  if (!filePath) return;
+  if (!(await confirmDiscardSourceChanges())) return;
   const editor = /** @type {HTMLTextAreaElement} */ ($("studioSourceEditor"));
   if (!editor) return;
   setStatus("Abrindo arquivo...");

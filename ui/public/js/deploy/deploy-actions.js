@@ -1,6 +1,7 @@
 // @ts-check
 // Secao "Acoes Autorizadas" da tela /deploy (EP-10.04).
 import { esc, showToast } from "../../shared/dom.js";
+import { requestConfirmation } from "../shared/confirm-dialog.js";
 
 const RISK_META = {
   baixo: { label: "Baixo", icon: "fa-shield-halved", className: "is-low" },
@@ -115,7 +116,11 @@ export async function renderActionsPanel() {
       const authorizationId = window.prompt("Identificador da autorizacao:", "");
       if (!authorizationId) return;
       const confirmed = action?.requiresConfirmation
-        ? window.confirm("Acao critica em producao. Confirmar a execucao?")
+        ? await requestConfirmation({
+          title: "Ação crítica",
+          message: "Acao critica em producao. Confirmar a execucao?",
+          confirmLabel: "Executar"
+        })
         : true;
       if (!confirmed) return;
       const result = await execute(actionId, authorizationId, confirmed);

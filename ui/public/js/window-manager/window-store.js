@@ -10,6 +10,9 @@
 /** @typedef {import("../types/window-manager").WindowManagerListener} WindowManagerListener */
 /** @typedef {import("./window-registry.js")} WindowRegistryModule */
 
+import { pickTopVisibleWindowId } from "./window-store-focus.js";
+import { buildWindowInstance } from "./window-store-instance.js";
+
 const BASE_Z_INDEX = 1000;
 
 export class WindowStore {
@@ -46,9 +49,6 @@ export class WindowStore {
    */
   open(moduleId, options = {}) {
     const descriptor = this.registry.getModule(moduleId);
-    const title = options.title || descriptor?.title || moduleId;
-    const icon = options.icon || descriptor?.icon || "fa-solid fa-window-maximize";
-    const presentation = options.presentation || descriptor?.defaultPresentation || "floating";
     const isSingleton = descriptor?.isSingleton ?? true;
 
     // Se for singleton e já existir, restaura e foca
@@ -63,35 +63,20 @@ export class WindowStore {
       }
     }
 
-    const id = isSingleton ? `win-${moduleId}` : `win-${moduleId}-${this.nextInstanceSeq()}`;
-    const bounds = {
-      x: options.bounds?.x ?? descriptor?.defaultBounds?.x ?? 80,
-      y: options.bounds?.y ?? descriptor?.defaultBounds?.y ?? 80,
-      width: options.bounds?.width ?? descriptor?.defaultBounds?.width ?? 640,
-      height: options.bounds?.height ?? descriptor?.defaultBounds?.height ?? 480
-    };
-
     this.highestZIndex += 1;
-    const instance = {
-      id,
+    const instance = buildWindowInstance({
       moduleId,
-      projectId: options.projectId,
-      resourceId: options.resourceId,
-      title,
-      icon,
-      presentation,
-      visibility: "visible",
-      bounds,
-      zIndex: this.highestZIndex,
-      isFocused: true,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    };
+      options,
+      descriptor,
+      isSingleton,
+      sequence: isSingleton ? 0 : this.nextInstanceSeq(),
+      zIndex: this.highestZIndex
+    });
 
     // Desfoca outras janelas
     this.windows.forEach(w => { w.isFocused = false; });
-    this.windows.set(id, instance);
-    this.activeWindowId = id;
+    this.windows.set(instance.id, instance);
+    this.activeWindowId = instance.id;
 
     this.notify();
     return instance;
@@ -221,21 +206,13 @@ export class WindowStore {
    * Transfere o foco para a janela visível com maior zIndex
    */
   recalculateActiveFocus() {
-    let topWin = null;
-    let maxZ = -1;
+    const topId = pickTopVisibleWindowId(this.windows);
 
-    this.windows.forEach(w => {
-      if (w.visibility === "visible" && w.zIndex > maxZ) {
-        maxZ = w.zIndex;
-        topWin = w;
-      }
-    });
-
-    if (topWin) {
-      // @ts-ignore
-      topWin.isFocused = true;
-      // @ts-ignore
-      this.activeWindowId = topWin.id;
+    if (topId) {
+      this.windows.forEach((win) => {
+        if (win.id === topId) win.isFocused = true;
+      });
+      this.activeWindowId = topId;
     } else {
       this.activeWindowId = null;
     }

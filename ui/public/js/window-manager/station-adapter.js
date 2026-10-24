@@ -59,6 +59,54 @@ export function resolveStationModule(objectId) {
   return null;
 }
 
+/**
+ * Resolve the drawer object key for a window instance.
+ * Chat windows reuse the office chat view regardless of the resource id.
+ * @param {WindowInstance | null | undefined} win
+ * @returns {string | null}
+ */
+export function resolveStationObjectId(win) {
+  if (!win) return null;
+  if (win.moduleId === "chat") return "office_chat";
+  return win.resourceId || win.moduleId || null;
+}
+
+/**
+ * Creates the active-window renderer used by the drawer.
+ * It renders only when the active window id changes (EP-01.11 RF1).
+ * @param {{
+ *   renderDrawerContent: (objId: string, state: any) => void,
+ *   officeState: any
+ * }} options
+ */
+export function createStationRenderer({ renderDrawerContent, officeState }) {
+  let renderedWindowId = null;
+
+  return {
+    /** @param {import("../types/window-manager").WindowManagerState} state */
+    sync(state) {
+      const activeWin = state?.windows?.find((win) => win.id === state.activeWindowId);
+      if (!activeWin || activeWin.visibility === "minimized") {
+        renderedWindowId = null;
+        return false;
+      }
+      if (activeWin.id === renderedWindowId) return false;
+      renderedWindowId = activeWin.id;
+
+      const objectId = resolveStationObjectId(activeWin);
+      if (!objectId) return false;
+      renderDrawerContent(objectId, officeState);
+      return true;
+    },
+    reset() {
+      renderedWindowId = null;
+    },
+    getRenderedWindowId() {
+      return renderedWindowId;
+    }
+  };
+}
+
 export function openStationWindow(objectId, options = {}) {
   const moduleId = resolveStationModule(objectId);
   if (!moduleId) return null;
@@ -98,10 +146,12 @@ export function attachStationAdapter({ drawerEl, officeState, renderDrawerConten
 
   let currentWinId = null;
   let dismissingDrawer = false;
+  const stationRenderer = createStationRenderer({ renderDrawerContent, officeState });
 
   const dismissCurrentDrawer = () => {
     dismissingDrawer = true;
     currentWinId = null;
+    stationRenderer.reset();
     drawerEl.classList.remove("open");
     setTimeout(() => {
       dismissingDrawer = false;
@@ -164,12 +214,16 @@ export function attachStationAdapter({ drawerEl, officeState, renderDrawerConten
     const activeWin = wmState.windows.find(w => w.id === wmState.activeWindowId);
 
     if (!activeWin || activeWin.visibility === "minimized") {
+      stationRenderer.reset();
       drawerEl.classList.remove("open");
       return;
     }
 
     currentWinId = activeWin.id;
     drawerEl.classList.add("open");
+
+    // RF1: o conteúdo do drawer acompanha a janela ativa (só quando o id muda)
+    stationRenderer.sync(wmState);
 
     // Sincroniza classes de apresentação visual
     drawerEl.classList.toggle("floating", activeWin.presentation === "floating");
@@ -210,7 +264,6 @@ export function attachStationAdapter({ drawerEl, officeState, renderDrawerConten
       const win = openStationWindow(objectId, { projectId: state?.activeProject });
       if (win) {
         currentWinId = win.id;
-        renderDrawerContent(objectId, state);
       }
     },
     closeStation() {
