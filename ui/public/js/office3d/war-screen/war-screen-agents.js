@@ -68,7 +68,6 @@ export function renderColumnAgents(ctx, x, y, w, h, agentsData, orchestrationSta
     {
       id: "gemini",
       name: "Gemini (Antigravity)",
-      icon: "✦",
       color: "#5c87f2",
       role: "Fullstack & Modelagem 3D",
       status: statusOf("gemini", "Standby"),
@@ -96,9 +95,10 @@ export function renderColumnAgents(ctx, x, y, w, h, agentsData, orchestrationSta
     ctx.strokeRect(x + 24, aY, w - 48, 220);
 
     // Ícone e Nome
+    const agentLabel = ag.icon ? `${ag.icon}  ${ag.name}` : ag.name;
     ctx.fillStyle = ag.color;
     ctx.font = "bold 26px 'Segoe UI', system-ui, sans-serif";
-    ctx.fillText(`${ag.icon}  ${ag.name}`, x + 40, aY + 44);
+    ctx.fillText(agentLabel, x + 40, aY + 44);
 
     // Badge de Status
     const isActive = ag.status === "Ativo" || ag.status === "Conectado" || ag.status === "connected";

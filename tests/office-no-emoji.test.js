@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const EMOJI_REGEX = /[\u{1F000}-\u{1FAFF}\u{2039}\u{203A}\u{2190}-\u{21FF}\u{2300}-\u{23FF}\u{25A0}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/u;
+const OFFICE3D_EMOJI_REGEX = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{2B06}\u{2705}\u{274C}\u{FE0F}\u{2714}\u{2716}\u{2726}]/u;
 const DISALLOWED_DIALOGS = /\bwindow\.(?:confirm|alert|prompt)\s*\(/;
 
 function read(relativePath) {
@@ -34,6 +35,8 @@ const SCANNED_FILES = [
   ...walk("ui/public/css/office", [".css"])
 ];
 
+const OFFICE3D_FILES = walk("ui/public/js/office3d", [".js"]);
+
 function assertClean(relativePath) {
   const content = read(relativePath);
   const lines = content.split(/\r?\n/);
@@ -58,6 +61,30 @@ test("EP-03: office.html não tem emojis e usa ícones FontAwesome", () => {
 
 test("EP-03: HTML, JS e CSS do escritório não têm emojis", () => {
   for (const file of SCANNED_FILES) assertClean(file);
+});
+
+test("EP-03: JS do office3d não tem emojis", () => {
+  assert.ok(OFFICE3D_FILES.length > 0, "office3d deve ter arquivos JS para varrer");
+  for (const file of OFFICE3D_FILES) {
+    const content = read(file);
+    const lines = content.split(/\r?\n/);
+    const hits = [];
+
+    lines.forEach((line, index) => {
+      const match = line.match(OFFICE3D_EMOJI_REGEX);
+      if (match) hits.push(`${file}:${index + 1}: ${match[0]}`);
+    });
+
+    assert.deepEqual(hits, [], `Emoji encontrado no office3d: ${hits.join(", ")}`);
+    assert.equal(DISALLOWED_DIALOGS.test(content), false, `${file} usa window.confirm/alert/prompt`);
+    assert.ok(lines.length <= 300, `${file} passou do limite de 300 linhas (${lines.length})`);
+  }
+});
+
+test("EP-03: a varredura cobre os módulos do office3d", () => {
+  assert.ok(OFFICE3D_FILES.includes("ui/public/js/office3d/orchestration/tab-control.js"));
+  assert.ok(OFFICE3D_FILES.includes("ui/public/js/office3d/war-screen/war-screen-agents.js"));
+  assert.ok(OFFICE3D_FILES.length > 15);
 });
 
 test("EP-03: HUD alterna ícones FontAwesome sem ler emoji do DOM", () => {
