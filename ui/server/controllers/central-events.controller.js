@@ -13,6 +13,8 @@ const { getPresenceStats } = require("../services/external-presence/presence-run
 const { getUsageStats } = require("../services/usage-ingest/usage-runtime");
 const { summarizeUsage, GROUPS } = require("../services/usage-ingest/usage-summary");
 
+const { parseUsageRange } = require("../services/usage-ingest/usage-range");
+
 const SLUG_RE = /^[a-z0-9][a-z0-9_-]{0,59}$/i;
 
 /**
@@ -66,18 +68,18 @@ async function apiProjectEvents({ req, res, params: [slug] }) {
   return send(res, 200, { events, cursor, stats: storeStats(slug), presence: getPresenceStats(), usage: getUsageStats() });
 }
 
-/** GET /api/project/:slug/usage/summary?since=<iso>&groupBy=day|model|session */
+/** GET /api/project/:slug/usage/summary?since=<iso>|window=24h|7d|14d|all&until=<iso>&groupBy=day|model|session|origin */
 async function apiProjectUsageSummary({ req, res, params: [slug] }) {
   if (!SLUG_RE.test(String(slug || ""))) return send(res, 400, { error: "Identificador de projeto inválido." });
   if (!projectExists(slug)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
-  const sinceRaw = queryParam(req, "since");
   const groupBy = queryParam(req, "groupBy");
-  if (sinceRaw && Number.isNaN(Date.parse(sinceRaw))) return send(res, 400, { error: "since deve ser uma data ISO válida." });
-  if (groupBy && !Object.hasOwn(GROUPS, groupBy)) return send(res, 400, { error: "groupBy deve ser day, model ou session." });
+  const range = parseUsageRange({ since: queryParam(req, "since"), window: queryParam(req, "window"), until: queryParam(req, "until") });
+  if ("error" in range) return send(res, 400, { error: range.error });
+  if (groupBy && !Object.hasOwn(GROUPS, groupBy)) return send(res, 400, { error: "groupBy deve ser day, model, session ou origin." });
   const ingest = getUsageStats();
   return send(res, 200, {
     ...summarizeUsage(slug, {
-      since: sinceRaw ? new Date(sinceRaw).toISOString() : null,
+      ...range,
       groupBy: /** @type {any} */ (groupBy || null),
       linesUnparsable: ingest.enabled ? ingest.linesUnparsable : null,
     }),

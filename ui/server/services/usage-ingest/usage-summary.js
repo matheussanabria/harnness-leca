@@ -1,24 +1,25 @@
 // @ts-check
-// Read model for GET /api/project/:slug/usage/summary. Aggregates usage.observed events in SQLite
-// (json_extract), counting each callId once (latest event wins). SUM over no numbers is NULL, so unknown
-// stays null instead of becoming 0; every total carries a coverage object (ADR-TEL-006).
+// Read model for GET /api/project/:slug/usage/summary. Aggregates usage.observed events in SQLite,
+// counting each callId once (latest event wins). SUM over no numbers is NULL, so unknown stays null
+// instead of becoming 0; every total carries a coverage object (ADR-TEL-006).
+// The JSON payload is parsed once per request into a flat TEMP table (per connection, never written to
+// the database file); every aggregation then runs over plain columns.
 const { openStore } = require("../events/event-store");
+const { getPriceTableInfo } = require("./usage-pricing-info");
 
-const GROUPS = {
-  day: "substr(at, 1, 10)",
-  model: "json_extract(payload, '$.model')",
-  session: "session_id",
-};
+const ORIGIN = "CASE WHEN sidechain = 1 THEN 'subagent' ELSE 'main' END";
+const GROUPS = { day: "substr(at, 1, 10)", model: "model", session: "session_id", origin: ORIGIN };
 const MAX_GROUPS = 500;
-const T = (/** @type {string} */ f) => `json_extract(payload, '$.tokens.${f}')`;
-const AGG = `COUNT(*) AS calls,
-  SUM(CASE WHEN ${T("input")} IS NOT NULL OR ${T("output")} IS NOT NULL OR ${T("cacheRead")} IS NOT NULL OR ${T("cacheCreation")} IS NOT NULL THEN 1 ELSE 0 END) AS withUsage,
-  SUM(CASE WHEN json_extract(payload, '$.cost.amount') IS NOT NULL THEN 1 ELSE 0 END) AS withCost,
-  SUM(CASE WHEN json_extract(payload, '$.cost.amount') IS NULL THEN 1 ELSE 0 END) AS withoutPrice,
-  SUM(CASE WHEN json_extract(payload, '$.sidechain') = 1 THEN 1 ELSE 0 END) AS sidechain,
-  SUM(${T("input")}) AS input, SUM(${T("output")}) AS output, SUM(${T("cacheRead")}) AS cacheRead,
-  SUM(${T("cacheCreation")}) AS cacheCreation, SUM(${T("reasoning")}) AS reasoning,
-  SUM(json_extract(payload, '$.cost.amount')) AS cost`;
+const MAX_UNPRICED = 10;
+const MAX_SESSION_MODELS = 3;
+const AGG = `COUNT(*) AS calls, MAX(at) AS lastAt,
+  SUM(CASE WHEN t_input IS NOT NULL OR t_output IS NOT NULL OR t_cacheRead IS NOT NULL OR t_cacheCreation IS NOT NULL THEN 1 ELSE 0 END) AS withUsage,
+  SUM(CASE WHEN cost IS NOT NULL THEN 1 ELSE 0 END) AS withCost,
+  SUM(CASE WHEN cost IS NULL THEN 1 ELSE 0 END) AS withoutPrice,
+  SUM(CASE WHEN sidechain = 1 THEN 1 ELSE 0 END) AS sidechain,
+  SUM(t_input) AS input, SUM(t_output) AS output, SUM(t_cacheRead) AS cacheRead,
+  SUM(t_cacheCreation) AS cacheCreation, SUM(t_reasoning) AS reasoning, SUM(cost) AS cost`;
+const J = (/** @type {string} */ p) => `json_extract(payload, '$.${p}')`;
 
 /** @param {any} v @returns {number | null} */
 const numOrNull = (v) => (v === null || v === undefined ? null : Number(v));
@@ -39,43 +40,89 @@ function shape(row) {
   };
 }
 
+/** Flat snapshot of the latest event per callId inside the time range. */
+function loadFlat(/** @type {any} */ db, /** @type {{ since?: string | null, until?: string | null }} */ o) {
+  const params = /** @type {any[]} */ (["usage.observed"]);
+  let range = "";
+  if (o.since) { range += " AND at >= ?"; params.push(o.since); }
+  if (o.until) { range += " AND at < ?"; params.push(o.until); }
+  db.exec("DROP TABLE IF EXISTS temp.usage_flat");
+  db.prepare(`CREATE TEMP TABLE usage_flat AS SELECT at, session_id, ${J("model")} AS model, ${J("engine")} AS engine,
+      ${J("sidechain")} AS sidechain, ${J("tokens.input")} AS t_input, ${J("tokens.output")} AS t_output,
+      ${J("tokens.cacheRead")} AS t_cacheRead, ${J("tokens.cacheCreation")} AS t_cacheCreation,
+      ${J("tokens.reasoning")} AS t_reasoning, ${J("cost.amount")} AS cost
+    FROM events WHERE seq IN (SELECT MAX(seq) FROM events WHERE type = ?${range}
+      GROUP BY COALESCE(${J("callId")}, id))`).run(...params);
+}
+
+/** Distinct models (most used first, max 3) and engine per session. @param {any} db */
+function sessionExtras(db) {
+  const rows = db.prepare(`SELECT session_id AS key, model, MIN(engine) AS engine, COUNT(*) AS n FROM usage_flat
+    WHERE model IS NOT NULL GROUP BY session_id, model ORDER BY n DESC, model`).all();
+  const map = new Map();
+  for (const r of rows) {
+    const e = map.get(r.key) || { engine: null, models: [] };
+    if (e.engine === null) e.engine = r.engine ?? null;
+    if (e.models.length < MAX_SESSION_MODELS) e.models.push(r.model);
+    map.set(r.key, e);
+  }
+  return map;
+}
+
+const slim = (/** @type {any} */ s) => ({ calls: s.calls, tokens: s.tokens, cost: s.cost });
+
+/** @param {any} db @param {string | null | undefined} groupBy */
+function buildGroups(db, groupBy) {
+  if (!groupBy) return null;
+  const expr = GROUPS[/** @type {keyof typeof GROUPS} */ (groupBy)];
+  const extras = groupBy === "session" ? sessionExtras(db) : null;
+  return db.prepare(`SELECT ${expr} AS key, ${AGG} FROM usage_flat GROUP BY ${expr} ORDER BY key LIMIT ${MAX_GROUPS}`)
+    .all().map((/** @type {any} */ r) => {
+      const g = { key: r.key === undefined ? null : r.key, ...shape(r), lastAt: r.lastAt ?? null };
+      if (!extras) return g;
+      const x = extras.get(r.key);
+      const sub = g.coverage.sidechainCalls;
+      return { ...g, engine: x ? x.engine : null, model: x ? x.models : [], origin: { main: g.calls - sub, subagent: sub } };
+    });
+}
+
 /**
  * @param {string} slug
- * @param {{ since?: string | null, groupBy?: "day" | "model" | "session" | null, linesUnparsable?: number | null }} [options]
+ * @param {{ since?: string | null, until?: string | null, window?: string | null,
+ *   groupBy?: "day" | "model" | "session" | "origin" | null, linesUnparsable?: number | null }} [options]
  */
 function summarizeUsage(slug, options = {}) {
   const db = openStore(slug);
-  const params = /** @type {any[]} */ (["usage.observed"]);
-  let sinceClause = "";
-  if (options.since) {
-    sinceClause = " AND at >= ?";
-    params.push(options.since);
+  loadFlat(db, options);
+  try {
+    const t = shape(db.prepare(`SELECT ${AGG} FROM usage_flat`).get());
+    const byOrigin = { main: shape({}), subagent: shape({}) };
+    for (const r of db.prepare(`SELECT ${ORIGIN} AS origin, ${AGG} FROM usage_flat GROUP BY origin`).all()) {
+      byOrigin[/** @type {"main" | "subagent"} */ (r.origin)] = shape(r);
+    }
+    const unpriced = db.prepare(`SELECT model, COUNT(*) AS calls FROM usage_flat WHERE cost IS NULL AND model IS NOT NULL
+      GROUP BY model ORDER BY calls DESC, model LIMIT ${MAX_UNPRICED}`).all()
+      .map((r) => ({ model: r.model, calls: Number(r.calls) }));
+    return {
+      project: slug,
+      since: options.since || null,
+      until: options.until || null,
+      window: options.window || null,
+      groupBy: options.groupBy || null,
+      totals: { calls: t.calls, tokens: t.tokens, cost: t.cost, byOrigin: { main: slim(byOrigin.main), subagent: slim(byOrigin.subagent) } },
+      groups: buildGroups(db, options.groupBy),
+      coverage: {
+        calls: t.calls, callsWithUsage: t.coverage.callsWithUsage, callsWithCost: t.coverage.callsWithCost,
+        callsWithoutModelPrice: t.coverage.callsWithoutModelPrice, sidechainCalls: t.coverage.sidechainCalls,
+        unpricedModels: unpriced,
+        // Process-lifetime counter of the ingest (not per project); null when the ingest is disabled.
+        linesUnparsable: options.linesUnparsable ?? null,
+      },
+      pricing: getPriceTableInfo(),
+    };
+  } finally {
+    db.exec("DROP TABLE IF EXISTS temp.usage_flat");
   }
-  // One row per callId: the latest event of each call (replays and later observations supersede).
-  const base = `FROM events WHERE seq IN (SELECT MAX(seq) FROM events WHERE type = ?${sinceClause}
-    GROUP BY COALESCE(json_extract(payload, '$.callId'), id))`;
-  const total = db.prepare(`SELECT ${AGG} ${base}`).get(...params);
-  const t = shape(total);
-  /** @type {any[] | null} */
-  let groups = null;
-  if (options.groupBy) {
-    const expr = GROUPS[options.groupBy];
-    groups = db.prepare(`SELECT ${expr} AS key, ${AGG} ${base} GROUP BY ${expr} ORDER BY key LIMIT ${MAX_GROUPS}`)
-      .all(...params).map((r) => ({ key: r.key === undefined ? null : r.key, ...shape(r) }));
-  }
-  return {
-    project: slug,
-    since: options.since || null,
-    groupBy: options.groupBy || null,
-    totals: { calls: t.calls, tokens: t.tokens, cost: t.cost },
-    groups,
-    coverage: {
-      calls: t.calls, callsWithUsage: t.coverage.callsWithUsage, callsWithCost: t.coverage.callsWithCost,
-      callsWithoutModelPrice: t.coverage.callsWithoutModelPrice, sidechainCalls: t.coverage.sidechainCalls,
-      // Process-lifetime counter of the ingest (not per project); null when the ingest is disabled.
-      linesUnparsable: options.linesUnparsable ?? null,
-    },
-  };
 }
 
 module.exports = { summarizeUsage, GROUPS };

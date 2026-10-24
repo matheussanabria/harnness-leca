@@ -86,7 +86,17 @@ function estimateCost({ provider, model, tokens, at } = {}, opts = {}) {
   };
 }
 
+// Metadata of the loaded table; retrievedAt is the newest model retrievedAt (YYYY-MM-DD).
+function getPriceTableInfo(opts = {}) {
+  const { table } = loadTable(opts.file);
+  const dates = table.models.map((m) => m.retrievedAt).sort();
+  return {
+    version: table.version, reviewStatus: table.reviewStatus || null, basis: "api-equivalent",
+    retrievedAt: dates.length ? dates[dates.length - 1] : null,
+  };
+}
+
 module.exports = {
-  estimateCost, normalizeModelId, normalizeProvider, findModel, validateTable,
+  estimateCost, getPriceTableInfo, normalizeModelId, normalizeProvider, findModel, validateTable,
   get PRICE_TABLE_VERSION() { return loadTable().table.version; },
 };

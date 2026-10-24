@@ -77,3 +77,16 @@
 | `tests/usage-ingest.test.js` | Tests for the usage ingest: dedup, incremental reads, replay, truncation, null vs zero, sidechain, privacy sentinels, bounds. |
 | `tests/usage-ingest-http.test.js` | Tests for the usage summary endpoint, runtime disable and error counting. |
 | `tests/usage-ingest-fixtures.js` | Shared transcript fixtures for the usage ingest tests (not a test file). |
+| `ui/server/services/usage-ingest/usage-range.js` | Parses `since`/`window`/`until` for the usage summary (24h, 7d, 14d, all); invalid or conflicting input is a 400. |
+| `ui/server/services/usage-ingest/usage-pricing-info.js` | Reads pricing table metadata (version, reviewStatus, retrievedAt) for the summary; null fields when the module is unavailable. |
+| `tests/usage-summary-extended.test.js` | Tests for origin split, `groupBy=origin`, unpriced models, pricing metadata, window presets, 400s and 20k-event timing. |
+| `ui/public/js/modules/usage-format.js` | Formatters of the consumption panel: compact K/M/B with exact title, cost, share percent; null renders as n/d. |
+| `ui/public/js/modules/usage-view-model.js` | Builds the consumption view model: cards, main vs subagent split, per-day buckets, models, sessions, coverage, notices. |
+| `ui/public/js/modules/usage-view.js` | HTML sections of the consumption panel. |
+| `ui/public/js/modules/usage-render.js` | Composes loading, error, disabled, empty and ready states of the consumption panel. |
+| `ui/public/js/modules/usage-api.js` | Fetches `/usage/summary` for day, model and session groupings with an abort signal. |
+| `ui/public/js/modules/usage-panel.js` | Controller of the consumption panel: 30 s polling only while visible, abort, window selector, retry. |
+| `ui/public/js/office3d/orchestration/tab-usage.js` | The Consumo tab of the Centro de Orquestracao (render, setup, unmount). |
+| `ui/public/css/office/19-usage-panel.css` | Styles of the consumption panel using the office dark theme tokens. |
+| `tests/usage-tab-model.test.js` | Tests for the consumption pure logic: formatters, view model, split math, null-never-zero. |
+| `tests/usage-tab-panel.test.js` | Fake-DOM tests for the consumption panel: states, polling stop when hidden, abort, retry. |
