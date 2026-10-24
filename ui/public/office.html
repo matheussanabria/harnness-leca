@@ -16,7 +16,7 @@
   <header class="dai-topbar">
     <div class="dai-brand-group">
       <a class="dai-logo-wrap" href="/">
-        <span class="dai-logo-icon">▲</span>
+        <span class="dai-logo-icon"><i class="fa-solid fa-cube" aria-hidden="true"></i></span>
         <span class="dai-logo-text">DAI</span>
       </a>
       <span class="dai-tagline">Harness de Agentes · Skills · Workflows</span>
@@ -24,19 +24,19 @@
 
     <!-- Navegação Central DAI -->
     <nav class="dai-nav-links">
-      <a href="/" class="dai-nav-item" title="Ver lista de Projetos">📁 Projetos</a>
-      <a href="/escritorio" class="dai-nav-item active" title="Escritório Virtual dos Agentes">🏢 Escritório</a>
-      <a href="/?design=1" class="dai-nav-item" title="Agentes DAI em Ação">👤 Agentes</a>
-      <a href="/" class="dai-nav-item" title="Catálogo de Skills">🧩 Skills</a>
-      <a href="/" class="dai-nav-item" title="Workflows Automatizados">🔀 Workflows</a>
-      <a href="/diario" class="dai-nav-item" title="Diário de Atividade e Memórias">🗄️ Memórias</a>
-      <a href="/deploy" class="dai-nav-item" title="Painel de Deploys e VPS">⚙️ Configurações</a>
+      <a href="/" class="dai-nav-item" title="Ver lista de Projetos"><i class="fa-solid fa-folder" aria-hidden="true"></i> Projetos</a>
+      <a href="/escritorio" class="dai-nav-item active" title="Escritório Virtual dos Agentes"><i class="fa-solid fa-building" aria-hidden="true"></i> Escritório</a>
+      <a href="/?design=1" class="dai-nav-item" title="Agentes DAI em Ação"><i class="fa-solid fa-user" aria-hidden="true"></i> Agentes</a>
+      <a href="/" class="dai-nav-item" title="Catálogo de Skills"><i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i> Skills</a>
+      <a href="/" class="dai-nav-item" title="Workflows Automatizados"><i class="fa-solid fa-shuffle" aria-hidden="true"></i> Workflows</a>
+      <a href="/diario" class="dai-nav-item" title="Diário de Atividade e Memórias"><i class="fa-solid fa-box-archive" aria-hidden="true"></i> Memórias</a>
+      <a href="/deploy" class="dai-nav-item" title="Painel de Deploys e VPS"><i class="fa-solid fa-gear" aria-hidden="true"></i> Configurações</a>
     </nav>
 
     <!-- Usuário & Controles Direita -->
     <div class="dai-user-group">
       <button class="dai-hud-toggle-btn" id="btnToggleHud" title="Ocultar/Exibir menus da tela (Atalho: H)">
-        <span class="hud-toggle-icon">👁️</span>
+        <span class="hud-toggle-icon"><i class="fa-solid fa-eye" aria-hidden="true"></i></span>
         <span class="hud-toggle-text">Ocultar Menus</span>
         <kbd class="hud-kbd-badge">H</kbd>
       </button>
@@ -82,9 +82,9 @@
     <div class="dai-floating-left">
       <!-- Card: Bom dia, Matheus! -->
       <div class="dai-welcome-card">
-        <button class="dai-hud-close-btn" id="btnCloseLeftPanel" title="Ocultar painéis da esquerda (Atalho: H)" aria-label="Ocultar painéis da esquerda">✕</button>
+        <button class="dai-hud-close-btn" id="btnCloseLeftPanel" title="Ocultar painéis da esquerda (Atalho: H)" aria-label="Ocultar painéis da esquerda"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
         <div class="welcome-header">
-          <div class="ai-hologram-avatar">🤖</div>
+          <div class="ai-hologram-avatar"><i class="fa-solid fa-robot" aria-hidden="true"></i></div>
           <div class="welcome-text">
             <h3>Bom dia, Matheus!</h3>
             <p id="welcomeStats">Hoje temos 12 tarefas ativas e 4 agentes em execução.</p>
@@ -103,27 +103,27 @@
         </div>
         <div class="agent-status-list">
           <div class="agent-status-row">
-            <span class="agent-name-cell"><span>🤖</span> Orquestrador</span>
+            <span class="agent-name-cell"><span><i class="fa-solid fa-robot" aria-hidden="true"></i></span> Orquestrador</span>
             <span class="agent-badge badge-dev">Desenvolvendo</span>
           </div>
           <div class="agent-status-row">
-            <span class="agent-name-cell"><span>⚡</span> Dev</span>
+            <span class="agent-name-cell"><span><i class="fa-solid fa-bolt" aria-hidden="true"></i></span> Dev</span>
             <span class="agent-badge badge-dev">Implementando</span>
           </div>
           <div class="agent-status-row">
-            <span class="agent-name-cell"><span>🧪</span> QA</span>
+            <span class="agent-name-cell"><span><i class="fa-solid fa-flask" aria-hidden="true"></i></span> QA</span>
             <span class="agent-badge badge-qa">Testando</span>
           </div>
           <div class="agent-status-row">
-            <span class="agent-name-cell"><span>🚀</span> DevOps</span>
+            <span class="agent-name-cell"><span><i class="fa-solid fa-rocket" aria-hidden="true"></i></span> DevOps</span>
             <span class="agent-badge badge-devops">Implantando</span>
           </div>
           <div class="agent-status-row">
-            <span class="agent-name-cell"><span>📐</span> Architect</span>
+            <span class="agent-name-cell"><span><i class="fa-solid fa-ruler-combined" aria-hidden="true"></i></span> Architect</span>
             <span class="agent-badge badge-arch">Analisando</span>
           </div>
           <div class="agent-status-row">
-            <span class="agent-name-cell"><span>📋</span> BA</span>
+            <span class="agent-name-cell"><span><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></span> BA</span>
             <span class="agent-badge badge-ba">Documentando</span>
           </div>
         </div>
@@ -139,7 +139,7 @@
             <span style="font-size:20px" id="hudProjectIcon"><i class="fa-solid fa-folder-open"></i></span>
             <h2 id="hudProjectTitle">Carregando...</h2>
           </div>
-          <button class="dai-hud-close-btn" id="btnCloseRightSidebar" title="Ocultar painel lateral direito (Atalho: H)" aria-label="Ocultar painel lateral direito">✕</button>
+          <button class="dai-hud-close-btn" id="btnCloseRightSidebar" title="Ocultar painel lateral direito (Atalho: H)" aria-label="Ocultar painel lateral direito"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
         </div>
         <div class="project-subtitle" id="hudProjectDesc">Workspace gerenciado por agentes DAI</div>
         <div class="project-status-pill">
@@ -165,24 +165,24 @@
         <div class="sidebar-section-title">Atalhos rápidos</div>
         <div class="quick-links-list">
           <a href="vscode://file/c:/Users/matheuss.rodrigues/git/harness-leca" class="quick-link-row" title="Abrir no editor VS Code">
-            <span>💻 Abrir no VS Code</span>
-            <span>›</span>
+            <span><i class="fa-solid fa-laptop-code" aria-hidden="true"></i> Abrir no VS Code</span>
+            <span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
           </a>
           <a href="/" class="quick-link-row" title="Ver arquivos e repositório">
-            <span>📁 Ver repositório</span>
-            <span>›</span>
+            <span><i class="fa-solid fa-folder" aria-hidden="true"></i> Ver repositório</span>
+            <span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
           </a>
           <a href="/diario" class="quick-link-row" title="Documentação e Dossiês">
-            <span>📖 Documentação</span>
-            <span>›</span>
+            <span><i class="fa-solid fa-book" aria-hidden="true"></i> Documentação</span>
+            <span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
           </a>
           <a href="/deploy" class="quick-link-row" title="Painel de Deploys VPS">
-            <span>🚀 Deploy</span>
-            <span>›</span>
+            <span><i class="fa-solid fa-rocket" aria-hidden="true"></i> Deploy</span>
+            <span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
           </a>
           <a href="/preview" class="quick-link-row" title="Visualização Mobile/Web">
-            <span>📱 Mobile/Preview</span>
-            <span>›</span>
+            <span><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> Mobile/Preview</span>
+            <span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
           </a>
         </div>
       </div>
@@ -218,7 +218,7 @@
       <!-- Rodapé Lema -->
       <div class="sidebar-footer-quote">
         <span>O futuro não é algo que acontece. É algo que construímos.</span>
-        <span style="font-weight:900;color:var(--dai-cyan)">▲</span>
+        <span style="font-weight:900;color:var(--dai-cyan)"><i class="fa-solid fa-caret-up" aria-hidden="true"></i></span>
       </div>
     </aside>
 
@@ -229,24 +229,12 @@
     <div class="dai-bottom-bar">
       <!-- Seletor de Câmera e Modo com Atalhos -->
       <div class="mode-toggle-group">
-        <button class="btn-mode-pill active" id="btnMode3rdPerson" aria-pressed="true" title="Explorar o estúdio em 3ª Pessoa (Atalho: 1)">
-          <i class="fa-solid fa-person-walking"></i> 3ª Pessoa <kbd class="mode-kbd">1</kbd>
-        </button>
-        <button class="btn-mode-pill" id="btnMode1stPerson" aria-pressed="false" title="Perspectiva imersiva em 1ª Pessoa nos olhos do personagem (Atalho: 2 ou C)">
-          <i class="fa-solid fa-eye"></i> 1ª Pessoa <kbd class="mode-kbd">2</kbd>
-        </button>
-        <button class="btn-mode-pill" id="btnModeWorkstation" aria-pressed="false" title="Sentar na Cadeira e utilizar a Estação de Trabalho (Atalho: 3)">
-          <i class="fa-solid fa-chair"></i> Estação <kbd class="mode-kbd">3</kbd>
-        </button>
-        <button class="btn-mode-pill" id="btnModeWarRoom" aria-pressed="false" title="Navegar e focar na Sala de Guerra (Atalho: 4 ou G)">
-          <i class="fa-solid fa-building-columns"></i> Sala de Guerra <kbd class="mode-kbd">4/G</kbd>
-        </button>
-        <button class="btn-mode-pill" id="btnModeOrbit" aria-pressed="false" title="Visão Externa 3D Orbital com rotação livre (Atalho: 5 ou O)">
-          <i class="fa-solid fa-globe"></i> Diorama <kbd class="mode-kbd">5</kbd>
-        </button>
-        <button class="btn-mode-pill" id="btnMode2D" aria-pressed="false" title="Modo Retrô Jogável 2.5D estilo Habbo (Atalho: 6 ou Z)">
-          <i class="fa-solid fa-layer-group"></i> Modo 2.5D <kbd class="mode-kbd">6/Z</kbd>
-        </button>
+        <button class="btn-mode-pill active" id="btnMode3rdPerson" aria-pressed="true" title="Explorar o estúdio em 3ª Pessoa (Atalho: 1)"><i class="fa-solid fa-person-walking"></i> 3ª Pessoa <kbd class="mode-kbd">1</kbd></button>
+        <button class="btn-mode-pill" id="btnMode1stPerson" aria-pressed="false" title="Perspectiva imersiva em 1ª Pessoa nos olhos do personagem (Atalho: 2 ou C)"><i class="fa-solid fa-eye"></i> 1ª Pessoa <kbd class="mode-kbd">2</kbd></button>
+        <button class="btn-mode-pill" id="btnModeWorkstation" aria-pressed="false" title="Sentar na Cadeira e utilizar a Estação de Trabalho (Atalho: 3)"><i class="fa-solid fa-chair"></i> Estação <kbd class="mode-kbd">3</kbd></button>
+        <button class="btn-mode-pill" id="btnModeWarRoom" aria-pressed="false" title="Navegar e focar na Sala de Guerra (Atalho: 4 ou G)"><i class="fa-solid fa-building-columns"></i> Sala de Guerra <kbd class="mode-kbd">4/G</kbd></button>
+        <button class="btn-mode-pill" id="btnModeOrbit" aria-pressed="false" title="Visão Externa 3D Orbital com rotação livre (Atalho: 5 ou O)"><i class="fa-solid fa-globe"></i> Diorama <kbd class="mode-kbd">5</kbd></button>
+        <button class="btn-mode-pill" id="btnMode2D" aria-pressed="false" title="Modo Retrô Jogável 2.5D estilo Habbo (Atalho: 6 ou Z)"><i class="fa-solid fa-layer-group"></i> Modo 2.5D <kbd class="mode-kbd">6/Z</kbd></button>
       </div>
 
       <div class="bottom-hint-pill" id="bottomHintText">
@@ -280,7 +268,7 @@
 
   <!-- Banner de Dica de Modo Imersivo -->
   <div class="office-pointer-lock-hint" id="officePointerLockHint" style="display:none">
-    🎯 Modo Imersivo Ativo · Olhe livremente com o mouse · Pressione <b>ESC</b> para liberar o cursor
+    <i class="fa-solid fa-crosshairs" aria-hidden="true"></i> Modo Imersivo Ativo · Olhe livremente com o mouse · Pressione <b>ESC</b> para liberar o cursor
   </div>
 
   <!-- Drawer Lateral Retrátil de Detalhes / Window Manager -->

@@ -31,7 +31,9 @@ export function setHudVisibility(visible) {
     const label = btnToggleHud.querySelector(".hud-toggle-text");
     const icon = btnToggleHud.querySelector(".hud-toggle-icon");
     if (label) label.textContent = isHidden ? "Mostrar Menus" : "Ocultar Menus";
-    if (icon) icon.textContent = isHidden ? "👁️‍🗨️" : "👁️";
+    if (icon) icon.innerHTML = isHidden
+      ? '<i class="fa-solid fa-eye-slash" aria-hidden="true"></i>'
+      : '<i class="fa-solid fa-eye" aria-hidden="true"></i>';
     btnToggleHud.title = isHidden ? "Reexibir menus da tela (Atalho: H)" : "Ocultar menus da tela (Atalho: H)";
   }
 
@@ -188,19 +190,19 @@ export function updateHUD(state) {
 
     agentListEl.innerHTML = `
       <div class="agent-status-row">
-        <span class="agent-name-cell"><span>🤖</span> Claude Code</span>
+        <span class="agent-name-cell"><span><i class="fa-solid fa-robot" aria-hidden="true"></i></span> Claude Code</span>
         <span class="agent-badge ${cCount > 0 ? 'badge-dev' : 'badge-ba'}">${cCount > 0 ? `${cCount} ativo · Executando` : 'Standby'}</span>
       </div>
       <div class="agent-status-row">
-        <span class="agent-name-cell"><span>✦</span> Gemini (Antigravity)</span>
+        <span class="agent-name-cell"><span><i class="fa-solid fa-star" aria-hidden="true"></i></span> Gemini (Antigravity)</span>
         <span class="agent-badge ${gCount > 0 ? 'badge-dev' : 'badge-ba'}">${gCount > 0 ? `${gCount} ativo · Em andamento` : 'Standby'}</span>
       </div>
       <div class="agent-status-row">
-        <span class="agent-name-cell"><span>◆</span> OpenCode Lab</span>
+        <span class="agent-name-cell"><span><i class="fa-solid fa-gem" aria-hidden="true"></i></span> OpenCode Lab</span>
         <span class="agent-badge ${oCount > 0 ? 'badge-devops' : 'badge-ba'}">${oCount > 0 ? `${oCount} ativo` : 'Standby'}</span>
       </div>
       <div class="agent-status-row">
-        <span class="agent-name-cell"><span>🧪</span> QA AutoTester</span>
+        <span class="agent-name-cell"><span><i class="fa-solid fa-flask" aria-hidden="true"></i></span> QA AutoTester</span>
         <span class="agent-badge badge-qa">213 testes OK</span>
       </div>
     `;

@@ -55,7 +55,7 @@ export const officeScreen57Methods = {
     ctx.font = "bold 20px sans-serif";
     ctx.fillText("Encontre o seu próximo seminovo premium:", 65, filterY + 48);
 
-    const filterChips = ["Todas as Marcas ⌄", "Preço até R$ 250k ⌄", "Ano 2022+ ⌄", "Automático ⌄", "Blindagem III-A ⌄"];
+    const filterChips = ["Todas as Marcas", "Preço até R$ 250k", "Ano 2022+", "Automático", "Blindagem III-A"];
     let cx = 520;
     for (const chip of filterChips) {
       ctx.fillStyle = "#0f172a";
