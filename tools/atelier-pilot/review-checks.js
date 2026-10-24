@@ -39,10 +39,10 @@ function pageChecks(opts) {
   const backdrop = (el) => {
     for (let n = el; n; n = n.parentElement) {
       const c = parse(getComputedStyle(n).backgroundColor);
-      if (c && c.a > 0.99) return c;
+      if (c && c.a > 0.99) return { ...c, node: n };
       if (getComputedStyle(n).backgroundImage !== "none") return null; // gradient or image: cannot measure
     }
-    return { r: 255, g: 255, b: 255, a: 1 };
+    return { r: 255, g: 255, b: 255, a: 1, node: null };
   };
 
   const all = [...document.body.querySelectorAll("*")].filter(visible);
@@ -65,7 +65,8 @@ function pageChecks(opts) {
     const size = parseFloat(cs.fontSize);
     const large = size >= 24 || (size >= 18.66 && Number(cs.fontWeight) >= 700);
     const r = ratio(over(fg, bg), bg);
-    if (r < (large ? 3 : 4.5)) lowContrast.push({ element: sel(el), ratio: Math.round(r * 100) / 100, needed: large ? 3 : 4.5, text: textOf(el) });
+    const rgb = (c) => `rgb(${Math.round(c.r)}, ${Math.round(c.g)}, ${Math.round(c.b)})`;
+    if (r < (large ? 3 : 4.5)) lowContrast.push({ element: sel(el), ratio: Math.round(r * 100) / 100, needed: large ? 3 : 4.5, text: textOf(el), fg: rgb(over(fg, bg)), bg: rgb(bg), pid: el.getAttribute("data-pid") || "", ownsBackground: bg.node === el });
   }
 
   // Browser defaults leaking through: default link blue and Times.

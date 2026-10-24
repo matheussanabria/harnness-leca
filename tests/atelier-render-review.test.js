@@ -17,11 +17,14 @@ test("parseArgs reads widths and defaults", () => {
 
 test("summarize puts high severity first and drops repeats across widths", () => {
   const base = { overflow: { scrolls: false, offenders: [] }, lowContrast: { items: [] }, unstyledLinks: { items: [] }, defaultFont: { count: 0, items: [] }, smallTargets: { items: [] }, structure: { h1: 1, controlsWithoutName: 0 } };
-  const wide = { ...base, width: 1440, lowContrast: { items: [{ ratio: 2, needed: 4.5, element: "p", text: "x" }] } };
+  const wide = { ...base, width: 1440, lowContrast: { items: [{ ratio: 2, needed: 4.5, element: "p", text: "x", fg: "rgb(51, 36, 26)", bg: "rgb(185, 106, 46)" }] } };
   const narrow = { ...base, width: 390, lowContrast: wide.lowContrast, structure: { h1: 0, controlsWithoutName: 0 } };
   const out = summarize([wide, narrow]);
   assert.equal(out[0].severity, "high");
-  assert.equal(out.filter((i) => /low contrast/.test(i.text)).length, 1, "same finding at two widths is listed once");
+  const contrast = out.filter((i) => /low contrast/.test(i.text));
+  assert.equal(contrast.length, 1, "same finding at two widths is listed once");
+  assert.equal(contrast[0].at, "1440px, 390px", "and it names every width it occurs at");
+  assert.match(contrast[0].text, /the text is rgb\(51, 36, 26\) on rgb\(185, 106, 46\)/, "with the computed colours, which can differ from the stylesheet");
   assert.ok(out.some((i) => /expected one h1/.test(i.text)));
 });
 
@@ -66,6 +69,7 @@ test("browser: low contrast is measured against the real background colour", asy
   const hits = issues.filter((i) => /low contrast/.test(i.text));
   assert.equal(hits.length, 1);
   assert.match(hits[0].text, /hard to read/);
+  assert.match(hits[0].text, /the text is rgb\(168, 90, 50\) on rgb\(154, 74, 34\)/, "reports the measured foreground and background");
 });
 
 test("browser: links to a missing anchor are flagged and existing ones are not", async (t) => {

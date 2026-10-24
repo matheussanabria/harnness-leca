@@ -64,7 +64,8 @@ function summarize(results) {
     const at = `${r.width}px`;
     if (r.overflow.scrolls) issues.push({ severity: "high", at, text: `page scrolls sideways (${r.overflow.scrollWidth}px wide in a ${r.overflow.viewport}px viewport); first offender: ${r.overflow.offenders[0]?.element || "unknown"}` });
     else if (r.overflow.offenders.length) issues.push({ severity: "high", at, text: `content pokes past the right edge: ${r.overflow.offenders.map((o) => o.element).slice(0, 3).join(", ")}` });
-    for (const c of r.lowContrast.items) issues.push({ severity: "high", at, text: `low contrast ${c.ratio}:1 (needs ${c.needed}) on ${c.element} "${c.text}"` });
+    // The computed colours matter: a rule elsewhere can override what the stylesheet seems to say.
+    for (const c of r.lowContrast.items) issues.push({ severity: "high", at, kind: "contrast", pid: c.pid, fg: c.fg, bg: c.bg, needed: c.needed, ownsBackground: c.ownsBackground, text: `low contrast ${c.ratio}:1 (needs ${c.needed}) on ${c.element} "${c.text}": the text is ${c.fg} on ${c.bg}` });
     for (const l of r.unstyledLinks.items) issues.push({ severity: "high", at, text: `unstyled link (browser default blue): ${l.element} "${l.text}"` });
     if (r.defaultFont.count) issues.push({ severity: "medium", at, text: `${r.defaultFont.count} element(s) use the browser default font, for example ${r.defaultFont.items[0].element}` });
     for (const t of r.smallTargets.items) issues.push({ severity: "medium", at, text: `touch target ${t.size} (needs 44x44): ${t.element} "${t.text}"` });
@@ -72,8 +73,16 @@ function summarize(results) {
     if (r.structure.h1 !== 1) issues.push({ severity: "medium", at, text: `expected one h1, found ${r.structure.h1}` });
     if (r.structure.controlsWithoutName) issues.push({ severity: "medium", at, text: `${r.structure.controlsWithoutName} link/button without an accessible name` });
   }
-  const seen = new Set();
-  return issues.filter((i) => { const k = `${i.severity}|${i.text}`; return seen.has(k) ? false : (seen.add(k), true); }).sort((a, b) => (a.severity === b.severity ? 0 : a.severity === "high" ? -1 : 1));
+  // The same finding at several widths is listed once, with every width it occurs at.
+  const grouped = new Map();
+  for (const i of issues) {
+    const key = `${i.severity}|${i.text}`;
+    if (grouped.has(key)) grouped.get(key).widths.push(i.at);
+    else grouped.set(key, { ...i, widths: [i.at] });
+  }
+  return [...grouped.values()]
+    .map(({ widths, ...i }) => ({ ...i, at: widths.length > 1 ? widths.join(", ") : widths[0] }))
+    .sort((a, b) => (a.severity === b.severity ? 0 : a.severity === "high" ? -1 : 1));
 }
 
 async function main() {
