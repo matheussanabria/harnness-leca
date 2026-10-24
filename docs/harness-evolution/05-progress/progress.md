@@ -7,21 +7,23 @@ atualizado: 2026-10-21
 
 Status real do repositório. Só muda com evidência registrada na história. O andamento anterior, organizado por fases da Fase 0, continua em [implementation-progress](../implementation-progress.md). Para a divisão e os handoffs entre os dois chats ativos, consulte o [Painel Gemini + Codex](multi-agent-sync.md).
 
+> Revisão de 2026-10-24: "concluído (contrato)" = API, módulo e testes aceitos, sem tela ou fiação no cliente. Detalhe verificado em [epic-gaps](epic-gaps.md).
+
 | Épico | Concluídas | Status | Evidência | Próximo passo |
 |---|---|---|---|---|
 | EP-00 | 4/4 | **concluído** | 00.01 a 00.04 concluídas; inventário, painéis, contratos e baseline | Portão satisfeito |
-| EP-01 | 10/10 | **concluído** | 01.01 a 01.10 concluídas; catálogo, adaptador, foco, ciclo de vida, barra de tarefas, mover/redimensionar, docking, persistência, responsivo e workspaces | Portão satisfeito; EP-02 e EP-03 liberados |
+| EP-01 | 10/10 | **concluído (contrato); UI pendente** | 01.01 a 01.10 concluídas; catálogo, adaptador, foco, ciclo de vida, barra de tarefas, mover/redimensionar, docking, persistência, responsivo e workspaces | Portão satisfeito; EP-02 e EP-03 liberados |
 | EP-02 | 8/8 | **concluído** | 02.01 a 02.08 concluídas; contratos, 3 apresentações, sessões multi-motor, continuidade, rolagem ancorada e hardening de execução | Portão satisfeito; EP-03 e EP-06 liberados |
-| EP-03 | 9/9 | **concluído** | 03.01 a 03.09 concluídas; catálogo, despachante, janelas, presets de telão, estado dos agentes, iluminação funcional, alternância de modos, paridade funcional do 2.5D, desempenho e acessibilidade da cena | Portão satisfeito |
-| EP-04 | 5/5 | **concluído** | 04.01 a 04.05 concluíram seleção, layouts, persistência, templates e proteção de pendências | Portão satisfeito; EP-05 e EP-06 liberados |
+| EP-03 | 9/9 | **concluído (contrato); 03.04 em andamento** | 03.01 a 03.09 concluídas; catálogo, despachante, janelas, presets de telão, estado dos agentes, iluminação funcional, alternância de modos, paridade funcional do 2.5D, desempenho e acessibilidade da cena | Portão satisfeito |
+| EP-04 | 5/5 | **concluído (contrato); UI pendente** | 04.01 a 04.05 concluíram seleção, layouts, persistência, templates e proteção de pendências | Portão satisfeito; EP-05 e EP-06 liberados |
 | EP-05 | 7/7 | **concluído** | 05.01 a 05.06 entregaram schema v2, 12 raias, ordem persistida, transições auditáveis, impedimentos/filtros/métricas e projeção do Kanban no telão; 05.07 entregou a integração com o Jira: leitura viva no servidor com PAT do ambiente, botão Sincronizar Jira, consulta local por script (`tools/jira-query.js`), redação de CPF/CNS/e-mail/telefone e panorama em `context/jira-resumo.md` | Portão satisfeito; MCP de Jira e rotinas com comentários para agente em nuvem bloqueados até a decisão do PM sobre a 10.9 (LGPD) |
 | EP-06 | 5/5 | **concluído** | 06.01 a 06.05 concluídas; layout responsivo, chat compartilhado, visualizações Código/Design/Preview, guard de alterações e mapeamento de elemento para arquivo/componente | Portão satisfeito |
 | EP-07 | 5/5 | **concluído** | 07.01 a 07.05 concluídas; inventário, importação, manifesto de origem, acesso local/projeto, prévia segura e vínculos navegáveis no Mapa em Camadas | Portão satisfeito; EP-11 liberado |
-| EP-08 | 5/5 | **concluído** | 08.01 a 08.05 concluídas; catálogo de capacidades por provedor, etapas do SDLC com agentes/papéis/gates, vínculos de skills por projeto e raia, execução de workflows com eventos canônicos e rotinas com aprovação e histórico | Portão satisfeito; EP-09 liberado |
+| EP-08 | 5/5 | **concluído (contrato); UI pendente** | 08.01 a 08.05 concluídas; catálogo de capacidades por provedor, etapas do SDLC com agentes/papéis/gates, vínculos de skills por projeto e raia, execução de workflows com eventos canônicos e rotinas com aprovação e histórico | Portão satisfeito; EP-09 liberado |
 | EP-09 | 2/6 | **em andamento** | 09.01 (registro canônico com descoberta somente leitura, migração aditiva, leitura tolerante, reconciliação com `projectConfidence` e API restrita ao loopback) e 09.03 (Central em lista e Kanban na janela de Orquestração, com busca, filtros, painel de detalhe e estados textuais) implementadas; contrato de leitura congelado para a 09.02 | 09.02 delegada a outra frente; 09.04 e 09.05 dependem do event log e do stream |
 | EP-10 | 5/5 | **concluído** | 10.01 a 10.05 concluídas; pipelines, saúde, histórico, ações autorizadas e paridade com o escritório | Portão satisfeito |
 | EP-11 | 3/5 | **em andamento** | 11.01 a 11.03 concluídas; matriz de auditoria com evidências, quatro estados de teste distintos e Quadro de Componentes integrado | 11.04 e 11.05 pendentes |
-| EP-12 | 32/32 | **concluído** | F0 a F7 concluídas; Marcos M1, M2 e M3 homologados | Portão satisfeito |
+| EP-12 | 32/32 | **concluído (contrato); piloto e Studio pendentes** | F0 a F7 concluídas; Marcos M1, M2 e M3 homologados | Portão satisfeito |
 | EP-13 | 0/9 | **especificado** | Diagnóstico, arquitetura-alvo, ADR-009 e 9 histórias documentados | Frente `memoria`; começar por 13.01 e 13.02 (podem rodar em paralelo) |
 | EP-14 | 11/12 | **especificado** | README e 11 histórias; infraestrutura (fixtures, pre-commit, executor opencode) e estado de 13 telas | Um agente e uma branch `ep14/<id>` por história; merge em `ep14/integracao` |
 

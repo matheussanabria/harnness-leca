@@ -9,6 +9,8 @@ Documento mestre do programa de evolução. Cada entrega aceita tem um documento
 
 > Snapshot verificado em 2026-10-22: 111/127 entregas concluídas e links locais válidos. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
 
+> Revisão de 2026-10-24: "concluído" significa contrato aceito (API, módulo e testes). Vários épicos têm entregas sem tela ou sem fiação no cliente; o detalhe verificado está em [epic-gaps](05-progress/epic-gaps.md). Os épicos abaixo marcados com "UI pendente" não devem ser tratados como utilizáveis pelo usuário.
+
 ## Como usar
 
 1. Confirme a próxima entrega em [Trabalho disponível agora](#trabalho-disponível-agora).
@@ -25,18 +27,18 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | ID | Épico | Prioridade | Situação atual | Entregas aceitas |
 |---|---|---|---|---|
 | [EP-00](02-epics/EP-00-auditoria/README.md) | Auditoria e arquitetura existente | P0 | Concluído | 4/4 |
-| [EP-01](02-epics/EP-01-window-manager/README.md) | Window Manager híbrido | P0 | Concluído | 10/10 |
+| [EP-01](02-epics/EP-01-window-manager/README.md) | Window Manager híbrido | P0 | Concluído (contrato); UI pendente em 01.07 a 01.10 e na troca de conteúdo pela barra de tarefas | 10/10 |
 | [EP-02](02-epics/EP-02-chat/README.md) | Chat universal e conversas | P0 | Concluído | 8/8 |
-| [EP-03](02-epics/EP-03-escritorio/README.md) | Escritório 2.5D/3D | P1 | Concluído | 9/9 |
-| [EP-04](02-epics/EP-04-projetos-workspaces/README.md) | Projetos e workspaces | P1 | Concluído | 5/5 |
+| [EP-03](02-epics/EP-03-escritorio/README.md) | Escritório 2.5D/3D | P1 | Concluído (contrato); 03.04 ainda em andamento e foco de tela do 2.5D não renderiza | 9/9 |
+| [EP-04](02-epics/EP-04-projetos-workspaces/README.md) | Projetos e workspaces | P1 | Concluído (contrato); UI pendente: layouts, templates, restauração e bloqueio de pendências sem consumidor | 5/5 |
 | [EP-05](02-epics/EP-05-scrum/README.md) | Scrum & Sprints | P1 | Concluído | 7/7 |
 | [EP-06](02-epics/EP-06-studio/README.md) | Studio, código e preview | P1 | Concluído | 5/5 |
 | [EP-07](02-epics/EP-07-artefatos/README.md) | Artefatos e documentação | P1 | Concluído | 5/5 |
-| [EP-08](02-epics/EP-08-agentes/README.md) | Agentes, skills e workflows | P1 | Concluído | 5/5 |
+| [EP-08](02-epics/EP-08-agentes/README.md) | Agentes, skills e workflows | P1 | Concluído (contrato); UI pendente: só 08.05 tem tela | 5/5 |
 | [EP-09](02-epics/EP-09-observabilidade/README.md) | Central de sessões, observabilidade e orquestração | P1 | Em andamento; 09.01 (registro canônico) e 09.03 (Central) aceitas, 09.02 (event log e SSE) em andamento na frente opencode/qualidade | 2/6 |
 | [EP-10](02-epics/EP-10-deploy/README.md) | Datacenter e deploys | P2 | Concluído; 10.01 a 10.05 aceitas; frente opencode/deploy | 5/5 |
 | [EP-11](02-epics/EP-11-auditoria-qualidade/README.md) | Auditoria, testes e Design System | P2 | Em andamento; 11.01, 11.02 e 11.03 aceitas; frente opencode/qualidade | 3/5 |
-| [EP-12](02-epics/EP-12-prototype-engine/README.md) | Prototype Engine & Design System Multiframework | P1 | Concluído | 32/32 |
+| [EP-12](02-epics/EP-12-prototype-engine/README.md) | Prototype Engine & Design System Multiframework | P1 | Concluído (contrato); piloto `dis-modular` só em `.trash`, Studio e `proto.json` sem rota | 32/32 |
 | [EP-13](02-epics/EP-13-memoria-agentes/README.md) | Memória e conhecimento dos agentes | P1 | Especificado; frente `memoria`, aberta a qualquer motor | 0/9 |
 | [EP-14](02-epics/EP-14-estado-das-telas/README.md) | Estado das telas persistido no servidor | P1 | Especificado; branches `ep14/<id>`, delegável ao opencode | 11/12 |
 
