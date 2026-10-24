@@ -9,7 +9,7 @@ const path = require("path");
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-root-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
 fs.mkdirSync(path.join(TMP_ROOT, "projects", "dai"), { recursive: true }); // projeto que o teste do servidor usa
-test.after(() => fs.rmSync(TMP_ROOT, { recursive: true, force: true }));
+test.after(() => fs.rmSync(TMP_ROOT, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }));
 
 const E = require("../tools/lib/engines");
 const state = require("../tools/lib/state");
@@ -32,7 +32,12 @@ test("servidor: POST só com Origin igual ao próprio endereço e JSON; erros in
   const cp = require("child_process");
   const port = 43000 + (process.pid % 2000);
   const srv = cp.spawn(process.execPath, [path.join(__dirname, "..", "ui", "server.js")], { env: { ...process.env, PORT: String(port) }, stdio: ["ignore", "pipe", "ignore"], windowsHide: true });
-  t.after(() => srv.kill());
+  // kill() is asynchronous: on Windows the child still holds files under TMP_ROOT until it exits.
+  t.after(() => new Promise((resolve) => {
+    if (srv.exitCode !== null || srv.signalCode !== null) return resolve();
+    srv.once("close", resolve);
+    srv.kill();
+  }));
   await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error("servidor não respondeu em 15 s")), 15000);
     srv.once("exit", (code) => { clearTimeout(timer); reject(new Error(`servidor saiu antes de subir (código ${code})`)); });
