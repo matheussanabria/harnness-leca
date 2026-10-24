@@ -38,7 +38,7 @@ const ACTION_CATALOG = Object.freeze([
     id: "restart-hom",
     label: "Reinicio em homologacao",
     type: "restart",
-    projectId: "57multimarcas-back",
+    projectId: "57multimarcas-api",
     envId: "hom",
     risk: "baixo",
     requiresConfirmation: false,

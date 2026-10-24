@@ -61,9 +61,9 @@ function sharesToken(componentParts, ruleParts) {
  */
 function situationFor(rules = []) {
   if (!rules.length) return "sem_regra";
-  let worst = "planned";
+  let worst = "approved";
   for (const rule of rules) {
-    if ((STATE_PRIORITY[rule.state] ?? 0) > (STATE_PRIORITY[worst] ?? 0)) worst = rule.state;
+    if ((STATE_PRIORITY[rule.state] ?? 0) < (STATE_PRIORITY[worst] ?? 0)) worst = rule.state;
   }
   if (worst === "approved") return "regra_aprovada";
   if (worst === "executed") return "regra_em_execucao";

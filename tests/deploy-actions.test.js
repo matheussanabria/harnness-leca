@@ -27,7 +27,7 @@ function seedDeployConfig() {
         ],
       },
       {
-        id: "57multimarcas-back",
+        id: "57multimarcas-api",
         name: "Backend",
         description: "Projeto de teste",
         environments: [

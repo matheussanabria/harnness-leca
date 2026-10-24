@@ -22,7 +22,7 @@ function defaultConfig() {
         ],
       },
       {
-        id: "57multimarcas-back",
+        id: "57multimarcas-api",
         name: "57 Multimarcas · Backend",
         description: "API / Backend hospedado no Easypanel (Hostinger VPS)",
         environments: [

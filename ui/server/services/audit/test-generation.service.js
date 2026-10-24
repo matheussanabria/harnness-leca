@@ -51,7 +51,7 @@ function renderTestContent(rule) {
       + `const test = require("node:test");\n`
       + `const assert = require("node:assert/strict");\n\n`
       + `test("${titulo}", () => {\n`
-      + `  assert.ok(true, "Cenario da regra ainda precisa ser preenchido pelo agente.");\n`
+      + `  assert.fail("Cenario da regra ainda precisa ser preenchido pelo agente.");\n`
       + `});\n`;
   }
   return `# language: pt-BR\n`

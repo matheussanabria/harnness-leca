@@ -113,6 +113,16 @@ test("audit-pipeline: ciclo gerar, executar e aprovar grava os estados", () => {
   assert.equal(generated.state, "generated");
   assert.equal(generated.record.evidence.file, generated.artifact.file);
 
+  const generatedFile = path.join(PROJECT_DIR, generated.artifact.file);
+  const placeholder = runGeneratedTest({
+    projectDir: PROJECT_DIR,
+    repoRoot: TMP_ROOT,
+    file: generated.artifact.file,
+    kind: "unit",
+  });
+  assert.equal(placeholder.success, false, "teste gerado nao preenchido nao pode passar");
+  fs.writeFileSync(generatedFile, 'require("node:test")("regra", () => {});', "utf8");
+
   const executed = executeTest({
     slug: SLUG,
     repoRoot: TMP_ROOT,

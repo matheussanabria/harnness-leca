@@ -72,8 +72,9 @@ test("audit-components: situacao deriva do pior estado das regras", () => {
   assert.equal(situationFor([{ state: "planned" }]), "regra_sem_evidencia");
   assert.equal(situationFor([{ state: "generated" }]), "regra_sem_evidencia");
   assert.equal(situationFor([{ state: "executed" }]), "regra_em_execucao");
-  assert.equal(situationFor([{ state: "executed" }, { state: "approved" }]), "regra_aprovada");
-  assert.equal(situationFor([{ state: "approved" }, { state: "planned" }]), "regra_aprovada");
+  assert.equal(situationFor([{ state: "approved" }, { state: "approved" }]), "regra_aprovada");
+  assert.equal(situationFor([{ state: "executed" }, { state: "approved" }]), "regra_em_execucao");
+  assert.equal(situationFor([{ state: "approved" }, { state: "planned" }]), "regra_sem_evidencia");
 });
 
 test("audit-components: cruzamento expoe componentes, situacao e regras orfas", () => {
