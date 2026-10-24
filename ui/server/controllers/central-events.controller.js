@@ -10,6 +10,8 @@ const { projectSessions, projectWorkflows, projectAttention } = require("../serv
 const { createEventStream, resolveResumeCursor } = require("../services/events/event-stream");
 const { ingestEvent, IngestError } = require("../services/events/event-ingest");
 const { getPresenceStats } = require("../services/external-presence/presence-runtime");
+const { getUsageStats } = require("../services/usage-ingest/usage-runtime");
+const { summarizeUsage, GROUPS } = require("../services/usage-ingest/usage-summary");
 
 const SLUG_RE = /^[a-z0-9][a-z0-9_-]{0,59}$/i;
 
@@ -61,7 +63,26 @@ async function apiProjectEvents({ req, res, params: [slug] }) {
     types,
     sessionId: queryParam(req, "sessionId"),
   });
-  return send(res, 200, { events, cursor, stats: storeStats(slug), presence: getPresenceStats() });
+  return send(res, 200, { events, cursor, stats: storeStats(slug), presence: getPresenceStats(), usage: getUsageStats() });
+}
+
+/** GET /api/project/:slug/usage/summary?since=<iso>&groupBy=day|model|session */
+async function apiProjectUsageSummary({ req, res, params: [slug] }) {
+  if (!SLUG_RE.test(String(slug || ""))) return send(res, 400, { error: "Identificador de projeto inválido." });
+  if (!projectExists(slug)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
+  const sinceRaw = queryParam(req, "since");
+  const groupBy = queryParam(req, "groupBy");
+  if (sinceRaw && Number.isNaN(Date.parse(sinceRaw))) return send(res, 400, { error: "since deve ser uma data ISO válida." });
+  if (groupBy && !Object.hasOwn(GROUPS, groupBy)) return send(res, 400, { error: "groupBy deve ser day, model ou session." });
+  const ingest = getUsageStats();
+  return send(res, 200, {
+    ...summarizeUsage(slug, {
+      since: sinceRaw ? new Date(sinceRaw).toISOString() : null,
+      groupBy: /** @type {any} */ (groupBy || null),
+      linesUnparsable: ingest.enabled ? ingest.linesUnparsable : null,
+    }),
+    ingest: { enabled: ingest.enabled },
+  });
 }
 
 /** GET /api/project/:slug/projections */
@@ -128,4 +149,4 @@ async function apiProjectEventPublish({ req, res, params: [slug] }) {
   }
 }
 
-module.exports = { apiProjectEvents, apiProjectProjections, apiProjectEventStream, apiProjectEventPublish };
+module.exports = { apiProjectEvents, apiProjectUsageSummary, apiProjectProjections, apiProjectEventStream, apiProjectEventPublish };

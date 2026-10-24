@@ -140,4 +140,4 @@ function createPresenceScanner(options = {}) {
   return { scanOnce, getStats: () => ({ ...stats, tracked: last.size }), recordError: () => { stats.errors += 1; } };
 }
 
-module.exports = { createPresenceScanner };
+module.exports = { createPresenceScanner, createDefaultResolver };
