@@ -34,7 +34,7 @@ function tela(id, titulo, escopo, rota, icone, campos, migraDe = []) {
 }
 
 const SCREENS = [
-  tela("chats", "Conversas", "projeto", "/?p=<slug>", "fa-comments", {
+  tela("chats", "Conversas", "projeto", "/?p=<slug>#/chats", "fa-comments", {
     viewMode: texto(16), pageSize: inteiro(100), page: inteiro(100000), engineFilter: texto(32),
     groupFilter: texto(120), subgroupFilter: texto(120), searchQuery: texto(200),
     sortField: texto(32), sortAsc: booleano(), draft: texto(20000),
@@ -45,7 +45,7 @@ const SCREENS = [
     "harness_chats_view_mode", "harness_chats_page_size", "harness_chat_draft_*",
     "harness_groups_*", "harness_chat_engine_settings",
   ]),
-  tela("studio", "Studio", "projeto", "/?p=<slug>&studio=1", "fa-columns", {
+  tela("studio", "Studio", "projeto", "/?p=<slug>#/studio", "fa-columns", {
     activeView: texto(32), sidebarWidth: inteiro(720, 160), sourceOpen: booleano(),
     sourceWidth: inteiro(720, 160), viewport: texto(16), route: texto(300),
     dockMaximized: booleano(), activePrototype: texto(120), activeScreen: texto(120),
@@ -55,38 +55,38 @@ const SCREENS = [
     "harness_studio_source_open", "harness_studio_source_width",
     "harness_studio_active_view", "harness_studio_active_view_*",
   ]),
-  tela("prototypes", "Ateliê de Protótipos", "projeto", "/?p=<slug>&view=atelier", "fa-object-group", {
+  tela("prototypes", "Ateliê de Protótipos", "projeto", "/?p=<slug>#/prototypes/<protoId>/<screen>", "fa-object-group", {
     activePrototype: texto(120), activeScreen: texto(120), selectedNode: texto(120),
     inspector: booleano(), workspaceLayout: objeto(8192), canvas: objeto(32768),
     viewport: texto(16),
   }, [
     "harness.atelier.inspector", "harness_proto_workspace_layout", "harness.canvas.v1*",
   ]),
-  tela("scrum", "Scrum", "projeto", "/?p=<slug>&view=scrum", "fa-list-check", {
+  tela("scrum", "Scrum", "projeto", "/?p=<slug>#/scrum", "fa-list-check", {
     sprint: texto(120), filter: texto(120), selectedStory: texto(120),
     tab: texto(32), sortField: texto(32), sortAsc: booleano(),
     epicFilter: texto(120), assigneeFilter: texto(120), onlyImpediments: booleano(),
   }),
-  tela("layers", "Mapa em Camadas", "projeto", "/?p=<slug>&view=layers", "fa-layer-group", {
+  tela("layers", "Mapa em Camadas", "projeto", "/?p=<slug>#/layers", "fa-layer-group", {
     componentFilter: texto(120), selectedLayer: texto(120), tab: texto(32),
     expanded: lista(500), zoom: inteiro(200, 25),
     activeScreen: texto(120), focusedField: texto(120), filterOnlyFocused: booleano(),
     viewport: texto(16),
   }),
-  tela("board", "Quadro", "projeto", "/?p=<slug>&view=board", "fa-table-columns", {
+  tela("board", "Quadro", "projeto", "/?p=<slug>#/board", "fa-table-columns", {
     sprint: texto(120), filter: texto(120), selectedCard: texto(120),
     groupBy: texto(32), zoom: inteiro(200, 25),
   }),
-  tela("audit", "Auditoria", "projeto", "/?p=<slug>&view=audit", "fa-clipboard-check", {
+  tela("audit", "Auditoria", "projeto", "/?p=<slug>#/audit", "fa-clipboard-check", {
     componentFilter: texto(120), matrixFilter: texto(120),
     selectedComponent: texto(120), tab: texto(32), severity: texto(16),
     evidenceState: texto(32),
   }),
-  tela("artifacts", "Artefatos", "projeto", "/?p=<slug>&view=artifacts", "fa-box-archive", {
+  tela("artifacts", "Artefatos", "projeto", "/?p=<slug>#/artifacts", "fa-box-archive", {
     kindFilter: texto(32), accessFilter: texto(16), query: texto(200),
     selectedKey: texto(200), sortField: texto(32), sortAsc: booleano(),
   }),
-  tela("routines", "Rotinas", "projeto", "/?p=<slug>&view=routines", "fa-clock-rotate-left", {
+  tela("routines", "Rotinas", "projeto", "/?p=<slug>#/routines", "fa-clock-rotate-left", {
     filter: texto(120), selectedRoutine: texto(120),
     approvalFilter: texto(32), tab: texto(32),
   }),
@@ -102,7 +102,7 @@ const SCREENS = [
     "dai_office_hud_hidden", "dai_mouse_sensitivity", "dai_office_scene_preferences",
     "dai_office_view_mode:*", "dai:wm:layout:*", "dai:wm:state:*", "dai:wm:workspaces:*",
   ]),
-  tela("deploy", "Deploy", "projeto", "/?p=<slug>&view=deploy", "fa-rocket", {
+  tela("deploy", "Deploy", "projeto", "/deploy", "fa-rocket", {
     environment: texto(120), pipeline: texto(120), config: objeto(16384),
     history: lista(50), selectedRun: texto(120), tab: texto(32),
   }, [

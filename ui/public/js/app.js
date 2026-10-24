@@ -14,6 +14,9 @@ import * as chatMod from "./modules/chat.js";
 import * as inspectorMod from "./modules/inspector.js";
 import * as designMod from "./modules/design.js";
 import { restoredDesignState } from "./modules/design-view-state.js";
+import { getRouter, routeFromLocation } from "./shared/router.js";
+import { createRouteApplier } from "./modules/route-apply.js";
+import { persistAtelierActive } from "./modules/prototype-atelier-adoption.js";
 import * as mobileChatMod from "./modules/mobile-chat.js";
 import * as chatAttachMod from "./modules/chat-attachments.js";
 import * as chatCodeActionsMod from "./modules/chat-code-actions.js";
@@ -124,17 +127,18 @@ Object.assign(window, {
   const chatFromUrl = urlParams.get("chat");
   if (chatFromUrl) await chatMod.resumeExistingChat(chatFromUrl, false);
 
-  // Inicializa módulo e view contextual se especificados na URL
-  const wantModule = urlParams.get("module");
-  const wantView = urlParams.get("view");
-  if (wantModule === "design" || wantView) {
-    await designMod.toggleDesignMode(true, wantView || "scrum");
-  } else if (wantModule === "studio") {
-    await studioMod.toggleStudioMode(true);
-  } else if (!wantModule) {
+  // A hash route (#/scrum, #/prototypes/<id>/<screen>) or an old ?view= / ?module= link decides the screen;
+  // without either, the saved state is used (F5 on a screen that has not reported its route yet).
+  const applyRoute = createRouteApplier({ designMod, studioMod, prepareAtelier: persistAtelierActive });
+  const route = routeFromLocation(location);
+  if (route) {
+    await applyRoute(route);
+  } else if (!urlParams.get("module")) {
     const savedDesign = await restoredDesignState();
     if (savedDesign.open) await designMod.toggleDesignMode(true, savedDesign.view);
   }
+  // Back/Forward and a hand-edited hash open the screen they point to.
+  getRouter()?.onChange((next) => { void applyRoute(next); });
 
   // Link de sincronização entre o objeto state.P e window.P para módulos legados
   Object.defineProperty(window, "P", {

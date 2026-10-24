@@ -25,18 +25,18 @@ Regras aplicadas pelo serviço e pelo cliente:
 
 | Tela | `id` | Escopo | Rota | O que persiste |
 |---|---|---|---|---|
-| Conversas | `chats` | projeto | `/?p=<slug>` | Modo de visualização, página, filtros, busca, ordenação, rascunho, grupos, atribuições, motor/modelos e aba/filtros de skills. |
-| Studio | `studio` | projeto | `/?p=<slug>&studio=1` | Visualização ativa, largura da sidebar, coluna de código (aberta e largura), viewport, rota, dock, protótipo/tela ativos e view aberta do Design. |
-| Ateliê de Protótipos | `prototypes` | projeto | `/?p=<slug>&view=atelier` | Protótipo e tela ativos, nó selecionado, inspetor ligado, layout dos quatro painéis e documento do canvas. |
-| Scrum | `scrum` | projeto | `/?p=<slug>&view=scrum` | Sprint, filtro, história selecionada, aba, ordenação, épico, responsável e somente impedimentos. |
-| Mapa em Camadas | `layers` | projeto | `/?p=<slug>&view=layers` | Filtro de componente, camada selecionada, aba, nós expandidos, zoom, tela ativa, campo focado, filtro de foco e viewport. |
-| Quadro | `board` | projeto | `/?p=<slug>&view=board` | Sprint, filtro, cartão selecionado, agrupamento e zoom. |
-| Auditoria | `audit` | projeto | `/?p=<slug>&view=audit` | Filtros de componente e matriz, componente selecionado, aba, severidade e estado da evidência. |
-| Artefatos | `artifacts` | projeto | `/?p=<slug>&view=artifacts` | Filtros de tipo e acesso, busca, artefato selecionado e ordenação. |
-| Rotinas | `routines` | projeto | `/?p=<slug>&view=routines` | Filtro, rotina selecionada, filtro de aprovação e aba. |
+| Conversas | `chats` | projeto | `/?p=<slug>#/chats` | Modo de visualização, página, filtros, busca, ordenação, rascunho, grupos, atribuições, motor/modelos e aba/filtros de skills. |
+| Studio | `studio` | projeto | `/?p=<slug>#/studio` | Visualização ativa, largura da sidebar, coluna de código (aberta e largura), viewport, rota, dock, protótipo/tela ativos e view aberta do Design. |
+| Ateliê de Protótipos | `prototypes` | projeto | `/?p=<slug>#/prototypes/<protoId>/<screen>` | Protótipo e tela ativos, nó selecionado, inspetor ligado, layout dos quatro painéis e documento do canvas. |
+| Scrum | `scrum` | projeto | `/?p=<slug>#/scrum` | Sprint, filtro, história selecionada, aba, ordenação, épico, responsável e somente impedimentos. |
+| Mapa em Camadas | `layers` | projeto | `/?p=<slug>#/layers` | Filtro de componente, camada selecionada, aba, nós expandidos, zoom, tela ativa, campo focado, filtro de foco e viewport. |
+| Quadro | `board` | projeto | `/?p=<slug>#/board` | Sprint, filtro, cartão selecionado, agrupamento e zoom. |
+| Auditoria | `audit` | projeto | `/?p=<slug>#/audit` | Filtros de componente e matriz, componente selecionado, aba, severidade e estado da evidência. |
+| Artefatos | `artifacts` | projeto | `/?p=<slug>#/artifacts` | Filtros de tipo e acesso, busca, artefato selecionado e ordenação. |
+| Rotinas | `routines` | projeto | `/?p=<slug>#/routines` | Filtro, rotina selecionada, filtro de aprovação e aba. |
 | Visão Geral | `overview` | global | `/overview` | Busca, ordenação, página e tamanho da página da lista de projetos. |
 | Escritório Virtual | `office` | global | `/office` | HUD, sensibilidade do mouse, preferências de cena, modo de visualização, layout/estado das janelas e workspaces. |
-| Deploy | `deploy` | projeto | `/?p=<slug>&view=deploy` | Ambiente, pipeline, configuração, histórico exibido, execução selecionada e aba. |
+| Deploy | `deploy` | projeto | `/deploy` | Ambiente, pipeline, configuração, histórico exibido, execução selecionada e aba. |
 | Diário | `diario` | global | `/diario` | Projeto, busca, filtro de motor, intervalo de datas, ordenação, página, tamanho da página e mostrar encerrados. |
 
 ## Campos permitidos por tela

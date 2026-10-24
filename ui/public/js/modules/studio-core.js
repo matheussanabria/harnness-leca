@@ -7,6 +7,7 @@ import { renderCanvasRouteChips, checkAppStatus, setStudioModeType } from "./stu
 import { updateCompanionDetails } from "./studio-companion.js";
 import { initStudioAdoption } from "./studio-adoption.js";
 import { saveStudioState } from "./studio-state.js";
+import { getRouter, routeTo } from "../shared/router.js";
 import {
   STUDIO_RESIZE_STEP,
   STUDIO_DEFAULT_SIDEBAR_WIDTH,
@@ -32,6 +33,7 @@ export function toggleStudioMode(force) {
       window.toggleDesignMode(false);
     }
     if (window.hideMiniChatWidget) window.hideMiniChatWidget();
+    routeTo("studio", [], { push: true });
     void initStudioAdoption();
     syncStudioControls();
     if (window.renderChatHistory) window.renderChatHistory();
@@ -41,6 +43,8 @@ export function toggleStudioMode(force) {
       if (inp) inp.focus();
     }, 80);
   } else {
+    // Only when leaving the Studio itself: opening another screen has already put its own route in the address.
+    if (getRouter()?.current().screen === "studio") routeTo("chats", [], { push: true });
     if (window.renderChatHistory) window.renderChatHistory();
     if (state.chatTurns.length > 0 && window.updateMiniChatWidget) window.updateMiniChatWidget();
   }

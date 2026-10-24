@@ -1,5 +1,6 @@
 // @ts-check
 // Liga o estado persistido do Ateliê (EP-14.08) ao controlador do protótipo.
+import { getRouter, routeTo } from "../shared/router.js";
 import { applyWorkspaceLayout, onWorkspaceLayoutChange } from "./prototype-workspace-layout.js";
 import { setInspectorEnabled } from "./prototype-inspector-toggle.js";
 import { hydrateCanvasDocs } from "./prototype-canvas/canvas-store.js";
@@ -67,11 +68,15 @@ export function bindAtelierLayout() {
 
 /** @param {string} protoId @param {string} screen */
 export function persistAtelierActive(protoId, screen) {
+  // The prototype and its screen are part of the address (#/prototypes/<proto>/<screen>); no new history entry.
+  if (protoId) routeTo("prototypes", [protoId, screen].filter(Boolean));
   return saveAtelierState({ activePrototype: protoId, activeScreen: screen });
 }
 
 /** Troca de tela limpa o nó selecionado, que pertence à tela anterior. */
 export function persistAtelierScreen(screen) {
+  const route = getRouter()?.current();
+  if (route && route.screen === "prototypes" && route.params[0]) routeTo("prototypes", [route.params[0], screen].filter(Boolean));
   return saveAtelierState({ activeScreen: screen, selectedNode: "" });
 }
 
