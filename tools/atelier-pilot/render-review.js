@@ -68,6 +68,7 @@ function summarize(results) {
     for (const l of r.unstyledLinks.items) issues.push({ severity: "high", at, text: `unstyled link (browser default blue): ${l.element} "${l.text}"` });
     if (r.defaultFont.count) issues.push({ severity: "medium", at, text: `${r.defaultFont.count} element(s) use the browser default font, for example ${r.defaultFont.items[0].element}` });
     for (const t of r.smallTargets.items) issues.push({ severity: "medium", at, text: `touch target ${t.size} (needs 44x44): ${t.element} "${t.text}"` });
+    for (const b of r.brokenAnchors ? r.brokenAnchors.items : []) issues.push({ severity: "high", at, text: `link to a missing anchor ${b.href}: ${b.element} "${b.text}"` });
     if (r.structure.h1 !== 1) issues.push({ severity: "medium", at, text: `expected one h1, found ${r.structure.h1}` });
     if (r.structure.controlsWithoutName) issues.push({ severity: "medium", at, text: `${r.structure.controlsWithoutName} link/button without an accessible name` });
   }

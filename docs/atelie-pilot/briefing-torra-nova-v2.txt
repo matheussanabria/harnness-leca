@@ -1,0 +1,30 @@
+Crie uma landing page para "Torra Nova", uma assinatura fictícia de cafés especiais torrados na semana e entregues em casa.
+Público: pessoas de 25 a 45 anos que gostam de café e compram online.
+Ação principal: "Começar assinatura".
+Identidade: calorosa, artesanal, premium; evitar aparência genérica de template.
+Restrições: dados 100% fictícios; sem imagens externas; funcionar em desktop e celular.
+
+CONTEÚDO FIXO (use literalmente; não invente outros preços, quantidades ou prazos):
+
+Entrega: torramos às segundas e terças, despachamos na quinta e o pacote chega em 2 a 4 dias úteis. Frete grátis em todos os planos.
+Promessa do título: café torrado na semana, enviado na quinta.
+
+Como funciona (3 passos): 1. Escolha seu plano. 2. A gente torra na semana. 3. Chega fresco na sua casa.
+
+Planos:
+- Explorador, R$ 79/mês: 1 pacote de 250 g por mês; 1 origem por mês; moagem sob medida; frete grátis.
+- Barista, R$ 129/mês (destaque "Mais escolhido"): 2 pacotes de 250 g por mês; 2 origens diferentes; moagem sob medida; acesso a microlotes; frete grátis.
+- Mestre, R$ 189/mês: 2 pacotes de 250 g mais 1 microlote por mês; edições limitadas; moagem sob medida; degustação online mensal; frete grátis.
+
+Depoimentos (2):
+- Marina Prado, Belo Horizonte, assinante há 8 meses: "Recebo o pacote na sexta e já sinto o cheiro antes de abrir. O Barista virou meu ritual de fim de semana."
+- Rafael Nunes, Curitiba, assinante há 1 ano: "O melhor é a data da torra impressa no pacote. Dá para sentir a diferença na xícara."
+
+Perguntas frequentes (3):
+- Quando meu café é torrado e enviado? Torramos às segundas e terças e despachamos na quinta; o pacote chega em 2 a 4 dias úteis. Cada pacote traz a data da torra.
+- Posso pausar ou cancelar? Sim, a qualquer momento, sem multa. Basta avisar até a véspera da próxima torra.
+- Vocês moem o café? Sim. Na assinatura você escolhe grão inteiro, coado, espresso ou prensa francesa.
+
+Rodapé: ola@torranova.exemplo; segunda a sexta, 9h às 18h; "Projeto fictício de demonstração".
+
+FLUXO SIMULADO: "Começar assinatura" leva à seção de planos. O botão de cada plano abre uma segunda tela chamada "confirmacao" (data-action="goto:confirmacao") com o resumo do plano escolhido, o texto "Assinatura simulada: nenhum pagamento é feito" e um botão para voltar à tela inicial (data-action="goto:home"). Gere as duas telas: screens/home.html e screens/confirmacao.html.

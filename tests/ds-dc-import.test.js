@@ -71,6 +71,13 @@ test("buildComponentsCss puts the base layer before the component CSS", () => {
   assert.match(out, /:where\(\.header,\.footer\) a\{color:inherit/);
 });
 
+test("buildComponentsCss appends palette overrides last, so they win over the source colours", () => {
+  const { buildComponentsCss } = require("../tools/ds-docs/dc-tokens");
+  const out = buildComponentsCss([{ id: "footer", name: "Footer", css: ".footer__legal{background:#050f22}" }], ".footer__legal{background:var(--neutral-body)}");
+  assert.ok(out.lastIndexOf("var(--neutral-body)") > out.indexOf("#050f22"));
+  assert.ok(!buildComponentsCss([{ id: "x", name: "X", css: ".x{}" }]).includes("Palette overrides"));
+});
+
 test("buildIndex is compact and names the palette, tokens and components", () => {
   const { components } = extractDcDocs(FIXTURE);
   const index = buildIndex(components, ["--primary-dark", "--danger-muted", "--unknown-token"], "T");

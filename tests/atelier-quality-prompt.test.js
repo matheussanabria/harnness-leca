@@ -27,6 +27,9 @@ test("buildQualityRules keeps the file-block format the parser needs and embeds 
   assert.match(rules, /data-action="goto:<screen-id>"/);
   assert.match(rules, /Never set text in --neutral-muted/);
   assert.match(rules, /centred container/);
+  assert.match(rules, /Signature element/);
+  assert.match(rules, /never be white on white/);
+  assert.match(rules, /must agree between hero, plans and FAQ/);
   assert.doesNotMatch(rules, /Mode: directions/);
   assert.match(buildQualityRules(DS, "directions"), /screens\/direction-a\.html and screens\/direction-b\.html/);
   assert.doesNotMatch(rules, /[\u{1F300}-\u{1FAFF}☀-➿]/u, "the prompt itself must not contain emojis");

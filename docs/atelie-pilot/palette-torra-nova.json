@@ -28,5 +28,6 @@
     "--font-display": "Georgia, 'Times New Roman', serif",
     "--font-mono": "ui-monospace, 'Cascadia Mono', Consolas, monospace",
     "--spacing-scale-base": "16px"
-  }
+  },
+  "overrides": ".footer__main{color:var(--neutral-light)}\n.footer__legal{background:var(--neutral-body);color:var(--neutral-light)}"
 }

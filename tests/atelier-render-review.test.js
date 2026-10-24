@@ -68,6 +68,14 @@ test("browser: low contrast is measured against the real background colour", asy
   assert.match(hits[0].text, /hard to read/);
 });
 
+test("browser: links to a missing anchor are flagged and existing ones are not", async (t) => {
+  if (!browser) return t.skip(skipReason);
+  const { issues } = await review(page('<main><h1>T</h1><a href="#planos">ok</a><a href="#ghost">broken</a><section id="planos">p</section></main>'));
+  const hits = issues.filter((i) => /missing anchor/.test(i.text));
+  assert.equal(hits.length, 1);
+  assert.match(hits[0].text, /#ghost/);
+});
+
 test("browser: default blue links, default font and small touch targets are flagged", async (t) => {
   if (!browser) return t.skip(skipReason);
   const { issues } = await review(page('<main><h1>T</h1><a href="#">plain link</a><p style="font-family:\'Times New Roman\'">serif default</p><button style="height:30px;width:80px">ok</button></main>'));

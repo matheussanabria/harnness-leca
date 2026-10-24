@@ -37,9 +37,13 @@ a{color:var(--primary-interactive)}
 :focus-visible{outline:2px solid var(--highlight-focus);outline-offset:2px}
 `;
 
-/** Base layer followed by the component CSS, with a header per component. */
-function buildComponentsCss(components) {
-  return `${BASE_CSS}\n${components.map((c) => `/* ${c.name} (${c.id}) */\n${c.css.trim()}\n`).join("\n")}`;
+/**
+ * Base layer, the component CSS (a header per component), then the palette's own overrides.
+ * Overrides fix source colours that are hardcoded for another brand (for example the footer strip).
+ */
+function buildComponentsCss(components, overrides = "") {
+  const body = `${BASE_CSS}\n${components.map((c) => `/* ${c.name} (${c.id}) */\n${c.css.trim()}\n`).join("\n")}`;
+  return overrides.trim() ? `${body}\n/* Palette overrides */\n${overrides.trim()}\n` : body;
 }
 
 const TOKEN_ROLES = {
