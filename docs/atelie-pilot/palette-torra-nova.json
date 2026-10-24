@@ -1,0 +1,32 @@
+{
+  "name": "Torra Nova",
+  "tokens": {
+    "--primary-interactive": "#9a4a22",
+    "--primary-dark": "#6e3217",
+    "--primary-headings": "#3b1c0e",
+    "--primary-background": "#fbf3ea",
+    "--neutral-body": "#2b1d14",
+    "--neutral-dark": "#3a2a20",
+    "--neutral-base": "#6f5d50",
+    "--neutral-muted": "#8f7a68",
+    "--neutral-light": "#efe3d3",
+    "--neutral-background": "#fffaf3",
+    "--danger-base": "#b3261e",
+    "--danger-dark": "#7f1b15",
+    "--danger-background": "#fdecea",
+    "--danger-muted": "#f0b4ae",
+    "--success-base": "#2f7d4f",
+    "--success-dark": "#1f5a37",
+    "--success-background": "#e8f5ec",
+    "--success-muted": "#a8d5b8",
+    "--warning-base": "#b7791f",
+    "--warning-dark": "#7a4e0a",
+    "--warning-background": "#fdf3dc",
+    "--highlight-focus": "#0f766e",
+    "--highlight-dark": "#0b4f4a",
+    "--font-sans": "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+    "--font-display": "Georgia, 'Times New Roman', serif",
+    "--font-mono": "ui-monospace, 'Cascadia Mono', Consolas, monospace",
+    "--spacing-scale-base": "16px"
+  }
+}
