@@ -31,7 +31,7 @@ export function getOrchestrationDrawerData(state, objKey) {
     };
 
     return {
-      icon: "🤖",
+      icon: '<i class="fa-solid fa-robot" aria-hidden="true"></i>',
       title: `Agente: ${agent.name || agent.id}`,
       subtitle: `Motor: ${agent.provider.toUpperCase()} · Confiança: ${agent.confidence}`,
       html: renderAgentDetails(agent)
@@ -49,7 +49,7 @@ export function getOrchestrationDrawerData(state, objKey) {
     };
 
     return {
-      icon: "⚡",
+      icon: '<i class="fa-solid fa-bolt" aria-hidden="true"></i>',
       title: `Execução: ${exec.id.slice(0, 10)}...`,
       subtitle: `Provedor: ${exec.provider.toUpperCase()} · Status: ${exec.status.toUpperCase()}`,
       html: renderExecutionDetails(exec, events)
@@ -57,7 +57,7 @@ export function getOrchestrationDrawerData(state, objKey) {
   }
 
   return {
-    icon: "🏛️",
+    icon: '<i class="fa-solid fa-landmark" aria-hidden="true"></i>',
     title: "Centro de Orquestração — DAI HQ (M2)",
     subtitle: `Telemetria em Tempo Real · Projeto "${activeProj}"`,
     html: renderMainOrchestrationPanel(orchState, events, activeProj, state)
@@ -75,16 +75,16 @@ function renderMainOrchestrationPanel(orchState, events, activeProj, state) {
   return `
     <div class="orch-tabs-nav" style="display:flex;gap:4px;margin-bottom:14px;background:rgba(15,23,42,0.8);padding:4px;border-radius:8px;border:1px solid rgba(56,189,248,0.2)">
       <button class="orch-tab-btn ${activeTab === 'overview' ? 'active' : ''}" data-tab="overview" style="flex:1;padding:7px 4px;border:none;border-radius:6px;font-weight:700;font-size:11.5px;cursor:pointer;background:${activeTab === 'overview' ? '#0284c7' : 'transparent'};color:${activeTab === 'overview' ? '#fff' : '#94a3b8'}">
-        📊 Visão Geral
+        <i class="fa-solid fa-chart-line" aria-hidden="true"></i> Visão Geral
       </button>
       <button class="orch-tab-btn ${activeTab === 'journal' ? 'active' : ''}" data-tab="journal" style="flex:1;padding:7px 4px;border:none;border-radius:6px;font-weight:700;font-size:11.5px;cursor:pointer;background:${activeTab === 'journal' ? '#0284c7' : 'transparent'};color:${activeTab === 'journal' ? '#fff' : '#94a3b8'}">
-        📓 Conversas (${journalCount})
+        <i class="fa-solid fa-book" aria-hidden="true"></i> Conversas (${journalCount})
       </button>
       <button class="orch-tab-btn ${activeTab === 'timeline' ? 'active' : ''}" data-tab="timeline" style="flex:1;padding:7px 4px;border:none;border-radius:6px;font-weight:700;font-size:11.5px;cursor:pointer;background:${activeTab === 'timeline' ? '#0284c7' : 'transparent'};color:${activeTab === 'timeline' ? '#fff' : '#94a3b8'}">
-        ⚡ SSE (${events.length})
+        <i class="fa-solid fa-bolt" aria-hidden="true"></i> SSE (${events.length})
       </button>
       <button class="orch-tab-btn ${activeTab === 'control' ? 'active' : ''}" data-tab="control" style="flex:1;padding:7px 4px;border:none;border-radius:6px;font-weight:700;font-size:11.5px;cursor:pointer;background:${activeTab === 'control' ? '#0284c7' : 'transparent'};color:${activeTab === 'control' ? '#fff' : '#94a3b8'}">
-        ⚙️ Operações
+        <i class="fa-solid fa-gear" aria-hidden="true"></i> Operações
       </button>
       <button class="orch-tab-btn ${activeTab === 'sessions' ? 'active' : ''}" data-tab="sessions" style="flex:1;padding:7px 4px;border:none;border-radius:6px;font-weight:700;font-size:11.5px;cursor:pointer;background:${activeTab === 'sessions' ? '#0284c7' : 'transparent'};color:${activeTab === 'sessions' ? '#fff' : '#94a3b8'}" aria-pressed="${activeTab === 'sessions'}">
         <i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Sessões

@@ -8,12 +8,9 @@ import { updateCompanionDetails } from "./studio-companion.js";
 import { initStudioAdoption } from "./studio-adoption.js";
 import { saveStudioState } from "./studio-state.js";
 import { getRouter, routeTo } from "../shared/router.js";
-import {
-  STUDIO_RESIZE_STEP,
-  STUDIO_DEFAULT_SIDEBAR_WIDTH,
-  calculateSidebarBounds,
-  clampSidebarWidth,
-} from "./studio-layout.js";
+import { initStudioSidebarResizer } from "./studio-layout.js";
+
+export { initStudioSidebarResizer };
 
 export function toggleStudioMode(force) {
   // A classe do body é a fonte de verdade: o Ateliê move o chat do Studio e antes deixava state.isStudioMode "ligado" sem o modo estar ativo.
@@ -145,80 +142,10 @@ export function syncStudioControls() {
     /** @type {any} */ (window).loadStudioSourceWorkspace?.();
   }
   if (window.updateServiceStatusIndicators) window.updateServiceStatusIndicators();
-  initStudioSidebarResizer();
-}
-
-let studioResizerInitialized = false;
-
-function studioSidebarBounds() {
-  return calculateSidebarBounds();
-}
-
-function setStudioSidebarWidth(sidebar, resizer, width, persist = false) {
-  const { min, max } = studioSidebarBounds();
-  const next = clampSidebarWidth(width);
-  sidebar.style.width = `${next}px`;
-  resizer.setAttribute("aria-valuemin", String(min));
-  resizer.setAttribute("aria-valuemax", String(max));
-  resizer.setAttribute("aria-valuenow", String(next));
-  if (persist) {
-    void saveStudioState({ sidebarWidth: next });
-  }
-  return next;
-}
-
-export function initStudioSidebarResizer() {
-  if (studioResizerInitialized) return;
-  const resizer = $("studioSidebarResizer");
-  const sidebar = $("studioSidebar");
-  const ws = $("studioWorkspace");
-  if (!resizer || !sidebar || !ws) return;
-  studioResizerInitialized = true;
-
-  setStudioSidebarWidth(sidebar, resizer, sidebar.getBoundingClientRect().width || STUDIO_DEFAULT_SIDEBAR_WIDTH);
-
-  let startX = 0;
-  let startW = 0;
-  let activePointerId = null;
-
-  const onPointerMove = (e) => {
-    if (activePointerId !== e.pointerId) return;
-    const delta = e.clientX - startX;
-    setStudioSidebarWidth(sidebar, resizer, startW + delta);
-  };
-
-  const onPointerUp = (e) => {
-    if (activePointerId !== e.pointerId) return;
-    document.body.classList.remove("studio-resizing");
-    resizer.releasePointerCapture?.(e.pointerId);
-    activePointerId = null;
-    setStudioSidebarWidth(sidebar, resizer, parseInt(sidebar.style.width, 10), true);
-  };
-
-  resizer.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0) return;
-    e.preventDefault();
-    activePointerId = e.pointerId;
-    startX = e.clientX;
-    startW = sidebar.getBoundingClientRect().width;
-    document.body.classList.add("studio-resizing");
-    resizer.setPointerCapture?.(e.pointerId);
-  });
-  resizer.addEventListener("pointermove", onPointerMove);
-  resizer.addEventListener("pointerup", onPointerUp);
-  resizer.addEventListener("pointercancel", onPointerUp);
-
-  resizer.addEventListener("keydown", (e) => {
-    const current = sidebar.getBoundingClientRect().width;
-    const { min, max } = studioSidebarBounds();
-    let next = null;
-    if (e.key === "ArrowLeft") next = current - STUDIO_RESIZE_STEP;
-    if (e.key === "ArrowRight") next = current + STUDIO_RESIZE_STEP;
-    if (e.key === "Home") next = min;
-    if (e.key === "End") next = max;
-    if (next == null) return;
-    e.preventDefault();
-    setStudioSidebarWidth(sidebar, resizer, next, true);
+  initStudioSidebarResizer({
+    storage: typeof localStorage !== "undefined" ? localStorage : null,
+    projectSlug: state.P?.slug || state.activeProject || "",
+    onPersist: (next) => void saveStudioState({ sidebarWidth: next }),
   });
 }
 

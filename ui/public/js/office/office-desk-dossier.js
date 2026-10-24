@@ -16,35 +16,35 @@ export function renderAgentInteractiveDesk(agentKey, state, { iconEl, titleEl, s
   const meta = {
     gemini: {
       name: "Gemini (Antigravity)",
-      icon: "✦",
+      icon: '<i class="fa-solid fa-star" aria-hidden="true"></i>',
       color: "#5c87f2",
       role: "Motor Multimodal & Modelagem 3D",
-      welcome: `✦ Olá! Sou o Gemini conectado via Antigravity IDE. Estou pronto para responder perguntas, gerar código ou debugar funcionalidades no projeto "${activeProj}".`
+      welcome: `Olá! Sou o Gemini conectado via Antigravity IDE. Estou pronto para responder perguntas, gerar código ou debugar funcionalidades no projeto "${activeProj}".`
     },
     claude: {
       name: "Claude Code",
-      icon: "🤖",
+      icon: '<i class="fa-solid fa-robot" aria-hidden="true"></i>',
       color: "#d97757",
       role: "Especialista em Engenharia & Refatoração",
-      welcome: `🤖 Olá! Sou o Claude Code. Posso executar instruções de código, testes e refatorações no projeto "${activeProj}".`
+      welcome: `Olá! Sou o Claude Code. Posso executar instruções de código, testes e refatorações no projeto "${activeProj}".`
     },
     opencode: {
       name: "OpenCode Lab",
-      icon: "◆",
+      icon: '<i class="fa-solid fa-gem" aria-hidden="true"></i>',
       color: "#3cb371",
       role: "Motor Local Autônomo & Gratuito",
-      welcome: `◆ Olá! Sou o OpenCode rodando em localhost sem custos de API. Pronto para tarefas locais no projeto "${activeProj}".`
+      welcome: `Olá! Sou o OpenCode rodando em localhost sem custos de API. Pronto para tarefas locais no projeto "${activeProj}".`
     },
     codex: {
       name: "Codex",
-      icon: "</>",
+      icon: '<i class="fa-solid fa-code" aria-hidden="true"></i>',
       color: "#22c55e",
       role: "Agente de Engenharia & Terminal",
       welcome: `Codex pronto para atuar no projeto "${activeProj}".`
     }
   }[agentKey] || {
     name: agentKey,
-    icon: "🤖",
+    icon: '<i class="fa-solid fa-robot" aria-hidden="true"></i>',
     color: "#38bdf8",
     role: "Agente Autônomo DAI",
     welcome: "Pronto para atuar no projeto."
@@ -53,7 +53,7 @@ export function renderAgentInteractiveDesk(agentKey, state, { iconEl, titleEl, s
   // Atividade vem do estado canônico (projeção EP-09 ou fallback local); sem dado, é zero, nunca 1.
   const activity = formatEngineActivity(officeAgentState.getAgentState(agentKey));
 
-  iconEl.textContent = meta.icon;
+  iconEl.innerHTML = meta.icon;
   titleEl.textContent = `Estação ${meta.name}`;
   subtitleEl.textContent = `${meta.role} · Projeto "${activeProj}"`;
 
@@ -101,10 +101,10 @@ export function renderAgentInteractiveDesk(agentKey, state, { iconEl, titleEl, s
       <div class="drawer-card-title">Ações Rápidas de Chat</div>
       <div style="display:flex;gap:8px;flex-direction:column">
         <a href="/?engine=${agentKey}&new=1" class="header-nav-btn" style="justify-content:center;text-decoration:none">
-          💬 Abrir Chat Completo na Central
+          <i class="fa-solid fa-comments" aria-hidden="true"></i> Abrir Chat Completo na Central
         </a>
         <button id="btnLoadIn3DMonitor" class="header-nav-btn" style="justify-content:center;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8">
-          🖥️ Carregar no Monitor 3D da Estação
+          <i class="fa-solid fa-display" aria-hidden="true"></i> Carregar no Monitor 3D da Estação
         </button>
       </div>
     </div>

@@ -10,7 +10,7 @@ export function renderTimelineTab(events) {
     return `
       <div class="drawer-card">
         <div style="text-align:center;padding:24px 10px;color:#94a3b8">
-          <div style="font-size:28px;margin-bottom:8px">⏳</div>
+          <div style="font-size:28px;margin-bottom:8px"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></div>
           <div style="font-weight:700;color:#f8fafc;margin-bottom:4px">Aguardando eventos do Event Engine...</div>
           <div style="font-size:12px">Conexão Server-Sent Events estabelecida. Novos eventos aparecerão aqui automaticamente sem recarregar.</div>
         </div>

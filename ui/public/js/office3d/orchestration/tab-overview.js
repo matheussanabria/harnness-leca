@@ -13,10 +13,10 @@ export function renderOverviewTab(orchState, activeProj) {
   const executions = orchState.executions || [];
 
   const providers = [
-    { key: "claude", name: "Claude Code", icon: "🤖", color: "#d97757", info: integrations.claude },
-    { key: "gemini", name: "Gemini Antigravity", icon: "✦", color: "#5c87f2", info: integrations.gemini },
-    { key: "opencode", name: "OpenCode Lab", icon: "◆", color: "#3cb371", info: integrations.opencode },
-    { key: "services", name: "Processos Locais", icon: "⚙️", color: "#eab308", info: integrations.services }
+    { key: "claude", name: "Claude Code", icon: "fa-solid fa-robot", color: "#d97757", info: integrations.claude },
+    { key: "gemini", name: "Gemini Antigravity", icon: "fa-solid fa-star", color: "#5c87f2", info: integrations.gemini },
+    { key: "opencode", name: "OpenCode Lab", icon: "fa-solid fa-diamond", color: "#3cb371", info: integrations.opencode },
+    { key: "services", name: "Processos Locais", icon: "fa-solid fa-gear", color: "#eab308", info: integrations.services }
   ];
 
   const intCardsHtml = providers.map(p => {
@@ -32,7 +32,7 @@ export function renderOverviewTab(orchState, activeProj) {
     return `
       <div style="background:rgba(30,41,59,0.7);border:1px solid ${isConn ? 'rgba(56,189,248,0.3)' : 'rgba(148,163,184,0.2)'};border-radius:8px;padding:10px 12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <span style="font-weight:700;color:${p.color};font-size:13px">${p.icon} ${p.name}</span>
+          <span style="font-weight:700;color:${p.color};font-size:13px"><i class="${p.icon}" aria-hidden="true"></i> ${p.name}</span>
           <span style="font-size:10px;font-weight:800;color:${statusColor};background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px">● ${statusText}</span>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#94a3b8">
@@ -79,7 +79,7 @@ export function renderOverviewTab(orchState, activeProj) {
 
   return `
     <div class="drawer-card" style="border-color:rgba(56,189,248,0.3)">
-      <div class="drawer-card-title" style="color:#38bdf8;margin-bottom:10px">📡 Estado das Integrações</div>
+      <div class="drawer-card-title" style="color:#38bdf8;margin-bottom:10px"><i class="fa-solid fa-satellite-dish" aria-hidden="true"></i> Estado das Integrações</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
         ${intCardsHtml}
       </div>
@@ -91,7 +91,7 @@ export function renderOverviewTab(orchState, activeProj) {
 
     <div class="drawer-card">
       <div class="drawer-card-title" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <span>⚡ Execuções Comprovadas (${executions.length})</span>
+        <span><i class="fa-solid fa-bolt" aria-hidden="true"></i> Execuções Comprovadas (${executions.length})</span>
         <span style="font-size:11px;color:#94a3b8">Sem dados fictícios</span>
       </div>
       ${execListHtml}

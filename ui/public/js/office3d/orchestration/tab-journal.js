@@ -32,8 +32,8 @@ export function renderJournalTab(state, activeProj) {
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <select id="journalAgentFilter" style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(56,189,248,0.2);background:#0f172a;color:#f8fafc;font-size:12px">
           <option value="">Todos os Motores (Claude, Gemini, OpenCode)</option>
-          <option value="claude">🤖 Claude Code</option>
-          <option value="gemini">✦ Gemini Antigravity</option>
+          <option value="claude">Claude Code</option>
+          <option value="gemini">Gemini Antigravity</option>
           <option value="opencode">◆ OpenCode Lab</option>
         </select>
       </div>
@@ -53,7 +53,7 @@ export function renderJournalTab(state, activeProj) {
 
       <div style="margin-top:14px;text-align:center">
         <a href="/diario" style="color:#38bdf8;text-decoration:none;font-size:12px;font-weight:700">
-          📓 Abrir Diário de Bordo Completo com Linha do Tempo ↗
+          <i class="fa-solid fa-book" aria-hidden="true"></i> Abrir Diário de Bordo Completo com Linha do Tempo ↗
         </a>
       </div>
     </div>
@@ -81,7 +81,7 @@ export function renderJournalSessionCards(days, fallbackChats = [], filterAgent 
 
       if (filteredSessions.length === 0) continue;
 
-      html += `<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;padding:4px 0;margin-top:4px">📅 ${d.day} (${filteredSessions.length} sessões)</div>`;
+      html += `<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;padding:4px 0;margin-top:4px"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> ${d.day} (${filteredSessions.length} sessões)</div>`;
 
       for (const s of filteredSessions) {
         const ag = (s.agente || "harness").toLowerCase();
@@ -107,7 +107,7 @@ export function renderJournalSessionCards(days, fallbackChats = [], filterAgent 
 
             ${prompts.length > 0 ? `
               <div style="background:rgba(15,23,42,0.8);border-radius:6px;padding:8px;font-size:11.5px;color:#cbd5e1;border-left:2px solid ${agCol}">
-                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:3px">💬 PEDIDO / PROMPT DO USUÁRIO:</div>
+                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:3px"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i> PEDIDO / PROMPT DO USUÁRIO:</div>
                 <div style="white-space:pre-wrap;line-height:1.4">${prompts[0].length > 180 ? prompts[0].slice(0, 180) + '...' : prompts[0]}</div>
                 ${prompts.length > 1 ? `<div style="font-size:10.5px;color:#38bdf8;margin-top:4px">+ ${prompts.length - 1} pedidos adicionais</div>` : ''}
               </div>

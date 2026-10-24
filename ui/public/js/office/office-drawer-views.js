@@ -29,7 +29,7 @@ export function renderDrawerContent(objKey, state) {
       break;
 
     case "file_cabinet": {
-      iconEl.textContent = "🗄️";
+      iconEl.innerHTML = '<i class="fa-solid fa-box-archive" aria-hidden="true"></i>';
       titleEl.textContent = "Arquivo de Conversas & Diário de Bordo";
       const days = state.journal?.days || (Array.isArray(state.journal) ? state.journal : []);
       let totalSess = 0;
@@ -51,7 +51,7 @@ export function renderDrawerContent(objKey, state) {
           </div>
           <div style="margin-top:14px;text-align:center">
             <a href="/diario" style="color:#38bdf8;text-decoration:none;font-weight:700;font-size:12px">
-              📓 Abrir Diário de Bordo Completo com Calendário ↗
+              <i class="fa-solid fa-book" aria-hidden="true"></i> Abrir Diário de Bordo Completo com Calendário <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
             </a>
           </div>
         </div>
@@ -69,7 +69,7 @@ export function renderDrawerContent(objKey, state) {
     }
 
     case "whiteboard": {
-      iconEl.textContent = "📋";
+      iconEl.innerHTML = '<i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>';
       titleEl.textContent = "Quadro de Memória & Diretrizes";
       subtitleEl.textContent = `Regras duráveis do projeto "${state.activeProject}"`;
 
@@ -84,7 +84,7 @@ export function renderDrawerContent(objKey, state) {
           <div style="font-size:12.5px;color:var(--office-mute);margin-bottom:8px">
             Regras de arquitetura, preferências e diretrizes de desenvolvimento passadas aos agentes.
           </div>
-          <a href="/diario" style="color:var(--office-accent);text-decoration:none;font-weight:600;font-size:12.5px">Ver Diário de Bordo Completo 📓</a>
+          <a href="/diario" style="color:var(--office-accent);text-decoration:none;font-weight:600;font-size:12.5px">Ver Diário de Bordo Completo <i class="fa-solid fa-book" aria-hidden="true"></i></a>
         </div>
       `;
       break;
@@ -115,14 +115,14 @@ export function renderDrawerContent(objKey, state) {
       break;
 
     case "coffee_bar": {
-      iconEl.textContent = "☕";
+      iconEl.innerHTML = '<i class="fa-solid fa-mug-hot" aria-hidden="true"></i>';
       titleEl.textContent = "Cantinho do Café & Métricas";
       subtitleEl.textContent = "Combustível para mentes de silício";
       bodyEl.innerHTML = `
         <div class="drawer-card">
           <div class="drawer-card-title">Nível de Cafeína da Equipe</div>
           <div class="coffee-stat-grid" style="margin-bottom:14px">
-            <div class="coffee-stat-box"><div class="coffee-stat-number">100%</div><div class="coffee-stat-label">Cafeína no Tanque ☕</div></div>
+            <div class="coffee-stat-box"><div class="coffee-stat-number">100%</div><div class="coffee-stat-label">Cafeína no Tanque <i class="fa-solid fa-mug-hot" aria-hidden="true"></i></div></div>
             <div class="coffee-stat-box"><div class="coffee-stat-number">${chats.length}</div><div class="coffee-stat-label">Conversas no Projeto</div></div>
           </div>
           <p style="font-size:12.5px;color:var(--office-mute);margin:0;text-align:center;font-style:italic">
@@ -134,7 +134,7 @@ export function renderDrawerContent(objKey, state) {
     }
 
     case "server_rack": {
-      iconEl.textContent = "🖥️";
+      iconEl.innerHTML = '<i class="fa-solid fa-server" aria-hidden="true"></i>';
       titleEl.textContent = "Datacenter & Deploys";
       subtitleEl.textContent = "Estado real dos ambientes de deploy";
       bodyEl.innerHTML = `
@@ -147,7 +147,7 @@ export function renderDrawerContent(objKey, state) {
             O estado vem das mesmas medicoes do painel de deploys: nada e considerado conectado sem medicao registrada.
           </p>
           <a href="/deploy" class="header-nav-btn" style="display:flex;justify-content:center;text-decoration:none">
-            🚀 Abrir Painel de Deploys
+            <i class="fa-solid fa-rocket" aria-hidden="true"></i> Abrir Painel de Deploys
           </a>
         </div>
       `;
@@ -159,7 +159,7 @@ export function renderDrawerContent(objKey, state) {
     case "war_room_table_console":
     case "orch_core": {
       const data = getOrchestrationDrawerData(state, objKey);
-      iconEl.textContent = data.icon;
+      iconEl.innerHTML = data.icon;
       titleEl.textContent = data.title;
       subtitleEl.textContent = data.subtitle;
       bodyEl.innerHTML = data.html;
@@ -168,22 +168,22 @@ export function renderDrawerContent(objKey, state) {
     }
 
     case "sofa":
-      iconEl.textContent = "🛋️";
+      iconEl.innerHTML = '<i class="fa-solid fa-couch" aria-hidden="true"></i>';
       titleEl.textContent = "Lounge de Descompressão";
       subtitleEl.textContent = "Pausa para pensar fora da caixa";
-      bodyEl.innerHTML = `<div class="drawer-card"><p style="font-size:13px;color:var(--office-text);margin:0">Onde os agentes descansam suas threads e o desenvolvedor respira enquanto o build passa com sucesso. 🌿</p></div>`;
+      bodyEl.innerHTML = `<div class="drawer-card"><p style="font-size:13px;color:var(--office-text);margin:0">Onde os agentes descansam suas threads e o desenvolvedor respira enquanto o build passa com sucesso. <i class="fa-solid fa-leaf" aria-hidden="true"></i></p></div>`;
       break;
 
     default:
       if (objKey.startsWith("agent_") || objKey.startsWith("exec_")) {
         const data = getOrchestrationDrawerData(state, objKey);
-        iconEl.textContent = data.icon;
+        iconEl.innerHTML = data.icon;
         titleEl.textContent = data.title;
         subtitleEl.textContent = data.subtitle;
         bodyEl.innerHTML = data.html;
         setupOrchestrationPanelListeners(state, () => renderDrawerContent(objKey, state));
       } else {
-        iconEl.textContent = "📌";
+        iconEl.innerHTML = '<i class="fa-solid fa-thumbtack" aria-hidden="true"></i>';
         titleEl.textContent = "Objeto do Escritório";
         subtitleEl.textContent = "";
         bodyEl.innerHTML = `<div style="color:var(--office-mute)">Selecione um item no escritório para ver detalhes.</div>`;
@@ -208,7 +208,7 @@ export function renderCabinetJournalItems(days, fallbackChats, filterText = "") 
 
       if (filtered.length === 0) continue;
 
-      html += `<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;padding:4px 0">📅 ${d.day} (${filtered.length} sessões)</div>`;
+      html += `<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;padding:4px 0"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> ${d.day} (${filtered.length} sessões)</div>`;
 
       for (const s of filtered) {
         const ag = (s.agente || "harness").toLowerCase();
@@ -230,7 +230,7 @@ export function renderCabinetJournalItems(days, fallbackChats, filterText = "") 
               <span class="chat-item-meta">${s.inicio || ''} · ${s.toolCount || 0} tools · ${s.prompts?.length || 0} pedidos</span>
               ${promptText ? `<span style="font-size:11px;color:#94a3b8;font-style:italic;margin-top:2px;display:block">"${promptText.slice(0, 80)}..."</span>` : ''}
             </div>
-            <span style="font-size:12px;color:var(--office-accent);font-weight:700">Abrir ↗</span>
+            <span style="font-size:12px;color:var(--office-accent);font-weight:700">Abrir <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
           </div>
         `;
       }
@@ -245,7 +245,7 @@ export function renderCabinetJournalItems(days, fallbackChats, filterText = "") 
           <span class="chat-item-title">${c.title || c.name || c.id}</span>
           <span class="chat-item-meta">${c.date || "Sem data"} · ${c.engine || "motor"}</span>
         </div>
-        <span style="font-size:12px;color:var(--office-accent)">Abrir ↗</span>
+        <span style="font-size:12px;color:var(--office-accent)">Abrir <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
       </div>
     `).join("");
   }

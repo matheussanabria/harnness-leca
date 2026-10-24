@@ -31,11 +31,11 @@ export function setupDeskChatInteraction(agentKey, state, meta) {
 
     inputEl.value = "";
     sendBtn.disabled = true;
-    sendBtn.textContent = "⏳...";
+    sendBtn.innerHTML = '<i class="fa-solid fa-hourglass-half fa-spin" aria-hidden="true"></i>...';
 
     const assistantMsg = document.createElement("div");
     assistantMsg.style.cssText = `align-self:flex-start;background:rgba(30,41,59,0.9);border:1px solid ${meta.color}55;color:#f1f5f9;padding:8px 12px;border-radius:8px;max-width:92%;line-height:1.4`;
-    assistantMsg.innerHTML = `<i>${meta.icon} ${meta.name} gerando resposta...</i>`;
+    assistantMsg.innerHTML = `<span>${meta.icon} ${meta.name} gerando resposta...</span>`;
     historyEl.appendChild(assistantMsg);
     historyEl.scrollTop = historyEl.scrollHeight;
 
@@ -100,9 +100,9 @@ export function setupDeskChatInteraction(agentKey, state, meta) {
           if (hasError && errorObj) {
             assistantMsg.innerHTML = `
               <div style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);border-radius:6px;padding:8px 10px;color:#fca5a5;font-size:11.5px">
-                <div style="font-weight:700;margin-bottom:4px">⚠️ ${errorObj.title || "Erro na Execução"}</div>
+                <div style="font-weight:700;margin-bottom:4px"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ${errorObj.title || "Erro na Execução"}</div>
                 <div>${errorObj.error || errorObj.message || "Falha reportada pelo motor."}</div>
-                ${errorObj.hint ? `<div style="margin-top:6px;color:#cbd5e1;font-size:11px">💡 ${errorObj.hint}</div>` : ""}
+                ${errorObj.hint ? `<div style="margin-top:6px;color:#cbd5e1;font-size:11px"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i> ${errorObj.hint}</div>` : ""}
               </div>
             `;
           } else {
@@ -118,23 +118,23 @@ export function setupDeskChatInteraction(agentKey, state, meta) {
 
       if (statusEl) {
         if (hasError) {
-          statusEl.textContent = "⚠️ Motor reportou uma limitação na execução.";
+          statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Motor reportou uma limitação na execução.';
           statusEl.style.color = "#fca5a5";
         } else {
-          statusEl.textContent = "✔ Resposta concluída com sucesso!";
+          statusEl.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Resposta concluída com sucesso!';
           statusEl.style.color = "#22c55e";
         }
       }
       playClickSound();
     } catch (err) {
-      assistantMsg.innerHTML = `<span style="color:#ef4444">✖ Falha ao conversar com o agente: ${err.message}. Você pode tentar abrir o chat completo na Central.</span>`;
+      assistantMsg.innerHTML = `<span style="color:#ef4444"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Falha ao conversar com o agente: ${err.message}. Você pode tentar abrir o chat completo na Central.</span>`;
       if (statusEl) {
         statusEl.textContent = "Erro na requisição. Verifique a chave ou serviço do motor.";
         statusEl.style.color = "#ef4444";
       }
     } finally {
       sendBtn.disabled = false;
-      sendBtn.textContent = "Enviar ⚡";
+      sendBtn.innerHTML = 'Enviar <i class="fa-solid fa-bolt" aria-hidden="true"></i>';
     }
   };
 
@@ -159,7 +159,7 @@ export function renderAgentSessionList(sessions, fallbackChats, accentColor, pro
             <span class="chat-item-meta">${s.day || ''} · ${s.toolCount || 0} tools · ${s.prompts?.length || 0} pedidos</span>
             ${promptText ? `<span style="font-size:11px;color:#94a3b8;font-style:italic;margin-top:2px;display:block">"${promptText.slice(0, 75)}..."</span>` : ''}
           </div>
-          <span style="font-size:11.5px;color:#38bdf8;font-weight:700">Continuar ↗</span>
+          <span style="font-size:11.5px;color:#38bdf8;font-weight:700">Continuar <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
         </div>
       `;
     }).join("");
@@ -172,7 +172,7 @@ export function renderAgentSessionList(sessions, fallbackChats, accentColor, pro
           <span class="chat-item-title">${c.title || c.name || c.id}</span>
           <span class="chat-item-meta">${c.date || "Sem data"} · ${c.engine || "motor"}</span>
         </div>
-        <span style="font-size:11.5px;color:#38bdf8;font-weight:700">Continuar ↗</span>
+        <span style="font-size:11.5px;color:#38bdf8;font-weight:700">Continuar <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
       </div>
     `).join("");
   }
