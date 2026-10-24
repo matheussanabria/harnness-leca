@@ -20,6 +20,7 @@ const { parseDelimitedFiles } = require("../services/prototype-sanitizer.service
 const { buildDesignIndex } = require("../services/design-index.service");
 const { importArtifactForInspection } = require("../services/prototype-artifact-import.service");
 const History = require("../services/prototype-history.service");
+const { qualityMetadata } = require("../services/atelier-quality.service");
 
 function readJsonBody(req) {
   return new Promise((resolve, reject) => {
@@ -152,6 +153,7 @@ async function apiPrototypesSaveFiles({ req, res, params: [slug, protoId] }) {
       engine: body.engine || "chat",
       author: body.author || "user",
       message: label,
+      ...qualityMetadata(projectDir),
     }));
 
     return send(res, 200, result);

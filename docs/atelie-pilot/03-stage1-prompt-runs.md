@@ -66,10 +66,34 @@ Cautions: the baseline had no Design System to use, because the legacy prompt ne
 ## 5. Spend so far (free tier)
 [Estimate] Reported tokens across Stage 1 runs 1-3: 62,064 + 62,179 + 46,536 = 170,779, plus run 4. Only run 3 produced usable output. The approved ceiling is 300,000 tokens per pilot run, so the failed runs show why a hard stop and a per-run reasoning limit are needed.
 
-## 6. Open items
+## 6. Correction after the first render (user verdict: both directions were poor)
+
+The contract checks in section 3.2 measure compliance, not appearance. The user judged the first-run output poor, and the Stage 0 statement that "the sandbox injects `components.css`" was only partly true. Screenshots of all four directions (headless Edge, 1440 and 390 px) showed why.
+
+**Defect found and fixed (my integration):**
+- [Fact] `prototype-sandbox-renderer.service.js:48` loads the Design System component CSS only when the prototype's `proto.json` has `metadata.dsComponents`. Nothing set it, so `btn btn--primary` rendered as a default blue link and the primary call-to-action looked like plain text, the opposite of the prompt's own rule.
+- Fix: `savePrototypeFiles` keeps `metadata.dsComponents`, and the save endpoint passes it for projects that opted in (`qualityMetadata` in `atelier-quality.service.js`). Prototypes saved without the flag behave as before, so old prototypes with generic class names are not affected. A regression test covers flag off, flag on and a later save without the flag.
+- After the fix the call-to-action, badges and cards render as designed.
+
+**Defects that remain (visible in the render, not caught by the mechanical checks):**
+- DeepSeek A at 390 px: the headline and the spec row are clipped on the right (horizontal overflow).
+- DeepSeek B: navigation text on the terracotta header is nearly invisible (contrast), and the button label sits at the top of the button.
+- Both models used the Design System `header` class with their own inner markup, so the header renders broken in Nemotron and low-contrast in DeepSeek B. The index lists class names only; the models guess the markup pattern.
+- Nemotron: hero text flush against the left edge (no container padding), and its brand mark renders as an empty blue circle.
+- DeepSeek A: an empty seal circle and dead space in the label card.
+- Nemotron B has the richer content (three plans above the fold, highlighted tier, icons), which matches the user's preference for it.
+
+**Consequences for the plan:**
+1. The render review is the control that matters. Overflow at 360/390 px, contrast of text on coloured bars and "unstyled element" checks would have caught most of the above.
+2. The prompt should send the full markup and CSS of the components the page needs (at least header, footer, button), not only class names. This was already the plan for Stage 1 and is still open.
+3. Mechanical contract checks stay as a gate for "does it save and respect the format", never as a quality score.
+
+## 7. Open items
 1. User ratings of `direction-a` and `direction-b` in `quality-dir-deepseek-low` (rated separately from the full-page baseline).
 2. Direction selection record next to `proto.json` (not built).
 3. Re-run the baseline with `--variant low` so both flows share settings.
 4. Decide whether the legacy flow also receives the Design System in Stage 4.
 5. Move the driver scripts (`baseline-run.js`, `quality-run.js`, in the scratchpad) into the repo, for example `tools/atelier-pilot/`, so Stage 4 is reproducible.
 6. Render review with `playwright-core` on the installed Edge.
+7. Send full markup and CSS of the needed components (header, footer, button at least) in the prompt.
+8. Add overflow, contrast-on-colour and unstyled-element checks to the render review.

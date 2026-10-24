@@ -105,3 +105,40 @@ test("bridge with the flag off: legacy prompt is unchanged and /directions is le
   assert.match(first, /Pedido do usuário:\n\/directions x$/);
   assert.equal(await bridge.wrapAtelierPrompt("/directions y", { resumed: true }), "/directions y");
 });
+
+// Regression: the preview loads Design System component CSS only for prototypes with metadata.dsComponents.
+// Without it, `btn btn--primary` (which the quality prompt tells the model to use) rendered as a default link.
+test("qualityMetadata, save and render: prototypes saved under the flag get the component CSS", async () => {
+  const { qualityMetadata } = require("../ui/server/services/atelier-quality.service");
+  const { initPrototype, savePrototypeFiles } = require("../ui/server/services/prototype-storage.service");
+  const { renderSandboxScreen } = await import(pathToFileURL(path.resolve(__dirname, "..", "ui", "server", "services", "prototype-sandbox-renderer.service.js")).href);
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "aq-render-"));
+  try {
+    const projectDir = path.join(dir, "projects", "p");
+    const ds = path.join(projectDir, "design", "ds");
+    fs.mkdirSync(ds, { recursive: true });
+    fs.writeFileSync(path.join(ds, "tokens.css"), ":root { --primary-interactive: #9a4a22; }");
+    fs.writeFileSync(path.join(ds, "components.css"), ".btn--primary { background: var(--primary-interactive); }");
+    fs.writeFileSync(path.join(ds, "ds-index.md"), DS.index);
+
+    assert.deepEqual(qualityMetadata(projectDir), {}, "flag off: no metadata");
+    fs.writeFileSync(path.join(projectDir, "design", "profile.json"), JSON.stringify({ schema: 1, atelier: { qualityPrompt: true } }));
+    assert.deepEqual(qualityMetadata(projectDir), { dsComponents: true });
+
+    initPrototype(projectDir, "q1", "Q1");
+    const files = [{ path: "screens/home.html", content: '<a class="btn btn--primary" href="#">Go</a>' }];
+    savePrototypeFiles(projectDir, "q1", files, { engine: "x" });
+    assert.doesNotMatch(renderSandboxScreen(projectDir, dir, "q1", "home").html, /dsComponentsStyle/, "not requested: legacy behaviour");
+
+    savePrototypeFiles(projectDir, "q1", files, { engine: "x", ...qualityMetadata(projectDir) });
+    const rendered = renderSandboxScreen(projectDir, dir, "q1", "home").html;
+    assert.match(rendered, /dsComponentsStyle/);
+    assert.match(rendered, /\.btn--primary/);
+
+    savePrototypeFiles(projectDir, "q1", files, { engine: "x" });
+    assert.match(renderSandboxScreen(projectDir, dir, "q1", "home").html, /dsComponentsStyle/, "a later save without the flag must not drop it");
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});

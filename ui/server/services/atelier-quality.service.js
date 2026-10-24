@@ -25,4 +25,14 @@ function loadQualityContext(projectDir, deps = { fs, path }) {
   return { enabled: true, index, tokensCss };
 }
 
-module.exports = { loadQualityContext };
+/**
+ * Metadata for savePrototypeFiles: prototypes saved under the quality prompt ask the sandbox to load the
+ * Design System component CSS. Without it, component classes the prompt tells the model to use render unstyled.
+ * @param {string} projectDir
+ * @returns {{ dsComponents?: true }}
+ */
+function qualityMetadata(projectDir, deps = { fs, path }) {
+  return loadQualityContext(projectDir, deps).enabled ? { dsComponents: true } : {};
+}
+
+module.exports = { loadQualityContext, qualityMetadata };

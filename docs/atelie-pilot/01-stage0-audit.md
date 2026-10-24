@@ -56,7 +56,7 @@ Session logic in `wrapAtelierPrompt` (`prototype-chat-bridge.js:64-72`): a fresh
 
 ### 3.4 Design System
 - `window.DOCS` is read only by the import tooling (`tools/ds-docs/extract.js`, `tools/import-ds-docs.js`), which writes `design/ds/components/`, `registry.json`, `tokens.css`, `components.css`.
-- The sandbox injects `tokens.css`, `theme.css`, `components.css`, `styles/proto.css`, `head.html` into the iframe (`prototype-sandbox-common.service.js:18-44`).
+- The sandbox loads `tokens.css`, `theme.css`, `components.css`, `styles/proto.css`, `head.html` (`prototype-sandbox-common.service.js:18-44`), but injects `components.css` only for prototypes whose `proto.json` has `metadata.dsComponents` (`prototype-sandbox-renderer.service.js:48`). The first version of this audit omitted that condition; see `03-stage1-prompt-runs.md` section 6.
 - The model sees no tokens, component inventory or component HTML.
 - [Gap] Whether any MCP server is connected at runtime was not verified. `projects/saude-dispensacao/design/profile.json` has no `mcpServer`. The `harness-leca` project has no `design/profile.json` at all; its nine prototypes (`contabilidade`, `dentista`, `mercado-livre`, `moda`, `portfolio`, `portfolio-2`, `salao`, `tecnologia`, `teste-haiku`) were created with `engine: "manual"`, so their original briefings were not recorded.
 
