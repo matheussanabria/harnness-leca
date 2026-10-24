@@ -99,6 +99,7 @@ export function applySidebarWidth(sidebar, resizer, width, persist = false, stor
  * @param {HTMLElement} [options.workspaceEl]
  * @param {string} [options.projectSlug]
  * @param {Storage | null} [options.storage]
+ * @param {(width: number) => void} [options.onPersist]
  */
 export function initStudioSidebarResizer(options = {}) {
   if (studioResizerInitialized && !options.resizerEl) return;
@@ -113,6 +114,12 @@ export function initStudioSidebarResizer(options = {}) {
   studioResizerInitialized = true;
   const storage = options.storage || null;
   const projectSlug = options.projectSlug || "";
+
+  const persistWidth = (width) => {
+    const applied = applySidebarWidth(sidebar, resizer, width, true, storage, projectSlug);
+    if (typeof options.onPersist === "function") options.onPersist(applied);
+    return applied;
+  };
 
   // Restaura largura inicial em telas maiores que mobile
   const isDesktop = typeof window !== "undefined" ? window.innerWidth > 768 : true;
@@ -139,7 +146,7 @@ export function initStudioSidebarResizer(options = {}) {
     }
     activePointerId = null;
     const finalWidth = parseInt(sidebar.style.width, 10) || startW;
-    applySidebarWidth(sidebar, resizer, finalWidth, true, storage, projectSlug);
+    persistWidth(finalWidth);
   };
 
   resizer.addEventListener("pointerdown", (/** @type {PointerEvent} */ e) => {
@@ -160,7 +167,7 @@ export function initStudioSidebarResizer(options = {}) {
 
   // Duplo clique restaura a largura padrão canônica
   resizer.addEventListener("dblclick", () => {
-    applySidebarWidth(sidebar, resizer, STUDIO_DEFAULT_SIDEBAR_WIDTH, true, storage, projectSlug);
+    persistWidth(STUDIO_DEFAULT_SIDEBAR_WIDTH);
   });
 
   // Acessibilidade via teclado
@@ -178,7 +185,7 @@ export function initStudioSidebarResizer(options = {}) {
 
     if (next != null) {
       e.preventDefault();
-      applySidebarWidth(sidebar, resizer, next, true, storage, projectSlug);
+      persistWidth(next);
     }
   });
 }
