@@ -72,7 +72,8 @@ harness-leca/
 | `docs/mapa/07-split-files-and-features.md` | 7 | Files split by size (facade + modules), Jira, setup docs, getting started, adoption, prototype catalog, Design System recreation | 8.7 KB |
 | `docs/mapa/08-planning-and-projects.md` | 8, 9 | Product evolution planning; 57multimarcas local Maven setup | 8.0 KB |
 | `docs/mapa/10-artifacts-skills-coordination.md` | 10, 11, 12 | Artifact inspection, preview and links; local skills; agent coordination | 8.3 KB |
-| `docs/mapa/13-intelligence-runtime-sessions.md` | 13, 14, 15 | HIA (Intelligence & Automation), Local AI Runtime, canonical session registry | 10.9 KB |
+| `docs/mapa/13-intelligence-runtime-sessions.md` | 13, 14, 15 | HIA (Intelligence & Automation), Local AI Runtime, canonical session registry | 11 KB |
+| `docs/mapa/16-telemetry-program.md` | 16 | Telemetry program: plan, diagnostics A1-A6, ADRs, event envelope, chat/workflow bridges, legacy importer, office projection client | 9 KB |
 
 ### Como atualizar o mapa
 
