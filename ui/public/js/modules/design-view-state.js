@@ -3,7 +3,7 @@
 import { readStudioState, saveStudioState } from "./studio-state.js";
 import { getRouter, routeTo, VIEW_SCREENS } from "../shared/router.js";
 
-const DESIGN_VIEWS = new Set(["scrum", "layers", "board", "audit", "prototypes", "artifacts", "routines"]);
+const DESIGN_VIEWS = new Set(["scrum", "layers", "board", "audit", "prototypes", "artifacts", "routines", "workflows"]);
 let savedDesign = null;
 
 /** @param {unknown} value */
@@ -35,10 +35,10 @@ export async function restoredDesignState(options = {}) {
 export function persistDesignView(view, open) {
   void saveStudioState({ designView: view, designOpen: open });
   const route = getRouter()?.current();
-  if (open) {
+  if (open && VIEW_SCREENS.includes(view)) {
     // Switching tabs adds a history entry (Back returns to the previous tab); the prototype in the address is kept.
     routeTo(view, route && route.screen === view ? route.params : [], { push: true });
-  } else if (route && VIEW_SCREENS.includes(route.screen)) {
+  } else if (!open && route && VIEW_SCREENS.includes(route.screen)) {
     routeTo("chats", [], { push: true });
   }
 }

@@ -7,6 +7,7 @@ import { renderAuditWorkspace } from "./design-audit.js";
 import { renderPrototypesWorkspace } from "./design-prototypes.js";
 import { renderArtifactsWorkspace } from "./design-artifacts.js";
 import { renderRoutinesWorkspace } from "./design-routines.js";
+import { renderWorkflowsWorkspace } from "./design-workflows.js";
 import { renderScrumWorkspace } from "./design-scrum.js";
 import { detachStudioSidebarFromAtelier } from "./prototype-atelier-sidebar.js";
 import { resetAtelierPromptState, setAtelierChatContext } from "./prototype-chat-bridge.js";
@@ -193,6 +194,8 @@ function renderCurrentDesignView() {
     });
   } else if (currentView === "routines") {
     renderRoutinesWorkspace(container, slug);
+  } else if (currentView === "workflows") {
+    renderWorkflowsWorkspace(container, slug);
   }
 }
 

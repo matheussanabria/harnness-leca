@@ -36,3 +36,4 @@ Cada história ganha um arquivo próprio a partir do [template](../../_templates
 | [08.03](./08.03-skills-projeto-raia.md) | Vínculo de skills por projeto e raia (concluída) |
 | [08.04](./08.04-execucao-workflows.md) | Execução de workflows (concluída) |
 | [08.05](./08.05-rotinas-aprovacao-historico.md) | Rotinas com aprovação e histórico (concluída) |
+| [08.06](./08.06-ui-workflows.md) | Workflows UI: catalog, plan and runs (em andamento) |

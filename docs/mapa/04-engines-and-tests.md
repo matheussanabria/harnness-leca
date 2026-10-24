@@ -57,6 +57,10 @@ node --test tests/chats-screen-state.test.js        # Testa adoção do estado n
 | `tests/screen-state-store.test.js` e `tests/screen-state-http.test.js` | Regressão do armazenamento e dos endpoints de estado/histórico por tela: persistência, merge, 409 por `rev`, 413, anel de 500, slug, rotas e arquivos de apoio (EP-14.05). |
 | `tests/screen-state-client.test.js` | Regressão do cliente de estado das telas: espelho do registro, hidratação e cache, migração, debounce de 400 ms, `sendBeacon`, reserva offline e retentativa (EP-14.06). |
 | `tests/chats-screen-state.test.js` | Regressão da adoção nas conversas, grupos e projetos: hidratação de filtros/visão/página/rascunho/grupos, registro de ações de troca de projeto, abertura de chat e mudança de grupo, além da ausência de `localStorage` direto (EP-14.07). |
+| `tests/design-workflows-state.test.js` | Reducer da aba Workflows: catálogo, seleção, plano, dry run, execuções, erro, aviso e ações desconhecidas (EP-08.06). |
+| `tests/design-workflows-api.test.js` | URLs e métodos de cada chamada do cliente Workflows (catálogo, plano, execuções, início, avanço e cancelamento) com `fetch` falso e erro de loopback (EP-08.06). |
+| `tests/design-workflows-view.test.js` | Renderização do plano em ordem, agente, gate, permissões, skill ausente, escape de texto da API e estados da aba (EP-08.06). |
+| `tests/design-workflows-ui.test.js` | Registro da aba em `index.html`/`design.js`, restauração em `design-view-state`, import do CSS, FontAwesome, ausência de emoji e de `confirm`/`alert`/`prompt`, e limite de 300 linhas (EP-08.06). |
 
 - Fixtures de teste: `tests/helpers/project-fixture.js` (orquestrador), `project-fixture-design-system.js`, `project-fixture-prototype.js`, `project-fixture-design-index.js` e `project-fixture-files.js` criam um projeto temporário fora de `projects/` e devolvem `{ dir, slug, cleanup }`.
 
