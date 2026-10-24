@@ -25,6 +25,8 @@ test("buildQualityRules keeps the file-block format the parser needs and embeds 
   assert.match(rules, /button \| Button/);
   assert.match(rules, /--primary-interactive: #9a4a22;/);
   assert.match(rules, /data-action="goto:<screen-id>"/);
+  assert.match(rules, /Never set text in --neutral-muted/);
+  assert.match(rules, /centred container/);
   assert.doesNotMatch(rules, /Mode: directions/);
   assert.match(buildQualityRules(DS, "directions"), /screens\/direction-a\.html and screens\/direction-b\.html/);
   assert.doesNotMatch(rules, /[\u{1F300}-\u{1FAFF}☀-➿]/u, "the prompt itself must not contain emojis");
@@ -138,6 +140,33 @@ test("qualityMetadata, save and render: prototypes saved under the flag get the 
 
     savePrototypeFiles(projectDir, "q1", files, { engine: "x" });
     assert.match(renderSandboxScreen(projectDir, dir, "q1", "home").html, /dsComponentsStyle/, "a later save without the flag must not drop it");
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("kit: the service returns the kit components and the prompt embeds their markup", async () => {
+  const { buildQualityRules } = await mod("prototype-prompt-quality.js");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "aq-kit-"));
+  try {
+    const projectDir = path.join(dir, "projects", "p");
+    const ds = path.join(projectDir, "design", "ds");
+    fs.mkdirSync(path.join(ds, "components", "header"), { recursive: true });
+    fs.mkdirSync(path.join(ds, "components", "button"), { recursive: true });
+    fs.writeFileSync(path.join(ds, "tokens.css"), ":root{}");
+    fs.writeFileSync(path.join(ds, "ds-index.md"), "# idx");
+    fs.writeFileSync(path.join(ds, "components", "header", "header.html"), '<header class="header">H</header>');
+    fs.writeFileSync(path.join(ds, "components", "header", "header.css"), ".header{height:56px}");
+    fs.writeFileSync(path.join(ds, "components", "button", "button.html"), '<a class="btn">B</a>');
+    fs.writeFileSync(path.join(projectDir, "design", "profile.json"), JSON.stringify({ schema: 1, atelier: { qualityPrompt: true, kit: ["header", "button", "../escape", "missing"] } }));
+    const ctx = loadQualityContext(projectDir);
+    assert.deepEqual(ctx.kit.map((c) => c.id), ["header", "button"], "unsafe or missing ids are skipped");
+    assert.equal(ctx.kit[0].css, ".header{height:56px}");
+    const rules = buildQualityRules(ctx);
+    assert.match(rules, /Component kit/);
+    assert.match(rules, /### header\nHTML:\n<header class="header">H<\/header>/);
+    assert.match(rules, /\.header\{height:56px\}/);
+    assert.doesNotMatch(buildQualityRules(DS), /Component kit/, "no kit, no section");
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }

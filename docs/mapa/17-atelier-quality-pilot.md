@@ -10,6 +10,9 @@
 | `ui/server/services/atelier-quality.service.js` | Reads the opt-in flag (`design/profile.json` → `atelier.qualityPrompt: true`) and the imported Design System (`ds-index.md`, `tokens.css`); reports `flag-off` or `design-system-missing` instead of falling back silently. |
 | `ui/server/controllers/atelier-quality.controller.js` | `GET /api/project/:slug/design/atelier/quality-context` (route in `design.routes.js`). |
 | `tests/atelier-quality-prompt.test.js` | Covers the command parser, rules content, loader, service states and the bridge with the flag on and off (legacy prompt unchanged). |
+| `tools/atelier-pilot/review-checks.js` | In-page checks for the render review (self-contained, runs through `page.evaluate`): sideways overflow, text contrast on the real background, default-blue links, default font, touch targets, structure. |
+| `tools/atelier-pilot/render-review.js` | Render review CLI: drives the installed Edge through `playwright-core` at 360/390/768/1440 px, writes full-page screenshots and a JSON report, and summarises issues by severity. Fails with a clear message when Edge or the package is missing. |
+| `tests/atelier-render-review.test.js` | Argument parsing, issue summary, and four browser tests (clean page, overflow only at narrow width, contrast on a real background, default link/font/touch target); the browser tests skip when Edge is unavailable. |
 | `docs/atelie-pilot/palette-torra-nova.json` | Torra Nova palette: the 26 tokens the Design System components read (warm roast tones, teal focus accent). |
 | `tests/ds-dc-import.test.js` | Covers the reader (brackets and quotes in strings, variants, empty context), required tokens, palette gaps, index and the end-to-end import with a fixture. |
 | `docs/atelie-pilot/03-stage1-prompt-runs.md` | Stage 1 spike 2: first runs of the quality prompt (valid and invalid), the 32,000-token output cap and `--variant low`, contract checks per model, harness traps and cleanup. |

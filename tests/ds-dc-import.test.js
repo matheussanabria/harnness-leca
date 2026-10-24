@@ -62,6 +62,15 @@ test("buildTokensCss reports tokens the palette does not define", () => {
   assert.deepEqual(missing, ["--primary-dark"]);
 });
 
+test("buildComponentsCss puts the base layer before the component CSS", () => {
+  const { buildComponentsCss, BASE_CSS } = require("../tools/ds-docs/dc-tokens");
+  const out = buildComponentsCss([{ id: "button", name: "Button", css: ".btn{height:44px}" }]);
+  assert.ok(out.startsWith(BASE_CSS));
+  assert.ok(out.indexOf(".btn{display:inline-flex") < out.indexOf(".btn{height:44px}"), "component rules must come after, so they win");
+  // :where() keeps the specificity at zero, so a prototype's own single-class link colour still wins.
+  assert.match(out, /:where\(\.header,\.footer\) a\{color:inherit/);
+});
+
 test("buildIndex is compact and names the palette, tokens and components", () => {
   const { components } = extractDcDocs(FIXTURE);
   const index = buildIndex(components, ["--primary-dark", "--danger-muted", "--unknown-token"], "T");

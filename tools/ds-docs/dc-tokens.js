@@ -21,9 +21,25 @@ function buildTokensCss(palette, required) {
   return { css, missing };
 }
 
-/** Concatenated component CSS with a header per component. */
+/**
+ * Element defaults the components assume (links inside the header, buttons rendered as links, box sizing).
+ * The source Design System file does not ship them, so without this the header links render in default blue
+ * and `<a class="btn">` is underlined and top-aligned. Lives in components.css, which the sandbox loads only
+ * for prototypes that opt in, so older prototypes are not restyled.
+ */
+const BASE_CSS = `/* Base layer (pilot). Not part of the source Design System file. */
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-family:var(--font-sans);color:var(--neutral-body);background:var(--neutral-background);-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:var(--primary-interactive)}
+:where(.header,.footer) a{color:inherit;text-decoration:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+:focus-visible{outline:2px solid var(--highlight-focus);outline-offset:2px}
+`;
+
+/** Base layer followed by the component CSS, with a header per component. */
 function buildComponentsCss(components) {
-  return components.map((c) => `/* ${c.name} (${c.id}) */\n${c.css.trim()}\n`).join("\n");
+  return `${BASE_CSS}\n${components.map((c) => `/* ${c.name} (${c.id}) */\n${c.css.trim()}\n`).join("\n")}`;
 }
 
 const TOKEN_ROLES = {
@@ -74,4 +90,4 @@ function buildIndex(components, tokenNames, paletteName = "palette") {
   ].join("\n");
 }
 
-module.exports = { buildTokensCss, buildComponentsCss, buildIndex };
+module.exports = { buildTokensCss, buildComponentsCss, buildIndex, BASE_CSS };

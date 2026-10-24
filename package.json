@@ -29,5 +29,8 @@
     "routines": "node tools/run-scheduled.js",
     "routines:list": "node tools/run-scheduled.js --list",
     "schedule:windows": "node tools/schedule-windows.js"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.64.1"
   }
 }
