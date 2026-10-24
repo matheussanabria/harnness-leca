@@ -22,7 +22,7 @@ export function renderColumnWorkflows(ctx, x, y, w, h, projectData, journal) {
   // Título da Coluna
   ctx.fillStyle = "#38bdf8";
   ctx.font = "bold 20px 'Segoe UI', system-ui, sans-serif";
-  ctx.fillText("⚡ CONVERSAS & DIÁRIO DE BORDO", x + 24, y + 42);
+  ctx.fillText("CONVERSAS & DIÁRIO DE BORDO", x + 24, y + 42);
 
   // Linha divisória
   ctx.strokeStyle = "rgba(56, 189, 248, 0.3)";
@@ -128,8 +128,8 @@ export function renderColumnWorkflows(ctx, x, y, w, h, projectData, journal) {
 
   ctx.fillStyle = "#e2e8f0";
   ctx.font = "14px 'Segoe UI', system-ui, sans-serif";
-  ctx.fillText("✔ Memória durável sincronizada (memory.md)", x + 40, memBoxY + 34);
-  ctx.fillText("✔ Regras e instruções ativas (instructions.md)", x + 40, memBoxY + 64);
-  ctx.fillText("✔ Diário de bordo acessível pelo Armário de Arquivos e M2", x + 40, memBoxY + 94);
-  ctx.fillText("✔ Chat interativo ativo na Estação do Gemini e no Grafo", x + 40, memBoxY + 124);
+  ctx.fillText("Memória durável sincronizada (memory.md)", x + 40, memBoxY + 34);
+  ctx.fillText("Regras e instruções ativas (instructions.md)", x + 40, memBoxY + 64);
+  ctx.fillText("Diário de bordo acessível pelo Armário de Arquivos e M2", x + 40, memBoxY + 94);
+  ctx.fillText("Chat interativo ativo na Estação do Gemini e no Grafo", x + 40, memBoxY + 124);
 }

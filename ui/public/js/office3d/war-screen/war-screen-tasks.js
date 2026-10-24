@@ -26,7 +26,7 @@ export function renderColumnTasks(ctx, x, y, w, h, projectData, orchestrationSta
   // Título da Coluna
   ctx.fillStyle = "#c084fc";
   ctx.font = "bold 20px 'Segoe UI', system-ui, sans-serif";
-  ctx.fillText("📋 JOBS ASSÍNCRONOS & BACKGROUND TASKS", x + 24, y + 42);
+  ctx.fillText("JOBS ASSÍNCRONOS & BACKGROUND TASKS", x + 24, y + 42);
 
   ctx.strokeStyle = "rgba(168, 85, 247, 0.35)";
   ctx.beginPath();
@@ -150,7 +150,7 @@ export function renderColumnTasks(ctx, x, y, w, h, projectData, orchestrationSta
     ctx.fillStyle = "#38bdf8";
     ctx.font = "bold 14px 'Segoe UI', system-ui, sans-serif";
     const rTitle = (r.title || r.name || "Rotina de Sincronização").slice(0, 40);
-    ctx.fillText(`🕒 ${rTitle}`, x + 38, sY + 28);
+    ctx.fillText(rTitle, x + 38, sY + 28);
 
     ctx.fillStyle = "#22c55e";
     ctx.font = "bold 11px 'Segoe UI', system-ui, sans-serif";
@@ -176,7 +176,7 @@ export function renderColumnTasks(ctx, x, y, w, h, projectData, orchestrationSta
 
   ctx.fillStyle = "#e2e8f0";
   ctx.font = "13px 'Segoe UI', system-ui, sans-serif";
-  ctx.fillText("⚡ Workers Assíncronos: 3 ativos (CLI, SSE Stream, Scheduled Daemon)", x + 38, summaryY + 28);
+  ctx.fillText("Workers Assíncronos: 3 ativos (CLI, SSE Stream, Scheduled Daemon)", x + 38, summaryY + 28);
   ctx.fillStyle = "#22c55e";
-  ctx.fillText("✔ Tolerância a falhas ativada · Sem congelamento do event-loop", x + 38, summaryY + 50);
+  ctx.fillText("Tolerância a falhas ativada · Sem congelamento do event-loop", x + 38, summaryY + 50);
 }

@@ -9,7 +9,7 @@
 export function renderControlTab(orchState, activeProj) {
   return `
     <div class="drawer-card" style="border-color:rgba(56,189,248,0.3)">
-      <div class="drawer-card-title" style="color:#38bdf8;margin-bottom:8px">⚙️ Ações Operacionais Suportadas</div>
+      <div class="drawer-card-title" style="color:#38bdf8;margin-bottom:8px"><i class="fa-solid fa-gear" aria-hidden="true"></i> Ações Operacionais Suportadas</div>
       <div style="font-size:12px;color:#94a3b8;margin-bottom:14px">
         Operações executadas com validação de pré-condições, rastreabilidade via <code>operationId</code> e auditoria no backend.
       </div>
@@ -23,7 +23,7 @@ export function renderControlTab(orchState, activeProj) {
           Varre os históricos do Claude Code, Gemini e OpenCode e atualiza as conversas e memórias do projeto <b>${activeProj}</b>.
         </p>
         <button id="btnOpSyncProject" class="header-nav-btn" style="width:100%;justify-content:center;background:#0284c7;color:#fff;font-weight:700;border:none">
-          🔄 Executar Sincronização
+          <i class="fa-solid fa-rotate" aria-hidden="true"></i> Executar Sincronização
         </button>
       </div>
 
@@ -36,7 +36,7 @@ export function renderControlTab(orchState, activeProj) {
           Aciona a rotina de análise semântica e atualização de <code>extraido-memorias.md</code> para o projeto selecionado.
         </p>
         <button id="btnOpTriggerRoutine" class="header-nav-btn" style="width:100%;justify-content:center;background:#0369a1;color:#fff;font-weight:700;border:none">
-          ⚡ Disparar Rotina de Extração
+          <i class="fa-solid fa-bolt" aria-hidden="true"></i> Disparar Rotina de Extração
         </button>
       </div>
 
@@ -44,7 +44,7 @@ export function renderControlTab(orchState, activeProj) {
     </div>
 
     <div class="drawer-card">
-      <div class="drawer-card-title" style="margin-bottom:8px">🔒 Capacidades Não Disponíveis (Auditoria M2)</div>
+      <div class="drawer-card-title" style="margin-bottom:8px"><i class="fa-solid fa-lock" aria-hidden="true"></i> Capacidades Não Disponíveis (Auditoria M2)</div>
       <div style="display:flex;flex-direction:column;gap:8px">
         <div style="background:rgba(0,0,0,0.25);padding:8px 10px;border-radius:6px;border-left:3px solid #64748b">
           <div style="display:flex;justify-content:space-between;font-size:12px">
@@ -81,7 +81,7 @@ export function setupControlOperations(state) {
 
   btnSync?.addEventListener("click", async () => {
     if (!btnSync || !feedbackEl) return;
-    btnSync.textContent = "⏳ Enviando solicitação...";
+    btnSync.innerHTML = '<i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Enviando solicitação...';
     // @ts-ignore
     btnSync.disabled = true;
 
@@ -105,21 +105,21 @@ export function setupControlOperations(state) {
         feedbackEl.style.background = "rgba(34,197,94,0.15)";
         feedbackEl.style.color = "#22c55e";
         feedbackEl.style.border = "1px solid rgba(34,197,94,0.3)";
-        feedbackEl.innerHTML = `✔ <b>Operação Concluída!</b><br>ID: <code>${data.operationId}</code><br>${data.result?.message || 'Sincronização executada com sucesso.'}`;
+        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check" aria-hidden="true"></i> <b>Operação Concluída!</b><br>ID: <code>${data.operationId}</code><br>${data.result?.message || 'Sincronização executada com sucesso.'}`;
         await state.refreshProject?.();
       } else {
         feedbackEl.style.background = "rgba(239,68,68,0.15)";
         feedbackEl.style.color = "#ef4444";
         feedbackEl.style.border = "1px solid rgba(239,68,68,0.3)";
-        feedbackEl.innerHTML = `✖ <b>Falha na Operação:</b> ${data.error || data.result?.message || 'Erro desconhecido'}`;
+        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> <b>Falha na Operação:</b> ${data.error || data.result?.message || 'Erro desconhecido'}`;
       }
     } catch (_) {
       feedbackEl.style.display = "block";
       feedbackEl.style.background = "rgba(239,68,68,0.15)";
       feedbackEl.style.color = "#ef4444";
-      feedbackEl.innerHTML = `✖ <b>Erro de Conexão:</b> Não foi possível contatar o servidor.`;
+      feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> <b>Erro de Conexão:</b> Não foi possível contatar o servidor.`;
     } finally {
-      btnSync.textContent = "🔄 Executar Sincronização";
+      btnSync.innerHTML = '<i class="fa-solid fa-rotate" aria-hidden="true"></i> Executar Sincronização';
       // @ts-ignore
       btnSync.disabled = false;
     }
@@ -127,7 +127,7 @@ export function setupControlOperations(state) {
 
   btnRoutine?.addEventListener("click", async () => {
     if (!btnRoutine || !feedbackEl) return;
-    btnRoutine.textContent = "⏳ Enviando solicitação...";
+    btnRoutine.innerHTML = '<i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Enviando solicitação...';
     // @ts-ignore
     btnRoutine.disabled = true;
 
@@ -152,20 +152,20 @@ export function setupControlOperations(state) {
         feedbackEl.style.background = "rgba(34,197,94,0.15)";
         feedbackEl.style.color = "#22c55e";
         feedbackEl.style.border = "1px solid rgba(34,197,94,0.3)";
-        feedbackEl.innerHTML = `✔ <b>Rotina Disparada!</b><br>ID: <code>${data.operationId}</code><br>${data.result?.message || 'Rotina iniciada com sucesso.'}`;
+        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check" aria-hidden="true"></i> <b>Rotina Disparada!</b><br>ID: <code>${data.operationId}</code><br>${data.result?.message || 'Rotina iniciada com sucesso.'}`;
       } else {
         feedbackEl.style.background = "rgba(239,68,68,0.15)";
         feedbackEl.style.color = "#ef4444";
         feedbackEl.style.border = "1px solid rgba(239,68,68,0.3)";
-        feedbackEl.innerHTML = `✖ <b>Falha na Operação:</b> ${data.error || data.result?.message || 'Erro desconhecido'}`;
+        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> <b>Falha na Operação:</b> ${data.error || data.result?.message || 'Erro desconhecido'}`;
       }
     } catch (_) {
       feedbackEl.style.display = "block";
       feedbackEl.style.background = "rgba(239,68,68,0.15)";
       feedbackEl.style.color = "#ef4444";
-      feedbackEl.innerHTML = `✖ <b>Erro de Conexão:</b> Não foi possível contatar o servidor.`;
+      feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> <b>Erro de Conexão:</b> Não foi possível contatar o servidor.`;
     } finally {
-      btnRoutine.textContent = "⚡ Disparar Rotina de Extração";
+      btnRoutine.innerHTML = '<i class="fa-solid fa-bolt" aria-hidden="true"></i> Disparar Rotina de Extração';
       // @ts-ignore
       btnRoutine.disabled = false;
     }
