@@ -4,9 +4,12 @@
 // delay, so the work is chunked and the event loop is never blocked for long.
 const cfg = require("./usage-config");
 const { createUsageIngestor } = require("./usage-ingestor");
+const { createCodexIngestor } = require("./codex-ingestor");
 
 /** @type {ReturnType<typeof createUsageIngestor> | null} */
 let active = null;
+/** @type {{ tick: () => { backlog: boolean } | void, getStats: () => any, recordError?: () => void } | null} */
+let activeCodex = null;
 
 /** @param {NodeJS.ProcessEnv} env @returns {number} */
 function intervalFrom(env) {
@@ -16,7 +19,8 @@ function intervalFrom(env) {
 
 /**
  * @param {{ env?: NodeJS.ProcessEnv, ingestor?: { tick: () => { backlog: boolean } | void, getStats: () => any, recordError?: () => void },
- *   ingestorOptions?: Parameters<typeof createUsageIngestor>[0], intervalMs?: number, backlogDelayMs?: number }} [options]
+ *   ingestorOptions?: Parameters<typeof createUsageIngestor>[0], intervalMs?: number, backlogDelayMs?: number,
+ *   codexIngestor?: { tick: () => { backlog: boolean } | void, getStats: () => any, recordError?: () => void } | null }} [options]
  * @returns {{ stop: () => void, ingestor: any } | null} null when disabled
  */
 function startUsageIngest(options = {}) {
@@ -24,6 +28,10 @@ function startUsageIngest(options = {}) {
   if (String(env.HARNESS_USAGE || "").trim() === "0") return null;
   const ingestor = options.ingestor || createUsageIngestor(options.ingestorOptions);
   active = /** @type {any} */ (ingestor);
+  // The Codex rollout ingest runs on the same timer. It is created by default only when the Claude ingestor is
+  // also the default one, so tests that inject their own ingestor never read the real ~/.codex.
+  const codex = options.codexIngestor !== undefined ? options.codexIngestor : (options.ingestor || options.ingestorOptions) ? null : createCodexIngestor();
+  activeCodex = codex;
   const interval = options.intervalMs || intervalFrom(env);
   const backlogDelay = options.backlogDelayMs ?? cfg.LIMITS.backlogDelayMs;
   let stopped = false;
@@ -36,11 +44,13 @@ function startUsageIngest(options = {}) {
   };
   function run() {
     let backlog = false;
-    try {
-      const r = ingestor.tick();
-      backlog = Boolean(r && r.backlog);
-    } catch {
-      ingestor.recordError?.();
+    for (const source of codex ? [ingestor, codex] : [ingestor]) {
+      try {
+        const r = source.tick();
+        backlog = backlog || Boolean(r && r.backlog);
+      } catch {
+        source.recordError?.();
+      }
     }
     schedule(backlog ? backlogDelay : interval);
   }
@@ -50,11 +60,13 @@ function startUsageIngest(options = {}) {
 
 /** @returns {{ enabled: boolean } & Record<string, any>} */
 function getUsageStats() {
-  return active ? { enabled: true, ...active.getStats() } : { enabled: false };
+  if (!active) return { enabled: false };
+  return { enabled: true, ...active.getStats(), ...(activeCodex ? { codex: activeCodex.getStats() } : {}) };
 }
 
 function resetUsageRuntime() {
   active = null;
+  activeCodex = null;
 }
 
 module.exports = { startUsageIngest, getUsageStats, resetUsageRuntime };

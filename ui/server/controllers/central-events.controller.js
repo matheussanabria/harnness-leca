@@ -68,14 +68,14 @@ async function apiProjectEvents({ req, res, params: [slug] }) {
   return send(res, 200, { events, cursor, stats: storeStats(slug), presence: getPresenceStats(), usage: getUsageStats() });
 }
 
-/** GET /api/project/:slug/usage/summary?since=<iso>|window=24h|7d|14d|all&until=<iso>&groupBy=day|model|session|origin */
+/** GET /api/project/:slug/usage/summary?since=<iso>|window=24h|7d|14d|all&until=<iso>&groupBy=day|model|session|origin|engine */
 async function apiProjectUsageSummary({ req, res, params: [slug] }) {
   if (!SLUG_RE.test(String(slug || ""))) return send(res, 400, { error: "Identificador de projeto inválido." });
   if (!projectExists(slug)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
   const groupBy = queryParam(req, "groupBy");
   const range = parseUsageRange({ since: queryParam(req, "since"), window: queryParam(req, "window"), until: queryParam(req, "until") });
   if ("error" in range) return send(res, 400, { error: range.error });
-  if (groupBy && !Object.hasOwn(GROUPS, groupBy)) return send(res, 400, { error: "groupBy deve ser day, model, session ou origin." });
+  if (groupBy && !Object.hasOwn(GROUPS, groupBy)) return send(res, 400, { error: "groupBy deve ser day, model, session, origin ou engine." });
   const ingest = getUsageStats();
   return send(res, 200, {
     ...summarizeUsage(slug, {

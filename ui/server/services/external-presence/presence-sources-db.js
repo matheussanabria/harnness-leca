@@ -158,4 +158,34 @@ function attachAntigravityWorkspaces(candidates, dbFiles) {
   });
 }
 
-module.exports = { readCodex, readOpenCode, attachAntigravityWorkspaces, decodeWorkspaces };
+/**
+ * Usage ingest (T3.4): cwd and subagent flag of the given Codex thread ids, one read-only open of
+ * state_5.sqlite. Only id, cwd and the spawn-edge flag are read. Unknown ids are absent from the map;
+ * a missing database gives an empty map.
+ * @param {string} codexHome
+ * @param {string[]} ids
+ * @returns {Map<string, { cwd: string, child: boolean }>}
+ */
+function lookupCodexThreads(codexHome, ids) {
+  /** @type {Map<string, { cwd: string, child: boolean }>} */
+  const out = new Map();
+  if (!ids.length) return out;
+  withReadOnlyDb(path.join(codexHome, "state_5.sqlite"), (db) => {
+    const withEdges = db.prepare(
+      "SELECT cwd, EXISTS(SELECT 1 FROM thread_spawn_edges e WHERE e.child_thread_id = threads.id) AS child FROM threads WHERE id = ?",
+    );
+    const plain = db.prepare("SELECT cwd, 0 AS child FROM threads WHERE id = ?");
+    for (const id of ids) {
+      let row;
+      try {
+        row = withEdges.get(id);
+      } catch {
+        row = plain.get(id);
+      }
+      if (row) out.set(id, { cwd: String(row.cwd || ""), child: Number(row.child) === 1 });
+    }
+  });
+  return out;
+}
+
+module.exports = { readCodex, lookupCodexThreads, ROLLOUT_RE, readOpenCode, attachAntigravityWorkspaces, decodeWorkspaces };

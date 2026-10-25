@@ -77,6 +77,12 @@
 | `tests/usage-ingest.test.js` | Tests for the usage ingest: dedup, incremental reads, replay, truncation, null vs zero, sidechain, privacy sentinels, bounds. |
 | `tests/usage-ingest-http.test.js` | Tests for the usage summary endpoint, runtime disable and error counting. |
 | `tests/usage-ingest-fixtures.js` | Shared transcript fixtures for the usage ingest tests (not a test file). |
+| `ui/server/services/usage-ingest/codex-config.js` | Constants and limits of the Codex rollout usage ingest, with notes on the real rollout shape and the call identity and delta rule. |
+| `ui/server/services/usage-ingest/codex-call-normalizer.js` | Allow-list extraction of token_count (last_token_usage), turn_context model and subagent flag; builds the `usage.observed` body (engine codex, provider openai). |
+| `ui/server/services/usage-ingest/codex-file-discovery.js` | Stat-only walk of `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` with cold-file caching. |
+| `ui/server/services/usage-ingest/codex-ingestor.js` | Bounded incremental Codex ingest: project from threads.cwd, subagent threads excluded, per-file checkpoint with model, idempotent publish. |
+| `tests/usage-ingest-codex.test.js` | Tests for the Codex ingest: per-call usage, repeated totals, null vs 0, unknown model, incremental and replay, subagent exclusion, bounds, privacy sentinels, runtime stats. |
+| `tests/codex-usage-fixtures.js` | Rollout and state_5.sqlite fixtures with sentinel strings for the Codex usage tests (not a test file). |
 | `ui/server/services/usage-ingest/usage-range.js` | Parses `since`/`window`/`until` for the usage summary (24h, 7d, 14d, all); invalid or conflicting input is a 400. |
 | `ui/server/services/usage-ingest/usage-pricing-info.js` | Reads pricing table metadata (version, reviewStatus, retrievedAt) for the summary; null fields when the module is unavailable. |
 | `tests/usage-summary-extended.test.js` | Tests for origin split, `groupBy=origin`, unpriced models, pricing metadata, window presets, 400s and 20k-event timing. |

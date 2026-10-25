@@ -8,7 +8,7 @@ const { openStore } = require("../events/event-store");
 const { getPriceTableInfo } = require("./usage-pricing-info");
 
 const ORIGIN = "CASE WHEN sidechain = 1 THEN 'subagent' ELSE 'main' END";
-const GROUPS = { day: "substr(at, 1, 10)", model: "model", session: "session_id", origin: ORIGIN };
+const GROUPS = { day: "substr(at, 1, 10)", model: "model", session: "session_id", origin: ORIGIN, engine: "engine" };
 const MAX_GROUPS = 500;
 const MAX_UNPRICED = 10;
 const MAX_SESSION_MODELS = 3;
@@ -89,7 +89,7 @@ function buildGroups(db, groupBy) {
 /**
  * @param {string} slug
  * @param {{ since?: string | null, until?: string | null, window?: string | null,
- *   groupBy?: "day" | "model" | "session" | "origin" | null, linesUnparsable?: number | null }} [options]
+ *   groupBy?: "day" | "model" | "session" | "origin" | "engine" | null, linesUnparsable?: number | null }} [options]
  */
 function summarizeUsage(slug, options = {}) {
   const db = openStore(slug);
