@@ -90,3 +90,4 @@
 | `ui/public/css/office/20-usage-panel.css` | Styles of the consumption panel using the office dark theme tokens. |
 | `tests/usage-tab-model.test.js` | Tests for the consumption pure logic: formatters, view model, split math, null-never-zero. |
 | `tests/usage-tab-panel.test.js` | Fake-DOM tests for the consumption panel: states, polling stop when hidden, abort, retry. |
+| `tests/agent-activity-opencode.test.js` | OpenCode detection in the legacy activity poll: `time_updated` (ms) and `updated_at` (s) schemas, stale and child sessions, missing db gives 0. |
