@@ -98,6 +98,7 @@
 | `ui/public/css/office/20-usage-panel.css` | Styles of the consumption panel using the office dark theme tokens. |
 | `tests/usage-tab-model.test.js` | Tests for the consumption pure logic: formatters, view model, split math, null-never-zero. |
 | `tests/usage-tab-panel.test.js` | Fake-DOM tests for the consumption panel: states, polling stop when hidden, abort, retry. |
+| `docs/harness-telemetria/08-t41-workflow-instrumentation-design.md` | Design of story T4.1: candidate workflow, id model, events, step-to-run link, skill evidence, usage per step, metrics, story breakdown T4.1a-g. |
 | `ui/server/services/canonical-sessions/session-projection-merge.js` | Merges the EP-09 session projection into the Central read model (T2.5): exact id, then native id inside the registry fingerprint, else its own unlinked row; scanner sessions are `inferred`, never invented links. |
 | `ui/server/services/canonical-sessions/session-registry-orchestrator.service.js` | `readCentral` now merges the projection before filters, totals (adds `byOrigin`) and paging; projection failure degrades to registry-only with a warning. |
 | `ui/server/services/events/event-projector.js` | `projectSessions` ignores `usage.observed` (it created provider-less phantom session views); usage stays queryable in the log. |
