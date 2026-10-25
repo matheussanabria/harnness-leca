@@ -65,7 +65,10 @@
 | `ui/public/js/modules/central-sessions-format.js` | Shared `esc` and `statusBadge` HTML helpers of the Central views. |
 | `ui/public/js/modules/central-sessions-presence.js` | Activity, presence and origin ("externa" / "chat do Harness") badges and the "ultima atividade" text. |
 | `ui/public/js/modules/central-sessions-detail.js` | Detail panel of the Central (split out of the view), now with activity, origin and last activity. |
-| `ui/public/js/modules/central-sessions-view.js` | List and Kanban rendering of the Central; rows and cards show activity, presence and origin; re-exports the detail panel. |
+| `ui/public/js/modules/central-sessions-toolbar.js` | Header with three stat cards, toolbar with search, filters, refresh and mode toggle for the Central. |
+| `ui/public/js/modules/central-sessions-card.js` | Structured 6-column list rows and kanban cards for the redesigned Central views. |
+| `ui/public/js/modules/central-sessions-view.js` | List and Kanban composition of the Central, re-exporting detail, toolbar and cards. |
 | `ui/public/js/modules/central-sessions.js` | Central controller; requests up to 200 sessions so the totals line counts the merged list. |
+| `tests/central-sessions-ui.test.js` | Tests for the redesigned Central UI: stat cards, toolbar, 6 columns, muted neutral states, line caps and dock spacing. |
 | `tests/central-projection-usage.test.js` | Proof of the phantom-session cause and the projector fix (usage events kept, no session views). |
 | `tests/central-sessions-projection.test.js` | Merge with dedup (external, chat, markdown), filters and totals on the merged list, UI rendering of list, kanban and detail. |

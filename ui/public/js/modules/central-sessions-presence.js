@@ -21,14 +21,20 @@ export const ORIGIN = {
   harness_chat: { label: "chat do Harness", icon: "fa-comments" },
 };
 
-const badge = (item, extra) =>
-  `<span class="central-badge central-badge--outline ${extra}"><i class="fa-solid ${esc(item.icon)}"></i> ${esc(item.label)}</span>`;
+const badge = (item, extra, neutral = false) =>
+  `<span class="central-badge central-badge--outline ${extra}${neutral ? " is-neutral" : ""}"><i class="fa-solid ${esc(item.icon)}" aria-hidden="true"></i> ${esc(item.label)}</span>`;
 
 /** Activity and presence badges; empty when the session carries neither (Markdown-only). */
 export function presenceBadges(session) {
   const parts = [];
-  if (session?.activity) parts.push(badge(ACTIVITY[session.activity] || ACTIVITY.unknown, "central-badge--activity"));
-  if (session?.presence) parts.push(badge(PRESENCE[session.presence] || PRESENCE.unknown, "central-badge--presence"));
+  if (session?.activity) {
+    const neutral = !ACTIVITY[session.activity] || session.activity === "unknown";
+    parts.push(badge(ACTIVITY[session.activity] || ACTIVITY.unknown, "central-badge--activity", neutral));
+  }
+  if (session?.presence) {
+    const neutral = !PRESENCE[session.presence] || session.presence === "unknown" || session.presence === "no_recent_signal";
+    parts.push(badge(PRESENCE[session.presence] || PRESENCE.unknown, "central-badge--presence", neutral));
+  }
   return parts.join(" ");
 }
 
