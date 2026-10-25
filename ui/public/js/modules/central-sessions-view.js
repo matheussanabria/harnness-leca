@@ -3,28 +3,11 @@
 // Funções puras de renderização: recebem dados e devolvem HTML. Sem DOM, sem rede.
 
 import { describeSession, formatTimestamp, groupByLane, sortSessions, summarize } from "./central-sessions-model.js";
+import { esc, statusBadge } from "./central-sessions-format.js";
+import { presenceBadges, originBadge, lastActivityText } from "./central-sessions-presence.js";
+import { renderCentralDetail } from "./central-sessions-detail.js";
 
-/**
- * @param {string} value
- * @returns {string}
- */
-function esc(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-/**
- * @param {object} status
- * @param {string} [extra]
- * @returns {string}
- */
-function statusBadge(status, extra = "") {
-  const item = status || { label: "Desconhecido", icon: "fa-circle-question" };
-  return `<span class="central-badge central-badge--${esc(item.pattern || "outline")} ${esc(extra)}"><i class="fa-solid ${esc(item.icon)}"></i> ${esc(item.label)}</span>`;
-}
+export { renderCentralDetail };
 
 /**
  * Cabeçalho: projeto, busca, atualização e resumo de atenção.
@@ -104,9 +87,9 @@ function renderSessionRow(session) {
       <td>${esc(session.projectId || "sem projeto")} <span class="central-row__confidence"><i class="fa-solid ${esc(status.confidence.icon)}"></i> ${esc(status.confidence.label)}</span></td>
       <td>${esc(session.primaryProvider || "desconhecido")}</td>
       <td>${statusBadge(status.workflow)}</td>
-      <td>${statusBadge(status.execution)}</td>
+      <td>${statusBadge(status.execution)} ${presenceBadges(session)}</td>
       <td>${statusBadge(status.attention)}</td>
-      <td>${esc(formatTimestamp(session.lastObservedAt))}</td>
+      <td>${originBadge(session)} ${esc(lastActivityText(session))}</td>
     </tr>`;
 }
 
@@ -130,7 +113,7 @@ export function renderCentralList(sessions) {
           <th scope="col">Workflow</th>
           <th scope="col">Execução</th>
           <th scope="col">Atenção</th>
-          <th scope="col">Atualização</th>
+          <th scope="col">Origem e última atividade</th>
         </tr>
       </thead>
       <tbody>
@@ -152,9 +135,10 @@ function renderSessionCard(session) {
       <div class="central-card__badges">
         ${statusBadge(status.workflow)}
         ${statusBadge(status.execution)}
+        ${presenceBadges(session)}
         ${statusBadge(status.attention)}
       </div>
-      <p class="central-card__confidence"><i class="fa-solid ${esc(status.confidence.icon)}"></i> ${esc(status.confidence.label)} · ${esc(formatTimestamp(session.lastObservedAt))}</p>
+      <p class="central-card__confidence"><i class="fa-solid ${esc(status.confidence.icon)}"></i> ${esc(status.confidence.label)} · ${originBadge(session)} ${esc(lastActivityText(session))}</p>
     </article>`;
 }
 
@@ -185,46 +169,6 @@ export function renderCentralKanban(sessions) {
         )
         .join("")}
     </div>`;
-}
-
-/**
- * Painel de detalhe da sessão.
- * @param {{ session: object, detail: object | null }} params
- * @returns {string}
- */
-export function renderCentralDetail(params) {
-  const { session, detail } = params;
-  if (!session) {
-    return `<aside class="central-detail central-detail--empty"><i class="fa-solid fa-hand-pointer"></i> Selecione uma sessão para ver o detalhe.</aside>`;
-  }
-  const status = describeSession(session);
-  const artifacts = detail?.session?.artifacts || detail?.artifacts || [];
-  const executions = detail?.session?.executions || detail?.executions || [];
-  const events = detail?.session?.events || detail?.events || [];
-
-  return `
-    <aside class="central-detail" aria-label="Detalhe da sessão">
-      <h4 class="central-detail__title">${esc(session.title)}</h4>
-      <dl class="central-detail__grid">
-        <dt>Motor</dt><dd>${esc(session.primaryProvider || "desconhecido")}</dd>
-        <dt>Projeto</dt><dd>${esc(session.projectId || "sem projeto")} (${esc(status.confidence.label)})</dd>
-        <dt>Workflow</dt><dd>${statusBadge(status.workflow)}</dd>
-        <dt>Execução</dt><dd>${statusBadge(status.execution)}</dd>
-        <dt>Atenção</dt><dd>${statusBadge(status.attention)}</dd>
-      </dl>
-      <h5 class="central-detail__subtitle"><i class="fa-solid fa-file-lines"></i> Artefatos (${artifacts.length})</h5>
-      <ul class="central-detail__list">
-        ${artifacts.length ? artifacts.map((item) => `<li>${esc(item.path || item.relPath || "artefato")}</li>`).join("") : "<li>Nenhum artefato vinculado.</li>"}
-      </ul>
-      <h5 class="central-detail__subtitle"><i class="fa-solid fa-play"></i> Execuções (${executions.length})</h5>
-      <ul class="central-detail__list">
-        ${executions.length ? executions.map((item) => `<li>${esc(item.id || "execução")} — ${esc(item.status || "unknown")}</li>`).join("") : "<li>Nenhuma execução registrada.</li>"}
-      </ul>
-      <h5 class="central-detail__subtitle"><i class="fa-solid fa-timeline"></i> Timeline (${events.length})</h5>
-      <ul class="central-detail__list">
-        ${events.length ? events.map((item) => `<li>${esc(item.type || "evento")} — ${esc(formatTimestamp(item.at))}</li>`).join("") : "<li>Sem eventos publicados.</li>"}
-      </ul>
-    </aside>`;
 }
 
 /**

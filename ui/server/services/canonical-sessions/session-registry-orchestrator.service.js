@@ -6,6 +6,7 @@ const { discoverSessions } = require("./discovery/session-discovery.service");
 const { reconcile } = require("./session-reconciler.service");
 const { linkWorkflowStates } = require("./session-workflow-linker");
 const registry = require("./session-registry.service");
+const { mergeProjection } = require("./session-projection-merge");
 
 /**
  * Publica no event log (EP-09.02) o que a varredura descobriu.
@@ -79,7 +80,16 @@ function scanProject(slug, options = {}) {
  * @returns {{ schemaVersion: number, generatedAt: string, sessions: object[], attention: object, totals: object, warnings: string[], cursor: string }}
  */
 function readCentral(slug, filters = {}) {
-  const { schemaVersion, sessions, warnings } = registry.readRegistry(slug);
+  const { schemaVersion, sessions: registered, warnings: registryWarnings } = registry.readRegistry(slug);
+  const warnings = [...registryWarnings];
+  let sessions = registered;
+  try {
+    // Lazy load keeps the registry decoupled from the event log; a projection failure never hides Markdown sessions.
+    const { projectSessions } = require("../events/event-projector");
+    sessions = mergeProjection(registered, projectSessions(slug).sessions, { projectId: slug });
+  } catch {
+    warnings.push("Projeção de sessões indisponível; exibindo apenas o registro.");
+  }
   const selected = sessions.filter((session) => {
     if (filters.provider && session.primaryProvider !== filters.provider) return false;
     if (filters.executionStatus && session.executionStatus !== filters.executionStatus) return false;
@@ -115,6 +125,7 @@ function readCentral(slug, filters = {}) {
       byProvider: countBy(selected, "primaryProvider"),
       byExecutionStatus: countBy(selected, "executionStatus"),
       byWorkflowStatus: countBy(selected, "workflowStatus"),
+      byOrigin: countBy(selected, "origin"),
     },
     warnings,
     cursor: nextOffset < selected.length ? String(nextOffset) : "",
