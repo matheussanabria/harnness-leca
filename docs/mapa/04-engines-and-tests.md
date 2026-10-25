@@ -13,6 +13,8 @@
 - `tools/lib/memory/item.js`: Contrato do item de memória (EP-13.02): parse, serialização determinística, normalização, hash, slug e validação do frontmatter.
 - Testes: `tests/export-managed-file.test.js`, `tests/export-context.test.js` e `tests/memory-item.test.js`.
 - `tools/opencode-package.js`: Executa uma história do EP-14 com o opencode num `git worktree` próprio (`--dry-run`, `--verify`); nunca commita nem faz merge.
+- `tools/opencode-delegate.js` + `tools/lib/opencode-delegate.js`: governed Codex-to-OpenCode delegation for bounded tasks using only free models, inline configuration, read-only defaults, explicit write/bash capabilities, and no temporary workspace config file.
+- `tests/opencode-delegate.test.js`: covers default denials, narrowly enabled capabilities, inline configuration, and refusal of paid models.
 - `tools/lib/opencode-package/story.js`, `guard.js`: Leem a história (branch e arquivos permitidos) e conferem se o agente só tocou neles.
 - `tools/lib/opencode-package/worktree.js`, `config.js`, `prompt.js`, `run.js`: Worktree em caminho curto, permissões do agente (edição só no worktree, shell restrito a testes), prompt com as regras do repositório e orquestração.
 - `tools/add-ds-component.js`, `tools/ds-docs/component-page.js`: Publicam um componente no design system (página, menu, registry, bundle e demo).
