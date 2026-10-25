@@ -105,8 +105,46 @@ function createChatRunTracker({ slug, engine, runId, traceId, model, effort, ses
   };
   let nativeSessionId = isUsableNativeId(sessionId) ? String(sessionId) : null;
   let finished = false;
+  const pendingTools = new Map();
 
   const emit = (type, payload, extra = {}) => publish(slug, { ...envelope, type, payload, ...extra });
+
+  /** @param {any} info */
+  function publishTool(info, resultOk) {
+    const base = { toolUseId: info.id, callId: info.messageId, resultOk };
+    const extra = { idempotencyKey: `tool|${runId}|${info.id}`, nativeSessionId };
+    if (info.name === "Skill") {
+      emit("skill.loaded", { skillName: info.skillName, ...base, evidence: "tool_use" }, extra);
+    } else {
+      emit("tool.invoked", {
+        toolName: info.name,
+        subagentType: info.subagentType,
+        model: info.model,
+        runInBackground: info.runInBackground,
+        ...base,
+      }, extra);
+    }
+  }
+
+  /** @param {any} info */
+  function toolUse(info) {
+    if (finished || !info || typeof info.id !== "string" || !info.id || pendingTools.has(info.id)) return;
+    pendingTools.set(info.id, info);
+  }
+
+  /** @param {any} info */
+  function toolResult(info) {
+    if (finished || !info || typeof info.toolUseId !== "string" || !info.toolUseId) return;
+    const pending = pendingTools.get(info.toolUseId);
+    if (!pending) return;
+    pendingTools.delete(info.toolUseId);
+    publishTool(pending, typeof info.resultOk === "boolean" ? info.resultOk : null);
+  }
+
+  function flushTools() {
+    for (const info of pendingTools.values()) publishTool(info, null);
+    pendingTools.clear();
+  }
 
   function start() {
     const base = { engine: clip(engine, 40), model: clip(model), effort: clip(effort, 20), resumed: nativeSessionId !== null };
@@ -130,6 +168,7 @@ function createChatRunTracker({ slug, engine, runId, traceId, model, effort, ses
   function finish(status, extra = {}) {
     if (finished) return;
     finished = true;
+    flushTools();
     const payload = { status, engine: clip(engine, 40), durationMs: Date.now() - startedAt, ...extra };
     const ids = { nativeSessionId };
     emit(`execution.${status}`, payload, { idempotencyKey: `chat|${runId}|execution.${status}`, ...ids });
@@ -157,6 +196,16 @@ function createChatRunTracker({ slug, engine, runId, traceId, model, effort, ses
         else finish("failed", { errorCode: errorCodeOf(err, engine) });
         return sink.onError(err);
       },
+      onToolUse: (info) => {
+        toolUse(info);
+        const forward = /** @type {any} */ (sink).onToolUse;
+        return typeof forward === "function" ? forward(info) : undefined;
+      },
+      onToolResult: (info) => {
+        toolResult(info);
+        const forward = /** @type {any} */ (sink).onToolResult;
+        return typeof forward === "function" ? forward(info) : undefined;
+      },
     };
   }
 
@@ -168,7 +217,7 @@ function createChatRunTracker({ slug, engine, runId, traceId, model, effort, ses
     if (!completed) finish("cancelled", { reason: "client_disconnected" });
   }
 
-  return { runId, sessionKey, start, observe, finish, wrapSink, onClose };
+  return { runId, sessionKey, start, observe, finish, wrapSink, onClose, toolUse, toolResult };
 }
 
 function getChatTelemetryStats() {

@@ -113,3 +113,7 @@
 | `tools/lib/opencode-detect.js` | Validates candidates (OPENCODE_URL, discovered ports, default) with GET /session, short cache, optional Basic auth, Portuguese failure messages. |
 | `tests/opencode-detect.test.js` | Fake HTTP servers (valid, wrong service, none, 401, auth header) and injected process/port lists. |
 | `tests/agent-activity-opencode.test.js` | OpenCode detection in the legacy activity poll: `time_updated` (ms) and `updated_at` (s) schemas, stale and child sessions, missing db gives 0. |
+| `tools/lib/engines/claude-tool-use.js` | Pure allow-list extraction of Skill/Agent/Task `tool_use` metadata and `tool_result` outcome; never keeps prompts, descriptions, inputs or outputs. |
+| `tests/claude-tool-use.test.js` | Tests for the tool-use helpers and parser callbacks: Skill/Agent/Task, dedup, resultOk true/false/null, null messageId, privacy sentinels and unchanged SSE chunks. |
+| `tests/chat-tool-use-telemetry.test.js` | Tests for tracker `skill.loaded`/`tool.invoked` publishing: metadata payloads, duplicate suppression, cancel flush with resultOk null and isolated publish failure. |
+| `tests/claude-stream-callid-replay.test.js` | Experiment Q3: replays the same synthetic transcript lines through the live stream parser/chat tracker and the transcript usage ingest, proving both derive the same callId (message.id) for the T4.1e join; synthetic fixtures only, no real stream captured. |
