@@ -49,6 +49,26 @@ function toMs(at) {
   return Number.isNaN(ms) ? Date.now() : ms;
 }
 
+// Optional TTL split of cache writes. Used only when both parts are numbers and add up to the total (or the
+// total is absent); otherwise the total is billed at the 5-minute rate as before.
+function billCacheWrites(t, raw, rate, add, missing) {
+  const s5 = num(raw.cacheCreation5m);
+  const s1 = num(raw.cacheCreation1h);
+  const hasSplit = s5 !== null && s1 !== null;
+  const consistent = hasSplit && (t.cacheCreation === null || s5 + s1 === t.cacheCreation);
+  if (!consistent) {
+    if (hasSplit) missing.push("cacheCreationSplit");
+    add("cacheCreation", t.cacheCreation, rate.cacheWrite5m);
+    return;
+  }
+  add("cacheCreation", s5, rate.cacheWrite5m);
+  if (typeof rate.cacheWrite1h === "number") add("cacheCreation1h", s1, rate.cacheWrite1h);
+  else {
+    add("cacheCreation", s1, rate.cacheWrite5m);
+    if (s1 > 0) missing.push("cacheWrite1h");
+  }
+}
+
 function estimateCost({ provider, model, tokens, at } = {}, opts = {}) {
   const found = findModel(provider, model, opts.file);
   if (!found || !tokens) return null;
@@ -57,6 +77,9 @@ function estimateCost({ provider, model, tokens, at } = {}, opts = {}) {
     input: num(tokens.input), output: num(tokens.output), cacheRead: num(tokens.cacheRead),
     cacheCreation: num(tokens.cacheCreation), reasoning: num(tokens.reasoning),
   };
+  if (t.cacheCreation === null && num(tokens.cacheCreation5m) !== null && num(tokens.cacheCreation1h) !== null) {
+    t.cacheCreation = num(tokens.cacheCreation5m) + num(tokens.cacheCreation1h);
+  }
   if (Object.values(t).every((v) => v === null)) return null;
   const cr = t.cacheRead || 0;
   const promptSize = policy.inputIncludesCache ? (t.input || 0) : (t.input || 0) + cr + (t.cacheCreation || 0);
@@ -78,7 +101,7 @@ function estimateCost({ provider, model, tokens, at } = {}, opts = {}) {
   add("input", fresh, rate.input);
   add("output", outTokens, rate.output);
   add("cacheRead", t.cacheRead, rate.cacheRead);
-  add("cacheCreation", t.cacheCreation, rate.cacheWrite5m);
+  billCacheWrites(t, tokens, rate, add, missing);
   if (!priced) return null;
   return {
     amount: Math.round(usd * 1e10) / 1e10, currency: "USD", kind: "estimated",
