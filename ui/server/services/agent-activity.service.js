@@ -8,11 +8,49 @@ const CLAUDE_ROOT = path.join(os.homedir(), ".claude", "projects");
 const GEMINI_BRAIN = path.join(os.homedir(), ".gemini", "antigravity-ide", "brain");
 const OPENCODE_DB = path.join(os.homedir(), ".local", "share", "opencode", "opencode.db");
 
+const OPENCODE_WINDOW_MS = 30 * 60 * 1000;
+
+/**
+ * Conta sessoes de topo do OpenCode atualizadas na janela recente. Somente leitura.
+ * A coluna e resolvida em runtime: `time_updated` (ms) no schema atual, `updated_at` (s) em versoes antigas.
+ * Banco ausente, tabela ausente ou erro de leitura contam como 0, sem log.
+ * @param {string} dbFile
+ * @param {number} now
+ * @returns {number}
+ */
+function countOpenCodeActive(dbFile, now) {
+  if (!fs.existsSync(dbFile)) return 0;
+  let db = null;
+  try {
+    const { DatabaseSync } = require("node:sqlite");
+    db = new DatabaseSync(dbFile, { readOnly: true });
+    const cols = new Set(db.prepare("PRAGMA table_info(session)").all().map((c) => String(c.name)));
+    const column = cols.has("time_updated") ? "time_updated" : (cols.has("updated_at") ? "updated_at" : null);
+    if (!column) return 0;
+    const legacySeconds = column === "updated_at";
+    const since = now - OPENCODE_WINDOW_MS;
+    const bound = legacySeconds ? Math.floor(since / 1000) : since;
+    const recent = db.prepare(
+      `SELECT id FROM session WHERE parent_id IS NULL AND ${column} > ? ORDER BY ${column} DESC LIMIT 5`
+    ).all(bound);
+    return recent.length;
+  } catch {
+    return 0;
+  } finally {
+    if (db) db.close();
+  }
+}
+
 /**
  * Obtém a atividade real e contagem de chats em andamento por motor
+ * @param {{claudeRoot?: string, geminiBrain?: string, opencodeDb?: string, now?: number}} [options]
+ *   Caminhos e relogio injetaveis para testes; sem opcoes, usa os caminhos padrao do usuario.
  */
-function getActiveAgentsSummary() {
-  const now = Date.now();
+function getActiveAgentsSummary(options = {}) {
+  const claudeRoot = options.claudeRoot ?? CLAUDE_ROOT;
+  const geminiBrain = options.geminiBrain ?? GEMINI_BRAIN;
+  const opencodeDb = options.opencodeDb ?? OPENCODE_DB;
+  const now = options.now ?? Date.now();
   const summary = {
     totalActive: 0,
     timestamp: now,
@@ -55,13 +93,13 @@ function getActiveAgentsSummary() {
 
   // 1. Detectar Gemini (Antigravity IDE)
   // Conversas com atualização nos últimos 30 minutos são consideradas ativas
-  if (fs.existsSync(GEMINI_BRAIN)) {
+  if (fs.existsSync(geminiBrain)) {
     try {
-      const dirs = fs.readdirSync(GEMINI_BRAIN, { withFileTypes: true })
+      const dirs = fs.readdirSync(geminiBrain, { withFileTypes: true })
         .filter(d => d.isDirectory() && d.name !== "tempmediaStorage");
 
       for (const d of dirs) {
-        const logFile = path.join(GEMINI_BRAIN, d.name, ".system_generated", "logs", "transcript.jsonl");
+        const logFile = path.join(geminiBrain, d.name, ".system_generated", "logs", "transcript.jsonl");
         if (fs.existsSync(logFile)) {
           const st = fs.statSync(logFile);
           // Modificado nos últimos 30 minutos = ativo
@@ -85,12 +123,12 @@ function getActiveAgentsSummary() {
 
   // 2. Detectar Claude Code
   // Sessões em ~/.claude/projects/ atualizadas recentemente
-  if (fs.existsSync(CLAUDE_ROOT)) {
+  if (fs.existsSync(claudeRoot)) {
     try {
-      const projects = fs.readdirSync(CLAUDE_ROOT, { withFileTypes: true }).filter(d => d.isDirectory());
+      const projects = fs.readdirSync(claudeRoot, { withFileTypes: true }).filter(d => d.isDirectory());
       const recentClaude = [];
       for (const p of projects) {
-        const pDir = path.join(CLAUDE_ROOT, p.name);
+        const pDir = path.join(claudeRoot, p.name);
         try {
           const files = fs.readdirSync(pDir, { withFileTypes: true })
             .filter(f => f.isFile() && f.name.endsWith(".jsonl"));
@@ -119,20 +157,11 @@ function getActiveAgentsSummary() {
   }
 
   // 3. Detectar OpenCode
-  if (fs.existsSync(OPENCODE_DB)) {
-    try {
-      const { DatabaseSync } = require("node:sqlite");
-      const db = new DatabaseSync(OPENCODE_DB, { readOnly: true });
-      const recent = db.prepare(
-        "SELECT id, directory, updated_at FROM session WHERE parent_id IS NULL AND updated_at > ? ORDER BY updated_at DESC LIMIT 5"
-      ).all(Math.floor((now - 30 * 60 * 1000) / 1000));
-      db.close();
-      if (recent && recent.length > 0) {
-        summary.agents.opencode.activeCount = recent.length;
-        summary.agents.opencode.status = "active";
-        summary.agents.opencode.currentTask = `${recent.length} chats ativos`;
-      }
-    } catch {}
+  const opencodeActive = countOpenCodeActive(opencodeDb, now);
+  if (opencodeActive > 0) {
+    summary.agents.opencode.activeCount = opencodeActive;
+    summary.agents.opencode.status = "active";
+    summary.agents.opencode.currentTask = `${opencodeActive} chats ativos`;
   }
 
   summary.totalActive = summary.agents.claude.activeCount + summary.agents.gemini.activeCount + summary.agents.opencode.activeCount;
@@ -140,5 +169,6 @@ function getActiveAgentsSummary() {
 }
 
 module.exports = {
-  getActiveAgentsSummary
+  getActiveAgentsSummary,
+  countOpenCodeActive
 };
