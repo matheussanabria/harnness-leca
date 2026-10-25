@@ -37,14 +37,34 @@ function relationFor(confidence) {
 }
 
 /**
- * Regra: executionId|type|taskId[|timestamp]. Retry da mesma emissao (mesmo evento) gera a
- * mesma chave; transicoes distintas diferem por tipo, etapa ou (se repetiveis) timestamp.
+ * Regra: executionId|type|taskId[|attemptId][|timestamp]. Retry da mesma emissao (mesmo evento)
+ * gera a mesma chave; transicoes distintas diferem por tipo, etapa ou (se repetiveis) timestamp.
+ * T4.1c: quando o payload traz attemptId ele entra na chave, pois com retries duas tentativas
+ * de uma mesma execucao/etapa podem emitir tipos que antes eram unicos (task.failed etc.);
+ * fluxos antigos sem attemptId continuam com a chave de antes.
  * @param {any} event
  */
 function idempotencyKeyFor(event) {
   const parts = ["wf", event.executionId || "-", event.type, event.taskId || "-"];
+  const attemptId = event.payload?.attemptId;
+  if (typeof attemptId === "string" && attemptId) parts.push(attemptId);
   if (!ONCE_TYPES.has(event.type)) parts.push(event.timestamp);
   return parts.join("|");
+}
+
+/**
+ * EP-09 keeps no free text: copies the payload without error/note and records only
+ * the error length. The copy is required because the in-memory engine keeps the original.
+ * @param {any} payload
+ */
+function textFreePayload(payload) {
+  if (!payload || typeof payload !== "object") return payload;
+  const copy = { ...payload };
+  const errorText = typeof copy.error === "string" ? copy.error : "";
+  delete copy.error;
+  delete copy.note;
+  if (errorText) copy.errorLength = errorText.length;
+  return copy;
 }
 
 /**
@@ -68,10 +88,12 @@ function toIngestBody(event) {
     traceId: event.correlationId || null,
     taskId,
     agentId: event.agentId || null,
+    // T4.1c: payload.attemptId sobe para a coluna attempt_id do envelope.
+    attemptId: event.payload?.attemptId || null,
     stepRunId: stage && executionId ? `${executionId}:${stage}` : null,
     relation: relationFor(event.source.confidence),
     idempotencyKey: idempotencyKeyFor(event),
-    payload: event.payload,
+    payload: textFreePayload(event.payload),
   };
 }
 
