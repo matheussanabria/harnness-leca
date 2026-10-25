@@ -64,7 +64,7 @@ export async function loadCentral(state, client, opts = {}) {
   const useCache = !opts.force && Object.keys(state.filters || {}).length === 0 && !state.query;
   const cached = useCache ? payloadCache.get(state.slug) : null;
   const fresh = cached && Date.now() - cached.at < PAYLOAD_TTL_MS ? cached.payload : null;
-  const payload = fresh || (await client.listSessions(state.slug, { ...state.filters, q: state.query }));
+  const payload = fresh || (await client.listSessions(state.slug, { ...state.filters, q: state.query, limit: 200 }));
   if (!fresh) payloadCache.set(state.slug, { at: Date.now(), payload });
   const sessions = Array.isArray(payload?.sessions) ? payload.sessions : [];
   const providers = [...new Set(sessions.map((session) => session.primaryProvider).filter(Boolean))].sort();

@@ -12,6 +12,7 @@ const { readEvents } = require("./event-store");
 const order = require("./event-order");
 
 const PAGE_SIZE = 1000;
+const USAGE_TYPE = "usage.observed";
 
 /**
  * @typedef {Object} SessionView
@@ -149,6 +150,8 @@ function projectSessions(slug, options = {}) {
   const cursor = scanLog(slug, (event, eventCursor) => {
     const id = String(event.sessionId || "");
     if (!id) return;
+    // Usage telemetry is queryable in the log but never a session: it would create provider-less phantom rows (T2.5).
+    if (event.type === USAGE_TYPE) return;
     let state = states.get(id);
     if (!state) {
       state = {
