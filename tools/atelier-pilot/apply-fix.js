@@ -56,7 +56,8 @@ async function main() {
   files.push({ path: "styles/proto.css", content: patches.length ? `${css}\n\n/* Contrast autofix (deterministic, no model) */\n${patches.join("\n")}\n` : `${css}\n` });
   const srcMeta = JSON.parse(fs.readFileSync(path.join(srcDir, "proto.json"), "utf8")).metadata || {};
 
-  initPrototype(projectDir, args.new, `Contrast autofix of ${args.proto}`);
+  // The Atelier lists prototypes by title, so the id must be in it or the copy cannot be found.
+  initPrototype(projectDir, args.new, `${args.new} - contrast autofix of ${args.proto}`);
   History.withHistory(projectDir, args.new, { label: "Contrast autofix", kind: "files", detail: files.map((f) => f.path).join(", ") },
     () => savePrototypeFiles(projectDir, args.new, files, { engine: "script", author: "apply-fix", message: "Contrast autofix", ...(srcMeta.dsComponents ? { dsComponents: true } : {}) }));
 
