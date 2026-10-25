@@ -90,3 +90,4 @@
 | `ui/public/css/office/20-usage-panel.css` | Styles of the consumption panel using the office dark theme tokens. |
 | `tests/usage-tab-model.test.js` | Tests for the consumption pure logic: formatters, view model, split math, null-never-zero. |
 | `tests/usage-tab-panel.test.js` | Fake-DOM tests for the consumption panel: states, polling stop when hidden, abort, retry. |
+| `docs/harness-telemetria/08-t41-workflow-instrumentation-design.md` | Design of story T4.1: candidate workflow, id model, events, step-to-run link, skill evidence, usage per step, metrics, story breakdown T4.1a-g. |
