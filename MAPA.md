@@ -73,7 +73,8 @@ harness-leca/
 | `docs/mapa/08-planning-and-projects.md` | 8, 9 | Product evolution planning; 57multimarcas local Maven setup | 8.0 KB |
 | `docs/mapa/10-artifacts-skills-coordination.md` | 10, 11, 12 | Artifact inspection, preview and links; local skills; agent coordination | 8.3 KB |
 | `docs/mapa/13-intelligence-runtime-sessions.md` | 13, 14, 15 | HIA (Intelligence & Automation), Local AI Runtime, canonical session registry | 11 KB |
-| `docs/mapa/16-telemetry-program.md` | 16 | Telemetry program: plan, diagnostics A1-A6, ADRs, event envelope, chat/workflow bridges, legacy importer, office projection client | 9 KB |
+| `docs/mapa/16-telemetry-program.md` | 16 | Telemetry program: plan, diagnostics, ADRs, event log, presence, bridges, office projection, sessions | 11.5 KB |
+| `docs/mapa/18-telemetry-usage-workflows.md` | 18 | Telemetry usage, pricing and workflow instrumentation: pricing, per-call usage ingest, Consumo tab, OpenCode detection, tool_use parser, workflow attempts | 8.8 KB |
 | `docs/mapa/17-atelier-quality-pilot.md` | 17 | Atelier quality pilot: approval plan, Stage 0 audit and baseline | 1 KB |
 
 ### Como atualizar o mapa
