@@ -32,8 +32,8 @@ function findArrayEnd(text, open) {
 }
 
 /**
- * Evaluates the array literal in an empty context (no globals). Entries that need component state
- * (for example the variant charts, whose fields are objects) are returned in `skipped`.
+ * Evaluates the array literal in an empty context (no globals). Variant fields use their first
+ * declared value as the deterministic catalogue preview and retain the available variant names.
  * @param {string} fileText
  */
 function extractDcDocs(fileText) {
@@ -47,11 +47,13 @@ function extractDcDocs(fileText) {
   const components = [];
   const skipped = [];
   for (const entry of raw) {
-    if (typeof entry.html === "string" && typeof entry.css === "string") {
-      components.push({ id: String(entry.id), name: String(entry.name), states: String(entry.states || ""), desc: String(entry.desc || ""), html: entry.html, css: entry.css });
-    } else {
-      skipped.push({ id: String(entry.id), name: String(entry.name), reason: "variant component (fields are not plain text)" });
-    }
+    const variants = entry.html && typeof entry.html === "object" ? Object.keys(entry.html) : [];
+    const first = variants[0];
+    const html = typeof entry.html === "string" ? entry.html : first && entry.html[first];
+    const css = typeof entry.css === "string" ? entry.css : first && entry.css[first];
+    if (typeof html === "string" && typeof css === "string") {
+      components.push({ id: String(entry.id), name: String(entry.name), states: String(entry.states || ""), desc: String(entry.desc || ""), html, css, variants });
+    } else skipped.push({ id: String(entry.id), name: String(entry.name), reason: "component has no usable HTML/CSS preview" });
   }
   return { components, skipped };
 }

@@ -27,6 +27,21 @@ function parseArgs(argv) {
 
 const slug = (id) => String(id).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
+function mergedDesignJson(designRoot, project, components) {
+  const file = path.join(designRoot, "design.json");
+  let current = {};
+  try { current = JSON.parse(fs.readFileSync(file, "utf8")); } catch {}
+  const generated = components.map((component) => ({
+    id: slug(component.id),
+    name: component.name,
+    selector: `ds-${slug(component.id)}`,
+    dsFolder: `design/ds/components/${slug(component.id)}`,
+    feature: "design-system",
+  }));
+  const byId = new Map([...(current.components || []), ...generated].map((item) => [item.id, item]));
+  return { schema: 1, project: current.project || project, prototypes: current.prototypes || [], components: [...byId.values()], features: current.features || [] };
+}
+
 function run(args) {
   if (!args.source || !args.palette) throw new Error("Provide --source <file.dc.html> and --palette <palette.json>.");
   const { components, skipped } = extractDcDocs(fs.readFileSync(args.source, "utf8"));
@@ -35,6 +50,7 @@ function run(args) {
   const { css: tokensCss, missing } = buildTokensCss(palette, required);
 
   const designRoot = path.join(args.out, "projects", args.project, "design");
+  const designJson = mergedDesignJson(designRoot, args.project, components);
   const files = [
     { rel: "ds/tokens.css", content: tokensCss },
     { rel: "ds/components.css", content: buildComponentsCss(components, typeof palette.overrides === "string" ? palette.overrides : "") },
@@ -43,6 +59,7 @@ function run(args) {
       { rel: `ds/components/${slug(c.id)}/${slug(c.id)}.html`, content: c.html },
       { rel: `ds/components/${slug(c.id)}/${slug(c.id)}.css`, content: c.css },
     ]),
+    { rel: "design.json", content: `${JSON.stringify(designJson, null, 2)}\n` },
   ];
   const written = writeFiles(designRoot, files, !!args.dryRun);
   return { components: components.length, skipped, requiredTokens: required.length, missingTokens: missing, files: written.length, dryRun: !!args.dryRun };
@@ -55,4 +72,4 @@ function main() {
 }
 
 if (require.main === module) main();
-module.exports = { run, parseArgs };
+module.exports = { run, parseArgs, mergedDesignJson };

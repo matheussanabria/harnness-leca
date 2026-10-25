@@ -3,9 +3,9 @@
 | Caminho | Responsabilidade |
 |---|---|
 | `docs/atelie-resumo-executivo-plano-aprovacao.md` | Executive summary and approval plan for the Atelier quality pilot (scope, stages 0-4, acceptance criteria, risks). |
-| `tools/ds-docs/extract-dc.js` | Reader for ".dc.html" Design System files: finds the `DOCS = [...]` class field, evaluates it in an empty `vm` context, splits variant components, lists class names and the tokens each component needs from the project. |
+| `tools/ds-docs/extract-dc.js` | Reader for ".dc.html" Design System files: finds the `DOCS = [...]` class field, evaluates it in an empty `vm` context, selects a deterministic preview for variant components, and lists class names and required tokens. |
 | `tools/ds-docs/dc-tokens.js` | Builds `tokens.css` from a project palette (reporting missing tokens), the concatenated `components.css`, and the compact `ds-index.md` the prompt reads. |
-| `tools/import-dc-design-system.js` | CLI: imports a ".dc.html" Design System plus a palette into `projects/<slug>/design/ds/`; exit code 2 when the palette misses tokens. |
+| `tools/import-dc-design-system.js` | CLI: imports a ".dc.html" Design System plus a palette into `projects/<slug>/design/ds/`, merges generated components into `design.json` for the Component Board, and exits with code 2 when the palette misses tokens. |
 | `ui/public/js/modules/prototype-prompt-quality.js` | Quality prompt for the Atelier: English output rules, brief, Design System section, craft rules, the `/directions` mode (two first-fold alternatives) and the client loader for the quality context. |
 | `ui/server/services/atelier-quality.service.js` | Reads the opt-in flag (`design/profile.json` → `atelier.qualityPrompt: true`) and the imported Design System (`ds-index.md`, `tokens.css`); reports `flag-off` or `design-system-missing` instead of falling back silently. |
 | `ui/server/controllers/atelier-quality.controller.js` | `GET /api/project/:slug/design/atelier/quality-context` (route in `design.routes.js`). |
@@ -17,6 +17,10 @@
 | `tests/atelier-contrast-fix.test.js` | WCAG reference ratios, polarity, background ownership, scoping without `!important`, skips and an independent recomputation of every fix. |
 | `docs/atelie-pilot/04-revision-rounds.md` | Revision rounds on the legacy output: full-file revision vs CSS patch vs deterministic repair, costs on a comparable basis, why model patches failed on the hero button, and the recommended loop. |
 | `tests/atelier-render-review.test.js` | Argument parsing, issue summary, and four browser tests (clean page, overflow only at narrow width, contrast on a real background, default link/font/touch target); the browser tests skip when Edge is unavailable. |
+| `projects/57multimarcas/design/design.json` + `profile.json` | Project-local design catalog and Atelier profile: registers the two source artifacts, the extracted DS components, the MCP name, and the quality prompt opt-in. |
+| `projects/57multimarcas/design/palette-57multimarcas.json` | Complete 57Multimarcas semantic-token palette used by the DC Design System importer. |
+| `projects/57multimarcas/design/ds/` | Generated project-local Design System: 50 component HTML/CSS pairs, combined CSS, tokens, and compact model-facing index. |
+| `projects/57multimarcas/design/prototypes/*-inspecao/` | Generated Atelier inspection copies of the two raw `.dc.html` sources, split into template, logic, helmet, runtime manifest, history, and versions while preserving the originals. |
 | `docs/atelie-pilot/palette-torra-nova.json` | Torra Nova palette: the 26 tokens the Design System components read (warm roast tones, teal focus accent), plus `overrides` CSS that replaces source colours hardcoded for another brand (footer strip). |
 | `docs/atelie-pilot/briefing-torra-nova-v2.txt` | Fixed-content briefing for the flow comparison: exact prices, benefits, delivery wording, testimonials, FAQ and a simulated two-screen subscription flow, so both flows receive identical text. |
 | `tests/ds-dc-import.test.js` | Covers the reader (brackets and quotes in strings, variants, empty context), required tokens, palette gaps, index and the end-to-end import with a fixture. |

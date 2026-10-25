@@ -25,12 +25,13 @@ class Component extends DCLogic {
 }
 </script></html>`;
 
-test("extractDcDocs reads the DOCS class field and separates variant components", () => {
+test("extractDcDocs reads the DOCS class field and selects a deterministic variant preview", () => {
   const { components, skipped } = extractDcDocs(FIXTURE);
-  assert.deepEqual(components.map((c) => c.id), ["button", "meter"]);
+  assert.deepEqual(components.map((c) => c.id), ["button", "meter", "chart"]);
   assert.equal(components[0].desc, "Acao [primaria] do usuario.");
   assert.ok(components[0].html.includes("OK ]"), "a ] inside a string must not close the array");
-  assert.deepEqual(skipped.map((s) => s.id), ["chart"]);
+  assert.deepEqual(components[2].variants, ["a"]);
+  assert.deepEqual(skipped, []);
 });
 
 test("extractDcDocs fails clearly when DOCS is absent or unterminated", () => {
@@ -96,12 +97,15 @@ test("run writes tokens, components, index and per-component files, and flags mi
     const full = path.join(dir, "full.json");
     fs.writeFileSync(full, JSON.stringify({ name: "T", tokens: { "--primary-interactive": "#1", "--primary-dark": "#2", "--success-base": "#3" } }));
     const ok = run({ source, palette: full, project: "p", out: dir });
-    assert.equal(ok.components, 2);
+    assert.equal(ok.components, 3);
     assert.deepEqual(ok.missingTokens, []);
     const ds = path.join(dir, "projects", "p", "design", "ds");
     for (const rel of ["tokens.css", "components.css", "ds-index.md", "components/button/button.html", "components/meter/meter.css"]) {
       assert.ok(fs.existsSync(path.join(ds, rel)), rel);
     }
+    const design = JSON.parse(fs.readFileSync(path.join(dir, "projects", "p", "design", "design.json"), "utf8"));
+    assert.deepEqual(design.components.map((component) => component.id), ["button", "meter", "chart"]);
+    assert.equal(design.components[2].dsFolder, "design/ds/components/chart");
     const partial = path.join(dir, "partial.json");
     fs.writeFileSync(partial, JSON.stringify({ name: "T", tokens: { "--primary-interactive": "#1" } }));
     const bad = run({ source, palette: partial, project: "q", out: dir, dryRun: true });
