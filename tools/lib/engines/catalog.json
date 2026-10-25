@@ -95,9 +95,19 @@
         "desc": "Raciocínio analítico profundo"
       },
       {
+        "id": "deepseek-v4.1-flash-free",
+        "name": "DeepSeek V4.1 Flash",
+        "desc": "Focado em programação e lógica (versão 4.1)"
+      },
+      {
         "id": "deepseek-v4-flash-free",
         "name": "DeepSeek V4 Flash",
         "desc": "Focado em programação e lógica"
+      },
+      {
+        "id": "glm-5.3-flash-free",
+        "name": "GLM 5.3 Flash (Recomendado)",
+        "desc": "Altíssima velocidade, ótimo para protótipos e código"
       },
       {
         "id": "glm-5-free",

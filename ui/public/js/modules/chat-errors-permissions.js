@@ -16,12 +16,19 @@ export function errorInfoFrom(data) {
 export function clientErrorInfo(err) {
   const m = String((err && err.message) || err || "");
   if (/failed to fetch|networkerror|load failed|network request failed/i.test(m)) {
-    return { code: "client_network", title: "Sem conexão com o harness", message: "A interface perdeu a conexão com o servidor do harness (ele foi reiniciado ou parou?).", hint: "Veja o terminal onde roda `npm run ui` ou `npm run remote` e tente de novo.", retryable: true };
+    return {
+      code: "client_network",
+      title: "Conexão interrompida com o servidor",
+      message: "A interface perdeu a conexão HTTP durante o processamento da resposta.",
+      hint: "Isso acontece se a resposta demorou excessivamente sem enviar novos dados, ou se o processo de fundo do motor foi reiniciado. Tente um pedido mais conciso ou outro modelo.",
+      retryable: true,
+      detail: m,
+    };
   }
   if (err && err.http) {
     return { code: "refused", title: "O servidor recusou o pedido", message: m, retryable: err.http === 429 };
   }
-  return { code: "client", title: "Erro na conexão", message: m };
+  return { code: "client", title: "Erro na resposta do modelo", message: m, hint: "Confira o status do motor no terminal ou tente novamente com instruções mais simples." };
 }
 
 export function errorHtml(e) {
