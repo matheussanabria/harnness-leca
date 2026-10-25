@@ -108,3 +108,6 @@
 | `ui/public/js/modules/central-sessions.js` | Central controller; requests up to 200 sessions so the totals line counts the merged list. |
 | `tests/central-projection-usage.test.js` | Proof of the phantom-session cause and the projector fix (usage events kept, no session views). |
 | `tests/central-sessions-projection.test.js` | Merge with dedup (external, chat, markdown), filters and totals on the merged list, UI rendering of list, kanban and detail. |
+| `tools/lib/opencode-ports.js` | Finds listening TCP ports of OpenCode processes (image name and node/bun hosts by command line); the OS command layer is injectable. |
+| `tools/lib/opencode-detect.js` | Validates candidates (OPENCODE_URL, discovered ports, default) with GET /session, short cache, optional Basic auth, Portuguese failure messages. |
+| `tests/opencode-detect.test.js` | Fake HTTP servers (valid, wrong service, none, 401, auth header) and injected process/port lists. |

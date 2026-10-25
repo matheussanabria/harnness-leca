@@ -2,37 +2,20 @@
 // Motor 2: opencode (REST HTTP no servidor local que já está rodando).
 const { PublicError, safeModel, getProjectContext } = require("./common");
 const { loadEnv } = require("../env");
-const { detectOpenCodeUrl } = require("../opencode-detect");
+const { DEFAULT_URL, resolveOpenCodeUrl, invalidateOpenCodeUrl, ocFetch } = require("../opencode-detect");
 
-const DEFAULT_URL = "http://localhost:63186";
-let cachedUrl = null;
-let cachedAt = 0;
-
-// Lido a cada uso: aceita OPENCODE_URL customizada, mas auto-detecta porta ativa se o padrão 63186 não responder.
-const baseUrl = () => {
+// Lido a cada uso. Em testes de unidade (HARNESS_ROOT) devolve o padrão sem sondar; fora deles, devolve a URL
+// que respondeu a GET /session (OPENCODE_URL, portas do processo, padrão) ou lança PublicError explicando o que foi tentado.
+const resolveBase = async () => {
   loadEnv();
-  if (process.env.HARNESS_ROOT) return DEFAULT_URL; // isolamento em testes de unidade
-  if (cachedUrl && Date.now() - cachedAt < 10000) return cachedUrl;
-
-  // 1. Tenta auto-detectar porta ativa do OpenCode (qualquer porta)
-  const detected = detectOpenCodeUrl();
-  if (detected) {
-    cachedUrl = detected;
-    cachedAt = Date.now();
-    return detected;
-  }
-
-  // 2. Se não detectou outro processo ativo, usa OPENCODE_URL configurado ou o padrão
-  if (process.env.OPENCODE_URL && process.env.OPENCODE_URL !== DEFAULT_URL) {
-    return process.env.OPENCODE_URL;
-  }
-  return DEFAULT_URL;
+  if (process.env.HARNESS_ROOT) return DEFAULT_URL;
+  return resolveOpenCodeUrl();
 };
 
 /** @param {import("../types").EngineRequest} req */
 async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent, signal, onChunk, onDone, onError }) {
-  const base = baseUrl();
   try {
+    const base = await resolveBase();
     let sId = sessionId;
     model = safeModel(model);
     // O id vai no caminho da URL: só o formato do opencode (ses_ + alfanumérico) é aceito.
@@ -40,7 +23,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
 
     // Se não há sessão válida, cria uma no opencode
     if (!isValidOpencodeSession) {
-      const sRes = await fetch(`${base}/session`, {
+      const sRes = await ocFetch(`${base}/session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
@@ -64,7 +47,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
     // Registra mensagens existentes antes do prompt para isolar apenas o novo turno
     let initialMsgCount = 0;
     try {
-      const initRes = await fetch(`${base}/session/${sId}/message`);
+      const initRes = await ocFetch(`${base}/session/${sId}/message`);
       if (initRes.ok) {
         const initMsgs = await initRes.json();
         if (Array.isArray(initMsgs)) initialMsgCount = initMsgs.length;
@@ -82,7 +65,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
     };
 
     // Dispara o prompt assíncrono
-    let pRes = await fetch(`${base}/session/${sId}/prompt_async`, {
+    let pRes = await ocFetch(`${base}/session/${sId}/prompt_async`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(buildPromptBody()),
@@ -90,7 +73,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
 
     // Se a sessão foi rejeitada (ex.: sessão antiga/inválida), cria nova e retenta
     if (!pRes.ok) {
-      const sResNew = await fetch(`${base}/session`, {
+      const sResNew = await ocFetch(`${base}/session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
@@ -99,7 +82,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
         const sDataNew = await sResNew.json();
         sId = sDataNew.id;
         initialMsgCount = 0;
-        pRes = await fetch(`${base}/session/${sId}/prompt_async`, {
+        pRes = await ocFetch(`${base}/session/${sId}/prompt_async`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(buildPromptBody()),
@@ -126,7 +109,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
       await new Promise((r) => setTimeout(r, 200));
       // Cliente saiu: para de consultar e pede ao opencode para interromper a geração (melhor esforço).
       if (signal && signal.aborted) {
-        fetch(`${base}/session/${sId}/abort`, { method: "POST" }).catch(() => {});
+        ocFetch(`${base}/session/${sId}/abort`, { method: "POST" }).catch(() => {});
         return;
       }
 
@@ -138,7 +121,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
         throw new PublicError("Tempo limite total excedido aguardando resposta do OpenCode (15 minutos)");
       }
 
-      const mRes = await fetch(`${base}/session/${sId}/message`);
+      const mRes = await ocFetch(`${base}/session/${sId}/message`);
       if (!mRes.ok) continue;
       const msgs = await mRes.json();
       if (!Array.isArray(msgs)) continue;
@@ -190,6 +173,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
 
     onDone({ sessionId: sId, fullText: accumulatedText });
   } catch (err) {
+    if (err && err.message === "fetch failed") invalidateOpenCodeUrl(); // servidor caiu: revalida na próxima chamada
     onError(err);
   }
 }
@@ -197,7 +181,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
 // Modelos que o servidor do opencode oferece, com os conhecidos (os do catálogo) primeiro, na ordem do catálogo.
 async function fetchModels(base, knownIds) {
   try {
-    const res = await fetch(`${base}/api/model`, { signal: AbortSignal.timeout(2000) });
+    const res = await ocFetch(`${base}/api/model`, { signal: AbortSignal.timeout(2000) });
     if (!res.ok) return null;
     const body = await res.json();
     if (!Array.isArray(body.data) || !body.data.length) return null;
@@ -220,15 +204,27 @@ async function fetchModels(base, knownIds) {
 
 /** @param {import("../types").EngineCatalogEntry} catalog */
 async function status(catalog) {
-  const base = baseUrl();
+  let base = DEFAULT_URL;
   let available = false;
+  let reason;
   try {
-    available = (await fetch(`${base}/session`, { signal: AbortSignal.timeout(2000) })).ok;
-  } catch { /* servidor do opencode fora do ar: o motor aparece como indisponível */ }
+    base = await resolveBase();
+    const res = await ocFetch(`${base}/session`, { signal: AbortSignal.timeout(2000) });
+    available = res.ok;
+    if (!available) reason = res.status === 401
+      ? "O servidor do OpenCode pediu senha (HTTP 401). Defina OPENCODE_SERVER_PASSWORD com a senha do servidor."
+      : `O servidor respondeu HTTP ${res.status} em ${base}.`;
+  } catch (err) {
+    // Sem servidor: o motor aparece como indisponível, com o motivo (só a mensagem pública, nunca detalhes internos).
+    if (err instanceof PublicError) {
+      reason = err.message;
+      base = /** @type {any} */ (err).tried?.[0]?.url || base;
+    } else invalidateOpenCodeUrl();
+  }
 
   const models = (available && await fetchModels(base, catalog.models.map((m) => m.id))) || catalog.models;
   const port = new URL(base).port || (base.startsWith("https") ? "443" : "80");
-  return { available, url: base, auth: `Servidor local (Porta ${port})`, defaultModel: models[0]?.id || catalog.defaultModel, models };
+  return { available, url: base, auth: `Servidor local (Porta ${port})`, defaultModel: models[0]?.id || catalog.defaultModel, models, ...(reason ? { reason } : {}) };
 }
 
 /** @type {import("../types").Engine} */
