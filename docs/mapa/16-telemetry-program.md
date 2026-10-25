@@ -113,3 +113,4 @@
 | `tools/lib/opencode-detect.js` | Validates candidates (OPENCODE_URL, discovered ports, default) with GET /session, short cache, optional Basic auth, Portuguese failure messages. |
 | `tests/opencode-detect.test.js` | Fake HTTP servers (valid, wrong service, none, 401, auth header) and injected process/port lists. |
 | `tests/agent-activity-opencode.test.js` | OpenCode detection in the legacy activity poll: `time_updated` (ms) and `updated_at` (s) schemas, stale and child sessions, missing db gives 0. |
+| `docs/harness-telemetria/09-t41a-spike-findings.md` | Findings of the T4.1a spike: real Skill and Task block shapes, subagent linkage, sessionId behaviour on resume, open stream-id question. |
