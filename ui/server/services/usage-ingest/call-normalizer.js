@@ -11,6 +11,8 @@ const TOKEN_FIELDS = /** @type {const} */ ([
   ["cacheRead", "cache_read_input_tokens"],
   ["cacheCreation", "cache_creation_input_tokens"],
 ]);
+// Optional TTL split of cacheCreation (message.usage.cache_creation.*); the total above stays authoritative.
+const SPLIT_KEYS = /** @type {const} */ (["cacheCreation5m", "cacheCreation1h"]);
 const ID_MAX = 200;
 
 /** @param {unknown} v @returns {number | null} numeric 0 stays 0; anything non-numeric is null */
@@ -39,7 +41,7 @@ function mightCarryUsage(line) {
  * @property {string} at
  * @property {boolean} sidechain
  * @property {string | null} agentId
- * @property {{ input: number | null, output: number | null, cacheRead: number | null, cacheCreation: number | null, reasoning: null }} tokens
+ * @property {{ input: number | null, output: number | null, cacheRead: number | null, cacheCreation: number | null, cacheCreation5m: number | null, cacheCreation1h: number | null, reasoning: null }} tokens
  */
 
 /**
@@ -62,7 +64,13 @@ function extractCall(line) {
   if (model === "<synthetic>") return { status: "skip" };
   const at = typeof obj.timestamp === "string" ? obj.timestamp : "";
   if (!at || Number.isNaN(Date.parse(at))) return { status: "unparsable" };
-  const tokens = { input: num(usage.input_tokens), output: num(usage.output_tokens), cacheRead: num(usage.cache_read_input_tokens), cacheCreation: num(usage.cache_creation_input_tokens), reasoning: /** @type {null} */ (null) };
+  const split = usage.cache_creation && typeof usage.cache_creation === "object" ? usage.cache_creation : {};
+  const tokens = {
+    input: num(usage.input_tokens), output: num(usage.output_tokens), cacheRead: num(usage.cache_read_input_tokens),
+    cacheCreation: num(usage.cache_creation_input_tokens),
+    cacheCreation5m: num(split.ephemeral_5m_input_tokens), cacheCreation1h: num(split.ephemeral_1h_input_tokens),
+    reasoning: /** @type {null} */ (null),
+  };
   const sidechain = obj.isSidechain === true;
   return { status: "call", call: { callId, model, at, sidechain, agentId: sidechain ? str(obj.agentId) : null, tokens } };
 }
@@ -77,7 +85,7 @@ function extractCall(line) {
  */
 function mergeCall(acc, next) {
   const tokens = { ...acc.tokens };
-  for (const [key] of TOKEN_FIELDS) {
+  for (const key of [...TOKEN_FIELDS.map((f) => f[0]), ...SPLIT_KEYS]) {
     const a = acc.tokens[key];
     const b = next.tokens[key];
     tokens[key] = a === null ? b : b === null ? a : Math.max(a, b);

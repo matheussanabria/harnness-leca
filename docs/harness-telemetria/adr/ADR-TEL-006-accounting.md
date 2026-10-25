@@ -70,3 +70,10 @@ Evidence labels: verified, documented, assumption.
 - A5 section 2.1, 2.2 (Claude usage and cost fields, Codex `token_count`) - documented and observed locally.
 - A4 section 3.5 - verified for parser scope; stream-json block shapes - assumption.
 - Reasoning-in-output mapping per provider, test-pollution attribution of the 273 lines - assumption.
+
+## Addendum: cache-write TTL split (2026-10-24)
+
+- Claude transcripts carry `message.usage.cache_creation.{ephemeral_5m_input_tokens, ephemeral_1h_input_tokens}`. The normaliser now copies them as `tokens.cacheCreation5m` / `cacheCreation1h` (null when absent, 0 only for a numeric 0); `tokens.cacheCreation` stays the total.
+- `estimateCost` bills the split at `cacheWrite5m` / `cacheWrite1h` only when both parts are numbers and sum to `cacheCreation` (or the total is null). Absent split: total at the 5m rate, as before. Inconsistent split: same fallback plus `cacheCreationSplit` in `missing`. No `cacheWrite1h` rate for the model: that part uses the 5m rate and `cacheWrite1h` is listed in `missing`.
+- Already-published events are NOT rewritten: their idempotency keys (`usage|claude|<callId>`) are unchanged, so a re-scan is deduplicated and keeps the old payload (no split, cost at the 5m rate). To get split-based cost for history, a user would have to remove the affected `usage.observed` events (or the project event store) and reset the ingest checkpoints so the transcripts are re-read; this is a manual, deliberate step and was not done here.
+- Reasoning study (read-only, numeric): over 6479 unique assistant calls, `output_tokens_details.thinking_tokens` was never greater than or equal to `output_tokens` (max ratio 0.994), consistent with thinking being included in `output_tokens`. `reasoning` stays null; no change to the field.

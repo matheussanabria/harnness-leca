@@ -56,7 +56,7 @@ test("streaming duplicates collapse to the final usage and a second scan reads o
   let got = usageEvents().slice(before);
   assert.equal(got.length, 1, "m2 stays open (file is not quiet yet)");
   assert.equal(got[0].payload.callId, "m1");
-  assert.deepEqual(got[0].payload.tokens, { input: 3, output: 40, cacheRead: 100, cacheCreation: 7, reasoning: null });
+  assert.deepEqual(got[0].payload.tokens, { input: 3, output: 40, cacheRead: 100, cacheCreation: 7, cacheCreation5m: null, cacheCreation1h: null, reasoning: null });
   assert.equal(got[0].idempotencyKey, "usage|claude|m1");
   assert.equal(got[0].sessionId, `claude:sess-${seq}`);
   assert.equal(got[0].nativeSessionId, `sess-${seq}`);
@@ -132,7 +132,7 @@ test("absent usage fields stay null and a real zero stays zero; synthetic and un
   const ing = ingestor(s.root);
   ing.tick();
   const e = usageEvents().find((x) => x.payload.callId === "n1");
-  assert.deepEqual(e?.payload.tokens, { input: null, output: 0, cacheRead: null, cacheCreation: null, reasoning: null });
+  assert.deepEqual(e?.payload.tokens, { input: null, output: 0, cacheRead: null, cacheCreation: null, cacheCreation5m: null, cacheCreation1h: null, reasoning: null });
   assert.ok(!usageEvents().some((x) => ["n2", "n3"].includes(x.payload.callId)));
   assert.equal(ing.getStats().linesUnparsable, 1);
 });

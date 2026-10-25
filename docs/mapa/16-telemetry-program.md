@@ -68,6 +68,8 @@
 | `ui/server/services/usage-ingest/usage-config.js` | Constants and limits of the Claude usage ingest, with notes on the real transcript shape. |
 | `ui/server/services/usage-ingest/transcript-reader.js` | Incremental byte reader of transcripts: complete lines only, holds a partial last line. |
 | `ui/server/services/usage-ingest/call-normalizer.js` | Allow-list extraction of usage per call, streaming merge to the final value, `usage.observed` body (no text kept). |
+| `tests/usage-cache-split.test.js` | Normalizer tests: cache_creation 5m/1h split copied, null vs 0, streaming merge. |
+| `tests/pricing-cache-split.test.js` | Estimator tests: cache-write TTL split arithmetic, fallbacks, missing flags, no-1h-rate table. |
 | `ui/server/services/usage-ingest/file-discovery.js` | Stat-only discovery of transcript and subagent files with cold-file caching. |
 | `ui/server/services/usage-ingest/checkpoint-store.js` | Per-project checkpoint JSON (offset, size, mtime) written atomically. |
 | `ui/server/services/usage-ingest/usage-cost.js` | Guarded call to the pricing estimator: missing module, null or error gives cost null. |
