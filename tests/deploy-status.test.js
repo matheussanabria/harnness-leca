@@ -4,9 +4,11 @@ const fs = require("fs");
 const path = require("path");
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const { removeDir } = require("./helpers/temp-dir");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "leca-deploy-status-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+test.after(() => removeDir(TMP_ROOT));
 
 const GLOBAL = path.join(TMP_ROOT, "global");
 

@@ -6,9 +6,11 @@ const http = require("http");
 const { Readable } = require("stream");
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const { removeDir } = require("./helpers/temp-dir");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "leca-deploy-health-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+test.after(() => removeDir(TMP_ROOT));
 
 function seedDeployConfig() {
   const dir = path.join(TMP_ROOT, "global");

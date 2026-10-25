@@ -2,8 +2,8 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
+const { makeTempDir } = require("./helpers/temp-dir");
 const service = require("../tools/lib/coordination/service");
 const { PROVIDERS } = require("../tools/lib/coordination/config");
 
@@ -20,7 +20,7 @@ function withActiveProviders(fn) {
 }
 
 function fixture() {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "harness-coordination-"));
+  const root = makeTempDir("harness-coordination-", test);
   fs.mkdirSync(path.join(root, "projects", "demo", "context"), { recursive: true });
   fs.mkdirSync(path.join(root, "docs", "harness-evolution"), { recursive: true });
   fs.writeFileSync(path.join(root, "docs", "harness-evolution", "00-index.md"), [

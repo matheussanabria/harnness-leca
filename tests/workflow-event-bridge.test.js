@@ -4,9 +4,14 @@ const fs = require("fs");
 const path = require("path");
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const { removeDir } = require("./helpers/temp-dir");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "leca-wf-bridge-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+test.after(() => {
+  closeStore(SLUG);
+  removeDir(TMP_ROOT);
+});
 
 const SLUG = "projeto-ponte";
 const PROJECT_DIR = path.join(TMP_ROOT, "projects", SLUG);
@@ -16,7 +21,7 @@ const { startWorkflowRun, advanceWorkflowRun, cancelWorkflowRun } = require("../
 const { approveWorkflowRun } = require("../ui/server/services/orchestration/workflow-approval.service");
 const { emitWorkflowEvent } = require("../ui/server/services/orchestration/workflow-events");
 const { createEvent } = require("../ui/server/services/orchestration/event-contract");
-const { readEvents } = require("../ui/server/services/events/event-store");
+const { readEvents, closeStore } = require("../ui/server/services/events/event-store");
 const bridge = require("../ui/server/services/orchestration/workflow-event-bridge");
 
 function stored(executionId, type) {

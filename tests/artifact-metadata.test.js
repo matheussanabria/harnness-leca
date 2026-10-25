@@ -2,9 +2,9 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
 const { Readable } = require("stream");
+const { makeTempDir } = require("./helpers/temp-dir");
 const { importArtifact } = require("../ui/server/services/artifact-import.service");
 const { inventoryProjectArtifacts } = require("../ui/server/services/artifact-inventory.service");
 const {
@@ -13,12 +13,12 @@ const {
   updateArtifactAccess,
 } = require("../ui/server/services/artifact-metadata.service");
 
-const projectsRoot = fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifact-meta-projects-"));
+const projectsRoot = makeTempDir("harness-artifact-meta-projects-", test);
 process.env.HARNESS_PROJECTS_DIR = projectsRoot;
 test.after(() => fs.rmSync(projectsRoot, { recursive: true, force: true }));
 
 function project() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifact-meta-"));
+  return makeTempDir("harness-artifact-meta-", test);
 }
 
 function bodyReq(buffer) {

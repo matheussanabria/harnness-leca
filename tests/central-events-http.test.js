@@ -7,6 +7,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { Readable } = require("stream");
+const { removeDir } = require("./helpers/temp-dir");
 
 const ROOT = path.resolve(".");
 
@@ -24,6 +25,11 @@ const {
 } = require("../ui/server/controllers/central-events.controller");
 const { centralEventRoutes } = require("../ui/server/routes/central-events.routes");
 const { closeStore } = require("../ui/server/services/events/event-store");
+
+test.after(() => {
+  closeStore(SLUG);
+  removeDir(TMP_ROOT);
+});
 
 function fakeRes() {
   return {

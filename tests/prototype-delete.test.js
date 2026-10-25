@@ -1,13 +1,13 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
+const { makeTempDir } = require("./helpers/temp-dir");
 const { deletePrototype } = require("../ui/server/services/prototype-delete.service");
 const { listProjectPrototypes } = require("../ui/server/services/prototype-storage.service");
 
 function makeProject() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "proto-del-"));
+  const dir = makeTempDir("proto-del-", test);
   for (const id of ["a", "b"]) {
     const p = path.join(dir, "design", "prototypes", id);
     fs.mkdirSync(p, { recursive: true });

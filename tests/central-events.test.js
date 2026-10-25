@@ -6,10 +6,11 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
+const { removeDir } = require("./helpers/temp-dir");
 
 const ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-events-root-"));
 process.env.HARNESS_ROOT = ROOT;
-test.after(() => fs.rmSync(ROOT, { recursive: true, force: true }));
+test.after(() => removeDir(ROOT));
 
 const { appendEvent, readEvents, storeStats, closeStore, normalizeEvent, TYPE_ALIASES } = require("../ui/server/services/events/event-store");
 const { projectSessions, projectWorkflows, projectAttention } = require("../ui/server/services/events/event-projector");
@@ -28,9 +29,9 @@ function tempProject() {
     slug,
     cleanup: () => {
       try {
-        fs.rmSync(path.join(ROOT, "projects", slug), { recursive: true, force: true, maxRetries: 3, retryDelay: 60 });
-      } catch {
-        // O projeto temporario vive em projects/, que e ignorado pelo git: deixar para tras e seguro.
+        removeDir(path.join(ROOT, "projects", slug));
+      } finally {
+        removeDir(dir);
       }
     },
   };

@@ -2,8 +2,8 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
+const { makeTempDir } = require("./helpers/temp-dir");
 const { exportJiraSnapshot } = require("../tools/lib/jira-export");
 
 function fakeJira(calls) {
@@ -18,7 +18,7 @@ function fakeJira(calls) {
 
 test("exporta pedindo sprint e comentarios e completa comentarios truncados", async () => {
   const calls = [];
-  const out = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "jira-")), "doc", "_jira-dis.json");
+  const out = path.join(makeTempDir("jira-", test), "doc", "_jira-dis.json");
   const result = await exportJiraSnapshot({ baseUrl: "https://j.example/", token: "t", project: "DIS", out, fetchImpl: /** @type {any} */ (fakeJira(calls)) });
   const saved = JSON.parse(fs.readFileSync(out, "utf8"));
 

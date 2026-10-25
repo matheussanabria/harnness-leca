@@ -2,13 +2,13 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
+const { makeTempDir } = require("./helpers/temp-dir");
 
 const { writeManagedBlock, writeGenerated, BEGIN, END, GENERATED } = require("../tools/lib/export/managed-file");
 
 function tmp() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "managed-file-test-"));
+  return makeTempDir("managed-file-test-", test);
 }
 
 test("writeManagedBlock: cria o arquivo quando não existe", () => {

@@ -1,14 +1,14 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
+const { makeTempDir } = require("./helpers/temp-dir");
 
 const { initPrototype, savePrototypeFiles, getPrototypesBaseDir } = require("../ui/server/services/prototype-storage.service");
 const H = require("../ui/server/services/prototype-history.service");
 
 function setup() {
-  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), "proto-hist-"));
+  const projectDir = makeTempDir("proto-hist-", test);
   initPrototype(projectDir, "p1", "P1", {});
   const protoDir = path.join(getPrototypesBaseDir(projectDir), "p1");
   return { projectDir, protoDir, screen: path.join(protoDir, "screens", "home.html"), css: path.join(protoDir, "styles", "proto.css") };

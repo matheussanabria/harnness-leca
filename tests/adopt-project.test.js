@@ -1,11 +1,11 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
+const { makeTempDir } = require("./helpers/temp-dir");
 
 // HARNESS_ROOT must be set before the tool is loaded: ROOT is resolved at require time.
-const root = fs.mkdtempSync(path.join(os.tmpdir(), "adopt-root-"));
+const root = makeTempDir("adopt-root-", test);
 process.env.HARNESS_ROOT = root;
 fs.mkdirSync(path.join(root, "projects"), { recursive: true });
 const { run } = require("../tools/adopt-project");
@@ -15,7 +15,7 @@ const quiet = { log() {} };
 const write = (dir, name, content) => { fs.mkdirSync(path.dirname(path.join(dir, name)), { recursive: true }); fs.writeFileSync(path.join(dir, name), content); };
 
 function angularApp() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "My App-"));
+  const dir = makeTempDir("My App-", test);
   write(dir, "package.json", JSON.stringify({
     name: "my-app", scripts: { start: "ng serve", test: "ng test", build: "ng build" },
     dependencies: { "@angular/core": "^18.2.0" }, devDependencies: { typescript: "^5.4.0", eslint: "^9.0.0" },
@@ -35,7 +35,7 @@ test("detectStack reads Node manifests, scripts and README summary", () => {
 });
 
 test("detectStack finds Spring Boot in a subfolder and ignores node_modules", () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mono-"));
+  const dir = makeTempDir("mono-", test);
   write(dir, "api/pom.xml", "<project><java.version>21</java.version><artifactId>spring-boot-starter</artifactId></project>");
   write(dir, "node_modules/x/package.json", JSON.stringify({ dependencies: { react: "1.0.0" } }));
   const s = detectStack(dir);

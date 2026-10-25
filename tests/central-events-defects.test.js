@@ -9,9 +9,11 @@ const os = require("node:os");
 const path = require("node:path");
 const { Readable } = require("stream");
 const { setTimeout: sleep } = require("node:timers/promises");
+const { removeDir } = require("./helpers/temp-dir");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "leca-events-defects-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+process.env.SQLITE_TMPDIR = TMP_ROOT;
 
 const mkProject = (slug) => fs.mkdirSync(path.join(TMP_ROOT, "projects", slug), { recursive: true });
 
@@ -100,7 +102,7 @@ function seed(slug, count, make) {
 
 test.after(() => {
   for (const slug of ["p-route", "p-sse", "p-order", "p-window", "p-prune"]) closeStore(slug);
-  fs.rmSync(TMP_ROOT, { recursive: true, force: true });
+  removeDir(TMP_ROOT);
 });
 
 // ---------------------------------------------------------------- 1. route shadowing

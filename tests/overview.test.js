@@ -38,7 +38,7 @@ fs.writeFileSync(path.join(proj("alpha"), "context", "ref.md"), "contexto\n");
 makeProject("beta", [
   ["2025-12-01-beta.md", chat("Beta antiga", "sessao-b1", "2025-12-01T00:00:00Z", "2025-12-01T00:00:00Z"), new Date("2025-12-01T10:00:00Z")],
 ]);
-test.after(() => fs.rmSync(TMP_ROOT, { recursive: true, force: true }));
+test.after(() => fs.rmSync(TMP_ROOT, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }));
 
 const { createServer } = require("../ui/server");
 

@@ -2,16 +2,16 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
-const projectsRoot = fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifact-import-projects-"));
+const { makeTempDir } = require("./helpers/temp-dir");
+const projectsRoot = makeTempDir("harness-artifact-import-projects-", test);
 process.env.HARNESS_PROJECTS_DIR = projectsRoot;
 test.after(() => fs.rmSync(projectsRoot, { recursive: true, force: true }));
 const { importArtifact } = require("../ui/server/services/artifact-import.service");
 const { inventoryProjectArtifacts } = require("../ui/server/services/artifact-inventory.service");
 
 function project() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifact-import-"));
+  return makeTempDir("harness-artifact-import-", test);
 }
 
 function bodyReq(buffer, headers = {}) {
@@ -91,7 +91,7 @@ test("artifact-import: rejeita extensão, corpo vazio, tamanho e pasta insegura"
 test("artifact-import: não escreve em pasta que é symlink", async (t) => {
   const root = project();
   const artifacts = path.join(root, "artifacts");
-  const outside = fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifact-outside-"));
+  const outside = makeTempDir("harness-artifact-outside-", t);
   fs.mkdirSync(artifacts, { recursive: true });
   try {
     fs.symlinkSync(outside, path.join(artifacts, "link"), "junction");

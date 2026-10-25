@@ -2,12 +2,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
+import { makeTempDir } from "./helpers/temp-dir.js";
 import { renderSandboxScreen } from "../ui/server/services/prototype-sandbox-renderer.service.js";
 
 function makeProject(metadata) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ds-render-"));
+  const dir = makeTempDir("ds-render-", test);
   const proto = path.join(dir, "design", "prototypes", "p1");
   fs.mkdirSync(path.join(proto, "screens"), { recursive: true });
   fs.mkdirSync(path.join(dir, "design", "ds"), { recursive: true });

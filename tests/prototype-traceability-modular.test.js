@@ -1,12 +1,12 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
+const { makeTempDir } = require("./helpers/temp-dir");
 const { resolveNodeTraceability } = require("../ui/server/services/prototype-traceability.service");
 
 function makeProject() {
-  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), "trace-mod-"));
+  const projectDir = makeTempDir("trace-mod-", test);
   const protoDir = path.join(projectDir, "design", "prototypes", "demo");
   fs.mkdirSync(path.join(protoDir, "screens"), { recursive: true });
   fs.mkdirSync(path.join(protoDir, "styles"), { recursive: true });

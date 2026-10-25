@@ -61,6 +61,7 @@ node --test tests/chats-screen-state.test.js        # Testa adoção do estado n
 | `tests/design-workflows-api.test.js` | URLs e métodos de cada chamada do cliente Workflows (catálogo, plano, execuções, início, avanço e cancelamento) com `fetch` falso e erro de loopback (EP-08.06). |
 | `tests/design-workflows-view.test.js` | Renderização do plano em ordem, agente, gate, permissões, skill ausente, escape de texto da API e estados da aba (EP-08.06). |
 | `tests/design-workflows-ui.test.js` | Registro da aba em `index.html`/`design.js`, restauração em `design-view-state`, import do CSS, FontAwesome, ausência de emoji e de `confirm`/`alert`/`prompt`, e limite de 300 linhas (EP-08.06). |
+| `tests/helpers/temp-dir.js` | Test helper compartilhado que cria um diretório temporário e registra sua remoção, com retries para Windows, para que testes não deixem diretórios na pasta temp do SO. |
 
 - Fixtures de teste: `tests/helpers/project-fixture.js` (orquestrador), `project-fixture-design-system.js`, `project-fixture-prototype.js`, `project-fixture-design-index.js` e `project-fixture-files.js` criam um projeto temporário fora de `projects/` e devolvem `{ dir, slug, cleanup }`.
 

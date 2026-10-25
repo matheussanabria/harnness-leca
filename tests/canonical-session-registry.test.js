@@ -6,10 +6,11 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
+const { removeDir } = require("./helpers/temp-dir");
 
 const ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-sessions-root-"));
 process.env.HARNESS_ROOT = ROOT;
-test.after(() => fs.rmSync(ROOT, { recursive: true, force: true }));
+test.after(() => removeDir(ROOT));
 const REGISTRY_REL = "canonical-sessions.json";
 
 /**
@@ -21,7 +22,14 @@ function tempProject() {
   const slug = `tmp-sessoes-${path.basename(dir).replace(/[^a-z0-9]/gi, "").slice(0, 12).toLowerCase()}`;
   const proj = path.join(ROOT, "projects", slug);
   fs.mkdirSync(path.join(proj, "chats"), { recursive: true });
-  return { slug, dir, cleanup: () => fs.rmSync(proj, { recursive: true, force: true }) };
+  return {
+    slug,
+    dir,
+    cleanup: () => {
+      fs.rmSync(proj, { recursive: true, force: true });
+      removeDir(dir);
+    },
+  };
 }
 
 function registryFile(slug) {

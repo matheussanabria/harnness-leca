@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const { removeDir } = require("./helpers/temp-dir");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-srv-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
@@ -22,7 +23,6 @@ fs.writeFileSync(path.join(TMP_ROOT, "global", "instructions.md"), "global");
 test.after(() => {
   // O chat publica o ciclo de vida no event log (SQLite); no Windows o handle aberto bloqueia a remocao.
   require("../ui/server/services/events/event-store").closeStore("demo");
-  fs.rmSync(TMP_ROOT, { recursive: true, force: true });
 });
 
 const E = require("../tools/lib/engines");
@@ -34,7 +34,19 @@ test.before(async () => {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   base = `http://127.0.0.1:${server.address().port}`;
 });
-test.after(() => { server.closeAllConnections(); server.close(); });
+test.after(async () => {
+  server.closeAllConnections();
+  server.close();
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  removeDir(TMP_ROOT);
+  process.once("exit", () => {
+    try {
+      removeDir(TMP_ROOT);
+    } catch {
+      /* processo encerrando */
+    }
+  });
+});
 
 const get = (p, init) => fetch(base + p, init);
 const post = (p, body, extra = {}) => fetch(base + p, {

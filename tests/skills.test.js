@@ -8,6 +8,7 @@ const path = require("path");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-skills-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+process.env.SQLITE_TMPDIR = TMP_ROOT;
 
 const projDir = path.join(TMP_ROOT, "projects", "proj-test");
 const repoBase = path.join(TMP_ROOT, "mock-repo");
@@ -63,7 +64,8 @@ test.before(async () => {
 test.after(() => {
   server.closeAllConnections();
   server.close();
-  fs.rmSync(TMP_ROOT, { recursive: true, force: true });
+  require("../ui/server/services/events/event-store").closeStore("proj-test");
+  fs.rmSync(TMP_ROOT, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
 });
 
 const get = (p) => fetch(base + p);

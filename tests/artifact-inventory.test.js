@@ -6,6 +6,7 @@ const os = require("os");
 const path = require("path");
 const { inventoryProjectArtifacts } = require("../ui/server/services/artifact-inventory.service");
 const { createProjectFixture } = require("./helpers/project-fixture");
+const { makeTempDir } = require("./helpers/temp-dir");
 
 const projectFixture = createProjectFixture();
 projectFixture.activate();
@@ -18,7 +19,7 @@ function write(root, rel, content) {
 }
 
 function fixture() {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifacts-"));
+  const root = makeTempDir("harness-artifacts-", test);
   write(root, "design/artefato.html", "<!doctype html><html><body>Artefato</body></html>");
   write(root, "design/design.json", JSON.stringify({
     schema: 1,
@@ -105,7 +106,7 @@ test("artifact-inventory: limite de itens preserva o total real", () => {
 
 test("artifact-inventory: symlink não é seguido", (t) => {
   const root = fixture();
-  const outside = fs.mkdtempSync(path.join(os.tmpdir(), "harness-artifacts-outside-"));
+  const outside = makeTempDir("harness-artifacts-outside-", t);
   write(outside, "segredo.md", "# Segredo\n");
   const linked = path.join(root, "context", "extraidos", "documentos", "link");
   try {

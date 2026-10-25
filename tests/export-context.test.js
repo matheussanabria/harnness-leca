@@ -2,10 +2,10 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
+const { makeTempDir } = require("./helpers/temp-dir");
 
-const ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-export-context-root-"));
+const ROOT = makeTempDir("harness-export-context-root-", test);
 process.env.HARNESS_ROOT = ROOT;
 const projectDir = path.join(ROOT, "projects", "dai");
 fs.mkdirSync(path.join(projectDir, "context"), { recursive: true });
@@ -24,7 +24,7 @@ function walk(dir) {
 }
 
 function setup() {
-  const base = fs.mkdtempSync(path.join(os.tmpdir(), "export-context-test-"));
+  const base = makeTempDir("export-context-test-", test);
   const options = {
     claudeProjectsDir: path.join(base, "claude", "projects"),
     geminiHome: path.join(base, "gemini"),

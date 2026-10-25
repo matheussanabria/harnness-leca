@@ -5,9 +5,11 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const { removeDir } = require("./helpers/temp-dir");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-classify-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+test.after(() => removeDir(TMP_ROOT));
 
 const { classify, classifyRaw, activity, signalNodes } = require("../tools/lib/classify");
 const suggest = require("../tools/lib/suggest");

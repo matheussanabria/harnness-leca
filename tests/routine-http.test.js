@@ -5,9 +5,15 @@ const path = require("path");
 const { Readable } = require("stream");
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const { removeDir } = require("./helpers/temp-dir");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "leca-routine-http-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+const { closeStore } = require("../ui/server/services/events/event-store");
+test.after(() => {
+  closeStore(SLUG);
+  removeDir(TMP_ROOT);
+});
 
 const SLUG = "projeto-teste";
 

@@ -8,9 +8,11 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { Readable } = require("stream");
+const { removeDir } = require("./helpers/temp-dir");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "leca-events-retention-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+process.env.SQLITE_TMPDIR = TMP_ROOT;
 const SLUGS = ["r-ops", "r-time", "r-size", "r-gap", "r-ord", "r-disc", "r-route"];
 for (const slug of SLUGS) fs.mkdirSync(path.join(TMP_ROOT, "projects", slug), { recursive: true });
 
@@ -25,7 +27,7 @@ const SAVED = { ...RETENTION };
 test.after(() => {
   Object.assign(RETENTION, SAVED);
   for (const slug of SLUGS) store.closeStore(slug);
-  fs.rmSync(TMP_ROOT, { recursive: true, force: true });
+  removeDir(TMP_ROOT);
 });
 
 function fakeRes() {
