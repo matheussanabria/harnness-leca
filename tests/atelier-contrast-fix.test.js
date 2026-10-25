@@ -26,6 +26,22 @@ test("light text that cannot reach the ratio: the background it owns is darkened
   assert.ok(res.bg.r < 185 && res.bg.g < 106, "the background got darker");
 });
 
+test("policy keep-background flips the label instead of repainting a brand-coloured button", () => {
+  // rgb(36, 22, 17) on rgb(180, 85, 44) = 3.57:1; black on this orange only reaches 4.27, white reaches 4.92
+  const bg = { r: 180, g: 85, b: 44 };
+  const keep = fixOne(issue({ fg: "rgb(36, 22, 17)", bg: "rgb(180, 85, 44)" }), 0.15);
+  assert.equal(keep.strategy, "background", "the default policy repaints the background");
+  assert.ok(keep.bg.r > 180, "and lightens it, which washes the brand colour out");
+  const flip = fixOne(issue({ fg: "rgb(36, 22, 17)", bg: "rgb(180, 85, 44)" }), 0.15, "keep-background");
+  assert.equal(flip.strategy, "text-flipped");
+  assert.ok(flip.fg.r > 200, "the label became light");
+  assert.ok(ratio(flip.fg, bg) >= 4.65, "and reaches the ratio on the original colour");
+  assert.equal(flip.bg, undefined, "the background is untouched");
+  const out = fixContrast([issue({ fg: "rgb(36, 22, 17)", bg: "rgb(180, 85, 44)", pid: "p-9" })], "home", { policy: "keep-background" });
+  assert.match(out.css, /\{ color: rgb\(/);
+  assert.doesNotMatch(out.css, /background-color/);
+});
+
 test("a background owned by another element is never changed", () => {
   const res = fixOne(issue({ fg: "rgb(255, 247, 238)", bg: "rgb(185, 106, 46)", ownsBackground: false }), 0.15);
   assert.match(res.skip, /belongs to another element/);

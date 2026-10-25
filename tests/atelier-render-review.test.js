@@ -28,6 +28,15 @@ test("summarize puts high severity first and drops repeats across widths", () =>
   assert.ok(out.some((i) => /expected one h1/.test(i.text)));
 });
 
+test("summarize keeps two different elements that read identically, so each reaches the repair", () => {
+  const base = { overflow: { scrolls: false, offenders: [] }, unstyledLinks: { items: [] }, defaultFont: { count: 0, items: [] }, smallTargets: { items: [] }, structure: { h1: 1, controlsWithoutName: 0 } };
+  const item = (pid) => ({ ratio: 3.57, needed: 4.5, element: "a.tn-btn.tn-btn--primary", text: "Começar assinatura", fg: "rgb(36, 22, 17)", bg: "rgb(180, 85, 44)", pid, ownsBackground: true });
+  const out = summarize([{ ...base, width: 1440, lowContrast: { items: [item("p-25"), item("p-175")] } }, { ...base, width: 390, lowContrast: { items: [item("p-25"), item("p-175")] } }]);
+  const contrast = out.filter((i) => /low contrast/.test(i.text));
+  assert.deepEqual(contrast.map((i) => i.pid).sort(), ["p-175", "p-25"]);
+  assert.equal(contrast[0].at, "1440px, 390px");
+});
+
 // The checks run in a real browser. They are skipped on a machine without playwright-core or Edge.
 let browser = null;
 let skipReason = "";

@@ -46,7 +46,7 @@ async function reviewUrl(browser, url, opts) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     try {
       await page.goto(url, { waitUntil: "load" });
-      const checks = await page.evaluate(pageChecks, { maxItems: 8 });
+      const checks = await page.evaluate(pageChecks, { maxItems: 60 });
       const shot = path.join(opts.outDir, `${opts.name}-${width}.png`);
       await page.screenshot({ path: shot, fullPage: true });
       results.push({ ...checks, screenshot: shot });
@@ -76,7 +76,8 @@ function summarize(results) {
   // The same finding at several widths is listed once, with every width it occurs at.
   const grouped = new Map();
   for (const i of issues) {
-    const key = `${i.severity}|${i.text}`;
+    // Two different elements can read identically (two "Começar assinatura" buttons), so the element id is part of the key.
+    const key = `${i.severity}|${i.text}|${i.pid || ""}`;
     if (grouped.has(key)) grouped.get(key).widths.push(i.at);
     else grouped.set(key, { ...i, widths: [i.at] });
   }

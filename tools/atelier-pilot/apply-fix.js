@@ -7,6 +7,7 @@
  *
  * Usage: node tools/atelier-pilot/apply-fix.js --proto <srcId> --new <newId> --review-dir <dir>
  *          [--screens home,confirmacao] [--project harness-leca] [--base http://localhost:4321]
+ *          [--policy keep-polarity|keep-background]  (keep-background flips a label before it recolours a brand-coloured button)
  * The review JSON of the source (`<srcId>-<screen>-review.json`, from render-review.js) must already exist.
  */
 const fs = require("fs");
@@ -44,7 +45,7 @@ async function main() {
   for (const screen of args.screens) {
     const report = JSON.parse(fs.readFileSync(path.join(args.reviewDir, `${args.proto}-${screen}-review.json`), "utf8"));
     before[screen] = high(report.issues);
-    const res = fixContrast(report.issues, screen);
+    const res = fixContrast(report.issues, screen, { policy: args.policy });
     fixes.push(...res.fixes.map((f) => ({ screen, ...f })));
     skipped.push(...res.skipped.map((s) => ({ screen, ...s })));
     if (res.css) patches.push(`/* ${screen} */\n${res.css}`);

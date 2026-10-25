@@ -62,3 +62,22 @@ One briefing, one model, one run per method, free-tier engine, Edge only. Costs 
 2. Visually inspect the mobile renders of the repaired copy.
 3. Move the driver scripts (`quality-run.js`, `revise-patch.js`, the briefing runner) from the scratchpad into the repository so the comparison is reproducible.
 4. Decide how the Atelier chat exposes this: a "review and fix" action that runs steps 2 to 5 behind the per-project flag.
+
+## 8. Best-of composite round (2026-10-25)
+
+Brief: the user compared `baseline-torra-nova` (judged the most professional), `v2-legacy-r2` and `v2-quality` and listed what to take from each. The composite keeps the baseline as its base, takes named parts of the two references, and uses the fixed content of briefing v2. Spec: the user's lists plus one merge decision (all three lists mentioned the closing CTA; it became one CTA card inside a dark section).
+
+| Attempt | Model | Result |
+|---|---|---|
+| `v3-composite` | DeepSeek v4.1 flash, 92,000-character prompt | No answer: the model read the attached file with its own tools, and the read was rejected (outside its directory) |
+| `v3-composite-c2` | DeepSeek v4.1 flash, 39,000-character prompt | Answered, but 28,594 reasoning plus 3,406 output tokens hit the 32,000 cap and the page was cut off |
+| `v3-composite-flint` | flint-40b-free | 321 s, 32,000 output tokens, no complete file block |
+| **`v3-composite-beam`** | beam-free (131,072 output limit), `--variant low` | 27 s, 43,441 raw tokens (7,427 output, 188 reasoning), two complete files saved |
+
+Findings:
+- [Fact] Prompts above roughly 40,000 characters make the free DeepSeek model read the attachment with tools instead of answering. The compact prompt (full base page, only the named HTML fragments of the references, `data-pid` stripped, CSS minified) fixed it.
+- [Fact] A task with about 20 combined instructions makes 32k-output models spend nearly all of their budget on reasoning. beam-free answered directly.
+- [Fact] The review of the beam page found 10 contrast findings; the deterministic repair cleared them in 7.6 to 9.9 s with 0 tokens, 0 high findings after a four-width review.
+- [Fact] Two defects in the review itself were found and fixed: findings with identical text but different elements were merged (so one of two identical buttons never reached the repair), and the report was capped at 8 findings per width.
+- [Fact] A repair policy matters visually. The default "keep-polarity" lightened the hero button's background (pale peach with a dark label). The new "keep-background" policy flips the label to near-white on the original terracotta and was judged better by eye. It is a policy choice, not a measurement.
+- [Gap] The composite follows the spec's structure (eyebrow labels, logo mark, four-item info row, kickers, quotation icons on a dark testimonials section, CTA card, footer contact, fixed prices and delivery wording). It does not keep the baseline's strongest element, the dark product card and the dark highlighted Barista plan, and the "Como funciona" icons are a generic glyph that was not confirmed to be a coffee bean. Mobile was not viewed by eye (the review reports no overflow at 360 to 1440 px). One run, one model.

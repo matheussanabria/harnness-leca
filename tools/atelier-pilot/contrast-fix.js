@@ -41,7 +41,7 @@ function moveUntil(from, toward, ok) {
  * @param {{ fg: string, bg: string, needed: number, ownsBackground?: boolean }} issue
  * @param {number} margin extra ratio so rounding cannot leave the result just below the limit
  */
-function fixOne(issue, margin) {
+function fixOne(issue, margin, policy = "keep-polarity") {
   const fg = parse(issue.fg);
   const bg = parse(issue.bg);
   if (!fg || !bg) return { skip: "colours could not be read" };
@@ -50,6 +50,12 @@ function fixOne(issue, margin) {
 
   const text = moveUntil(fg, lightText ? WHITE : BLACK, (c) => ratio(c, bg) >= need);
   if (text) return { strategy: "text", fg: text, ratio: ratio(text, bg) };
+  // Policy "keep-background": flip the label to the other polarity before repainting the background, so a
+  // brand-coloured button keeps its colour (white label on terracotta, not a pale button with a dark label).
+  if (policy === "keep-background") {
+    const flipped = moveUntil(fg, lightText ? BLACK : WHITE, (c) => ratio(c, bg) >= need);
+    if (flipped) return { strategy: "text-flipped", fg: flipped, ratio: ratio(flipped, bg) };
+  }
 
   if (!issue.ownsBackground) return { skip: "the text cannot reach the ratio on its own and the background belongs to another element" };
   const back = moveUntil(bg, lightText ? BLACK : WHITE, (c) => ratio(fg, c) >= need);
@@ -60,7 +66,7 @@ function fixOne(issue, margin) {
 /**
  * @param {Array<{ kind?: string, pid?: string, fg?: string, bg?: string, needed?: number, ownsBackground?: boolean, element?: string, text?: string }>} issues contrast findings of one screen
  * @param {string} screen screen id the findings belong to
- * @param {{ margin?: number }} [opts]
+ * @param {{ margin?: number, policy?: "keep-polarity" | "keep-background" }} [opts]
  */
 function fixContrast(issues, screen, opts = {}) {
   const margin = opts.margin == null ? 0.15 : opts.margin;
@@ -72,7 +78,7 @@ function fixContrast(issues, screen, opts = {}) {
     if (!issue.pid) { skipped.push({ label, reason: "the element has no data-pid to target" }); continue; }
     if (done.has(issue.pid)) continue;
     done.add(issue.pid);
-    const res = fixOne(/** @type {any} */ (issue), margin);
+    const res = fixOne(/** @type {any} */ (issue), margin, opts.policy);
     if (res.skip) skipped.push({ label, pid: issue.pid, reason: res.skip });
     else fixes.push({ pid: issue.pid, label, strategy: res.strategy, from: { fg: issue.fg, bg: issue.bg }, fg: res.fg ? css(res.fg) : null, bg: res.bg ? css(res.bg) : null, ratio: Math.round(res.ratio * 100) / 100 });
   }
