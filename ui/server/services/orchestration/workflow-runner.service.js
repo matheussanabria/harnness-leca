@@ -15,6 +15,8 @@ const {
 } = require("./workflow-run-store");
 const { isStageApproved } = require("./workflow-approval.service");
 const { recordWorkflowEvent } = require("./workflow-history.service");
+// T4.1c: attempt model lives in its own module; the runner only stages calls to it.
+const attempts = require("./workflow-attempt.service");
 
 const STAGE_STATUSES = new Set(["started", "progressed", "completed", "blocked", "failed"]);
 const IDEMPOTENCY_KEY = /^[A-Za-z0-9._:-]{1,120}$/;
@@ -39,7 +41,7 @@ function record(run, entry) {
 /**
  * @param {any} params
  */
-function startWorkflowRun({ slug, projectDir, workflowId, laneId, actor, dryRun, idempotencyKey, routineId }) {
+function startWorkflowRun({ slug, projectDir, workflowId, laneId, actor, dryRun, idempotencyKey, routineId, allowRetryAfterFailure }) {
   const plan = buildWorkflowPlan({ slug, projectDir, workflowId, laneId });
   if (dryRun) return { ok: true, dryRun: true, plan };
 
@@ -62,6 +64,8 @@ function startWorkflowRun({ slug, projectDir, workflowId, laneId, actor, dryRun,
     actor: String(actor || "").trim().slice(0, 80),
     idempotencyKey: key,
     status: "running",
+    // T4.1c: opt-in retry. Default false keeps the old "failed ends the run" behaviour.
+    allowRetryAfterFailure: allowRetryAfterFailure === true,
     startedAt: now,
     updatedAt: now,
     finishedAt: "",
@@ -137,7 +141,7 @@ function requestApprovalIfNeeded(run) {
  * @param {string} executionId
  * @param {any} [params]
  */
-function advanceWorkflowRun(executionId, { stageId, status, note } = {}) {
+function advanceWorkflowRun(executionId, { stageId, status, note, sessionId, validation } = {}) {
   const run = getRun(executionId);
   if (!run) throw fail(404, "Execução não encontrada.");
   if (run.status !== "running" && run.status !== "blocked") throw fail(409, "Execução já encerrada.");
@@ -153,15 +157,23 @@ function advanceWorkflowRun(executionId, { stageId, status, note } = {}) {
   if (run.status === "blocked") run.status = "running";
 
   const taskId = `stage:${current.id}`;
-  const payload = { title: current.label, order: run.currentIndex, note: String(note || "").slice(0, 500) };
+  // T4.1c (privacy): the note text stays in the runner state/JSONL; the in-memory
+  // event carries the failure message, but the bridge strips it before the EP-09 store.
+  const noteText = String(note || "").slice(0, 500);
+  const payload = { title: current.label, order: run.currentIndex, noteLength: noteText.length };
 
   if (state === "completed") {
     if (current.requiresApproval && !isStageApproved(run, current.id)) {
       throw fail(409, `A etapa '${current.id}' exige aprovação registrada.`);
     }
+    const eventPayload = {
+      ...attempts.decorate(run, current.id, payload, sessionId),
+      validation: attempts.normalizeValidation(validation),
+    };
+    attempts.closeAttempt(run, current.id, "completed");
     current.status = "completed";
-    track(run, emitWorkflowEvent({ type: "task.completed", projectId: run.slug, executionId: run.executionId, taskId, payload }));
-    record(run, { type: "task.completed", status: "completed", stageId: current.id, note: payload.note });
+    track(run, emitWorkflowEvent({ type: "task.completed", projectId: run.slug, executionId: run.executionId, taskId, payload: eventPayload }));
+    record(run, { type: "task.completed", status: "completed", stageId: current.id, note: noteText });
     if (run.currentIndex === run.stageState.length - 1) {
       track(run, emitWorkflowEvent({
         type: "execution.completed",
@@ -180,10 +192,17 @@ function advanceWorkflowRun(executionId, { stageId, status, note } = {}) {
   }
 
   if (state === "failed") {
+    run.error = noteText || "Etapa com falha";
+    const eventPayload = { ...attempts.decorate(run, current.id, payload, sessionId), error: run.error };
+    attempts.closeAttempt(run, current.id, "failed");
     current.status = "failed";
-    run.error = payload.note || "Etapa com falha";
-    track(run, emitWorkflowEvent({ type: "task.failed", projectId: run.slug, executionId: run.executionId, taskId, payload: { ...payload, error: run.error } }));
-    track(run, emitWorkflowEvent({ type: "execution.failed", projectId: run.slug, executionId: run.executionId, payload: { error: run.error } }));
+    track(run, emitWorkflowEvent({ type: "task.failed", projectId: run.slug, executionId: run.executionId, taskId, payload: eventPayload }));
+    if (run.allowRetryAfterFailure) {
+      // Opt-in (Q1): a execução segue aberta na mesma etapa; um `started` futuro
+      // abre a tentativa N+1. Sem a opção, mantém o comportamento de sempre.
+      return { ok: true, run: snapshot(run) };
+    }
+    track(run, emitWorkflowEvent({ type: "execution.failed", projectId: run.slug, executionId: run.executionId, payload: { error: run.error, noteLength: noteText.length } }));
     record(run, { type: "execution.failed", status: "failed", stageId: current.id, note: run.error });
     run.status = "failed";
     run.finishedAt = new Date().toISOString();
@@ -193,15 +212,18 @@ function advanceWorkflowRun(executionId, { stageId, status, note } = {}) {
   if (state === "blocked") {
     current.status = "blocked";
     run.status = "blocked";
-    track(run, emitWorkflowEvent({ type: "task.blocked", projectId: run.slug, executionId: run.executionId, taskId, payload }));
-    record(run, { type: "task.blocked", status: "blocked", stageId: current.id, note: payload.note });
+    const eventPayload = attempts.decorate(run, current.id, payload, sessionId);
+    attempts.closeAttempt(run, current.id, "blocked");
+    track(run, emitWorkflowEvent({ type: "task.blocked", projectId: run.slug, executionId: run.executionId, taskId, payload: eventPayload }));
+    record(run, { type: "task.blocked", status: "blocked", stageId: current.id, note: noteText });
     return { ok: true, run: snapshot(run) };
   }
 
   if (current.status === "pending") current.status = state === "progressed" ? "progressed" : "running";
+  else if (state === "started" && current.status === "failed") current.status = "running";
   else if (state === "progressed") current.status = "progressed";
   const type = state === "progressed" ? "task.progressed" : "task.started";
-  track(run, emitWorkflowEvent({ type, projectId: run.slug, executionId: run.executionId, taskId, payload }));
+  track(run, emitWorkflowEvent({ type, projectId: run.slug, executionId: run.executionId, taskId, payload: attempts.decorate(run, current.id, payload, sessionId) }));
   return { ok: true, run: snapshot(run) };
 }
 
@@ -213,6 +235,8 @@ function cancelWorkflowRun(executionId, { reason } = {}) {
   const run = getRun(executionId);
   if (!run) throw fail(404, "Execução não encontrada.");
   if (run.status !== "running" && run.status !== "blocked") throw fail(409, "Execução já encerrada.");
+  const cancelling = run.stageState[run.currentIndex];
+  if (cancelling) attempts.closeAttempt(run, cancelling.id, "cancelled");
   const text = String(reason || "").slice(0, 500);
   track(run, emitWorkflowEvent({
     type: "execution.cancelled",

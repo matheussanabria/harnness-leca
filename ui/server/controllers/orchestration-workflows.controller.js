@@ -63,6 +63,9 @@ async function apiProjectWorkflowRun({ req, res, params: [slug, workflowId] }) {
       actor: body?.actor,
       dryRun: body?.dryRun === true,
       idempotencyKey: body?.idempotencyKey,
+      // Optional T4.1c opt-in: only a real boolean true enables it; anything else
+      // is safely ignored (default remains "a failed stage ends the run").
+      allowRetryAfterFailure: body?.allowRetryAfterFailure === true,
     }));
   } catch (err) {
     return respondError(res, err);

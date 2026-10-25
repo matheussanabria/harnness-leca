@@ -51,6 +51,9 @@ async function apiOrchestrationWorkflowRunAdvance({ req, res, params: [execution
       stageId: body.stageId,
       status: body.status,
       note: body.note,
+      // Optional T4.1c fields: old bodies {stageId, status, note} keep working.
+      sessionId: body.sessionId,
+      validation: body.validation,
     }));
   } catch (err) {
     return respondError(res, err);
