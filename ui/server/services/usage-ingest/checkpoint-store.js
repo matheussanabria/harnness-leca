@@ -14,17 +14,18 @@ function keyOf(file) {
 }
 
 /**
- * @typedef {{ offset: number, size: number, mtimeMs: number, seenAt: number }} Entry
+ * @typedef {{ offset: number, size: number, mtimeMs: number, seenAt: number, [extra: string]: any }} Entry
  */
 
 /**
  * @param {(slug: string) => string} coordinationDir
  * @param {number} ttlMs
+ * @param {string} [fileName] one file per ingest source so two ingestors never overwrite each other
  */
-function createCheckpointStore(coordinationDir, ttlMs) {
+function createCheckpointStore(coordinationDir, ttlMs, fileName = FILE_NAME) {
   /** @type {Map<string, { entries: Record<string, Entry>, dirty: boolean }>} */
   const projects = new Map();
-  const fileOf = (/** @type {string} */ slug) => path.join(coordinationDir(slug), FILE_NAME);
+  const fileOf = (/** @type {string} */ slug) => path.join(coordinationDir(slug), fileName);
 
   function load(/** @type {string} */ slug) {
     let state = projects.get(slug);
