@@ -8,9 +8,10 @@ const { loadProjectConfig } = require("../project-mcp");
 const { killTree } = require("../proc-manager-core");
 const { PublicError, safeModel, safeEffort, getProjectContext } = require("./common");
 const { describeError, errorEvent } = require("./errors");
+const { extractToolUse, extractToolResult } = require("./claude-tool-use");
 
 /** @param {import("../types").EngineRequest} req */
-function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, chatId, permissionUrl, signal, onChunk, onDone, onError }) {
+function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, chatId, permissionUrl, signal, onChunk, onDone, onError, onToolUse, onToolResult }) {
   const projDir = path.join(ROOT, "projects", slug);
   const args = ["-p", "-", "--output-format", "stream-json", "--verbose"];
   const isClaudeUuid = sessionId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId);
@@ -54,7 +55,7 @@ function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, chatId
     else signal.addEventListener("abort", () => killTree(child), { once: true });
   }
 
-  const parser = createClaudeStreamParser(onChunk, sessionId);
+  const parser = createClaudeStreamParser({ onChunk, onToolUse, onToolResult }, sessionId);
   let buffer = "";
 
   child.stdin.write(fullPrompt);
@@ -137,12 +138,19 @@ function claudeSession(projDir, perm) {
 // Interpreta as linhas do `claude --output-format stream-json` e repassa só o trecho novo de cada bloco.
 // Cada bloco (id da mensagem + índice) é acompanhado à parte: um texto novo depois de uma ferramenta
 // começa do zero e não pode ser cortado pelo tamanho do texto anterior.
-function createClaudeStreamParser(onChunk, initialSessionId) {
+function createClaudeStreamParser(options, initialSessionId) {
+  const opts = typeof options === "function" ? { onChunk: options } : options || {};
+  const onChunk = typeof opts.onChunk === "function" ? opts.onChunk : () => {};
+  const notify = (fn, info) => {
+    if (typeof fn !== "function") return;
+    try { fn(info); } catch { /* callback errors never break the stream */ }
+  };
   let sessionId = initialSessionId || null;
   let text = "";
   let events = 0;
   let errored = false; // já mandamos um erro tratado ao navegador (evita repetir o do código de saída)
   const seen = new Map();
+  const seenToolUse = new Set();
   const deltaOf = (key, full) => {
     const before = seen.get(key);
     seen.set(key, full.length);
@@ -170,7 +178,24 @@ function createClaudeStreamParser(onChunk, initialSessionId) {
         } else if (c.type === "thinking" && c.thinking) {
           const { delta } = deltaOf(key, c.thinking);
           if (delta) onChunk({ type: "thinking", text: delta, sessionId });
+        } else if (c.type === "tool_use") {
+          const info = extractToolUse(c, d.message.id);
+          if (info && !(info.id && seenToolUse.has(info.id))) {
+            if (info.id) seenToolUse.add(info.id);
+            notify(opts.onToolUse, info);
+          }
         }
+      });
+    }
+
+    if (d.type === "user") {
+      const blocks = Array.isArray(d.message?.content) ? d.message.content : Array.isArray(d.content) ? d.content : [];
+      const top = d.toolUseResult !== undefined ? d.toolUseResult : d.tool_use_result;
+      const results = blocks.filter((c) => c && c.type === "tool_result");
+      const topForResults = results.length === 1 ? top : undefined;
+      blocks.forEach((c) => {
+        const info = extractToolResult(c, topForResults);
+        if (info) notify(opts.onToolResult, info);
       });
     }
 
