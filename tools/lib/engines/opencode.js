@@ -8,17 +8,23 @@ const DEFAULT_URL = "http://localhost:63186";
 let cachedUrl = null;
 let cachedAt = 0;
 
-// Lido a cada uso: aceita OPENCODE_URL do .env e auto-detecta porta ativa do OpenCode se a padrão não responder.
+// Lido a cada uso: aceita OPENCODE_URL customizada, mas auto-detecta porta ativa se o padrão 63186 não responder.
 const baseUrl = () => {
   loadEnv();
-  if (process.env.OPENCODE_URL) return process.env.OPENCODE_URL;
   if (process.env.HARNESS_ROOT) return DEFAULT_URL; // isolamento em testes de unidade
   if (cachedUrl && Date.now() - cachedAt < 10000) return cachedUrl;
+
+  // 1. Tenta auto-detectar porta ativa do OpenCode (qualquer porta)
   const detected = detectOpenCodeUrl();
   if (detected) {
     cachedUrl = detected;
     cachedAt = Date.now();
     return detected;
+  }
+
+  // 2. Se não detectou outro processo ativo, usa OPENCODE_URL configurado ou o padrão
+  if (process.env.OPENCODE_URL && process.env.OPENCODE_URL !== DEFAULT_URL) {
+    return process.env.OPENCODE_URL;
   }
   return DEFAULT_URL;
 };
@@ -46,7 +52,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
 
     let fullPrompt = prompt;
     if (effort === "low") {
-      fullPrompt = `[Esforço de raciocínio: Low / Baixo. Responda diretamente, de forma concisa e rápida]\n\n${fullPrompt}`;
+      fullPrompt = `[Instrução de esforço: Low. Seja extremamente direto e conciso no raciocínio preliminar (< 500 tokens). Priorize gerar imediatamente o código final completo nos blocos solicitados sem devaneios teóricos extensos]\n\n${fullPrompt}`;
     } else if (effort === "high") {
       fullPrompt = `[Esforço de raciocínio: High / Alto. Raciocine passo a passo em profundidade antes da resposta final]\n\n${fullPrompt}`;
     }
@@ -70,6 +76,8 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
       if (model) {
         pb.model = { providerID: "opencode", modelID: model };
       }
+      // O modo "plan" desativa ferramentas de terminal/disco (bash, write, glob) que prendem o modelo em loop
+      pb.agent = "plan";
       return pb;
     };
 
@@ -168,6 +176,13 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
 
           if (lastAss.info.time && lastAss.info.time.completed) {
             completed = true;
+          }
+
+          // Detecta término por estouro de cota de tokens (ex: 32k tokens em raciocínio) sem texto de saída
+          const stepFinish = lastAss.parts.find((p) => p.type === "step-finish");
+          const finishReason = stepFinish?.reason || lastAss.info.finish;
+          if (finishReason === "length" && !totalText.trim()) {
+            throw new PublicError("O modelo esgotou a cota máxima de tokens (32k) em raciocínio interno antes de produzir o código. Tente simplificar o pedido inicial ou pedir uma tela por vez.");
           }
         }
       }
