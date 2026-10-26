@@ -140,3 +140,54 @@ test("apply: valida o formato e o limite de ações; sem sugestões não quebra"
   assert.deepEqual(MR.apply("p-limits", [null, {}, { id: "x", acao: "apagar" }]).ignoradas.length, 3);
   assert.throws(() => MR.pending("../fora"), /projeto inválido/);
 });
+
+test("migrated: promoção cria item atômico em memory/ e regenera memory.md como índice determinístico", (t) => {
+  const p = project(t, "p-migrated");
+  // Cria pasta memory/ para marcar como migrado
+  fs.mkdirSync(path.join(p.dir, "memory"), { recursive: true });
+
+  const pendentes = MR.pending("p-migrated");
+  assert.ok(pendentes.length > 0);
+  const s = pendentes.find((x) => x.categoria === "regra");
+  assert.ok(s);
+
+  const r = MR.apply("p-migrated", [{ id: s.id, acao: "promover" }], new Date("2026-10-26T12:00:00Z"));
+  assert.equal(r.promovidas, 1);
+
+  // memory.md NÃO deve conter bullets legados "- [AAAA-MM-DD] Regra: ..."
+  const mem = fs.readFileSync(p.memory, "utf8");
+  assert.ok(!mem.includes("- [2026-10-26] Regra:"), "não deve gravar bullet legado");
+  assert.match(mem, /^# Memória do projeto p-migrated/, "regenerou índice");
+
+  // Arquivo do item deve ter sido gravado em memory/feedback/<name>.md
+  const feedbackDir = path.join(p.dir, "memory", "feedback");
+  assert.ok(fs.existsSync(feedbackDir), "criou pasta feedback/");
+  const filesInDir = fs.readdirSync(feedbackDir);
+  assert.equal(filesInDir.length, 1);
+  const itemContent = fs.readFileSync(path.join(feedbackDir, filesInDir[0]), "utf8");
+  assert.match(itemContent, /^---/m);
+  assert.match(itemContent, /type: feedback/);
+  assert.match(itemContent, /source: review:/);
+  assert.match(itemContent, /\*\*Why:\*\*/);
+});
+
+test("migrated: sugestão igual ou similar a item existente em memory/ não volta na fila de pendentes", (t) => {
+  const p = project(t, "p-migrated-dedup");
+  const memDir = path.join(p.dir, "memory", "reference");
+  fs.mkdirSync(memDir, { recursive: true });
+
+  const { serializeItem } = require("../tools/lib/memory/item");
+  const itemContent = serializeItem({
+    name: "mcp-design-system",
+    description: "O MCP do design system é o cod-design-system.",
+    type: "reference",
+    created: "2026-10-01",
+    updated: "2026-10-01",
+    source: "manual",
+  }, "");
+  fs.writeFileSync(path.join(memDir, "mcp-design-system.md"), itemContent, "utf8");
+
+  const pendentes = MR.pending("p-migrated-dedup");
+  const texts = pendentes.map((x) => x.texto);
+  assert.ok(!texts.some((txt) => txt.includes("cod-design-system")), "item já existente em memory/ não deve aparecer como pendente");
+});
