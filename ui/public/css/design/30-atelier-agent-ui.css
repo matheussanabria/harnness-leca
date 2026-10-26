@@ -1,0 +1,196 @@
+/**
+ * 30-atelier-agent-ui.css
+ * Estilos do Atelier Agent Runtime (EP-15.05):
+ * Cartões de plano, passos com ícones, cartões de perguntas com botões e badges de ferramentas.
+ */
+
+.atelier-plan-card {
+  background: var(--panel, #161923);
+  border: 1px solid var(--line, #2b2f3a);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.atelier-plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line, #2b2f3a);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text, #e2e8f0);
+}
+
+.plan-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent, #6366f1);
+}
+
+.plan-count {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--mute, #8b93a7);
+}
+
+.atelier-plan-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.atelier-plan-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.atelier-plan-step.in_progress {
+  background: rgba(99, 102, 241, 0.12);
+  border-left: 2px solid var(--accent, #6366f1);
+}
+
+.atelier-plan-step.done {
+  color: var(--mute, #8b93a7);
+}
+
+.atelier-plan-step.done .step-title {
+  text-decoration: line-through;
+}
+
+.step-icon {
+  width: 16px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-success { color: #22c55e; }
+.text-accent { color: #6366f1; }
+.text-muted { color: #64748b; }
+
+.atelier-plan-assumptions {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line, #2b2f3a);
+  font-size: 11px;
+  color: var(--mute, #8b93a7);
+}
+
+.assumptions-header {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #fbbf24;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.atelier-plan-assumptions ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+/* Cartão de Pergunta Interativa (atelier_ask_user) */
+.atelier-question-card {
+  background: var(--panel, #161923);
+  border: 1px solid var(--accent, #6366f1);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+}
+
+.atelier-question-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #38bdf8;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.atelier-question-body {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text, #e2e8f0);
+  margin-bottom: 8px;
+}
+
+.atelier-question-context {
+  font-size: 11px;
+  color: var(--mute, #8b93a7);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.atelier-question-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.atelier-question-btn {
+  background: var(--panel2, #1e2230);
+  border: 1px solid var(--line, #2b2f3a);
+  color: var(--text, #e2e8f0);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.atelier-question-btn:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: var(--accent, #6366f1);
+  color: #fff;
+}
+
+/* Badges compactos de ferramentas */
+.atelier-tool-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: var(--panel2, #1e2230);
+  border: 1px solid var(--line, #2b2f3a);
+  color: var(--mute, #8b93a7);
+  margin: 3px 0;
+}
+
+.atelier-tool-badge.executing {
+  border-color: var(--accent, #6366f1);
+  color: var(--accent, #6366f1);
+}
+
+.atelier-tool-badge.done {
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.atelier-tool-badge.error {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}

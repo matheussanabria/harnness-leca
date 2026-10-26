@@ -44,6 +44,12 @@ const {
   apiPrototypesHistoryGoto,
   apiPrototypesHistoryCheckpoint,
 } = require("../controllers/prototype-history.controller");
+const {
+  apiPrototypesScratchList,
+  apiPrototypesScratchGet,
+  apiPrototypesScratchClean,
+} = require("../controllers/atelier-scratchpad.controller");
+const { apiPrototypesAgentRun } = require("../controllers/atelier-agent-run.controller");
 
 const designRoutes = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/profile$/, handler: apiProjectDesignProfileGet },
@@ -83,6 +89,10 @@ const designRoutes = [
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/history\/redo$/, handler: apiPrototypesHistoryRedo },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/history\/goto$/, handler: apiPrototypesHistoryGoto },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/history\/checkpoint$/, handler: apiPrototypesHistoryCheckpoint },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/scratch$/, handler: apiPrototypesScratchList },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/scratch\/([\w.-]+)$/, handler: apiPrototypesScratchGet },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/scratch\/clean$/, handler: apiPrototypesScratchClean },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/agent-run$/, handler: apiPrototypesAgentRun },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototype(?:\/([\w-]+)(?:\/(.*))?)?$/, handler: apiProjectDesignPrototype },
 ];
 
