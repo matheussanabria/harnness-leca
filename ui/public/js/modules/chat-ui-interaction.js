@@ -104,7 +104,7 @@ export function applyQuickAction(actionId) {
 }
 
 export function applySuggestedPrompt(text) {
-  const inp = /** @type {HTMLTextAreaElement} */ ($("chatInput"));
+  const inp = /** @type {HTMLTextAreaElement} */ ($("studioChatInput") || $("chatInput"));
   if (!inp) return;
   inp.value = text;
   inp.focus();

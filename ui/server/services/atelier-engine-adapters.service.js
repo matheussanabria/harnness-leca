@@ -258,6 +258,14 @@ Não emita código solto fora das tags de ferramenta.`;
     if (model) {
       promptBody.model = { providerID: "opencode", modelID: model };
     }
+    let initialMsgCount = 0;
+    try {
+      const initRes = await fetchFn(`${cleanBase}/session/${cachedSessionId}/message`, { signal });
+      if (initRes.ok) {
+        const initMsgs = await initRes.json();
+        if (Array.isArray(initMsgs)) initialMsgCount = initMsgs.length;
+      }
+    } catch {}
 
     const pRes = await fetchFn(`${cleanBase}/session/${cachedSessionId}/prompt_async`, {
       method: "POST",
@@ -268,7 +276,7 @@ Não emita código solto fora das tags de ferramenta.`;
 
     if (!pRes.ok) throw new Error(`OpenCode prompt_async HTTP ${pRes.status}`);
 
-    // 3. Polling de mensagens até a conclusão da resposta
+    // 3. Polling de mensagens até a conclusão da resposta nova
     let completed = false;
     let accumulatedText = "";
     while (!completed) {
@@ -278,7 +286,8 @@ Não emita código solto fora das tags de ferramenta.`;
       const mRes = await fetchFn(`${cleanBase}/session/${cachedSessionId}/message`, { signal });
       if (!mRes.ok) continue;
       const msgs = await mRes.json();
-      const lastAss = [...msgs].reverse().find((m) => m.info?.role === "assistant");
+      const newMsgs = Array.isArray(msgs) ? msgs.slice(initialMsgCount) : [];
+      const lastAss = [...newMsgs].reverse().find((m) => m.info?.role === "assistant");
       if (lastAss) {
         if (Array.isArray(lastAss.parts)) {
           accumulatedText = lastAss.parts
