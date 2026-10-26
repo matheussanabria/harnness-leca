@@ -216,51 +216,84 @@ function buildOpenCodeModelTurn({
   effort = "medium",
   fetchFn = fetch,
 }) {
+  let cachedSessionId = null;
+
   return async function openCodeModelTurn(history, signal) {
-    const url = `${base.replace(/\/$/, "")}/session`;
-    const messages = formatOpenCodeMessages(history, systemPrompt);
-    const tools = getOpenCodeTools();
+    const cleanBase = base.replace(/\/$/, "");
 
-    const body = {
-      messages,
-      tools,
-      model,
-      temperature: effort === "low" ? 0.2 : effort === "high" ? 1.0 : 0.7,
+    // 1. Garante sessão ativa
+    if (!cachedSessionId) {
+      const sRes = await fetchFn(`${cleanBase}/session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+        signal,
+      });
+      if (!sRes.ok) throw new Error(`OpenCode falha ao criar sessão: HTTP ${sRes.status}`);
+      const sData = await sRes.json();
+      cachedSessionId = sData.id;
+    }
+
+    // 2. Prepara o prompt do último turno com instrução das ferramentas
+    const lastMsg = history[history.length - 1];
+    let userText = lastMsg?.text || "";
+    if (lastMsg?.role === "tool" && Array.isArray(lastMsg.toolResults)) {
+      userText = `Resultados das ferramentas executadas:\n${JSON.stringify(lastMsg.toolResults, null, 2)}\n\nContinue a execução do protótipo chamando a próxima ferramenta ou concluindo.`;
+    }
+
+    const toolInstruction = `Você é o assistente de design do Ateliê. Para interagir, use blocos de ferramenta:
+<tool name="atelier_plan">{"steps":[{"id":"1","title":"...","status":"in_progress"}]}</tool>
+<tool name="atelier_write_screen">{"screenId":"home","htmlContent":"..."}</tool>
+<tool name="atelier_patch_styles">{"cssContent":"...","mode":"append"}</tool>
+<tool name="atelier_ask_user">{"question":"...","options":["A","B"]}</tool>
+<tool name="atelier_complete">{"summary":"..."}</tool>
+Não emita código solto fora das tags de ferramenta.`;
+
+    const fullPrompt = `${toolInstruction}\n\n${userText}`;
+
+    const promptBody = {
+      parts: [{ type: "text", text: fullPrompt }],
+      agent: "plan",
     };
+    if (model) {
+      promptBody.model = { providerID: "opencode", modelID: model };
+    }
 
-    const res = await fetchFn(url, {
+    const pRes = await fetchFn(`${cleanBase}/session/${cachedSessionId}/prompt_async`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(promptBody),
       signal,
     });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`OpenCode API HTTP ${res.status}: ${errText}`);
-    }
+    if (!pRes.ok) throw new Error(`OpenCode prompt_async HTTP ${pRes.status}`);
 
-    const data = await res.json();
-    const message = data.choices?.[0]?.message || data.message || {};
-    const text = message.content || "";
-    const toolCalls = [];
+    // 3. Polling de mensagens até a conclusão da resposta
+    let completed = false;
+    let accumulatedText = "";
+    while (!completed) {
+      if (signal?.aborted) break;
+      await new Promise((r) => setTimeout(r, 400));
 
-    if (Array.isArray(message.tool_calls)) {
-      for (const tc of message.tool_calls) {
-        let args = {};
-        try {
-          args = typeof tc.function?.arguments === "string" ? JSON.parse(tc.function.arguments) : tc.function?.arguments || {};
-        } catch {}
-        toolCalls.push({ name: tc.function?.name, args, id: tc.id });
+      const mRes = await fetchFn(`${cleanBase}/session/${cachedSessionId}/message`, { signal });
+      if (!mRes.ok) continue;
+      const msgs = await mRes.json();
+      const lastAss = [...msgs].reverse().find((m) => m.info?.role === "assistant");
+      if (lastAss) {
+        if (Array.isArray(lastAss.parts)) {
+          accumulatedText = lastAss.parts
+            .filter((p) => p.type === "text")
+            .map((p) => p.text)
+            .join("");
+        }
+        if (lastAss.info?.time?.completed) {
+          completed = true;
+        }
       }
     }
 
-    if (!toolCalls.length && text) {
-      const fb = parseStructuredToolCallsFallback(text);
-      if (fb.toolCalls.length) return fb;
-    }
-
-    return { text, toolCalls };
+    const parsed = parseStructuredToolCallsFallback(accumulatedText);
+    return { text: parsed.text || accumulatedText, toolCalls: parsed.toolCalls };
   };
 }
 

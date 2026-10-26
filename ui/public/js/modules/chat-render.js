@@ -9,6 +9,7 @@ import { cancelEngineStream } from "./chat-stream-ui.js";
 import { errorHtml, permissionsHtml } from "./chat-errors-permissions.js";
 import { isChatStreamingFor } from "./chat-execution-store.js";
 import { handleChatHistoryScroll } from "./chat-ui-interaction.js";
+import { renderAtelierTurnDecorations, bindAtelierAgentDom } from "./prototype-atelier-agent-dispatcher.js";
 
 function hiaScriptCard(turn, bodyHtml) {
   const tokens = Number(turn.tokensSaved) || 0;
@@ -193,7 +194,8 @@ export function renderChatHistory(keepScroll = false) {
       const effortLabel = t.effort
         ? ` <span style="font-size:10px;opacity:0.65;border:1px solid var(--line);padding:1px 5px;border-radius:4px">${esc(effortMap[t.effort] || t.effort)}</span>`
         : "";
-      return `<div class="msg ${engClass}"><div class="who">${esc(eng.name || "Assistente")}${modelLabel}${effortLabel}</div><div class="bubble">${permissionsHtml(t.permissions, isLastStreaming)}${thinkingHtml}${finalBody}${cursorHtml}</div></div>`;
+      const atelierDecors = renderAtelierTurnDecorations(t);
+      return `<div class="msg ${engClass}"><div class="who">${esc(eng.name || "Assistente")}${modelLabel}${effortLabel}</div><div class="bubble">${permissionsHtml(t.permissions, isLastStreaming)}${thinkingHtml}${atelierDecors}${finalBody}${cursorHtml}</div></div>`;
     })
     .join("");
 
@@ -201,6 +203,11 @@ export function renderChatHistory(keepScroll = false) {
     const wasNearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
     const isInitial = box.scrollTop === 0;
     box.innerHTML = html;
+    bindAtelierAgentDom(box, (ans) => {
+      if (typeof window.applySuggestedPrompt === "function") {
+        window.applySuggestedPrompt(ans);
+      }
+    });
     if (!keepScroll && (wasNearBottom || isInitial)) {
       box.scrollTop = box.scrollHeight;
     }

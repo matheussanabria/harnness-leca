@@ -141,7 +141,7 @@ export function renderAtelierToolCallBadge(toolName, status = "executing") {
  * @param {(answer: string) => void} onAnswer
  */
 export function bindQuestionCardActions(container, onAnswer) {
-  if (!container || typeof onAnswer !== "function") return;
+  if (!container || typeof container.addEventListener !== "function" || typeof onAnswer !== "function") return;
 
   container.addEventListener("click", (e) => {
     const btn = /** @type {HTMLElement} */ (e.target)?.closest?.(".atelier-question-btn");

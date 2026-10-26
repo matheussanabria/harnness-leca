@@ -3,7 +3,8 @@
 import { $, showToast } from "../shared/dom.js";
 import { state, saveActiveChatState, clearChatDraft } from "../shared/state.js";
 import { attachmentsBusy, hasAttachments, attachmentLabel, attachmentPrompt, clearChatAttachments } from "./chat-attachments.js";
-import { wrapAtelierPrompt, applyAtelierReply } from "./prototype-chat-bridge.js";
+import { wrapAtelierPrompt, applyAtelierReply, getAtelierChatContext } from "./prototype-chat-bridge.js";
+import { runAtelierAgentStream } from "./prototype-atelier-agent-dispatcher.js";
 import { cs } from "./chat-store.js";
 import { setChatStatus, setStreamingUI } from "./chat-stream-ui.js";
 import { errorInfoFrom, clientErrorInfo, applyPermissionEvent } from "./chat-errors-permissions.js";
@@ -207,6 +208,31 @@ export async function sendChatMessage(presentation = "main") {
   setChatAbortController(P.slug, chatId, cs.currentEngine, ac);
 
   try {
+    const atelierCtx = getAtelierChatContext();
+    if (atelierCtx) {
+      await runAtelierAgentStream({
+        slug: P.slug,
+        protoId: atelierCtx.protoId,
+        prompt: promptText,
+        engine: cs.currentEngine,
+        model: cs.engineSettings[cs.currentEngine]?.model,
+        effort: cs.engineSettings[cs.currentEngine]?.effort,
+        signal: ac.signal,
+        assistantTurn,
+        onRender: () => renderChatHistory(),
+        onReloadProto: () => atelierCtx.reload?.(),
+        onSendAnswer: (ans) => {
+          const inp = $(chatPresentation(presentation).input) || (state.isStudioMode ? $("studioChatInput") : $("chatInput"));
+          if (inp) {
+            inp.value = ans;
+            sendChatMessage(presentation);
+          }
+        },
+        setStatus: (st) => setChatStatus(st),
+      });
+      return;
+    }
+
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
