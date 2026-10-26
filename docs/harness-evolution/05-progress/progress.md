@@ -20,14 +20,14 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-06 | 5/5 | **concluído** | 06.01 a 06.05 concluídas; layout responsivo, chat compartilhado, visualizações Código/Design/Preview, guard de alterações e mapeamento de elemento para arquivo/componente | Portão satisfeito |
 | EP-07 | 5/5 | **concluído** | 07.01 a 07.05 concluídas; inventário, importação, manifesto de origem, acesso local/projeto, prévia segura e vínculos navegáveis no Mapa em Camadas | Portão satisfeito; EP-11 liberado |
 | EP-08 | 5/5 | **concluído (contrato); UI pendente** | 08.01 a 08.05 concluídas; catálogo de capacidades por provedor, etapas do SDLC com agentes/papéis/gates, vínculos de skills por projeto e raia, execução de workflows com eventos canônicos e rotinas com aprovação e histórico | Portão satisfeito; EP-09 liberado |
-| EP-09 | 2/6 | **em andamento** | 09.01 (registro canônico com descoberta somente leitura, migração aditiva, leitura tolerante, reconciliação com `projectConfidence` e API restrita ao loopback) e 09.03 (Central em lista e Kanban na janela de Orquestração, com busca, filtros, painel de detalhe e estados textuais) implementadas; contrato de leitura congelado para a 09.02 | 09.02 delegada a outra frente; 09.04 e 09.05 dependem do event log e do stream |
+| EP-09 | 3/6 | **em andamento** | 09.01 (registro canônico), 09.02 (event log e SSE) e 09.03 (Central) implementadas | 09.04 e 09.05 dependem da navegação e fila de atenção |
 | EP-10 | 5/5 | **concluído** | 10.01 a 10.05 concluídas; pipelines, saúde, histórico, ações autorizadas e paridade com o escritório | Portão satisfeito |
 | EP-11 | 3/5 | **em andamento** | 11.01 a 11.03 concluídas; matriz de auditoria com evidências, quatro estados de teste distintos e Quadro de Componentes integrado | 11.04 e 11.05 pendentes |
 | EP-12 | 32/32 | **concluído (contrato); piloto e Studio pendentes** | F0 a F7 concluídas; Marcos M1, M2 e M3 homologados | Portão satisfeito |
-| EP-13 | 0/9 | **especificado** | Diagnóstico, arquitetura-alvo, ADR-009 e 9 histórias documentados | Frente `memoria`; começar por 13.01 e 13.02 (podem rodar em paralelo) |
+| EP-13 | 2/9 | **em andamento** | 13.02 (contrato de item) e 13.03 (índice gerado por script com teto e --check) concluídas | 13.04 (migração dos bullets e deduplicação) |
 | EP-14 | 11/12 | **especificado** | README e 11 histórias; infraestrutura (fixtures, pre-commit, executor opencode) e estado de 13 telas | Um agente e uma branch `ep14/<id>` por história; merge em `ep14/integracao` |
 
-**Total: 111/127**
+**Total: 114/127**
 
 ## Registro
 
