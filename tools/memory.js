@@ -97,21 +97,99 @@ function runIndex(argv, io = console, baseDir) {
   }
 }
 
+function runMigrate(argv, io = console, baseDir) {
+  const rootDir = baseDir || path.resolve(__dirname, "..");
+  const project = opt("project", argv);
+  const dryRun = flag("dry-run", argv);
+
+  if (!project) {
+    throw new CliError("Uso: node tools/memory.js migrate --project <slug> [--dry-run]");
+  }
+
+  const { parseBullets, deduplicateBullets } = require("./lib/memory/migrate");
+  const { serializeItem } = require("./lib/memory/item");
+
+  const legacyFile = project === "global"
+    ? path.join(rootDir, "global", "memory.md")
+    : path.join(rootDir, "projects", project, "memory.md");
+
+  if (!fs.existsSync(legacyFile)) {
+    throw new CliError(`Arquivo de memória não encontrado: ${legacyFile}`);
+  }
+
+  const raw = fs.readFileSync(legacyFile, "utf8");
+  const bullets = parseBullets(raw);
+  if (bullets.length === 0) {
+    io.log(`[${project}] Nenhum bullet para migrar.`);
+    return;
+  }
+
+  const deduplicated = deduplicateBullets(bullets);
+  io.log(`[${project}] Migrando ${bullets.length} bullets para ${deduplicated.length} itens atômicos:`);
+
+  const memDir = resolveMemoryDir(rootDir, project);
+
+  for (const item of deduplicated) {
+    const destRel = path.join(item.type, `${item.name}.md`).replace(/\\/g, "/");
+    const dupNotice = item.duplicatesCount > 0 ? ` (agrupou ${item.duplicatesCount + 1} duplicatas)` : "";
+    io.log(`  - [${item.type}] ${item.name} -> memory/${destRel}${dupNotice}`);
+
+    if (!dryRun) {
+      const typeDir = path.join(memDir, item.type);
+      fs.mkdirSync(typeDir, { recursive: true });
+      const destFile = path.join(typeDir, `${item.name}.md`);
+
+      let body = "";
+      if (item.type === "feedback" || item.type === "project") {
+        body = "**Why:**\n(a preencher na revisão)\n\n**How to apply:**\n(a preencher na revisão)\n";
+      }
+
+      const content = serializeItem({
+        name: item.name,
+        description: item.description,
+        type: item.type,
+        created: item.created,
+        updated: item.updated,
+        source: "migrate:memory.md",
+      }, body);
+
+      fs.writeFileSync(destFile, content, "utf8");
+    }
+  }
+
+  if (dryRun) {
+    io.log(`[${project}] Modo dry-run: nenhum arquivo foi gravado.`);
+  } else {
+    // Faz backup do original para memory.legacy.md (RF5)
+    const backupFile = project === "global"
+      ? path.join(rootDir, "global", "memory.legacy.md")
+      : path.join(rootDir, "projects", project, "memory.legacy.md");
+    fs.copyFileSync(legacyFile, backupFile);
+    io.log(`[${project}] Backup original salvo em: ${backupFile}`);
+
+    // Regenera o índice memory.md
+    runIndex(["--project", project], io, rootDir);
+  }
+}
+
 function main(argv, io = console) {
   const subcmd = argv[0];
   if (!subcmd || subcmd === "--help" || subcmd === "-h") {
     io.log("Uso: node tools/memory.js <subcomando> [opções]");
     io.log("Subcomandos disponíveis:");
-    io.log("  index [--project <slug> | --all] [--check]   Gera ou verifica o índice memory.md");
+    io.log("  index [--project <slug> | --all] [--check]     Gera ou verifica o índice memory.md");
+    io.log("  migrate --project <slug> [--dry-run]          Migra bullets antigos para itens atômicos");
     return;
   }
 
   if (subcmd === "index") {
     runIndex(argv.slice(1), io);
+  } else if (subcmd === "migrate") {
+    runMigrate(argv.slice(1), io);
   } else {
     throw new CliError(`Subcomando desconhecido: ${subcmd}. Use --help.`);
   }
 }
 
-module.exports = { main, runIndex };
+module.exports = { main, runIndex, runMigrate };
 if (require.main === module) runAsScript(main);
