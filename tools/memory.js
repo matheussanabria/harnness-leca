@@ -172,6 +172,68 @@ function runMigrate(argv, io = console, baseDir) {
   }
 }
 
+function runSave(argv, io = console, baseDir) {
+  const rootDir = baseDir || path.resolve(__dirname, "..");
+  const scope = opt("scope", argv) || "project";
+  const project = opt("project", argv) || (scope === "global" ? "global" : "");
+  const type = /** @type {import("./lib/memory/item").TipoItem} */ (opt("type", argv));
+  const name = opt("name", argv);
+  const description = opt("description", argv);
+  const bodyText = opt("body", argv);
+  const bodyFile = opt("body-file", argv);
+  const source = opt("source", argv);
+  const update = opt("update", argv);
+  const forceNew = flag("force-new", argv);
+  const asJson = flag("json", argv);
+
+  if (!project || !type || !name || !description || (!bodyText && !bodyFile)) {
+    throw new CliError("Uso: node tools/memory.js save [--scope project|global] --project <slug> --type <t> --name <n> --description <d> (--body <texto> | --body-file <f>) [--source <s>] [--update <nome>] [--force-new] [--json]");
+  }
+
+  const { inspectSecrets } = require("./lib/memory/guard");
+  const { saveItem, resolveMemoryDir } = require("./lib/memory/store");
+
+  let body = bodyText || "";
+  if (bodyFile) {
+    const fullPath = path.resolve(rootDir, bodyFile);
+    if (!fs.existsSync(fullPath)) {
+      throw new CliError(`Arquivo de corpo não encontrado: ${bodyFile}`);
+    }
+    body = fs.readFileSync(fullPath, "utf8");
+  }
+
+  // RF3: Inspeciona segredos (recusa com código 3 sem ecoar o valor)
+  const secrets = inspectSecrets(description, body);
+  if (secrets.length > 0) {
+    const reason = `segredo recusado: ${secrets.join(", ")}`;
+    if (asJson) {
+      io.log(JSON.stringify({ status: "recusado", reason, violations: secrets }));
+    } else {
+      io.error(`recusado ${reason}`);
+    }
+    throw new CliError(`Gravação de memória recusada por violação de segurança: ${secrets.join(", ")}`, 3);
+  }
+
+  const memDir = resolveMemoryDir(rootDir, project);
+  const result = saveItem(memDir, { name, description, type, body, source }, { update, forceNew });
+
+  if (result.status !== "recusado") {
+    // Regenera o índice automaticamente após gravação (RF4)
+    runIndex(["--project", project], { log: () => {}, error: () => {} }, rootDir);
+  }
+
+  if (asJson) {
+    io.log(JSON.stringify(result));
+  } else {
+    // Saída em uma linha legível por agente (RF5)
+    io.log(`${result.status} ${result.path || name} ${result.reason}`);
+  }
+
+  if (result.status === "recusado") {
+    throw new CliError(`Não foi possível salvar o item: ${result.reason}`, 2);
+  }
+}
+
 function main(argv, io = console) {
   const subcmd = argv[0];
   if (!subcmd || subcmd === "--help" || subcmd === "-h") {
@@ -179,6 +241,7 @@ function main(argv, io = console) {
     io.log("Subcomandos disponíveis:");
     io.log("  index [--project <slug> | --all] [--check]     Gera ou verifica o índice memory.md");
     io.log("  migrate --project <slug> [--dry-run]          Migra bullets antigos para itens atômicos");
+    io.log("  save [opções]                                 Salva ou atualiza item atômico com verificação");
     return;
   }
 
@@ -186,10 +249,12 @@ function main(argv, io = console) {
     runIndex(argv.slice(1), io);
   } else if (subcmd === "migrate") {
     runMigrate(argv.slice(1), io);
+  } else if (subcmd === "save") {
+    runSave(argv.slice(1), io);
   } else {
     throw new CliError(`Subcomando desconhecido: ${subcmd}. Use --help.`);
   }
 }
 
-module.exports = { main, runIndex, runMigrate };
+module.exports = { main, runIndex, runMigrate, runSave };
 if (require.main === module) runAsScript(main);
