@@ -24,10 +24,10 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-10 | 5/5 | **concluído** | 10.01 a 10.05 concluídas; pipelines, saúde, histórico, ações autorizadas e paridade com o escritório | Portão satisfeito |
 | EP-11 | 3/5 | **em andamento** | 11.01 a 11.03 concluídas; matriz de auditoria com evidências, quatro estados de teste distintos e Quadro de Componentes integrado | 11.04 e 11.05 pendentes |
 | EP-12 | 32/32 | **concluído (contrato); piloto e Studio pendentes** | F0 a F7 concluídas; Marcos M1, M2 e M3 homologados | Portão satisfeito |
-| EP-13 | 4/9 | **em andamento** | 13.02 (contrato de item), 13.03 (índice gerado), 13.04 (migração) e 13.05 (ferramenta save com upsert e recusa de segredos) concluídas | 13.06 (revisão de memórias) |
+| EP-13 | 5/9 | **em andamento** | 13.02 (contrato de item), 13.03 (índice gerado), 13.04 (migração), 13.05 (ferramenta save com upsert e recusa de segredos) e 13.06 (revisão de memórias) concluídas | 13.07 (carregamento em duas fases) |
 | EP-14 | 11/12 | **especificado** | README e 11 histórias; infraestrutura (fixtures, pre-commit, executor opencode) e estado de 13 telas | Um agente e uma branch `ep14/<id>` por história; merge em `ep14/integracao` |
 
-**Total: 116/127**
+**Total: 117/127**
 
 ## Registro
 
