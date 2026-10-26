@@ -149,3 +149,61 @@
   min-height: 18px;
   margin: 4px 0;
 }
+
+.rv-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(125, 226, 163, 0.15);
+  color: #7de2a3;
+  border: 1px solid rgba(125, 226, 163, 0.3);
+  margin-right: 6px;
+}
+
+.rv-status-badge.legacy {
+  background: rgba(224, 160, 64, 0.15);
+  color: #e0a040;
+  border-color: rgba(224, 160, 64, 0.3);
+}
+
+.rv-curated-form {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+.rv-form-row {
+  margin-bottom: 8px;
+}
+
+.rv-form-row label {
+  display: block;
+  font-size: 11px;
+  color: var(--mute);
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.rv-input, .rv-select {
+  width: 100%;
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font: inherit;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.rv-input:focus, .rv-select:focus {
+  border-color: var(--accent);
+  outline: none;
+}

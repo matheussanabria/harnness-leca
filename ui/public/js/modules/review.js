@@ -1,27 +1,37 @@
 // @ts-check
 import { $, esc, openDlg } from "../shared/dom.js";
+import { renderCuratedPromoteForm, getCuratedFormData } from "./review-form.js";
 
-// ---------- revisão das sugestões de memória ----------
-// Fluxo: a extração gera sugestões em context/extraido-memorias.md; aqui o usuário promove (vai para memory.md, que é
-// enviada em toda mensagem), edita antes de promover ou descarta. Nada é promovido sem uma ação explícita.
+// ---------- revisão das sugestões de memória (EP-13.06) ----------
 const RV_CAT = { memoria: "Memória", regra: "Regra", decisao: "Decisão", termo: "Termo" };
 const RV_PLURAL = { todas: "Todas", memoria: "Memórias", regra: "Regras", decisao: "Decisões", termo: "Termos" };
 const RV_PAGE = 25;
-const RV_HEAVY = 8 * 1024; // acima disto a memória começa a pesar em toda mensagem
+const RV_HEAVY = 8 * 1024;
 let R = null;
 
 async function showReview() {
   const currentP = typeof P !== "undefined" ? P : (window.P || {});
-  openDlg("Revisar memória — " + currentP.slug, "", '<div id="rv"><p class="empty">Carregando…</p></div>');
+  openDlg("Revisar memória — " + currentP.slug, "", '<div id="rv"><p class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Carregando…</p></div>');
   $("dbody").onclick = reviewClick;
   $("dbody").oninput = reviewInput;
   try {
     const r = await (await fetch("/api/project/" + currentP.slug + "/review")).json();
     if (!r.pendentes) throw new Error(r.error || "resposta inválida");
-    R = { items: r.pendentes, bytes: r.memoriaBytes, cat: "todas", q: "", page: 0, editing: null, confirm: false, busy: false, msg: "" };
+    R = {
+      items: r.pendentes,
+      bytes: r.memoriaBytes,
+      migrado: Boolean(r.migrado),
+      cat: "todas",
+      q: "",
+      page: 0,
+      editing: null,
+      confirm: false,
+      busy: false,
+      msg: "",
+    };
     renderReview();
   } catch {
-    $("rv").innerHTML = '<p class="empty">Não foi possível carregar as sugestões.</p>';
+    $("rv").innerHTML = '<p class="empty"><i class="fa-solid fa-triangle-exclamation"></i> Não foi possível carregar as sugestões.</p>';
   }
 }
 
@@ -36,16 +46,20 @@ function reviewVisible() {
 function renderReview() {
   const count = (c) => (c === "todas" ? R.items.length : R.items.filter((i) => i.categoria === c).length);
   const heavy = R.bytes > RV_HEAVY;
+  const statusLabel = R.migrado
+    ? '<span class="rv-status-badge"><i class="fa-solid fa-layer-group"></i> Formato Atômico (EP-13)</span>'
+    : '<span class="rv-status-badge legacy"><i class="fa-solid fa-file-lines"></i> Legado (memory.md)</span>';
+
   $("rv").innerHTML =
     '<div class="rv-info' +
     (heavy ? " warn" : "") +
-    '">memory.md atual: ' +
+    '">' +
+    statusLabel +
+    " memory.md atual: " +
     (R.bytes / 1024).toFixed(1) +
-    " KB. Ela vai junto em <b>toda mensagem</b>; mantenha enxuta (ideal abaixo de " +
-    RV_HEAVY / 1024 +
-    " KB)" +
-    (heavy ? " — já está pesada: prefira descartar mais" : "") +
-    ".</div>" +
+    " KB. " +
+    (R.migrado ? "Itens são salvos atômica e declarativamente na pasta memory/." : "Ela vai junto em <b>toda mensagem</b>; mantenha enxuta.") +
+    "</div>" +
     '<div class="rv-bar">' +
     ["todas", "memoria", "regra", "decisao", "termo"]
       .map(
@@ -77,23 +91,23 @@ function renderReviewList() {
   const discard = !slice.length
     ? ""
     : R.confirm
-    ? '<button data-act="descartar-pagina-ok">Confirmar: descartar estas ' +
+    ? '<button data-act="descartar-pagina-ok"><i class="fa-solid fa-check"></i> Confirmar: descartar estas ' +
       slice.length +
-      '</button><button data-act="descartar-pagina-cancel">Cancelar</button>'
-    : '<button data-act="descartar-pagina">❌ Descartar todas desta página</button>';
+      '</button><button data-act="descartar-pagina-cancel"><i class="fa-solid fa-xmark"></i> Cancelar</button>'
+    : '<button data-act="descartar-pagina"><i class="fa-solid fa-trash-can"></i> Descartar todas desta página</button>';
   const pager =
     '<div class="rv-pager"><button data-act="pag-ant"' +
     (R.page === 0 ? " disabled" : "") +
-    ">←</button>" +
+    '><i class="fa-solid fa-chevron-left"></i></button>' +
     "<span>" +
     (vis.length ? R.page * RV_PAGE + 1 + "–" + (R.page * RV_PAGE + slice.length) + " de " + vis.length : "nenhuma sugestão") +
     "</span>" +
     '<button data-act="pag-prox"' +
     (R.page >= pages - 1 ? " disabled" : "") +
-    ">>→</button>" +
+    '><i class="fa-solid fa-chevron-right"></i></button>' +
     discard +
     "</div>";
-  $("rv-list").innerHTML = pager + (slice.length ? slice.map(reviewItemHtml).join("") + pager : '<p class="empty">Tudo revisado por aqui. 🎉</p>');
+  $("rv-list").innerHTML = pager + (slice.length ? slice.map(reviewItemHtml).join("") + pager : '<p class="empty"><i class="fa-solid fa-circle-check"></i> Tudo revisado por aqui.</p>');
 }
 
 function reviewItemHtml(i) {
@@ -102,14 +116,31 @@ function reviewItemHtml(i) {
     esc(first.titulo || "conversa") +
     (first.data ? " · " + esc(first.data) : "") +
     (i.conversas.length > 1 ? " +" + (i.conversas.length - 1) : "");
-  const body =
-    R.editing === i.id
-      ? '<textarea class="rv-edit" id="rv-edit">' +
+
+  let body = "";
+  if (R.editing === i.id) {
+    if (R.migrado) {
+      const suggestedType = i.categoria === "regra" ? "feedback" : i.categoria === "decisao" ? "project" : "reference";
+      body = renderCuratedPromoteForm(i, suggestedType);
+    } else {
+      body =
+        '<textarea class="rv-edit" id="rv-edit">' +
         esc(i.texto) +
-        '</textarea><div class="rv-actions"><button data-act="salvar">✅ Salvar e promover</button><button data-act="cancelar">Cancelar</button></div>'
-      : '<div class="rv-text">' +
-        esc(i.texto) +
-        '</div><div class="rv-actions"><button data-act="promover">✅ Promover</button><button data-act="editar">✏️ Editar</button><button data-act="descartar">❌ Descartar</button></div>';
+        '</textarea><div class="rv-actions"><button data-act="salvar"><i class="fa-solid fa-check"></i> Salvar e promover</button><button data-act="cancelar"><i class="fa-solid fa-xmark"></i> Cancelar</button></div>';
+    }
+  } else {
+    body =
+      '<div class="rv-text">' +
+      esc(i.texto) +
+      '</div><div class="rv-actions">' +
+      '<button data-act="promover"><i class="fa-solid fa-check"></i> Promover</button>' +
+      '<button data-act="editar"><i class="fa-solid fa-pen"></i> ' +
+      (R.migrado ? "Personalizar Item" : "Editar") +
+      "</button>" +
+      '<button data-act="descartar"><i class="fa-solid fa-trash"></i> Descartar</button>' +
+      "</div>";
+  }
+
   return (
     '<div class="rv-item" data-id="' +
     esc(i.id) +
@@ -162,11 +193,6 @@ function reviewClick(e) {
     R.editing = id;
     R.confirm = false;
     renderReviewList();
-    const t = $("rv-edit");
-    if (t) {
-      t.focus();
-      t.setSelectionRange(t.value.length, t.value.length);
-    }
     return;
   }
   if (act === "cancelar") {
@@ -175,6 +201,7 @@ function reviewClick(e) {
   }
   if (act === "promover") return reviewApply([{ id, acao: "promover" }]);
   if (act === "salvar") return reviewApply([{ id, acao: "promover", texto: $("rv-edit").value }]);
+  if (act === "salvar-curado" && id) return reviewApply([getCuratedFormData(id)]);
   if (act === "descartar") return reviewApply([{ id, acao: "descartar" }]);
   if (act === "descartar-pagina") {
     R.confirm = true;
@@ -210,17 +237,17 @@ async function reviewApply(acoes) {
     R.bytes = r.memoriaBytes;
     R.editing = null;
     R.msg = [
-      r.promovidas ? "✓ " + r.promovidas + " promovida(s)" : "",
+      r.promovidas ? r.promovidas + " promovida(s)" : "",
       r.descartadas ? r.descartadas + " descartada(s)" : "",
-      skipped.size ? skipped.size + " já não estava(m) pendente(s)" : "",
+      skipped.size ? skipped.size + " já não estava(m) pendente(s) ou recusada(s)" : "",
     ]
       .filter(Boolean)
       .join(" · ");
     currentP.review = { pendentes: r.pendentes };
     renderReview();
-    loadFn(currentP.slug); // atualiza o cartão de Memória e a contagem, sem fechar o diálogo
+    loadFn(currentP.slug);
   } catch (err) {
-    R.msg = "⚠ " + err.message;
+    R.msg = "Erro: " + err.message;
     renderReviewList();
   } finally {
     R.busy = false;

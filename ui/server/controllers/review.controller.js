@@ -7,7 +7,8 @@ const MR = require("../../../tools/lib/memory-review");
 const apiReviewList = ({ res, params: [slug] }) => {
   if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
   const memoriaBytes = Buffer.byteLength(read(path.join(getProjects(), slug, "memory.md")));
-  return send(res, 200, { pendentes: MR.pending(slug), memoriaBytes });
+  const migrado = MR.isProjectMigrated(slug);
+  return send(res, 200, { pendentes: MR.pending(slug), memoriaBytes, migrado });
 };
 
 async function apiReviewApply({ req, res, params: [slug] }) {
@@ -20,10 +21,12 @@ async function apiReviewApply({ req, res, params: [slug] }) {
   }
   try {
     const result = MR.apply(slug, body && body.acoes);
+    const migrado = MR.isProjectMigrated(slug);
     return send(res, 200, {
       ...result,
       pendentes: MR.pending(slug).length,
       memoriaBytes: Buffer.byteLength(read(path.join(getProjects(), slug, "memory.md"))),
+      migrado,
     });
   } catch (err) {
     if (err instanceof MR.ReviewError) return send(res, 400, { error: err.message });
