@@ -7,7 +7,7 @@ atualizado: 2026-10-21
 
 Documento mestre do programa de evolução. Cada entrega aceita tem um documento próprio em `02-epics/`, para que um agente receba só a história que vai implementar e as dependências dela.
 
-> Snapshot verificado em 2026-10-25: 114/127 entregas concluídas e links locais válidos. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
+> Snapshot verificado em 2026-10-25: 115/127 entregas concluídas e links locais válidos. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
 
 > Revisão de 2026-10-24: "concluído" significa contrato aceito (API, módulo e testes). Vários épicos têm entregas sem tela ou sem fiação no cliente; o detalhe verificado está em [epic-gaps](05-progress/epic-gaps.md). Os épicos abaixo marcados com "UI pendente" não devem ser tratados como utilizáveis pelo usuário.
 
@@ -39,7 +39,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-10](02-epics/EP-10-deploy/README.md) | Datacenter e deploys | P2 | Concluído; 10.01 a 10.05 aceitas; frente opencode/deploy | 5/5 |
 | [EP-11](02-epics/EP-11-auditoria-qualidade/README.md) | Auditoria, testes e Design System | P2 | Em andamento; 11.01, 11.02 e 11.03 aceitas; frente opencode/qualidade | 3/5 |
 | [EP-12](02-epics/EP-12-prototype-engine/README.md) | Prototype Engine & Design System Multiframework | P1 | Concluído (contrato); piloto `dis-modular` só em `.trash`, Studio e `proto.json` sem rota | 32/32 |
-| [EP-13](02-epics/EP-13-memoria-agentes/README.md) | Memória e conhecimento dos agentes | P1 | Em andamento; 13.02 (contrato de item) e 13.03 (índice gerado) aceitas | 2/9 |
+| [EP-13](02-epics/EP-13-memoria-agentes/README.md) | Memória e conhecimento dos agentes | P1 | Em andamento; 13.02, 13.03 e 13.04 (migração de bullets e deduplicação) aceitas | 3/9 |
 | [EP-14](02-epics/EP-14-estado-das-telas/README.md) | Estado das telas persistido no servidor | P1 | Especificado; branches `ep14/<id>`, delegável ao opencode | 11/12 |
 
 ## 2. Dependências
@@ -56,7 +56,7 @@ flowchart TD
     MOD --> OPS["EP-09 a EP-12 Operação, qualidade e protótipos"]
 ```
 
-## 3. Backlog (114/127)
+## 3. Backlog (115/127)
 
 Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a criação e o aceite do documento da história. EP-12 detalha as 32 histórias do motor multiframework. `HAR-xxx` indica o item equivalente do [backlog da Fase 0](08-prioritized-backlog.md).
 
@@ -192,11 +192,11 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [x] [12.31](02-epics/EP-12-prototype-engine/stories/12.31-piloto-completo-dis.md) Piloto completo do fluxo DIS Dispensação de Medicamentos
 - [x] [12.32](02-epics/EP-12-prototype-engine/stories/12.32-homologacao-marco-m3.md) Documentação, kits de componentes e homologação final (Marco M3 Homologado)
 
-### EP-13 Memória e conhecimento dos agentes (2/9)
+### EP-13 Memória e conhecimento dos agentes (3/9)
 - [ ] [13.01](02-epics/EP-13-memoria-agentes/13.01-export-nao-destrutivo.md) Export não destrutivo, sem sugestões e com medição de tokens
 - [x] [13.02](02-epics/EP-13-memoria-agentes/13.02-contrato-item-memoria.md) Contrato do item de memória (frontmatter, tipos, camadas)
 - [x] [13.03](02-epics/EP-13-memoria-agentes/13.03-indice-gerado.md) Índice gerado por script com teto
-- [ ] [13.04](02-epics/EP-13-memoria-agentes/13.04-migracao-deduplicacao.md) Migração dos bullets e deduplicação
+- [x] [13.04](02-epics/EP-13-memoria-agentes/13.04-migracao-deduplicacao.md) Migração dos bullets e deduplicação
 - [ ] [13.05](02-epics/EP-13-memoria-agentes/13.05-ferramenta-save.md) Ferramenta save com upsert e recusa de segredos
 - [ ] [13.06](02-epics/EP-13-memoria-agentes/13.06-revisao-novo-formato.md) Revisão promove para o novo formato
 - [ ] [13.07](02-epics/EP-13-memoria-agentes/13.07-carregamento-duas-fases.md) Carregamento em duas fases e envelope de segurança
@@ -224,7 +224,7 @@ Os três chats usam o motor OpenCode; o que os distingue é a **frente**, e é e
 1. **opencode/qualidade:** 09.02 (event log, projeções e recuperação SSE) em andamento; 09.04 e 09.05 detalhadas em documentação; 11.05 (regressão automatizada) e a dívida de tipos. Destrava o restante do EP-09.
 2. **opencode/deploy:** EP-10 encerrado (5/5): pipelines, saude por ambiente, linha do tempo com logs, acoes autorizadas e paridade com o escritorio; proxima frente: EP-11 (11.04 e 11.05) ou apoio ao EP-09.
 3. **opencode/jira:** integração com o Jira (snapshot, consulta e sincronização com o quadro).
-4. EP-03 e EP-06 encerrados (9/9 e 5/5); 114/127 global; EP-13 especificado, com 13.01 e 13.02 prontas para iniciar na frente `memoria` (qualquer motor, registrado no ledger). Cada chat commita apenas os arquivos da própria frente, por caminho.
+4. EP-03 e EP-06 encerrados (9/9 e 5/5); 115/127 global; EP-13 especificado, com 13.01 e 13.02 prontas para iniciar na frente `memoria` (qualquer motor, registrado no ledger). Cada chat commita apenas os arquivos da própria frente, por caminho.
 5. A próxima história de EP-09/EP-10/EP-11 deve ser criada e aceita a partir do template antes da implementação.
 6. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
 7. A divisão completa e os handoffs obrigatórios estão no [painel de coordenação](05-progress/multi-agent-sync.md).
