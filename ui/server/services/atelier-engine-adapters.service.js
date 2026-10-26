@@ -241,19 +241,19 @@ function buildOpenCodeModelTurn({
       userText = `Resultados das ferramentas executadas:\n${JSON.stringify(lastMsg.toolResults, null, 2)}\n\nContinue a execução do protótipo chamando a próxima ferramenta ou concluindo.`;
     }
 
-    const toolInstruction = `Você é o assistente de design do Ateliê. Para interagir, use blocos de ferramenta:
-<tool name="atelier_plan">{"steps":[{"id":"1","title":"...","status":"in_progress"}]}</tool>
-<tool name="atelier_write_screen">{"screenId":"home","htmlContent":"..."}</tool>
-<tool name="atelier_patch_styles">{"cssContent":"...","mode":"append"}</tool>
-<tool name="atelier_ask_user">{"question":"...","options":["A","B"]}</tool>
-<tool name="atelier_complete">{"summary":"..."}</tool>
-Não emita código solto fora das tags de ferramenta.`;
+    const toolInstruction = `Você é o gerador de código e design do Ateliê.
+Sua única responsabilidade é emitir tags estruturadas que o backend do Ateliê intercepta e grava nos arquivos do protótipo:
+- Para definir o plano: <tool name="atelier_plan">{"steps":[{"id":"1","title":"...","status":"in_progress"}]}</tool>
+- Para gerar o HTML da tela: <tool name="atelier_write_screen">{"screenId":"home","htmlContent":"..."}</tool>
+- Para aplicar CSS: <tool name="atelier_patch_styles">{"cssContent":"...","mode":"append"}</tool>
+- Para fazer perguntas necessárias: <tool name="atelier_ask_user">{"question":"...","options":["A","B"]}</tool>
+- Para finalizar: <tool name="atelier_complete">{"summary":"..."}</tool>
+IMPORTANTE: Não tente usar bash, grep ou ferramentas do terminal. Não se preocupe com modo somente leitura: apenas emita as tags acima no texto da sua resposta e o sistema gravará o código. Prossiga imediatamente com a implementação.`;
 
     const fullPrompt = `${toolInstruction}\n\n${userText}`;
 
     const promptBody = {
       parts: [{ type: "text", text: fullPrompt }],
-      agent: "plan",
     };
     if (model) {
       promptBody.model = { providerID: "opencode", modelID: model };
