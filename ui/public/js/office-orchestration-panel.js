@@ -141,15 +141,36 @@ export function setupOrchestrationPanelListeners(state, reRenderFn) {
   agentFilter?.addEventListener("change", filterSessions);
   searchInput?.addEventListener("input", filterSessions);
 
-  // Central de Sessões (EP-09.03): monta apenas quando a aba está ativa.
+  // Central de Sessões (EP-09.03 / EP-09.04): monta apenas quando a aba está ativa.
   const centralRoot = document.getElementById("centralSessionsRoot");
   if (centralRoot) {
     const slug = centralRoot.getAttribute("data-slug") || "";
-    mountCentral(centralRoot, { slug }).catch(() => {
+    const filterQuery = centralRoot.getAttribute("data-filter-query") || "";
+    const selectedId = centralRoot.getAttribute("data-selected-id") || "";
+    mountCentral(centralRoot, {
+      slug,
+      state: { query: filterQuery, selectedId },
+    }).catch(() => {
       centralRoot.innerHTML = `<p class="central-empty"><i class="fa-solid fa-triangle-exclamation"></i> Não foi possível carregar a Central de Sessões.</p>`;
     });
   }
 
   setupControlOperations(state);
   setupUsageTab();
+}
+
+/**
+ * Aciona a Central de Sessões a partir do Escritório com filtro pré-definido (RF9).
+ * @param {string} sessionId
+ * @param {Function} reRenderFn
+ */
+export function openCentralSessionInOffice(sessionId, reRenderFn) {
+  activeTab = "sessions";
+  setTimeout(() => {
+    const centralRoot = document.getElementById("centralSessionsRoot");
+    if (centralRoot) {
+      centralRoot.setAttribute("data-selected-id", sessionId);
+    }
+    if (typeof reRenderFn === "function") reRenderFn();
+  }, 10);
 }

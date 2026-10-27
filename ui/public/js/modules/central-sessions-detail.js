@@ -4,6 +4,7 @@
 import { describeSession, formatTimestamp } from "./central-sessions-model.js";
 import { esc, statusBadge } from "./central-sessions-format.js";
 import { presenceBadges, originBadge, lastActivityText } from "./central-sessions-presence.js";
+import { determineSessionActions, renderActionButtons } from "./central-session-actions.js";
 
 /**
  * Painel de detalhe da sessão.
@@ -16,13 +17,15 @@ export function renderCentralDetail(params) {
     return `<aside class="central-detail central-detail--empty"><i class="fa-solid fa-hand-pointer"></i> Selecione uma sessão para ver o detalhe.</aside>`;
   }
   const status = describeSession(session);
-  const artifacts = detail?.session?.artifacts || detail?.artifacts || [];
+  const artifacts = detail?.session?.artifacts || detail?.artifacts || session?.artifacts || [];
   const executions = detail?.session?.executions || detail?.executions || [];
   const events = detail?.session?.events || detail?.events || [];
+  const actions = determineSessionActions({ ...session, artifacts });
 
   return `
     <aside class="central-detail" aria-label="Detalhe da sessão">
       <h4 class="central-detail__title">${esc(session.title)}</h4>
+      ${renderActionButtons(actions, session.id)}
       <dl class="central-detail__grid">
         <dt>Motor</dt><dd>${esc(session.primaryProvider || "desconhecido")}</dd>
         <dt>Projeto</dt><dd>${esc(session.projectId || "sem projeto")} (${esc(status.confidence.label)})</dd>
