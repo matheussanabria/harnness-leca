@@ -126,50 +126,60 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
       const msgs = await mRes.json();
       if (!Array.isArray(msgs)) continue;
 
-      // Procura a última mensagem do assistente criada após o início do prompt
+      // Candidatos: apenas mensagens criadas após o início do turno atual
       const candidateMsgs = msgs.slice(initialMsgCount);
-      const lastAss = [...candidateMsgs].reverse().find((m) => m.info && m.info.role === "assistant");
-      if (lastAss) {
-        if (lastAss.info && lastAss.info.error) {
-          const errMsg = lastAss.info.error.message || lastAss.info.error.name || "Erro na geração do OpenCode";
-          throw new PublicError(`OpenCode erro: ${errMsg}`);
+
+      // Procura a última mensagem do assistente criada após o início do prompt
+      let totalReasoning = "";
+      let totalText = "";
+      let isAnyActive = false;
+      let hasError = null;
+
+      for (const m of candidateMsgs) {
+        if (m.info?.role !== "assistant") continue;
+        if (m.info?.error) {
+          hasError = m.info.error.message || m.info.error.name || "Erro no OpenCode";
         }
+        if (!m.info?.time?.completed) isAnyActive = true;
 
-        if (Array.isArray(lastAss.parts)) {
-          let totalReasoning = "";
-          let totalText = "";
-
-          for (const part of lastAss.parts) {
+        if (Array.isArray(m.parts)) {
+          for (const part of m.parts) {
             if (part.type === "reasoning" && part.text) totalReasoning += part.text;
             else if (part.type === "text" && part.text) totalText += part.text;
+            else if (part.type === "tool") lastActivity = Date.now(); // modelo chamando tool mantém atividade viva
           }
+        }
+      }
 
-          if (totalReasoning.length > accumulatedThinking.length) {
-            const delta = totalReasoning.slice(accumulatedThinking.length);
-            accumulatedThinking = totalReasoning;
-            lastActivity = Date.now();
-            onChunk({ type: "thinking", text: delta, sessionId: sId });
-          }
-          if (totalText.length > accumulatedText.length) {
-            const delta = totalText.slice(accumulatedText.length);
-            accumulatedText = totalText;
-            lastActivity = Date.now();
-            onChunk({ type: "text", text: delta, sessionId: sId });
-          }
+      if (hasError) throw new PublicError(`OpenCode erro: ${hasError}`);
 
-          if (lastAss.info.time && lastAss.info.time.completed) {
-            completed = true;
-          }
+      if (totalReasoning.length > accumulatedThinking.length) {
+        const delta = totalReasoning.slice(accumulatedThinking.length);
+        accumulatedThinking = totalReasoning;
+        lastActivity = Date.now();
+        onChunk({ type: "thinking", text: delta, sessionId: sId });
+      }
+      if (totalText.length > accumulatedText.length) {
+        const delta = totalText.slice(accumulatedText.length);
+        accumulatedText = totalText;
+        lastActivity = Date.now();
+        onChunk({ type: "text", text: delta, sessionId: sId });
+      }
 
-          // Detecta término por estouro de cota de tokens (ex: 32k tokens em raciocínio) sem texto de saída
+      const lastAss = [...candidateMsgs].reverse().find((m) => m.info && m.info.role === "assistant");
+      if (lastAss && lastAss.info?.time?.completed && !isAnyActive) {
+        completed = true;
+
+        // Detecta término por estouro de cota de tokens (ex: 32k tokens em raciocínio) sem texto de saída
+        if (Array.isArray(lastAss.parts)) {
           const stepFinish = lastAss.parts.find((p) => p.type === "step-finish");
-          const finishReason = stepFinish?.reason || lastAss.info.finish;
+          const finishReason = stepFinish?.reason || lastAss.info?.finish;
           if (finishReason === "length" && !totalText.trim()) {
             throw new PublicError("O modelo esgotou a cota máxima de tokens (32k) em raciocínio interno antes de produzir o código. Tente simplificar o pedido inicial ou pedir uma tela por vez.");
           }
         }
       }
-    }
+    } // fim while
 
     onDone({ sessionId: sId, fullText: accumulatedText });
   } catch (err) {
