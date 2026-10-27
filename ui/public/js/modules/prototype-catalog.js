@@ -6,8 +6,9 @@ export function buildPrototypeCatalog(artifacts = [], editable = []) {
   // Um protótipo do Ateliê registrado no design.json aparece nas duas listas; mostra só a versão editável,
   // senão a lista duplica o item e excluir um deles parece apagar dois.
   const editableIds = new Set(editable.map((item) => item.id));
+  const inspectedArtifactIds = new Set(editable.map((item) => item.metadata?.sourceArtifact).filter(Boolean));
   return [
-    ...artifacts.filter((item) => !editableIds.has(item.id)).map((item) => ({ ...item, kind: "artifact" })),
+    ...artifacts.filter((item) => !editableIds.has(item.id) && !inspectedArtifactIds.has(item.id)).map((item) => ({ ...item, kind: "artifact" })),
     ...editable.map((item) => ({ ...item, kind: "atelier" })),
   ];
 }

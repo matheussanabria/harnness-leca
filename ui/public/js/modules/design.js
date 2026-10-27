@@ -176,7 +176,7 @@ function renderCurrentDesignView() {
   } else if (currentView === "layers") {
     renderLayersWorkspace(container, slug, currentScreensData || { screens: [] });
   } else if (currentView === "board") {
-    renderKanbanBoard(container, currentDesignData?.components || [], activeDraft);
+    renderKanbanBoard(container, currentDesignData?.components || [], activeDraft, slug);
   } else if (currentView === "audit") {
     renderAuditWorkspace(container, slug, currentAuditData);
   } else if (currentView === "prototypes") {

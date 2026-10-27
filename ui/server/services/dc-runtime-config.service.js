@@ -8,7 +8,7 @@ const ADAPTER_ID = "dc-artifact-adapter@1";
 const INSPECTION_FORMAT = 3;
 
 /** Hash do support.js vendorizado em ui/public/js/vendor/dc-runtime. Outro hash é recusado. */
-const SUPPORT_SHA256 = "8fe7df74405f3c55f49b7249c74ea1397e65d07dea2b1bd3b4a489bec2e28cbe";
+const SUPPORT_SHA256 = "6bae0c4047c06280c6fbfbbe31176a54a4b303ed46c1faab794667ef7a356039";
 const REACT_SRI = "sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z";
 const REACT_DOM_SRI = "sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1";
 

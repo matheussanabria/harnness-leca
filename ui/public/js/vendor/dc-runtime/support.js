@@ -473,7 +473,8 @@
       if (node.nodeType === Node.ELEMENT_NODE) {
         node.setAttribute("data-dc-tpl", String(tplN++));
       }
-      for (const c of node.childNodes) stamp(c);
+      const children = node.content?.childNodes || node.childNodes;
+      for (const c of children) stamp(c);
     })(tpl.content);
     const builders = walkChildren(tpl.content, host);
     const render = ((vals, ctx) => builders.map((b, i) => b(vals || {}, ctx, i)));
@@ -551,7 +552,7 @@
     if (node.nodeType === Node.TEXT_NODE) return walkText(node);
     if (node.nodeType !== Node.ELEMENT_NODE) return null;
     const el = node;
-    const tag = el.tagName.toLowerCase();
+    const tag = el.getAttribute("data-dc-control") || el.tagName.toLowerCase();
     if (tag === "sc-for") return walkFor(el, host);
     if (tag === "sc-if") return walkIf(el, host);
     if (tag === "x-import") return walkXImport(el, host);
@@ -612,7 +613,7 @@
     const listGet = compileAttr(el.getAttribute("list") || "");
     const asName = el.getAttribute("as") || "item";
     const hintN = parseInt(el.getAttribute("hint-placeholder-count") || "0", 10);
-    const kids = walkChildren(el, host);
+    const kids = walkChildren(el.content || el, host);
     const listSrc = el.getAttribute("list") || "";
     return (vals, ctx, key) => {
       let list = listGet(vals);
@@ -647,7 +648,7 @@
     const valGet = compileAttr(el.getAttribute("value") || "");
     const hintRaw = el.getAttribute("hint-placeholder-val");
     const hintGet = hintRaw != null ? compileAttr(hintRaw) : null;
-    const kids = walkChildren(el, host);
+    const kids = walkChildren(el.content || el, host);
     return (vals, ctx, key) => {
       let v = valGet(vals);
       if (v === void 0 && hintGet && ctx?.__streamingNow) v = hintGet(vals);

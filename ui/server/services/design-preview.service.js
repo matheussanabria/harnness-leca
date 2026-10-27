@@ -143,6 +143,9 @@ function renderComponentPreview(projectDir, componentId, customProps = {}) {
 
   const combinedJs = jsParts.join("\n\n");
   const propsJson = JSON.stringify(props, null, 2);
+  const staticFile = path.join(dsDir, "components", meta.folderName, `${meta.kebab}.html`);
+  const staticHtml = fs.existsSync(staticFile) ? fs.readFileSync(staticFile, "utf8") : "";
+  const staticJson = JSON.stringify(staticHtml).replace(/</g, "\\u003c");
 
   return `<!DOCTYPE html>
 <html lang="pt-BR" class="sistemas">
@@ -209,6 +212,8 @@ function renderComponentPreview(projectDir, componentId, customProps = {}) {
       const props = ${propsJson};
       if (typeof ${meta.functionName} === "function") {
         ${meta.functionName}(root, props);
+      } else if (${staticJson}) {
+        root.innerHTML = ${staticJson};
       } else {
         root.innerHTML = "<p style='color:red;'>Erro: Função '${meta.functionName}' não encontrada.</p>";
       }

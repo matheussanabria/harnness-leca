@@ -161,19 +161,75 @@ function getFeatureLayers(repoRoot, featureSlug, deps = { fs, path }, docsConfig
       const data = JSON.parse(raw);
       result.conferenciaVisual = data.conferencia_visual || null;
 
+      const summary = {
+        totalCampos: 0,
+        camadas: {
+          ui: { total: 0, implementado: 0, soNoPrototipo: 0, aConfirmar: 0 },
+          regra: { total: 0, implementado: 0, soNoPrototipo: 0, aConfirmar: 0 },
+          api: { total: 0, implementado: 0, soNoPrototipo: 0, aConfirmar: 0 },
+          dados: { total: 0, implementado: 0, soNoPrototipo: 0, aConfirmar: 0 },
+        },
+        drifts: [],
+      };
+
       const telas = Array.isArray(data.telas) ? data.telas : [];
       for (const tela of telas) {
         const telaInfo = { id: tela.id, titulo: tela.titulo, rota: tela.rota, componente: tela.componente };
         const campos = Array.isArray(tela.campos) ? tela.campos : [];
+        summary.totalCampos += campos.length;
 
         for (const c of campos) {
           const itemBase = { tela: telaInfo, campoId: c.id, rotulo: c.rotulo };
-          if (c.ui) result.layers.ui.push({ ...itemBase, ...c.ui, layer: "ui" });
-          if (c.regra) result.layers.regra.push({ ...itemBase, ...c.regra, layer: "regra" });
-          if (c.api) result.layers.api.push({ ...itemBase, ...c.api, layer: "api" });
-          if (c.dados) result.layers.dados.push({ ...itemBase, ...c.dados, layer: "dados" });
+          if (c.ui) {
+            result.layers.ui.push({ ...itemBase, ...c.ui, layer: "ui" });
+            summary.camadas.ui.total++;
+            const st = c.ui.st || "a-confirmar";
+            if (st === "implementado") summary.camadas.ui.implementado++;
+            else if (st === "so-no-prototipo") summary.camadas.ui.soNoPrototipo++;
+            else summary.camadas.ui.aConfirmar++;
+          }
+          if (c.regra) {
+            result.layers.regra.push({ ...itemBase, ...c.regra, layer: "regra" });
+            summary.camadas.regra.total++;
+            const st = c.regra.st || "a-confirmar";
+            if (st === "implementado") summary.camadas.regra.implementado++;
+            else if (st === "so-no-prototipo") summary.camadas.regra.soNoPrototipo++;
+            else summary.camadas.regra.aConfirmar++;
+          }
+          if (c.api) {
+            result.layers.api.push({ ...itemBase, ...c.api, layer: "api" });
+            summary.camadas.api.total++;
+            const st = c.api.st || "a-confirmar";
+            if (st === "implementado") summary.camadas.api.implementado++;
+            else if (st === "so-no-prototipo") summary.camadas.api.soNoPrototipo++;
+            else summary.camadas.api.aConfirmar++;
+
+            // Verificação de conformidade de endpoint
+            const epMatch = (c.api.t || "").match(/`(GET|POST|PUT|DELETE)\s+([^`]+)`/);
+            if (epMatch) {
+              const metodo = epMatch[1];
+              const endpoint = epMatch[2];
+              if (endpoint.includes(":cns") && !endpoint.includes("/pacientes/")) {
+                summary.drifts.push({
+                  campo: c.id,
+                  camada: "api",
+                  tipo: "DRIFT_ROTA",
+                  detalhe: `Endpoint ${metodo} ${endpoint} pode divergir da convenção /pacientes/{cns}`
+                });
+              }
+            }
+          }
+          if (c.dados) {
+            result.layers.dados.push({ ...itemBase, ...c.dados, layer: "dados" });
+            summary.camadas.dados.total++;
+            const st = c.dados.st || "a-confirmar";
+            if (st === "implementado") summary.camadas.dados.implementado++;
+            else if (st === "so-no-prototipo") summary.camadas.dados.soNoPrototipo++;
+            else summary.camadas.dados.aConfirmar++;
+          }
         }
       }
+      result.metricsSummary = summary;
     } catch (err) {
       result.layersError = "Erro ao ler ou parsear mapa-camadas.json: " + (err.message || String(err));
     }

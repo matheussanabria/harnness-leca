@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const { VENDOR_URL, MAX_ASSET_BYTES, DC_REACT_URL, DC_REACT_DOM_URL } = require("./dc-runtime-config.service");
 const { decodeAttr, encodeAttr } = require("./dc-artifact-parser.service");
 const { readManifest } = require("./dc-inspection-writer.service");
+const { tableSafeDcTemplate } = require("./dc-template-runtime.service");
 const { loadSandboxAssets, loadBridgeScript, buildSandboxHeaders } = require("./prototype-sandbox-common.service");
 
 /** @param {unknown} value */
@@ -30,6 +31,15 @@ function withStartScreen(logicAttrs, target) {
     props.startScreen = { ...props.startScreen, default: target };
     return `data-props="${encodeAttr(JSON.stringify(props))}"`;
   });
+}
+
+/** Selects a documentation page for DC applications that keep routing in `state.page`. */
+function withInitialPage(logic, target) {
+  if (!target || !/\bpage\s*:\s*['"][^'"]+['"]/.test(logic)) return logic;
+  const page = String(target).replace(/[^a-zA-Z0-9_-]/g, "");
+  return logic
+    .replace(/\bpage\s*:\s*(['"])[^'"]+\1/, `page: '${page}'`)
+    .replace(/componentDidMount\(\)\s*\{[^\r\n]*localStorage\.getItem\('ds2\.page'\)[^\r\n]*\}/, "componentDidMount() {}");
 }
 
 /**
@@ -82,9 +92,9 @@ function renderDcScreen(projectDir, protoDir, protoId, protoManifest, screenId, 
 
   const warnings = [];
   const read = (file) => deps.fs.readFileSync(deps.path.join(dcDir, file), "utf8");
-  const template = inlineDcAssets(read("template.html"), manifest, dcDir, deps, warnings);
+  const template = tableSafeDcTemplate(inlineDcAssets(read("template.html"), manifest, dcDir, deps, warnings));
   const helmet = inlineDcAssets(read("helmet.html"), manifest, dcDir, deps, warnings);
-  const logic = read("logic.js");
+  const logic = withInitialPage(read("logic.js"), target);
   const { protoCss } = loadSandboxAssets(projectDir, protoDir, deps);
   const bridgeScript = loadBridgeScript(deps);
   const nonce = crypto.randomBytes(16).toString("hex");
@@ -103,6 +113,7 @@ function renderDcScreen(projectDir, protoDir, protoId, protoManifest, screenId, 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${title} - ${target || "início"}</title>
+  <style>x-dc { display: none !important; }</style>
   <style id="protoCustomStyle">${protoCss}</style>
   <style id="harnessBridgeStyle">
     [data-node-id], [data-pid] { transition: outline 0.15s ease-in-out; cursor: pointer; }
@@ -117,6 +128,8 @@ function renderDcScreen(projectDir, protoDir, protoId, protoManifest, screenId, 
 ${template}
 </x-dc>
 <script type="text/x-dc" ${logicAttrs}>${logic}</script>
+<script nonce="${nonce}" src="${VENDOR_URL}/react.production.min.js"></script>
+<script nonce="${nonce}" src="${VENDOR_URL}/react-dom.production.min.js"></script>
 <script nonce="${nonce}" src="${VENDOR_URL}/support.js"></script>
 <script nonce="${nonce}">${PID_SCRIPT}</script>
 <script nonce="${nonce}">${bridgeScript}</script>
@@ -126,4 +139,4 @@ ${template}
   return { ok: true, status: 200, html: fullHtml, nonce, manifest: protoManifest, warnings, headers: buildSandboxHeaders(nonce) };
 }
 
-module.exports = { renderDcScreen, withStartScreen, inlineDcAssets };
+module.exports = { renderDcScreen, withInitialPage, withStartScreen, inlineDcAssets };

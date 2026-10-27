@@ -40,6 +40,14 @@ async function apiRegistryGetComponent({ res, params: [slug, componentId] }) {
 async function apiRegistryPreviewComponent({ req, res, params: [slug, componentId] }) {
   const projectDir = path.join(getProjects(), slug);
   try {
+    const component = getComponent(projectDir, componentId);
+    const documentation = component?.documentation;
+    const safeId = /^[a-z0-9_-]{1,100}$/i;
+    if (safeId.test(documentation?.prototypeId || "") && safeId.test(documentation?.screenId || "")) {
+      const location = `/api/project/${encodeURIComponent(slug)}/design/prototypes/${encodeURIComponent(documentation.prototypeId)}/render/${encodeURIComponent(documentation.screenId)}`;
+      res.writeHead(302, { Location: location, "X-Content-Type-Options": "nosniff" });
+      return res.end();
+    }
     const url = new URL(req.url, "http://localhost");
     let customProps = {};
     const propsParam = url.searchParams.get("props");
@@ -81,4 +89,3 @@ module.exports = {
   apiRegistryPreviewComponent,
   apiRegistryExtractPilot,
 };
-

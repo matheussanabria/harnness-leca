@@ -1,0 +1,517 @@
+/**
+ * 29-dis-components-replica.css
+ * Classes e tokens do DIS Design System aplicados especificamente à réplica da tela de negócio (#/layers)
+ * e componentes reutilizáveis dentro de .replica-paper-form.
+ */
+
+:root {
+  /* Tokens DIS integrados */
+  --dis-primary-headings: #002b66;
+  --dis-primary-dark: #003e91;
+  --dis-primary-interactive: #0050b3;
+  --dis-primary-interactive-area: #0066cc;
+  --dis-primary-surfaces: #1a7fe6;
+  --dis-primary-muted: #5ca3f0;
+  --dis-primary-background: #f0f6ff;
+
+  --dis-neutral-body: #1e293b;
+  --dis-neutral-dark: #475569;
+  --dis-neutral-base: #64748b;
+  --dis-neutral-muted: #94a3b8;
+  --dis-neutral-light: #e2e8f0;
+  --dis-neutral-background: #f8fafc;
+  --dis-white: #ffffff;
+
+  --dis-highlight-focus: #ff9900;
+  --dis-danger-dark: #990000;
+  --dis-danger-base: #cc0000;
+  --dis-danger-muted: #fca5a5;
+  --dis-danger-background: #fff5f5;
+
+  --dis-success-dark: #166534;
+  --dis-success-base: #22c55e;
+  --dis-success-background: #f0fdf4;
+
+  --dis-info-base: #0066cc;
+  --dis-info-background: #f0f6ff;
+  --dis-badge-count: #0891b2;
+}
+
+/* Escopo da réplica no estilo DIS */
+.replica-paper-form {
+  background: var(--dis-white);
+  color: var(--dis-neutral-body);
+  border-radius: 4px;
+  padding: 28px 32px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* Títulos do DIS dentro da réplica */
+.replica-paper-form .dis-section-title {
+  font-family: "Noto Sans Display", "Noto Sans", sans-serif;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--dis-primary-headings);
+  margin: 0;
+}
+
+.replica-paper-form .dis-page-title {
+  font-family: "Noto Sans Display", "Noto Sans", sans-serif;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--dis-primary-headings);
+  margin: 0 0 16px 0;
+}
+
+.replica-paper-form .dis-hr {
+  border: 0;
+  border-top: 1px solid var(--dis-neutral-light);
+  margin: 24px 0 16px 0;
+}
+
+/* Botões DIS (.btn, .btn--primary, .btn--secondary, .btn--tertiary, .btn--danger) */
+.replica-paper-form .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 18px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--dis-primary-interactive);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.replica-paper-form .btn--primary {
+  background: var(--dis-primary-interactive-area);
+  color: var(--dis-white);
+  border-color: var(--dis-primary-interactive-area);
+}
+
+.replica-paper-form .btn--primary:hover {
+  background: var(--dis-primary-dark);
+  border-color: var(--dis-primary-dark);
+}
+
+.replica-paper-form .btn--secondary {
+  background: var(--dis-white);
+  border-color: var(--dis-primary-interactive-area);
+  color: var(--dis-primary-interactive-area);
+}
+
+.replica-paper-form .btn--secondary:hover {
+  background: var(--dis-primary-background);
+}
+
+.replica-paper-form .btn--tertiary {
+  background: transparent;
+  border-color: transparent;
+  color: var(--dis-primary-interactive);
+}
+
+.replica-paper-form .btn--tertiary:hover {
+  background: var(--dis-neutral-background);
+  border-color: var(--dis-neutral-light);
+}
+
+.replica-paper-form .btn--danger {
+  color: var(--dis-danger-base);
+}
+
+.replica-paper-form .btn--danger:hover {
+  background: var(--dis-danger-background);
+  color: var(--dis-danger-dark);
+}
+
+/* Campos DIS (.ds-field, .ds-input-wrap, .ds-input) */
+.replica-paper-form .ds-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.replica-paper-form .ds-field__label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dis-primary-headings);
+  margin-bottom: 2px;
+}
+
+.replica-paper-form .ds-req {
+  color: var(--dis-danger-base);
+  margin-left: 2px;
+}
+
+.replica-paper-form .ds-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.replica-paper-form .ds-input {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--dis-neutral-muted);
+  border-radius: 4px;
+  background: var(--dis-white);
+  font: inherit;
+  font-size: 13px;
+  color: var(--dis-neutral-body);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.replica-paper-form .ds-input-wrap .ds-input {
+  padding-right: 36px;
+}
+
+.replica-paper-form .ds-input-wrap > .ds-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dis-primary-interactive-area);
+  pointer-events: none;
+  font-size: 13px;
+}
+
+.replica-paper-form .ds-input-wrap.is-disabled > .ds-icon {
+  color: var(--dis-neutral-muted);
+}
+
+.replica-paper-form .ds-input:disabled,
+.replica-paper-form .ds-input[readonly] {
+  background: var(--dis-neutral-background);
+  color: var(--dis-neutral-dark);
+}
+
+.replica-paper-form .ds-field__label.is-disabled {
+  color: var(--dis-neutral-dark);
+  font-weight: 700;
+}
+
+/* Alertas DIS (.ds-alert, .ds-alert--info, .ds-alert--success, .ds-alert--inline) */
+.replica-paper-form .ds-alert {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border: 2px solid var(--dis-info-base);
+  background: var(--dis-info-background);
+  color: var(--dis-neutral-body);
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.replica-paper-form .ds-alert--info {
+  border-color: var(--dis-info-base);
+  background: var(--dis-info-background);
+}
+
+.replica-paper-form .ds-alert--success {
+  border-color: var(--dis-success-base);
+  background: var(--dis-success-background);
+}
+
+.replica-paper-form .ds-alert__icon {
+  color: var(--dis-info-base);
+  line-height: 1.45;
+  font-size: 15px;
+  margin-top: 1px;
+}
+
+.replica-paper-form .ds-alert--success .ds-alert__icon {
+  color: var(--dis-success-dark);
+}
+
+.replica-paper-form .ds-alert__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.replica-paper-form .ds-alert__body {
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+/* Checkbox DIS (.ds-check, .ds-check__box) */
+.replica-paper-form .ds-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--dis-neutral-body);
+  position: relative;
+  user-select: none;
+}
+
+.replica-paper-form .ds-check input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.replica-paper-form .ds-check__box {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--dis-neutral-base);
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dis-white);
+  color: var(--dis-white);
+  flex: none;
+  font-size: 10px;
+}
+
+.replica-paper-form .ds-check input:checked + .ds-check__box {
+  background: var(--dis-primary-interactive-area);
+  border-color: var(--dis-primary-interactive-area);
+}
+
+.replica-paper-form .ds-radio__dot {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--dis-neutral-base);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  background: var(--dis-white);
+}
+
+.replica-paper-form .ds-check input:checked + .ds-radio__dot {
+  border-color: var(--dis-primary-interactive-area);
+}
+
+.replica-paper-form .ds-check input:checked + .ds-radio__dot::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dis-primary-interactive-area);
+}
+
+.replica-paper-form .ds-radiogroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.replica-paper-form .ds-radiogroup__opts {
+  display: flex;
+  gap: 16px;
+}
+
+/* Informações em Grade (.ds-info) */
+.replica-paper-form .ds-info {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
+  column-gap: 16px;
+  row-gap: 14px;
+}
+
+.replica-paper-form .ds-info__label {
+  font-size: 11.5px;
+  line-height: 16px;
+  font-weight: 700;
+  color: var(--dis-primary-headings);
+  margin-bottom: 4px;
+}
+
+.replica-paper-form .ds-info__value {
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--dis-neutral-body);
+}
+
+.replica-paper-form .ds-subhead {
+  margin: 14px 0 8px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--dis-primary-headings);
+}
+
+/* Tabela DIS (.ds-table, .ds-table--compact) */
+.replica-paper-form .ds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  line-height: 18px;
+}
+
+.replica-paper-form .ds-table th {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--dis-neutral-light);
+  white-space: nowrap;
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--dis-neutral-body);
+  background: var(--dis-neutral-background);
+}
+
+.replica-paper-form .ds-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--dis-neutral-light);
+  color: var(--dis-neutral-body);
+  vertical-align: middle;
+}
+
+.replica-paper-form .ds-table tbody tr:hover td {
+  background: var(--dis-neutral-background);
+}
+
+.replica-paper-form .ds-table .ds-td--check {
+  width: 32px;
+  padding-right: 0;
+}
+
+/* Card retrátil DIS (.ds-card) */
+.replica-paper-form .ds-card {
+  border: 1px solid var(--dis-neutral-light);
+  border-radius: 6px;
+  background: var(--dis-white);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.replica-paper-form .ds-card__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #fdfefe;
+  border-bottom: 1px solid var(--dis-neutral-light);
+}
+
+.replica-paper-form .ds-card__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dis-primary-headings);
+}
+
+.replica-paper-form .ds-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--dis-badge-count);
+  color: var(--dis-white);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.replica-paper-form .ds-card__body {
+  padding: 10px 14px 14px;
+}
+
+.replica-paper-form .ds-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 10px;
+}
+
+/* Badges DIS */
+.replica-paper-form .ds-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 999px;
+  color: var(--dis-white);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.replica-paper-form .ds-badge--success { background: var(--dis-success-base); }
+.replica-paper-form .ds-badge--danger { background: var(--dis-danger-base); }
+.replica-paper-form .ds-badge--neutral { background: var(--dis-neutral-base); }
+
+/* Links de expansão de medicamentos */
+.replica-paper-form .ds-medlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--dis-primary-interactive-area);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.replica-paper-form .ds-medlink:hover {
+  color: var(--dis-highlight-focus);
+  text-decoration: underline;
+}
+
+/* Linha rastreável com marcador */
+.replica-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.replica-field-row:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.replica-field-row.selected {
+  background: #fefce8;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 1.5px rgba(245, 158, 11, 0.4);
+}

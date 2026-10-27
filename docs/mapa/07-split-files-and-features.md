@@ -59,6 +59,8 @@ O `dis-design-system.html` carrega `window.DOCS` (código-fonte de cada componen
 | `tools/ds-docs/search-screen.js` | Tela "Pesquisar paciente" do fluxo modular: formulário, abas esperados/atraso, tabelas com "Ver mais", filtro e clique no paciente levando à Visão geral. |
 | `tools/ds-docs/showcase.js` | Vitrine simples (sem captura) e `snippetsFor`, que gera os blocos de código do canvas. |
 | `tools/ds-docs/writer.js` | Grava arquivos, converte imagens em data URI e atualiza `design/design.json`. |
+| `tools/ds-docs/dc-showcase.js` | Builds an editable screen per `.dc.html` Design System component, registry manifests, source snippets, and component references for related dynamic artifacts. |
+| `tools/import-dc-design-system.js` | Imports a `.dc.html` catalogue into `design/ds/`; optional vitrine arguments also synchronize inspection artifacts and the Component Board registry. |
 | `projects/<slug>/design/ds/components.css` | CSS agregado dos componentes; o renderer o injeta apenas em protótipos com `metadata.dsComponents: true`. |
 | `projects/<slug>/design/prototypes/dis-paciente/` | Fluxo do paciente editável (visão geral, nova prescrição, medicamentos, entregas, sucesso, histórico, programas, anotações). |
 | `projects/<slug>/design/prototypes/dis-ds-vitrine/` | Vitrine do DS: cada componente em sua própria tela, para usar no canvas. |

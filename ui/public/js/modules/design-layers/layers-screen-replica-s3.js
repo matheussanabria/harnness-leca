@@ -18,7 +18,7 @@ function renderMarker(fieldId, num, isSelected) {
 }
 
 /**
- * Renderiza a réplica visual da Tela 3 · Sucesso da entrega (4 elementos).
+ * Renderiza a réplica visual da Tela 3 · Sucesso da entrega com componentes DIS DS.
  * @param {any} sc
  * @returns {string}
  */
@@ -27,87 +27,97 @@ export function renderStage3SucessoEntrega(sc) {
 
   return `
     <div class="replica-paper-form">
-      <!-- 01. Alerta de sucesso -->
+      <!-- 01. Alerta de sucesso (dis.alert) -->
       <div class="replica-field-row ${sel === 'aviso' ? 'selected' : ''}" onclick="setFocusedField('aviso')">
-        <div class="replica-alert-success">
-          <i class="fa-solid fa-circle-check"></i>
-          <div>Medicamentos dispensados com sucesso.</div>
+        <div class="ds-alert ds-alert--success ds-alert--inline" role="status" data-component="dis.alert" style="flex:1;">
+          <div class="ds-alert__icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="ds-alert__content">
+            <div class="ds-alert__body">Medicamentos dispensados com sucesso.</div>
+          </div>
         </div>
         ${renderMarker("aviso", "01", sel === "aviso")}
       </div>
 
-      <!-- 02. Medicamentos entregues (Tabela) -->
+      <!-- 02. Medicamentos entregues (dis.dispensed-medication-list / dis.data-table) -->
       <div class="replica-field-row ${sel === 'entregues' ? 'selected' : ''}" onclick="setFocusedField('entregues')">
-        <div style="width:100%; display:flex; flex-direction:column; gap:6px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <label class="replica-label" style="font-weight:700; margin:0;">Medicamentos entregues</label>
-            <span style="font-size:11px; color:#64748b;">2 itens registrados</span>
+        <section class="dis-medtable dis-medtable--dispensed" aria-label="Medicamentos entregues" style="width:100%;" data-component="dis.dispensed-medication-list">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 class="dis-section-title" style="margin:0;">Medicamentos entregues</h3>
+            <span style="font-size:12px; color:var(--dis-neutral-base);">2 itens registrados</span>
           </div>
-          <table class="replica-table-clean">
+          <table class="ds-table ds-table--compact" data-component="dis.data-table">
             <thead>
               <tr>
-                <th>Medicamento</th>
-                <th style="width:110px;">Quantidade</th>
-                <th style="width:90px; text-align:center;">Ação</th>
+                <th scope="col" style="width:50%;">Medicamento</th>
+                <th scope="col" style="width:30%;">Quantidade</th>
+                <th scope="col" style="text-align:right;">Ação</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><b>DIPIRONA MONOIDRATADA 500MG COMPRIMIDO</b></td>
-                <td>60 comprimidos</td>
-                <td style="text-align:center;">
-                  <button type="button" class="replica-btn-outline" style="color:#ef4444; border-color:#fca5a5; padding:2px 8px; font-size:10.5px;" tabindex="-1">
-                    <i class="fa-solid fa-rotate-left"></i> Estornar
+                <td>
+                  <button type="button" class="ds-medlink" data-component="dis.expand-link" tabindex="-1">
+                    DIPIRONA MONOIDRATADA 500MG COMPRIMIDO
+                  </button>
+                </td>
+                <td>2 blísteres (60 comp)</td>
+                <td style="text-align:right;">
+                  <button type="button" class="btn btn--tertiary btn--danger" style="padding:0 8px; min-height:28px; font-size:11.5px;" data-component="dis.button" tabindex="-1">
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i> Estornar
                   </button>
                 </td>
               </tr>
               <tr>
-                <td><b>LOSARTANA POTASSICA 50MG COMPRIMIDO</b></td>
-                <td>30 comprimidos</td>
-                <td style="text-align:center;">
-                  <button type="button" class="replica-btn-outline" style="color:#ef4444; border-color:#fca5a5; padding:2px 8px; font-size:10.5px;" tabindex="-1">
-                    <i class="fa-solid fa-rotate-left"></i> Estornar
+                <td>
+                  <button type="button" class="ds-medlink" data-component="dis.expand-link" tabindex="-1">
+                    LOSARTANA POTASSICA 50MG COMPRIMIDO
+                  </button>
+                </td>
+                <td>1 blíster (30 comp)</td>
+                <td style="text-align:right;">
+                  <button type="button" class="btn btn--tertiary btn--danger" style="padding:0 8px; min-height:28px; font-size:11.5px;" data-component="dis.button" tabindex="-1">
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i> Estornar
                   </button>
                 </td>
               </tr>
             </tbody>
           </table>
-        </div>
+        </section>
         ${renderMarker("entregues", "02", sel === "entregues")}
       </div>
 
-      <!-- 03. Próximas entregas (Cartões 3 colunas) -->
+      <!-- 03. Próximas entregas previstas (dis.info-grid / cartões DIS) -->
       <div class="replica-field-row ${sel === 'proximas' ? 'selected' : ''}" onclick="setFocusedField('proximas')">
-        <div style="width:100%; display:flex; flex-direction:column; gap:6px;">
-          <label class="replica-label" style="font-weight:700; margin:0;">Próximas entregas previstas</label>
-          <div class="replica-cards-3col">
-            <div class="replica-delivery-card">
-              <span class="delivery-card-title">1ª Próxima entrega</span>
-              <span class="delivery-card-date"><i class="fa-regular fa-calendar"></i> 15/11/2026</span>
-              <span class="delivery-card-med">Dipirona 500mg (60 comp)</span>
+        <div style="width:100%; display:flex; flex-direction:column; gap:8px;">
+          <h3 class="dis-section-title" style="margin:0;">Próximas entregas previstas</h3>
+          <div style="display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px;">
+            <div style="background:var(--dis-neutral-background); border:1px solid var(--dis-neutral-light); border-radius:6px; padding:10px 12px;">
+              <div style="font-weight:700; color:var(--dis-primary-headings); margin-bottom:4px; font-size:13px;">15/11/2026</div>
+              <div style="font-size:12.5px; color:var(--dis-neutral-body);">Dipirona 500mg, oral</div>
+              <div style="font-size:11.5px; color:var(--dis-neutral-dark); margin-top:2px;">2 blísteres (60 comp)</div>
             </div>
-            <div class="replica-delivery-card">
-              <span class="delivery-card-title">2ª Próxima entrega</span>
-              <span class="delivery-card-date"><i class="fa-regular fa-calendar"></i> 15/12/2026</span>
-              <span class="delivery-card-med">Dipirona 500mg (60 comp)</span>
+            <div style="background:var(--dis-neutral-background); border:1px solid var(--dis-neutral-light); border-radius:6px; padding:10px 12px;">
+              <div style="font-weight:700; color:var(--dis-primary-headings); margin-bottom:4px; font-size:13px;">15/12/2026</div>
+              <div style="font-size:12.5px; color:var(--dis-neutral-body);">Dipirona 500mg, oral</div>
+              <div style="font-size:11.5px; color:var(--dis-neutral-dark); margin-top:2px;">2 blísteres (60 comp)</div>
             </div>
-            <div class="replica-delivery-card">
-              <span class="delivery-card-title">3ª Próxima entrega</span>
-              <span class="delivery-card-date"><i class="fa-regular fa-calendar"></i> 15/01/2027</span>
-              <span class="delivery-card-med">Dipirona 500mg (60 comp)</span>
+            <div style="background:var(--dis-neutral-background); border:1px solid var(--dis-neutral-light); border-radius:6px; padding:10px 12px;">
+              <div style="font-weight:700; color:var(--dis-primary-headings); margin-bottom:4px; font-size:13px;">15/01/2027</div>
+              <div style="font-size:12.5px; color:var(--dis-neutral-body);">Dipirona 500mg, oral</div>
+              <div style="font-size:11.5px; color:var(--dis-neutral-dark); margin-top:2px;">2 blísteres (60 comp)</div>
             </div>
           </div>
         </div>
         ${renderMarker("proximas", "03", sel === "proximas")}
       </div>
 
-      <!-- 04. Página do paciente (Ação de retorno) -->
+      <!-- 04. Página do paciente (dis.button) -->
       <div class="replica-field-row ${sel === 'pagina' ? 'selected' : ''}" onclick="setFocusedField('pagina')">
-        <div style="width:100%; display:flex; align-items:center; justify-content:space-between;">
-          <button type="button" class="replica-btn-outline" style="font-weight:600; padding:8px 16px;" tabindex="-1">
-            <i class="fa-solid fa-arrow-left"></i> Página do paciente
+        <div style="width:100%; display:flex; align-items:center; justify-content:space-between; padding-top:6px;">
+          <button type="button" class="btn btn--secondary" data-component="dis.button" tabindex="-1">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Página do paciente
           </button>
-          <span style="font-size:11.5px; color:#64748b;">Retorna à visão geral com dados atualizados</span>
+          <span style="font-size:12px; color:var(--dis-neutral-base);">Retorna à visão geral com cronograma sincronizado</span>
         </div>
         ${renderMarker("pagina", "04", sel === "pagina")}
       </div>

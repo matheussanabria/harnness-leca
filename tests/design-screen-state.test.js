@@ -144,6 +144,9 @@ test("views e handlers ligam hidratacao, persistencia e registro de acoes", () =
   assert.match(board, /boardToolbar/);
   assert.match(board, /setBoardGroupBy/);
   assert.match(board, /selectDesignCard/);
+  assert.match(board, /openBoardComponentPreview/);
+  assert.match(board, /openComponentModal\(boardProjectSlug, componentId\)/);
+  assert.doesNotMatch(board, /design-card-preview/);
 });
 
 test("arquivos de design nao usam emoji e respeitam o limite de linhas", () => {

@@ -29,123 +29,129 @@ function renderStage1OrigemReceita(sc) {
 
   return `
     <div class="replica-paper-form">
-      <!-- 09. Aviso da Prévia -->
-      <div class="replica-field-row ${sel === 'aviso' ? 'selected' : ''}" onclick="setFocusedField('aviso')">
-        <div class="replica-alert-info">
-          <i class="fa-solid fa-circle-info"></i>
-          <div>
-            <b>Aviso importante:</b> Esta tela calcula uma prévia do cronograma de entregas. Nada é gravado no sistema nesta etapa.
-          </div>
-        </div>
-        ${renderMarker("aviso", "09", sel === "aviso")}
-      </div>
+      <h2 class="dis-page-title">Nova prescrição</h2>
 
-      <!-- 01. Anexar arquivo -->
-      <div class="replica-field-row ${sel === 'anexar' ? 'selected' : ''}" onclick="setFocusedField('anexar')">
-        <div class="replica-attach-group">
-          <button type="button" class="replica-btn-outline" tabindex="-1">
-            <i class="fa-solid fa-paperclip"></i> Anexar arquivo
-          </button>
-          <span class="replica-attach-hint">Nenhum arquivo anexado</span>
-        </div>
-        ${renderMarker("anexar", "01", sel === "anexar")}
-      </div>
+      <div class="dis-form" style="display:flex; flex-direction:column; gap:16px;">
+        <h3 class="dis-section-title" style="margin:0;">Origem da receita</h3>
 
-      <!-- 02. Estabelecimento de saúde -->
-      <div class="replica-field-row ${sel === 'estab' ? 'selected' : ''}" onclick="setFocusedField('estab')">
-        <label class="replica-label">Estabelecimento de saúde <span class="req">*</span></label>
-        <div class="replica-input-wrap">
-          <input type="text" class="replica-input" placeholder="Nome ou código CNES" readonly value="" />
-          <i class="fa-solid fa-magnifying-glass replica-input-icon"></i>
-        </div>
-        ${renderMarker("estab", "02", sel === "estab")}
-      </div>
-
-      <!-- 03. Atalhos de Estabelecimento -->
-      <div class="replica-field-row ${sel === 'atalhos' ? 'selected' : ''}" onclick="setFocusedField('atalhos')">
-        <div class="replica-checkbox-group">
-          <label class="replica-check-item">
-            <input type="checkbox" readonly disabled />
-            <span>Serviço privado (CNES 9999999)</span>
-          </label>
-          <label class="replica-check-item">
-            <input type="checkbox" readonly disabled />
-            <span>Fora de Porto Alegre (CNES 9999998)</span>
-          </label>
-        </div>
-        ${renderMarker("atalhos", "03", sel === "atalhos")}
-      </div>
-
-      <!-- 04. Profissional prescritor -->
-      <div class="replica-field-row ${sel === 'prof' ? 'selected' : ''}" onclick="setFocusedField('prof')">
-        <label class="replica-label">Profissional prescritor</label>
-        <div class="replica-input-wrap">
-          <input type="text" class="replica-input" placeholder="Nome, CPF ou número do conselho" readonly value="" />
-          <i class="fa-solid fa-magnifying-glass replica-input-icon"></i>
-        </div>
-        ${renderMarker("prof", "04", sel === "prof")}
-      </div>
-
-      <!-- 05. Emissão da receita -->
-      <div class="replica-field-row ${sel === 'emissao' ? 'selected' : ''}" onclick="setFocusedField('emissao')">
-        <div style="flex:1;">
-          <label class="replica-label">Emissão da receita <span class="req">*</span></label>
-          <div class="replica-input-wrap replica-date-wrap">
-            <input type="text" class="replica-input" placeholder="dd/mm/aaaa" readonly value="" />
-            <i class="fa-regular fa-calendar replica-input-icon"></i>
-          </div>
-        </div>
-        ${renderMarker("emissao", "05", sel === "emissao")}
-      </div>
-
-      <!-- 06. Primeira entrega -->
-      <div class="replica-field-row ${sel === 'primeira' ? 'selected' : ''}" onclick="setFocusedField('primeira')">
-        <div style="flex:1;">
-          <label class="replica-label">Primeira entrega</label>
-          <div style="display:flex; gap:6px;">
-            <div class="replica-input-wrap replica-date-wrap" style="flex:1;">
-              <input type="text" class="replica-input" placeholder="dd/mm/aaaa" readonly value="" />
-              <i class="fa-regular fa-calendar replica-input-icon"></i>
-            </div>
-            <button type="button" class="replica-btn-outline" style="white-space:nowrap; font-size:11px;" tabindex="-1">
-              <i class="fa-solid fa-pen"></i> Editar primeira entrega
+        <!-- 01. Anexar arquivo (dis.button) -->
+        <div class="replica-field-row ${sel === 'anexar' ? 'selected' : ''}" onclick="setFocusedField('anexar')">
+          <div style="display:flex; align-items:center; gap:12px; flex:1;">
+            <button type="button" class="btn btn--secondary" data-component="dis.button" tabindex="-1">
+              <i class="fa-solid fa-paperclip" aria-hidden="true"></i> Anexar arquivo
             </button>
+            <span style="font-size:13px; color:var(--dis-neutral-base);">Nenhum arquivo anexado</span>
           </div>
+          ${renderMarker("anexar", "01", sel === "anexar")}
         </div>
-        ${renderMarker("primeira", "06", sel === "primeira")}
+
+        <!-- 02. Estabelecimento de saúde (dis.text-field / autocomplete) -->
+        <div class="replica-field-row ${sel === 'estab' ? 'selected' : ''}" onclick="setFocusedField('estab')">
+          <div class="ds-field" data-component="dis.text-field" style="flex:1;">
+            <label class="ds-field__label">Estabelecimento<span class="ds-req" aria-hidden="true">*</span></label>
+            <div class="ds-input-wrap">
+              <input type="text" class="ds-input" placeholder="Nome ou código CNES" readonly value="teste" />
+              <i class="fa-solid fa-magnifying-glass ds-icon" aria-hidden="true"></i>
+            </div>
+          </div>
+          ${renderMarker("estab", "02", sel === "estab")}
+        </div>
+
+        <!-- 03. Atalhos de Estabelecimento (dis.checkbox) -->
+        <div class="replica-field-row ${sel === 'atalhos' ? 'selected' : ''}" onclick="setFocusedField('atalhos')" style="margin-top:-6px;">
+          <div style="display:flex; gap:24px; flex-wrap:wrap; flex:1;">
+            <label class="ds-check" data-component="dis.checkbox">
+              <input type="checkbox" disabled />
+              <span class="ds-check__box"><i class="fa-solid fa-check"></i></span>
+              <span>Serviço privado</span>
+            </label>
+            <label class="ds-check" data-component="dis.checkbox">
+              <input type="checkbox" disabled />
+              <span class="ds-check__box"><i class="fa-solid fa-check"></i></span>
+              <span>Estabelecimento fora de Porto Alegre</span>
+            </label>
+          </div>
+          ${renderMarker("atalhos", "03", sel === "atalhos")}
+        </div>
+
+        <!-- 04. Profissional de saúde (dis.text-field) -->
+        <div class="replica-field-row ${sel === 'prof' ? 'selected' : ''}" onclick="setFocusedField('prof')">
+          <div class="ds-field" data-component="dis.text-field" style="flex:1;">
+            <label class="ds-field__label">Profissional de saúde</label>
+            <input type="text" class="ds-input" placeholder="Nome, CPF ou número do conselho" readonly value="" />
+          </div>
+          ${renderMarker("prof", "04", sel === "prof")}
+        </div>
+
+        <!-- 05. Emissão da receita (dis.date-field) -->
+        <div class="replica-field-row ${sel === 'emissao' ? 'selected' : ''}" onclick="setFocusedField('emissao')">
+          <div class="ds-field" data-component="dis.date-field" style="flex:1;">
+            <label class="ds-field__label">Emissão da receita<span class="ds-req" aria-hidden="true">*</span></label>
+            <div class="ds-input-wrap" style="width:168px; max-width:100%;">
+              <input type="text" class="ds-input" placeholder="dd/mm/aaaa" readonly value="12/31/2313" />
+              <i class="fa-solid fa-calendar ds-icon" aria-hidden="true"></i>
+            </div>
+          </div>
+          ${renderMarker("emissao", "05", sel === "emissao")}
+        </div>
+
+        <!-- 06. Primeira entrega (dis.date-field + dis.button) -->
+        <div class="replica-field-row ${sel === 'primeira' ? 'selected' : ''}" onclick="setFocusedField('primeira')">
+          <div class="ds-field" data-component="dis.date-field" style="flex:1;">
+            <label class="ds-field__label is-disabled">Primeira entrega</label>
+            <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+              <div class="ds-input-wrap is-disabled" style="width:168px; max-width:100%;">
+                <input type="text" class="ds-input" placeholder="dd/mm/aaaa" disabled readonly value="" />
+                <i class="fa-solid fa-calendar ds-icon" aria-hidden="true"></i>
+              </div>
+              <button type="button" class="btn btn--secondary" data-component="dis.button" tabindex="-1">
+                <i class="fa-solid fa-key" aria-hidden="true"></i> Editar primeira entrega
+              </button>
+            </div>
+          </div>
+          ${renderMarker("primeira", "06", sel === "primeira")}
+        </div>
       </div>
 
-      <div class="replica-section-divider"></div>
+      <hr class="dis-hr" style="margin-top:24px;" />
 
-      <!-- 07. Dados de Responsável -->
+      <!-- 07. Dados do Responsável (dis.radio-group + dis.text-field) -->
       <div class="replica-field-row ${sel === 'resp' ? 'selected' : ''}" onclick="setFocusedField('resp')">
-        <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
-          <div style="font-weight:700; font-size:12px; color:#1e293b;">Dados de Responsável</div>
-          <div style="font-size:11px; color:#64748b;">Responsável pela retirada <span class="req">*</span></div>
-          <div class="replica-radio-group">
-            <label class="replica-radio-item">
-              <input type="radio" name="resp_tipo_fake" checked disabled />
-              <span>Próprio paciente</span>
-            </label>
-            <label class="replica-radio-item">
-              <input type="radio" name="resp_tipo_fake" disabled />
-              <span>Outra pessoa</span>
-            </label>
-          </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:16px;">
+          <h3 class="dis-section-title">Dados do Responsável</h3>
+          <fieldset class="ds-radiogroup" data-component="dis.radio-group">
+            <legend class="ds-field__label">Responsável pela retirada<span class="ds-req" aria-hidden="true">*</span></legend>
+            <div class="ds-radiogroup__opts">
+              <label class="ds-check">
+                <input type="radio" name="resp_tipo_fake" checked disabled />
+                <span class="ds-radio__dot"></span>
+                <span>Próprio paciente</span>
+              </label>
+              <label class="ds-check">
+                <input type="radio" name="resp_tipo_fake" disabled />
+                <span class="ds-radio__dot"></span>
+                <span>Outra pessoa</span>
+              </label>
+            </div>
+          </fieldset>
 
-          <div style="display:flex; flex-direction:column; gap:6px; margin-top:2px;">
-            <div class="replica-subfield">
-              <label class="replica-label-sm">E-mail do paciente</label>
-              <div class="replica-inline-input-btn">
-                <input type="text" class="replica-input" value="matheus.capes@gmail.com" readonly />
-                <button type="button" class="replica-btn-outline" tabindex="-1">Atualizar e-mail</button>
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div class="ds-field" data-component="dis.text-field">
+              <label class="ds-field__label">E-mail do paciente</label>
+              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <input type="text" class="ds-input" style="width:400px; max-width:100%;" value="carmen.teixeira@gmail.com" readonly />
+                <button type="button" class="btn btn--secondary" data-component="dis.button" tabindex="-1">
+                  <i class="fa-solid fa-envelope" aria-hidden="true"></i> Atualizar e-mail
+                </button>
               </div>
             </div>
-            <div class="replica-subfield">
-              <label class="replica-label-sm">Telefone do paciente</label>
-              <div class="replica-inline-input-btn">
-                <input type="text" class="replica-input" value="(51) 99206-2054" readonly />
-                <button type="button" class="replica-btn-outline" tabindex="-1">Atualizar telefone</button>
+            <div class="ds-field" data-component="dis.text-field">
+              <label class="ds-field__label">Telefone do paciente</label>
+              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <input type="text" class="ds-input" style="width:240px; max-width:100%;" value="(51) 99999-9999" readonly />
+                <button type="button" class="btn btn--secondary" data-component="dis.button" tabindex="-1">
+                  <i class="fa-solid fa-phone" aria-hidden="true"></i> Atualizar telefone
+                </button>
               </div>
             </div>
           </div>
@@ -153,13 +159,15 @@ function renderStage1OrigemReceita(sc) {
         ${renderMarker("resp", "07", sel === "resp")}
       </div>
 
-      <!-- 08. Próximo e Voltar -->
-      <div class="replica-field-row replica-footer-row ${sel === 'proximo' ? 'selected' : ''}" onclick="setFocusedField('proximo')">
-        <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
-          <button type="button" class="replica-btn-outline" tabindex="-1">&lt; Voltar</button>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="replica-btn-primary" tabindex="-1">
-              <span>Próximo</span>
+      <!-- 08. Rodapé: Voltar e Próximo (dis.button) -->
+      <div class="replica-field-row ${sel === 'proximo' ? 'selected' : ''}" onclick="setFocusedField('proximo')">
+        <div class="dis-actions" style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+          <button type="button" class="btn btn--secondary" data-component="dis.button" tabindex="-1">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Voltar
+          </button>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button type="button" class="btn btn--primary" data-component="dis.button" tabindex="-1">
+              Próximo
             </button>
             ${renderMarker("proximo", "08", sel === "proximo")}
           </div>

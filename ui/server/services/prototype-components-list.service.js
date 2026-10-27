@@ -45,6 +45,24 @@ function listPrototypeComponents(projectDir, protoId, deps = { fs, path }) {
   const registry = loadRegistry(projectDir, deps);
   const byId = new Map();
 
+  // Imported artifacts can declare source/reference components even when their runtime markup is
+  // generated dynamically and therefore has no stable DOM instance to annotate.
+  for (const declared of Array.isArray(proto.components) ? proto.components : []) {
+    if (!declared?.id) continue;
+    const meta = registry.components[declared.id] || {};
+    const entry = {
+      id: declared.id, name: declared.name || meta.name || declared.id,
+      category: meta.category || "", relationship: declared.relationship || "declared",
+      instances: 0, screens: [],
+    };
+    if (declared.screen) {
+      const screen = screens.find((candidate) => candidate.id === declared.screen);
+      entry.screens.push({ screenId: declared.screen, title: screen?.title || declared.screen, count: declared.pid ? 1 : 0, pids: declared.pid ? [declared.pid] : [] });
+      if (declared.pid) entry.instances = 1;
+    }
+    byId.set(declared.id, entry);
+  }
+
   for (const screen of screens) {
     const file = deps.path.join(protoDir, screen.file || screen.htmlFile || `screens/${screen.id}.html`);
     if (!deps.fs.existsSync(file)) continue;

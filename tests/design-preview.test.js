@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { createProjectFixture } from "./helpers/project-fixture.js";
 import { renderComponentPreview } from "../ui/server/services/design-preview.service.js";
 import { apiRegistryPreviewComponent } from "../ui/server/controllers/design-registry.controller.js";
@@ -8,6 +10,10 @@ const fixture = createProjectFixture();
 fixture.activate();
 const projectDir = fixture.dir;
 test.after(() => fixture.cleanup());
+
+function responseCapture() {
+  return { statusCode: 0, headers: {}, body: "", writeHead(code, headers) { this.statusCode = code; this.headers = headers || {}; }, end(data = "") { this.body = data; } };
+}
 
 test("EP-12.11: Harness de Preview Isolado de Componentes", async (t) => {
   await t.test("renderComponentPreview gera HTML válido para dis.annotation-list", () => {
@@ -54,5 +60,29 @@ test("EP-12.11: Harness de Preview Isolado de Componentes", async (t) => {
     assert.equal(statusCode, 200);
     assert.equal(headers["Content-Type"], "text/html; charset=utf-8");
     assert.ok(body.includes("Preview: Botão (dis.button)"));
+  });
+
+  await t.test("canonical documentation preview redirects to the imported DS screen", async () => {
+    const registryFile = path.join(projectDir, "design", "ds", "registry.json");
+    const registry = JSON.parse(fs.readFileSync(registryFile, "utf8"));
+    registry.components["dis.button"].documentation = { prototypeId: "design-system-inspection", screenId: "c-button" };
+    fs.writeFileSync(registryFile, JSON.stringify(registry));
+    const req = { url: `http://localhost/api/project/${fixture.slug}/design/registry/dis.button/preview` };
+    const res = responseCapture();
+    await apiRegistryPreviewComponent({ req, res, params: [fixture.slug, "dis.button"] });
+    assert.equal(res.statusCode, 302);
+    assert.equal(res.headers.Location, `/api/project/${fixture.slug}/design/prototypes/design-system-inspection/render/c-button`);
+  });
+
+  await t.test("invalid documentation linkage falls back to isolated preview", async () => {
+    const registryFile = path.join(projectDir, "design", "ds", "registry.json");
+    const registry = JSON.parse(fs.readFileSync(registryFile, "utf8"));
+    registry.components["dis.button"].documentation = { prototypeId: "../unsafe", screenId: "c-button" };
+    fs.writeFileSync(registryFile, JSON.stringify(registry));
+    const req = { url: `http://localhost/api/project/${fixture.slug}/design/registry/dis.button/preview` };
+    const res = responseCapture();
+    await apiRegistryPreviewComponent({ req, res, params: [fixture.slug, "dis.button"] });
+    assert.equal(res.statusCode, 200);
+    assert.match(res.body, /Preview:/);
   });
 });
