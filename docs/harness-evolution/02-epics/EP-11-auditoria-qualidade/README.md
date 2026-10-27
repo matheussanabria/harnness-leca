@@ -34,5 +34,5 @@ Títulos a revisar depois do EP-00. Cada história ganha um arquivo próprio a p
 | [11.01](./11.01-matriz-auditoria-evidencias.md) | Matriz de auditoria com evidências (HAR-015) (concluída) |
 | [11.02](./11.02-estados-de-teste-distintos.md) | Testes gerados, executados e aprovados como estados distintos (concluída) |
 | [11.03](./11.03-integracao-quadro-componentes.md) | Integração do Quadro de Componentes (HAR-014) (concluída) |
-| 11.04 | Design System e inconsistências visuais |
-| 11.05 | Regressão automatizada |
+| [11.04](./11.04-design-system-inconsistencias.md) | Design System e inconsistências visuais (concluída) |
+| [11.05](./11.05-regressao-automatizada.md) | Regressão automatizada (concluída) |

@@ -32,19 +32,28 @@ function run(label, args) {
 }
 
 /**
+ * @param {{ steps?: { label: string, args: string[] }[], runner?: typeof run }} [options]
  * @returns {{ ok: boolean, steps: { label: string, ok: boolean }[] }}
  */
-function runRegression() {
-  const steps = [
+function runRegression(options = {}) {
+  const runner = options.runner || run;
+  const steps = options.steps || defaultSteps();
+  return runChain(steps, runner);
+}
+
+function defaultSteps() {
+  return [
     { label: "check (sintaxe e JSON)", args: [path.join(ROOT, "scripts", "check.js")] },
     { label: "test (suíte do repositório)", args: ["--test", "tests/*.test.js"] },
     { label: "verify-index (índice mestre)", args: [path.join(ROOT, "tools", "verify-index.js")] },
     { label: "types-baseline (dívida de tipos)", args: [path.join(ROOT, "tools", "types-baseline.js")] },
   ];
+}
 
+function runChain(steps, runner) {
   const results = [];
   for (const step of steps) {
-    const result = run(step.label, step.args);
+    const result = runner(step.label, step.args);
     results.push({ label: step.label, ok: result.ok });
     if (!result.ok) break;
   }

@@ -7,11 +7,19 @@
 - [`tools/lib/network.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/tools/lib/network.js): Descoberta de IPs locais, geração de QR Code ASCII/SVG e proxies WebSocket.
 - [`tools/lib/proc-manager.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/tools/lib/proc-manager.js): Orquestrador de processos em background por projeto.
 - `tools/lib/export/managed-file.js`: Escrita não destrutiva do export (EP-13.01): bloco entre `harness:begin`/`harness:end`, reescrita só de arquivo com `harness:generated` e validação de caminho.
-- `tools/lib/export/claude.js`, `gemini.js`, `local.js`: Planejam o que o export grava em cada destino (ponteiro no `MEMORY.md` do Claude e Knowledge Item só com a memória curada).
-- `tools/lib/export/data.js`: Coleta `memory.md`, `instructions.md` e contagem de chats do projeto e resolve os diretórios de destino (injetáveis por variável de ambiente nos testes).
+- `tools/lib/export/claude.js`, `gemini.js`, `local.js`: Planejam o que o export grava em cada destino (ponteiro no `MEMORY.md` do Claude e Knowledge Item em duas fases com resumo e itens isolados para o Gemini).
+- `tools/lib/export/data.js`: Coleta `memory.md`, itens estruturados em `memory/`, `instructions.md` e contagem de chats do projeto e resolve os diretórios de destino (injetáveis por variável de ambiente nos testes).
 - `tools/lib/export/housekeeping.js`: `--report` (bytes e tokens por destino) e `--prune` (lista arquivos antigos; só remove com `--yes`).
 - `tools/lib/memory/item.js`: Contrato do item de memória (EP-13.02): parse, serialização determinística, normalização, hash, slug e validação do frontmatter.
-- Testes: `tests/export-managed-file.test.js`, `tests/export-context.test.js` e `tests/memory-item.test.js`.
+- `tools/lib/memory/harvest/`: Colheita de memórias nativas (EP-13.08): `claude.js` (bullets de MEMORY.md e arquivos isolados sem marcador), `gemini.js` (bullets de ## Gemini Added Memories) e `index.js` (orquestrador com dedupe e guard).
+- `tools/lib/memory/lint.js`, `lint-report.js`, `run-lint.js`: Motor de faxina periódica e auditoria da memória declarativa (EP-13.09): duplicatas, caminhos mortos, links órfãos, envelhecimento e teto do índice.
+- `tools/lib/engine-monitor/`: Monitor de motores e estados de atividade (EP-09.06): presença (OpenCode / CLI), máquina de estados com dwell time e decaimento temporal, e classificador determinístico.
+- `ui/public/js/modules/session-capability-resolver.js`, `central-session-actions.js`, `central-live.js`, `central-action-dispatcher.js`: Navegação, ações, retomada de sessão e stream SSE ao vivo na Central de Sessões (EP-09.04).
+- `ui/server/services/attention-queue.service.js`, `ui/server/controllers/central-attention.controller.js`, `ui/public/js/modules/attention-notifier.js`: Fila de atenção e notificações prioritárias da Central de Sessões (EP-09.05).
+- `ui/server/services/audit/design-system-audit.service.js`, `ui/public/js/modules/design-audit-ds.js`: Auditoria visual do Design System, detecção de cores hardcoded, emojis e tokens obrigatórios (EP-11.04).
+- `scripts/regressao.js`, `tools/types-baseline.js`: Suíte e esteira de regressão com parada na 1ª falha e conferência de baseline de tipos (EP-11.05).
+- `.claude/hooks/load-project.ps1`: Injeção de instruções e memória em duas fases via envelope `<memoria_recuperada>` com neutralização contra injeção de tags e fallback via `HARNESS_MEMORY_FORMAT=legacy`.
+- Testes: `tests/export-managed-file.test.js`, `tests/export-context.test.js`, `tests/memory-item.test.js`, `tests/memory-harvest.test.js`, `tests/memory-lint.test.js`, `tests/engine-monitor-*.test.js`, `tests/central-session-actions.test.js`, `tests/central-live.test.js`, `tests/central-attention.test.js`, `tests/central-attention-http.test.js`, `tests/design-system-audit.test.js` e `tests/regressao.test.js`.
 - `tools/opencode-package.js`: Executa uma história do EP-14 com o opencode num `git worktree` próprio (`--dry-run`, `--verify`); nunca commita nem faz merge.
 - `tools/opencode-delegate.js` + `tools/lib/opencode-delegate.js`: governed Codex-to-OpenCode delegation for bounded tasks using only free models, inline configuration, read-only defaults, explicit write/bash capabilities, and no temporary workspace config file.
 - `tests/opencode-delegate.test.js`: covers default denials, narrowly enabled capabilities, inline configuration, and refusal of paid models.

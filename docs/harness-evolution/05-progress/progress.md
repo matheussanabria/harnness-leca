@@ -20,14 +20,14 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-06 | 5/5 | **concluído** | 06.01 a 06.05 concluídas; layout responsivo, chat compartilhado, visualizações Código/Design/Preview, guard de alterações e mapeamento de elemento para arquivo/componente | Portão satisfeito |
 | EP-07 | 5/5 | **concluído** | 07.01 a 07.05 concluídas; inventário, importação, manifesto de origem, acesso local/projeto, prévia segura e vínculos navegáveis no Mapa em Camadas | Portão satisfeito; EP-11 liberado |
 | EP-08 | 5/5 | **concluído (contrato); UI pendente** | 08.01 a 08.05 concluídas; catálogo de capacidades por provedor, etapas do SDLC com agentes/papéis/gates, vínculos de skills por projeto e raia, execução de workflows com eventos canônicos e rotinas com aprovação e histórico | Portão satisfeito; EP-09 liberado |
-| EP-09 | 3/6 | **em andamento** | 09.01 (registro canônico), 09.02 (event log e SSE) e 09.03 (Central) implementadas | 09.04 e 09.05 dependem da navegação e fila de atenção |
+| EP-09 | 6/6 | **concluído** | 09.01 (registro canônico), 09.02 (event log e SSE), 09.03 (Central), 09.04 (navegação e retomada), 09.05 (fila de atenção e aprovações) e 09.06 (monitor de motores e estados de atividade) implementadas | Portão satisfeito |
 | EP-10 | 5/5 | **concluído** | 10.01 a 10.05 concluídas; pipelines, saúde, histórico, ações autorizadas e paridade com o escritório | Portão satisfeito |
-| EP-11 | 3/5 | **em andamento** | 11.01 a 11.03 concluídas; matriz de auditoria com evidências, quatro estados de teste distintos e Quadro de Componentes integrado | 11.04 e 11.05 pendentes |
+| EP-11 | 5/5 | **concluído** | 11.01 a 11.05 concluídas (regressão automatizada em `scripts/regressao.js`); matriz de auditoria, estados de teste, Quadro de Componentes e auditoria visual do Design System (`GET /audit/design-system`) | Encerrado |
 | EP-12 | 32/32 | **concluído (contrato); piloto e Studio pendentes** | F0 a F7 concluídas; Marcos M1, M2 e M3 homologados | Portão satisfeito |
-| EP-13 | 5/9 | **em andamento** | 13.02 (contrato de item), 13.03 (índice gerado), 13.04 (migração), 13.05 (ferramenta save com upsert e recusa de segredos) e 13.06 (revisão de memórias) concluídas | 13.07 (carregamento em duas fases) |
-| EP-14 | 11/12 | **especificado** | README e 11 histórias; infraestrutura (fixtures, pre-commit, executor opencode) e estado de 13 telas | Um agente e uma branch `ep14/<id>` por história; merge em `ep14/integracao` |
+| EP-13 | 9/9 | **concluído** | 13.01 a 13.09 concluídas; memória declarativa atômica com frontmatter, índice gerado com teto, deduplicação trigram/hash, ferramenta save com recusa de segredos, revisão e colheita nativa, carregamento em duas fases e faxina periódica com lint | Portão satisfeito |
+| EP-14 | 12/12 | **concluído** | 14.01 a 14.12 concluídas; endpoints de estado e histórico das 13 telas, concorrência por `rev`, limite de 64 KB, migração de localStorage e cobertura total de testes | Portão satisfeito |
 
-**Total: 117/127**
+**Total: 127/127**
 
 ## Registro
 

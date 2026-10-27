@@ -6,6 +6,7 @@ import { renderScorecards, renderRulesMatrix } from "./design-audit-matrix.js";
 import { renderLegacyAudit, renderActionPlan } from "./design-audit-legacy.js";
 import { renderEvidenceSection } from "./design-audit-evidence.js";
 import { renderComponentSection } from "./design-audit-components.js";
+import { renderDesignSystemSection } from "./design-audit-ds.js";
 
 /**
  * Renderiza o painel completo de auditoria.
@@ -46,12 +47,16 @@ export function renderAuditWorkspace(container, projectSlug, auditData) {
         </div>
         <div id="auditComponentsBody"></div>
       </div>
+      <div class="audit-panel-box">
+        <div id="auditDesignSystemBody"></div>
+      </div>
       ${renderLegacyAudit(auditData.legacyAudit || {})}
     </div>
   `;
 
   if (slug) renderEvidenceSection(container, slug);
   if (slug) renderComponentSection(container, slug);
+  if (slug) renderDesignSystemSection(container, slug);
 }
 
 // Binds globais
