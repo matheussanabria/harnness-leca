@@ -2,7 +2,7 @@
 id: EP-13
 titulo: Memória e conhecimento dos agentes
 prioridade: P1
-status: especificado
+status: concluido
 depende: [EP-08, EP-09]
 tags: [harness-evolution, epico, memoria, contexto, tokens]
 ---

@@ -32,6 +32,19 @@ function check(root = ROOT) {
       try { JSON.parse(fs.readFileSync(file, "utf8").replace(/^﻿/, "")); } catch (e) { problems.push(`${rel}: JSON inválido (${e.message})`); }
     }
   }
+  // EP-13.09: Integrar validação de contrato e guard de memória
+  try {
+    const { lintScope } = require("../tools/lib/memory/lint");
+    const globalLint = lintScope(root, "global");
+    for (const f of globalLint.findings) {
+      if (f.severidade === "erro") {
+        problems.push(`global/memory: [${f.regra}] ${f.relPath}: ${f.mensagem}`);
+      }
+    }
+  } catch (err) {
+    problems.push(`memory-lint: erro ao executar (${err.message})`);
+  }
+
   return { js, json, problems };
 }
 

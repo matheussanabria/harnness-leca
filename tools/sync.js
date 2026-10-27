@@ -143,6 +143,17 @@ if (!DRY) {
   }
 }
 
+// ---- colheita de memórias nativas (EP-13.08): roda sob demanda via flag --harvest
+if (flag("harvest")) {
+  console.log("\nColhendo memórias nativas dos motores locais...");
+  const { harvestAll } = require("./lib/memory/harvest/index");
+  harvestAll({
+    project: only,
+    dryRun: DRY,
+    io: console,
+  });
+}
+
 console.log("\nProjeto                               conversas  em dia  novas  alteradas  (para analisar)");
 for (const slug of slugs.filter(want)) {
   if (!DRY) state.migrateLegacy(slug); // estado de versões antigas: o scan só lê

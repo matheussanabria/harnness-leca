@@ -101,3 +101,37 @@ test("export: --dry-run não grava e --prune sem --yes só lista", () => {
   assert.ok(fs.existsSync(old));
   assert.ok(logs.some((l) => l.includes(old)));
 });
+
+test("export: Knowledge Item em duas fases lista itens e gera summary a partir de feedback", () => {
+  const { base, options, io } = setup();
+  const daiMemDir = path.join(ROOT, "projects", "dai", "memory");
+  fs.mkdirSync(path.join(daiMemDir, "feedback"), { recursive: true });
+  const { serializeItem } = require("../tools/lib/memory/item");
+  const validItemContent = serializeItem(
+    {
+      name: "regra-testes",
+      description: "Sempre rodar npm test antes de commitar",
+      type: "feedback",
+      created: "2026-10-26",
+      updated: "2026-10-26",
+      source: "user",
+    },
+    "**Why:**\nEvita commits quebrados na esteira.\n\n**How to apply:**\nExecutar npm test antes do push."
+  );
+  fs.writeFileSync(path.join(daiMemDir, "feedback", "regra-testes.md"), validItemContent);
+
+  run(["--project", "dai"], io, options);
+
+  const metaFile = walk(base).find((f) => f.endsWith("metadata.json"));
+  assert.ok(metaFile);
+  const meta = JSON.parse(fs.readFileSync(String(metaFile), "utf8"));
+  assert.ok(meta.artifacts.includes("artifacts/memory.md"));
+  assert.ok(meta.artifacts.includes("artifacts/items/feedback-regra-testes.md"));
+  assert.ok(meta.summary.includes("Sempre rodar npm test antes de commitar"));
+
+  const itemExported = walk(base).find((f) => f.endsWith("feedback-regra-testes.md"));
+  assert.ok(itemExported);
+  assert.ok(fs.readFileSync(itemExported, "utf8").includes("Evita commits quebrados na esteira."));
+});
+
+

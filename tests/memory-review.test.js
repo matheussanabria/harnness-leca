@@ -191,3 +191,23 @@ test("migrated: sugestão igual ou similar a item existente em memory/ não volt
   const texts = pendentes.map((x) => x.texto);
   assert.ok(!texts.some((txt) => txt.includes("cod-design-system")), "item já existente em memory/ não deve aparecer como pendente");
 });
+
+test("harvested: memórias em context/colhido-nativo.md aparecem como pendentes na revisão", (t) => {
+  const p = project(t, "p-harvested", { suggestions: null });
+  fs.writeFileSync(
+    path.join(p.dir, "context", "colhido-nativo.md"),
+    "# Memórias colhidas\n\n## Colheita nativa (2026-10-26)\n\n### Memórias\n- <!-- harvest:claude:regra.md --> Regra colhida do Claude Code\n"
+  );
+
+  const pendentes = MR.pending("p-harvested");
+  assert.equal(pendentes.length, 1);
+  assert.equal(pendentes[0].texto, "Regra colhida do Claude Code");
+
+  // Promover a memória colhida
+  MR.apply("p-harvested", [{ id: pendentes[0].id, acao: "promover" }]);
+  assert.equal(MR.pending("p-harvested").length, 0);
+
+  const mem = fs.readFileSync(p.memory, "utf8");
+  assert.ok(mem.includes("Regra colhida do Claude Code"));
+});
+
