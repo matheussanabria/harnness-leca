@@ -9,7 +9,7 @@ import { cancelEngineStream } from "./chat-stream-ui.js";
 import { errorHtml, permissionsHtml } from "./chat-errors-permissions.js";
 import { isChatStreamingFor } from "./chat-execution-store.js";
 import { handleChatHistoryScroll } from "./chat-ui-interaction.js";
-import { renderAtelierTurnDecorations, bindAtelierAgentDom } from "./prototype-atelier-agent-dispatcher.js";
+import { renderAtelierTurnDecorations, bindAtelierAgentDom, stripToolTags } from "./prototype-atelier-agent-dispatcher.js";
 
 function hiaScriptCard(turn, bodyHtml) {
   const tokens = Number(turn.tokensSaved) || 0;
@@ -167,11 +167,12 @@ export function renderChatHistory(keepScroll = false) {
         ? `<details class="chat-thinking"${isThinkOpen}><summary><span style="display:flex;align-items:center;gap:6px"><i class="fa-solid fa-brain"></i> Raciocínio interno ${isLastStreaming && t.phase === "thinking" ? '<span class="thinking-stream-badge">gerando pensamento...</span>' : ""}</span></summary><div class="think-content">${esc(t.thinking)}</div></details>`
         : "";
 
+      const cleanText = stripToolTags(t.text);
       let bodyHtml = "";
       if (t.errorInfo) {
-        bodyHtml = (t.text ? md(t.text) : "") + errorHtml(t.errorInfo);
-      } else if (t.text) {
-        bodyHtml = md(t.text);
+        bodyHtml = (cleanText ? md(cleanText) : "") + errorHtml(t.errorInfo);
+      } else if (cleanText) {
+        bodyHtml = md(cleanText);
       } else if (isLastStreaming) {
         if (!t.thinking) {
           bodyHtml = `
@@ -185,7 +186,12 @@ export function renderChatHistory(keepScroll = false) {
         `;
         }
       } else {
-        bodyHtml = '<p class="empty">Sem resposta</p>';
+        const hasAtelierContent = Boolean(
+          (Array.isArray(t.atelierTools) && t.atelierTools.length) ||
+          t.atelierPlan ||
+          t.atelierQuestion
+        );
+        bodyHtml = hasAtelierContent ? "" : '<p class="empty">Sem resposta</p>';
       }
 
       const finalBody = t.hiaRoute ? hiaScriptCard(t, bodyHtml) : bodyHtml;

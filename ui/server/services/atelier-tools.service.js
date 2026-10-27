@@ -180,7 +180,8 @@ async function executeAtelierTool(toolName, args, ctx, deps = { fs, path }) {
       }
 
       case "atelier_patch_styles": {
-        const { cssRules, mode = "append" } = args || {};
+        const { mode = "append" } = args || {};
+        const cssRules = args?.cssRules ?? args?.cssContent;
         if (typeof cssRules !== "string") return { ok: false, error: "cssRules deve ser uma string com código CSS." };
         const stylesDir = deps.path.join(protoDir, "styles");
         if (!deps.fs.existsSync(stylesDir)) deps.fs.mkdirSync(stylesDir, { recursive: true });

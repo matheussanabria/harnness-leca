@@ -31,14 +31,14 @@ async function apiPrototypesAgentRun({ req, res, params: [slug, protoId] }) {
     if (!key) {
       return send(res, 400, { error: "Chave do Gemini (GEMINI_API_KEY) não configurada no ambiente." });
     }
-    modelTurn = buildGeminiModelTurn({ key, model: model || "gemini-2.5-flash", effort });
+    modelTurn = buildGeminiModelTurn({ key, model: model || "gemini-3.7-flash", effort });
   } else if (engine === "opencode") {
     modelTurn = buildOpenCodeModelTurn({ model, effort });
   } else {
     // Fallback padrão para Gemini
     const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (key) {
-      modelTurn = buildGeminiModelTurn({ key, model: model || "gemini-2.5-flash", effort });
+      modelTurn = buildGeminiModelTurn({ key, model: model || "gemini-3.7-flash", effort });
     } else {
       return send(res, 400, { error: `Motor '${engine}' não suportado ou sem credenciais configuradas.` });
     }
