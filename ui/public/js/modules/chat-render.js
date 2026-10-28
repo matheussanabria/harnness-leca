@@ -9,6 +9,7 @@ import { cancelEngineStream } from "./chat-stream-ui.js";
 import { errorHtml, permissionsHtml } from "./chat-errors-permissions.js";
 import { isChatStreamingFor } from "./chat-execution-store.js";
 import { handleChatHistoryScroll } from "./chat-ui-interaction.js";
+import { thinkingHtml, captureThinkState, restoreThinkState, installThinkHandlers } from "./chat-render-thinking.js";
 import { renderAtelierTurnDecorations, bindAtelierAgentDom } from "./prototype-atelier-agent-dispatcher.js";
 
 function hiaScriptCard(turn, bodyHtml) {
@@ -57,6 +58,8 @@ export function renderChatHistory(keepScroll = false) {
     return;
   }
 
+  installThinkHandlers();
+  const chatKey = cs.currentChatFile || "novo";
   const effortMap = { low: "Low", medium: "Medium", high: "High", xhigh: "Extra High", max: "Max" };
 
   const html = state.chatTurns
@@ -89,10 +92,7 @@ export function renderChatHistory(keepScroll = false) {
               }
             }
 
-            const isThinkOpen = isStreaming && !resp.text ? " open" : "";
-            const thinkingHtml = resp.thinking
-              ? `<details class="chat-thinking"${isThinkOpen}><summary><span style="display:flex;align-items:center;gap:6px"><i class="fa-solid fa-brain"></i> Raciocínio interno ${isStreaming && phase === "thinking" ? '<span class="thinking-stream-badge">gerando pensamento...</span>' : ""}</span></summary><div class="think-content">${esc(resp.thinking)}</div></details>`
-              : "";
+            const thinkingHtmlStr = thinkingHtml(`${chatKey}:${idx}:${eng}`, resp.thinking, { streaming: isStreaming, phase, hasAnswer: Boolean(resp.text) });
 
             let bodyHtml = "";
             if (resp.error) {
@@ -141,7 +141,7 @@ export function renderChatHistory(keepScroll = false) {
             </div>
             <div class="compare-col-body">
               ${permissionsHtml(resp.permissions, isStreaming)}
-              ${thinkingHtml}
+              ${thinkingHtmlStr}
               ${finalBody}
               ${cursorHtml}
             </div>
@@ -162,10 +162,7 @@ export function renderChatHistory(keepScroll = false) {
       const eng = cs.enginesMeta[t.engine || cs.currentEngine] || { name: "Assistente", icon: '<i class="fa-solid fa-robot"></i>' };
       const engClass = t.engine || cs.currentEngine;
       const isLastStreaming = activeChatStreaming && idx === state.chatTurns.length - 1;
-      const isThinkOpen = isLastStreaming && !t.text ? " open" : "";
-      const thinkingHtml = t.thinking
-        ? `<details class="chat-thinking"${isThinkOpen}><summary><span style="display:flex;align-items:center;gap:6px"><i class="fa-solid fa-brain"></i> Raciocínio interno ${isLastStreaming && t.phase === "thinking" ? '<span class="thinking-stream-badge">gerando pensamento...</span>' : ""}</span></summary><div class="think-content">${esc(t.thinking)}</div></details>`
-        : "";
+      const thinkingHtmlStr = thinkingHtml(`${chatKey}:${idx}`, t.thinking, { streaming: isLastStreaming, phase: t.phase, hasAnswer: Boolean(t.text) });
 
       let bodyHtml = "";
       if (t.errorInfo) {
@@ -195,14 +192,16 @@ export function renderChatHistory(keepScroll = false) {
         ? ` <span style="font-size:10px;opacity:0.65;border:1px solid var(--line);padding:1px 5px;border-radius:4px">${esc(effortMap[t.effort] || t.effort)}</span>`
         : "";
       const atelierDecors = renderAtelierTurnDecorations(t);
-      return `<div class="msg ${engClass}"><div class="who">${esc(eng.name || "Assistente")}${modelLabel}${effortLabel}</div><div class="bubble">${permissionsHtml(t.permissions, isLastStreaming)}${thinkingHtml}${atelierDecors}${finalBody}${cursorHtml}</div></div>`;
+      return `<div class="msg ${engClass}"><div class="who">${esc(eng.name || "Assistente")}${modelLabel}${effortLabel}</div><div class="bubble">${permissionsHtml(t.permissions, isLastStreaming)}${thinkingHtmlStr}${atelierDecors}${finalBody}${cursorHtml}</div></div>`;
     })
     .join("");
 
   boxes.forEach((box) => {
     const wasNearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
     const isInitial = box.scrollTop === 0;
+    const thinkSnap = captureThinkState(box);
     box.innerHTML = html;
+    restoreThinkState(box, thinkSnap);
     bindAtelierAgentDom(box, (ans) => {
       if (typeof window.applySuggestedPrompt === "function") {
         window.applySuggestedPrompt(ans);

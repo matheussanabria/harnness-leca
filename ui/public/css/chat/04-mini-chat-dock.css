@@ -62,8 +62,44 @@
   border-top: 1px solid var(--line);
   font-family: monospace;
   font-size: 11px;
-  max-height: 180px;
-  overflow: auto;
+  max-height: min(40vh, 320px);
+  overflow-y: auto;
+  overscroll-behavior: contain; /* rolar o raciocínio não arrasta o chat junto */
+  scrollbar-width: thin;
+}
+
+.chat-thinking .think-content.expanded {
+  max-height: none;
+}
+
+/* Barra do raciocínio: contador, expandir e copiar */
+.chat-thinking .think-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-top: 1px solid var(--line);
+  color: var(--mute);
+  font-size: 11px;
+}
+
+.chat-thinking .think-count {
+  margin-right: auto;
+}
+
+.chat-thinking .think-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--mute);
+  cursor: pointer;
+  padding: 2px 7px;
+  font-size: 11px;
+}
+
+.chat-thinking .think-btn:hover {
+  color: var(--text);
+  border-color: var(--mute);
 }
 
 .stream-cursor {
