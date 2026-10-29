@@ -143,7 +143,9 @@ test("Clique programático no input de arquivo não fecha o dialog", () => {
 });
 
 test("Modo comparativo usa a seleção armazenada no estado do chat", () => {
-  assert.match(sendJs, /\.\.\.cs\.compareSelectedEngines/);
+  const compareJs = fs.readFileSync(path.join(__dirname, "..", "ui", "public", "js", "modules", "chat-send-compare.js"), "utf8");
+  assert.match(compareJs, /\.\.\.cs\.compareSelectedEngines/);
+  assert.match(sendJs, /runComparison\(/);
 });
 
 test("Responsividade e Container Queries: chat-mobile.css e popovers obedecem à especificação", () => {

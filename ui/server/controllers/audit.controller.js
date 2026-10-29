@@ -8,6 +8,7 @@ const { getProjectRepoInfo } = require("../controllers/inspect.controller");
 const { buildAuditMatrix } = require("../services/audit/audit-matrix.service");
 const { buildComponentAudit } = require("../services/audit/component-audit.service");
 const { listEvidence, recordEvidence } = require("../services/audit/evidence-recorder.service");
+const { auditProjectDesignSystem } = require("../services/audit/design-system-audit.service");
 
 function projectDir(slug) {
   const dir = path.join(getProjects(), String(slug || "").trim());
@@ -112,7 +113,19 @@ async function apiProjectAuditEvidenceSave({ req, res, params: [slug] }) {
   }
 }
 
+/** GET /api/project/:slug/audit/design-system */
+function apiProjectAuditDesignSystem({ res, params: [slug] }) {
+  const dir = projectDir(slug);
+  if (!dir) return send(res, 404, { error: "Projeto nao encontrado." });
+  try {
+    return send(res, 200, auditProjectDesignSystem(dir));
+  } catch (err) {
+    return respondError(res, err);
+  }
+}
+
 module.exports = {
+  apiProjectAuditDesignSystem,
   apiProjectAuditMatrix,
   apiProjectAuditEvidence,
   apiProjectAuditSummary,

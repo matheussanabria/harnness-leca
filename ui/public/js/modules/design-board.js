@@ -2,6 +2,7 @@
 import { esc, copyToClipboard, showToast, autoGrow, $ } from "../shared/dom.js";
 import { getScreenStateClient } from "../shared/screen-state.js";
 import { boardToolbar, renderCardBadges, renderUsage } from "./design-board-card-parts.js";
+import { openComponentModal } from "./prototype-component-modal.js";
 
 const STAGE_COLUMNS = [
   { id: "prototype", title: "Protótipo" },
@@ -19,6 +20,7 @@ const text = (value, limit) => (typeof value === "string" ? value.slice(0, limit
 
 const board = { filter: "", selectedCard: "", groupBy: "stage", zoom: 100 };
 let boardComponents = [];
+let boardProjectSlug = "";
 
 /** Fotografia serializável do estado atual do quadro. */
 export function boardStateFromStore() {
@@ -169,7 +171,6 @@ function renderDesignCard(comp, isDraft = false) {
         ${renderCardBadges(comp)}
       </div>
       ${renderUsage(comp.usage)}
-
       <div class="design-card-dai" title="Próximo passo: ${esc(dai.nextAction || "")}">
         <span><i class="fa-solid fa-robot" aria-hidden="true"></i></span>
         <span><b>${esc(dai.agentId || "agente")}:</b> ${esc(dai.nextAction || "").slice(0, 52)}...</span>
@@ -192,6 +193,7 @@ function renderDesignCard(comp, isDraft = false) {
       ${chk.hasBoilerplate && !chk.isImplemented ? '<div style="font-size:10.5px;color:var(--mute);margin-top:-2px"><i class="fa-solid fa-circle-info"></i> Ainda não aplicado ao app</div>' : ""}
 
       <div class="design-card-actions">
+        ${comp.registryId && boardProjectSlug ? `<button type="button" class="btn-card-action" onclick="event.stopPropagation(); openBoardComponentPreview('${esc(comp.registryId)}')" title="Open component preview and source"><i class="fa-solid fa-eye"></i> Preview</button>` : ""}
         <button type="button" class="btn-card-action" onclick='event.stopPropagation(); copyDesignCardContext(${JSON.stringify(comp)})' title="Copiar bloco <contexto-design>"><i class="fa-solid fa-clipboard"></i> Copiar</button>
         <button type="button" class="btn-card-action" onclick='event.stopPropagation(); sendDesignCardContext(${JSON.stringify(comp)})' title="Inserir no chat ativo"><i class="fa-solid fa-message"></i> No Chat</button>
       </div>
@@ -210,9 +212,11 @@ function visibleComponents(components) {
  * @param {HTMLElement} container
  * @param {any[]} components
  * @param {any} [draftComponent]
+ * @param {string} [slug]
  */
-export function renderKanbanBoard(container, components = [], draftComponent = null) {
+export function renderKanbanBoard(container, components = [], draftComponent = null, slug = "") {
   boardComponents = components;
+  boardProjectSlug = slug || boardProjectSlug;
   const list = visibleComponents(components);
   const cardsByCol = {};
   const push = (comp, isDraft) => {
@@ -250,10 +254,12 @@ export function renderKanbanBoard(container, components = [], draftComponent = n
 
 function rerender() {
   const container = $("designViewContainer");
-  if (container) renderKanbanBoard(container, boardComponents, null);
+  if (container) renderKanbanBoard(container, boardComponents, null, boardProjectSlug);
 }
 
 if (typeof window !== "undefined") {
+  // @ts-ignore
+  window.openBoardComponentPreview = (componentId) => openComponentModal(boardProjectSlug, componentId);
   // @ts-ignore
   window.copyDesignCardContext = copyDesignContext;
   // @ts-ignore

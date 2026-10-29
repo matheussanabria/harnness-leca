@@ -6,6 +6,7 @@ const {
   apiProjectAuditSummary,
   apiProjectAuditComponents,
   apiProjectAuditEvidenceSave,
+  apiProjectAuditDesignSystem,
 } = require("../controllers/audit.controller");
 const {
   apiProjectAuditPipeline,
@@ -20,6 +21,7 @@ const auditRoutes = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/audit\/summary$/, handler: apiProjectAuditSummary },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/audit\/components$/, handler: apiProjectAuditComponents },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/audit\/pipeline$/, handler: apiProjectAuditPipeline },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/audit\/design-system$/, handler: apiProjectAuditDesignSystem },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/audit\/evidence$/, handler: apiProjectAuditEvidenceSave },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/audit\/evidence\/generate$/, handler: apiProjectAuditEvidenceGenerate },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/audit\/evidence\/execute$/, handler: apiProjectAuditEvidenceExecute },

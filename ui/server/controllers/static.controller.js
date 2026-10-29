@@ -9,7 +9,9 @@ function serveStatic(res, p) {
   const file = path.resolve(PUBLIC, "." + path.sep + rel);
   const type = TYPES[path.extname(file).toLowerCase()];
   if (type && file.startsWith(PUBLIC + path.sep) && inside(PUBLIC, file)) {
-    return send(res, 200, fs.readFileSync(file), type);
+    const runtimeAsset = rel.replace(/\\/g, "/").startsWith("js/vendor/dc-runtime/");
+    const headers = runtimeAsset ? { "Cross-Origin-Resource-Policy": "cross-origin" } : {};
+    return send(res, 200, fs.readFileSync(file), type, headers);
   }
   return send(res, 404, "404", "text/plain");
 }

@@ -4,8 +4,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { importArtifactForInspection, artifactInspectionId } from "../ui/server/services/prototype-artifact-import.service.js";
 import { renderSandboxScreen } from "../ui/server/services/prototype-sandbox-renderer.service.js";
+import { tableSafeDcTemplate } from "../ui/server/services/dc-template-runtime.service.js";
+
+const require = createRequire(import.meta.url);
+const { withInitialPage } = require("../ui/server/services/prototype-sandbox-dc.service.js");
 
 const REPO_ROOT = path.resolve(".");
 
@@ -23,6 +28,22 @@ class Component extends DCLogic { state = {}; }
 
 const STATIC_SOURCE = `<!DOCTYPE html><html><head><style>.a{color:red}</style></head>
 <body><main><h1>Estático</h1></main></body></html>`;
+
+test("DC table controls are encoded as parser-safe template nodes", () => {
+  const source = '<tbody><sc-for list="{{ rows }}" as="r"><tr><td><sc-if value="{{ r.ok }}">{{ r.name }}</sc-if></td></tr></sc-for></tbody>';
+  assert.equal(
+    tableSafeDcTemplate(source),
+    '<tbody><template data-dc-control="sc-for" list="{{ rows }}" as="r"><tr><td><template data-dc-control="sc-if" value="{{ r.ok }}">{{ r.name }}</template></td></tr></template></tbody>',
+  );
+});
+
+test("DC documentation routing selects the requested page over persisted local state", () => {
+  const logic = "state = { page: 'inicio' };\ncomponentDidMount() { try { var p = localStorage.getItem('ds2.page'); if (p) this.setState({ page: p }); } catch (e) {} }";
+  const selected = withInitialPage(logic, "c-button");
+  assert.match(selected, /page: 'c-button'/);
+  assert.match(selected, /componentDidMount\(\) \{\}/);
+  assert.doesNotMatch(selected, /localStorage\.getItem/);
+});
 
 function setupProject() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "dc-pipeline-"));
@@ -73,6 +94,11 @@ test("EP-DC: importação e renderização ponta a ponta de .dc.html", async (t)
     assert.ok(!csp.includes("unpkg"));
     assert.ok(res.html.includes('data-runtime="dc"'));
     assert.ok(res.html.includes('src="/js/vendor/dc-runtime/support.js"'));
+    assert.ok(res.html.includes("x-dc { display: none !important; }"));
+    const reactIndex = res.html.indexOf('src="/js/vendor/dc-runtime/react.production.min.js"');
+    const reactDomIndex = res.html.indexOf('src="/js/vendor/dc-runtime/react-dom.production.min.js"');
+    const supportIndex = res.html.indexOf('src="/js/vendor/dc-runtime/support.js"');
+    assert.ok(reactIndex > 0 && reactIndex < reactDomIndex && reactDomIndex < supportIndex);
     assert.ok(res.html.includes("window.__resources="));
     assert.ok(res.html.includes('"/js/vendor/dc-runtime/react.production.min.js"'));
     assert.ok(res.html.includes('"/js/vendor/dc-runtime/react-dom.production.min.js"'));

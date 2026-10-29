@@ -33,3 +33,12 @@ test("catálogo não duplica protótipo do Ateliê que também está no design.j
   );
   assert.deepEqual(catalog.map((i) => `${i.id}:${i.kind}`), ["externo:artifact", "vitrine:atelier"]);
 });
+
+test("catalog replaces a raw artifact with its executable inspection copy", async () => {
+  const { buildPrototypeCatalog } = await import("../ui/public/js/modules/prototype-catalog.js");
+  const catalog = buildPrototypeCatalog(
+    [{ id: "design-system-v2", file: "design/prototypes/Design System v2.dc.html" }],
+    [{ id: "design-system-v2-inspecao", metadata: { sourceArtifact: "design-system-v2", runtime: "dc" } }],
+  );
+  assert.deepEqual(catalog.map((i) => `${i.id}:${i.kind}`), ["design-system-v2-inspecao:atelier"]);
+});

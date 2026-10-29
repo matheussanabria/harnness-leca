@@ -8,7 +8,7 @@ const { buildTokensCss, buildIndex } = require("../tools/ds-docs/dc-tokens");
 const { run } = require("../tools/import-dc-design-system");
 
 // Same shape as a ".dc.html" Design System: a class field, brackets and quotes inside strings, one variant component.
-const FIXTURE = `<html><script type="text/x-dc" data-dc-script>
+const FIXTURE = `<html><body><x-dc><helmet><style>body{margin:0}</style></helmet><main>Documentation shell</main></x-dc><script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
   VARS = { chart: ['A', 'B'] };
   DOCS = [
@@ -22,8 +22,11 @@ class Component extends DCLogic {
       css: '.meter{width:var(--fill);background:var(--success-base);--local:1px}' },
     { id: 'chart', name: 'Chart', states: 'variants', html: { a: '<svg/>' }, css: { a: '' } },
   ];
+  JS = { button: 'document.querySelector(".btn")?.focus();' };
+  RX = { button: 'export function Button({ children }) { return <button>{children}</button>; }' };
+  renderVals() { return this.DOCS.map((d) => { return { ...d, cat: 'Components' }; }); }
 }
-</script></html>`;
+</script></body></html>`;
 
 test("extractDcDocs reads the DOCS class field and selects a deterministic variant preview", () => {
   const { components, skipped } = extractDcDocs(FIXTURE);
@@ -31,6 +34,8 @@ test("extractDcDocs reads the DOCS class field and selects a deterministic varia
   assert.equal(components[0].desc, "Acao [primaria] do usuario.");
   assert.ok(components[0].html.includes("OK ]"), "a ] inside a string must not close the array");
   assert.deepEqual(components[2].variants, ["a"]);
+  assert.match(components[0].js, /querySelector/);
+  assert.match(components[0].react, /export function Button/);
   assert.deepEqual(skipped, []);
 });
 
@@ -89,23 +94,48 @@ test("buildIndex is compact and names the palette, tokens and components", () =>
   assert.ok(/^--unknown-token$/m.test(index), "tokens without a known role are still listed");
 });
 
-test("run writes tokens, components, index and per-component files, and flags missing tokens", () => {
+test("run writes tokens, registry, editable showcase and synchronized artifact references", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "dc-import-"));
   try {
     const source = path.join(dir, "ds.dc.html");
     fs.writeFileSync(source, FIXTURE);
     const full = path.join(dir, "full.json");
     fs.writeFileSync(full, JSON.stringify({ name: "T", tokens: { "--primary-interactive": "#1", "--primary-dark": "#2", "--success-base": "#3" } }));
-    const ok = run({ source, palette: full, project: "p", out: dir });
+    const relatedSource = path.join(dir, "prototype.dc.html");
+    fs.writeFileSync(relatedSource, "<main>Button and Meter examples</main>");
+    const relatedDir = path.join(dir, "projects", "p", "design", "prototypes", "app-inspection");
+    fs.mkdirSync(relatedDir, { recursive: true });
+    fs.writeFileSync(path.join(relatedDir, "proto.json"), JSON.stringify({ schema: 1, id: "app-inspection", screens: [], components: [], metadata: {} }));
+    const ok = run({ source, palette: full, project: "p", out: dir, artifact: "ds-source", vitrine: "ds-inspection", title: "DS inspection", relatedPrototype: "app-inspection", relatedSource });
     assert.equal(ok.components, 3);
     assert.deepEqual(ok.missingTokens, []);
     const ds = path.join(dir, "projects", "p", "design", "ds");
-    for (const rel of ["tokens.css", "components.css", "ds-index.md", "components/button/button.html", "components/meter/meter.css"]) {
+    for (const rel of ["tokens.css", "components.css", "ds-index.md", "registry.json", "components/button/button.html", "components/button/button.css", "components/button/button.js", "components/button/button.angular.ts", "components/button/button.react.jsx"]) {
       assert.ok(fs.existsSync(path.join(ds, rel)), rel);
     }
+    const registry = JSON.parse(fs.readFileSync(path.join(ds, "registry.json"), "utf8"));
+    assert.deepEqual(registry.components["m57.button"].documentation, { prototypeId: "ds-inspection", screenId: "c-button" });
+    assert.deepEqual(Object.keys(registry.components["m57.button"].implementations), ["vanilla", "angular", "react"]);
+    assert.equal(registry.components["m57.button"].implementations.vanilla.files.length, 3);
+    const showcase = JSON.parse(fs.readFileSync(path.join(dir, "projects", "p", "design", "prototypes", "ds-inspection", "proto.json"), "utf8"));
+    assert.equal(showcase.screens.length, 13);
+    assert.equal(showcase.metadata.runtime, "dc");
+    assert.equal(showcase.components[0].id, "m57.button");
+    const componentScreen = showcase.screens.find((screen) => screen.id === "c-button");
+    assert.equal(componentScreen.snippets.length, 5);
+    const dcDir = path.join(dir, "projects", "p", "design", "prototypes", "ds-inspection", "dc");
+    const template = fs.readFileSync(path.join(dcDir, "template.html"), "utf8");
+    const logic = fs.readFileSync(path.join(dcDir, "logic.js"), "utf8");
+    const manifest = JSON.parse(fs.readFileSync(path.join(dcDir, "manifest.json"), "utf8"));
+    assert.match(template, /Documentation shell/);
+    assert.match(logic, /API_DOCS/);
+    assert.deepEqual(manifest.screens, showcase.screens.map((screen) => screen.id));
+    const related = JSON.parse(fs.readFileSync(path.join(relatedDir, "proto.json"), "utf8"));
+    assert.deepEqual(related.components.map((component) => component.id), ["m57.button", "m57.meter"]);
     const design = JSON.parse(fs.readFileSync(path.join(dir, "projects", "p", "design", "design.json"), "utf8"));
     assert.deepEqual(design.components.map((component) => component.id), ["button", "meter", "chart"]);
     assert.equal(design.components[2].dsFolder, "design/ds/components/chart");
+    assert.equal(design.components[0].sourceArtifact, "ds-source");
     const partial = path.join(dir, "partial.json");
     fs.writeFileSync(partial, JSON.stringify({ name: "T", tokens: { "--primary-interactive": "#1" } }));
     const bad = run({ source, palette: partial, project: "q", out: dir, dryRun: true });

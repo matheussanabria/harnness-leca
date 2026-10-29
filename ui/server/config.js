@@ -77,9 +77,9 @@ function inside(base, target) {
   }
 }
 
-function send(res, code, body, type = "application/json; charset=utf-8") {
+function send(res, code, body, type = "application/json; charset=utf-8", headers = {}) {
   if (res.headersSent || res.writableEnded) return;
-  res.writeHead(code, { "Content-Type": type, ...HEADERS });
+  res.writeHead(code, { "Content-Type": type, ...HEADERS, ...headers });
   res.end(typeof body === "string" || Buffer.isBuffer(body) ? body : JSON.stringify(body));
 }
 

@@ -54,3 +54,4 @@
 | `tests/claude-tool-use.test.js` | Tests for the tool-use helpers and parser callbacks: Skill/Agent/Task, dedup, resultOk true/false/null, null messageId, privacy sentinels and unchanged SSE chunks. |
 | `tests/chat-tool-use-telemetry.test.js` | Tests for tracker `skill.loaded`/`tool.invoked` publishing: metadata payloads, duplicate suppression, cancel flush with resultOk null and isolated publish failure. |
 | `tests/claude-stream-callid-replay.test.js` | Experiment Q3: replays the same synthetic transcript lines through the live stream parser/chat tracker and the transcript usage ingest, proving both derive the same callId (message.id) for the T4.1e join; synthetic fixtures only, no real stream captured. |
+| `docs/harness-telemetria/10-handoff-pendencias.md` | Handoff for the next agent (any engine): working rules, P0 sessions-tab layout spec, merge/cleanup list and engineering follow-ups. |

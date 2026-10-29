@@ -25,14 +25,15 @@ export function renderComponentSection(data, mcpServer = "") {
 /** @param {any} c */
 function componentCard(c) {
   const where = c.screens.map((s) => `${esc(s.title)} (${s.count})`).join(" · ");
+  const locatable = c.screens.length > 0;
   return `
     <div class="proto-component-card proto-component-item" data-proto-comp="${esc(c.id)}">
-      <button type="button" class="proto-comp-main" data-comp-locate="${esc(c.id)}" title="Localizar no protótipo">
+      <button type="button" class="proto-comp-main" ${locatable ? `data-comp-locate="${esc(c.id)}" title="Localizar no protótipo"` : 'disabled title="Linked to the artifact; no stable DOM instance"'}>
         <span><i class="fa-solid fa-cube"></i> ${esc(c.name)}</span>
-        <span class="proto-card-badge">${c.instances}×</span>
+        <span class="proto-card-badge">${locatable ? `${c.instances}×` : "linked"}</span>
       </button>
       <div class="proto-comp-foot">
-        <span class="proto-comp-screens" title="${esc(where)}">${where}</span>
+        <span class="proto-comp-screens" title="${esc(where)}">${where || "Source reference"}</span>
         <button type="button" class="proto-comp-preview" data-comp-preview="${esc(c.id)}" title="Ver preview e código-fonte" aria-label="Ver preview e código-fonte de ${esc(c.name)}"><i class="fa-solid fa-code"></i></button>
       </div>
     </div>`;

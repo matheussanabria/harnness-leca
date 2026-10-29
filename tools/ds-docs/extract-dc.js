@@ -12,8 +12,14 @@ const vm = require("vm");
 
 const MARKER = /^\s*DOCS\s*=\s*\[/m;
 
-/** Returns the index just past the `]` that closes the array opened at `open`, honouring quotes and escapes. */
-function findArrayEnd(text, open) {
+function extractObjectField(fileText, field) {
+  const match = new RegExp(`^\\s*${field}\\s*=\\s*\\{`, "m").exec(fileText);
+  if (!match) return {};
+  const open = match.index + match[0].length - 1;
+  try { return vm.runInNewContext(`(${fileText.slice(open, findContainerEnd(fileText, open, "{", "}"))})`, Object.create(null), { timeout: 2000 }) || {}; } catch { return {}; }
+}
+
+function findContainerEnd(text, open, opening = "[", closing = "]") {
   let depth = 0;
   let quote = null;
   for (let i = open; i < text.length; i += 1) {
@@ -22,14 +28,14 @@ function findArrayEnd(text, open) {
       if (ch === "\\") i += 1;
       else if (ch === quote) quote = null;
     } else if (ch === "'" || ch === '"' || ch === "`") quote = ch;
-    else if (ch === "[") depth += 1;
-    else if (ch === "]") {
-      depth -= 1;
-      if (depth === 0) return i + 1;
-    }
+    else if (ch === opening) depth += 1;
+    else if (ch === closing && --depth === 0) return i + 1;
   }
-  throw new Error("The DOCS array in the Design System file does not close.");
+  throw new Error(`The ${opening}${closing} container does not close.`);
 }
+
+/** Returns the index just past the `]` that closes the array opened at `open`, honouring quotes and escapes. */
+function findArrayEnd(text, open) { return findContainerEnd(text, open); }
 
 /**
  * Evaluates the array literal in an empty context (no globals). Variant fields use their first
@@ -42,6 +48,8 @@ function extractDcDocs(fileText) {
   const open = match.index + match[0].length - 1;
   const literal = fileText.slice(open, findArrayEnd(fileText, open));
   const raw = vm.runInNewContext(`(${literal})`, Object.create(null), { timeout: 2000 });
+  const javascript = extractObjectField(fileText, "JS");
+  const reactOverrides = extractObjectField(fileText, "RX");
   if (!Array.isArray(raw)) throw new Error("DOCS is not an array.");
 
   const components = [];
@@ -52,7 +60,13 @@ function extractDcDocs(fileText) {
     const html = typeof entry.html === "string" ? entry.html : first && entry.html[first];
     const css = typeof entry.css === "string" ? entry.css : first && entry.css[first];
     if (typeof html === "string" && typeof css === "string") {
-      components.push({ id: String(entry.id), name: String(entry.name), states: String(entry.states || ""), desc: String(entry.desc || ""), html, css, variants });
+      components.push({
+        id: String(entry.id), name: String(entry.name), states: String(entry.states || ""),
+        desc: String(entry.desc || ""), html, css, variants,
+        js: Array.isArray(javascript[entry.id]) ? javascript[entry.id].join("\n") : String(javascript[entry.id] || ""),
+        ng: typeof entry.ng === "string" ? entry.ng : "",
+        react: Array.isArray(reactOverrides[entry.id]) ? reactOverrides[entry.id].join("\n") : String(reactOverrides[entry.id] || entry.react || ""),
+      });
     } else skipped.push({ id: String(entry.id), name: String(entry.name), reason: "component has no usable HTML/CSS preview" });
   }
   return { components, skipped };
@@ -81,4 +95,4 @@ function allRequiredTokens(components) {
   return [...new Set(components.flatMap(requiredTokens))].sort();
 }
 
-module.exports = { extractDcDocs, classNames, requiredTokens, allRequiredTokens, findArrayEnd };
+module.exports = { extractDcDocs, extractObjectField, classNames, requiredTokens, allRequiredTokens, findArrayEnd, findContainerEnd };
