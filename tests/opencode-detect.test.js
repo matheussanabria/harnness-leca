@@ -73,10 +73,12 @@ test("OPENCODE_URL válido vence e não precisa descobrir portas; inválido cai 
 test("sem servidor nenhum: url nula, tentativas descritas, e resolve lança PublicError com instrução em português", async () => {
   const dead = await freePort();
   const env = { OPENCODE_URL: `http://127.0.0.1:${dead}` };
-  const r = await D.detectOpenCodeUrl({ sys: fakeSys([]), env });
+  // O endereço padrão também é fictício: um opencode de verdade rodando em 63186 não pode mudar o resultado.
+  const defaultUrl = `http://127.0.0.1:${await freePort()}`;
+  const r = await D.detectOpenCodeUrl({ sys: fakeSys([]), env, defaultUrl });
   assert.equal(r.url, null);
   assert.ok(r.tried.length >= 2 && r.tried.every((t) => !t.ok && t.reason));
-  await assert.rejects(D.resolveOpenCodeUrl({ sys: fakeSys([]), env }), (err) => {
+  await assert.rejects(D.resolveOpenCodeUrl({ sys: fakeSys([]), env, defaultUrl }), (err) => {
     assert.ok(err instanceof PublicError);
     assert.match(err.message, /não respondeu/);
     assert.match(err.message, /opencode serve/);

@@ -38,9 +38,11 @@ test.before(async () => {
   const reviewModuleFile = path.join(__dirname, "..", "ui", "public", "js", "modules", "review.js");
   let block, escDef;
   if (fs.existsSync(reviewModuleFile)) {
-    block = fs.readFileSync(reviewModuleFile, "utf8")
-      .replace(/^import\s+[\s\S]*?;\s*/m, "")
+    const stripModule = (file) => fs.readFileSync(file, "utf8")
+      .replace(/^import\s[^;]*;\s*$/gm, "")
+      .replace(/^export\s+(?=function|const|async)/gm, "")
       .replace(/\nexport\s*\{[\s\S]*?\};?\s*$/m, "");
+    block = stripModule(path.join(path.dirname(reviewModuleFile), "review-form.js")) + "\n" + stripModule(reviewModuleFile);
     escDef = ["const esc = s => String(s || \"\").replace(/[&<>\"']/g, c => ({\n  \"&\": \"&amp;\", \"<\": \"&lt;\", \">\": \"&gt;\", '\"': \"&quot;\", \"'\": \"&#39;\"\n}[c]));"];
   } else {
     block = html.slice(html.indexOf("// ---------- revisão das sugestões de memória ----------"), html.indexOf("const showMem = () =>"));
@@ -172,7 +174,7 @@ test("o que foi descartado não volta ao recarregar, e erros do servidor aparece
   // Servidor devolvendo erro: mensagem na tela, estado intacto, botão liberado.
   run("fetch = () => Promise.resolve({ ok: false, json: async () => ({ error: 'deu ruim' }) })");
   await ctx.reviewApply([{ id: items()[0].id, acao: "descartar" }]);
-  assert.match($("rv-msg").textContent, /⚠ deu ruim/);
+  assert.match($("rv-msg").textContent, /Erro: deu ruim/);
   assert.equal(items().length, restantes);
   assert.equal(run("R.busy"), false);
 });

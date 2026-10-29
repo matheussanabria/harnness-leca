@@ -14,8 +14,9 @@ export function errorInfoFrom(data) {
 }
 
 export function clientErrorInfo(err) {
+  if (err && err.info) return err.info; // erro do servidor já traduzido (título, dica, detalhe)
   const m = String((err && err.message) || err || "");
-  if (/failed to fetch|networkerror|load failed|network request failed/i.test(m)) {
+  if (/failed to fetch|networkerror|load failed|network request failed|^network error$|err_incomplete_chunked|terminated/i.test(m)) {
     return {
       code: "client_network",
       title: "Conexão interrompida com o servidor",

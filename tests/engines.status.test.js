@@ -19,7 +19,7 @@ test.after(() => fs.rmSync(TMP_ROOT, { recursive: true, force: true }));
 const E = require("../tools/lib/engines");
 const GOLDEN = path.join(__dirname, "golden", "engines-status.json");
 
-const respond = (status, body) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
+const respond = (status, body) => ({ ok: status >= 200 && status < 300, status, json: async () => body, text: async () => JSON.stringify(body) });
 
 test("status dos motores: opencode offline e sem chave do Gemini, e depois com os dois", async (t) => {
   const realFetch = globalThis.fetch;
@@ -31,10 +31,10 @@ test("status dos motores: opencode offline e sem chave do Gemini, e depois com o
   process.env.GEMINI_API_KEY = "chave-de-teste";
   t.after(() => { delete process.env.GEMINI_API_KEY; });
   globalThis.fetch = async (url) => {
-    if (String(url).endsWith("/session")) return respond(200, []);
+    if (String(url).endsWith("/api/info")) return respond(200, { version: "2.2.0" });
     if (String(url).endsWith("/api/model")) return respond(200, { data: [
-      { id: "zeta-free", name: "Zeta" }, { id: "grok-code", name: "Grok Code Fast 1" },
-      { id: "alfa", name: "Alfa", providerID: "outro" }, { id: "glm-5-free", name: "GLM 5" },
+      { id: "zeta-free", modelID: "zeta-free", providerID: "opencode", name: "Zeta" }, { id: "grok-code", modelID: "grok-code", providerID: "opencode", name: "Grok Code Fast 1" },
+      { id: "alfa", modelID: "alfa", providerID: "outro", name: "Alfa" }, { id: "glm-5-free", modelID: "glm-5-free", providerID: "opencode", name: "GLM 5" },
     ] });
     throw new Error("url inesperada: " + url);
   };
@@ -52,7 +52,7 @@ test("status dos motores: opencode offline e sem chave do Gemini, e depois com o
   assert.equal(offline.gemini.hasKey, false);
   assert.equal(online.opencode.available, true);
   assert.equal(online.gemini.hasKey, true);
-  assert.deepEqual(online.opencode.models.map((m) => m.id), ["glm-5-free", "grok-code", "alfa", "zeta-free"],
+  assert.deepEqual(online.opencode.models.map((m) => m.id), ["glm-5-free", "grok-code", "outro/alfa", "zeta-free"],
     "modelos conhecidos primeiro, na ordem de prioridade; o resto em ordem alfabética do nome");
   assert.equal(online.opencode.defaultModel, "glm-5-free");
 });

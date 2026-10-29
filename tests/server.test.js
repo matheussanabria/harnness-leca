@@ -143,8 +143,8 @@ test("POST /api/chat/save: valida, grava no projeto e não vaza erro interno", a
   assert.match((await bad.json()).error, /detalhe está no terminal/);
 });
 
-test("POST /api/chat: limite de respostas ao mesmo tempo, e fechar a conexão cancela o motor", async (t) => {
-  const { MAX_CHATS } = require("../ui/server");
+test("POST /api/chat: sem limite de respostas ao mesmo tempo, e fechar a conexão cancela o motor", async (t) => {
+  const MAX_CHATS = 8; // padrão sem teto (HARNESS_MAX_CHATS=0): todas as conversas simultâneas são aceitas
   const signals = [];
   E.engines.set("fake", { id: "fake", status: async () => ({}), stream: ({ signal, onChunk }) => { signals.push(signal); onChunk({ type: "text", text: "oi" }); } });
   t.after(() => E.engines.delete("fake"));
@@ -164,8 +164,6 @@ test("POST /api/chat: limite de respostas ao mesmo tempo, e fechar a conexão ca
   for (let i = 0; i < MAX_CHATS; i++) {
     holders.push(await hang());
   }
-  const overflow = await post("/api/chat", { engine: "fake", prompt: "oi", slug: "demo" });
-  assert.equal(overflow.status, 429);
   assert.equal(signals.length, MAX_CHATS);
 
   holders[0].abort();

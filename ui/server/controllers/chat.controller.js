@@ -81,7 +81,7 @@ async function apiChat({ req, res }) {
   const eff = E.safeEffort(effort || (temperature != null ? effortFromTemperature(temperature) : "medium"));
   if (typeof prompt !== "string" || !prompt || !slug) return send(res, 400, { error: "prompt e slug são obrigatórios" });
   if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
-  if (runningChats >= MAX_CHATS) {
+  if (MAX_CHATS > 0 && runningChats >= MAX_CHATS) {
     recordCapacityRejected({ slug, engine, running: runningChats, limit: MAX_CHATS, runId: crypto.randomUUID(), traceId: body.traceId });
     return send(res, 429, { error: `Já há ${MAX_CHATS} respostas em andamento. Aguarde uma terminar.` });
   }
@@ -135,7 +135,8 @@ async function apiChat({ req, res }) {
   } catch {}
 
   // HIA Script-First / Local-First: intercepta automações determinísticas antes de gastar cota
-  handleChatWithHia({ engine, prompt, slug, sessionId, history, signal: ac.signal, sink: tracked, fallbackStream });
+  Promise.resolve(handleChatWithHia({ engine, prompt, slug, sessionId, history, signal: ac.signal, sink: tracked, fallbackStream }))
+    .catch((err) => tracked.onError(err));
 }
 
 async function apiChatSave({ req, res }) {
