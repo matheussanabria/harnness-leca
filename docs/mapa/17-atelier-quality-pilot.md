@@ -2,6 +2,13 @@
 
 | Caminho | Responsabilidade |
 |---|---|
+| `docs/atelie-pilot/05-handoff-pending.md` | Pilot handoff: repository rules, what exists, pitfalls and what is still pending, so another engine can resume. |
+| `docs/atelie-pilot/composite-spec-v2.txt` | Composite round spec (v2) used as the briefing input for the composite runs. |
+| `tools/atelier-pilot/drivers/baseline-run.js` | Headless baseline: fresh-session prompt to OpenCode, parse, save with history. |
+| `tools/atelier-pilot/drivers/compose2-run.js` | Driver for the composite round (v2 spec). |
+| `tools/atelier-pilot/drivers/quality-run.js` | Headless run of the quality prompt flow. |
+| `tools/atelier-pilot/drivers/revise-run.js` | Targeted revision round: sends code plus render-review findings back and saves a new prototype. |
+| `tools/atelier-pilot/drivers/revise-patch.js` | Patch-style variant of the revision round. |
 | `docs/atelie-resumo-executivo-plano-aprovacao.md` | Executive summary and approval plan for the Atelier quality pilot (scope, stages 0-4, acceptance criteria, risks). |
 | `tools/ds-docs/extract-dc.js` | Reader for ".dc.html" Design System files: finds the `DOCS = [...]` class field, evaluates it in an empty `vm` context, splits variant components, lists class names and the tokens each component needs from the project. |
 | `tools/ds-docs/dc-tokens.js` | Builds `tokens.css` from a project palette (reporting missing tokens), the concatenated `components.css`, and the compact `ds-index.md` the prompt reads. |

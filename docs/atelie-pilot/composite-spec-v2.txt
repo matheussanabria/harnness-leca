@@ -1,0 +1,29 @@
+TASK: build ONE new landing page, "Torra Nova", by combining the best parts of three existing prototypes. The BASE prototype defines the overall look and structure and must remain recognisably the same page. Take the listed parts from the two REFERENCE prototypes. Return screens/home.html and styles/proto.css in full.
+
+CONTENT (use literally; do not invent other prices, quantities or deadlines):
+- Delivery: roasted Monday and Tuesday, dispatched Thursday, arrives in 2 to 4 business days. Free shipping on all plans.
+- Hero promise: "Café torrado na semana, enviado na quinta."
+- Steps (3): 1 Escolha seu plano. 2 A gente torra na semana. 3 Chega fresco na sua casa.
+- Plans: Explorador R$ 79/mês (1 pacote de 250 g por mês; 1 origem por mês; moagem sob medida; frete grátis). Barista R$ 129/mês, highlighted "Mais escolhido" (2 pacotes de 250 g por mês; 2 origens diferentes; moagem sob medida; acesso a microlotes; frete grátis). Mestre R$ 189/mês (2 pacotes de 250 g mais 1 microlote por mês; edições limitadas; moagem sob medida; degustação online mensal; frete grátis).
+- Testimonials: Marina Prado, Belo Horizonte, assinante há 8 meses: "Recebo o pacote na sexta e já sinto o cheiro antes de abrir. O Barista virou meu ritual de fim de semana." Rafael Nunes, Curitiba, assinante há 1 ano: "O melhor é a data da torra impressa no pacote. Dá para sentir a diferença na xícara."
+- FAQ (3): Quando meu café é torrado e enviado? (Torramos às segundas e terças e despachamos na quinta; chega em 2 a 4 dias úteis; cada pacote traz a data da torra.) Posso pausar ou cancelar? (Sim, a qualquer momento, sem multa, até a véspera da próxima torra.) Vocês moem o café? (Sim: grão inteiro, coado, espresso ou prensa francesa.)
+- Footer: contact ola@torranova.exemplo; segunda a sexta, 9h às 18h; "Projeto fictício de demonstração".
+- Two screens are not needed: home only. Buttons are anchors to #planos or similar; no scripts.
+
+FROM THE BASE (keep): the overall identity and the hero; the plan cards styled as a membership card ("carteirinha") with price and a stamp/seal; the bullet list of each plan; the background of the "Como funciona" section; the column layouts; the section titles and the testimonial author layout (avatar initials, name, city and tenure).
+CHANGE IN THE BASE:
+1. In "Como funciona", replace the bullet markers with small coffee-bean icons drawn as inline SVG.
+2. Alternate the section backgrounds strictly: light, dark, light, dark, light, dark (hero light; steps light-tinted; plans light; testimonials dark; FAQ light; closing CTA dark; footer dark).
+3. The closing call-to-action becomes a rounded CARD inside a dark section: a small kicker "PRÓXIMA TORRA", a title, one line of text and the primary button (see reference B).
+
+FROM REFERENCE A (v2-legacy-r2), take: the background treatment of the main (hero) section; the small highlighted label ABOVE the main headline; the logo mark in the banner/header; the closing CTA section's role; the card style and colour palette; the dark background of the testimonials section; the small highlighted label above each section title; the contact block in the footer.
+FROM REFERENCE B (v2-quality), take: the info row under the hero button with four labelled items (Torra: segundas e terças; Despacho: quinta-feira; Entrega: 2 a 4 dias úteis; Frete: grátis em todos os planos); a small subtitle (kicker) above every section title; a quotation-mark icon on each testimonial; the testimonial typography (italic serif quote, small bold author); the CTA card.
+
+QUALITY RULES: every text must have at least 4.5:1 contrast on the colour it sits on (check button labels on dark and on coloured backgrounds); keep at least 16px between the last benefit of a plan and its button and keep the three plan buttons on the same line; no scripts, no external images, no emojis; centred container with at least 16px side padding; responsive from 360 to 1440 px.
+
+MUST KEEP FROM THE BASE, EXACTLY (the previous attempt dropped these and the page lost its identity):
+A. The hero visual of the BASE: the dark, slightly tilted coffee-bag card with its label (lot, origin, roast date) and the round stamp ("Torrado esta semana") overlapping it. Keep its dark colours and shape; update only the texts to the fixed content.
+B. The BASE's highlighted plan: the Barista card is DARK (dark background, light text, light/terracotta button with a clearly readable label) with the small "Mais escolhido" tab on top. The other two plan cards stay light.
+C. Section alternation, strictly: hero light; "Como funciona" light-tinted; plans light (with the dark Barista card); testimonials DARK; FAQ light; closing CTA DARK containing the light CTA card; FOOTER LIGHT (cream background, dark text) so a dark section never touches another dark section.
+D. The "Como funciona" markers are coffee beans: each is a small inline SVG made of an ellipse tilted about 30 degrees with an S-shaped centre line, in the terracotta colour. Do not use any other glyph.
+Text sizes: body text at least 16px, card text at least 15px, small labels at least 13px.
