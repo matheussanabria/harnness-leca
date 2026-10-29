@@ -39,7 +39,12 @@ const normalize = (s) => String(s ?? "").toLowerCase().normalize("NFD").replace(
 const idOf = (categoria, texto) => crypto.createHash("sha1").update(`${categoria}|${normalize(texto)}`).digest("hex").slice(0, 12);
 
 function cleanText(texto) {
-  const one = String(texto ?? "").replace(/\s+/g, " ").replace(/^[-*]\s+/, "").replace(/^\[\d{4}-\d{2}-\d{2}\]\s*/, "").trim();
+  const one = String(texto ?? "")
+    .replace(/\s+/g, " ")
+    .replace(/^[-*]\s+/, "")
+    .replace(/^<!--\s*harvest:[^>]+-->\s*/, "")
+    .replace(/^\[\d{4}-\d{2}-\d{2}\]\s*/, "")
+    .trim();
   return redact(one).slice(0, MAX_TEXT).trim();
 }
 
@@ -65,7 +70,7 @@ function parseSuggestions(md) {
   for (const line of String(md).split(/\r?\n/)) {
     const marker = line.match(/^<!-- sessao: (\S+)(?: \| (\S+))? -->/);
     if (marker) { flush(); sessao = marker[1]; data = marker[2] || ""; categoria = null; continue; }
-    const heading = line.match(/^## (.+?)\s*$/);
+    const heading = line.match(/^#{2,3} (.+?)\s*$/);
     if (heading) {
       flush();
       const cat = CATEGORY_HEADINGS.find(([re]) => re.test(heading[1]));
@@ -91,6 +96,7 @@ function files(slug) {
   return {
     suggestions: path.join(p.proj, "context", "extraido-memorias.md"),
     consolidated: path.join(p.proj, "context", "memorias-consolidadas.md"),
+    harvested: path.join(p.proj, "context", "colhido-nativo.md"),
     memory: path.join(p.proj, "memory.md"),
     review: path.join(p.proj, "memory-review.json"),
     memoryDir: path.join(p.proj, "memory"),
@@ -142,6 +148,11 @@ function pending(slug, { somenteOriginais = false } = {}) {
   const all = new Map(parseSuggestions(read(f.suggestions)).filter((s) => !reviewed[s.id]).map((s) => [s.id, s]));
   if (!somenteOriginais) {
     for (const s of parseSuggestions(read(f.consolidated)).filter((x) => !byUser(x.id))) {
+      const seen = all.get(s.id);
+      if (seen) seen.conversas.push(...s.conversas); else all.set(s.id, s);
+    }
+    // Inclui candidatos colhidos nativamente dos motores locais (EP-13.08)
+    for (const s of parseSuggestions(read(f.harvested)).filter((x) => !byUser(x.id))) {
       const seen = all.get(s.id);
       if (seen) seen.conversas.push(...s.conversas); else all.set(s.id, s);
     }

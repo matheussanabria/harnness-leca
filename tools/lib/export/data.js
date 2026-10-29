@@ -24,14 +24,21 @@ function countChats(chatsDir) {
   }
 }
 
-/** Só a memória curada (memory.md) e as instruções: nada de context/extraido-*.md. */
+/** Só a memória curada (memory.md), itens estruturados (memory/) e as instruções: nada de context/extraido-*.md. */
 function collectProjectData(slug) {
   const projDir = path.join(ROOT, "projects", slug);
+  const memDir = path.join(projDir, "memory");
+  let items = [];
+  if (fs.existsSync(memDir)) {
+    const { listItems } = require("../memory/store");
+    items = listItems(memDir).valid;
+  }
   return {
     slug,
     memoryMd: readFileSafe(path.join(projDir, "memory.md")),
     instructionsMd: readFileSafe(path.join(projDir, "instructions.md")),
     chatsCount: countChats(path.join(projDir, "chats")),
+    items,
   };
 }
 

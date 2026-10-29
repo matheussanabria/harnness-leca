@@ -234,6 +234,31 @@ function runSave(argv, io = console, baseDir) {
   }
 }
 
+function runHarvest(argv, io = console, baseDir) {
+  const rootDir = baseDir || path.resolve(__dirname, "..");
+  const project = opt("project", argv);
+  const engine = /** @type {"claude" | "gemini" | "all"} */ (opt("engine", argv) || "all");
+  const dryRun = flag("dry-run", argv);
+
+  const { harvestAll } = require("./lib/memory/harvest/index");
+  const results = harvestAll({
+    project,
+    engine,
+    dryRun,
+    rootDir,
+    io,
+  });
+
+  const totalProjects = Object.keys(results).length;
+  const totalItems = Object.values(results).reduce((acc, items) => acc + items.length, 0);
+  io.log(`Colheita finalizada: ${totalItems} memória(s) em ${totalProjects} projeto(s).`);
+}
+
+function runLintCmd(argv, io = console, baseDir) {
+  const { runLint } = require("./lib/memory/run-lint");
+  runLint(argv, io, baseDir);
+}
+
 function main(argv, io = console) {
   const subcmd = argv[0];
   if (!subcmd || subcmd === "--help" || subcmd === "-h") {
@@ -242,6 +267,8 @@ function main(argv, io = console) {
     io.log("  index [--project <slug> | --all] [--check]     Gera ou verifica o índice memory.md");
     io.log("  migrate --project <slug> [--dry-run]          Migra bullets antigos para itens atômicos");
     io.log("  save [opções]                                 Salva ou atualiza item atômico com verificação");
+    io.log("  harvest [--project <slug>] [--engine e]       Colhe memórias nativas de Claude e Gemini");
+    io.log("  lint [--project <slug> | --all] [--json]      Verifica qualidade, caminhos e regras de memória");
     return;
   }
 
@@ -251,10 +278,15 @@ function main(argv, io = console) {
     runMigrate(argv.slice(1), io);
   } else if (subcmd === "save") {
     runSave(argv.slice(1), io);
+  } else if (subcmd === "harvest") {
+    runHarvest(argv.slice(1), io);
+  } else if (subcmd === "lint") {
+    runLintCmd(argv.slice(1), io);
   } else {
     throw new CliError(`Subcomando desconhecido: ${subcmd}. Use --help.`);
   }
 }
 
-module.exports = { main, runIndex, runMigrate, runSave };
+module.exports = { main, runIndex, runMigrate, runSave, runHarvest, runLintCmd };
 if (require.main === module) runAsScript(main);
+
