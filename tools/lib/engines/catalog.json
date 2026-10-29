@@ -67,7 +67,7 @@
     "icon": "◆",
     "color": "#7de2a3",
     "description": "Conecta na porta HTTP local do OpenCode já em execução com multi-modelos",
-    "defaultModel": "qwen3.6-plus-free",
+    "defaultModel": "glm-5.3-flash-free",
     "defaultEffort": "medium",
     "effortLevels": [
       {

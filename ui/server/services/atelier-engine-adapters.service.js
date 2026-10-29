@@ -2,6 +2,10 @@
 // Adaptadores de Motores (Gemini, OpenCode) para o Atelier Agent Loop (EP-15.04).
 // Formata histórico com tool-calls/results e extrai respostas estruturadas.
 const { getGeminiFunctionDeclarations, getOpenCodeTools } = require("./atelier-tools.service");
+const { parseToolTags } = require("./atelier-tool-tags.service");
+const V2 = require("../../../tools/lib/opencode-v2");
+const { runTurn, TurnError } = require("../../../tools/lib/opencode-v2-turn");
+const { ocFetch } = require("../../../tools/lib/opencode-detect");
 
 /**
  * Converte o histórico do AgentLoop para o formato contents da API do Gemini.
@@ -112,33 +116,10 @@ function parseGeminiCandidate(candidate) {
  * Fallback resiliente: extrai chamadas estruturadas de blocos <ferramenta nome="..."> ou blocos json
  * caso modelos menores ou sem tool-use nativo cuspar no texto.
  * @param {string} rawText
- * @returns {{ text: string, toolCalls: Array<{ name: string, args: object }> }}
+ * @returns {{ text: string, toolCalls: Array<{ name: string, args: object }>, errors: Array<{ tool: string, reason: string }> }}
  */
 function parseStructuredToolCallsFallback(rawText) {
-  if (!rawText || typeof rawText !== "string") return { text: "", toolCalls: [] };
-
-  const toolCalls = [];
-  let cleanedText = rawText;
-
-  // 1. Extração de blocos <tool name="...">...</tool> ou <ferramenta nome="...">...</ferramenta>
-  const tagRegex = /<\s*(?:tool|ferramenta)\s+(?:name|nome)\s*=\s*["']([^"']+)["']\s*>(.*?)<\/\s*(?:tool|ferramenta)\s*>/gis;
-  let match;
-  while ((match = tagRegex.exec(rawText)) !== null) {
-    const name = match[1].trim();
-    let body = match[2].trim();
-    // Limpa possível invólucro de código markdown ```json ... ```
-    body = body.replace(/^\s*```[a-zA-Z0-9_-]*\r?\n/, "").replace(/\r?\n```\s*$/, "");
-    try {
-      const args = JSON.parse(body);
-      toolCalls.push({ name, args });
-    } catch {}
-  }
-
-  if (toolCalls.length > 0) {
-    cleanedText = cleanedText.replace(tagRegex, "").trim();
-  }
-
-  return { text: cleanedText, toolCalls };
+  return parseToolTags(rawText);
 }
 
 /**
@@ -201,10 +182,19 @@ function buildGeminiModelTurn({
 }
 
 /**
- * Cria a função modelTurn para OpenCode local (REST).
+ * O agente padrão do opencode tem ferramentas nativas de escrita e roda na pasta do harness: sem isto o modelo grava
+ * arquivos soltos no repositório (já aconteceu: prototype/index.html, 72 KB) em vez de emitir as tags do Ateliê.
+ * Leitura continua liberada (Design System, arquivos do projeto). Medido: negar só write/edit/bash não basta, o modelo
+ * contorna com a ferramenta "shell"; com esta lista completa o arquivo não é criado.
+ */
+const NO_NATIVE_WRITES = ["write", "edit", "multiedit", "patch", "apply_patch", "shell", "bash"].map((action) => ({ action, resource: "*", effect: "deny" }));
+
+/**
+ * Cria a função modelTurn para OpenCode local (API HTTP v2).
  * @param {object} config
  * @param {string} [config.base]
  * @param {string} [config.model]
+ * @param {string} [config.sessionId] sessão do opencode a retomar (guarda o histórico da conversa)
  * @param {string} [config.systemPrompt]
  * @param {"low" | "medium" | "high"} [config.effort]
  * @param {typeof fetch} [config.fetchFn]
@@ -212,27 +202,32 @@ function buildGeminiModelTurn({
 function buildOpenCodeModelTurn({
   base = "http://localhost:63186",
   model,
+  sessionId,
   systemPrompt,
   effort = "medium",
-  fetchFn = fetch,
+  fetchFn = ocFetch,
 }) {
-  let cachedSessionId = null;
+  let cachedSessionId = /^ses_[A-Za-z0-9]{1,64}$/.test(sessionId || "") ? sessionId : null;
+  let checked = false;
 
-  return async function openCodeModelTurn(history, signal) {
+  return async function openCodeModelTurn(history, signal, /** @type {(e: object) => void} */ emit = () => {}) {
     const cleanBase = base.replace(/\/$/, "");
 
-    // 1. Garante sessão ativa
-    if (!cachedSessionId) {
-      const sRes = await fetchFn(`${cleanBase}/session`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-        signal,
-      });
-      if (!sRes.ok) throw new Error(`OpenCode falha ao criar sessão: HTTP ${sRes.status}`);
-      const sData = await sRes.json();
-      cachedSessionId = sData.id;
+    // 1. Garante sessão ativa (API v2: o modelo é definido na criação da sessão)
+    const reqOpts = { signal, fetchFn };
+    if (cachedSessionId && !checked) {
+      // Sessão vinda da conversa anterior: confere que o servidor ainda a conhece e aplica o modelo escolhido agora.
+      try {
+        if (model) await V2.setSessionModel(cleanBase, cachedSessionId, model, reqOpts);
+        await V2.readTurn(cleanBase, cachedSessionId, Number.MAX_SAFE_INTEGER, reqOpts);
+      } catch (err) {
+        if (err?.name === "AbortError") throw err;
+        cachedSessionId = null; // sessão perdida (servidor reiniciado): começa outra
+      }
     }
+    checked = true;
+    if (!cachedSessionId) cachedSessionId = await V2.createSession(cleanBase, { model, permissions: NO_NATIVE_WRITES }, reqOpts);
+    emit({ type: "session", sessionId: cachedSessionId }); // o cliente guarda o id e o reenvia na próxima mensagem
 
     // 2. Prepara o prompt do último turno com instrução das ferramentas
     const lastMsg = history[history.length - 1];
@@ -244,65 +239,33 @@ function buildOpenCodeModelTurn({
     const toolInstruction = `Você é o gerador de código e design do Ateliê.
 Sua única responsabilidade é emitir tags estruturadas que o backend do Ateliê intercepta e grava nos arquivos do protótipo:
 - Para definir o plano: <tool name="atelier_plan">{"steps":[{"id":"1","title":"...","status":"in_progress"}]}</tool>
-- Para gerar o HTML da tela: <tool name="atelier_write_screen">{"screenId":"home","htmlContent":"..."}</tool>
-- Para aplicar CSS: <tool name="atelier_patch_styles">{"cssContent":"...","mode":"append"}</tool>
+- Para gerar o HTML da tela, escreva o HTML CRU no corpo da tag, SEM JSON e SEM escapes: <tool name="atelier_write_screen" screenId="home"><main>...</main></tool>
+- Para aplicar CSS, também CRU no corpo: <tool name="atelier_patch_styles" mode="append">.card { padding: 16px; }</tool>
 - Para fazer perguntas necessárias: <tool name="atelier_ask_user">{"question":"...","options":["A","B"]}</tool>
 - Para finalizar: <tool name="atelier_complete">{"summary":"..."}</tool>
 IMPORTANTE: Não tente usar bash, grep ou ferramentas do terminal. Não se preocupe com modo somente leitura: apenas emita as tags acima no texto da sua resposta e o sistema gravará o código. Prossiga imediatamente com a implementação.`;
 
     const fullPrompt = `${toolInstruction}\n\n${userText}`;
 
-    const promptBody = {
-      parts: [{ type: "text", text: fullPrompt }],
-    };
-    if (model) {
-      promptBody.model = { providerID: "opencode", modelID: model };
-    }
-    let initialMsgCount = 0;
+    // 3. Turno com streaming (eventos da API v2): o raciocínio sai em tempo real, igual à CLI nativa
+    let turn;
     try {
-      const initRes = await fetchFn(`${cleanBase}/session/${cachedSessionId}/message`, { signal });
-      if (initRes.ok) {
-        const initMsgs = await initRes.json();
-        if (Array.isArray(initMsgs)) initialMsgCount = initMsgs.length;
-      }
-    } catch {}
-
-    const pRes = await fetchFn(`${cleanBase}/session/${cachedSessionId}/prompt_async`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(promptBody),
-      signal,
-    });
-
-    if (!pRes.ok) throw new Error(`OpenCode prompt_async HTTP ${pRes.status}`);
-
-    // 3. Polling de mensagens até a conclusão da resposta nova
-    let completed = false;
-    let accumulatedText = "";
-    while (!completed) {
-      if (signal?.aborted) break;
-      await new Promise((r) => setTimeout(r, 400));
-
-      const mRes = await fetchFn(`${cleanBase}/session/${cachedSessionId}/message`, { signal });
-      if (!mRes.ok) continue;
-      const msgs = await mRes.json();
-      const newMsgs = Array.isArray(msgs) ? msgs.slice(initialMsgCount) : [];
-      const lastAss = [...newMsgs].reverse().find((m) => m.info?.role === "assistant");
-      if (lastAss) {
-        if (Array.isArray(lastAss.parts)) {
-          accumulatedText = lastAss.parts
-            .filter((p) => p.type === "text")
-            .map((p) => p.text)
-            .join("");
-        }
-        if (lastAss.info?.time?.completed) {
-          completed = true;
-        }
-      }
+      turn = await runTurn(cleanBase, cachedSessionId, fullPrompt, {
+        signal,
+        fetchFn,
+        onReasoning: (text) => emit({ type: "thinking", text }),
+        onWaiting: (seconds) => emit({ type: "waiting", seconds }),
+      });
+    } catch (err) {
+      if (err instanceof TurnError) throw new Error(err.message);
+      throw err;
     }
+    const accumulatedText = turn.text;
 
     const parsed = parseStructuredToolCallsFallback(accumulatedText);
-    return { text: parsed.text || accumulatedText, toolCalls: parsed.toolCalls };
+    // Tag que não deu para ler vira erro devolvido ao modelo (que reenvia), em vez de sumir e a tela ficar vazia.
+    const errorCalls = parsed.errors.map((e) => ({ name: "atelier_parse_error", args: { tool: e.tool, reason: e.reason } }));
+    return { text: parsed.text || accumulatedText, toolCalls: [...parsed.toolCalls, ...errorCalls] };
   };
 }
 
@@ -313,4 +276,5 @@ module.exports = {
   parseStructuredToolCallsFallback,
   buildGeminiModelTurn,
   buildOpenCodeModelTurn,
+  NO_NATIVE_WRITES,
 };

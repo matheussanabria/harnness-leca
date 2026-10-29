@@ -71,7 +71,7 @@
       "icon": "◆",
       "color": "#7de2a3",
       "description": "Conecta na porta HTTP local do OpenCode já em execução com multi-modelos",
-      "defaultModel": "qwen3.6-plus-free",
+      "defaultModel": "glm-5.3-flash-free",
       "defaultEffort": "medium",
       "effortLevels": [
         {
@@ -229,6 +229,31 @@
       ],
       "models": [
         {
+          "id": "gpt-6.1-sol",
+          "name": "GPT-6.1-Sol",
+          "desc": "Latest workhorse model for coding and everyday work."
+        },
+        {
+          "id": "gpt-6-astra",
+          "name": "GPT-6-Astra",
+          "desc": "Frontier intelligence for the most demanding work."
+        },
+        {
+          "id": "gpt-6.1-terra",
+          "name": "GPT-6.1 Terra",
+          "desc": "GPT-6.1 Terra Codex model."
+        },
+        {
+          "id": "gpt-6-sol",
+          "name": "GPT-6-Sol",
+          "desc": "Previous generation workhorse model."
+        },
+        {
+          "id": "gpt-6-luna",
+          "name": "GPT-6-Luna",
+          "desc": "Fast and affordable model for easier tasks."
+        },
+        {
           "id": "gpt-5.6-sol",
           "name": "GPT-5.6-Sol",
           "desc": "Older generation workhorse model."
@@ -382,15 +407,15 @@
         {
           "id": "glm-5-free",
           "name": "GLM 5",
-          "desc": "Modelo Gratuito"
+          "desc": "Equilibrado para tarefas gerais"
         },
         {
           "id": "grok-code",
           "name": "Grok Code Fast 1",
-          "desc": ""
+          "desc": "Especializado em engenharia de software"
         },
         {
-          "id": "alfa",
+          "id": "outro/alfa",
           "name": "Alfa",
           "desc": "outro"
         },
@@ -489,6 +514,31 @@
         }
       ],
       "models": [
+        {
+          "id": "gpt-6.1-sol",
+          "name": "GPT-6.1-Sol",
+          "desc": "Latest workhorse model for coding and everyday work."
+        },
+        {
+          "id": "gpt-6-astra",
+          "name": "GPT-6-Astra",
+          "desc": "Frontier intelligence for the most demanding work."
+        },
+        {
+          "id": "gpt-6.1-terra",
+          "name": "GPT-6.1 Terra",
+          "desc": "GPT-6.1 Terra Codex model."
+        },
+        {
+          "id": "gpt-6-sol",
+          "name": "GPT-6-Sol",
+          "desc": "Previous generation workhorse model."
+        },
+        {
+          "id": "gpt-6-luna",
+          "name": "GPT-6-Luna",
+          "desc": "Fast and affordable model for easier tasks."
+        },
         {
           "id": "gpt-5.6-sol",
           "name": "GPT-5.6-Sol",

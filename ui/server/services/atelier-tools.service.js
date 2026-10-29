@@ -180,7 +180,8 @@ async function executeAtelierTool(toolName, args, ctx, deps = { fs, path }) {
       }
 
       case "atelier_patch_styles": {
-        const { cssRules, mode = "append" } = args || {};
+        const { mode = "append" } = args || {};
+        const cssRules = args?.cssRules ?? args?.cssContent; // os modelos usam os dois nomes
         if (typeof cssRules !== "string") return { ok: false, error: "cssRules deve ser uma string com código CSS." };
         const stylesDir = deps.path.join(protoDir, "styles");
         if (!deps.fs.existsSync(stylesDir)) deps.fs.mkdirSync(stylesDir, { recursive: true });
@@ -191,6 +192,9 @@ async function executeAtelierTool(toolName, args, ctx, deps = { fs, path }) {
         deps.fs.writeFileSync(cssPath, finalCss, "utf8");
         return { ok: true, result: { message: `styles/proto.css atualizado (${mode}).`, totalBytes: Buffer.byteLength(finalCss, "utf8") } };
       }
+
+      case "atelier_parse_error": // não é chamada pelo modelo: o harness a cria quando uma tag não pôde ser lida
+        return { ok: false, error: `A tag <tool name="${args?.tool}"> não pôde ser lida (${args?.reason}). Reenvie. Para atelier_write_screen e atelier_patch_styles escreva o conteúdo CRU no corpo da tag, sem JSON e sem escapes.` };
 
       case "atelier_ask_user": {
         const { question, options = [], context = "" } = args || {};

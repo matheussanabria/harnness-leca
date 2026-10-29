@@ -64,7 +64,7 @@ function createAtelierAgentLoop({
         onEvent({ type: "turn_start", turn: turnCount });
 
         // Invoca o modelo com o histórico acumulado
-        const response = await modelTurn(history, signal);
+        const response = await modelTurn(history, signal, onEvent);
         const { text = "", toolCalls = [] } = response || {};
 
         if (text) {

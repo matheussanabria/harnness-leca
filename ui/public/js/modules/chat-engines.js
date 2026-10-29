@@ -7,12 +7,15 @@ import { cs, saveEngineSettings } from "./chat-store.js";
 import { chatPresentation } from "./chat-presentations.js";
 import { getEngineSession } from "./chat-session-store.js";
 
-export async function initEngines() {
+export async function initEngines(attempt = 0) {
   try {
     cs.enginesMeta = await (await fetch("/api/engines")).json();
     state.enginesInfo = cs.enginesMeta;
     updateEngineAuthBadge();
   } catch {}
+  // OpenCode ainda subindo (autostart leva até ~1 min): tenta de novo sozinho até a lista completa chegar.
+  const oc = cs.enginesMeta?.opencode;
+  if (oc && (oc.available === false || oc.modelsFromCatalog) && attempt < 24) setTimeout(() => initEngines(attempt + 1), 5000);
 }
 
 export async function initDai() {
@@ -65,6 +68,14 @@ export function applyDaiWorkflow(wfId, presentation = state.isStudioMode ? "stud
   }
 }
 
+/** Texto de aviso quando o OpenCode está desligado; vazio nos demais casos. */
+export function offlineNotice(eng) {
+  if (!eng || eng.id !== "opencode" || eng.available !== false) return "";
+  // Servidor no ar mas com outra senha (ex.: iniciado à mão sem passar pelo harness): ligar de novo não resolve.
+  if (/senha|401/i.test(eng.reason || "")) return "OpenCode pede senha: reinicie com npm run opencode (lista reduzida)";
+  return "OpenCode desligado: rode npm run opencode e o 9router (lista reduzida)";
+}
+
 export function updateEngineControls() {
   const eng = cs.enginesMeta[cs.currentEngine];
   if (!eng) return;
@@ -74,7 +85,9 @@ export function updateEngineControls() {
   const models = eng.models || [];
   const currentModel = cs.engineSettings[cs.currentEngine].model || eng.defaultModel || (models[0]?.id || "");
   cs.engineSettings[cs.currentEngine].model = currentModel;
-  const optsHtml = models
+  // Servidor do opencode desligado: a lista abaixo é só o catálogo estático, então avisa e diz como ligar.
+  const offlineHtml = offlineNotice(eng) ? `<option value="" disabled>${esc(offlineNotice(eng))}</option>` : "";
+  const optsHtml = offlineHtml + models
     .map((m) => `<option value="${esc(m.id)}" ${m.id === currentModel ? "selected" : ""}>${esc(m.name)}${m.desc ? " (" + esc(m.desc) + ")" : ""}</option>`)
     .join("");
   if (sel) sel.innerHTML = optsHtml;
@@ -142,7 +155,7 @@ export function updateEngineAuthBadge() {
   if (eng) {
     const badge = $("engineAuthBadge");
     if (badge) {
-      badge.textContent = eng.auth;
+      badge.textContent = offlineNotice(eng) || eng.auth;
       // PI-2: destaca motor local com badge verde (sem alteração no fluxo)
       const isLocal = cs.currentEngine === "ollama";
       badge.classList.toggle("engine-auth-badge--local", isLocal);

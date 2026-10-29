@@ -1,6 +1,6 @@
 // @ts-check
 // Resolve a URL do servidor HTTP do OpenCode: candidatos (OPENCODE_URL, portas descobertas, padrão), cada um
-// validado com GET /session. Nada é engolido: o resultado diz o que foi tentado e por que cada endereço falhou.
+// validado com GET /api/info (API v2). Nada é engolido: o resultado diz o que foi tentado e por que cada endereço falhou.
 const { discoverPorts, realSys } = require("./opencode-ports");
 
 const DEFAULT_URL = "http://localhost:63186";
@@ -19,10 +19,10 @@ function ocFetch(url, init = {}) {
   return globalThis.fetch(url, { ...init, headers: { ...authHeaders(), ...(init.headers || {}) } });
 }
 
-/** Valida que a URL fala a API do OpenCode (GET /session responde 200 com JSON). @returns {Promise<{url:string, ok:boolean, reason:string, status?:number}>} */
+/** Valida que a URL fala a API do OpenCode (GET /api/info responde 200 com JSON; 401 = pede senha). @returns {Promise<{url:string, ok:boolean, reason:string, status?:number}>} */
 async function probe(url) {
   try {
-    const res = await ocFetch(`${url}/session`, { signal: AbortSignal.timeout(PROBE_TIMEOUT_MS) });
+    const res = await ocFetch(`${url}/api/info`, { signal: AbortSignal.timeout(PROBE_TIMEOUT_MS) });
     if (res.status === 401) return { url, ok: false, status: 401, reason: "HTTP 401 (senha necessária)" };
     if (!res.ok) return { url, ok: false, status: res.status, reason: `HTTP ${res.status}` };
     try { await res.json(); } catch { return { url, ok: false, status: res.status, reason: "resposta não é JSON (outro serviço nesta porta)" }; }
@@ -36,10 +36,10 @@ async function probe(url) {
 const norm = (u) => String(u).replace(/\/+$/, "");
 
 /**
- * @param {{ sys?: import("./opencode-ports").OsLayer, env?: NodeJS.ProcessEnv }} [opts]
+ * @param {{ sys?: import("./opencode-ports").OsLayer, env?: NodeJS.ProcessEnv, defaultUrl?: string }} [opts]
  * @returns {Promise<{ url: string|null, tried: {url:string, ok:boolean, reason:string, status?:number}[], discoveryErrors: string[] }>}
  */
-async function detectOpenCodeUrl({ sys = realSys, env = process.env } = {}) {
+async function detectOpenCodeUrl({ sys = realSys, env = process.env, defaultUrl = DEFAULT_URL } = {}) {
   const tried = [];
   const seen = new Set();
   const attempt = async (url) => {
@@ -60,7 +60,7 @@ async function detectOpenCodeUrl({ sys = realSys, env = process.env } = {}) {
     const hit = await attempt(`http://127.0.0.1:${port}`);
     if (hit) return { url: hit, tried, discoveryErrors: errors };
   }
-  const hit = await attempt(DEFAULT_URL);
+  const hit = await attempt(defaultUrl);
   return { url: hit, tried, discoveryErrors: errors };
 }
 
@@ -80,7 +80,7 @@ function invalidateOpenCodeUrl() { cached = null; cachedAt = 0; }
 
 /**
  * URL validada do servidor (cache curto). Lança PublicError quando nenhum endereço responde.
- * @param {{ sys?: import("./opencode-ports").OsLayer, env?: NodeJS.ProcessEnv }} [opts]
+ * @param {{ sys?: import("./opencode-ports").OsLayer, env?: NodeJS.ProcessEnv, defaultUrl?: string }} [opts]
  */
 async function resolveOpenCodeUrl(opts = {}) {
   if (cached && Date.now() - cachedAt < CACHE_MS) return cached;

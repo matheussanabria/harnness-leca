@@ -13,7 +13,8 @@ const PIN_ARG_IDX = process.argv.indexOf("--pin");
 const PIN = PIN_ARG_IDX !== -1 ? process.argv[PIN_ARG_IDX + 1] : (process.env.HARNESS_PIN || (IS_REMOTE ? String(crypto.randomInt(100000, 1000000)) : ""));
 const HOST = process.env.HARNESS_HOST || (IS_REMOTE ? "0.0.0.0" : "127.0.0.1");
 
-const MAX_CHATS = Number(process.env.HARNESS_MAX_CHATS) || 6;
+// 0 = sem limite de respostas simultâneas (padrão); defina HARNESS_MAX_CHATS=N para reativar o teto.
+const MAX_CHATS = Number(process.env.HARNESS_MAX_CHATS) || 0;
 
 const HEADERS = {
   "X-Content-Type-Options": "nosniff",

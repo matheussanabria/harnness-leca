@@ -1,6 +1,16 @@
 ## ⚡ 4. Motores de IA e Extratores (`tools/lib/`)
 
 - [`tools/lib/engines/index.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/tools/lib/engines/index.js): Registro unificado dos motores (`claude`, `gemini`, `opencode`). Todos seguem a interface `{ id, stream, status }`.
+- `tools/lib/engines/opencode-model.js`: Converts a model id (`provider/model`, e.g. `9router/Harness`; no prefix = built-in `opencode` provider) into the `{providerID, modelID}` reference.
+- `tools/lib/opencode-v2.js`: Client for the opencode v2 HTTP API (`/api/*`, Basic auth): create session (model set at creation), prompt, per-turn message summary (reasoning/text/idle outcome and error), interrupt, model list.
+- `tools/lib/opencode-v2-turn.js`: One streaming turn on the opencode v2 API: subscribes to `/api/event` (reasoning/text deltas), sends the prompt, falls back to reading `/message`, treats "session still active" as alive (idle timeout only when the server session stopped), abort sends interrupt.
+- `ui/server/services/atelier-tool-tags.service.js`: Parses the `<tool name=...>` tags models write in text: raw HTML/CSS body for `atelier_write_screen`/`atelier_patch_styles` (no JSON), JSON with raw newlines repaired, unreadable tags returned as errors instead of being dropped.
+- `tests/atelier-tool-tags.test.js`: Tag parser (JSON, repaired JSON, raw HTML/CSS, explicit errors) and the `cssRules`/`cssContent` + `atelier_parse_error` tools.
+- `tools/start-opencode.js`: `npm run opencode`; starts `opencode serve --port 63186` with the shared OPENCODE_SERVER_PASSWORD from `global/.env` (generated on first use).
+- `tools/lib/engine-autostart.js`: On UI boot, starts 9router (:20128) and opencode (:63186) in the background if they are not answering (any HTTP response counts as up), runs the real executables (no console window) and keeps the opencode password stable in `global/.env`; HARNESS_AUTOSTART=0 disables it, OPENCODE_BIN overrides the binary. Never throws.
+- `tests/opencode-v2-turn.test.js`: Streaming turn against a fake SSE server (deltas, failure, silence with active/stopped session, SSE down, abort).
+- `tests/opencode-v2.test.js`: v2 client against a fake HTTP server with password (routes, bodies, turn summary, model list, API errors).
+- `tests/engine-autostart.test.js`: Autostart with a fake HTTP server (already-up, disabled, missing binary) and the "OpenCode desligado" error message for `fetch failed`.
 - [`tools/lib/engines/codex.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/tools/lib/engines/codex.js): Integra o CLI local do Codex, com retomada de sessão, modelo e intensidade de raciocínio.
 - `tools/lib/claude-sync-sources.js`: Reconcilia sessões Claude duplicadas entre workspaces e escolhe uma fonte determinística antes do sync.
 - [`tools/lib/dai.js`](file:///c:/Users/matheuss.rodrigues/git/harness-leca/tools/lib/dai.js): Integração com o esquadrão DAI (17 agentes especialistas) e workflows.
