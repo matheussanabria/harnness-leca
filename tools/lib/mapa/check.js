@@ -11,11 +11,12 @@ const LIMITS = { area: 8 * 1024, index: 8 * 1024 };
 
 /**
  * @param {{ file: string, size: number, meta: Record<string, string | string[]> | null }[]} entries from scanMapa
- * @param {string[]} covered tracked source files that must be reachable through some `paths` glob
- * @param {{ indexSize?: number, strict?: boolean, limits?: { area: number, index: number } }} [opts]
+ * @param {string[]} covered tracked source files that must be reachable through some `paths` glob (orphan check)
+ * @param {{ indexSize?: number, strict?: boolean, limits?: { area: number, index: number }, tracked?: string[] }} [opts] tracked: every tracked file, the target of the dead-link check (defaults to covered)
  */
 function checkMapa(entries, covered, opts = {}) {
   const limits = opts.limits || LIMITS;
+  const tracked = opts.tracked || covered;
   const errors = [];
   const warnings = [];
   const globs = [];
@@ -32,7 +33,7 @@ function checkMapa(entries, covered, opts = {}) {
     for (const p of validateFrontmatter(meta)) errors.push(`${file}: ${p}`);
     for (const g of /** @type {string[]} */ (Array.isArray(meta.paths) ? meta.paths : [])) {
       globs.push(g);
-      if (!covered.some((f) => matchesGlob(g, f))) errors.push(`${file}: path "${g}" matches no tracked file (dead link)`);
+      if (!tracked.some((f) => matchesGlob(g, f))) errors.push(`${file}: path "${g}" matches no tracked file (dead link)`);
     }
   }
 

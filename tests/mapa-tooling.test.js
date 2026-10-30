@@ -49,6 +49,9 @@ test("check: size cap, folder mismatch, dead path and legacy files", () => {
   assert.ok(wrongDir.errors.some((e) => /do not match the folders/.test(e)));
   const dead = checkMapa([entry({ paths: ["ui/nada/*.js"] })], FILES);
   assert.ok(dead.errors.some((e) => /dead link/.test(e)));
+  const docsEntry = entry({ paths: ["docs/evolucao.md"] });
+  assert.ok(checkMapa([docsEntry], FILES).errors.some((e) => /dead link/.test(e)));
+  assert.deepEqual(checkMapa([docsEntry], FILES, { tracked: [...FILES, "docs/evolucao.md"] }).errors, []);
   const legacy = checkMapa([{ file: "docs/mapa/02-backend.md", size: 100, meta: null }], FILES);
   assert.deepEqual(legacy.errors, []);
   assert.ok(legacy.warnings.some((w) => /not migrated/.test(w)));

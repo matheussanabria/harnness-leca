@@ -5,7 +5,7 @@
 const fs = require("fs");
 const path = require("path");
 const { flag, CliError, runAsScript } = require("./lib/cli");
-const { scanMapa, listCoveredFiles, ROOT } = require("./lib/mapa/scan");
+const { scanMapa, listCoveredFiles, listTrackedFiles, ROOT } = require("./lib/mapa/scan");
 const { checkMapa, indexSize } = require("./lib/mapa/check");
 const { findMapa, buildIndex } = require("./lib/mapa/query");
 
@@ -34,7 +34,8 @@ function main(argv, io = console) {
     if (!hits.length) return io.log("no migrated map entry covers that; read MAPA.md and the legacy docs/mapa files");
     for (const e of hits.slice(0, 5)) io.log(`${e.file} (${(e.size / 1024).toFixed(1)} KB): ${e.meta.summary}`);
   } else if (cmd === "check") {
-    const res = checkMapa(entries, listCoveredFiles(), { indexSize: indexSize(ROOT), strict: flag("strict", argv) });
+    const tracked = listTrackedFiles();
+    const res = checkMapa(entries, listCoveredFiles(ROOT, tracked), { tracked, indexSize: indexSize(ROOT), strict: flag("strict", argv) });
     for (const w of res.warnings) io.log(`warning: ${w}`);
     for (const e of res.errors) io.error(`error: ${e}`);
     if (res.errors.length) throw new CliError(`${res.errors.length} map problem(s)`);

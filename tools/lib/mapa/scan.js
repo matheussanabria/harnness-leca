@@ -30,10 +30,14 @@ function scanMapa(root = ROOT) {
   });
 }
 
-/** Source files the map must cover: tracked JS/CSS/HTML under ui/, tools/ and scripts/. */
-function listCoveredFiles(root = ROOT) {
+/** Every tracked file: the target of a `paths` glob (dead-link check). */
+function listTrackedFiles(root = ROOT) {
   const out = execFileSync("git", ["ls-files", "-z"], { cwd: root, maxBuffer: 64 * 1024 * 1024 }).toString("utf8");
-  return out.split("\0").map(toPosix).filter((f) => COVERED_DIRS.some((d) => f.startsWith(d)) && COVERED_EXT.test(f));
+  return out.split("\0").map(toPosix).filter(Boolean);
 }
 
-module.exports = { scanMapa, listCoveredFiles, ROOT };
+/** Source files the map must cover (orphan check): tracked JS/CSS/HTML under ui/, tools/ and scripts/. */
+const listCoveredFiles = (root = ROOT, tracked = listTrackedFiles(root)) =>
+  tracked.filter((f) => COVERED_DIRS.some((d) => f.startsWith(d)) && COVERED_EXT.test(f));
+
+module.exports = { scanMapa, listCoveredFiles, listTrackedFiles, ROOT };
