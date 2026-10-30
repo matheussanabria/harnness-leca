@@ -4,7 +4,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
-const { resolveOpencodeBin } = require("../opencode-bin");
+const { resolveOpencodeBin, opencodeRunArgs, opencodeCwdEnv } = require("../opencode-bin");
 const { parseOpencodeEvents, isFreeOpencodeModel, DEFAULT_OPENCODE_MODEL } = require("../llm");
 const { parseStory } = require("./story");
 const { findViolations } = require("./guard");
@@ -37,9 +37,9 @@ function runPackage(root, opts, deps = {}) {
   if (!opts.dryRun) {
     const bin = resolveOpencodeBin();
     if (!bin) throw new Error("opencode não encontrado no PATH (defina OPENCODE_BIN).");
-    const r = spawn(bin, ["run", "--pure", "--dir", wt.dir, "--agent", AGENT, "-m", model, "--format", "json"], {
+    const r = spawn(bin, opencodeRunArgs({ agent: AGENT, model, auto: true }), {
       input: prompt, encoding: "utf8", shell: false, windowsHide: true, cwd: wt.dir,
-      timeout: (opts.timeoutMin || 30) * 60_000, maxBuffer: MAX_BUFFER, env: { ...process.env, OPENCODE_CONFIG: cfgFile },
+      timeout: (opts.timeoutMin || 30) * 60_000, maxBuffer: MAX_BUFFER, env: opencodeCwdEnv(wt.dir, { OPENCODE_CONFIG: cfgFile }),
     });
     report.exitCode = r.status;
     try { report.summary = parseOpencodeEvents(String(r.stdout || "")).slice(0, 4000); } catch (e) { report.error = String(/** @type {Error} */ (e).message); }

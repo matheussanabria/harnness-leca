@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const { spawnSync } = require("child_process");
-const { resolveOpencodeBin } = require("./opencode-bin");
+const { resolveOpencodeBin, opencodeRunArgs, opencodeCwdEnv } = require("./opencode-bin");
 const { parseOpencodeEvents, isFreeOpencodeModel, DEFAULT_OPENCODE_MODEL } = require("./llm");
 
 const DENIED = ["webfetch", "websearch", "task", "skill", "lsp", "external_directory", "doom_loop"];
@@ -46,16 +46,15 @@ function delegate(request, deps = {}) {
   if (!bin) throw new Error("OpenCode executable not found.");
 
   const config = buildConfig(request);
-  const env = {
-    ...process.env,
+  const env = opencodeCwdEnv(dir, {
     OPENCODE_CONFIG_CONTENT: JSON.stringify(config),
     OPENCODE_PERMISSION: JSON.stringify(config.permission),
     OPENCODE_DISABLE_AUTOUPDATE: "true",
     OPENCODE_DISABLE_DEFAULT_PLUGINS: "true",
     OPENCODE_DISABLE_LSP_DOWNLOAD: "true",
-  };
+  });
   const run = deps.spawnSync || spawnSync;
-  const result = run(bin, ["run", "--pure", "--dir", dir, "--agent", "executor", "-m", model, "--format", "json"], {
+  const result = run(bin, opencodeRunArgs({ agent: "executor", model, auto: request.write }), {
     cwd: dir,
     env,
     input: fs.readFileSync(promptFile, "utf8"),
