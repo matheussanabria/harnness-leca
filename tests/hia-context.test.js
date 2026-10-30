@@ -132,3 +132,23 @@ test("getMapSection reads the map split across docs/mapa and returns multi-part 
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("getMapSection falls back to the migrated map files (frontmatter removed, best match first)", () => {
+  const dir = path.join(ROOT, "docs", "mapa", "backend", "atelier");
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "agent-loop.md"), [
+    "---", "domain: backend", "module: atelier", "feature: agent-loop", "summary: Agent loop", "paths: [ui/server/services/atelier-*.js]",
+    "keywords: [atelier, loop]", "updated: 2026-10-30", "---", "# Agent loop", "", "| File | Responsibility |", "|---|---|", "| `ui/server/services/atelier-agent-loop.service.js` | linha-loop |", "",
+  ].join("\n"));
+  try {
+    const byKeyword = getMapSection("atelier");
+    assert.ok(byKeyword.content.includes("linha-loop"));
+    assert.ok(!byKeyword.content.includes("domain: backend"));
+    assert.ok(byKeyword.tokensEst > 0);
+    assert.ok(getMapSection("ui/server/services/atelier-agent-loop.service.js").content.includes("linha-loop"));
+    assert.ok(getMapSection(1).content.includes("harness-leca/"));
+    assert.equal(getMapSection("secao_totalmente_inexistente_xyz"), null);
+  } finally {
+    fs.rmSync(path.join(ROOT, "docs"), { recursive: true, force: true });
+  }
+});

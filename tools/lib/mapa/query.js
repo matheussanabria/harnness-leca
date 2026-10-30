@@ -35,4 +35,19 @@ function buildIndex(entries) {
   return ["| File | Domain / module | Covers | Size |", "|---|---|---|---|", ...rows].join("\n");
 }
 
-module.exports = { findMapa, buildIndex };
+/** Domain-level table for MAPA.md: one row per domain with its modules, file count and total size. */
+function buildDomainTable(entries) {
+  const byDomain = new Map();
+  for (const e of migrated(entries)) {
+    const d = byDomain.get(e.meta.domain) || { files: 0, size: 0, modules: new Set() };
+    d.files += 1;
+    d.size += e.size;
+    d.modules.add(e.meta.module);
+    byDomain.set(e.meta.domain, d);
+  }
+  const rows = [...byDomain].sort(([a], [b]) => a.localeCompare(b)).map(([name, d]) =>
+    `| \`${name}\` | ${[...d.modules].sort().join(", ")} | ${d.files} | ${(d.size / 1024).toFixed(1)} KB |`);
+  return ["| Domain | Modules | Files | Size |", "|---|---|---|---|", ...rows].join("\n");
+}
+
+module.exports = { findMapa, buildIndex, buildDomainTable };

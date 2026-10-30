@@ -15,6 +15,6 @@ updated: 2026-10-30
 | `ui/server/config.js` | Ports, remote PIN, response helper (`send`) and JSON body reader (`readJsonBody`). |
 | `ui/server/router.js` | Regex/string route table and delegation to controllers. |
 | `ui/server/controllers/remote.controller.js` | QR Code info, mobile PIN validation and local network details. |
-| `ui/server/controllers/static.controller.js` | Safely serves HTML, CSS, JS and images inside `ui/public/`. |
+| `ui/server/controllers/static.controller.js` | Safely serves HTML, CSS, JS and images inside `ui/public/`; the vendored DC runtime gets `Cross-Origin-Resource-Policy: cross-origin` for the opaque-origin iframe. |
 | `ui/server/controllers/source-workspace.controller.js` and `ui/server/services/source-workspace.service.js` | Studio source list/read/save with path confinement, secret blocking and fingerprint conflicts. |
 | `ui/server/controllers/services.controller.js` | Starts and stops local processes (Spring Boot, Vite) and streams their logs. |

@@ -7,7 +7,7 @@ const path = require("path");
 const { validateFrontmatter } = require("./frontmatter");
 const { matchesGlob } = require("./glob");
 
-const LIMITS = { area: 8 * 1024, index: 8 * 1024 };
+const LIMITS = { area: 8 * 1024, index: 4 * 1024 };
 
 /**
  * @param {{ file: string, size: number, meta: Record<string, string | string[]> | null }[]} entries from scanMapa

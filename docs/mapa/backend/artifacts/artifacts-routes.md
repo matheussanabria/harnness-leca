@@ -3,7 +3,7 @@ domain: backend
 module: artifacts
 feature: artifacts-routes
 summary: Artifact controllers, services and routes, plus the Angular component inspector controller and service.
-paths: [ui/server/controllers/artifact*.controller.js, ui/server/services/artifact-*.service.js, ui/server/routes/artifact.routes.js, ui/server/controllers/inspect.controller.js, ui/server/services/component-resolver.service.js]
+paths: [ui/server/controllers/artifact*.controller.js, ui/server/services/artifact-*.service.js, ui/server/routes/artifact.routes.js, ui/server/controllers/inspect.controller.js, ui/server/services/component-resolver.service.js, ui/server/services/template-locator*.js]
 keywords: [artifacts, inventory, import, access, preview, relationships, inspector, angular]
 updated: 2026-10-30
 ---
@@ -23,4 +23,5 @@ updated: 2026-10-30
 | `ui/server/services/artifact-preview.service.js` | Resolves path by type, applies access and limits, returns text or bytes for HTML, image and PDF. |
 | `ui/server/services/artifact-relationships.service.js` | Maintains `artifacts/.relationships.json` with stable screen/field keys, validates targets, reports orphans, writes atomically. |
 | `ui/server/controllers/inspect.controller.js` | Angular inspector: resolves component classes (`/api/project/:slug/inspect/resolve`) and safely reads code (`.../inspect/file`). |
-| `ui/server/services/component-resolver.service.js` | Scans `.ts` files, parses `@Component` decorators, extracts template/styles and strictly confines paths. |
+| `ui/server/services/component-resolver.service.js` | Scans `.ts` files, parses `@Component` decorators, extracts template/styles and strictly confines paths. Split into `component-resolver-*.js` (parse, resolve, store, utils) in the same folder. |
+| `ui/server/services/template-locator.service.js` | Template locator facade; split into `template-locator-find.js` and `template-locator-nodes.js` in the same folder. |

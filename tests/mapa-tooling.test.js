@@ -4,7 +4,7 @@ const assert = require("node:assert/strict");
 const { parseFrontmatter, validateFrontmatter } = require("../tools/lib/mapa/frontmatter");
 const { matchesGlob } = require("../tools/lib/mapa/glob");
 const { checkMapa } = require("../tools/lib/mapa/check");
-const { findMapa, buildIndex } = require("../tools/lib/mapa/query");
+const { findMapa, buildIndex, buildDomainTable } = require("../tools/lib/mapa/query");
 
 const META = {
   domain: "backend", module: "atelier", feature: "agent-loop", summary: "Agent loop and tools",
@@ -44,7 +44,7 @@ test("check: valid tree passes; orphan files are warnings, errors under strict",
 
 test("check: size cap, folder mismatch, dead path and legacy files", () => {
   const big = checkMapa([entry({}, undefined, 9000)], FILES);
-  assert.match(big.errors[0], /over the 8192 limit/);
+  assert.match(big.errors[0], /over the 8192 | 3.0 KBlimit/);
   const wrongDir = checkMapa([entry({ module: "other" })], FILES);
   assert.ok(wrongDir.errors.some((e) => /do not match the folders/.test(e)));
   const dead = checkMapa([entry({ paths: ["ui/nada/*.js"] })], FILES);
@@ -55,7 +55,7 @@ test("check: size cap, folder mismatch, dead path and legacy files", () => {
   const legacy = checkMapa([{ file: "docs/mapa/02-backend.md", size: 100, meta: null }], FILES);
   assert.deepEqual(legacy.errors, []);
   assert.ok(legacy.warnings.some((w) => /not migrated/.test(w)));
-  assert.match(checkMapa([], FILES, { indexSize: 9000 }).errors[0], /MAPA\.md/);
+  assert.match(checkMapa([], FILES, { indexSize: 5000 }).errors[0], /MAPA\.md/);
 });
 
 test("find: by path prefers the most specific glob; by keyword ranks field hits; legacy files are skipped", () => {
@@ -72,4 +72,12 @@ test("build: index table lists migrated entries with size", () => {
   const table = buildIndex([entry(), { file: "docs/mapa/02-backend.md", size: 1, meta: null }]);
   assert.match(table, /`backend\/atelier\/agent-loop\.md` \| backend \/ atelier \| Agent loop and tools \| 2\.0 KB/);
   assert.equal(table.split("\n").length, 3);
+});
+
+test("build: domain table groups modules, files and size per domain", () => {
+  const other = entry({ module: "chat", domain: "backend" }, "docs/mapa/backend/chat/c.md", 1024);
+  const table = buildDomainTable([entry(), other, entry({ domain: "tools" }, "docs/mapa/tools/atelier/x.md", 512), { file: "docs/mapa/02-backend.md", size: 1, meta: null }]);
+  assert.match(table, /`backend` \| atelier, chat \| 2 | 3.0 KB\| 2\.9 KB/);
+  assert.match(table, /`tools` \| atelier \| 1 \| 0\.5 KB/);
+  assert.equal(table.split("\n").length, 4);
 });

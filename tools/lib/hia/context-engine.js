@@ -5,6 +5,7 @@ const state = require("../state");
 const { ROOT } = require("../root");
 const { getDaiAgentPrompt } = require("../dai");
 const { readWithCache, sha256 } = require("./index-cache");
+const { mapaSection } = require("../mapa/section");
 
 const DEFAULT_MAP_PATH = path.join(ROOT, "MAPA.md");
 
@@ -58,7 +59,9 @@ function getMapSection(query) {
     };
   }
 
-  return null;
+  // No heading matched: look the query up in the migrated map files (docs/mapa/<domain>/<module>/<feature>.md).
+  const hit = mapaSection(path.dirname(DEFAULT_MAP_PATH), query);
+  return hit ? { ...hit, tokensEst: estimateTokens(hit.content).tokensEst } : null;
 }
 
 function walkMd(dir) {

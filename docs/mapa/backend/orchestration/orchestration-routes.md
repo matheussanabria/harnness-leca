@@ -24,3 +24,4 @@ updated: 2026-10-30
 | `ui/server/services/orchestration/routine-definitions.js` and `routine-runner.service.js` | Routines with trigger and approval policy, run with a deterministic per-window idempotency key (EP-08.05). |
 | `ui/server/services/orchestration/workflow-approval.service.js` and `workflow-history.service.js` | Decides sensitive-step approvals, publishes `execution.approval_requested`/`approved`/`rejected`, persists `workflow-runs.jsonl` (EP-08.05). |
 | `ui/server/controllers/orchestration-routines.controller.js` and `orchestration-approvals.controller.js` | Routine catalog, idempotent run, approval queue, decision and history; writes restricted to loopback (EP-08.05). |
+| `ui/server/services/orchestration/event-engine.js` | Event engine; `event-engine-projection.js` is the mixin with the event projection. |

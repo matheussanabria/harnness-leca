@@ -15,7 +15,7 @@ function walk(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const full = path.join(dir, e.name);
-    return e.isDirectory() ? walk(full) : e.name.endsWith(".md") ? [full] : [];
+    return e.isDirectory() ? walk(full) : e.name.endsWith(".md") && e.name !== "INDEX.md" ? [full] : [];
   }).sort();
 }
 
