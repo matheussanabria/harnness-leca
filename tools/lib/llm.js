@@ -11,7 +11,7 @@ const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
 const { resolveClaudeBin } = require("./claude-bin");
-const { resolveOpencodeBin } = require("./opencode-bin");
+const { resolveOpencodeBin, opencodeRunArgs, opencodeCwdEnv } = require("./opencode-bin");
 
 const DEFAULT_OPENCODE_MODEL = "opencode/deepseek-v4.1-flash-free";
 const TIMEOUT_MS = 300_000;
@@ -77,8 +77,8 @@ function askOpencode(prompt, model = DEFAULT_OPENCODE_MODEL, { allowPaid = false
   try {
     fs.writeFileSync(path.join(dir, "opencode.json"), JSON.stringify(opencodeConfig(), null, 2));
     // O prompt vai por stdin (a linha de comando do Windows aceita ~32 mil caracteres; o prompt tem dezenas de mil).
-    const r = spawnSync(bin, ["run", "--pure", "--dir", dir, "--agent", "extrator", "-m", model, "--format", "json"],
-      { input: prompt, encoding: "utf8", shell: false, windowsHide: true, cwd: dir, timeout: TIMEOUT_MS, maxBuffer: MAX_BUFFER });
+    const r = spawnSync(bin, opencodeRunArgs({ agent: "extrator", model }),
+      { input: prompt, encoding: "utf8", shell: false, windowsHide: true, cwd: dir, env: opencodeCwdEnv(dir), timeout: TIMEOUT_MS, maxBuffer: MAX_BUFFER });
     if (r.error) throw new Error(String(r.error.message).slice(0, 300));
     const text = parseOpencodeEvents(r.stdout || "");
     if (r.status !== 0 && !text) throw new Error(String(r.stderr || `opencode saiu com código ${r.status}`).slice(0, 300));

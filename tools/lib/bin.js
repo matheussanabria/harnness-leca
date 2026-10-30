@@ -18,11 +18,12 @@ const isFile = (p) => { try { return fs.statSync(p).isFile(); } catch { return f
 const pathDirs = () => String(process.env.PATH || "").split(path.delimiter).map((d) => d.replace(/^"|"$/g, "")).filter((d) => d && path.isAbsolute(d));
 
 /**
- * @param {{ name: string, envVar: string, npmExe: string[] }} spec
+ * @param {{ name: string, envVar: string, npmExe: string[] | string[][] }} spec
  *   name: nome do programa (sem extensão); envVar: variável com o caminho absoluto; npmExe: caminho do .exe dentro de node_modules
  * @returns {{ resolve: () => string | null, reset: () => void }}
  */
 function makeResolver({ name, envVar, npmExe }) {
+  const candidates = Array.isArray(npmExe[0]) ? /** @type {string[][]} */ (npmExe) : [/** @type {string[]} */ (npmExe)];
   /** @type {string | null | undefined} */
   let cached;
   return {
@@ -35,8 +36,8 @@ function makeResolver({ name, envVar, npmExe }) {
       const dirs = pathDirs();
       const exe = WIN ? `${name}.exe` : name;
       for (const d of dirs) if (isFile(path.join(d, exe))) return (cached = path.join(d, exe));
-      if (WIN) for (const d of dirs) {
-        const inPackage = path.join(d, "node_modules", ...npmExe);
+      if (WIN) for (const d of dirs) for (const parts of candidates) {
+        const inPackage = path.join(d, "node_modules", ...parts);
         if (isFile(path.join(d, `${name}.cmd`)) && isFile(inPackage)) return (cached = inPackage);
       }
       return (cached = null);
