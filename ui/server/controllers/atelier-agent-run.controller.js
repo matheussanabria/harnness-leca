@@ -4,6 +4,8 @@ const path = require("path");
 const { getProjects, send, readJsonBody, slugs } = require("../config");
 const { createAtelierAgentLoop } = require("../services/atelier-agent-loop.service");
 const { buildGeminiModelTurn, buildOpenCodeModelTurn } = require("../services/atelier-engine-adapters.service");
+const { finalizeVersion } = require("../services/atelier-tools.service");
+const { buildProtoContext } = require("../services/atelier-proto-context.service");
 const { loadEnv } = require("../../../tools/lib/env");
 const { describeError, errorEvent } = require("../../../tools/lib/engines/errors");
 
@@ -71,6 +73,9 @@ async function apiPrototypesAgentRun({ req, res, params: [slug, protoId] }) {
     } catch {}
   };
 
+  // Telas gravadas sem atelier_complete (erro, queda, cancelamento) ficariam sem versão: a interface seguiria na anterior.
+  let wrote = false;
+  let completed = false;
   try {
     const loop = createAtelierAgentLoop({
       projectDir,
@@ -78,11 +83,14 @@ async function apiPrototypesAgentRun({ req, res, params: [slug, protoId] }) {
       author,
       maxTurns,
       modelTurn,
+      getContext: () => buildProtoContext({ projectDir, protoId }),
     });
 
     const result = await loop.run(prompt, {
       signal: abortController.signal,
       onEvent: (event) => {
+        if (event.type === "tool_exec_end" && event.ok && (event.name === "atelier_write_screen" || event.name === "atelier_patch_styles")) wrote = true;
+        if (event.type === "complete") completed = true;
         if (["turn_start", "turn_end", "tool_exec_start", "tool_exec_end", "complete", "yield", "error"].includes(event.type)) {
           console.log(`[agent-run] +${((Date.now() - startedAt) / 1000).toFixed(1)}s ${event.type}${event.turn ? ` turno ${event.turn}` : ""}${event.name ? ` ${event.name}` : ""}${event.type === "tool_exec_end" ? (event.ok ? " ok" : " ERRO") : ""}`);
         }
@@ -95,6 +103,15 @@ async function apiPrototypesAgentRun({ req, res, params: [slug, protoId] }) {
     console.log(`[agent-run] +${((Date.now() - startedAt) / 1000).toFixed(1)}s falhou: ${err.message || err}`);
     emit(errorEvent(describeError(err, { engine })));
   } finally {
+    if (wrote && !completed) {
+      try {
+        const version = finalizeVersion(path.join(projectDir, "design", "prototypes", protoId), { author, message: "Execução interrompida: alterações já gravadas foram preservadas" });
+        console.log(`[agent-run] execução incompleta: alterações salvas como v${version}`);
+        emit({ type: "partial_saved", version });
+      } catch (e) {
+        console.log("[agent-run] não foi possível salvar a versão parcial:", e.message);
+      }
+    }
     try {
       res.end();
     } catch {}

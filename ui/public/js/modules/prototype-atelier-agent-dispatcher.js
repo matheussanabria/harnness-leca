@@ -49,6 +49,9 @@ export async function runAtelierAgentStream({
   assistantTurn.atelierQuestion = null;
 
   setStatus(`Iniciando Agent Loop (${engine})...`);
+  // Marca a página como "em execução": o CSS pisca o selo de versão do Ateliê enquanto o agente trabalha.
+  document.body.dataset.atelierBusy = "1";
+  try {
 
   const res = await fetch(url, {
     method: "POST",
@@ -123,6 +126,9 @@ export async function runAtelierAgentStream({
           assistantTurn.atelierQuestion = evt.payload;
           setStatus("Aguardando resposta do usuário...");
           onRender();
+        } else if (evt.type === "partial_saved") {
+          setStatus(`Execução interrompida; o que já foi gravado ficou salvo como v${evt.version}.`);
+          onReloadProto();
         } else if (evt.type === "complete") {
           setStatus("Protótipo finalizado com sucesso!");
           onReloadProto();
@@ -137,6 +143,10 @@ export async function runAtelierAgentStream({
   }
 
   onReloadProto();
+  } finally {
+    delete document.body.dataset.atelierBusy;
+    onReloadProto();
+  }
 }
 
 /**

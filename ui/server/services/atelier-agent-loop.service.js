@@ -20,6 +20,7 @@ const DEFAULT_MAX_TURNS = 10;
  * @param {string} options.protoId
  * @param {string} [options.author]
  * @param {number} [options.maxTurns]
+ * @param {() => string} [options.getContext] estado atual do protótipo, lido a cada execução
  * @param {(messages: AgentLoopMessage[], signal: AbortSignal) => Promise<{ text?: string, toolCalls?: Array<{ name: string, args: object, id?: string }> }>} options.modelTurn
  */
 function createAtelierAgentLoop({
@@ -28,6 +29,7 @@ function createAtelierAgentLoop({
   author = "agent",
   maxTurns = DEFAULT_MAX_TURNS,
   modelTurn,
+  getContext,
 }) {
   if (!projectDir || !protoId) throw new Error("projectDir e protoId são obrigatórios.");
   if (typeof modelTurn !== "function") throw new Error("modelTurn deve ser uma função assíncrona.");
@@ -48,7 +50,14 @@ function createAtelierAgentLoop({
     isRunning = true;
 
     if (userPrompt) {
-      history.push({ role: "user", text: userPrompt });
+      // O modelo recebe o estado atual do protótipo antes do pedido; o evento mostra só o que o usuário escreveu.
+      let context = "";
+      try {
+        context = getContext ? getContext() : "";
+      } catch {
+        /* sem contexto, o pedido segue */
+      }
+      history.push({ role: "user", text: context ? `${context}\n\n## Pedido do usuário\n${userPrompt}` : userPrompt });
       onEvent({ type: "user_prompt", text: userPrompt });
     }
 

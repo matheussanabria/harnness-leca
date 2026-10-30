@@ -251,3 +251,9 @@ body.proto-resizing iframe {
   border-color: #818cf8;
   font-weight: 600;
 }
+
+/* Agente em execução: o selo de versão pulsa e ganha "em execução", para ficar claro que há processamento. */
+body[data-atelier-busy] #atelierProtoVersionBadge { animation: atelier-busy-pulse 1.4s ease-in-out infinite; }
+body[data-atelier-busy] #atelierProtoVersionBadge::after { content: " \00b7  em execu\00e7\00e3o"; }
+@keyframes atelier-busy-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { body[data-atelier-busy] #atelierProtoVersionBadge { animation: none; } }

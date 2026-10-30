@@ -4,6 +4,8 @@
 - `tools/lib/engines/opencode-model.js`: Converts a model id (`provider/model`, e.g. `9router/Harness`; no prefix = built-in `opencode` provider) into the `{providerID, modelID}` reference.
 - `tools/lib/opencode-v2.js`: Client for the opencode v2 HTTP API (`/api/*`, Basic auth): create session (model set at creation), prompt, per-turn message summary (reasoning/text/idle outcome and error), interrupt, model list.
 - `tools/lib/opencode-v2-turn.js`: One streaming turn on the opencode v2 API: subscribes to `/api/event` (reasoning/text deltas), sends the prompt, falls back to reading `/message`, treats "session still active" as alive (idle timeout only when the server session stopped), abort sends interrupt.
+- `ui/server/services/atelier-proto-context.service.js`: Reads the prototype state from disk on every agent run (screens, proto.css, storage keys, unregistered screens) and builds the block prepended to the model prompt so stage 2 continues stage 1 instead of reinventing the Design System.
+- `tests/atelier-proto-context.test.js`: Context block contents, empty prototype, and loop delivery (model gets context, event shows only the request).
 - `ui/server/services/atelier-tool-tags.service.js`: Parses the `<tool name=...>` tags models write in text: raw HTML/CSS body for `atelier_write_screen`/`atelier_patch_styles` (no JSON), JSON with raw newlines repaired, unreadable tags returned as errors instead of being dropped.
 - `tests/atelier-tool-tags.test.js`: Tag parser (JSON, repaired JSON, raw HTML/CSS, explicit errors) and the `cssRules`/`cssContent` + `atelier_parse_error` tools.
 - `tools/start-opencode.js`: `npm run opencode`; starts `opencode serve --port 63186` with the shared OPENCODE_SERVER_PASSWORD from `global/.env` (generated on first use).

@@ -132,6 +132,24 @@ function getOpenCodeTools() {
  * @param {{ fs?: typeof fs, path?: typeof path }} [deps]
  * @returns {Promise<{ ok: boolean, result?: any, error?: string, yieldsControl?: boolean }>}
  */
+/** Sobe a versão do proto.json e grava o snapshot. Usada ao concluir e ao encerrar uma execução com telas já gravadas. */
+function finalizeVersion(protoDir, { author, message }, deps = { fs, path }) {
+  const protoJsonPath = deps.path.join(protoDir, "proto.json");
+  let currentVersion = 1;
+  if (deps.fs.existsSync(protoJsonPath)) {
+    try {
+      const protoJson = JSON.parse(deps.fs.readFileSync(protoJsonPath, "utf8"));
+      currentVersion = (Number(protoJson.version) || 1) + 1;
+      protoJson.version = currentVersion;
+      protoJson.metadata = protoJson.metadata || {};
+      protoJson.metadata.updatedAt = new Date().toISOString();
+      deps.fs.writeFileSync(protoJsonPath, JSON.stringify(protoJson, null, 2), "utf8");
+    } catch {}
+  }
+  createVersionSnapshot(protoDir, currentVersion, { author, message }, deps);
+  return currentVersion;
+}
+
 async function executeAtelierTool(toolName, args, ctx, deps = { fs, path }) {
   if (!ctx || !ctx.projectDir || !ctx.protoId) {
     return { ok: false, error: "Contexto do protótipo incompleto." };
@@ -208,19 +226,7 @@ async function executeAtelierTool(toolName, args, ctx, deps = { fs, path }) {
 
       case "atelier_complete": {
         const { summary, changedFiles = [] } = args || {};
-        const protoJsonPath = deps.path.join(protoDir, "proto.json");
-        let currentVersion = 1;
-        if (deps.fs.existsSync(protoJsonPath)) {
-          try {
-            const protoJson = JSON.parse(deps.fs.readFileSync(protoJsonPath, "utf8"));
-            currentVersion = (Number(protoJson.version) || 1) + 1;
-            protoJson.version = currentVersion;
-            protoJson.metadata = protoJson.metadata || {};
-            protoJson.metadata.updatedAt = new Date().toISOString();
-            deps.fs.writeFileSync(protoJsonPath, JSON.stringify(protoJson, null, 2), "utf8");
-          } catch {}
-        }
-        createVersionSnapshot(protoDir, currentVersion, { author: ctx.author || "agent", message: summary || "Iteração concluída via Agent Loop" }, deps);
+        const currentVersion = finalizeVersion(protoDir, { author: ctx.author || "agent", message: summary || "Iteração concluída via Agent Loop" }, deps);
         return { ok: true, result: { completed: true, version: currentVersion, summary, changedFiles } };
       }
 
@@ -237,4 +243,5 @@ module.exports = {
   getGeminiFunctionDeclarations,
   getOpenCodeTools,
   executeAtelierTool,
+  finalizeVersion,
 };
