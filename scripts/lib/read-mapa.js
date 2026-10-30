@@ -4,6 +4,13 @@ const path = require("path");
 
 const DEFAULT_ROOT = path.resolve(__dirname, "..", "..");
 
+function walkMd(dir) {
+  return fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)).flatMap((e) => {
+    const full = path.join(dir, e.name);
+    return e.isDirectory() ? walkMd(full) : e.name.endsWith(".md") ? [full] : [];
+  });
+}
+
 /** @param {string} [root] repository root (defaults to this repository) */
 function readMapaText(root = DEFAULT_ROOT) {
   const files = [path.join(root, "MAPA.md")];

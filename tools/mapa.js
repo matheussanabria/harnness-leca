@@ -1,0 +1,47 @@
+#!/usr/bin/env node
+// @ts-check
+// Map tooling: `find` shows which map file covers a path or topic, `check` validates the tree, `build` regenerates the index.
+"use strict";
+const fs = require("fs");
+const path = require("path");
+const { flag, CliError, runAsScript } = require("./lib/cli");
+const { scanMapa, listCoveredFiles, ROOT } = require("./lib/mapa/scan");
+const { checkMapa, indexSize } = require("./lib/mapa/check");
+const { findMapa, buildIndex } = require("./lib/mapa/query");
+
+const USAGE = "Usage: node tools/mapa.js find <path|keywords> | check [--strict] | build [--write]";
+const START = "<!-- mapa:index:start -->";
+const END = "<!-- mapa:index:end -->";
+
+function build(entries, write, io) {
+  const table = buildIndex(entries);
+  if (!write) return io.log(table);
+  const file = path.join(ROOT, "MAPA.md");
+  const text = fs.readFileSync(file, "utf8");
+  const a = text.indexOf(START);
+  const b = text.indexOf(END);
+  if (a < 0 || b < a) throw new CliError(`MAPA.md needs the ${START} and ${END} markers before --write`);
+  fs.writeFileSync(file, `${text.slice(0, a + START.length)}\n${table}\n${text.slice(b)}`);
+  io.log("MAPA.md index updated");
+}
+
+function main(argv, io = console) {
+  const [cmd, ...args] = argv.filter((a) => !a.startsWith("--"));
+  const entries = scanMapa();
+  if (cmd === "find") {
+    if (!args.length) throw new CliError(USAGE);
+    const hits = findMapa(entries, args.join(" "));
+    if (!hits.length) return io.log("no migrated map entry covers that; read MAPA.md and the legacy docs/mapa files");
+    for (const e of hits.slice(0, 5)) io.log(`${e.file} (${(e.size / 1024).toFixed(1)} KB): ${e.meta.summary}`);
+  } else if (cmd === "check") {
+    const res = checkMapa(entries, listCoveredFiles(), { indexSize: indexSize(ROOT), strict: flag("strict", argv) });
+    for (const w of res.warnings) io.log(`warning: ${w}`);
+    for (const e of res.errors) io.error(`error: ${e}`);
+    if (res.errors.length) throw new CliError(`${res.errors.length} map problem(s)`);
+    io.log("map ok");
+  } else if (cmd === "build") build(entries, flag("write", argv), io);
+  else throw new CliError(USAGE);
+}
+
+module.exports = { main };
+if (require.main === module) runAsScript(main);

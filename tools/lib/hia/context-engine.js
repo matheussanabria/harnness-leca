@@ -61,7 +61,14 @@ function getMapSection(query) {
   return null;
 }
 
-/** MAPA.md followed by every docs/mapa/*.md in name order (the map is split by area to save tokens). */
+function walkMd(dir) {
+  return fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)).flatMap((e) => {
+    const full = path.join(dir, e.name);
+    return e.isDirectory() ? walkMd(full) : e.name.endsWith(".md") ? [full] : [];
+  });
+}
+
+/** MAPA.md followed by every .md under docs/mapa (nested) in name order (the map is split by area to save tokens). */
 function readMapContent() {
   const files = [DEFAULT_MAP_PATH];
   try {

@@ -88,3 +88,10 @@ node --test tests/chats-screen-state.test.js        # Testa adoção do estado n
 - Fixtures de teste: `tests/helpers/project-fixture.js` (orquestrador), `project-fixture-design-system.js`, `project-fixture-prototype.js`, `project-fixture-design-index.js` e `project-fixture-files.js` criam um projeto temporário fora de `projects/` e devolvem `{ dir, slug, cleanup }`.
 
 ---
+- `tools/mapa.js`: Map CLI. `find <path|keywords>` names the map file that covers a path or topic, `check [--strict]` validates the map tree (frontmatter, 8 KB cap, dead `paths` globs, orphan files), `build [--write]` regenerates the index table.
+- `tools/lib/mapa/frontmatter.js`: Parser and schema for the map frontmatter (domain, module, feature, summary, paths, keywords, updated).
+- `tools/lib/mapa/glob.js`: Minimal glob matcher for the `paths` field (`**`, `*`, `?`, plain folders).
+- `tools/lib/mapa/scan.js`: Reads `docs/mapa/**` with sizes and parsed frontmatter, and lists the tracked source files the map must cover.
+- `tools/lib/mapa/check.js`: Map rules: size caps, folder/frontmatter match, dead paths, orphans; legacy files only warn until migrated.
+- `tools/lib/mapa/query.js`: `findMapa` (by path or keyword) and `buildIndex` (generated index table).
+- `tests/mapa-tooling.test.js`: Frontmatter, glob, check, find and build behavior.

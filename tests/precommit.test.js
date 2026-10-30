@@ -88,7 +88,8 @@ test("isMapFile: MAPA.md e os arquivos de docs/mapa/ contam como o mapa", () => 
   assert.equal(isMapFile("MAPA.md"), true);
   assert.equal(isMapFile("docs/mapa/02-backend.md"), true);
   assert.equal(isMapFile("docs\\mapa\\02-backend.md"), true);
-  assert.equal(isMapFile("docs/mapa/sub/x.md"), false);
+  assert.equal(isMapFile("docs/mapa/backend/atelier/x.md"), true);
+  assert.equal(isMapFile("docs/other/x.md"), false);
   assert.equal(isMapFile("docs/setup/01-overview.md"), false);
   const added = ["tools/lib/novo-modulo.js", "docs/mapa/99-novo.md"];
   assert.deepEqual(missingFromMapa(added, "", false), ["tools/lib/novo-modulo.js"]);

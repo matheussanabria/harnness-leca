@@ -27,7 +27,7 @@ function forbiddenPath(rel) {
 }
 
 // O mapa é o MAPA.md (porta de entrada) mais os arquivos por área em docs/mapa/.
-const isMapFile = (p) => p === "MAPA.md" || /^docs\/mapa\/[^/]+\.md$/.test(p.replace(/\\/g, "/"));
+const isMapFile = (p) => p === "MAPA.md" || /^docs\/mapa\/.+\.md$/.test(p.replace(/\\/g, "/"));
 
 // Arquivos novos que o mapa ainda não conhece. Vale como mapeado: o mapa (MAPA.md ou docs/mapa/) ter sido alterado no mesmo
 // commit, ou ele citar o caminho, o nome do arquivo ou uma das pastas do caminho. Ignora o próprio mapa, .gitkeep e os golden masters.
