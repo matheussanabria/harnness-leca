@@ -1,7 +1,7 @@
 {
   "name": "harness-leca",
   "private": true,
-  "description": "Projetos estilo Claude Chat sobre Claude Code, Gemini/Antigravity e opencode. Sem dependências.",
+  "description": "Projetos estilo Claude Chat sobre Claude Code, Gemini/Antigravity e opencode. Backend e tools sem dependências de runtime; UI nova em ilhas React (ADR-011).",
   "engines": {
     "node": ">=22.13"
   },
@@ -16,6 +16,11 @@
     "ui": "node ui/server.js",
     "ui:dev": "node --watch-path=ui/server --watch-path=ui/server.js --watch-path=tools/lib --watch-path=tools/ds-docs --watch-preserve-output ui/server.js",
     "ui:dev:remote": "node --watch-path=ui/server --watch-path=ui/server.js --watch-path=tools/lib --watch-path=tools/ds-docs --watch-preserve-output ui/server.js --remote",
+    "build:web": "vite build --config ui/web/vite.config.ts",
+    "dev:web": "vite build --config ui/web/vite.config.ts --watch",
+    "types:web": "tsc -p ui/web && tsc -p ui/web/tsconfig.node.json",
+    "lint:web": "biome check ui/web",
+    "e2e:web": "node scripts/e2e-island-lab.js",
     "remote": "node ui/server.js --remote",
     "remote:tunnel": "node tools/tunnel.js",
     "opencode": "node tools/start-opencode.js",
@@ -31,6 +36,17 @@
     "schedule:windows": "node tools/schedule-windows.js"
   },
   "devDependencies": {
-    "playwright-core": "^1.64.1"
+    "@biomejs/biome": "2.6.4",
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "playwright-core": "^1.64.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.5"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   }
 }

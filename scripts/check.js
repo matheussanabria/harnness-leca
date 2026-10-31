@@ -7,7 +7,7 @@ const path = require("path");
 const { spawnSync } = require("child_process");
 
 const ROOT = path.resolve(__dirname, "..");
-const SKIP_DIRS = new Set(["node_modules", ".git", "projects", "bridge", "golden"]);
+const SKIP_DIRS = new Set(["node_modules", ".git", "projects", "bridge", "golden", "dist"]);
 
 function* walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {

@@ -33,3 +33,6 @@ node_modules/
 
 # Histórico de desfazer do Ateliê (local, regenerável)
 projects/*/design/prototypes/*/.history/
+
+# React islands build output (ADR-011): npm run build:web
+ui/public/dist/

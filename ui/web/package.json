@@ -1,0 +1,6 @@
+{
+  "name": "harness-leca-web",
+  "private": true,
+  "type": "module",
+  "description": "React islands (ADR-011). Dependencies live in the root package.json."
+}
