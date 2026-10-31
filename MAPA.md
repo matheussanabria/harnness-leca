@@ -18,7 +18,8 @@ projects/<slug>/                 instructions.md, memory.md, chats/, context/, s
 tools/                           CLI scripts and shared libraries (tools/lib)
 scripts/                         pre-commit, checks and regression runner
 ui/server/                       HTTP backend (router, controllers, services)
-ui/public/                       web interface (HTML, CSS, ES modules, no bundler)
+ui/public/                       web interface (HTML, CSS, legacy ES modules; built islands in ui/public/dist (gitignored))
+ui/web/                          React islands (TypeScript, Vite, Biome; ADR-011)
 docs/mapa/<domain>/<module>/     the map: one file per feature
 tests/                           node:test suites
 ```
@@ -31,12 +32,12 @@ tests/                           node:test suites
 | `agents` | skills | 1 | 0.7 KB |
 | `backend` | artifacts, atelier, chat, core, deploy, orchestration, projects, prototype, screen-state | 12 | 25.9 KB |
 | `design` | atelier-quality, system | 3 | 10.1 KB |
-| `frontend` | canvas, chat, css, design, office, studio, window-manager | 15 | 38.3 KB |
+| `frontend` | canvas, chat, css, design, office, studio, web, window-manager | 16 | 40.4 KB |
 | `intelligence` | hia, runtime | 6 | 13.4 KB |
 | `office` | hq | 3 | 7.9 KB |
 | `planning` | product, projects | 4 | 10.3 KB |
 | `telemetry` | program, usage | 8 | 23.0 KB |
-| `tools` | engines, mapa, setup, testing | 11 | 24.0 KB |
+| `tools` | engines, mapa, setup, testing | 11 | 25.0 KB |
 <!-- mapa:index:end -->
 
 ## Map file format

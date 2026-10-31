@@ -85,7 +85,8 @@ harness-leca/
 │       ├── redact.js                 # redação de segredos e dados pessoais
 │       └── root.js, env.js, cli.js, text.js, limits.js, projects.js, claude-bin.js, project-mcp.js
 ├── tests/                       # npm test (node --test, sem dependências); golden master dos importadores em tests/golden/
-├── ui/                          # interface web local (Node, sem dependências)
+├── ui/                          # interface web local: server/ (Node, no runtime dependencies), public/ (legacy ES modules)
+│   └── web/                     # React islands (TypeScript, Vite, Biome; ADR-011), built into ui/public/dist
 └── projects/                     # LOCAL: só o _template é versionado
     ├── .active                  # slug do projeto ativo (uma linha)
     ├── _template/               # copie para criar um projeto novo
@@ -96,6 +97,19 @@ harness-leca/
         ├── chats/               # conversas (AAAA-MM-DD-titulo.md)
         └── scheduled/           # tarefas recorrentes
 ```
+
+## React islands (ADR-011)
+
+New UI screens are React islands in `ui/web/`, mounted inside the legacy interface. The legacy UI works without a build;
+an island route only shows a notice until the islands are built.
+
+```bash
+npm install            # React, Vite, TypeScript and Biome (pinned versions)
+npm run build:web      # builds ui/web into ui/public/dist (gitignored)
+```
+
+Development loop: run `npm run dev:web` (rebuilds on save) in one terminal and `npm run ui:dev` in another, then reload the
+browser. Before committing island code: `npm run types:web`, `npm run lint:web` and `npm run e2e:web` (headless Edge).
 
 ## Uso no dia a dia
 

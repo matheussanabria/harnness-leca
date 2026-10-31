@@ -2,7 +2,7 @@
 
 Replica a experiência e a arquitetura de **Projetos** do Claude Chat (instruções, memória, contexto, chats e tarefas programadas) para **Claude Code**, **Gemini/Antigravity** e **opencode**.
 
-Tudo roda localmente na sua máquina, sem dependências externas adicionais e com preservação total de privacidade.
+Tudo roda localmente na sua máquina, com preservação total de privacidade. The backend and CLIs have no runtime dependencies; new UI screens are React islands built with Vite (see [ADR-011](docs/harness-evolution/03-decisions/ADR-011-frontend-react-typescript-vite.md)).
 
 ---
 
@@ -19,6 +19,10 @@ Tudo roda localmente na sua máquina, sem dependências externas adicionais e co
 | `npm run export:claude-sessions` | Converte os chats do harness em sessões `.jsonl` para o `claude --resume` |
 | `npm test` | Executa os testes automatizados da suíte (`node:test`) |
 | `npm run check` | Valida a sintaxe e a integridade de todos os scripts |
+| `npm run build:web` | Builds the React islands (`ui/web`) into `ui/public/dist` |
+| `npm run dev:web` | Rebuilds the islands on save; run it next to `npm run ui:dev` and reload the browser |
+| `npm run types:web` / `npm run lint:web` | TypeScript check and Biome lint of `ui/web` |
+| `npm run e2e:web` | E2E of the island foundation in headless Edge (own server on port 4399) |
 
 ---
 
