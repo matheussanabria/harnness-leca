@@ -17,3 +17,4 @@ Uma decisão vira ADR quando afeta mais de uma história ou é difícil de rever
 | [ADR-007](ADR-007-ledger-coordenacao-agentes.md) | Ledger local para coordenação entre provedores | aceita | transversal |
 | [ADR-008](ADR-008-consulta-jira-sem-token.md) | Consulta ao Jira por script local, com redação de dados pessoais | proposta | 05.07 |
 | [ADR-009](ADR-009-memoria-um-fato-por-arquivo.md) | Memória curada com um fato por arquivo e índice gerado | aceita | EP-13 |
+| [ADR-011](ADR-011-frontend-react-typescript-vite.md) | Incremental frontend migration to React 19, TypeScript and Vite | aceita | 16.00 to 16.05 |
