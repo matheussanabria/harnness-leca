@@ -102,7 +102,7 @@ export interface ErrorEvent {
 
 export interface EngineSink {
   onChunk(data: { type: "text" | "thinking"; text: string; sessionId?: string | null } | ErrorEvent): void;
-  onDone(data: { sessionId?: string | null; fullText?: string; thinking?: string; qualityGate?: { ok: boolean; code: string; reason: string } }): void;
+  onDone(data: { sessionId?: string | null; fullText?: string; thinking?: string; qualityGate?: { ok: boolean; code: string; reason: string }; replaceText?: boolean; retriedWith?: string }): void;
   onError(err: Error): void;
 }
 

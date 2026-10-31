@@ -114,7 +114,7 @@ export async function runComparison(P, chatId, promptText, input) {
                 setEngineSession(P.slug, chatId, eng, data.sessionId);
               }
               applyHiaDone(compTurn.responses[eng], data);
-              if (data.fullText && !compTurn.responses[eng].text) {
+              if (data.fullText && (!compTurn.responses[eng].text || data.replaceText)) {
                 compTurn.responses[eng].text = data.fullText;
               }
               if (document.body.classList.contains("studio-active") && window.reloadStudioIframe) setTimeout(window.reloadStudioIframe, 350);

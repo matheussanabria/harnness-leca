@@ -5,7 +5,7 @@ const { loadEnv } = require("../env");
 const V2 = require("../opencode-v2");
 const { runTurn, TurnError } = require("../opencode-v2-turn");
 const { resolveOpenCodeUrl, invalidateOpenCodeUrl, ocFetch, DEFAULT_URL } = require("../opencode-detect");
-const { checkAnswer } = require("../hia/quality-gate");
+const { withQualityRetry } = require("../hia/quality-retry");
 const { recordExecution } = require("../hia/telemetry");
 
 // Telemetry must never break a chat turn; unit tests (HARNESS_ROOT) skip the disk write.
@@ -45,6 +45,7 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
     } else if (effort === "high") {
       fullPrompt = `[Esforço de raciocínio: High / Alto. Raciocine passo a passo em profundidade antes da resposta final]\n\n${fullPrompt}`;
     }
+    let hasContext = !resumed; // a resumed session already has the project context in its history
     if (!resumed) {
       const ctx = getProjectContext(slug, { daiAgent });
       if (ctx) fullPrompt = `${ctx}\nPergunta do usuário:\n${fullPrompt}`;
@@ -62,22 +63,38 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
       } catch {
         sId = await newSession();
         fullPrompt = `${getProjectContext(slug, { daiAgent }) || ""}\nPergunta do usuário:\n${fullPrompt}`;
+        hasContext = true;
       }
     }
 
-    let accumulatedText = "";
-    const turn = await runTurn(base, sId, fullPrompt, {
-      signal,
-      onReasoning: (text) => onChunk({ type: "thinking", text, sessionId: sId }),
-      onText: (text) => { accumulatedText += text; onChunk({ type: "text", text, sessionId: sId }); },
-    });
-    if (turn.aborted) return;
+    /** One turn on a session, streaming to the chat; returns the text and finish reason for the quality gate. */
+    const runOn = async (/** @type {string} */ sid, /** @type {string} */ text) => {
+      let acc = "";
+      const turn = await runTurn(base, sid, text, {
+        signal,
+        onReasoning: (t) => onChunk({ type: "thinking", text: t, sessionId: sid }),
+        onText: (t) => { acc += t; onChunk({ type: "text", text: t, sessionId: sid }); },
+      });
+      return { text: acc, finish: turn.finish, sessionId: sid, aborted: turn.aborted };
+    };
 
-    // 9Router returns HTTP 200 for empty, cut-off and fake tool-call answers: flag them instead of passing them as good.
-    const qualityGate = checkAnswer({ text: accumulatedText, finish: turn.finish });
-    if (!qualityGate.ok) onChunk({ type: "thinking", text: `\n[Quality gate] ${qualityGate.reason} Model: ${model || "default"}.\n`, sessionId: sId });
-    recordGate(model, qualityGate);
-    onDone({ sessionId: sId, fullText: accumulatedText, qualityGate });
+    // 9Router returns HTTP 200 for empty, cut-off and fake tool-call answers. The gate flags them and retries
+    // empty/fake ones once on a fresh session with a free model (never premium); the retry carries the project context.
+    const result = await withQualityRetry({
+      model,
+      attempt: () => runOn(sId, fullPrompt),
+      retry: async (retryModel) => {
+        const retryPrompt = hasContext ? fullPrompt : `${getProjectContext(slug, { daiAgent }) || ""}\nPergunta do usuário:\n${fullPrompt}`;
+        return runOn(await V2.createSession(base, { model: retryModel, agent: "plan" }), retryPrompt);
+      },
+      notice: (text) => onChunk({ type: "thinking", text: `\n[Quality gate] ${text}\n`, sessionId: sId }),
+    });
+    if (result.aborted) return;
+    recordGate(result.retriedWith || model, result.gate);
+    onDone({
+      sessionId: result.sessionId || sId, fullText: result.text, qualityGate: result.gate,
+      ...(result.replaced ? { replaceText: true, retriedWith: result.retriedWith } : {}),
+    });
   } catch (err) {
     if (err && err.message === "fetch failed") invalidateOpenCodeUrl(); // servidor caiu: revalida na próxima chamada
     onError(err instanceof TurnError ? new PublicError(err.message) : err);

@@ -42,6 +42,8 @@ updated: 2026-10-31
 | `tests/hia-combo-map.test.js` | Unit tests of the classifier, the general fallback and the model reference format. |
 | `tools/lib/hia/quality-gate.js` | Model-free answer check used by the opencode engine: flags empty, truncated (`finish: length`) and fake tool-call answers that 9Router returns as HTTP 200; flags only, never retries. |
 | `tests/hia-quality-gate.test.js` | Quality gate tests with real fake tool-call outputs, plus false-positive and truncation cases. |
+| `tools/lib/hia/quality-retry.js` | One automatic retry for empty or fake tool-call answers, on a fresh session with a different free model (`HIA_RETRY_MODEL`, default `opencode/deepseek-v4.1-flash-free`); paid retry models are refused, premium is never used automatically, `HIA_QUALITY_RETRY=false` turns it off. |
+| `tests/hia-quality-retry.test.js` | Retry policy tests: good answers untouched, single free retry, no retry for truncated or aborted answers, kill switch and paid-model refusal. |
 | `tests/hia-router.test.js` | F5: unit tests of routing decisions and flag-based disabling. |
 | `tools/lib/hia/guard.js` | F6: Resource Governor (max concurrency 1 for CPU) and loop repetition detector. |
 | `tools/lib/hia/telemetry.js` | F6: JSONL telemetry persistence with execution metrics and tokens saved. |
