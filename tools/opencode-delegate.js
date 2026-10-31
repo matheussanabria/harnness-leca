@@ -9,7 +9,7 @@ const values = (name, argv) => argv.flatMap((value, index) => value === `--${nam
 function main(argv, io = console) {
   const dir = opt("dir", argv);
   const promptFile = opt("prompt-file", argv);
-  if (!dir || !promptFile) throw new CliError("Usage: node tools/opencode-delegate.js --dir <path> --prompt-file <file> [--write] [--bash <rule>] [--model <free-model>] [--timeout-min <n>]");
+  if (!dir || !promptFile) throw new CliError("Usage: node tools/opencode-delegate.js --dir <path> --prompt-file <file> [--write] [--bash <rule>] [--model <free-model | 9router/harness-<combo> --allow-combo>] [--timeout-min <n>]");
   try {
     const result = delegate({
       dir,
@@ -17,6 +17,7 @@ function main(argv, io = console) {
       write: flag("write", argv),
       bash: values("bash", argv),
       model: opt("model", argv),
+      allowCombo: flag("allow-combo", argv),
       timeoutMinutes: opt("timeout-min", argv) ? Number(opt("timeout-min", argv)) : undefined,
     });
     io.log(result.answer);

@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { buildPermissions, delegate } = require("../tools/lib/opencode-delegate");
+const { buildPermissions, buildConfig, comboName, delegate } = require("../tools/lib/opencode-delegate");
 
 test("OpenCode delegate is read-only by default and keeps sensitive/external access denied", () => {
   const permission = buildPermissions();
@@ -52,4 +52,46 @@ test("OpenCode delegate reports a bounded timeout clearly", () => {
     resolveBin: () => "opencode-test",
     spawnSync: () => ({ status: null, stdout: "", error: Object.assign(new Error("timed out"), { code: "ETIMEDOUT" }) }),
   }), /timed out after 2 minute/);
+});
+
+test("OpenCode delegate refuses a 9Router combo without the explicit opt-in", () => {
+  assert.throws(() => delegate({ dir: __dirname, promptFile: __filename, model: "9router/harness-testes" }), /without --allow-combo/);
+});
+
+test("OpenCode delegate accepts only harness-* combos and keeps other 9Router models refused", () => {
+  assert.equal(comboName("9router/harness-review"), "harness-review");
+  assert.equal(comboName("9router/Harness"), null);
+  assert.equal(comboName("9router/claudflare-codigo"), null);
+  assert.throws(() => delegate({ dir: __dirname, promptFile: __filename, model: "9router/Harness", allowCombo: true }), /Refused non-free/);
+});
+
+test("OpenCode delegate registers the combo inline and audits the run", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "oc-delegate-combo-"));
+  const promptFile = path.join(dir, "prompt.md");
+  const auditFile = path.join(dir, "audit.jsonl");
+  fs.writeFileSync(promptFile, "Inspect only.");
+  try {
+    let call;
+    const result = delegate({ dir, promptFile, model: "9router/harness-testes", allowCombo: true }, {
+      resolveBin: () => "opencode-test",
+      auditFile,
+      spawnSync: (bin, args, options) => {
+        call = { args, options };
+        return { status: 0, stdout: JSON.stringify({ type: "text", part: { type: "text", text: "ok" } }) };
+      },
+    });
+    assert.equal(result.answer, "ok");
+    const config = JSON.parse(call.options.env.OPENCODE_CONFIG_CONTENT);
+    assert.deepEqual(Object.keys(config.provider["9router"].models), ["harness-testes"]);
+    assert.ok(call.args.includes("9router/harness-testes"));
+    const entry = JSON.parse(fs.readFileSync(auditFile, "utf8").trim());
+    assert.equal(entry.combo, "harness-testes");
+    assert.equal(entry.status, 0);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("OpenCode delegate config has no provider block for free models", () => {
+  assert.equal(buildConfig({ model: "opencode/deepseek-v4.1-flash-free" }).provider, undefined);
 });

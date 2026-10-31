@@ -8,6 +8,25 @@ const { parseOpencodeEvents, isFreeOpencodeModel, DEFAULT_OPENCODE_MODEL } = req
 
 const DENIED = ["webfetch", "websearch", "task", "skill", "lsp", "external_directory", "doom_loop"];
 const MAX_BUFFER = 32 * 1024 * 1024;
+// 9Router combos try free models first but may fall back to premium ones, so they need an explicit opt-in.
+const COMBO_RE = /^9router\/(harness-[a-z0-9-]+)$/;
+const AUDIT_LOG = path.join(__dirname, "..", "..", "logs", "opencode-delegate.jsonl");
+
+/** @param {string} model @returns {string | null} combo name when `model` is `9router/harness-*` */
+function comboName(model) {
+  const match = COMBO_RE.exec(String(model || ""));
+  return match ? match[1] : null;
+}
+
+/** Appends one line per combo run; the 9Router usage history says which provider actually answered. */
+function auditCombo(entry, file = AUDIT_LOG) {
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.appendFileSync(file, `${JSON.stringify(entry)}\n`);
+  } catch {
+    // Auditing must never break the delegated run.
+  }
+}
 
 /** @param {{write?: boolean, bash?: string[]}} options */
 function buildPermissions(options = {}) {
@@ -18,34 +37,41 @@ function buildPermissions(options = {}) {
   return permission;
 }
 
-/** @param {{write?: boolean, bash?: string[]}} options */
+/** @param {{write?: boolean, bash?: string[], model?: string}} options */
 function buildConfig(options = {}) {
   const permission = buildPermissions(options);
+  const combo = comboName(options.model || "");
   return {
     $schema: "https://opencode.ai/config.json",
     autoupdate: false,
     share: "disabled",
     permission,
     agent: { executor: { mode: "primary", description: "Executes one governed delegated task", permission } },
+    // The global config registers only 9router/Harness; declaring the combo here makes it addressable.
+    ...(combo ? { provider: { "9router": { models: { [combo]: { name: combo } } } } } : {}),
   };
 }
 
 /**
- * Runs one bounded task through a free OpenCode model. The inline config avoids workspace config files.
- * @param {{dir:string, promptFile:string, model?:string, write?:boolean, bash?:string[], timeoutMinutes?:number}} request
- * @param {{spawnSync?:typeof spawnSync, resolveBin?:typeof resolveOpencodeBin}} [deps]
+ * Runs one bounded task through a free OpenCode model, or a 9Router `harness-*` combo when `allowCombo` is set.
+ * The inline config avoids workspace config files.
+ * @param {{dir:string, promptFile:string, model?:string, write?:boolean, bash?:string[], timeoutMinutes?:number, allowCombo?:boolean}} request
+ * @param {{spawnSync?:typeof spawnSync, resolveBin?:typeof resolveOpencodeBin, auditFile?:string}} [deps]
  */
 function delegate(request, deps = {}) {
   const dir = path.resolve(request.dir || "");
   const promptFile = path.resolve(request.promptFile || "");
   const model = request.model || DEFAULT_OPENCODE_MODEL;
+  const combo = comboName(model);
   if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) throw new Error(`Directory not found: ${dir}`);
   if (!fs.existsSync(promptFile) || !fs.statSync(promptFile).isFile()) throw new Error(`Prompt file not found: ${promptFile}`);
-  if (!isFreeOpencodeModel(model)) throw new Error(`Refused non-free OpenCode model: ${model}`);
+  if (combo && !request.allowCombo) throw new Error(`Refused 9Router combo without --allow-combo: ${model}`);
+  if (!combo && !isFreeOpencodeModel(model)) throw new Error(`Refused non-free OpenCode model: ${model}`);
   const bin = (deps.resolveBin || resolveOpencodeBin)();
   if (!bin) throw new Error("OpenCode executable not found.");
 
-  const config = buildConfig(request);
+  const config = buildConfig({ ...request, model });
+  const started = Date.now();
   const env = opencodeCwdEnv(dir, {
     OPENCODE_CONFIG_CONTENT: JSON.stringify(config),
     OPENCODE_PERMISSION: JSON.stringify(config.permission),
@@ -64,6 +90,10 @@ function delegate(request, deps = {}) {
     timeout: Math.max(1, request.timeoutMinutes || 20) * 60_000,
     maxBuffer: MAX_BUFFER,
   });
+  if (combo) {
+    auditCombo({ at: new Date(started).toISOString(), combo, dir, write: !!request.write, ms: Date.now() - started,
+      status: result.status ?? null, error: /** @type {NodeJS.ErrnoException | undefined} */ (result.error)?.code || null }, deps.auditFile);
+  }
   if (result.error?.code === "ETIMEDOUT") throw new Error(`OpenCode delegate timed out after ${request.timeoutMinutes || 20} minute(s).`);
   if (result.error) throw result.error;
   const answer = parseOpencodeEvents(result.stdout || "");
@@ -72,4 +102,4 @@ function delegate(request, deps = {}) {
   return { answer, model, status: result.status ?? 0 };
 }
 
-module.exports = { buildPermissions, buildConfig, delegate };
+module.exports = { buildPermissions, buildConfig, comboName, delegate };
