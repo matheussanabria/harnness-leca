@@ -5,7 +5,7 @@ feature: core-shared
 summary: Frontend bootstrap, shared state, screen-state client, hash router, per-screen state, API client, projects, groups.
 paths: [ui/public/js/app.js, ui/public/js/shared/*.js, ui/public/js/modules/projects.js, ui/public/js/modules/services.js, ui/public/js/deploy/*.js, tests/screen-*.test.js, ui/public/index.html, ui/public/overview.html, ui/public/js/boot.js, ui/public/js/overview.js, ui/public/css/overview.css]
 keywords: [bootstrap, state, screen-state, router, api, sse, markdown, dom, projects, groups, services, deploy, office, diario, partials, boot]
-updated: 2026-10-30
+updated: 2026-10-31
 ---
 # Core and Shared Frontend
 
@@ -19,7 +19,7 @@ updated: 2026-10-30
 | `ui/public/js/shared/project-selection.js` | Resolves precedence, syncs URL/storage/backend and publishes confirmed project switches. |
 | `ui/public/js/shared/screen-state.js` | `loadScreen`, `patchScreen`, `logAction`: hydrate before render, memory cache, 400 ms debounce, `sendBeacon` on `pagehide`, `localStorage` fallback, retry (EP-14.06). |
 | `ui/public/js/shared/screen-state-migrate.js` | Mirrors server scopes and `migraDe`, reads and removes old `localStorage` keys on first load, filtered by project (EP-14.06). |
-| `ui/public/js/shared/router.js` | Hash routes for app screens (`#/chats`, `#/studio`, `#/scrum`, `#/layers`, `#/board`, `#/audit`, `#/artifacts`, `#/routines`, `#/prototypes/<proto>/<tela>`): `parseRoute`, `buildRoute`, `createRouter`, `routeTo`. |
+| `ui/public/js/shared/router.js` | Hash routes for app screens (`#/chats`, `#/studio`, `#/scrum`, `#/layers`, `#/board`, `#/audit`, `#/artifacts`, `#/routines`, `#/prototypes/<proto>/<tela>`), including island screens (e.g., `#/lab`): `parseRoute`, `buildRoute`, `createRouter`, `routeTo`. |
 | `ui/public/js/modules/route-apply.js` | `createRouteApplier`: opens the screen a route points to, at boot (direct link, F5) and on Back/Forward. |
 | `tests/screen-router.test.js` | Covers route parse/build, legacy links, history, route application, four wiring points and registry addresses. |
 | `ui/public/js/deploy/deploy-state.js` | Pure deploy state rules: initial config, server data normalization, registry-accepted patch; history from `/api/deploy/history` (EP-14.10). |
@@ -37,3 +37,4 @@ updated: 2026-10-30
 | `ui/public/js/deploy/` | Deploy screen: `main.js` entry, `deploy-*.js` (incl. `deploy-state.js`) and `deploy-store.js`; config in screen state, history only in `/api/deploy/history` (EP-14.10). |
 | `ui/public/index.html` | Page shell; blocks live in `ui/public/partials/` and `ui/public/js/boot.js` loads them before `app.js`. |
 | `ui/public/overview.html` | Overview page; styles in `ui/public/css/overview.css`, logic in `ui/public/js/overview.js`. |
+| `ui/public/js/shared/island-loader.js` | Legacy side JS that reads `/dist/islands.js`, injects CSS, mounts/unmounts React islands in `#islandHost`; shows a notice when the build is missing. |

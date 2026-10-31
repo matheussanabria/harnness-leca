@@ -18,6 +18,7 @@ import * as designMod from "./modules/design.js";
 import { restoredDesignState } from "./modules/design-view-state.js";
 import { getRouter, routeFromLocation } from "./shared/router.js";
 import { createRouteApplier } from "./modules/route-apply.js";
+import { getIslandLoader } from "./shared/island-loader.js";
 import { persistAtelierActive } from "./modules/prototype-atelier-adoption.js";
 import * as mobileChatMod from "./modules/mobile-chat.js";
 import * as chatAttachMod from "./modules/chat-attachments.js";
@@ -142,7 +143,10 @@ Object.assign(window, {
 
   // A hash route (#/scrum, #/prototypes/<id>/<screen>) or an old ?view= / ?module= link decides the screen;
   // without either, the saved state is used (F5 on a screen that has not reported its route yet).
-  const applyRoute = createRouteApplier({ designMod, studioMod, prepareAtelier: persistAtelierActive });
+  const applyRoute = createRouteApplier({
+    designMod, studioMod, prepareAtelier: persistAtelierActive,
+    islands: getIslandLoader() || undefined, getSlug: () => projectSelection.activeProject,
+  });
   const route = routeFromLocation(location);
   if (route) {
     await applyRoute(route);

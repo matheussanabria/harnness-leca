@@ -1,6 +1,6 @@
 // @ts-check
 // Opens the screen a route points to. Used once at boot (deep link / F5) and again on Back/Forward.
-import { VIEW_SCREENS } from "../shared/router.js";
+import { VIEW_SCREENS, ISLAND_SCREENS } from "../shared/router.js";
 
 const domDesignOpen = () => {
   const workspace = typeof document !== "undefined" ? document.getElementById("designWorkspace") : null;
@@ -15,6 +15,8 @@ const domStudioOpen = () => typeof document !== "undefined" && document.body.cla
  *   prepareAtelier?: (protoId: string, screen: string) => Promise<unknown> | unknown,
  *   isDesignOpen?: () => boolean,
  *   isStudioOpen?: () => boolean,
+ *   islands?: { mount: (name: string, props: { slug: string, params: string[] }) => Promise<boolean>, unmount: () => void },
+ *   getSlug?: () => string,
  * }} deps
  */
 export function createRouteApplier(deps) {
@@ -24,6 +26,14 @@ export function createRouteApplier(deps) {
   /** @param {{ screen: string, params: string[] }} route */
   return async function applyRoute(route) {
     const { screen, params } = route;
+    if (ISLAND_SCREENS.includes(screen)) {
+      if (isStudioOpen()) await deps.studioMod.toggleStudioMode(false);
+      if (isDesignOpen()) await deps.designMod.toggleDesignMode(false);
+      if (deps.islands) await deps.islands.mount(screen, { slug: deps.getSlug ? deps.getSlug() : "", params });
+      return;
+    }
+    // Leaving an island screen releases its React root before the legacy screen opens.
+    deps.islands?.unmount();
     if (screen === "chats") {
       if (isStudioOpen()) await deps.studioMod.toggleStudioMode(false);
       if (isDesignOpen()) await deps.designMod.toggleDesignMode(false);

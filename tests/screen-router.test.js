@@ -166,6 +166,44 @@ test("the registry declares the real addresses and they parse back to their own 
   for (const id of ["overview", "office", "deploy", "diario"]) assert.equal(registry.getScreen(id).rota.includes("#"), false, id);
 });
 
+function islandApplier(state = {}) {
+  const log = [];
+  const designMod = {
+    toggleDesignMode: (force, view) => { log.push(["design", force, view]); state.design = Boolean(force); },
+    setDesignView: (view) => log.push(["view", view]),
+  };
+  const studioMod = { toggleStudioMode: (force) => { log.push(["studio", force]); state.studio = Boolean(force); } };
+  const apply = createRouteApplier({
+    designMod, studioMod,
+    isDesignOpen: () => Boolean(state.design),
+    isStudioOpen: () => Boolean(state.studio),
+    islands: {
+      mount: (name, props) => { log.push(["islands.mount", name, props]); return true; },
+      unmount: () => log.push(["islands.unmount"]),
+    },
+    getSlug: () => "demo",
+  });
+  return { apply, log, state };
+}
+
+test("lab routes parse with two parameters and build back to their own address", () => {
+  assert.deepEqual(parseRoute("#/lab/a/b"), { screen: "lab", params: ["a", "b"] });
+  assert.equal(buildRoute("lab", ["x"]), "#/lab/x");
+});
+
+test("an island route mounts after closing workspaces, and leaving unmounts before Design opens", async () => {
+  const run = islandApplier({ studio: true, design: true });
+  await run.apply({ screen: "lab", params: ["p"] });
+  assert.deepEqual(run.log, [
+    ["studio", false],
+    ["design", false, undefined],
+    ["islands.mount", "lab", { slug: "demo", params: ["p"] }],
+  ]);
+  run.log.length = 0;
+  await run.apply({ screen: "scrum", params: [] });
+  assert.deepEqual(run.log, [["islands.unmount"], ["design", true, "scrum"]]);
+});
+
 test("new files stay small and use no emoji", () => {
   for (const rel of ["ui/public/js/shared/router.js", "ui/public/js/modules/route-apply.js"]) {
     const text = read(rel);

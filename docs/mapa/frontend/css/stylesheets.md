@@ -5,13 +5,14 @@ feature: stylesheets
 summary: Frontend CSS files under ui/public/css, including chat, studio, review, inspector and design stylesheets.
 paths: [ui/public/css/*.css, ui/public/css/chat/*.css, ui/public/css/design/*.css]
 keywords: [css, stylesheet, theme, chat, design, artifacts, prototype]
-updated: 2026-10-30
+updated: 2026-10-31
 ---
 # Frontend Stylesheets
 
 | File | Responsibility |
 |---|---|
-| `ui/public/css/index.css` | Central mount point importing the 6 style files via `@import`. |
+| `ui/public/css/index.css` | Central mount point importing the style files via `@import`. |
+| `ui/public/css/island-host.css` | Full-screen host for React islands (ADR-011) over the legacy dashboard, plus the "not built" notice. |
 | `ui/public/css/base.css` | HSL dark/light theme variables, reset, typography, base buttons and native dialogs. |
 | `ui/public/css/components.css` | Header, conversation table, filters, group chips, pagination and toasts. |
 | `ui/public/css/chat.css` | Modular aggregator: dialog layout, editorial messages, actionable code cards, composer, popovers, multi-engine arena, mini-dock. |
