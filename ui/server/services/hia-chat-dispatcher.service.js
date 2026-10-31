@@ -5,6 +5,7 @@ const { routeTask } = require("../../../tools/lib/hia/router");
 const { executeTool } = require("../../../tools/lib/hia/executor");
 const { recordExecution } = require("../../../tools/lib/hia/telemetry");
 const { localInferenceQueue } = require("../../../tools/lib/hia/guard");
+const { redact } = require("../../../tools/lib/redact");
 const E = require("../../../tools/lib/engines");
 const crypto = require("crypto");
 
@@ -168,6 +169,27 @@ async function handleChatWithHia({ engine, prompt, slug, sessionId, history, sig
   }
 
   // ROTA 3: Cloud-on-Demand (motor solicitado pelo usuário)
+  // Registra o combo sugerido para medir, antes de aplicá-lo, quanto a sugestão difere do modelo usado.
+  if (decision.suggestedCombo) {
+    try {
+      recordExecution({
+        executionId: `exec-${Date.now()}`,
+        executorType: "cloud",
+        executorId: engine,
+        status: "routed",
+        durationMs: 0,
+        tokensPrompt: 0,
+        tokensCompletion: 0,
+        tokensTotal: 0,
+        tokensSaved: 0,
+        suggestedCombo: decision.suggestedCombo.combo,
+        suggestedType: decision.suggestedCombo.type,
+        project: slug,
+        // Short redacted excerpt so the suggestion can be audited by hand; never the full prompt.
+        promptPreview: redact(String(prompt || "").slice(0, 400)).replace(/\s+/g, " ").slice(0, 120),
+      });
+    } catch {}
+  }
   fallbackStream();
   return false;
 }

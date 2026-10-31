@@ -145,3 +145,15 @@ test("HIA Dispatcher - Ollama indisponível cai para o motor em nuvem sem quebra
   assert.equal(fallbacks, 1, "sem resposta local, o motor pedido assume a conversa");
   assert.ok(chunks.some((c) => /Ollama local indisponível/.test(c.text)), "usuário é avisado da queda para a nuvem");
 });
+
+test("HIA Router - rota cloud sugere o combo do 9Router sem trocar motor nem destino", () => {
+  const dec = routeTask({ prompt: "investigue a causa raiz desta exception no servico de pedidos", requestedEngine: "opencode" });
+  assert.equal(dec.destination, "cloud");
+  assert.equal(dec.targetId, "opencode");
+  assert.equal(dec.suggestedCombo?.combo, "harness-bugs");
+  assert.equal(dec.suggestedCombo?.modelRef, "9router/harness-bugs");
+});
+
+test("HIA Router - decisoes script nao carregam sugestao de combo", () => {
+  assert.equal(routeTask({ prompt: "qual o status do git atual?" }).suggestedCombo, undefined);
+});

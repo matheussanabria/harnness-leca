@@ -3,9 +3,9 @@ domain: intelligence
 module: hia
 feature: automation
 summary: HIA Intelligence & Automation: registry, context engine, routing, guard, telemetry, benchmark and dashboard.
-paths: [docs/harness-intelligence/*.md, schemas/hia-*.schema.json, tools/hia.js, tools/lib/hia/*.js, tools/lib/engines/ollama.js, tests/hia-*.test.js, ui/server/controllers/hia.controller.js]
+paths: [docs/harness-intelligence/*.md, schemas/hia-*.schema.json, tools/hia*.js, tools/lib/hia/*.js, tools/lib/engines/ollama.js, tests/hia-*.test.js, ui/server/controllers/hia.controller.js]
 keywords: [hia, intelligence, automation, script-first, local-first, router, registry, context-engine, ollama, benchmark]
-updated: 2026-10-30
+updated: 2026-10-31
 ---
 # Intelligence and Automation (HIA)
 
@@ -37,7 +37,9 @@ updated: 2026-10-30
 | `tools/lib/hia/benchmark.js` | F4: automated benchmark runner of local models against versioned datasets. |
 | `tests/hia-benchmark.test.js` | F4: unit tests of the benchmark runner. |
 | `tools/lib/hia/model-registry.js` | F5: canonical catalog of models, contexts, tiers and technical capabilities. |
-| `tools/lib/hia/router.js` | F5: layered smart router (Script-First, Local-First, Cloud) with feature flag `HIA_ROUTING_ENABLED`. |
+| `tools/lib/hia/router.js` | F5: layered smart router (Script-First, Local-First, Cloud) with feature flag `HIA_ROUTING_ENABLED`. Cloud decisions also carry an informative `suggestedCombo`. |
+| `tools/lib/hia/combo-map.js` | Pure map from SDLC task type to 9Router combo (`9router/harness-*`): keyword classifier and `suggestCombo`; experiment combos (fusion, smart) are excluded. |
+| `tests/hia-combo-map.test.js` | Unit tests of the classifier, the general fallback and the model reference format. |
 | `tests/hia-router.test.js` | F5: unit tests of routing decisions and flag-based disabling. |
 | `tools/lib/hia/guard.js` | F6: Resource Governor (max concurrency 1 for CPU) and loop repetition detector. |
 | `tools/lib/hia/telemetry.js` | F6: JSONL telemetry persistence with execution metrics and tokens saved. |

@@ -5,6 +5,7 @@
 const { getTool } = require("./registry");
 const { getHardwareSnapshot } = require("./hardware-profiler");
 const { getModel } = require("./model-registry");
+const { suggestCombo } = require("./combo-map");
 
 /**
  * @typedef {Object} RoutingDecision
@@ -13,6 +14,7 @@ const { getModel } = require("./model-registry");
  * @property {string} reason
  * @property {boolean} deterministic
  * @property {number} estimatedTokensSaved
+ * @property {{type: string, combo: string, modelRef: string, source: string}} [suggestedCombo] Combo do 9Router sugerido (somente rota cloud).
  */
 
 const MAX_DETERMINISTIC_PROMPT = 240;
@@ -137,6 +139,7 @@ function routeTask(input) {
   }
 
   // CAMADA 3: Cloud-on-Demand (Raciocínio complexo em motores em nuvem)
+  // O combo do 9Router e apenas sugerido; o motor e o modelo escolhidos pelo usuario nao mudam.
   const targetEngine = input.requestedEngine || "claude";
   return {
     destination: "cloud",
@@ -144,6 +147,7 @@ function routeTask(input) {
     reason: "Tarefa com complexidade de raciocínio, dependência de código longo ou histórico interativo.",
     deterministic: false,
     estimatedTokensSaved: 0,
+    suggestedCombo: suggestCombo(prompt),
   };
 }
 
