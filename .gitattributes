@@ -5,3 +5,6 @@ tests/golden/** -text
 *.sh text eol=lf
 # Runtime vendorizado do Claude Design: os bytes precisam bater com os hashes aceitos (sem conversao de fim de linha).
 ui/public/js/vendor/dc-runtime/** -text
+# React islands (ADR-011): Biome expects LF, so island code and its config never convert to CRLF.
+ui/web/** text eol=lf
+biome.json text eol=lf
