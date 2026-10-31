@@ -40,6 +40,8 @@ updated: 2026-10-31
 | `tools/lib/hia/router.js` | F5: layered smart router (Script-First, Local-First, Cloud) with feature flag `HIA_ROUTING_ENABLED`. Cloud decisions also carry an informative `suggestedCombo`. |
 | `tools/lib/hia/combo-map.js` | Pure map from SDLC task type to 9Router combo (`9router/harness-*`): keyword classifier and `suggestCombo`; experiment combos (fusion, smart) are excluded. |
 | `tests/hia-combo-map.test.js` | Unit tests of the classifier, the general fallback and the model reference format. |
+| `tools/lib/hia/quality-gate.js` | Model-free answer check used by the opencode engine: flags empty, truncated (`finish: length`) and fake tool-call answers that 9Router returns as HTTP 200; flags only, never retries. |
+| `tests/hia-quality-gate.test.js` | Quality gate tests with real fake tool-call outputs, plus false-positive and truncation cases. |
 | `tests/hia-router.test.js` | F5: unit tests of routing decisions and flag-based disabling. |
 | `tools/lib/hia/guard.js` | F6: Resource Governor (max concurrency 1 for CPU) and loop repetition detector. |
 | `tools/lib/hia/telemetry.js` | F6: JSONL telemetry persistence with execution metrics and tokens saved. |

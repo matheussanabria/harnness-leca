@@ -73,13 +73,14 @@ const tail = (/** @type {string} */ full, /** @type {string} */ have) => (full.l
  * @param {string} sessionId
  * @param {string} text
  * @param {{ signal?: AbortSignal, onReasoning?: (d: string) => void, onText?: (d: string) => void, onWaiting?: (silentSeconds: number) => void, fetchFn?: typeof fetch, tickMs?: number, syncMs?: number, idleMs?: number, maxMs?: number, waitingMs?: number }} [o]
- * @returns {Promise<{ text: string, reasoning: string, aborted: boolean }>}
+ * @returns {Promise<{ text: string, reasoning: string, aborted: boolean, finish: string }>}
  */
 async function runTurn(base, sessionId, text, o = {}) {
   const { signal, onReasoning = () => {}, onText = () => {}, onWaiting = () => {}, fetchFn = ocFetch, tickMs = 300, syncMs = 3000, idleMs = IDLE_MS, maxMs = MAX_MS, waitingMs = 10_000 } = o;
   const req = { fetchFn };
   let reasoning = "";
   let out = "";
+  let finish = ""; // last finish reason read from /message ("stop", "length", ...), for the quality gate
   const pushR = (/** @type {string} */ d) => { if (d) { reasoning += d; onReasoning(d); } };
   const pushT = (/** @type {string} */ d) => { if (d) { out += d; onText(d); } };
 
@@ -96,7 +97,7 @@ async function runTurn(base, sessionId, text, o = {}) {
       await sleep(tickMs);
       if (signal?.aborted) {
         V2.interrupt(base, sessionId, req);
-        return { text: out, reasoning, aborted: true };
+        return { text: out, reasoning, aborted: true, finish };
       }
       const now = Date.now();
       lastSeen = Math.max(lastSeen, live.state.lastEvent);
@@ -112,6 +113,7 @@ async function runTurn(base, sessionId, text, o = {}) {
           if (!(err instanceof V2.OpenCodeApiError)) throw err; // falha momentânea de leitura: tenta de novo
         }
         if (turn) {
+          if (turn.finish) finish = turn.finish;
           const r = tail(turn.reasoning, reasoning);
           const t = tail(turn.text, out);
           if (r || t) lastSeen = now;
@@ -122,7 +124,7 @@ async function runTurn(base, sessionId, text, o = {}) {
 
       const failure = ended?.outcome === "failed" ? ended.error : turn?.error;
       if (failure) throw new TurnError(`OpenCode erro: ${failure}`);
-      if (ended || turn?.done) return { text: out, reasoning, aborted: false };
+      if (ended || turn?.done) return { text: out, reasoning, aborted: false, finish };
 
       // Modelos lentos (ex.: ~14 tok/s, sem streaming no upstream) ficam minutos mudos: avisa que a sessão segue viva.
       if (now - lastSeen >= waitingMs && now - lastWaiting >= waitingMs) {

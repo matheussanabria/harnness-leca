@@ -5,6 +5,20 @@ const { loadEnv } = require("../env");
 const V2 = require("../opencode-v2");
 const { runTurn, TurnError } = require("../opencode-v2-turn");
 const { resolveOpenCodeUrl, invalidateOpenCodeUrl, ocFetch, DEFAULT_URL } = require("../opencode-detect");
+const { checkAnswer } = require("../hia/quality-gate");
+const { recordExecution } = require("../hia/telemetry");
+
+// Telemetry must never break a chat turn; unit tests (HARNESS_ROOT) skip the disk write.
+function recordGate(/** @type {string} */ model, /** @type {{ok: boolean, code: string}} */ gate) {
+  if (process.env.HARNESS_ROOT) return;
+  try {
+    recordExecution({
+      executionId: `exec-${Date.now()}`, executorType: "opencode", executorId: model || "default",
+      status: gate.ok ? "succeeded" : "flagged", durationMs: 0, tokensPrompt: 0, tokensCompletion: 0, tokensTotal: 0, tokensSaved: 0,
+      qualityGate: gate.code,
+    });
+  } catch {}
+}
 
 // Lido a cada uso. Em testes de unidade (HARNESS_ROOT) devolve o padrão sem sondar; fora deles, devolve a URL
 // que respondeu a GET /api/info (OPENCODE_URL, portas do processo, padrão) ou lança PublicError explicando o que foi tentado.
@@ -59,7 +73,11 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
     });
     if (turn.aborted) return;
 
-    onDone({ sessionId: sId, fullText: accumulatedText });
+    // 9Router returns HTTP 200 for empty, cut-off and fake tool-call answers: flag them instead of passing them as good.
+    const qualityGate = checkAnswer({ text: accumulatedText, finish: turn.finish });
+    if (!qualityGate.ok) onChunk({ type: "thinking", text: `\n[Quality gate] ${qualityGate.reason} Model: ${model || "default"}.\n`, sessionId: sId });
+    recordGate(model, qualityGate);
+    onDone({ sessionId: sId, fullText: accumulatedText, qualityGate });
   } catch (err) {
     if (err && err.message === "fetch failed") invalidateOpenCodeUrl(); // servidor caiu: revalida na próxima chamada
     onError(err instanceof TurnError ? new PublicError(err.message) : err);

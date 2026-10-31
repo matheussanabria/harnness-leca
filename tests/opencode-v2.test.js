@@ -41,7 +41,7 @@ test("summarizeTurn: raciocínio, texto e fim vêm do turno certo (mensagens da 
     { type: "assistant", time: { created: 90 }, content: [{ type: "text", text: "resposta velha" }] },
   ];
   const t = V2.summarizeTurn(data, 200);
-  assert.deepEqual(t, { reasoning: "penso mais", text: "ok", done: true, outcome: "succeeded", error: "" });
+  assert.deepEqual(t, { reasoning: "penso mais", text: "ok", done: true, outcome: "succeeded", error: "", finish: "stop" });
 });
 
 test("summarizeTurn: turno em andamento não está pronto; falha traz a mensagem do servidor", () => {

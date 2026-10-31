@@ -24,6 +24,7 @@ const COMBO_BY_TYPE = Object.freeze({
 });
 
 // A ordem importa: tipos mais especificos primeiro; "implement" e o ultimo recurso antes de "general".
+/** @type {Array<[string, RegExp]>} */
 const RULES = [
   ["diagram", /mermaid|diagrama|\bc4\b|\buml\b|\berd\b|fluxograma|mapa mental/],
   ["test", /\btestes?\b|\bjest\b|junit|cobertura|unit test|\btdd\b|test case/],
