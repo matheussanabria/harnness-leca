@@ -3,15 +3,16 @@ domain: tools
 module: testing
 feature: running-tests
 summary: How to run the test suite, git hooks for affected tests, and screen-state and workflows regression tests.
-paths: [scripts/pre-commit.js, scripts/lib/affected-tests.js, .githooks/pre-push, tests/helpers/**, tests/affected-tests.test.js, tests/screen-*.test.js, tests/design-workflows-*.test.js]
-keywords: [tests, npm test, node --test, pre-commit, pre-push, affected tests, fixtures]
-updated: 2026-10-30
+paths: [scripts/pre-commit.js, scripts/lib/affected-tests.js, .githooks/pre-push, tests/helpers/**, tests/affected-tests.test.js, tests/screen-*.test.js, tests/design-workflows-*.test.js, scripts/lib/web-gates.js, scripts/e2e-island-lab.js, tests/web-gates.test.js, tests/island-loader.test.js]
+keywords: [tests, npm test, e2e, islands, biome, web-gates, node --test, pre-commit, pre-push, affected tests, fixtures]
+updated: 2026-10-31
 ---
 # Running Tests
 
 - Whole suite: `npm test` (native Node test runner).
 - Single file: `node --test tests/<name>.test.js`; per-suite files are listed in the suites page of this folder.
 - Hooks run only affected tests on commit and the full suite on push.
+- React islands (ADR-011): `npm run types:web`, `npm run lint:web`, and `npm run e2e:web` (headless Edge, own server on port 4399).
 
 | File | Responsibility |
 |---|---|
@@ -29,3 +30,7 @@ updated: 2026-10-30
 | `tests/design-workflows-ui.test.js` | Tab registration, view-state restore, CSS import, FontAwesome, no emoji or `confirm`/`alert`/`prompt`, 300-line limit (EP-08.06). |
 | `tests/helpers/temp-dir.js` | Shared helper creating a temp dir and registering its removal, with Windows retries. |
 | `tests/helpers/project-fixture.js`, `project-fixture-design-system.js`, `project-fixture-prototype.js`, `project-fixture-design-index.js`, `project-fixture-files.js` | Create a temp project outside `projects/` and return `{ dir, slug, cleanup }`. |
+| `scripts/lib/web-gates.js` | Pre-commit gates for islands: Biome on staged `ui/web` files, `tsc` on both `ui/web` projects, `npm audit` (high or worse) when package files change. |
+| `tests/web-gates.test.js` | Web gates skip unrelated commits, lint and type-check island files, and run `npm audit` on dependency changes. |
+| `scripts/e2e-island-lab.js` | E2E for `#/lab`: builds if needed, starts its own UI server, checks props, state, unmount on leave and remount on Back. |
+| `tests/island-loader.test.js` | Island loader with a fake DOM: index then entry import, CSS dedupe, unmount, not-built and missing-entry notices, unknown island, throwing unmount. |

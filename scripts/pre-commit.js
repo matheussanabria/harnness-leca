@@ -4,7 +4,7 @@
 //   2. uma linha ADICIONADA tem um segredo de formato conhecido (chave de API, JWT, webhook, chave privada...).
 //      Exemplos e fixtures: ponha "allow-secret" num comentário da mesma linha;
 //   3. entra arquivo novo e o MAPA.md nao foi atualizado no mesmo commit (e o arquivo, sua pasta ou seu nome nao aparecem no mapa);
-//   4. o check de sintaxe/JSON dos arquivos staged falha;
+//   4. o check de sintaxe/JSON dos arquivos staged falha, ou os gates das ilhas React (Biome, tsc, npm audit) falham;
 //   5. os testes afetados pelos arquivos staged falham (EP-14.02). Commit só de documentação pula os testes,
 //      assim como HARNESS_SKIP_TESTS=1. A suíte completa roda no pre-push e no CI.
 // Nunca imprime o segredo achado: só arquivo, linha e tipo.
@@ -14,6 +14,7 @@ const path = require("path");
 const { findSecrets } = require("../tools/lib/redact");
 const { affectedTests } = require("./lib/affected-tests");
 const { readMapaText } = require("./lib/read-mapa");
+const { webGates } = require("./lib/web-gates");
 
 // Dados locais que nunca devem ir para o repositório (o que o .gitignore já exclui; aqui vale mesmo com `git add -f`).
 function forbiddenPath(rel) {
@@ -106,7 +107,7 @@ function main() {
     process.exit(1);
   }
 
-  const checkProblems = checkStaged(root, staged);
+  const checkProblems = [...checkStaged(root, staged), ...webGates(root, staged)];
   if (checkProblems.length) {
     console.error("✖ check dos arquivos staged falhou:\n" + checkProblems.map((p) => `  - ${p}`).join("\n"));
     process.exit(1);
