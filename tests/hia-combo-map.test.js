@@ -16,8 +16,18 @@ test("combo-map - classifica cada responsabilidade do SDLC", () => {
     ["compare as bibliotecas de graficos", "research"],
     ["planeje a arquitetura do modulo de relatorios", "plan"],
     ["crie o endpoint de listagem de pacientes", "implement"],
+    ["Explain what this problem is and help me fix it: Object is possibly 'null'.", "investigate"],
+    ["app front end nao esta subindo, nao carrega o console", "investigate"],
+    ["Precisamos ajustar nosso conversor para o modelo conta azul", "implement"],
+    ["substituir para botao login no cabecalho", "implement"],
   ];
   for (const [prompt, expected] of cases) assert.equal(classifyTask(prompt), expected, prompt);
+});
+
+test("combo-map - pedidos operacionais e saudacoes ficam no combo geral", () => {
+  for (const p of ["preciso fazer o push desse diretorio no github", "responda apenas OK", "Diga ola em poucas palavras"]) {
+    assert.equal(classifyTask(p), "general", p);
+  }
 });
 
 test("combo-map - prompt sem palavra-chave cai no combo geral", () => {

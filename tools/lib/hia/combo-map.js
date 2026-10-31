@@ -29,14 +29,23 @@ const RULES = [
   ["test", /\btestes?\b|\bjest\b|junit|cobertura|unit test|\btdd\b|test case/],
   ["review", /\breview\b|revis[aã]o|code review|\bpr\b|\bdiff\b|vulnerab|seguran[cç]a do c[oó]digo/],
   ["refactor", /refator|refactor|renomei|reorganiz|extrair m[eé]todo/],
-  ["investigate", /\bbugs?\b|exception|stack ?trace|causa raiz|root cause|investig|\bcrash\b|\berro\b|falha/],
+  ["investigate", new RegExp([
+    /\bbugs?\b|exception|stack ?trace|causa raiz|root cause|investig|\bcrash\b|\berros?\b|\berrors?\b|falha/.source,
+    // Pasted compiler/terminal errors and "it does not work" reports.
+    /\bproblem\b|\bproblemas?\b|fix it|cannot be|is not assignable|is missing|unterminated|\bwarn(ing)?\b/.source,
+    /n[aã]o (est[aá] |esta )?(funciona|aparece|sobe|carrega|consig)|n[aã]o (est[aá]|esta) (funcionando|aparecendo|subindo|carregando)/.source,
+  ].join("|"))],
   ["docs", /readme|documenta|changelog|javadoc|jsdoc/],
   ["design", /prot[oó]tipo|\bux\b|design system|wireframe|\bcss\b|\blayout\b|\btela\b/],
   ["orchestrate", /orquestr|delegu?e|delegar|subagente/],
   ["loop", /\bloop\b|itere|iterar|repita at[eé]/],
   ["research", /pesquis|compar(e|a[cç][aã]o)|biblioteca|research|benchmark/],
   ["plan", /arquitetur|planej|decompon|roadmap|plano de|\badrs?\b/],
-  ["implement", /implement|\bcrie\b|\bcriar\b|desenvolv|adicione|endpoint|componente|\bsql\b|\bquery\b/],
+  ["implement", new RegExp([
+    /implement|\bcrie\b|\bcriar\b|desenvolv|adicione|endpoint|componente|\bsql\b|\bquery\b/.source,
+    // Change requests: "ajuste", "substituir", "alterar", "atualize", "configurar", "disponibilizar".
+    /\bajust|substitu|\balter[ae]|\batualiz|configur|disponibiliz|inclus[aã]o de|\bincluir\b/.source,
+  ].join("|"))],
 ];
 
 /**
