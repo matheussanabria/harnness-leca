@@ -1,5 +1,6 @@
 // @ts-check
 const crypto = require("crypto");
+const { findConflicts } = require("./scopes");
 
 const ACTIVE = new Set(["claimed", "in_progress", "review"]);
 
@@ -53,8 +54,15 @@ function reduce(state, event) {
     if (item.lease && Date.parse(item.lease.expiresAt) > Date.parse(at) && item.lease.provider !== event.provider) {
       throw new Error(`${item.id} possui lease ativo de ${item.lease.provider}.`);
     }
+    // Two active stories may not edit the same files; stories without a declared scope are not checked (legacy).
+    const others = Object.values(state.stories).filter((o) => o.id !== item.id && ACTIVE.has(o.status) && o.fileScopes?.length);
+    if (item.fileScopes?.length) {
+      const clash = findConflicts([item, ...others]).find((c) => c.a === item.id);
+      if (clash) throw new Error(`${item.id} sobrepoe arquivos de ${clash.b} (ativa): ${clash.globs.slice(0, 3).join("; ")}.`);
+    }
     item.owner = event.provider;
     item.status = "claimed";
+    if (event.payload.worktree) item.worktree = { dir: event.payload.worktree, branch: event.payload.branch };
     item.lease = lease(event.provider, event.payload.leaseMinutes || 120, at);
     item.updatedAt = at;
   } else if (event.type === "story.started" || event.type === "story.heartbeat") {

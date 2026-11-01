@@ -57,7 +57,7 @@ de evolução previsíveis, modulares e rastreáveis, baseados na metodologia te
 4. **Decomposição em Histórias Atômicas:**
    - Cada entrega planejada vira um arquivo individual `02-epics/EP-xx/xx.yy-slug.md`.
    - Seguir rigorosamente o padrão de contrato:
-     - Frontmatter YAML com `id`, `epico`, `prioridade`, `status: planejada`, `dependencias`.
+     - Frontmatter YAML com `id`, `epico`, `prioridade`, `status: planejada`, `dependencias`, `owns` (globs; alimenta o ledger e a checagem de conflito em `multi-agent-coordination`).
      - 1. Identificação | 2. Contexto | 3. Objetivo | 4. Requisitos (RF/RNF) | 5. Arquitetura | 6. Implementação passo a passo | 7. Testes pré-definidos | 8. Critérios de aceite | 9. Riscos | 10. Evidências.
 5. **Critérios Não Funcionais Obrigatórios:**
    - Limite por arquivo: 250 a 300 linhas estrito (proibido "god files").

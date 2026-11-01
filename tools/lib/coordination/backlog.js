@@ -2,6 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const { EPIC_OWNERS, STORY_OWNERS } = require("./config");
+const { readScopes } = require("./scopes");
 
 const ITEM = /^- \[([ xX])\]\s+(?:\[)?(\d{2}\.\d{2})(?:\]\(([^)]+)\))?\s+(.+)$/;
 
@@ -37,7 +38,7 @@ function readBacklog(root) {
       owner: STORY_OWNERS[id] || EPIC_OWNERS[epic] || null,
       document: match[3] || null,
       dependencies: declaredDependencies(file, match[3]),
-      fileScopes: [],
+      fileScopes: readScopes(root, match[3] || null),
       lease: null,
       evidence: [],
       updatedAt: null,

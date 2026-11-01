@@ -6,6 +6,7 @@ const { ROOT } = require("./lib/root");
 const { opt, flag, CliError, runAsScript } = require("./lib/cli");
 const service = require("./lib/coordination/service");
 const { totals } = require("./lib/coordination/projection");
+const flow = require("./lib/coordination/flow");
 
 function activeProject() {
   const file = path.join(ROOT, "projects", ".active");
@@ -35,6 +36,41 @@ function input(command, storyId, argv) {
   throw new CliError(`Comando desconhecido: ${command}`);
 }
 
+/** claim --worktree opens the story worktree; complete checks the recorded one for committed work. */
+function prepare(command, project, storyId, argv, base) {
+  const built = input(command, storyId, argv);
+  const provider = built.provider;
+  if (command === "claim" && flag("worktree", argv)) {
+    const worktree = flow.openWorktree(ROOT, provider, storyId, base);
+    built.payload = { ...built.payload, worktree: worktree.dir, branch: worktree.branch };
+    return { input: built, worktree };
+  }
+  if (command === "complete") {
+    const recorded = service.get(ROOT, project).stories[storyId]?.worktree;
+    if (recorded && !flag("no-commit-check", argv)) {
+      const sha = flow.assertCommitted(recorded, base);
+      built.payload = { ...built.payload, evidence: `${built.payload.evidence} [commit ${sha} on ${recorded.branch}]` };
+    }
+  }
+  return { input: built, worktree: null };
+}
+
+function sprint(project, ids, io) {
+  const state = service.get(ROOT, project);
+  const { waves, unscoped } = flow.planWaves(state.stories, ids.filter((id) => !id.startsWith("--")));
+  waves.forEach((wave, i) => io.log(`Wave ${i + 1} (parallel): ${wave.join(", ")}`));
+  if (unscoped.length) io.log(`Warning: no declared file scope (run alone): ${unscoped.join(", ")}. Add owns: [globs] to the story.`);
+}
+
+function delegateCommand(project, storyId, argv, io) {
+  const story = service.get(ROOT, project).stories[storyId];
+  if (!story) throw new CliError(`Historia desconhecida: ${storyId}`);
+  if (!story.worktree) throw new CliError(`${storyId} nao tem worktree; use claim --worktree antes.`);
+  const result = flow.delegateStory({ root: ROOT, story, worktree: story.worktree, model: opt("model", argv), timeoutMinutes: opt("timeout-min", argv) ? Number(opt("timeout-min", argv)) : undefined });
+  io.log(`Delegated to ${result.model}. Review the diff in ${story.worktree.dir} before completing.
+${result.answer}`);
+}
+
 function printStatus(state, io) {
   const count = totals(state);
   io.log(`${state.project}: revisao ${state.revision}; ${count.done}/${count.all} concluidas; ${count.active} ativas; ${count.blocked} bloqueadas.`);
@@ -62,9 +98,14 @@ function run(argv, io = console) {
       io.log(`Notificacao registrada para ${result.event.payload.to}.`);
       return;
     }
+    if (command === "sprint") return sprint(project, argv.slice(2), io);
     const storyId = argv[1];
     if (!storyId) throw new CliError(`Informe a historia, por exemplo EP-05.02.`);
-    const result = service.mutate(ROOT, project, input(command, storyId, argv));
+    if (command === "delegate") return delegateCommand(project, storyId, argv, io);
+    const base = opt("base", argv) || "main";
+    const prepared = prepare(command, project, storyId, argv, base);
+    const result = service.mutate(ROOT, project, prepared.input);
+    if (result.changed && prepared.worktree && command === "claim") io.log(`Worktree: ${prepared.worktree.dir} (${prepared.worktree.branch})`);
     io.log(`${storyId}: ${result.changed ? "evento registrado" : "evento ja processado"} (${result.event.type}).`);
   } catch (error) {
     if (error instanceof CliError) throw error;

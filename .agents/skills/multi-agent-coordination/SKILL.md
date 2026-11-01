@@ -77,3 +77,4 @@ rastreabilidade por ledger canônico e prevenção de conflitos de merge.
 
 - Matriz de ownership e convenções: `references/ownership-e-fronteiras.md`
 - Runbook de comandos CLI: `references/runbook-comandos.md`
+- Fluxo Scrum multiagente (waves, worktree por historia, delegacao ao OpenCode): `references/scrum-multiagent-flow.md`
