@@ -29,6 +29,9 @@ const TELEMETRY_DIR = path.join(ROOT, "logs/telemetry");
  * @property {string} [project] project slug
  * @property {string} [promptPreview] short redacted prompt excerpt for manual review
  * @property {string} [qualityGate] quality gate code of the answer (ok, empty, truncated, fake_tool_call)
+ * @property {number} [sensorErrors] answer sensor findings with severity error (syntax, secret)
+ * @property {number} [sensorWarnings] answer sensor findings with severity warning (lint, emoji, tests, mermaid, truncated)
+ * @property {string} [sensorCodes] distinct "sensor:lang" codes behind the findings
  */
 
 /**
