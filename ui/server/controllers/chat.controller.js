@@ -122,11 +122,14 @@ async function apiChat({ req, res }) {
   res.on("close", () => tracker.onClose(res.writableFinished));
   tracker.start();
 
-  // `override` lets the HIA dispatcher run the turn on another model (a suggested 9Router combo) and observe the result.
+  // `override` lets the HIA dispatcher run the turn on another model (a suggested 9Router combo) and observe the
+  // result. The observers are best-effort: one that throws must never stop the chat stream or the run tracker.
   const fallbackStream = (override = {}) => {
     const impl = E.engines.get(engine);
-    const onDone = override.onDone ? (data) => { override.onDone(data); tracked.onDone(data); } : tracked.onDone;
-    if (impl) impl.stream({ prompt, slug, sessionId, history, model: override.model || model, effort: eff, daiAgent, chatId, permissionUrl, signal: ac.signal, ...tracked, onDone });
+    const observe = (fn, data) => { try { fn?.(data); } catch {} };
+    const onDone = override.onDone ? (data) => { observe(override.onDone, data); tracked.onDone(data); } : tracked.onDone;
+    const onChunk = override.onChunk ? (data) => { observe(override.onChunk, data); tracked.onChunk(data); } : tracked.onChunk;
+    if (impl) impl.stream({ prompt, slug, sessionId, history, model: override.model || model, effort: eff, daiAgent, chatId, permissionUrl, signal: ac.signal, ...tracked, onDone, onChunk });
     else tracked.onError(new E.PublicError(`Motor "${engine}" não suportado.`));
   };
 

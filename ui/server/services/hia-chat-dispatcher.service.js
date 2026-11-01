@@ -24,7 +24,7 @@ const localModelOf = (targetId) => (typeof targetId === "string" && targetId.sta
  *   history?: any[],
  *   signal?: AbortSignal,
  *   sink: { onChunk: (data: any) => void, onDone: (data: any) => void, onError: (err: any) => void },
- *   fallbackStream: (override?: { model?: string, onDone?: (data: any) => void }) => void
+ *   fallbackStream: (override?: { model?: string, onChunk?: (data: any) => void, onDone?: (data: any) => void }) => void
  * }} params
  * @returns {Promise<boolean>} Retorna true se a requisição foi interceptada e tratada localmente
  */
@@ -198,7 +198,10 @@ async function handleChatWithHia({ engine, model, prompt, slug, sessionId, histo
   }
   if (comboModel) {
     sink.onChunk({ type: "thinking", text: `[HIA] Roteado para o combo ${comboModel.replace(/^9router\//, "")} (${decision.suggestedCombo?.type || "conversa em andamento"}).\n`, sessionId });
-    fallbackStream({ model: comboModel, onDone: (data) => rememberCombo(data?.sessionId || sessionId || "", comboModel) });
+    // Remember the combo as soon as the engine reports the session id, so a dropped client or an aborted first turn
+    // still keeps the conversation on its combo; the done event covers engines that report the id only at the end.
+    const remember = (data) => rememberCombo(data?.sessionId || sessionId || "", comboModel);
+    fallbackStream({ model: comboModel, onChunk: (data) => { if (data?.sessionId) remember(data); }, onDone: remember });
     return false;
   }
   fallbackStream();
