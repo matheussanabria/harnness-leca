@@ -176,7 +176,7 @@ export async function renderArtifactsWorkspace(container, slug, data, onChanged)
         item.metadata?.originalName, item.metadata?.source,
       ].some((value) => String(value || "").toLowerCase().includes(needle));
     });
-    const paged = pagedHtml(visible, "artifacts", (item) => renderRow(item, canManage, selectedKey), { pageSize: 25, label: "Paginação dos artefatos" });
+    const paged = pagedHtml(visible, "artifacts", (item) => renderRow(item, canManage, selectedKey), { label: "Paginação dos artefatos" });
     rows.innerHTML = paged.html;
     pagerEl.innerHTML = paged.pager;
     bindPagers(pagerEl, () => paint());

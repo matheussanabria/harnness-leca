@@ -9,7 +9,7 @@ const texto = (limite) => ({ tipo: "string", limite });
 const inteiro = (limite, minimo = 1) => ({ tipo: "number", limite, minimo });
 const booleano = () => ({ tipo: "boolean", limite: 1 });
 const lista = (limite) => ({ tipo: "array", limite });
-const objeto = (limite) => ({ tipo: "object", limite });
+const objeto = (limite, valores) => ({ tipo: "object", limite, ...(valores ? { valores: Object.freeze([...valores]) } : {}) });
 
 class ScreenStateError extends Error {
   /**
@@ -102,6 +102,11 @@ const SCREENS = [
     "dai_office_hud_hidden", "dai_mouse_sensitivity", "dai_office_scene_preferences",
     "dai_office_view_mode:*", "dai:wm:layout:*", "dai:wm:state:*", "dai:wm:workspaces:*",
   ]),
+  tela("lists", "Listas", "global", "/office", "fa-list", {
+    pageSizes: objeto(4096, [5, 10, 25, 50]),
+    laneLimits: objeto(2048),
+    kanbanAutoFallback: booleano(),
+  }),
   tela("deploy", "Deploy", "projeto", "/deploy", "fa-rocket", {
     environment: texto(120), pipeline: texto(120), config: objeto(16384),
     history: lista(50), selectedRun: texto(120), tab: texto(32),
@@ -198,7 +203,7 @@ function cloneJson(value) {
   }
 }
 
-/** @param {unknown} value @param {{ tipo: string, limite?: number, minimo?: number }} rule */
+/** @param {unknown} value @param {{ tipo: string, limite?: number, minimo?: number, valores?: readonly number[] }} rule */
 function sanitizeField(value, rule) {
   switch (rule.tipo) {
     case "string":
@@ -214,7 +219,15 @@ function sanitizeField(value, rule) {
       return Array.isArray(value) && value.length <= (rule.limite || 0) ? cloneJson(value) : INVALID;
     case "object": {
       if (!value || typeof value !== "object" || Array.isArray(value)) return INVALID;
-      return stateBytes(value) <= (rule.limite || 0) ? cloneJson(value) : INVALID;
+      if (stateBytes(value) > (rule.limite || 0)) return INVALID;
+      const cloned = cloneJson(value);
+      if (cloned === INVALID || !rule.valores) return cloned;
+      /** @type {Record<string, unknown>} */
+      const filtered = {};
+      for (const [key, item] of Object.entries(cloned)) {
+        if (rule.valores.includes(/** @type {number} */ (item))) filtered[key] = item;
+      }
+      return filtered;
     }
     default:
       return INVALID;

@@ -93,8 +93,8 @@ function renderHistoryEntry(entry) {
  * @param {string} slug
  */
 export async function renderRoutinesWorkspace(container, slug) {
-  const cards = pagedHtml(visibleItems, "routines", (routine) => renderRoutineCard(routine, saved.selectedRoutine), { pageSize: 12, label: "Paginação das rotinas" });
-  const past = pagedHtml(entries.slice().reverse(), "routines-history", renderHistoryEntry, { pageSize: 15, label: "Paginação do histórico" });
+  const cards = pagedHtml(visibleItems, "routines", (routine) => renderRoutineCard(routine, saved.selectedRoutine), { label: "Paginação das rotinas" });
+  const past = pagedHtml(entries.slice().reverse(), "routines-history", renderHistoryEntry, { label: "Paginação do histórico" });
 
   container.innerHTML = `<section class="routine-panel" aria-label="Rotinas e aprovações do projeto">
     <header class="routine-header">

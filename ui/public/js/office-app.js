@@ -7,6 +7,7 @@ import { toggleSound, isSoundEnabled, playClickSound, playDrawerSound, playCoffe
 import { renderDrawerContent } from "./office/office-drawer-views.js";
 import { setHudPersistence, setHudVisibility, toggleHUD, toggleLeftPanel, toggleRightSidebar, updateHUD } from "./office/office-hud-controller.js";
 import { getScreenStateClient } from "./shared/screen-state.js";
+import { hydratePageSizes } from "./shared/pagination-prefs.js";
 import { OfficeScreenState } from "./office-screen-state.js";
 import { setupOfficeShortcuts } from "./office/office-shortcuts.js";
 import { attachStationAdapter } from "./window-manager/station-adapter.js";
@@ -69,6 +70,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const screenClient = getScreenStateClient();
   const officeScreenState = new OfficeScreenState({ client: screenClient });
   await officeScreenState.hydrate();
+  await hydratePageSizes();
   hydrateOfficeSession(officeScreenState.state);
   bindOfficeSessionClient(screenClient);
   setHudPersistence((hidden) => { void officeScreenState.setHudHidden(hidden); });

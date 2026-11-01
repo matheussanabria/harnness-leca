@@ -7,9 +7,7 @@ import { esc } from "./central-sessions-format.js";
 import { renderCentralFilters, renderCentralHeader, renderCentralToolbar } from "./central-sessions-toolbar.js";
 import { renderSessionCard, renderSessionRow } from "./central-sessions-card.js";
 import { renderCentralDetail } from "./central-sessions-detail.js";
-import { paginate, renderPager } from "../shared/pagination.js";
-
-export const CENTRAL_PAGE_SIZE = 25;
+import { paginate, renderPager, getPageSize } from "../shared/pagination.js";
 
 export { renderCentralDetail, renderCentralFilters, renderCentralHeader };
 
@@ -83,7 +81,7 @@ export function renderCentral(params) {
   const summary = summarize(sessions);
   const selected = sessions.find((session) => session.id === params.selectedId) || null;
   // Só a página atual entra no DOM; o resumo do cabeçalho continua contando todas as sessões.
-  const pageData = paginate(sessions, params.page || 1, CENTRAL_PAGE_SIZE);
+  const pageData = paginate(sessions, params.page || 1, getPageSize("central"));
   return `
     <section class="central" data-source="${esc(params.source || "live")}">
       ${renderCentralHeader({ slug: params.slug, summary, generatedAt: params.generatedAt, liveStatus: params.liveStatus })}

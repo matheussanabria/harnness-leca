@@ -18,10 +18,11 @@ Regras aplicadas pelo serviço e pelo cliente:
 
 - Campo fora de `campos` é descartado.
 - Valor com tipo errado, acima do `limite` ou abaixo do mínimo numérico é descartado.
+- Objeto com lista de valores aceitos (como `lists.pageSizes`) descarta as entradas fora da lista.
 - O estado saneado não pode passar de **64 KB**; acima disso a gravação é recusada.
 - A migração lê as chaves de `migraDe`, envia o que reconhece e remove a chave antiga.
 
-## As 13 telas
+## As 14 telas
 
 | Tela | `id` | Escopo | Rota | O que persiste |
 |---|---|---|---|---|
@@ -36,6 +37,7 @@ Regras aplicadas pelo serviço e pelo cliente:
 | Rotinas | `routines` | projeto | `/?p=<slug>#/routines` | Filtro, rotina selecionada, filtro de aprovação e aba. |
 | Visão Geral | `overview` | global | `/overview` | Busca, ordenação, página e tamanho da página da lista de projetos. |
 | Escritório Virtual | `office` | global | `/office` | HUD, sensibilidade do mouse, preferências de cena, modo de visualização, layout/estado das janelas e workspaces. |
+| Listas | `lists` | global | `/office` | Tamanho de página por lista (`pageSizes`, somente 5/10/25/50), limites de raias do Kanban (`laneLimits`) e fallback automático do Kanban. |
 | Deploy | `deploy` | projeto | `/deploy` | Ambiente, pipeline, configuração, histórico exibido, execução selecionada e aba. |
 | Diário | `diario` | global | `/diario` | Projeto, busca, filtro de motor, intervalo de datas, ordenação, página, tamanho da página e mostrar encerrados. |
 
@@ -54,6 +56,7 @@ Regras aplicadas pelo serviço e pelo cliente:
 | `routines` | `filter`: texto, 120; `selectedRoutine`: texto, 120; `approvalFilter`: texto, 32; `tab`: texto, 32. |
 | `overview` | `query`: texto, 200; `sortField`: texto, 32; `sortAsc`: booleano; `page`: número, 100.000; `pageSize`: número, 100. |
 | `office` | `hudHidden`: booleano; `mouseSensitivity`: número, 10; `scenePreferences`: objeto, 8.192 bytes; `viewMode`: objeto, 4.096 bytes; `windowLayout`: objeto, 16.384 bytes; `windowState`: objeto, 16.384 bytes; `workspaces`: objeto, 32.768 bytes. |
+| `lists` | `pageSizes`: objeto, 4.096 bytes (valores aceitos: 5, 10, 25, 50); `laneLimits`: objeto, 2.048 bytes; `kanbanAutoFallback`: booleano. |
 | `deploy` | `environment`: texto, 120; `pipeline`: texto, 120; `config`: objeto, 16.384 bytes; `history`: lista, 50; `selectedRun`: texto, 120; `tab`: texto, 32. |
 | `diario` | `project`: texto, 120; `query`: texto, 200; `agentFilter`: texto, 32; `dateFrom`: texto, 10; `dateTo`: texto, 10; `sortField`: texto, 32; `sortAsc`: booleano; `page`: número, 100.000; `pageSize`: número, 100; `allClosed`: booleano. |
 
@@ -66,7 +69,7 @@ Regras aplicadas pelo serviço e pelo cliente:
 | `prototypes` | `harness.atelier.inspector`, `harness_proto_workspace_layout`, `harness.canvas.v1*` |
 | `office` | `dai_office_hud_hidden`, `dai_mouse_sensitivity`, `dai_office_scene_preferences`, `dai_office_view_mode:*`, `dai:wm:layout:*`, `dai:wm:state:*`, `dai:wm:workspaces:*` |
 | `deploy` | `harness_deploy_config`, `harness_deploy_history` |
-| `scrum`, `layers`, `board`, `audit`, `artifacts`, `routines`, `overview`, `diario` | Nenhuma chave antiga; o estado nasce no registro. |
+| `scrum`, `layers`, `board`, `audit`, `artifacts`, `routines`, `overview`, `lists`, `diario` | Nenhuma chave antiga; o estado nasce no registro. |
 
 ## Exclusões justificadas
 

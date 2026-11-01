@@ -45,7 +45,7 @@
 | `docs/harness-evolution/02-epics/EP-01-window-manager/01.11-*.md`, `01.12-*.md` | Planned stories from the gap review: wire the Window Manager facade into the office (01.11) and multi-window host with docking (01.12). |
 | `docs/harness-evolution/02-epics/EP-13-memoria-agentes/` | EP-13 Memória e conhecimento dos agentes: README, diagnóstico da memória atual (`00-diagnostico.md`), arquitetura-alvo em três camadas (`01-arquitetura-alvo.md`) e histórias 13.01 a 13.09. |
 | `docs/harness-evolution/02-epics/EP-14-estado-das-telas/` | EP-14 Estado das telas persistido no servidor: README (decisões, ondas, branches) e 11 histórias (14.01 a 14.11) com a lista de arquivos que cada agente pode tocar. |
-| `docs/ui/catalogo-de-telas.md` | Catálogo das 13 telas: escopo, rota, o que cada uma persiste, campos permitidos, chaves antigas migradas e exclusões justificadas (EP-14.04). |
+| `docs/ui/catalogo-de-telas.md` | Catálogo das 14 telas: escopo, rota, o que cada uma persiste, campos permitidos, chaves antigas migradas e exclusões justificadas (EP-14.04). |
 | `docs/harness-evolution/03-decisions/ADR-009-memoria-um-fato-por-arquivo.md` | Decisão proposta: memória curada com um fato por arquivo, índice gerado e só a vitrine projetada para os motores. |
 | `docs/harness-evolution/03-decisions/README.md` | Índice de ADRs. |
 | `docs/harness-evolution/04-test-plans/README.md` | Índice de planos de teste e comandos. |

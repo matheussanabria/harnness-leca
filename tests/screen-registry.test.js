@@ -36,6 +36,7 @@ const EXPECTED_IDS = [
   "routines",
   "overview",
   "office",
+  "lists",
   "deploy",
   "diario",
 ];
@@ -60,8 +61,8 @@ function collectStorageKeys() {
   return [...keys].sort();
 }
 
-test("EP-14.04: registro declara exatamente as 13 telas canonicas", () => {
-  assert.equal(SCREENS.length, 13);
+test("EP-14.04: registro declara as telas canonicas", () => {
+  assert.equal(SCREENS.length, 14);
   assert.deepEqual(listScreens(), EXPECTED_IDS);
   for (const id of EXPECTED_IDS) {
     assert.equal(isScreenId(id), true, `tela ${id} deve existir`);
@@ -88,7 +89,7 @@ test("EP-14.04: cada tela declara escopo, campos com tipo/limite e migraDe", () 
   }
 
   const catalog = getScreenCatalog();
-  assert.equal(catalog.length, 13);
+  assert.equal(catalog.length, 14);
   assert.deepEqual(catalog.map((item) => item.id), EXPECTED_IDS);
 });
 
@@ -109,6 +110,23 @@ test("EP-14.04: campos fora do esquema e valores invalidos sao descartados", () 
   assert.deepEqual(sanitizeState("chats", { assignments: { texto: "a".repeat(70000) } }), {});
   assert.deepEqual(sanitizeState("office", { mouseSensitivity: 11 }), {});
   assert.deepEqual(sanitizeState("office", { mouseSensitivity: 10 }), { mouseSensitivity: 10 });
+});
+
+test("EP-14.04: a tela lists aceita somente os presets de tamanho de pagina", () => {
+  const presets = { central: 5, cabinet: 10, "scrum-backlog": 25, routines: 50 };
+  assert.deepEqual(sanitizeState("lists", { pageSizes: presets }), { pageSizes: presets });
+  assert.deepEqual(
+    sanitizeState("lists", { pageSizes: { central: 5, cabinet: 7, workflows: 100, epic: "25" } }),
+    { pageSizes: { central: 5 } },
+    "valores fora dos presets sao descartados",
+  );
+  assert.deepEqual(sanitizeState("lists", { pageSizes: [] }), {});
+  assert.deepEqual(sanitizeState("lists", { pageSizes: "grande" }), {});
+  assert.deepEqual(
+    sanitizeState("lists", { laneLimits: { "central:running": 8 }, kanbanAutoFallback: true }),
+    { laneLimits: { "central:running": 8 }, kanbanAutoFallback: true },
+  );
+  assert.deepEqual(sanitizeState("lists", { kanbanAutoFallback: "sim" }), {});
 });
 
 test("EP-14.04: saneamento nao propaga proto e isola a copia do estado", () => {

@@ -5,8 +5,6 @@ import { ds } from "./design-scrum-store.js";
 import { visibleStories } from "./design-scrum-filters.js";
 import { pagedHtml } from "../shared/pagination.js";
 
-const BACKLOG_PAGE_SIZE = 25;
-const EPICS_PAGE_SIZE = 9;
 const EPIC_STORIES_SHOWN = 20;
 
 /**
@@ -27,7 +25,7 @@ export function renderProductBacklog(scrum) {
     ...epics.map((e) => `<option value="${esc(e.id)}" ${e.id === ds.currentEpicFilter ? "selected" : ""}>${esc(e.title)}</option>`),
   ].join("");
 
-  const backlogPage = pagedHtml(filtered, "scrum-backlog", renderBacklogRow, { pageSize: BACKLOG_PAGE_SIZE, label: "Paginação do backlog" });
+  const backlogPage = pagedHtml(filtered, "scrum-backlog", renderBacklogRow, { label: "Paginação do backlog" });
   const rowsHtml = backlogPage.html;
 
   function renderBacklogRow(st, i) {
@@ -126,7 +124,7 @@ export function renderEpicsWorkspace(scrum) {
   const epics = scrum.epics || [];
   const stories = scrum.stories || [];
 
-  const epicsPage = pagedHtml(epics, "scrum-epics", renderEpicCard, { pageSize: EPICS_PAGE_SIZE, label: "Paginação dos épicos" });
+  const epicsPage = pagedHtml(epics, "scrum-epics", renderEpicCard, { label: "Paginação dos épicos" });
   const epicsCards = epicsPage.html;
 
   function renderEpicCard(ep) {
