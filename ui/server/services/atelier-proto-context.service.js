@@ -6,6 +6,7 @@
 // restaura versões e edita pelo canvas, o estado é lido do disco a CADA execução, nunca da memória da conversa.
 const fs = require("fs");
 const path = require("path");
+const { NAV_RULES, navScreenLine } = require("./atelier-nav-contract.service");
 
 const MAX_SCREEN_CHARS = 7000;
 const MAX_CSS_CHARS = 9000;
@@ -79,11 +80,13 @@ function buildProtoContext({ projectDir, protoId }) {
     budget -= h.text.length;
   }
 
+  const nav = screens.length ? [`- ${NAV_RULES}`, `- ${navScreenLine(screens.map((s) => s.id))}`] : [];
   parts.push(
     [
       "## Regras para continuar este protótipo",
       "- Isto é uma CONTINUAÇÃO: não recrie o Design System. Use as classes, variáveis CSS, shell/layout, ícones e dados que já existem acima.",
       "- Telas novas devem usar o mesmo vocabulário visual e as mesmas chaves de storage das telas existentes, para que naveguem e compartilhem dados entre si.",
+      ...nav,
       "- Só use atelier_patch_styles para ACRESCENTAR o que falta; não redefina classes que já existem.",
       "- Para alterar uma tela existente, reescreva-a por inteiro partindo do conteúdo acima, preservando o que não foi pedido para mudar.",
       "- Se o conteúdo acima divergir do que você lembra da conversa, vale o que está acima (o usuário pode ter restaurado versões ou editado).",
