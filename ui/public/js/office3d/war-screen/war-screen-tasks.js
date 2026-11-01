@@ -73,9 +73,9 @@ export function renderColumnTasks(ctx, x, y, w, h, projectData, orchestrationSta
   }
 
   if (taskList.length === 0) {
+    // Sem execuções reais: estado vazio honesto, sem itens inventados.
     taskList = [
-      { id: "TASK-BG01", title: "Terminal claude --resume", status: "EM EXECUÇÃO", tag: "TERMINAL", color: "#eab308", agent: "Claude Code", detail: "[run_command] Monitoramento de background ativo" },
-      { id: "TASK-BG02", title: "Servidor de Desenvolvimento (porta 4321)", status: "ATIVO", tag: "DAEMON", color: "#22c55e", agent: "Harness Core", detail: "[remote] npm run remote ativo com SSE" }
+      { id: "SEM-JOBS", title: "Nenhuma execução em andamento", status: "OCIOSO", tag: "VAZIO", color: "#64748b", agent: "harness", detail: "Nenhum job ou sessão ativa no momento." }
     ];
   }
 
@@ -136,9 +136,7 @@ export function renderColumnTasks(ctx, x, y, w, h, projectData, orchestrationSta
   ctx.fillText("ROTINAS AGENDADAS & TAREFAS DE FUNDO", x + 24, tY + 24);
 
   const schedY = tY + 42;
-  const scheduled = projectData?.scheduled || [
-    { name: "extrair-pendentes.md", title: "Importar conversas novas e extrair memórias", agent: "opencode" }
-  ];
+  const scheduled = projectData?.scheduled || [];
 
   let sY = schedY;
   for (const r of scheduled.slice(0, 2)) {

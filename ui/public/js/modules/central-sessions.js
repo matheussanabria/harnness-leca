@@ -16,6 +16,16 @@ import {
 
 const FILTER_NAMES = ["provider", "executionStatus", "workflowStatus", "attentionStatus", "projectConfidence"];
 
+/**
+ * Memória da interface por projeto. O painel do escritório remonta a Central a cada atualização;
+ * sem isto o modo Kanban, a página e os filtros voltavam ao padrão (lista) e a navegação se perdia.
+ * @type {Map<string, object>}
+ */
+const uiMemory = new Map();
+const REMEMBERED = ["view", "page", "query", "filters", "selectedId"];
+/** @type {{ disconnect: () => void } | null} */
+let activeSubscription = null;
+
 /** Cache curto do read model: evita tempestade de consultas quando o painel redesenha. */
 const PAYLOAD_TTL_MS = 5000;
 /** @type {Map<string, { at: number, payload: object }>} */
@@ -198,10 +208,12 @@ export function setupCentralListeners(container, state, onChange, client) {
  */
 export async function mountCentral(container, params) {
   const client = params.client || createHttpSessionClient();
-  let state = createCentralState({ ...(params.state || {}), slug: params.slug });
+  const given = Object.fromEntries(Object.entries(params.state || {}).filter(([, value]) => value !== "" && value != null));
+  let state = createCentralState({ ...(uiMemory.get(params.slug) || {}), ...given, slug: params.slug });
   state = await loadCentral(state, client);
 
   const rebind = () => {
+    uiMemory.set(state.slug, Object.fromEntries(REMEMBERED.map((key) => [key, state[key]])));
     renderCentralInto(container, state);
     setupCentralListeners(container, state, (updated) => {
       state = updated;
@@ -214,6 +226,7 @@ export async function mountCentral(container, params) {
   // Assinatura ao vivo via SSE se habilitado (padrão true)
   let subscription;
   if (params.autoLive !== false && typeof EventSource !== "undefined") {
+    activeSubscription?.disconnect();
     subscription = createCentralLiveSubscription({
       slug: state.slug,
       onEvent: () => {
@@ -231,6 +244,7 @@ export async function mountCentral(container, params) {
       },
     });
     subscription.connect();
+    activeSubscription = subscription;
   }
 
   return { state, subscription };
