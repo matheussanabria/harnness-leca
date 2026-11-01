@@ -3,9 +3,9 @@ domain: office
 module: hq
 feature: scene
 summary: DAI HQ virtual office scene, 3D and 2.5D engines, war screen, object catalog, agent state and telemetry.
-paths: [ui/public/js/office-3d.js, ui/public/js/office3d/**, ui/public/js/office-war-screen.js, ui/public/js/office-2d.js, ui/public/js/office2d/**, ui/public/js/office/*.js, tests/office-2d-parity.test.js, tests/war-screen-projection.test.js, ui/public/js/office-screen*.js, ui/public/js/office-3d-controls.js]
+paths: [ui/public/js/office-3d.js, ui/public/js/office3d/**, ui/public/js/office-war-screen.js, ui/public/js/office-2d.js, ui/public/js/office2d/**, ui/public/js/office/*.js, ui/public/js/shared/pagination.js, tests/shared-pagination.test.js, tests/office-2d-parity.test.js, tests/war-screen-projection.test.js, ui/public/js/office-screen*.js, ui/public/js/office-3d-controls.js]
 keywords: [office, three.js, 3d, 2.5d, isometric, war-screen, kanban, scrum, avatar, catalog, telemetry]
-updated: 2026-10-30
+updated: 2026-11-01
 ---
 # Office HQ Scene
 
@@ -31,6 +31,9 @@ Immersive virtual office (`ui/public/office.html`): 3D Three.js engine, retro 2.
 | `ui/public/js/office/office-agent-telemetry.js` | Maps chat runs, periodic activity and transient states to LEDs, balloons, Avatar3D poses and pad color (EP-03.05). |
 | `tests/office-2d-parity.test.js` | 2D coverage of the catalog, canonical IDs, seat/focus actions, player state and limits (EP-03.08). |
 | `tests/war-screen-projection.test.js` | Non-destructive tabs, active sprint, lanes, metrics, structural integration and limits (EP-05.06). |
+| `ui/public/js/office/office-cabinet-journal.js` | Paginated file-cabinet journal list (20 per page) for the drawer; re-exported by `office-drawer-views.js`. |
+| `ui/public/js/shared/pagination.js` | Pure pagination helpers (`paginate`, `renderPager`, `bindPager`): only the current page enters the DOM; used by the Central sessions and the cabinet. |
+| `tests/shared-pagination.test.js` | Pager math, markup (FontAwesome, no emoji), paginated Central sessions and cabinet. |
 | `ui/public/js/office-screen.js` | Office screen facade; mixins `office-screen-*.js` in the same folder. |
 | `ui/public/js/office3d/world-*.js` | World builders; mixins `office3d/war-room-*.js` and `office3d/workspace-*.js`. |
 

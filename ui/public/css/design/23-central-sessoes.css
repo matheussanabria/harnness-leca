@@ -221,3 +221,12 @@
 .central-action-btn--danger:hover {
   background: rgba(239, 68, 68, 0.25);
 }
+
+/* Paginador compartilhado (ui/public/js/shared/pagination.js) */
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 0 2px; font-size: 12px; color: var(--text-muted, #94a3b8); }
+.pager__controls { display: inline-flex; align-items: center; gap: 4px; }
+.pager__btn { min-width: 28px; height: 28px; padding: 0 8px; border-radius: 8px; border: 1px solid rgba(148, 163, 184, 0.28); background: rgba(30, 41, 59, 0.5); color: #cbd5e1; font: inherit; cursor: pointer; }
+.pager__btn:hover:not(:disabled) { border-color: rgba(56, 189, 248, 0.5); color: #e0f2fe; }
+.pager__btn.is-active { background: rgba(56, 189, 248, 0.18); border-color: rgba(56, 189, 248, 0.5); color: #bae6fd; font-weight: 600; }
+.pager__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pager__gap { padding: 0 2px; }

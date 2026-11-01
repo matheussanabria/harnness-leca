@@ -4,7 +4,24 @@
 // cruzando o provedor, identificador nativo, origem e capacidades do motor.
 // Módulo puro: sem I/O de rede ou disco.
 
-import { resolveCapability as resolveProviderCapability } from "../../../server/services/orchestration/capability-catalog.js";
+// Espelho estático e puro de execution.resume/execution.cancel do catálogo do servidor
+// (ui/server/services/orchestration/capability-catalog.js). O navegador não pode importar
+// código CommonJS do servidor: a rota /server/... não é servida e quebrava todo o grafo de módulos do escritório.
+const CAPS = {
+  claude: { resume: ["available", "native", "Retoma pelo UUID nativo do Claude Code."], cancel: ["degraded", "owned_process", "Só cancela execução iniciada pelo Harness."] },
+  codex: { resume: ["available", "native", "Retoma pelo UUID nativo do Codex CLI."], cancel: ["degraded", "owned_process", "Cancela o subprocesso iniciado pelo Harness."] },
+  opencode: { resume: ["degraded", "native", "Retoma por ses_* em melhor esforço."], cancel: ["degraded", "owned_process", "Cancela execução iniciada pelo Harness via /abort."] },
+  gemini: { resume: ["unavailable", "unsupported", "A API não guarda sessão nativa; continuidade usa replay de contexto."], cancel: ["degraded", "owned_process", "Cancela o AbortSignal do pedido atual."] },
+  ollama: { resume: ["unavailable", "unsupported", "Não há sessão nativa no daemon."], cancel: ["degraded", "owned_process", "Cancela o AbortSignal do pedido atual."] },
+};
+
+/** @param {string} providerId @param {string} operationId */
+function resolveProviderCapability(providerId, operationId) {
+  const row = /** @type {any} */ (CAPS)[providerId]?.[operationId === "execution.resume" ? "resume" : operationId === "execution.cancel" ? "cancel" : ""];
+  if (!row) return null;
+  const [state, mode, reason] = row;
+  return { provider: providerId, operation: operationId, state, mode, scope: "", reason, available: state === "available", usable: state === "available" || state === "degraded" };
+}
 
 /**
  * @typedef {"native" | "context_replay" | "unsupported"} ResumeMode

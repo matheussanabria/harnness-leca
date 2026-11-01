@@ -7,6 +7,9 @@ import { esc } from "./central-sessions-format.js";
 import { renderCentralFilters, renderCentralHeader, renderCentralToolbar } from "./central-sessions-toolbar.js";
 import { renderSessionCard, renderSessionRow } from "./central-sessions-card.js";
 import { renderCentralDetail } from "./central-sessions-detail.js";
+import { paginate, renderPager } from "../shared/pagination.js";
+
+export const CENTRAL_PAGE_SIZE = 25;
 
 export { renderCentralDetail, renderCentralFilters, renderCentralHeader };
 
@@ -72,13 +75,15 @@ export function renderCentralKanban(sessions) {
 /**
  * Composição da Central.
  * @param {{ slug: string, view: string, query: string, filters: object, options: object,
- *   sessions: object[], detail: object | null, selectedId: string, generatedAt: string, source: string, liveStatus?: object }} params
+ *   sessions: object[], detail: object | null, selectedId: string, generatedAt: string, source: string, liveStatus?: object, page?: number }} params
  * @returns {string}
  */
 export function renderCentral(params) {
   const sessions = sortSessions(params.sessions || []);
   const summary = summarize(sessions);
   const selected = sessions.find((session) => session.id === params.selectedId) || null;
+  // Só a página atual entra no DOM; o resumo do cabeçalho continua contando todas as sessões.
+  const pageData = paginate(sessions, params.page || 1, CENTRAL_PAGE_SIZE);
   return `
     <section class="central" data-source="${esc(params.source || "live")}">
       ${renderCentralHeader({ slug: params.slug, summary, generatedAt: params.generatedAt, liveStatus: params.liveStatus })}
@@ -86,7 +91,8 @@ export function renderCentral(params) {
       ${renderCentralFilters({ filters: params.filters, options: params.options })}
       <div class="central-body">
         <div class="central-content">
-          ${params.view === "kanban" ? renderCentralKanban(sessions) : renderCentralList(sessions)}
+          ${params.view === "kanban" ? renderCentralKanban(pageData.items) : renderCentralList(pageData.items)}
+          ${renderPager(pageData, { label: "Paginação das sessões", key: "central" })}
         </div>
         ${renderCentralDetail({ session: selected, detail: params.detail })}
       </div>
