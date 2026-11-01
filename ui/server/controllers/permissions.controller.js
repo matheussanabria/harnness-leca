@@ -3,12 +3,13 @@
 const { slugs, send, readJsonBody } = require("../config");
 const perms = require("../../../tools/lib/permissions");
 
-const LOOPBACK = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
+const netLib = require("../../../tools/lib/network");
 
-// Quem pede é a ferramenta MCP que o próprio Claude chama, na mesma máquina: só aceita pedidos de loopback.
-// A resposta (quem decide) passa pelo PIN do acesso remoto como o resto da interface, então o celular também aprova.
+// Quem pede é a ferramenta MCP que o próprio Claude chama, na mesma máquina: só aceita pedido local direto, sem
+// proxy ou túnel (o túnel também conecta do loopback). A resposta (quem decide) passa pelo PIN do acesso remoto como
+// o resto da interface, então o celular também aprova.
 async function apiPermissionRequest({ req, res }) {
-  if (!LOOPBACK.has(String(req.socket.remoteAddress))) return send(res, 403, { error: "só aceita pedidos locais" });
+  if (!netLib.isLocalhostRequest(req)) return send(res, 403, { error: "só aceita pedidos locais" });
   let body;
   try { body = await readJsonBody(req); } catch { return send(res, 400, { error: "JSON inválido" }); }
   if (typeof body.chatId !== "string" || typeof body.tool !== "string") return send(res, 400, { error: "chatId e tool são obrigatórios" });

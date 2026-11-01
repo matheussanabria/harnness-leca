@@ -1,17 +1,19 @@
 // @ts-check
 // Controller para leitura de presença e atividade de motores (EP-09.06).
 const { getEngineMonitor } = require("../../../tools/lib/engine-monitor/monitor.service");
+const netLib = require("../../../tools/lib/network");
 
 /**
  * GET /api/engines/activity
- * @param {import("http").IncomingMessage} req
- * @param {import("http").ServerResponse} res
+ * @param {any} arg objeto do roteador { req, res } ou a própria requisição
+ * @param {import("http").ServerResponse} [maybeRes] resposta, quando chamado como (req, res)
  */
-async function getEngineActivity(req, res) {
-  // Restrição de loopback
-  const remoteIp = req.socket.remoteAddress || "";
-  const isLoopback = remoteIp === "127.0.0.1" || remoteIp === "::1" || remoteIp === "::ffff:127.0.0.1";
-  if (!isLoopback) {
+async function getEngineActivity(arg, maybeRes) {
+  // O roteador chama o handler com { req, res, url, params }; os testes antigos chamam (req, res).
+  const req = maybeRes ? arg : arg.req;
+  const res = maybeRes || arg.res;
+  // Restrição ao host local direto: o túnel também conecta do loopback, então o socket sozinho não basta.
+  if (!netLib.isLocalhostRequest(req)) {
     res.writeHead(403, { "Content-Type": "application/json; charset=utf-8" });
     res.end(JSON.stringify({ error: "Acesso restrito ao loopback" }));
     return;

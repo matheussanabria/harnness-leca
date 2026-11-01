@@ -1,7 +1,7 @@
 // @ts-check
 // Interfaces locais, detecção de localhost, PIN e hosts permitidos.
 const os = require("os");
-const { PRIVATE_IPV4_REGEX, TUNNEL_DOMAINS_REGEX, authenticatedIps } = require("./network-store");
+const { PRIVATE_IPV4_REGEX, TUNNEL_DOMAINS_REGEX } = require("./network-store");
 
 /**
  * Detecta todos os endereços IPv4 locais e os classifica por tipo de interface
@@ -47,20 +47,59 @@ function getPrimaryLocalIp() {
   return ifaces.length > 0 ? ifaces[0].ip : null;
 }
 
+const LOOPBACK_ADDRESSES = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
+const LOOPBACK_HOST_REGEX = /^(localhost|127\.0\.0\.1|\[::1\]|::1)(:\d+)?$/i;
+
+// Cabeçalhos que um proxy ou túnel (cloudflared, ngrok, localtunnel, nginx) acrescenta ao encaminhar o tráfego.
+// O túnel conecta a partir do próprio computador, então o socket sozinho parece loopback.
+const PROXY_HEADERS = [
+  "x-forwarded-for", "x-forwarded-host", "x-forwarded-proto", "x-forwarded-port", "forwarded", "x-real-ip",
+  "via", "true-client-ip", "cf-connecting-ip", "cf-ray", "cf-visitor", "cf-ipcountry", "cdn-loop",
+];
+
 /**
- * Verifica se a requisição se originou no próprio computador (localhost)
- * @param {http.IncomingMessage} req
+ * A requisição chegou por proxy ou túnel (mesmo que o socket seja loopback)?
+ * @param {import("http").IncomingMessage} req
  * @returns {boolean}
  */
-function isLocalhostRequest(req) {
-  const remote = req.socket && req.socket.remoteAddress;
-  if (!remote) return false;
-  return remote === "127.0.0.1" || remote === "::1" || remote === "::ffff:127.0.0.1";
+function isProxiedRequest(req) {
+  const headers = (req && req.headers) || {};
+  return PROXY_HEADERS.some((name) => headers[name] !== undefined);
 }
 
 /**
- * Extrai o PIN enviado na requisição (via Cookie, Header ou Query Param)
- * @param {http.IncomingMessage} req
+ * Verifica se a requisição se originou no próprio computador, sem passar por proxy ou túnel.
+ * Exige socket loopback, nenhum cabeçalho de proxy e Host loopback quando houver Host.
+ * @param {import("http").IncomingMessage} req
+ * @returns {boolean}
+ */
+function isLocalhostRequest(req) {
+  const remote = req && req.socket && req.socket.remoteAddress;
+  if (!remote || !LOOPBACK_ADDRESSES.has(remote)) return false;
+  if (isProxiedRequest(req)) return false;
+  const host = req.headers && req.headers.host;
+  return !host || LOOPBACK_HOST_REGEX.test(String(host).trim());
+}
+
+/**
+ * Identifica o cliente para limitar tentativas. Atrás do Cloudflare o socket é sempre o mesmo, então vale o IP
+ * que o proxy informa; esse cabeçalho só importa para o limite, nunca para autorizar.
+ * @param {import("http").IncomingMessage} req
+ * @returns {string}
+ */
+function clientKey(req) {
+  const headers = (req && req.headers) || {};
+  const cf = headers["cf-connecting-ip"];
+  if (typeof cf === "string" && cf.trim()) return cf.trim();
+  const xff = headers["x-forwarded-for"];
+  if (typeof xff === "string" && xff.trim()) return xff.split(",")[0].trim();
+  const raw = (req && req.socket && req.socket.remoteAddress) || "unknown";
+  return raw.replace(/^::ffff:/, "");
+}
+
+/**
+ * Extrai o PIN enviado na requisição (Query Param ou Header). O cookie guarda só o token de sessão.
+ * @param {import("http").IncomingMessage} req
  * @param {URL} [url]
  * @returns {string}
  */
@@ -70,47 +109,7 @@ function extractRequestPin(req, url) {
   }
   const headerPin = req.headers["x-harness-pin"];
   if (typeof headerPin === "string" && headerPin.trim()) return headerPin.trim();
-
-  const cookieHeader = req.headers.cookie || "";
-  const match = cookieHeader.match(/(?:^|;\s*)harness_pin=([^;]+)/);
-  if (match) return decodeURIComponent(match[1]).trim();
-
   return "";
-}
-
-
-
-/**
- * Valida o PIN para requisições que não vêm de localhost
- * @param {http.IncomingMessage} req
- * @param {string} configuredPin
- * @param {URL} [url]
- * @returns {boolean}
- */
-function validatePin(req, configuredPin, url) {
-  // Se veio do próprio computador (localhost), acesso é livre
-  if (isLocalhostRequest(req)) return true;
-
-  // Se não há PIN configurado no servidor, acesso é livre
-  if (!configuredPin) return true;
-
-  const rawIp = req.socket && req.socket.remoteAddress ? req.socket.remoteAddress : "";
-  const clientIp = rawIp.replace(/^::ffff:/, "");
-
-  const sentPin = extractRequestPin(req, url);
-  if (sentPin === configuredPin) {
-    if (clientIp) authenticatedIps.set(clientIp, Date.now() + 24 * 3600 * 1000);
-    return true;
-  }
-
-  // Se o IP do cliente já tiver sido autenticado nas últimas 24h (útil para assets do iframe sem cookie)
-  if (clientIp && authenticatedIps.has(clientIp)) {
-    const expiresAt = authenticatedIps.get(clientIp);
-    if (Date.now() < expiresAt) return true;
-    authenticatedIps.delete(clientIp);
-  }
-
-  return false;
 }
 
 /**
@@ -129,4 +128,4 @@ function isAllowedHost(host) {
   return false;
 }
 
-module.exports = { getNetworkInterfaces, getPrimaryLocalIp, isLocalhostRequest, extractRequestPin, validatePin, isAllowedHost };
+module.exports = { getNetworkInterfaces, getPrimaryLocalIp, isLocalhostRequest, isProxiedRequest, clientKey, extractRequestPin, isAllowedHost };

@@ -59,10 +59,10 @@ test("network: validação de PIN", () => {
   const reqWithHeader = { socket: { remoteAddress: "192.168.1.100" }, headers: { "x-harness-pin": "123456" } };
   assert.equal(netLib.validatePin(reqWithHeader, "123456"), true);
 
-  // Remoto com cookie passa
+  // Cookie legado com o PIN em texto puro deixou de ser aceito (a sessão agora é um token assinado)
   /** @type {any} */
   const reqWithCookie = { socket: { remoteAddress: "192.168.1.100" }, headers: { cookie: "other=1; harness_pin=123456; more=2" } };
-  assert.equal(netLib.validatePin(reqWithCookie, "123456"), true);
+  assert.equal(netLib.validatePin(reqWithCookie, "123456"), false);
 });
 
 test("HTTP API: rotas de acesso remoto e proxy", async () => {

@@ -15,6 +15,7 @@ async function mockRequest(method, url) {
   const req = {
     method,
     url,
+    socket: { remoteAddress: "127.0.0.1" },
     headers: { host: "localhost:4321" },
   };
 

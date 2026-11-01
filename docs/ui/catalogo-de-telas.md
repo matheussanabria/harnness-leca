@@ -72,7 +72,7 @@ Regras aplicadas pelo serviço e pelo cliente:
 
 | Chave | Motivo |
 |---|---|
-| `harness_pin` | Credencial do acesso remoto; não é estado de tela e não deve ir para o servidor. |
+| `harness_pin` | Obsoleto: o PIN não é mais guardado no navegador. A sessão remota é o cookie HttpOnly `harness_session`, inacessível ao JavaScript. |
 | `harness_active_project` | Seleção de projeto anterior a qualquer tela; permanece como reserva offline compartilhada. |
 | `harness_chat_open` | Sinal efêmero da mini conversa, apenas removido; não guarda estado a restaurar. |
 | `hia_tokens_saved` | Contador local de telemetria HIA; não é estado de tela. |

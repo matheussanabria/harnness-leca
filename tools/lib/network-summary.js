@@ -17,7 +17,7 @@ function getRemoteSummary(port, pin, tunnelUrl = "") {
   urls.push({ label: "Computador (Local)", url: `http://localhost:${port}` });
 
   for (const iface of interfaces) {
-    const pinPart = pin ? `?pin=${pin}` : "";
+    const pinPart = pin ? `#pin=${pin}` : "";
     let label = iface.name;
     if (iface.type === "wifi") label = `📱 Wi-Fi (${iface.name})`;
     else if (iface.type === "vpn") label = `🔒 VPN (${iface.name})`;
@@ -34,7 +34,7 @@ function getRemoteSummary(port, pin, tunnelUrl = "") {
   }
 
   if (tunnelUrl) {
-    const pinPart = pin ? `?pin=${pin}` : "";
+    const pinPart = pin ? `#pin=${pin}` : "";
     urls.push({
       label: "🌍 Túnel Remoto (Internet / 4G)",
       url: `${tunnelUrl.replace(/\/+$/, "")}/${pinPart}`,
@@ -44,7 +44,7 @@ function getRemoteSummary(port, pin, tunnelUrl = "") {
 
   // Escolhe a melhor URL para o QR Code (Wi-Fi ou túnel)
   const qrTarget = tunnelUrl
-    ? `${tunnelUrl.replace(/\/+$/, "")}/${pin ? "?pin=" + pin : ""}`
+    ? `${tunnelUrl.replace(/\/+$/, "")}/${pin ? "#pin=" + pin : ""}`
     : urls.find((u) => u.type === "wifi")?.url || urls[1]?.url || urls[0].url;
 
   const asciiQr = generateAsciiQr(qrTarget);

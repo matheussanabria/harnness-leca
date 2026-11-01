@@ -74,11 +74,8 @@ Object.assign(window, {
 
 // Inicialização da Aplicação
 (async () => {
-  const urlParams = new URLSearchParams(location.search);
-  const pinFromUrl = urlParams.get("pin");
-  if (pinFromUrl) {
-    localStorage.setItem("harness_pin", pinFromUrl);
-  }
+  // Versões antigas guardavam o PIN em texto puro aqui; a sessão agora é um cookie HttpOnly.
+  try { localStorage.removeItem("harness_pin"); } catch { /* armazenamento indisponível */ }
 
   await chatMod.initEngines();
   await chatMod.initDai();

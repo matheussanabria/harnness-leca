@@ -24,7 +24,18 @@ function createServer() {
       }
     }
   });
-  netLib.setupWebSocketHmrProxy(server, getActiveAppUrl);
+  netLib.setupWebSocketHmrProxy(server, getActiveAppUrl, (req) => {
+    try {
+      // Upgrade não passa pela regra de Origin dos POSTs: sem esta checagem uma página qualquer aberta no navegador
+      // do dono abriria um WebSocket para localhost. Origin ausente (cliente que não é navegador) ou igual ao Host.
+      const origin = String(req.headers.origin || "").replace(/\/+$/, "").toLowerCase();
+      const host = String(req.headers.host || "").toLowerCase();
+      if (origin && origin !== `http://${host}` && origin !== `https://${host}`) return false;
+      return hostOk(req) && netLib.authorizeRemote(req, PIN, new URL(req.url || "/", "http://x")).ok;
+    } catch {
+      return false;
+    }
+  });
   return server;
 }
 
