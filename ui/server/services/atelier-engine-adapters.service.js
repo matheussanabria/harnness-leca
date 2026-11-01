@@ -200,6 +200,11 @@ const NO_NATIVE_WRITES = ["write", "edit", "multiedit", "patch", "apply_patch", 
  * @param {"low" | "medium" | "high"} [config.effort]
  * @param {typeof fetch} [config.fetchFn]
  */
+/** O servidor respondeu que a sessão não existe (404/410); qualquer outra falha não prova que ela sumiu. */
+function isSessionGone(err) {
+  return err?.status === 404 || err?.status === 410;
+}
+
 function buildOpenCodeModelTurn({
   base = "http://localhost:63186",
   model,
@@ -218,12 +223,15 @@ function buildOpenCodeModelTurn({
     const reqOpts = { signal, fetchFn };
     if (cachedSessionId && !checked) {
       // Sessão vinda da conversa anterior: confere que o servidor ainda a conhece e aplica o modelo escolhido agora.
+      // Só descarta a sessão quando o servidor diz que ela não existe mais; erro de autenticação, de rede ou ao trocar
+      // o modelo NÃO pode abrir uma sessão nova em silêncio, senão a conversa perde o histórico a cada mensagem.
       try {
         if (model) await V2.setSessionModel(cleanBase, cachedSessionId, model, reqOpts);
         await V2.readTurn(cleanBase, cachedSessionId, Number.MAX_SAFE_INTEGER, reqOpts);
       } catch (err) {
         if (err?.name === "AbortError") throw err;
-        cachedSessionId = null; // sessão perdida (servidor reiniciado): começa outra
+        if (isSessionGone(err)) cachedSessionId = null; // servidor reiniciado ou sessão apagada: começa outra
+        else emit({ type: "session_check_failed", sessionId: cachedSessionId, message: String(err?.message || err) });
       }
     }
     checked = true;
@@ -279,4 +287,5 @@ module.exports = {
   buildGeminiModelTurn,
   buildOpenCodeModelTurn,
   NO_NATIVE_WRITES,
+  isSessionGone,
 };

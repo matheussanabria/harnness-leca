@@ -3,9 +3,9 @@ domain: backend
 module: atelier
 feature: atelier-tools
 summary: Atelier server services that inject prototype context into agent runs and parse model tool tags, with tests.
-paths: [ui/server/services/atelier-proto-context.service.js, ui/server/services/atelier-nav-contract.service.js, ui/server/services/atelier-tool-tags.service.js, tests/atelier-proto-context.test.js, tests/atelier-nav-contract.test.js, tests/atelier-tool-tags.test.js]
+paths: [ui/server/services/atelier-proto-context.service.js, ui/server/services/atelier-nav-contract.service.js, ui/server/services/atelier-tool-tags.service.js, tests/atelier-proto-context.test.js, tests/atelier-nav-contract.test.js, tests/atelier-tool-tags.test.js, ui/server/services/atelier-engine-adapters.service.js, ui/server/services/prototype-sanitizer.service.js, tests/atelier-opencode-session-resume.test.js, tests/prototype-atelier.test.js]
 keywords: [atelier, prototype, context, tool tags, atelier_write_screen, atelier_patch_styles, navigation]
-updated: 2026-10-31
+updated: 2026-11-01
 ---
 # Atelier Tools
 
@@ -17,3 +17,7 @@ updated: 2026-10-31
 | `tests/atelier-nav-contract.test.js` | Navigation contract text, screen ID line, and its presence in the proto context and chat rules. |
 | `ui/server/services/atelier-tool-tags.service.js` | Parses `<tool name=...>` tags: raw HTML/CSS for `atelier_write_screen`/`atelier_patch_styles`, repaired JSON, unreadable tags returned as errors. |
 | `tests/atelier-tool-tags.test.js` | Tag parser (JSON, repaired JSON, raw HTML/CSS, errors) and `cssRules`/`cssContent` + `atelier_parse_error` tools. |
+| `ui/server/services/atelier-engine-adapters.service.js` | Gemini and OpenCode model turns for the agent loop; resumes the engine session and drops it only when the server answers 404/410 (`isSessionGone`), so auth or network errors never silently open a new session. |
+| `ui/server/services/prototype-sanitizer.service.js` | Strips dangerous tags, inline handlers and unsafe URIs from screen HTML; keeps `<form>` content and blocks only submission (`action`/`method` removed, `onsubmit` blocked). |
+| `tests/atelier-opencode-session-resume.test.js` | Session resume rules: 401/400 keep the session and emit `session_check_failed`, 404 creates a new one, healthy session is reused. |
+| `tests/prototype-atelier.test.js` | Sanitizer (scripts, handlers, iframes, forms kept and neutralized), data-pid injection, storage and versions. |
