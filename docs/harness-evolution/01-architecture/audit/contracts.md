@@ -53,8 +53,8 @@ sequenceDiagram
 ## 5. Proteção de Rotas que Alteram Estado (POST / PUT / DELETE)
 
 Todas as rotas da aplicação (exceto `/api/app/ping` e `/api/remote/pin`) passam pelo middleware global de PIN no despachante (`ui/server/router.js:200-210`):
-- **Localhost:** Acesso irrestrito (desenvolvimento local).
-- **Rede Externa / Tunnel:** Valida header/cookie `harness_pin` contra `PIN` em `ui/server/config.js`.
+- **Localhost direto:** acesso irrestrito, desde que o socket seja loopback, não haja cabeçalho de proxy/túnel (`X-Forwarded-For`, `CF-Connecting-IP`, `Forwarded`, `Via`...) e o `Host` seja loopback (`tools/lib/network-access.js`, `isLocalhostRequest`). O túnel Cloudflare conecta do loopback, por isso não conta como local.
+- **Rede Externa / Túnel:** exige cookie de sessão `harness_session` (assinado, HttpOnly, SameSite=Strict) ou PIN (`?pin=` com redirecionamento que o remove, ou header `x-harness-pin`), com limite de tentativas por cliente e global (`tools/lib/network-auth.js`, `network-throttle.js`). Servidor exposto sem PIN de 6+ caracteres sorteia um PIN. Sem PIN configurado, tráfego por proxy/túnel é recusado.
 - **Ações Críticas:**
   - `POST /api/permissions/request`: Exige estritamente IP loopback (`127.0.0.1`, `::1`).
   - `POST /api/permissions/answer`: Autorizado apenas pelo operador autenticado.

@@ -4,6 +4,21 @@ const http = require("http");
 const net = require("net");
 
 /**
+ * Tira do que vai para o app de desenvolvimento a credencial do Harness: o app é outro processo e não pode
+ * reaproveitar a sessão nem o PIN. Os demais cookies seguem, porque o app depende deles.
+ * @param {Record<string, any>} headers
+ */
+function withoutHarnessAuth(headers) {
+  delete headers["x-harness-pin"];
+  if (typeof headers.cookie === "string") {
+    const kept = headers.cookie.split(";").map((c) => c.trim()).filter((c) => c && !/^harness_(session|pin)=/i.test(c));
+    if (kept.length) headers.cookie = kept.join("; ");
+    else delete headers.cookie;
+  }
+  return headers;
+}
+
+/**
  * Proxy HTTP transparente para o dev server do app ativo
  * @param {http.IncomingMessage} req
  * @param {http.ServerResponse} res
@@ -16,7 +31,7 @@ function proxyAppRequest(req, res, targetUrlBase, subpath) {
     let pathname = subpath !== undefined ? subpath : req.url || "/";
     if (!pathname.startsWith("/")) pathname = "/" + pathname;
 
-    const proxyHeaders = { ...req.headers };
+    const proxyHeaders = withoutHarnessAuth({ ...req.headers });
     proxyHeaders.host = target.host;
     // Remove accept-encoding gzip se quisermos manipular, mas pipe transparente aceita tudo
     delete proxyHeaders["connection"];
@@ -90,10 +105,16 @@ function proxyAppRequest(req, res, targetUrlBase, subpath) {
  * Configura o proxy de WebSockets para Hot Module Replacement (HMR do Vite/Angular)
  * @param {http.Server} server
  * @param {() => string} getTargetUrl
+ * @param {(req: http.IncomingMessage) => boolean} [authorize] mesma regra de PIN/Host das rotas HTTP; sem ela nada passa
  */
-function setupWebSocketHmrProxy(server, getTargetUrl) {
+function setupWebSocketHmrProxy(server, getTargetUrl, authorize) {
   server.on("upgrade", (req, clientSocket, head) => {
     try {
+      // O upgrade não passa pelo roteador HTTP: sem esta checagem qualquer cliente abriria um túnel TCP até o app.
+      if (typeof authorize !== "function" || !authorize(req)) {
+        clientSocket.end("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nContent-Length: 0\r\n\r\n");
+        return;
+      }
       const targetBase = getTargetUrl();
       if (!targetBase) {
         clientSocket.destroy();
@@ -110,8 +131,14 @@ function setupWebSocketHmrProxy(server, getTargetUrl) {
         for (let i = 0; i < req.rawHeaders.length; i += 2) {
           const key = req.rawHeaders[i];
           const val = req.rawHeaders[i + 1];
-          if (key.toLowerCase() === "host") {
+          const lower = key.toLowerCase();
+          if (lower === "host") {
             headersArr.push(`Host: ${target.host}`);
+          } else if (lower === "x-harness-pin") {
+            continue;
+          } else if (lower === "cookie") {
+            const kept = val.split(";").map((c) => c.trim()).filter((c) => c && !/^harness_(session|pin)=/i.test(c));
+            if (kept.length) headersArr.push(`${key}: ${kept.join("; ")}`);
           } else {
             headersArr.push(`${key}: ${val}`);
           }
@@ -133,4 +160,4 @@ function setupWebSocketHmrProxy(server, getTargetUrl) {
   });
 }
 
-module.exports = { proxyAppRequest, setupWebSocketHmrProxy };
+module.exports = { proxyAppRequest, setupWebSocketHmrProxy, withoutHarnessAuth };

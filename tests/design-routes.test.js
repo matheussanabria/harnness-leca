@@ -12,6 +12,7 @@ test("design-routes: GET /api/project/:slug/design/index responde 200 com estrut
   const req = {
     method: "GET",
     url: `/api/project/${fixture.slug}/design/index`,
+    socket: { remoteAddress: "127.0.0.1" },
     headers: { host: "localhost:4321" },
   };
 
@@ -49,6 +50,7 @@ test("design-routes: GET /api/project/:slug/design/layers responde 200 para func
   const req = {
     method: "GET",
     url: `/api/project/${fixture.slug}/design/layers?feature=visao-geral-paciente`,
+    socket: { remoteAddress: "127.0.0.1" },
     headers: { host: "localhost:4321" },
   };
 
@@ -75,6 +77,7 @@ test("design-routes: GET /api/project/:slug/design/file barra arquivos proibidos
   const req = {
     method: "GET",
     url: `/api/project/${fixture.slug}/design/file?path=.env`,
+    socket: { remoteAddress: "127.0.0.1" },
     headers: { host: "localhost:4321" },
   };
 
@@ -94,6 +97,7 @@ test("design-routes: GET /api/project/:slug/design/prototype?id=... redireciona 
   const req = {
     method: "GET",
     url: `/api/project/${fixture.slug}/design/prototype?id=dis-design-system`,
+    socket: { remoteAddress: "127.0.0.1" },
     headers: { host: "localhost:4321" },
   };
 
@@ -115,6 +119,7 @@ test("design-routes: GET /api/project/:slug/design/prototype/:id/ retorna HTML c
   const req = {
     method: "GET",
     url: `/api/project/${fixture.slug}/design/prototype/dis-design-system/`,
+    socket: { remoteAddress: "127.0.0.1" },
     headers: { host: "localhost:4321" },
   };
 
@@ -139,6 +144,7 @@ test("design-routes: GET /api/project/:slug/design/prototype/:id/support.js serv
   const req = {
     method: "GET",
     url: `/api/project/${fixture.slug}/design/prototype/dis-fluxo-paciente/support.js`,
+    socket: { remoteAddress: "127.0.0.1" },
     headers: { host: "localhost:4321" },
   };
 
@@ -163,6 +169,7 @@ test("design-routes: protótipo de um projeto não vaza para outro projeto", asy
   const req = {
     method: "GET",
     url: "/api/project/saude-prontuario/design/prototype/dis-design-system/",
+    socket: { remoteAddress: "127.0.0.1" },
     headers: { host: "localhost:4321" },
   };
   let statusCode = 0;

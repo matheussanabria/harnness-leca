@@ -6,10 +6,28 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const http = require("http");
+const { randomInt } = require("crypto");
 const netLib = require("./lib/network");
 
 const PORT = Number(process.env.PORT) || 4321;
-const PIN = process.env.HARNESS_PIN || String(Math.floor(100000 + Math.random() * 900000));
+// PIN pedido para um servidor que ainda vai subir; o valor efetivo vem do servidor (ele recusa PIN curto).
+const REQUESTED_PIN = process.env.HARNESS_PIN || String(randomInt(100000, 1000000));
+let PIN = REQUESTED_PIN;
+
+/** Pergunta ao servidor local o modo e o PIN em uso; o PIN só sai para loopback direto. */
+function fetchRemoteInfo(port) {
+  return new Promise((resolve) => {
+    const req = http.get(`http://127.0.0.1:${port}/api/remote/info`, (res) => {
+      let body = "";
+      res.on("data", (c) => (body += c));
+      res.on("end", () => {
+        try { resolve(res.statusCode === 200 ? JSON.parse(body) : null); } catch { resolve(null); }
+      });
+    });
+    req.on("error", () => resolve(null));
+    req.setTimeout(2000, () => { req.destroy(); resolve(null); });
+  });
+}
 
 async function isServerRunning(port) {
   return new Promise((resolve) => {
@@ -56,9 +74,11 @@ async function main() {
 
   if (!alreadyRunning) {
     console.log(`⚡ Iniciando servidor do Harness na porta ${PORT} com suporte remoto...`);
-    serverProcess = spawn(process.execPath, ["ui/server.js", "--remote", "--pin", PIN], {
+    // O PIN vai por variável de ambiente: argumento de linha de comando aparece na lista de processos.
+    serverProcess = spawn(process.execPath, ["ui/server.js", "--remote"], {
       stdio: "inherit",
       windowsHide: true,
+      env: { ...process.env, HARNESS_PIN: REQUESTED_PIN },
     });
     // Aguarda o servidor subir
     for (let i = 0; i < 20; i++) {
@@ -68,6 +88,15 @@ async function main() {
   } else {
     console.log(`✅ Servidor Harness detectado rodando na porta ${PORT}.`);
   }
+
+  // Um túnel público sobre servidor sem PIN entregaria a máquina a quem tiver a URL: confirma o modo antes de abrir.
+  const info = await fetchRemoteInfo(PORT);
+  if (!info || !info.isRemote || !info.pin) {
+    console.error("❌ O servidor do Harness não está em modo remoto com PIN. Reinicie com: npm run ui:dev:remote -- --pin <6+ caracteres>");
+    if (serverProcess) serverProcess.kill();
+    process.exit(1);
+  }
+  PIN = info.pin;
 
   // 2. Inicia o túnel Cloudflare seguro
   console.log("🚀 Abrindo túnel Cloudflare seguro (sem necessidade de cadastro)...");
@@ -107,7 +136,7 @@ async function main() {
       const summary = netLib.getRemoteSummary(PORT, PIN, tunnelUrl);
       console.log("\n=======================================================");
       console.log("🎉 TÚNEL CLOUDFLARE ATIVO COM SUCESSO!");
-      console.log(`🔗 URL Pública HTTPS: ${tunnelUrl}/?pin=${PIN}`);
+      console.log(`🔗 URL Pública HTTPS: ${tunnelUrl}/#pin=${PIN}`);
       console.log(`🔑 PIN de Acesso:     ${PIN}`);
       console.log("=======================================================\n");
       console.log("📱 Aponte a câmera do celular no 4G/5G para acessar:");

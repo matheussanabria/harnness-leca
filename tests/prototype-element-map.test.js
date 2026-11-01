@@ -165,7 +165,7 @@ test("EP-06.05: mapeamento de elementos visuais para arquivos e componentes", as
     async function call(url) {
       let statusCode = 0;
       let body = "";
-      const req = { method: "GET", url, headers: { host: "localhost:4321" } };
+      const req = { method: "GET", url, socket: { remoteAddress: "127.0.0.1" }, headers: { host: "localhost:4321" } };
       const res = {
         setHeader: () => {},
         writeHead: (code) => { statusCode = code; },

@@ -10,7 +10,15 @@ const PUBLIC = path.join(__dirname, "..", "public");
 const PORT = Number(process.env.PORT) || 4321;
 const IS_REMOTE = process.argv.includes("--remote") || process.argv.includes("--lan") || process.argv.includes("--host") || !!process.env.HARNESS_REMOTE;
 const PIN_ARG_IDX = process.argv.indexOf("--pin");
-const PIN = PIN_ARG_IDX !== -1 ? process.argv[PIN_ARG_IDX + 1] : (process.env.HARNESS_PIN || (IS_REMOTE ? String(crypto.randomInt(100000, 1000000)) : ""));
+const RAW_PIN = String((PIN_ARG_IDX !== -1 ? process.argv[PIN_ARG_IDX + 1] : process.env.HARNESS_PIN) || "").trim();
+// Alcançável fora do loopback (remoto, LAN ou HARNESS_HOST público): nunca sem PIN e nunca com PIN curto.
+const EXPOSED = IS_REMOTE || (!!process.env.HARNESS_HOST && !/^(127\.|localhost$|::1$|\[::1\]$)/i.test(process.env.HARNESS_HOST));
+const MIN_PIN_LENGTH = 6;
+let PIN = RAW_PIN;
+if (EXPOSED && RAW_PIN.length < MIN_PIN_LENGTH) {
+  PIN = String(crypto.randomInt(100000, 1000000));
+  if (RAW_PIN) console.warn(`[remote] PIN com menos de ${MIN_PIN_LENGTH} caracteres foi recusado; usando um PIN aleatório.`);
+}
 const HOST = process.env.HARNESS_HOST || (IS_REMOTE ? "0.0.0.0" : "127.0.0.1");
 
 // 0 = sem limite de respostas simultâneas (padrão); defina HARNESS_MAX_CHATS=N para reativar o teto.
@@ -172,9 +180,7 @@ function sendPinLoginPage(res) {
     <div class="hint">💡 Dica: Se você escanear o QR Code impresso no terminal ou na UI, o login é automático sem precisar digitar!</div>
   </div>
   <script>
-    async function handleAuth(e) {
-      e.preventDefault();
-      const pin = document.getElementById('pinInput').value.trim();
+    async function submitPin(pin) {
       const err = document.getElementById('errMsg');
       err.style.display = 'none';
       try {
@@ -185,14 +191,26 @@ function sendPinLoginPage(res) {
         });
         if (res.ok) {
           window.location.reload();
-        } else {
-          err.style.display = 'block';
+          return;
         }
+        err.textContent = res.status === 429 ? 'Muitas tentativas. Aguarde alguns minutos e tente de novo.' : 'PIN incorreto. Tente novamente.';
       } catch {
         err.textContent = 'Erro ao verificar PIN. Verifique a rede.';
-        err.style.display = 'block';
       }
+      err.style.display = 'block';
     }
+    function handleAuth(e) {
+      e.preventDefault();
+      submitPin(document.getElementById('pinInput').value.trim());
+    }
+    // O QR e o link do túnel levam o PIN no fragmento (#pin=...): o navegador não o envia ao servidor, então ele
+    // não aparece em logs, no Cloudflare nem no Referer. Aqui ele vira cookie de sessão e some da barra de endereço.
+    (function autoLogin() {
+      const m = /[#&]pin=([^&]+)/.exec(window.location.hash);
+      if (!m) return;
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      submitPin(decodeURIComponent(m[1]));
+    })();
   </script>
 </body>
 </html>`;

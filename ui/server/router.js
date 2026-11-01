@@ -212,17 +212,33 @@ async function handle(req, res) {
   const p = decodeURIComponent(url.pathname);
   if (p.includes("\0")) return send(res, 400, { error: "requisição inválida" });
 
-  // 1. PIN de Acesso Remoto: se não for localhost, valida PIN
-  if (!netLib.validatePin(req, PIN, url)) {
+  // 1. PIN de Acesso Remoto: só o loopback direto passa livre; proxy/túnel e rede exigem sessão ou PIN.
+  // O envio do PIN pelo formulário (POST /api/remote/pin) é autorizado e limitado pelo próprio controller.
+  const isPinLogin = req.method === "POST" && p === "/api/remote/pin";
+  const auth = isPinLogin ? { ok: true, reason: "local", retryAfterSec: 0 } : netLib.authorizeRemote(req, PIN, url);
+  if (!auth.ok) {
+    if (auth.reason === "locked") {
+      res.setHeader("Retry-After", String(auth.retryAfterSec || 900));
+      return send(res, 429, { error: "Muitas tentativas de PIN. Tente de novo mais tarde.", retryAfterSec: auth.retryAfterSec });
+    }
+    if (auth.reason === "unprotected-proxy") {
+      return send(res, 403, { error: "Acesso por túnel ou proxy exige iniciar o Harness com --remote (PIN)." });
+    }
     if (p.startsWith("/api/")) {
       return send(res, 401, { error: "PIN de acesso remoto obrigatório", authRequired: true });
     }
     return sendPinLoginPage(res);
   }
 
-  // Se o PIN veio na query param do link/QR code, salva cookie para futuras requisições
-  if (url.searchParams.has("pin") && url.searchParams.get("pin") === PIN) {
-    res.setHeader("Set-Cookie", `harness_pin=${encodeURIComponent(PIN)}; Path=/; SameSite=Lax; Max-Age=2592000`);
+  // PIN aceito pelo link/QR: troca por cookie de sessão e remove o PIN da URL (histórico, logs, Referer).
+  if (auth.reason === "pin" && url.searchParams.has("pin")) {
+    res.setHeader("Set-Cookie", netLib.buildSessionCookie(req, netLib.issueSessionToken(PIN)));
+    if (req.method === "GET" || req.method === "HEAD") {
+      url.searchParams.delete("pin");
+      // Uma barra só: "//host" viraria redirecionamento para outro site.
+      res.writeHead(302, { Location: `/${url.pathname.replace(/^\/+/, "")}${url.search}`, "Cache-Control": "no-store" });
+      return res.end();
+    }
   }
 
   // 2. Rota de Proxy do App em Desenvolvimento: /preview ou /preview/*

@@ -12,7 +12,7 @@ Tudo roda localmente na sua máquina, com preservação total de privacidade. Th
 |---|---|
 | `npm run ui` | Inicia a interface web local em `http://localhost:4321` |
 | `npm run ui:dev` | Igual ao `ui`, mas reinicia o servidor sozinho ao salvar arquivos de `ui/server`, `tools/lib` ou `tools/ds-docs` (usa o `--watch` do Node, sem dependências). Mudanças em `ui/public` só pedem recarregar o navegador (Ctrl+F5) |
-| `npm run ui:dev:remote -- --pin 123456` | Igual ao `ui:dev`, mas com acesso remoto (`--remote`, escuta em 0.0.0.0). Passe `--pin` para o PIN não mudar a cada reinício; sem ele um PIN novo é sorteado e o celular perde o acesso. O túnel (`npm run remote:tunnel`) é outro processo e continua de pé, mas fica alguns segundos sem resposta enquanto o servidor reinicia |
+| `npm run ui:dev:remote -- --pin 123456` | Igual ao `ui:dev`, mas com acesso remoto (`--remote`, escuta em 0.0.0.0). Passe `--pin` para o PIN não mudar a cada reinício; sem ele (ou com PIN de menos de 6 caracteres) um PIN novo é sorteado. A sessão do celular é um cookie assinado que vale até o servidor reiniciar: depois disso o celular pede o PIN de novo. O PIN do QR e do link do túnel vai no fragmento (`#pin=`), que não chega aos logs. O túnel (`npm run remote:tunnel`) é outro processo e continua de pé, mas fica alguns segundos sem resposta enquanto o servidor reinicia |
 | `npm run sync` | Sincroniza conversas dos 3 motores (Claude, Gemini e opencode) para o harness |
 | `npm run adopt -- --path <pasta>` | Adota um projeto já existente: detecta a stack e cria `instructions.md`, `memory.md` e o apelido de conversas (veja `docs/setup/05-adopt-existing-projects.md`) |
 | `npm run export:context` | Exporta memórias, regras e tópicos para o contexto nativo do Claude Code e Gemini |
