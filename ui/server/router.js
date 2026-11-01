@@ -44,6 +44,7 @@ const { auditRoutes } = require("./routes/audit.routes");
 const { canonicalSessionRoutes } = require("./routes/canonical-sessions.routes");
 const { centralEventRoutes } = require("./routes/central-events.routes");
 const { screensRoutes } = require("./routes/screens.routes");
+const { canvasRoutes } = require("./routes/canvas.routes");
 const { designRoutes } = require("./routes/design.routes");
 const { inspectRoutes } = require("./routes/inspect.routes");
 const {
@@ -137,6 +138,7 @@ const ROUTES = [
   ...centralEventRoutes,
   ...canonicalSessionRoutes,
   ...screensRoutes,
+  ...canvasRoutes,
   { method: "GET", path: "/api/state", handler: apiState },
   { method: "GET", path: "/api/agents/active", handler: apiAgentsActive },
   { method: "GET", path: "/api/orchestration/state", handler: apiOrchestrationState },
