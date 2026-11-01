@@ -88,3 +88,17 @@ test("combo-routing dispatcher - flag on: runs on the combo, tells the user and 
   const follow = await dispatch({ sessionId: "ses_xyz", history: [{ role: "user", text: "oi" }], prompt: "e agora, ajuste o teste" });
   assert.equal(follow.calls[0].model, "9router/harness-bugs");
 });
+
+test("combo-routing dispatcher - the combo is remembered from the first chunk, even if the turn never finishes", async (t) => {
+  resetComboMemory(); records.length = 0;
+  process.env.HIA_COMBO_ROUTING = "true";
+  t.after(() => { delete process.env.HIA_COMBO_ROUTING; });
+
+  const first = await dispatch();
+  // The client drops mid-stream: only a chunk carrying the session id arrives, onDone is never called.
+  first.calls[0].onChunk({ type: "text", text: "..." }); // no session id yet: nothing remembered
+  assert.equal((await dispatch({ sessionId: "ses_drop" })).calls[0].model, "9router/harness-bugs", "a fresh classification, nothing stored yet");
+  first.calls[0].onChunk({ type: "text", text: "...", sessionId: "ses_drop" });
+  const follow = await dispatch({ sessionId: "ses_drop", history: [{ role: "user", text: "oi" }], prompt: "agora implemente a tela de login" });
+  assert.equal(follow.calls[0].model, "9router/harness-bugs", "the follow-up keeps the combo chosen on the first turn");
+});
