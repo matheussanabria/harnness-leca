@@ -3,7 +3,7 @@ domain: frontend
 module: design
 feature: atelier
 summary: Atelier prototype UI: view, state, context, messages, multi-select, navigation, canvas, layers, layout, catalog.
-paths: [ui/public/js/modules/prototype-atelier*.js, ui/public/js/modules/prototype-canvas-mode.js, ui/public/js/modules/prototype-layer-tree.js, ui/public/js/modules/prototype-workspace-layout.js, ui/public/js/modules/prototype-catalog.js, ui/public/js/modules/prototype-multiselect-model.js, ui/public/js/modules/prototype-nav-resolve.js, ui/public/js/modules/prototype-inspector-toggle.js, tests/prototype-atelier-*.test.js, tests/prototype-nav-resolve.test.js, tests/studio-state.test.js, tests/chat-engine-settings.test.js]
+paths: [ui/public/js/modules/prototype-atelier*.js, ui/public/js/modules/prototype-canvas-mode.js, ui/public/js/modules/prototype-layer-tree.js, ui/public/js/modules/prototype-workspace-layout.js, ui/public/js/modules/prototype-catalog.js, ui/public/js/modules/prototype-multiselect-model.js, ui/public/js/modules/prototype-nav-resolve.js, ui/public/js/modules/prototype-bridge-links.js, tests/prototype-nav-wiring.test.js, ui/public/js/modules/prototype-inspector-toggle.js, tests/prototype-atelier-*.test.js, tests/prototype-nav-resolve.test.js, tests/studio-state.test.js, tests/chat-engine-settings.test.js]
 keywords: [atelier, prototype, canvas, layers, multiselect, navigation, screens, resolver, iframe, state, adoption, sidebar, catalog]
 updated: 2026-10-31
 ---
@@ -29,6 +29,8 @@ updated: 2026-10-31
 | `ui/public/js/modules/prototype-nav-resolve.js` | Pure resolver: `goto:orbit`, `screens/orbit.html`, `./screens/orbit.html`, `orbit.html` and `orbit` (dropping `#`/`?`) become a screen ID; reports screen, planned, external or none. |
 | `ui/public/js/modules/prototype-inspector-toggle.js` | Inspector button toggles outlines and selection; when off, screens run live (play mode) in single screen and canvas. |
 | `tests/prototype-atelier-split.test.js` | Runs multi-select and iframe messages for real with a minimal DOM. |
+| `ui/public/js/modules/prototype-bridge-links.js` | Iframe bridge script: a click on `a[href]` that is not `#`, external or `data-action` becomes `HARNESS_PROTO_GOTO { target }`; the parent resolves it with `prototype-nav-resolve.js`. |
+| `tests/prototype-nav-wiring.test.js` | Embedded export runtime vs the ESM resolver, tab buttons, export without emoji, first-screen render fallback and the bridge links script. |
 | `tests/prototype-nav-resolve.test.js` | Covers every accepted navigation format, planned screens, external links, anchors/empty and invalid IDs. |
 | `tests/studio-state.test.js` | Covers Studio state normalization, patches and restoration. |
 | `tests/prototype-atelier-state.test.js` | Covers Atelier state, prototype reopening and field limits in the registry (EP-14.08). |

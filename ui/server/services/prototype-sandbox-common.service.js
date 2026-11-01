@@ -45,7 +45,7 @@ function loadSandboxAssets(projectDir, protoDir, deps) {
 }
 
 /** Scripts da ponte, na ordem de execução: medidas/prévia, ponte principal, arrastar para reordenar e seleção múltipla. */
-const BRIDGE_FILES = ["prototype-bridge-props.js", "prototype-bridge.js", "prototype-bridge-drag.js", "prototype-bridge-multi.js"];
+const BRIDGE_FILES = ["prototype-bridge-props.js", "prototype-bridge.js", "prototype-bridge-drag.js", "prototype-bridge-multi.js", "prototype-bridge-links.js"];
 
 /**
  * Lê os scripts da ponte de comunicação do harness e os junta em um único bloco.

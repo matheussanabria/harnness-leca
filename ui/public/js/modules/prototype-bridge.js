@@ -161,7 +161,7 @@
     // @ts-ignore
     const target = e.target;
     if (!target) return;
-    if (window.__harnessBridge?.onModifiedClick?.(e, target, mode)) return;
+    if (window.__harnessBridge?.onModifiedClick?.(e, target, mode) || window.__harnessBridge?.onLinkClick?.(e, target, mode)) return;
     const actionEl = target.closest("[data-action]");
     if (actionEl && mode !== "inspect") {
       const action = actionEl.getAttribute("data-action") || "";

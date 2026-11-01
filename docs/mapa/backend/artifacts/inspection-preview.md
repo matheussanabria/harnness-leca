@@ -3,7 +3,7 @@ domain: backend
 module: artifacts
 feature: inspection-preview
 summary: Artifact inspection, DC sandbox, inventory, import, preview, links, routines tab and related tests.
-paths: [ui/server/services/prototype-artifact-import.service.js, ui/server/services/dc-*.service.js, ui/server/services/prototype-sandbox-*.service.js, ui/server/controllers/artifact*.js, ui/server/services/artifact-*.service.js, ui/public/js/modules/design-artifacts-*.js, ui/public/js/modules/design-routines*.js, tests/artifact-*.test.js, tests/deploy-*.test.js]
+paths: [ui/server/services/prototype-exporter-runtime.service.js, ui/server/services/prototype-artifact-import.service.js, ui/server/services/dc-*.service.js, ui/server/services/prototype-sandbox-*.service.js, ui/server/controllers/artifact*.js, ui/server/services/artifact-*.service.js, ui/public/js/modules/design-artifacts-*.js, ui/public/js/modules/design-routines*.js, tests/artifact-*.test.js, tests/deploy-*.test.js]
 keywords: [artifact, preview, sandbox, dc, inventory, import, relationships, routines, deploy]
 updated: 2026-10-30
 ---
@@ -19,6 +19,7 @@ updated: 2026-10-30
 | `ui/server/services/prototype-sandbox-renderer.service.js` | Prototype sandbox facade: `metadata.runtime === "dc"` goes to the DC branch, others to `screens/<id>.html`. |
 | `ui/server/services/prototype-sandbox-dc.service.js` | Renders a DC prototype with local runtime, sandbox CSP, `startScreen.default`, data URI assets, stable `data-pid`, React loaded before boot. |
 | `ui/server/services/dc-template-runtime.service.js` | Encodes `sc-for` and `sc-if` as `<template>` nodes before HTML parsing so loops inside tables render mock rows. |
+| `ui/server/services/prototype-exporter-runtime.service.js` | JS embedded in the single-HTML export: screen resolver equal to the ESM one, `a[href]` and `goto:` handling, on-page warning for planned screens, global `showScreen` for the tabs. |
 | `ui/server/services/prototype-sandbox-common.service.js` | Styles, harness bridge and CSP headers shared by the static and DC sandbox branches. |
 | `ui/public/js/vendor/dc-runtime/` | React 18.3.1, ReactDOM 18.3.1 and Claude Design `support.js` with checked hashes, served to the isolated sandbox. |
 | `ui/server/services/artifact-inventory.service.js` | Deduplicates, merges metadata, filters local access, sorts, summarizes and limits the artifact inventory. |

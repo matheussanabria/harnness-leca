@@ -2,6 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const { getPrototypesBaseDir } = require("./prototype-storage.service");
+const { generateRuntimeJs } = require("./prototype-exporter-runtime.service");
 
 /**
  * Compila o protótipo inteiro em um único arquivo HTML autocontido e offline.
@@ -91,7 +92,7 @@ ${protoCss}
 </head>
 <body>
   <nav class="offline-nav-bar">
-    <div class="offline-nav-title">🎨 ${protoJson.title || protoId} (v${protoJson.version || 1})</div>
+    <div class="offline-nav-title">${protoJson.title || protoId} (v${protoJson.version || 1})</div>
     <div class="offline-nav-tabs">
       ${tabButtons.join("\n")}
     </div>
@@ -101,30 +102,7 @@ ${protoCss}
     ${screenSections.join("\n")}
   </main>
 
-  <script>
-    function showScreen(screenId) {
-      document.querySelectorAll('.proto-screen-panel').forEach(function(el) {
-        el.style.display = 'none';
-      });
-      document.querySelectorAll('.tab-btn').forEach(function(btn) {
-        btn.classList.remove('active');
-        if (btn.getAttribute('onclick').includes("'" + screenId + "'")) btn.classList.add('active');
-      });
-      var active = document.getElementById('screen-' + screenId);
-      if (active) active.style.display = 'block';
-    }
-
-    document.addEventListener('click', function(e) {
-      var actionEl = e.target.closest('[data-action]');
-      if (actionEl) {
-        var action = actionEl.getAttribute('data-action') || '';
-        if (action.startsWith('goto:')) {
-          e.preventDefault();
-          showScreen(action.replace(/^goto:/, '').trim());
-        }
-      }
-    });
-  </script>
+  <script>${generateRuntimeJs(screens.map((sc) => sc.id))}</script>
 </body>
 </html>`;
 

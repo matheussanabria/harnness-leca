@@ -118,7 +118,7 @@ async function apiPrototypesRender({ res, params: [slug, protoId, screenId] }) {
   const { repo } = getProjectRepoInfo(slug);
   const context = getProjectDesignContext(slug, projectDir, repo || projectDir);
 
-  const result = renderPrototypeScreen(projectDir, repo || projectDir, protoId, screenId || "home", context);
+  const result = renderPrototypeScreen(projectDir, repo || projectDir, protoId, screenId, context);
   if (!result.ok) {
     return send(res, result.status || 400, { error: result.error });
   }
