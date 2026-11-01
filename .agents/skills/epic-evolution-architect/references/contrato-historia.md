@@ -12,6 +12,7 @@ epico: EP-XX
 prioridade: P0 # P0 | P1 | P2
 status: planejada # planejada | pronta | em-andamento | em-revisao | concluida | bloqueada
 dependencias: []
+owns: [] # globs de arquivos que a historia pode tocar; duas historias com escopos sobrepostos nao rodam em paralelo
 har: [] # IDs equivalentes do backlog de origem, se houver
 tags: [harness-evolution, historia]
 ---
