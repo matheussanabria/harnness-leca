@@ -1,4 +1,4 @@
-# 04 - Arquitetura proposta (TO-BE) - epic EP-17 (provisional), ADR-012 (draft in 05)
+# 04 - Arquitetura proposta (TO-BE) - epic EP-18 (provisional), ADR-014 (draft in 05)
 
 Status: proposal for review; nothing implemented. Basis: Harness a89703c, DAI 7248777 (read-only).
 Tags: [Fact path:line], [Hypothesis], [Pending decision]. Everything under "Proposed" below is a design choice, not an observation. `DAI:<path>` = DAI evidence. `svc/` = `ui/server/services/`.

@@ -142,7 +142,7 @@ Classification: Confirmado / Documentado mas nao confirmado / Proposto / Incompa
 | P18 | Jira is integrated | Read-only offline snapshot; no write path in Harness; ADR-008 still proposta. DAI has an authorized-per-item Jira publishing skill. | Confirmado (read) / Ausente (write) | tools/jira-query.js; DAI:skills/produto/jira-story-publishing/SKILL.md:41-47 |
 | P19 | DAI README: 17 agents | 17 agent folders; README table has 18 rows (legacy orchestrator). | Confirmado (with note) | DAI:README.md:26,95-114 |
 | P20 | DAI is Claude-first and multi-engine capable | Export to claude, codex, opencode, antigravity (no separate Gemini); non-Claude loses hooks, subagent delegation, sandboxing, manifests, global rule injection. | Confirmado | DAI:scripts/export_native.py (untracked) |
-| P21 | EP numbering free | EP-16 is reserved by ADR-011 (stories 16.00-16.05, frontend); this work uses provisional EP-17 and ADR-012. ADR-011 is untracked on another branch; not verifiable in this worktree. | Proposto | raw-git-tests-memory-mapa.md:15 |
+| P21 | EP numbering free | Renumbered on 2026-11-01: EP-16 (frontend, ADR-011) and EP-17 (SQLite system of record with RBAC and audit, ADR-012 and ADR-013) are taken on main, so this work uses provisional EP-18 and ADR-014. Overlap with EP-17 is analysed in 10 section 8. | Proposto | raw-git-tests-memory-mapa.md:15 |
 | P22 | Story packages = "EP-14" (raw-git file wording) | `00-index.md` lists EP-14 as "Estado das telas"; the package/worktree code is in `tools/lib/opencode-package/`. Epic label unverified. | Desconhecido | docs/harness-evolution/00-index.md:43 |
 
 ## 5. The seven questions of 07-PROMPT-REVISAO-CRUZADA.md

@@ -1,4 +1,4 @@
-# 07 - Matriz de estados e gates - epic EP-17 (provisional)
+# 07 - Matriz de estados e gates - epic EP-18 (provisional)
 
 Status: proposal; nothing implemented. Basis: Harness a89703c, DAI 7248777 (read-only). IDs, events and fields come from 06.
 Tags: [Fact path:line], [Hypothesis], [Pending decision], [Proposed]. `svc/` = `ui/server/services/`.
@@ -79,7 +79,7 @@ DAI gates [Fact raw-dai-stories-gates.md:28; `DAI:workflows/feature-delivery/man
 | pr-opened | commit-pr | commit message matches Conventional Commits regex; SHA verified in `repoRoot` | explicit confirmation every time (`DAI:manifest.yaml:305`); Harness `APPROVAL_STAGES` | both |
 | deploy-validated | deploy | CI status and smoke test: no CI client in the Harness [Pending decision] | explicit confirmation every time (`DAI:manifest.yaml:317`) | human until a CI source exists |
 
-Evaluation record: `trace.gate.evaluated {gateId, mode, items[], evidenceIds[], result, storyRevision}`. Mechanical items run on the Harness side as pure functions over files and exit codes; the DAI prose `checks` remain the human checklist. Gate definitions are read from the pinned DAI manifest snapshot, never retyped (drift test, story 17.18).
+Evaluation record: `trace.gate.evaluated {gateId, mode, items[], evidenceIds[], result, storyRevision}`. Mechanical items run on the Harness side as pure functions over files and exit codes; the DAI prose `checks` remain the human checklist. Gate definitions are read from the pinned DAI manifest snapshot, never retyped (drift test, story 18.18).
 
 ## 5. Definition of Ready as a reproducible gate (`dor.v1`)
 

@@ -1,8 +1,10 @@
-# 05 - Decisoes e tradeoffs - epic EP-17 (provisional) / ADR-012 (draft)
+> UPDATE 2026-11-01: the storage recommendation (option B, trace facts in the per-project events.sqlite) and the ADR-014 draft below are WITHDRAWN. EP-17 (ADR-012, ADR-013) makes harness.sqlite with a hash-chained audit log and protected retention classes the system of record. See 11-REALINHAMENTO-EP-17.md before using anything in this file about storage, retention or actors.
+
+# 05 - Decisoes e tradeoffs - epic EP-18 (provisional) / ADR-014 (draft)
 
 Status: proposal for review; nothing implemented. Basis: Harness a89703c, DAI 7248777 (read-only).
 Tags: [Fact path:line], [Hypothesis], [Pending decision]. `DAI:<path>` = DAI evidence. `svc/` = `ui/server/services/`.
-Numbering: EP-16 is reserved by ADR-011 (stories 16.00-16.05, frontend), so this work uses provisional EP-17 and ADR-012. [Fact raw-git-tests-memory-mapa.md:15] ADR-011 is untracked on another branch and could not be re-read here. The last ADR in this worktree is ADR-010 (docs/harness-evolution/03-decisions/). The ADR-012 draft stays in this document; it is NOT placed under docs/harness-evolution.
+Numbering (updated 2026-11-01): EP-16 (frontend, ADR-011) and EP-17 (SQLite system of record with RBAC and audit, ADR-012 and ADR-013) already exist on main, so this work uses provisional EP-18 and ADR-014. The storage decision below was written before EP-17 existed and must be reconciled with it (see 10 section 8). The ADR-014 draft stays in this document; it is NOT placed under docs/harness-evolution.
 
 ## 1. Storage alternatives (PLANO Fase 1: A / B / C)
 
@@ -28,7 +30,7 @@ Numbering: EP-16 is reserved by ADR-011 (stories 16.00-16.05, frontend), so this
 2. The ingest allowlist is closed; adding types requires updating it and the parity test with aliases (svc/events/event-type-allowlist.js:40-49). [Fact]
 3. The envelope has no `storyId`; `taskId` and `traceId` exist (svc/events/event-envelope.js:13-25). `taskId` is already used by `task.*` orchestration events (event-contract.js:50-55), so overloading it for stories would blur semantics. Recommendation: dedicated nullable columns, consistent with the stated rationale for columns over a JSON envelope (event-migrations.js:4-10). [Hypothesis]
 4. `projects/` is gitignored (raw-git-tests-memory-mapa.md:11), so the trace is local and unversioned. Backup is a [Pending decision].
-5. ADR-005 is still `status: proposta` although the store is implemented (ADR-005:4); ADR-012 should depend on it and ask for its acceptance. [Fact]
+5. ADR-005 is still `status: proposta` although the store is implemented (ADR-005:4); ADR-014 should depend on it and ask for its acceptance. [Fact]
 
 ### 1.3 Recommendation
 B, with this split: planning and lane facts stay in `scrum.json` (they are Scrum state; no duplication into events, the Timeline merges them); execution, evidence, gate, approval and link facts live in the event store. Scrum emits only pointer events if a cross-reference is needed. A is kept only for the small Scrum additions (`maturity`, `storyRevision`, `sprintHistory`). C is rejected for now: no requirement in the package needs outbox semantics that B plus idempotent best-effort emission cannot meet; revisit if a second writer process or remote sync appears (ADR-005 "Revisao" clause). [Hypothesis]
@@ -108,19 +110,19 @@ Decision [Proposed]: every state-changing trace or Scrum write carries
 
 Lane writes always pass `validateStoryTransition` (adjacent-only, origin check; svc/project-scrum-transitions.js:34-47). [Fact]
 
-## 10. ADR-012 draft (stays in this document)
+## 10. ADR-014 draft (stays in this document)
 
 ```markdown
 ---
-id: ADR-012
+id: ADR-014
 titulo: Rastreabilidade historia -> execucao -> commit -> evidencia sobre o event store por projeto
 status: proposta
 data: 2026-10-31
-historias: [17.01, 17.02, 17.03, 17.04, 17.05]   # provisional numbering, EP-17 not yet created
+historias: [18.01, 18.02, 18.03, 18.04, 18.05]   # provisional numbering, EP-18 not yet created
 tags: [harness-evolution, adr, scrum, rastreabilidade, dai, eventos]
 ---
 
-# ADR-012: Rastreabilidade de entrega sobre o event store por projeto
+# ADR-014: Rastreabilidade de entrega sobre o event store por projeto
 
 ## Contexto
 O Scrum persiste historias em `projects/<slug>/scrum.json` sem ator, sem historico de sprint e sem vinculo
