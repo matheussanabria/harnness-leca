@@ -7,15 +7,24 @@ const { runTurn, TurnError } = require("../opencode-v2-turn");
 const { resolveOpenCodeUrl, invalidateOpenCodeUrl, ocFetch, DEFAULT_URL } = require("../opencode-detect");
 const { withQualityRetry } = require("../hia/quality-retry");
 const { recordExecution } = require("../hia/telemetry");
+const { runSensors, summarizeErrors } = require("../hia/sensors");
+
+const SENSOR_BUDGET_MS = 8000; // the answer is already on screen; sensors must not hold the done event for long
 
 // Telemetry must never break a chat turn; unit tests (HARNESS_ROOT) skip the disk write.
-function recordGate(/** @type {string} */ model, /** @type {{ok: boolean, code: string}} */ gate) {
+function recordGate(/** @type {string} */ model, /** @type {{ok: boolean, code: string}} */ gate, /** @type {{findings: Array<{sensor: string, severity: string, lang?: string}>} | null} */ sensors = null) {
   if (process.env.HARNESS_ROOT) return;
+  const findings = sensors?.findings || [];
   try {
     recordExecution({
       executionId: `exec-${Date.now()}`, executorType: "opencode", executorId: model || "default",
       status: gate.ok ? "succeeded" : "flagged", durationMs: 0, tokensPrompt: 0, tokensCompletion: 0, tokensTotal: 0, tokensSaved: 0,
       qualityGate: gate.code,
+      ...(findings.length ? {
+        sensorErrors: findings.filter((f) => f.severity === "error").length,
+        sensorWarnings: findings.filter((f) => f.severity === "warning").length,
+        sensorCodes: [...new Set(findings.map((f) => `${f.sensor}:${f.lang || "text"}`))].slice(0, 12).join(","),
+      } : {}),
     });
   } catch {}
 }
@@ -90,9 +99,16 @@ async function streamOpenCode({ prompt, slug, sessionId, model, effort, daiAgent
       notice: (text) => onChunk({ type: "thinking", text: `\n[Quality gate] ${text}\n`, sessionId: sId }),
     });
     if (result.aborted) return;
-    recordGate(result.retriedWith || model, result.gate);
+
+    // Deterministic checks of the code in the answer (syntax, lint, secrets, emoji, tests, Mermaid). Report-only and
+    // time-boxed: errors become one short notice, everything goes to telemetry and to the done event.
+    const sensors = await runSensors(result.text, { budgetMs: SENSOR_BUDGET_MS }).catch(() => null);
+    const sensorErrors = sensors ? summarizeErrors(sensors.findings) : [];
+    if (sensorErrors.length) onChunk({ type: "thinking", text: `\n[Sensors] ${sensorErrors.join("; ")}\n`, sessionId: sId });
+    recordGate(result.retriedWith || model, result.gate, sensors);
     onDone({
       sessionId: result.sessionId || sId, fullText: result.text, qualityGate: result.gate,
+      ...(sensors && !sensors.disabled ? { sensors: { findings: sensors.findings.slice(0, 20), skipped: sensors.skipped, ms: sensors.ms } } : {}),
       ...(result.replaced ? { replaceText: true, retriedWith: result.retriedWith } : {}),
     });
   } catch (err) {
