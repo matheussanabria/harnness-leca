@@ -33,7 +33,12 @@ async function api(base, method, route, { body, signal, fetchFn = ocFetch } = {}
 /** { providerID, modelID } do harness -> { id, providerID } da API v2. */
 const v2Model = (/** @type {string} */ model) => { const r = toModelRef(model); return { id: r.modelID, providerID: r.providerID }; };
 
-/** @returns {Promise<string>} id da sessão (ses_...) */
+/**
+ * @param {string} base
+ * @param {{ model?: string, agent?: string, permissions?: any }} [session]
+ * @param {any} [opts]
+ * @returns {Promise<string>} id da sessão (ses_...)
+ */
 async function createSession(base, { model, agent, permissions } = {}, opts = {}) {
   const body = {};
   if (model) body.model = v2Model(model);
@@ -88,7 +93,7 @@ function summarizeTurn(data, since) {
   if (!error && idle && finish === "length" && !text.trim()) {
     error = "O modelo esgotou a cota máxima de tokens em raciocínio interno antes de produzir a resposta. Simplifique o pedido ou peça uma etapa por vez.";
   }
-  return { reasoning, text, done: !!idle, outcome: idle?.outcome || "", error: error || "" };
+  return { reasoning, text, done: !!idle, outcome: idle?.outcome || "", error: error || "", finish };
 }
 
 /** A sessão ainda está executando no servidor? (GET /api/session/active lista { [id]: { type: "running" } }) */

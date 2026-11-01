@@ -164,7 +164,8 @@ export async function sendChatMessage(presentation = "main") {
               setEngineSession(P.slug, chatId, cs.currentEngine, data.sessionId);
             }
             applyHiaFeedback(assistantTurn, data, setChatStatus);
-            if (data.fullText && !assistantTurn.text) {
+            // replaceText: the quality gate retried a bad answer; the streamed text is replaced by the retry's.
+            if (data.fullText && (!assistantTurn.text || data.replaceText)) {
               assistantTurn.text = data.fullText;
             }
             if (document.body.classList.contains("studio-active") && window.reloadStudioIframe) setTimeout(window.reloadStudioIframe, 350);

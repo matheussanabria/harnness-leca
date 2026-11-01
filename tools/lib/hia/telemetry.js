@@ -23,6 +23,11 @@ const TELEMETRY_DIR = path.join(ROOT, "logs/telemetry");
  * @property {string} [startedAt]
  * @property {string} [completedAt]
  * @property {string} [error]
+ * @property {string} [suggestedCombo] combo of 9Router the router would pick (cloud route only)
+ * @property {string} [suggestedType] SDLC task type behind the suggestion
+ * @property {string} [project] project slug
+ * @property {string} [promptPreview] short redacted prompt excerpt for manual review
+ * @property {string} [qualityGate] quality gate code of the answer (ok, empty, truncated, fake_tool_call)
  */
 
 /**
