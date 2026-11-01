@@ -1,4 +1,4 @@
-# 09 - Plano de testes, rollback e observabilidade - epic EP-17 (provisional)
+# 09 - Plano de testes, rollback e observabilidade - epic EP-18 (provisional)
 
 Status: proposal; no test written, nothing run. Basis: Harness a89703c.
 Tags: [Fact path:line], [Hypothesis], [Pending decision], [Proposed].
@@ -13,7 +13,7 @@ Tags: [Fact path:line], [Hypothesis], [Pending decision], [Proposed].
 | `npm run regressao` | package.json:24 (`scripts/regressao.js`, content not read) | only if SP-7 shows it covers server code |
 | `npm run types` / `npm run types:baseline` | package.json:25-26 | new `// @ts-check` files must not add to the baseline |
 | `node tools/mapa.js check` / `find` / `build --write` | CLAUDE.md map rule | every new file needs a map row; pre-commit blocks otherwise |
-| `HARNESS_SKIP_TESTS=1` | scripts/pre-commit.js (raw-git-tests-memory-mapa.md:8) | never used to land EP-17 stories |
+| `HARNESS_SKIP_TESTS=1` | scripts/pre-commit.js (raw-git-tests-memory-mapa.md:8) | never used to land EP-18 stories |
 
 Test style to copy [Fact]: `node:test` + `node:assert/strict`; temp root `fs.mkdtempSync` assigned to `process.env.HARNESS_ROOT` before requiring the store (`tests/event-envelope.test.js:11-15`, `tests/central-events-retention.test.js:13-14`); per-test slug dirs; `store.closeStore(slug)` and `removeDir` in `test.after` (`tests/helpers/temp-dir`); HTTP tests call `handle` from `ui/server/router` with a fake req/res (`tests/central-events-retention.test.js:33-48`); retention limits mutate `RETENTION` and restore it (:26-30); workflow bridge tests use the real runner with the real store (`tests/workflow-event-bridge.test.js`).
 Levels: U unit (pure function), I integration (temp HARNESS_ROOT + real SQLite/JSON), H HTTP (router + fake req), P process (two `node:child_process` workers), G git (temp repo built with `git`, needs git on PATH), E end-to-end (I + H + G chained, stub engine).
@@ -48,7 +48,7 @@ Run any row with `node --test tests/<file>`. New files marked (new); extended ex
 | T21 | Engine failure, retry, cancel, resume (DO) | new `attemptId` per retry, max 2, tests/review fall back to dev; cancel final; replay no dup | `tests/workflow-attempt-events.test.js` (ext) | I |
 | T22 | Stale run after restart (DO "reprocess") | `trace.run.abandoned` inferred once; shown as orphan | `tests/trace-reconciler.test.js` | I |
 | T23 | Reopen, block, carry-over (DO) | reopen -> `ready -> refining` with history; impediment keeps history (`scrum-impediments-metrics.test.js` stays green); carry-over writes entry | `tests/project-scrum-sprint-history.test.js` | I |
-| T24 | Story without Design vs Design + Dev (DO) | variant stage lists differ; missing skipped stages recorded, not failed (depends on 17.21) | `tests/workflow-trace-binding.test.js` | I |
+| T24 | Story without Design vs Design + Dev (DO) | variant stage lists differ; missing skipped stages recorded, not failed (depends on 18.21) | `tests/workflow-trace-binding.test.js` | I |
 | T25 | Gate pass without observed evidence | rejected | `tests/trace-ingest-wrapper.test.js` | U |
 | T26 | Client forges `observed` via `POST /events` | rejected or stored declared | `tests/trace-ingest-wrapper.test.js` | H |
 | T27 | `trust=declared` still rejected | 422 `trust_declared_forbidden` (`event-ingest.js:72-74`) | `tests/event-envelope.test.js` (ext) | U |
@@ -68,12 +68,12 @@ Adding a new source file also needs `scripts/lib/affected-tests.js` to map it to
 | Phase / story | Change | Rollback | Data risk |
 |---|---|---|---|
 | P0 spikes | none | none | none |
-| P1 17.01-17.03 event contract | nullable columns, new allowlist entries, wrapper | revert code; leave columns (never lowered, `event-migrations.js:57-58`, `:63`); old code ignores them | OLD retention code would prune `trace.*` under the 20000 cap: before reverting code, stop the server and copy `projects/<slug>/coordination/events.sqlite` plus `-wal`/`-shm` files [Hypothesis on WAL file names: `PRAGMA journal_mode = WAL`, event-store.js:69] |
-| P1 17.02 retention | exemption | revert; audit rows become prunable again | same as above |
-| P2 17.04-17.08 scrum v3 | new story fields, `sprintHistory`, schema 3 | `rollbackScrumFile(file, 2)` (`project-scrum-migration.js:96-109`) restores `scrum.v2.backup.json`; first copy the v3 file to `scrum.v3.discarded.<ts>.json`; then revert code | loses maturity/sprintHistory written after migration; trace events keep sprint facts. Old code against a v3 file throws `UNSUPPORTED_SCRUM_SCHEMA` (loud, no silent loss). Stale backup rule: after rollback rename the used backup, or the next migration keeps an old copy (`COPYFILE_EXCL`, migration.js:89-91) |
-| P3 17.09-17.12 binding, collector, timeline | emission and read-only UI | per-project switch off [Proposed env `HARNESS_TRACE_ENABLED`, new flag, to be decided]; revert code; events stay | none; projections are rebuildable |
-| P4 17.13-17.19 | test collector, gates, approvals | switch off emission; approvals fall back to current free-text behaviour (raw-harness-sprint-workflow.md:23) | in-flight approvals with nonce become unresolvable; list them first |
-| P5 17.20-17.26 | optional | revert | none |
+| P1 18.01-18.03 event contract | nullable columns, new allowlist entries, wrapper | revert code; leave columns (never lowered, `event-migrations.js:57-58`, `:63`); old code ignores them | OLD retention code would prune `trace.*` under the 20000 cap: before reverting code, stop the server and copy `projects/<slug>/coordination/events.sqlite` plus `-wal`/`-shm` files [Hypothesis on WAL file names: `PRAGMA journal_mode = WAL`, event-store.js:69] |
+| P1 18.02 retention | exemption | revert; audit rows become prunable again | same as above |
+| P2 18.04-18.08 scrum v3 | new story fields, `sprintHistory`, schema 3 | `rollbackScrumFile(file, 2)` (`project-scrum-migration.js:96-109`) restores `scrum.v2.backup.json`; first copy the v3 file to `scrum.v3.discarded.<ts>.json`; then revert code | loses maturity/sprintHistory written after migration; trace events keep sprint facts. Old code against a v3 file throws `UNSUPPORTED_SCRUM_SCHEMA` (loud, no silent loss). Stale backup rule: after rollback rename the used backup, or the next migration keeps an old copy (`COPYFILE_EXCL`, migration.js:89-91) |
+| P3 18.09-18.12 binding, collector, timeline | emission and read-only UI | per-project switch off [Proposed env `HARNESS_TRACE_ENABLED`, new flag, to be decided]; revert code; events stay | none; projections are rebuildable |
+| P4 18.13-18.19 | test collector, gates, approvals | switch off emission; approvals fall back to current free-text behaviour (raw-harness-sprint-workflow.md:23) | in-flight approvals with nonce become unresolvable; list them first |
+| P5 18.20-18.26 | optional | revert | none |
 
 Rules: migrations first (reversible, tested), behaviour second, UI last; each story independently revertable; no story edits `lanes`, `lanesRevision` or existing history records.
 

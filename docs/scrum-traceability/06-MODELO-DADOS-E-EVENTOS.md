@@ -1,4 +1,4 @@
-# 06 - Modelo de dados e eventos - epic EP-17 (provisional), ADR-012 (provisional)
+# 06 - Modelo de dados e eventos - epic EP-18 (provisional), ADR-014 (provisional)
 
 Status: proposal; nothing implemented. Basis: Harness a89703c, DAI 7248777 (read-only). Consistent with 04 and 05 (option B) except where divergences are marked; they are collected in 10 section 2.
 Tags: [Fact path:line], [Hypothesis], [Pending decision], [Proposed]. `svc/` = `ui/server/services/`, `ev/` = `ui/server/services/events/`.
@@ -83,7 +83,7 @@ Recommendation [Pending decision #8]: bump `SCRUM_SCHEMA_VERSION` to 3, because 
 | Rollback | `rollbackScrumFile(file, 2)` (migration.js:96-109) restores v2 atomically. Loses v3-only data written after migration (sprintHistory, maturity); the trace events keep the facts. Before rollback copy the v3 file to `scrum.v3.discarded.<ts>.json` [Proposed] |
 | Idempotency | second run is a no-op (`changed:false`); tests in `tests/project-scrum-migration.test.js` extended |
 | Save path | `saveProjectScrum` calls `migrateScrumData(cleanData)` (persist.js:93); `cleanData.schemaVersion` must be 3 after load or every save re-runs a step |
-| Lock | no lock exists around read-modify-write (migration.js:68-83). Out of this migration; see story 17.06 |
+| Lock | no lock exists around read-modify-write (migration.js:68-83). Out of this migration; see story 18.06 |
 
 ## 5. Event types `trace.*`
 
@@ -121,7 +121,7 @@ Idempotency precedent [Fact]: `chat|<runId>|run.started` (chat-run-telemetry.ser
 | validated | human approval or gate citing >= 1 observed evidence | `observed` | `native` | engine on approval/gate; Scrum for its own writes |
 | inferred link (not a class) | heuristics, stale-run detection | `inferred` | `inferred` | reconciler |
 
-Recommendation [Pending decision #2]: keep the frozen rule, carry the class in `payload.evidenceClass`, and let the wrapper (story 17.03) enforce it server-side: clients cannot choose `observed|validated`; the route/source stamps it. Alternative: allow `trust=declared` only for `trace.evidence.declared`, which unfreezes the contract.
+Recommendation [Pending decision #2]: keep the frozen rule, carry the class in `payload.evidenceClass`, and let the wrapper (story 18.03) enforce it server-side: clients cannot choose `observed|validated`; the route/source stamps it. Alternative: allow `trust=declared` only for `trace.evidence.declared`, which unfreezes the contract.
 Forgery surface [Fact]: `POST /events` accepts any allowlisted type (`ui/server/controllers/central-events.controller.js:145`), loopback only (:128-129). Adding `trace.*` to the shared allowlist would let any local client post `observed`. Wrapper must reject `trace.*` on the generic route, or force `evidenceClass=declared` there.
 
 ## 7. Ordering, replay, rebuild
