@@ -3,6 +3,7 @@
 // Formata histórico com tool-calls/results e extrai respostas estruturadas.
 const { getGeminiFunctionDeclarations, getOpenCodeTools } = require("./atelier-tools.service");
 const { parseToolTags } = require("./atelier-tool-tags.service");
+const { NAV_RULES } = require("./atelier-nav-contract.service");
 const V2 = require("../../../tools/lib/opencode-v2");
 const { runTurn, TurnError } = require("../../../tools/lib/opencode-v2-turn");
 const { ocFetch } = require("../../../tools/lib/opencode-detect");
@@ -243,6 +244,7 @@ Sua única responsabilidade é emitir tags estruturadas que o backend do Ateliê
 - Para aplicar CSS, também CRU no corpo: <tool name="atelier_patch_styles" mode="append">.card { padding: 16px; }</tool>
 - Para fazer perguntas necessárias: <tool name="atelier_ask_user">{"question":"...","options":["A","B"]}</tool>
 - Para finalizar: <tool name="atelier_complete">{"summary":"..."}</tool>
+${NAV_RULES}
 IMPORTANTE: Não tente usar bash, grep ou ferramentas do terminal. Não se preocupe com modo somente leitura: apenas emita as tags acima no texto da sua resposta e o sistema gravará o código. Prossiga imediatamente com a implementação.`;
 
     const fullPrompt = `${toolInstruction}\n\n${userText}`;

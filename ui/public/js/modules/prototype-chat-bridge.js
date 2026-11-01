@@ -23,7 +23,9 @@ const RULES = `Você está no Ateliê de Protótipos do harness. Gere/edite o pr
 <arquivo caminho="styles/proto.css">
 ...CSS...
 </arquivo>
-Caminhos permitidos: screens/<id>.html, styles/proto.css, data/*.json. Reescreva o arquivo inteiro quando alterá-lo. Depois dos blocos, explique em 1-2 frases o que mudou.`;
+Caminhos permitidos: screens/<id>.html, styles/proto.css, data/*.json. Reescreva o arquivo inteiro quando alterá-lo.
+Navegação: para ir a outra tela use <a href="#" data-action="goto:<screen-id>">. Nunca use href para arquivos (screens/x.html ou x.html) nem goto: dentro do href; <screen-id> é o nome do arquivo sem .html, e um link para tela que ainda não existe usa o ID que será criado.
+Depois dos blocos, explique em 1-2 frases o que mudou.`;
 
 /** Último contexto enviado ao motor: evita repetir regras e código a cada mensagem de uma sessão retomada. */
 let sent = null;
