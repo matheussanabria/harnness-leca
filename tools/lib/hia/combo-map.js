@@ -4,7 +4,8 @@
 // Os combos de experimento (fusion e smart) ficam fora do mapa e so entram por escolha explicita.
 
 const PROVIDER = "9router";
-const GENERAL_COMBO = "Harness";
+// The old all-purpose "Harness" combo was deleted from 9Router; general prompts stay on the default model.
+const GENERAL_COMBO = "harness-implementacao";
 
 /** Tipo de tarefa -> nome do combo no 9Router. */
 const COMBO_BY_TYPE = Object.freeze({

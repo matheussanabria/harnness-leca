@@ -5,10 +5,11 @@ const { checkAnswer } = require("./quality-gate");
 
 const RETRYABLE = new Set(["empty", "fake_tool_call"]);
 const DEFAULT_RETRY_MODEL = "opencode/deepseek-v4.1-flash-free";
-const FALLBACK_RETRY_MODEL = "9router/Harness";
+// Free-only combo (glm, minimax, lightning, gpt-oss-20b): the old all-free "Harness" combo no longer exists in 9Router.
+const FALLBACK_RETRY_MODEL = "9router/harness-loop";
 const FREE_RE = /(-free|:free)$/;
 
-/** A retry model must be free: built-in "-free" models, ":free" routes or the all-free Harness combo. */
+/** A retry model must be free: built-in "-free" models, ":free" routes or the free-only harness-loop combo. */
 const isFreeRetryModel = (/** @type {string} */ m) => FREE_RE.test(m) || m === FALLBACK_RETRY_MODEL;
 
 /**

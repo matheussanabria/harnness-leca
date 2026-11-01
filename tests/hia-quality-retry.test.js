@@ -11,7 +11,7 @@ function harness(first, second, env = {}) {
   const calls = { retryModels: /** @type {string[]} */ ([]), notices: /** @type {string[]} */ ([]) };
   return {
     calls,
-    run: (model = "9router/Harness") => withQualityRetry({
+    run: (model = "9router/harness-loop") => withQualityRetry({
       model,
       env,
       attempt: async () => first,
@@ -75,7 +75,7 @@ test("quality-retry - an aborted first attempt is returned untouched", async () 
 
 test("quality-retry - the retry model is free and different from the failed one", () => {
   assert.equal(pickRetryModel("9router/harness-bugs", {}), "opencode/deepseek-v4.1-flash-free");
-  assert.equal(pickRetryModel("opencode/deepseek-v4.1-flash-free", {}), "9router/Harness");
+  assert.equal(pickRetryModel("opencode/deepseek-v4.1-flash-free", {}), "9router/harness-loop");
   assert.equal(pickRetryModel("x", { HIA_RETRY_MODEL: "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free" }), "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free");
   assert.equal(pickRetryModel("x", { HIA_RETRY_MODEL: "cc/claude-sonnet-5-5" }), "", "a paid retry model is refused");
   assert.equal(isFreeRetryModel("9router/harness-review"), false, "combos with premium tails are not retry models");

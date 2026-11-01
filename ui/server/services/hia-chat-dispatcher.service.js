@@ -6,6 +6,7 @@ const { executeTool } = require("../../../tools/lib/hia/executor");
 const { recordExecution } = require("../../../tools/lib/hia/telemetry");
 const { localInferenceQueue } = require("../../../tools/lib/hia/guard");
 const { redact } = require("../../../tools/lib/redact");
+const { resolveComboModel, rememberCombo } = require("../../../tools/lib/hia/combo-routing");
 const E = require("../../../tools/lib/engines");
 const crypto = require("crypto");
 
@@ -16,17 +17,18 @@ const localModelOf = (targetId) => (typeof targetId === "string" && targetId.sta
  * Tenta resolver uma requisição de chat via Script-First ou Local-First
  * @param {{
  *   engine: string,
+ *   model?: string,
  *   prompt: string,
  *   slug: string,
  *   sessionId?: string,
  *   history?: any[],
  *   signal?: AbortSignal,
  *   sink: { onChunk: (data: any) => void, onDone: (data: any) => void, onError: (err: any) => void },
- *   fallbackStream: () => void
+ *   fallbackStream: (override?: { model?: string, onDone?: (data: any) => void }) => void
  * }} params
  * @returns {Promise<boolean>} Retorna true se a requisição foi interceptada e tratada localmente
  */
-async function handleChatWithHia({ engine, prompt, slug, sessionId, history, signal, sink, fallbackStream }) {
+async function handleChatWithHia({ engine, model, prompt, slug, sessionId, history, signal, sink, fallbackStream }) {
   const isEnabled = process.env.HIA_ROUTING_ENABLED !== "false";
   if (!isEnabled) {
     fallbackStream();
@@ -169,7 +171,10 @@ async function handleChatWithHia({ engine, prompt, slug, sessionId, history, sig
   }
 
   // ROTA 3: Cloud-on-Demand (motor solicitado pelo usuário)
-  // Registra o combo sugerido para medir, antes de aplicá-lo, quanto a sugestão difere do modelo usado.
+  // Com HIA_COMBO_ROUTING=true e o modelo "9router/Harness" escolhido, o turno roda no combo sugerido;
+  // a conversa mantém o combo nos turnos seguintes (memória por sessão do opencode).
+  const comboModel = resolveComboModel({ engine, model, sessionId, suggestion: decision.suggestedCombo });
+  // Registra o combo sugerido (e aplicado, se houve) para medir a sugestão contra o uso real.
   if (decision.suggestedCombo) {
     try {
       recordExecution({
@@ -184,11 +189,17 @@ async function handleChatWithHia({ engine, prompt, slug, sessionId, history, sig
         tokensSaved: 0,
         suggestedCombo: decision.suggestedCombo.combo,
         suggestedType: decision.suggestedCombo.type,
+        ...(comboModel ? { appliedCombo: comboModel } : {}),
         project: slug,
         // Short redacted excerpt so the suggestion can be audited by hand; never the full prompt.
         promptPreview: redact(String(prompt || "").slice(0, 400)).replace(/\s+/g, " ").slice(0, 120),
       });
     } catch {}
+  }
+  if (comboModel) {
+    sink.onChunk({ type: "thinking", text: `[HIA] Roteado para o combo ${comboModel.replace(/^9router\//, "")} (${decision.suggestedCombo?.type || "conversa em andamento"}).\n`, sessionId });
+    fallbackStream({ model: comboModel, onDone: (data) => rememberCombo(data?.sessionId || sessionId || "", comboModel) });
+    return false;
   }
   fallbackStream();
   return false;

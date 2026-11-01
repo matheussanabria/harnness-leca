@@ -122,9 +122,11 @@ async function apiChat({ req, res }) {
   res.on("close", () => tracker.onClose(res.writableFinished));
   tracker.start();
 
-  const fallbackStream = () => {
+  // `override` lets the HIA dispatcher run the turn on another model (a suggested 9Router combo) and observe the result.
+  const fallbackStream = (override = {}) => {
     const impl = E.engines.get(engine);
-    if (impl) impl.stream({ prompt, slug, sessionId, history, model, effort: eff, daiAgent, chatId, permissionUrl, signal: ac.signal, ...tracked });
+    const onDone = override.onDone ? (data) => { override.onDone(data); tracked.onDone(data); } : tracked.onDone;
+    if (impl) impl.stream({ prompt, slug, sessionId, history, model: override.model || model, effort: eff, daiAgent, chatId, permissionUrl, signal: ac.signal, ...tracked, onDone });
     else tracked.onError(new E.PublicError(`Motor "${engine}" não suportado.`));
   };
 
@@ -135,7 +137,7 @@ async function apiChat({ req, res }) {
   } catch {}
 
   // HIA Script-First / Local-First: intercepta automações determinísticas antes de gastar cota
-  Promise.resolve(handleChatWithHia({ engine, prompt, slug, sessionId, history, signal: ac.signal, sink: tracked, fallbackStream }))
+  Promise.resolve(handleChatWithHia({ engine, model, prompt, slug, sessionId, history, signal: ac.signal, sink: tracked, fallbackStream }))
     .catch((err) => tracked.onError(err));
 }
 

@@ -33,8 +33,8 @@ test("combo-map - pedidos operacionais e saudacoes ficam no combo geral", () => 
 test("combo-map - prompt sem palavra-chave cai no combo geral", () => {
   const s = suggestCombo("bom dia, tudo bem?");
   assert.equal(s.type, "general");
-  assert.equal(s.combo, "Harness");
-  assert.equal(s.modelRef, "9router/Harness");
+  assert.equal(s.combo, "harness-implementacao");
+  assert.equal(s.modelRef, "9router/harness-implementacao");
   assert.equal(s.source, "default");
 });
 
@@ -49,5 +49,8 @@ test("combo-map - mapa nao inclui combos de experimento nem entradas vazias", ()
   for (const combo of Object.values(COMBO_BY_TYPE)) {
     assert.ok(combo && !/fusion|smart/.test(combo), combo);
   }
-  assert.equal(new Set(Object.values(COMBO_BY_TYPE)).size, Object.keys(COMBO_BY_TYPE).length);
+  // "general" intentionally shares the default combo (harness-implementacao); every other type has its own.
+  const specific = Object.entries(COMBO_BY_TYPE).filter(([type]) => type !== "general").map(([, combo]) => combo);
+  assert.equal(new Set(specific).size, specific.length);
+  assert.equal(COMBO_BY_TYPE.general, "harness-implementacao");
 });
