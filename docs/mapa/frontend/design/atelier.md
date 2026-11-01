@@ -2,10 +2,10 @@
 domain: frontend
 module: design
 feature: atelier
-summary: Atelier prototype UI: view, state, shared context, messages, multi-select, canvas, layer tree, layout and catalog.
-paths: [ui/public/js/modules/prototype-atelier*.js, ui/public/js/modules/prototype-canvas-mode.js, ui/public/js/modules/prototype-layer-tree.js, ui/public/js/modules/prototype-workspace-layout.js, ui/public/js/modules/prototype-catalog.js, ui/public/js/modules/prototype-multiselect-model.js, ui/public/js/modules/prototype-inspector-toggle.js, tests/prototype-atelier-*.test.js, tests/studio-state.test.js, tests/chat-engine-settings.test.js]
-keywords: [atelier, prototype, canvas, layers, multiselect, iframe, state, adoption, sidebar, catalog]
-updated: 2026-10-30
+summary: Atelier prototype UI: view, state, context, messages, multi-select, navigation, canvas, layers, layout, catalog.
+paths: [ui/public/js/modules/prototype-atelier*.js, ui/public/js/modules/prototype-canvas-mode.js, ui/public/js/modules/prototype-layer-tree.js, ui/public/js/modules/prototype-workspace-layout.js, ui/public/js/modules/prototype-catalog.js, ui/public/js/modules/prototype-multiselect-model.js, ui/public/js/modules/prototype-nav-resolve.js, ui/public/js/modules/prototype-inspector-toggle.js, tests/prototype-atelier-*.test.js, tests/prototype-nav-resolve.test.js, tests/studio-state.test.js, tests/chat-engine-settings.test.js]
+keywords: [atelier, prototype, canvas, layers, multiselect, navigation, screens, resolver, iframe, state, adoption, sidebar, catalog]
+updated: 2026-10-31
 ---
 # Atelier Prototype UI
 
@@ -26,8 +26,10 @@ updated: 2026-10-30
 | `ui/public/js/modules/prototype-canvas-mode.js` | Canvas mode facade: mounts engine, interactions, toolbar and Play; routes bridge messages by `event.source`. |
 | `ui/public/js/modules/prototype-layer-tree.js` | Navigable hierarchical model, node search, expand/collapse and two-way sync with the preview. |
 | `ui/public/js/modules/prototype-multiselect-model.js` | Pure rules: Ctrl toggles, Shift ranges, groups only siblings; Ctrl+G groups into a real `<div data-group>`, Ctrl+Shift+G ungroups. |
+| `ui/public/js/modules/prototype-nav-resolve.js` | Pure resolver: `goto:orbit`, `screens/orbit.html`, `./screens/orbit.html`, `orbit.html` and `orbit` (dropping `#`/`?`) become a screen ID; reports screen, planned, external or none. |
 | `ui/public/js/modules/prototype-inspector-toggle.js` | Inspector button toggles outlines and selection; when off, screens run live (play mode) in single screen and canvas. |
 | `tests/prototype-atelier-split.test.js` | Runs multi-select and iframe messages for real with a minimal DOM. |
+| `tests/prototype-nav-resolve.test.js` | Covers every accepted navigation format, planned screens, external links, anchors/empty and invalid IDs. |
 | `tests/studio-state.test.js` | Covers Studio state normalization, patches and restoration. |
 | `tests/prototype-atelier-state.test.js` | Covers Atelier state, prototype reopening and field limits in the registry (EP-14.08). |
 | `tests/prototype-atelier-chat.test.js` | Covers chat return and reattach even after the node leaves the document. |
