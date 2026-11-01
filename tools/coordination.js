@@ -56,8 +56,9 @@ function prepare(command, project, storyId, argv, base) {
 }
 
 function sprint(project, ids, io) {
+  if (!ids.length) throw new CliError("Informe as historias do sprint, por exemplo: sprint EP-05.02 EP-06.01.");
   const state = service.get(ROOT, project);
-  const { waves, unscoped } = flow.planWaves(state.stories, ids.filter((id) => !id.startsWith("--")));
+  const { waves, unscoped } = flow.planWaves(state.stories, ids);
   waves.forEach((wave, i) => io.log(`Wave ${i + 1} (parallel): ${wave.join(", ")}`));
   if (unscoped.length) io.log(`Warning: no declared file scope (run alone): ${unscoped.join(", ")}. Add owns: [globs] to the story.`);
 }
@@ -98,7 +99,7 @@ function run(argv, io = console) {
       io.log(`Notificacao registrada para ${result.event.payload.to}.`);
       return;
     }
-    if (command === "sprint") return sprint(project, argv.slice(2), io);
+    if (command === "sprint") return sprint(project, argv.slice(1).filter((id) => /^EP-\d{2}\.\d{2}$/.test(id)), io);
     const storyId = argv[1];
     if (!storyId) throw new CliError(`Informe a historia, por exemplo EP-05.02.`);
     if (command === "delegate") return delegateCommand(project, storyId, argv, io);
