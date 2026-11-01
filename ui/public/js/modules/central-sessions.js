@@ -5,6 +5,7 @@
 import { createHttpSessionClient } from "./central-sessions-api.js";
 import { renderCentral } from "./central-sessions-view.js";
 import { createCentralLiveSubscription } from "./central-live.js";
+import { bindPager } from "../shared/pagination.js";
 import { executeSessionAction } from "./central-action-dispatcher.js";
 import {
   ATTENTION_STATUS,
@@ -31,6 +32,7 @@ export function createCentralState(state = {}) {
     query: String(state.query || ""),
     filters: { ...(state.filters || {}) },
     selectedId: String(state.selectedId || ""),
+    page: Math.max(1, Number(state.page) || 1),
     sessions: [],
     detail: null,
     generatedAt: "",
@@ -104,6 +106,7 @@ export function renderCentralInto(container, state) {
     sessions: state.sessions,
     detail: state.detail,
     selectedId: state.selectedId,
+    page: state.page,
     generatedAt: state.generatedAt,
     source: state.source,
     liveStatus: state.liveStatus,
@@ -122,7 +125,7 @@ export function setupCentralListeners(container, state, onChange, client) {
   if (!container) return;
 
   const search = /** @type {HTMLInputElement | null} */ (container.querySelector("#centralSearch"));
-  search?.addEventListener("input", () => onChange({ ...state, query: search.value }));
+  search?.addEventListener("input", () => onChange({ ...state, query: search.value, page: 1 }));
 
   const refresh = container.querySelector("#centralRefresh");
   refresh?.addEventListener("click", () => {
@@ -136,14 +139,14 @@ export function setupCentralListeners(container, state, onChange, client) {
       const filters = { ...state.filters };
       if (select.value) filters[name] = select.value;
       else delete filters[name];
-      onChange({ ...state, filters });
+      onChange({ ...state, filters, page: 1 });
     });
   }
 
   for (const button of Array.from(container.querySelectorAll("[data-view]"))) {
     button.addEventListener("click", () => {
       const view = button.getAttribute("data-view") === "kanban" ? "kanban" : "list";
-      onChange({ ...state, view });
+      onChange({ ...state, view, page: 1 });
     });
   }
 
@@ -164,6 +167,8 @@ export function setupCentralListeners(container, state, onChange, client) {
       }
     });
   }
+
+  bindPager(container, (page) => onChange({ ...state, page }), "central");
 
   for (const row of Array.from(container.querySelectorAll("[data-session-id]:not([data-session-action])"))) {
     const id = row.getAttribute("data-session-id") || "";

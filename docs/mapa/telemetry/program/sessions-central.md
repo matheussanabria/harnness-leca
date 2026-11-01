@@ -5,7 +5,7 @@ feature: sessions-central
 summary: Merge of the EP-09 session projection into the Central read model and the redesigned Central sessions UI.
 paths: [ui/server/services/canonical-sessions/session-projection-merge.js, ui/server/services/canonical-sessions/session-registry-orchestrator.service.js, ui/server/services/events/event-projector.js, ui/public/js/modules/central-sessions*.js, tests/central-sessions-*.test.js, tests/central-projection-usage.test.js]
 keywords: [central, sessions, projection-merge, kanban, origin, readCentral, phantom-session]
-updated: 2026-10-30
+updated: 2026-11-01
 ---
 # Central sessions merge and UI
 
@@ -19,7 +19,7 @@ updated: 2026-10-30
 | `ui/public/js/modules/central-sessions-toolbar.js` | Header with three stat cards and toolbar with search, filters, refresh and mode toggle. |
 | `ui/public/js/modules/central-sessions-card.js` | Structured 6-column list rows and kanban cards for the redesigned Central views. |
 | `ui/public/js/modules/central-sessions-view.js` | List and Kanban composition of the Central, re-exporting detail, toolbar and cards. |
-| `ui/public/js/modules/central-sessions.js` | Central controller; requests up to 200 sessions so the totals line counts the merged list. |
+| `ui/public/js/modules/central-sessions.js` | Central controller; requests up to 200 sessions so the totals line counts the merged list; the view renders 25 per page (`page` in state, reset on search/filter/view change). |
 | `tests/central-sessions-ui.test.js` | Tests for the redesigned Central UI: stat cards, toolbar, 6 columns, muted neutral states, line caps, dock spacing. |
 | `tests/central-projection-usage.test.js` | Proof of the phantom-session cause and the projector fix (usage events kept, no session views). |
 | `tests/central-sessions-projection.test.js` | Merge with dedup (external, chat, markdown), filters and totals on merged list, UI rendering of list, kanban, detail. |
