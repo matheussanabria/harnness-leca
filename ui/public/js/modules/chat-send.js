@@ -89,6 +89,7 @@ export async function sendChatMessage(presentation = "main") {
         assistantTurn,
         onRender: () => renderChatHistory(),
         onReloadProto: () => atelierCtx.reload?.(),
+        onFocusScreen: (id) => atelierCtx.focusScreen?.(id),
         onSendAnswer: (ans) => {
           const inp = $(chatPresentation(presentation).input) || (state.isStudioMode ? $("studioChatInput") : $("chatInput"));
           if (inp) {

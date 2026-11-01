@@ -1,8 +1,6 @@
-// @ts-check
-// Cabeçalho, resumo, busca e filtros da Central de Sessões (HTML puro, sem DOM).
-
 import { formatTimestamp } from "./central-sessions-model.js";
 import { esc } from "./central-sessions-format.js";
+import { renderLiveStatusBadge } from "./central-live.js";
 
 /**
  * @param {number} value
@@ -31,16 +29,19 @@ function statCard(item) {
 }
 
 /**
- * Cabeçalho com título e os três cards de resumo.
- * @param {{ slug: string, summary: object, generatedAt: string }} params
+ * Cabeçalho com título, status SSE e os três cards de resumo.
+ * @param {{ slug: string, summary: object, generatedAt: string, liveStatus?: object }} params
  * @returns {string}
  */
 export function renderCentralHeader(params) {
-  const { slug, summary, generatedAt } = params;
+  const { slug, summary, generatedAt, liveStatus } = params;
   return `
     <header class="central-header">
       <div class="central-header__titles">
-        <h3 class="central-header__title"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Central de Sessões</h3>
+        <div class="central-header__main">
+          <h3 class="central-header__title"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Central de Sessões</h3>
+          ${liveStatus ? renderLiveStatusBadge(liveStatus) : ""}
+        </div>
         <p class="central-header__subtitle">Projeto ${esc(slug)} · atualizado em ${esc(formatTimestamp(generatedAt))}</p>
       </div>
       <div class="central-stats" role="list" aria-label="Resumo das sessões">

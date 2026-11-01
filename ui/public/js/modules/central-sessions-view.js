@@ -72,7 +72,7 @@ export function renderCentralKanban(sessions) {
 /**
  * Composição da Central.
  * @param {{ slug: string, view: string, query: string, filters: object, options: object,
- *   sessions: object[], detail: object | null, selectedId: string, generatedAt: string, source: string }} params
+ *   sessions: object[], detail: object | null, selectedId: string, generatedAt: string, source: string, liveStatus?: object }} params
  * @returns {string}
  */
 export function renderCentral(params) {
@@ -81,7 +81,7 @@ export function renderCentral(params) {
   const selected = sessions.find((session) => session.id === params.selectedId) || null;
   return `
     <section class="central" data-source="${esc(params.source || "live")}">
-      ${renderCentralHeader({ slug: params.slug, summary, generatedAt: params.generatedAt })}
+      ${renderCentralHeader({ slug: params.slug, summary, generatedAt: params.generatedAt, liveStatus: params.liveStatus })}
       ${renderCentralToolbar({ query: params.query, view: params.view })}
       ${renderCentralFilters({ filters: params.filters, options: params.options })}
       <div class="central-body">

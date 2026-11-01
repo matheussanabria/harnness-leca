@@ -8,6 +8,16 @@ import {
   bindQuestionCardActions,
 } from "./prototype-atelier-agent-ui.js";
 
+/** Remove blocos estruturados (<tool>, <ferramenta>, <arquivo>) do texto exibido no chat. */
+export function stripToolTags(text) {
+  return String(text || "")
+    .replace(/<\s*(?:tool|ferramenta)\s+(?:name|nome)\s*=[\s\S]*?<\/\s*(?:tool|ferramenta)\s*>/gi, "")
+    .replace(/<\s*(?:tool|ferramenta)\s+(?:name|nome)\s*=[\s\S]*$/i, "")
+    .replace(/<\s*arquivo\s+caminho\s*=[\s\S]*?<\/\s*arquivo\s*>/gi, "")
+    .replace(/<\s*arquivo\s+caminho\s*=[\s\S]*$/i, "")
+    .trim();
+}
+
 /**
  * Executa o loop do agente do Ateliê via SSE.
  * @param {object} options
@@ -23,6 +33,7 @@ import {
  * @param {object} options.assistantTurn
  * @param {() => void} options.onRender
  * @param {() => void} options.onReloadProto
+ * @param {(screenId: string) => void} [options.onFocusScreen]
  * @param {(answer: string) => void} options.onSendAnswer
  * @param {(status: string) => void} options.setStatus
  */
@@ -39,6 +50,7 @@ export async function runAtelierAgentStream({
   assistantTurn,
   onRender,
   onReloadProto,
+  onFocusScreen,
   onSendAnswer,
   setStatus,
 }) {
@@ -106,10 +118,11 @@ export async function runAtelierAgentStream({
           onRender();
         } else if (evt.type === "text" && evt.text) {
           assistantTurn.phase = "answering";
-          assistantTurn.text = (assistantTurn.text || "") + evt.text;
+          assistantTurn.text = stripToolTags((assistantTurn.text || "") + evt.text);
           onRender();
         } else if (evt.type === "tool_exec_start") {
           setStatus(`Executando ferramenta ${evt.name}...`);
+          if (evt.name === "atelier_write_screen" && evt.args?.screenId) onFocusScreen?.(evt.args.screenId);
           assistantTurn.atelierTools.push({ name: evt.name, status: "executing" });
           onRender();
         } else if (evt.type === "tool_exec_end") {

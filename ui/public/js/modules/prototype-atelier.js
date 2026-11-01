@@ -99,6 +99,7 @@ function renderAtelierLayout(container) {
     getScreen: () => ctx.screen,
     // Atualiza a tela sem reescrever o layout: o chat e o inspetor permanecem no lugar.
     reload: () => void refreshAtelierPreview(),
+    focusScreen: (id) => { ctx.screen = id; persistAtelierScreen(id); },
     mcpServer: ctx.options.mcpServer,
   });
   bindAtelierEvents(container);
@@ -117,6 +118,9 @@ async function refreshAtelierPreview() {
     if (versionsResponse.ok) ctx.versions = (await versionsResponse.json()).versions || [];
     const screens = ctx.data?.screens || [{ id: "home", title: "Início" }];
     if (!screens.some((screen) => screen.id === ctx.screen)) {
+      if (!screens.some((s) => s.id === ctx.screen) && ctx.screen && ctx.screen !== "home") {
+        screens.push({ id: ctx.screen, title: ctx.screen, file: `screens/${ctx.screen}.html` });
+      } else
       ctx.screen = ctx.data?.activeScreen || screens[0]?.id || "home";
     }
     const select = /** @type {HTMLSelectElement} */ ($("atelierScreenSelect"));
@@ -159,17 +163,19 @@ async function fetchPrototypeComponents() {
 function locateComponent(componentId) {
   const comp = (ctx.components.components || []).find((c) => c.id === componentId);
   const target = comp?.screens.find((s) => s.screenId === ctx.screen && s.pids.length)
-    || comp?.screens.find((s) => s.pids.length);
-  if (!target) { showToast("Esta instância não tem identificador (data-pid) no HTML da tela."); return; }
-  const pid = target.pids[0];
+    || comp?.screens.find((s) => s.pids.length)
+    || comp?.screens[0];
+  if (!target) { showToast("This component has no linked documentation screen."); return; }
+  const pid = target.pids[0] || "";
   if (target.screenId === ctx.screen) {
-    postToPrototype({ type: "HARNESS_PROTO_SELECT_BY_PID", pid });
+    if (pid) postToPrototype({ type: "HARNESS_PROTO_SELECT_BY_PID", pid });
+    else reloadIframe();
     return;
   }
   ctx.screen = target.screenId;
   const select = /** @type {HTMLSelectElement} */ ($("atelierScreenSelect"));
   if (select) select.value = target.screenId;
-  ctx.pendingPid = pid;
+  ctx.pendingPid = pid || null;
   reloadIframe();
 }
 

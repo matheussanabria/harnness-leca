@@ -66,7 +66,9 @@ function delegate(request, deps = {}) {
   if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) throw new Error(`Directory not found: ${dir}`);
   if (!fs.existsSync(promptFile) || !fs.statSync(promptFile).isFile()) throw new Error(`Prompt file not found: ${promptFile}`);
   if (combo && !request.allowCombo) throw new Error(`Refused 9Router combo without --allow-combo: ${model}`);
-  if (!combo && !isFreeOpencodeModel(model)) throw new Error(`Refused non-free OpenCode model: ${model}`);
+  const isExplicit = Boolean(request.model);
+  const isAllowed = Boolean(combo) || isFreeOpencodeModel(model) || (isExplicit && (request.allowPaid || /^(?:openrouter\/)?minimax\//i.test(model)));
+  if (!isAllowed) throw new Error(`Refused non-free OpenCode model: ${model}`);
   const bin = (deps.resolveBin || resolveOpencodeBin)();
   if (!bin) throw new Error("OpenCode executable not found.");
 

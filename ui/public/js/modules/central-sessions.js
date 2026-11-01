@@ -4,6 +4,8 @@
 
 import { createHttpSessionClient } from "./central-sessions-api.js";
 import { renderCentral } from "./central-sessions-view.js";
+import { createCentralLiveSubscription } from "./central-live.js";
+import { executeSessionAction } from "./central-action-dispatcher.js";
 import {
   ATTENTION_STATUS,
   CONFIDENCE,
@@ -34,6 +36,7 @@ export function createCentralState(state = {}) {
     generatedAt: "",
     source: "live",
     warnings: [],
+    liveStatus: { state: "disconnected", cursor: "", lastUpdatedAt: "", retryCount: 0 },
     ...state,
   };
 }
@@ -103,6 +106,7 @@ export function renderCentralInto(container, state) {
     selectedId: state.selectedId,
     generatedAt: state.generatedAt,
     source: state.source,
+    liveStatus: state.liveStatus,
   });
 }
 
@@ -143,7 +147,25 @@ export function setupCentralListeners(container, state, onChange, client) {
     });
   }
 
-  for (const row of Array.from(container.querySelectorAll("[data-session-id]"))) {
+  // Ações da sessão (Abrir conversa, Retomar sessão, etc)
+  for (const btn of Array.from(container.querySelectorAll("[data-session-action]"))) {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const actionId = btn.getAttribute("data-session-action") || "";
+      const sessionId = btn.getAttribute("data-session-id") || "";
+      const session = state.sessions.find((s) => s.id === sessionId) || state.detail?.session || null;
+      if (session) {
+        executeSessionAction(actionId, session, {
+          slug: state.slug,
+          reRender: () => {
+            if (client) loadCentral(state, client).then((next) => onChange(next));
+          },
+        });
+      }
+    });
+  }
+
+  for (const row of Array.from(container.querySelectorAll("[data-session-id]:not([data-session-action])"))) {
     const id = row.getAttribute("data-session-id") || "";
     const select = () => {
       const next = { ...state, selectedId: id };
@@ -164,23 +186,47 @@ export function setupCentralListeners(container, state, onChange, client) {
 }
 
 /**
- * Atalho de uso: cria estado, carrega e desenha.
+ * Atalho de uso: cria estado, carrega, desenha e assina o stream ao vivo.
  * @param {HTMLElement} container
- * @param {{ slug: string, client?: object, state?: object }} params
- * @returns {Promise<object>}
+ * @param {{ slug: string, client?: object, state?: object, autoLive?: boolean }} params
+ * @returns {Promise<{ state: object, subscription?: object }>}
  */
 export async function mountCentral(container, params) {
   const client = params.client || createHttpSessionClient();
   let state = createCentralState({ ...(params.state || {}), slug: params.slug });
   state = await loadCentral(state, client);
-  renderCentralInto(container, state);
-  setupCentralListeners(container, state, (next) => {
-    state = next;
+
+  const rebind = () => {
     renderCentralInto(container, state);
     setupCentralListeners(container, state, (updated) => {
       state = updated;
-      renderCentralInto(container, state);
+      rebind();
     }, client);
-  }, client);
-  return state;
+  };
+
+  rebind();
+
+  // Assinatura ao vivo via SSE se habilitado (padrão true)
+  let subscription;
+  if (params.autoLive !== false && typeof EventSource !== "undefined") {
+    subscription = createCentralLiveSubscription({
+      slug: state.slug,
+      onEvent: () => {
+        loadCentral(state, client).then((next) => {
+          state = next;
+          rebind();
+        });
+      },
+      onStatusChange: (liveStatus) => {
+        state = { ...state, liveStatus };
+        const badgeContainer = container.querySelector(".central-live-badge");
+        if (badgeContainer) {
+          rebind();
+        }
+      },
+    });
+    subscription.connect();
+  }
+
+  return { state, subscription };
 }

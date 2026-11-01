@@ -1,0 +1,71 @@
+/* Estilos do selo de atividade dos motores (EP-09.06) */
+.engine-activity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  background-color: var(--surface-secondary, #2a2d34);
+  color: var(--text-primary, #e2e8f0);
+  border: 1px solid var(--border-subtle, #3f4451);
+  transition: all 0.2s ease-in-out;
+}
+
+.engine-activity-badge.badge-offline {
+  opacity: 0.6;
+  border-color: #4b5563;
+  color: #9ca3af;
+}
+
+.engine-activity-badge.activity-reading {
+  border-color: #3b82f6;
+  color: #60a5fa;
+}
+
+.engine-activity-badge.activity-planning {
+  border-color: #8b5cf6;
+  color: #a78bfa;
+}
+
+.engine-activity-badge.activity-thinking {
+  border-color: #ec4899;
+  color: #f472b6;
+}
+
+.engine-activity-badge.activity-running {
+  border-color: #10b981;
+  color: #34d399;
+}
+
+.engine-activity-badge.activity-testing {
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+
+.engine-activity-badge.activity-waiting {
+  border-color: #eab308;
+  color: #fde047;
+}
+
+.engine-activity-badge.activity-hibernating {
+  border-color: #64748b;
+  color: #94a3b8;
+}
+
+.engine-activity-badge.badge-stale {
+  border-color: #ef4444;
+  color: #f87171;
+}
+
+.engine-activity-badge .badge-stale-tag {
+  background-color: #ef4444;
+  color: #ffffff;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 9px;
+  text-transform: uppercase;
+  font-weight: 700;
+}

@@ -123,6 +123,7 @@ const EXCLUSOES = Object.freeze([
   Object.freeze({ chave: "harness_chat_open", motivo: "Sinal efêmero da mini conversa, apenas removido; não guarda estado a restaurar." }),
   Object.freeze({ chave: "harness_active_chat_*", motivo: "Conteúdo da conversa em andamento; volumoso demais para o limite de 64 KB do estado de tela, permanece no localStorage." }),
   Object.freeze({ chave: "hia_tokens_saved", motivo: "Contador local de telemetria HIA; não é estado de tela." }),
+  Object.freeze({ chave: "harness_owned", motivo: "Valor do campo trust dos eventos da Central, não uma chave de localStorage; o scanner o casa por engano." }),
 ]);
 
 for (const entry of SCREENS) {
