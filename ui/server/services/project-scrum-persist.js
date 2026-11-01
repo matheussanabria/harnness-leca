@@ -9,6 +9,7 @@ const { resolveScrumData } = require("./project-scrum-resolver");
 const { migrateScrumData, migrateScrumFile, writeJsonAtomic } = require("./project-scrum-migration");
 const { mergeLaneConfiguration } = require("./project-scrum-lanes");
 const { allowedTransitionLaneIds } = require("./project-scrum-transitions");
+const { withMaturity } = require("./project-scrum-maturity");
 
 function loadStoredProjectScrum(slug, projectDir, repoRoot) {
   const scrumFile = path.join(projectDir, "scrum.json");
@@ -65,7 +66,9 @@ function loadProjectScrum(slug, projectDir, repoRoot) {
   const stored = loadStoredProjectScrum(slug, projectDir, repoRoot);
   const snapshot = loadJiraSnapshot(repoRoot);
   const documents = loadStoryDocuments(repoRoot, snapshot.stories.map((story) => story.key));
-  const data = snapshot.available ? resolveScrumData(stored, snapshot, documents) : stored;
+  const resolvedData = snapshot.available ? resolveScrumData(stored, snapshot, documents) : stored;
+  // Historia sem maturidade gravada vale "ready" na leitura; o arquivo nao e alterado.
+  const data = { ...resolvedData, stories: withMaturity(resolvedData.stories) };
   const storyTransitions = Object.fromEntries(data.stories.map((story) => [
     story.id,
     allowedTransitionLaneIds(story.laneId, data.lanes),

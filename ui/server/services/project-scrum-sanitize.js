@@ -1,5 +1,6 @@
 // @ts-check
 // Normalizacao apenas de historias criadas localmente; fontes externas usam adaptadores proprios.
+const { normalizeMaturity } = require("./project-scrum-maturity");
 
 function normalizeStatus(value) {
   const status = String(value || "todo").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -29,6 +30,9 @@ function optionalPriority(value) {
 
 function sanitizeStory(story, defaultSprintId = null) {
   const id = String(story.id || story.key || `us-${Date.now()}-${Math.floor(Math.random() * 1000)}`);
+  const maturity = normalizeMaturity(story.maturity);
+  // Rascunho e refinamento nascem no Product Backlog, nao na sprint ativa.
+  const fallbackSprintId = maturity && maturity !== "ready" ? null : defaultSprintId;
   return {
     id,
     key: String(story.key || id.toUpperCase()),
@@ -36,7 +40,9 @@ function sanitizeStory(story, defaultSprintId = null) {
     description: story.description ? String(story.description).trim() : null,
     acceptanceCriteria: normalizeCriteria(story.acceptanceCriteria),
     epicId: story.epicId ? String(story.epicId) : null,
-    sprintId: story.sprintId !== undefined ? (story.sprintId ? String(story.sprintId) : null) : defaultSprintId,
+    sprintId: story.sprintId !== undefined ? (story.sprintId ? String(story.sprintId) : null) : fallbackSprintId,
+    // So entra quando enviada: assim uma edicao sem o campo nao zera a maturidade ja gravada.
+    ...(maturity !== undefined ? { maturity } : {}),
     status: normalizeStatus(story.status),
     points: optionalNumber(story.points),
     priority: optionalPriority(story.priority),

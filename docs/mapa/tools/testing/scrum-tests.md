@@ -5,7 +5,7 @@ feature: scrum-tests
 summary: Tests for Scrum sources, migration, lanes, transitions, impediments, design screen state and project selection.
 paths: [tests/project-scrum-*.test.js, tests/design-scrum-*.test.js, tests/scrum-impediments-metrics.test.js, tests/design-screen-state.test.js, tests/project-selection.test.js]
 keywords: [tests, scrum, lanes, transitions, impediments, metrics, project-selection, jira]
-updated: 2026-10-30
+updated: 2026-11-01
 ---
 # Scrum and Project Tests
 
@@ -22,3 +22,7 @@ updated: 2026-10-30
 | `tests/design-screen-state.test.js` | Covers snapshot, apply, hydration, persistence and log of Scrum, Layers, Board and Audit screens; no emoji, 300-line limit (EP-14.09). |
 | `tests/project-selection.test.js` | Covers precedence, canonicalization, persistence, rollback and atomic write of the active project. |
 | `tests/design-scrum-details.test.js` | Validates panel, dynamic projection by `laneId`, accessible modal, relationships and status mapping. |
+| `tests/project-scrum-maturity.test.js` | Maturity default and gate: drafts stay out of the sprint, DoR required for `ready`, partial payloads keep stored fields, backlog edits do not move sprints. |
+| `tests/project-scrum-commits.test.js` | Trailer parsing and the git reader on temporary repositories, including hostile ids, branches, clamping and `GIT_*` hygiene. |
+| `tests/project-scrum-dor.test.js` | Mechanical Definition of Ready: required and advisory checks, boundaries, robustness, determinism. |
+| `tests/project-scrum-trace-http.test.js` | The `/commits` and `/dor` routes end to end, repo isolation, 404s and the remote-access gate. |

@@ -5,6 +5,7 @@ const { loadProjectScrum, loadStoredProjectScrum, saveProjectScrum } = require("
 const { isLegacyStatus, legacyStatusToLane } = require("./project-scrum-migration");
 const { isLaneId, mergeLaneConfiguration, reorderLaneConfiguration, validateLaneConfiguration } = require("./project-scrum-lanes");
 const { createTransitionRecord, validateStoryTransition } = require("./project-scrum-transitions");
+const { assertCanEnterSprint, assertMaturityChange, normalizeMaturity } = require("./project-scrum-maturity");
 
 function sameStory(story, id) {
   return story.id === id || story.key === id;
@@ -58,8 +59,11 @@ function upsertStory(slug, projectDir, repoRoot, payload) {
     };
     entry.updatedAt = new Date().toISOString();
   } else {
-    const sanitizedStory = sanitizeStory(payload, data.activeSprintId);
-    const existing = data.stories.find((story) => sameStory(story, sanitizedStory.id) || story.key === sanitizedStory.key);
+    // Parte da historia gravada: um payload parcial (ex.: so { id, maturity }) nao apaga o resto nem puxa a historia
+    // do backlog para a sprint ativa.
+    const lookup = identity ? String(identity) : null;
+    const existing = lookup ? data.stories.find((story) => sameStory(story, lookup) || story.key === lookup) : undefined;
+    const sanitizedStory = sanitizeStory({ ...(existing || {}), ...payload }, data.activeSprintId);
     const sanitized = {
       ...sanitizedStory,
       laneId: existing && existing.status === sanitizedStory.status && isLaneId(existing.laneId)
@@ -67,6 +71,7 @@ function upsertStory(slug, projectDir, repoRoot, payload) {
         : legacyStatusToLane(sanitizedStory.status),
       origin: "local",
     };
+    assertMaturityChange(existing, { ...(existing || {}), ...sanitized }, normalizeMaturity(payload.maturity));
     const index = data.stories.findIndex((story) => sameStory(story, sanitized.id) || story.key === sanitized.key);
     if (index >= 0) data.stories[index] = { ...data.stories[index], ...sanitized, updatedAt: new Date().toISOString() };
     else data.stories.unshift(sanitized);
@@ -97,8 +102,10 @@ function moveStoryToLane(slug, projectDir, repoRoot, storyId, expectedLaneId, ta
   return persistAndReload(slug, projectDir, repoRoot, data);
 }
 
-function assignStorySprint(slug, projectDir, repoRoot, storyId, sprintId) {  const resolved = findResolved(slug, projectDir, repoRoot, storyId);
+function assignStorySprint(slug, projectDir, repoRoot, storyId, sprintId) {
+  const resolved = findResolved(slug, projectDir, repoRoot, storyId);
   if (!resolved) throw new Error(`Historia '${storyId}' nao encontrada.`);
+  assertCanEnterSprint(resolved, sprintId);
   const data = loadStoredProjectScrum(slug, projectDir, repoRoot);
   const entry = resolved.source === "jira-snapshot" ? localEntry(data, resolved) : data.stories.find((story) => sameStory(story, storyId));
   entry.sprintId = sprintId || null;

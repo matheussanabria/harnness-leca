@@ -48,7 +48,8 @@ test("persiste ordem e revisao sem alterar historias ou status legados", () => t
   assert.equal(after.lanesRevision, 1);
   assert.equal(after.schemaVersion, 2);
   assert.deepEqual(after.stories, before.stories);
-  assert.deepEqual(result.scrum.stories, before.stories);
+  // A leitura acrescenta a maturidade padrao ("ready") sem grava-la: o arquivo acima segue identico.
+  assert.deepEqual(result.scrum.stories, before.stories.map((story) => ({ ...story, maturity: "ready" })));
 }));
 
 test("revisao obsoleta gera conflito e nao sobrescreve a ordem atual", () => temporaryScrum(({ directory, file }) => {
