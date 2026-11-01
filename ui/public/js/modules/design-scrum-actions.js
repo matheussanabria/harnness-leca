@@ -1,6 +1,7 @@
 // @ts-check
 // Acoes globais do Scrum.
 import { $, showToast, autoGrow } from "../shared/dom.js";
+import { setPage } from "../shared/pagination.js";
 import { state } from "../shared/state.js";
 import { ds } from "./design-scrum-store.js";
 import { renderCurrentScrumView } from "./design-scrum-view.js";
@@ -74,6 +75,7 @@ export function registerScrumActions() {
     } catch (error) { showToast(error.message); }
   };
   window.onEpicFilterChange = (value) => {
+    setPage("scrum-backlog", 1);
     ds.currentEpicFilter = value;
     renderCurrentScrumView();
     void persistScrumState({ epicFilter: value });

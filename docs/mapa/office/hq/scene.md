@@ -32,8 +32,8 @@ Immersive virtual office (`ui/public/office.html`): 3D Three.js engine, retro 2.
 | `tests/office-2d-parity.test.js` | 2D coverage of the catalog, canonical IDs, seat/focus actions, player state and limits (EP-03.08). |
 | `tests/war-screen-projection.test.js` | Non-destructive tabs, active sprint, lanes, metrics, structural integration and limits (EP-05.06). |
 | `ui/public/js/office/office-cabinet-journal.js` | Paginated file-cabinet journal list (20 per page) for the drawer; re-exported by `office-drawer-views.js`. |
-| `ui/public/js/shared/pagination.js` | Pure pagination helpers (`paginate`, `renderPager`, `bindPager`): only the current page enters the DOM; used by the Central sessions and the cabinet. |
-| `tests/shared-pagination.test.js` | Pager math, markup (FontAwesome, no emoji), paginated Central sessions and cabinet. |
+| `ui/public/js/shared/pagination.js` | Pure pagination helpers (`paginate`, `renderPager`, `bindPager`): only the current page enters the DOM; keyed `pagedHtml`/`bindPagers` keep the page per list. Used by the Central sessions, the cabinet, Scrum backlog/epics, workflows (cards, runs), routines (cards, history) and artifacts. |
+| `tests/shared-pagination.test.js` | Pager math, keyed pages, markup (FontAwesome, no emoji), paginated Central sessions, cabinet and Scrum backlog/epics. |
 | `ui/public/js/office-screen.js` | Office screen facade; mixins `office-screen-*.js` in the same folder. |
 | `ui/public/js/office3d/world-*.js` | World builders; mixins `office3d/war-room-*.js` and `office3d/workspace-*.js`. |
 

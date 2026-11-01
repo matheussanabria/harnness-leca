@@ -55,3 +55,35 @@ test("Armário do escritório pagina o diário e mantém o total do dia", async 
   assert.match(html, /data-pager="cabinet"/);
   assert.equal((renderCabinetJournalItems(days, [], "S6", 1).match(/class="chat-item-row"/g) || []).length, 11);
 });
+
+test("pagedHtml lembra a página por chave, corrige página inválida e numera pelo índice absoluto", async () => {
+  const { pagedHtml, setPage, getPage } = await load("shared/pagination.js");
+  const items = Array.from({ length: 30 }, (_, i) => i);
+  setPage("t1", 2);
+  const out = pagedHtml(items, "t1", (item, index) => `<i>${index}:${item}</i>`, { pageSize: 10 });
+  assert.equal((out.html.match(/<i>/g) || []).length, 10);
+  assert.match(out.html, /<i>10:10<\/i>/);
+  assert.match(out.pager, /data-pager="t1"/);
+  setPage("t1", 99);
+  pagedHtml(items, "t1", String, { pageSize: 10 });
+  assert.equal(getPage("t1"), 3);
+  assert.equal(getPage("outra"), 1);
+});
+
+test("Backlog e épicos do Scrum paginam e o Fluxo/rotinas/artefatos usam pagedHtml", async () => {
+  const fs = require("node:fs");
+  const { setPage } = await load("shared/pagination.js");
+  const { renderProductBacklog, renderEpicsWorkspace } = await load("modules/design-scrum-backlog.js");
+  const stories = Array.from({ length: 60 }, (_, i) => ({ id: `st${i}`, key: `K-${i}`, title: `T${i}`, epicId: "e1", status: "todo", points: 1 }));
+  const epics = Array.from({ length: 20 }, (_, i) => ({ id: `e${i}`, title: `E${i}` }));
+  const scrum = { epics, stories, sprints: [], lanes: [], activeSprintId: "" };
+  setPage("scrum-backlog", 1);
+  const backlog = renderProductBacklog(scrum);
+  assert.equal((backlog.match(/story-key-badge/g) || []).length, 25);
+  assert.match(backlog, /data-pager="scrum-backlog"/);
+  assert.equal((renderEpicsWorkspace(scrum).match(/class="scrum-epic-card"/g) || []).length, 9);
+  for (const file of ["design-routines.js", "design-artifacts.js", "design-workflows-view.js"]) {
+    const src = fs.readFileSync(path.join(MODULES, "modules", file), "utf8");
+    assert.match(src, /pagedHtml/, `${file} deve paginar`);
+  }
+});

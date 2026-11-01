@@ -1,6 +1,7 @@
 // @ts-check
 // Aba de Rotinas: rotinas executáveis, fila de aprovações e histórico (EP-08.05).
 import { $, esc, showToast } from "../shared/dom.js";
+import { bindPagers, pagedHtml, setPage } from "../shared/pagination.js";
 import {
   fetchProjectRoutines,
   runProjectRoutine,
@@ -92,6 +93,9 @@ function renderHistoryEntry(entry) {
  * @param {string} slug
  */
 export async function renderRoutinesWorkspace(container, slug) {
+  const cards = pagedHtml(visibleItems, "routines", (routine) => renderRoutineCard(routine, saved.selectedRoutine), { pageSize: 12, label: "Paginação das rotinas" });
+  const past = pagedHtml(entries.slice().reverse(), "routines-history", renderHistoryEntry, { pageSize: 15, label: "Paginação do histórico" });
+
   container.innerHTML = `<section class="routine-panel" aria-label="Rotinas e aprovações do projeto">
     <header class="routine-header">
       <h3><i class="fa-solid fa-repeat"></i> Rotinas, aprovações e histórico</h3>
@@ -147,8 +151,9 @@ export async function renderRoutinesWorkspace(container, slug) {
       </label>
     </div>
     <div class="routine-grid">
-      ${visibleItems.map((routine) => renderRoutineCard(routine, saved.selectedRoutine)).join("")}
+      ${cards.html}
     </div>
+    ${cards.pager}
     <section class="routine-section">
       <h4><i class="fa-solid fa-user-check"></i> Aprovações pendentes</h4>
       ${pending.length ? `<div class="routine-table-wrap">
@@ -161,17 +166,20 @@ export async function renderRoutinesWorkspace(container, slug) {
     </section>
     <section class="routine-section">
       <h4><i class="fa-solid fa-clock-rotate-left"></i> Histórico do projeto</h4>
-      ${entries.length ? `<ul class="routine-history">${entries.slice().reverse().map(renderHistoryEntry).join("")}</ul>` : `<p class="routine-empty-line">Sem registros no histórico.</p>`}
+      ${entries.length ? `<ul class="routine-history">${past.html}</ul>${past.pager}` : `<p class="routine-empty-line">Sem registros no histórico.</p>`}
       ${history.warnings?.length ? `<p class="routine-warning"><i class="fa-solid fa-triangle-exclamation"></i> ${history.warnings.map(esc).join(" ")}</p>` : ""}
     </section>
   </section>`;
 
+  bindPagers(container, () => { void renderRoutinesWorkspace(container, slug); });
   const search = /** @type {HTMLInputElement | null} */ ($("routineSearch"));
   const approvalFilter = /** @type {HTMLSelectElement | null} */ ($("routineApprovalFilter"));
   search?.addEventListener("input", () => {
+    setPage("routines", 1);
     void saveRoutinesState({ filter: search.value, selectedRoutine: saved.selectedRoutine, approvalFilter: approvalFilter?.value || saved.approvalFilter });
   });
   approvalFilter?.addEventListener("change", () => {
+    setPage("routines", 1);
     void saveRoutinesState({ filter: search?.value || saved.filter, selectedRoutine: saved.selectedRoutine, approvalFilter: approvalFilter.value });
     void refresh();
   });

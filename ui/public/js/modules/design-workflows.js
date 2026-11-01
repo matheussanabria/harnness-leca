@@ -1,6 +1,7 @@
 // @ts-check
 // Workflows tab: catalog, plan, dry run, start and runs (EP-08.06).
 import { $, showToast } from "../shared/dom.js";
+import { bindPagers } from "../shared/pagination.js";
 import {
   fetchWorkflows,
   fetchWorkflowPlan,
@@ -123,6 +124,7 @@ export async function renderWorkflowsWorkspace(container, slug) {
   }
 
   function bind() {
+    bindPagers(container, paint);
     container.querySelectorAll("[data-workflow-id]").forEach((card) => {
       card.addEventListener("click", () => {
         void selectWorkflow(/** @type {HTMLElement} */ (card).dataset.workflowId || "");
