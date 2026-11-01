@@ -22,7 +22,7 @@ updated: 2026-10-30
 | `docs/harness-evolution/02-epics/EP-01-window-manager/01.11-*.md`, `01.12-*.md` | Planned stories from the gap review: wire the Window Manager facade into the office (01.11) and multi-window host with docking (01.12). |
 | `docs/harness-evolution/02-epics/EP-13-memoria-agentes/` | EP-13 agent memory: README, current-memory diagnosis (`00-diagnostico.md`), three-layer target (`01-arquitetura-alvo.md`), stories 13.01 to 13.09. |
 | `docs/harness-evolution/02-epics/EP-14-estado-das-telas/` | EP-14 server-persisted screen state: README (decisions, waves, branches) and 11 stories (14.01 to 14.11) with per-agent file lists. |
-| `docs/ui/catalogo-de-telas.md` | Catalog of the 13 screens: scope, route, persisted data, allowed fields, migrated old keys, justified exclusions (EP-14.04). |
+| `docs/ui/catalogo-de-telas.md` | Catalog of the 14 screens: scope, route, persisted data, allowed fields, migrated old keys, justified exclusions (EP-14.04). |
 | `docs/harness-evolution/03-decisions/ADR-009-memoria-um-fato-por-arquivo.md` | Proposed decision: curated memory with one fact per file, generated index, only the showcase projected to engines. |
 | `docs/harness-evolution/03-decisions/README.md` | ADR index. |
 | `docs/harness-evolution/04-test-plans/README.md` | Index of test plans and commands. |

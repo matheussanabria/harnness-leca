@@ -5,7 +5,7 @@
 import { createHttpSessionClient } from "./central-sessions-api.js";
 import { renderCentral } from "./central-sessions-view.js";
 import { createCentralLiveSubscription } from "./central-live.js";
-import { bindPager } from "../shared/pagination.js";
+import { bindPagers } from "../shared/pagination.js";
 import { executeSessionAction } from "./central-action-dispatcher.js";
 import {
   ATTENTION_STATUS,
@@ -168,7 +168,7 @@ export function setupCentralListeners(container, state, onChange, client) {
     });
   }
 
-  bindPager(container, (page) => onChange({ ...state, page }), "central");
+  bindPagers(container, (_key, page) => onChange({ ...state, page }));
 
   for (const row of Array.from(container.querySelectorAll("[data-session-id]:not([data-session-action])"))) {
     const id = row.getAttribute("data-session-id") || "";

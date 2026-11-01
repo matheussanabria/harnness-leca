@@ -230,3 +230,6 @@
 .pager__btn.is-active { background: rgba(56, 189, 248, 0.18); border-color: rgba(56, 189, 248, 0.5); color: #bae6fd; font-weight: 600; }
 .pager__btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .pager__gap { padding: 0 2px; }
+.pager__size { display: inline-flex; align-items: center; gap: 6px; margin-left: 6px; }
+.pager__size-label { color: var(--text-muted, #94a3b8); }
+.pager__select { height: 28px; padding: 0 6px; border-radius: 8px; border: 1px solid rgba(148, 163, 184, 0.28); background: rgba(30, 41, 59, 0.5); color: #cbd5e1; font: inherit; cursor: pointer; }

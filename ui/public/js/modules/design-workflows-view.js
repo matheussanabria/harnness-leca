@@ -116,7 +116,7 @@ function renderWorkflowList(state) {
   if (state.workflowsStatus === "loading") return loadingBox("Carregando workflows...");
   if (state.workflowsStatus === "error") return errorBox(state.workflowsError || "Falha ao carregar workflows.");
   if (!state.workflows.length) return emptyBox("Nenhum workflow disponível.");
-  const paged = pagedHtml(state.workflows, "workflows", (workflow) => renderWorkflowCard(workflow, state.selectedWorkflowId), { pageSize: 12, label: "Paginação dos workflows" });
+  const paged = pagedHtml(state.workflows, "workflows", (workflow) => renderWorkflowCard(workflow, state.selectedWorkflowId), { label: "Paginação dos workflows" });
   return paged.html + paged.pager;
 }
 
@@ -144,7 +144,7 @@ function renderRunsArea(state) {
   if (state.runsStatus === "loading") return loadingBox("Carregando execuções...");
   if (state.runsStatus === "error") return errorBox(state.runsError || "Falha ao carregar execuções.");
   if (!state.runs.length) return emptyBox("Nenhuma execução para este projeto.");
-  const paged = pagedHtml(state.runs, "workflow-runs", renderRun, { pageSize: 10, label: "Paginação das execuções" });
+  const paged = pagedHtml(state.runs, "workflow-runs", renderRun, { label: "Paginação das execuções" });
   return `<div class="workflow-table-wrap">
     <table class="workflow-table">
       <caption class="workflow-caption">Execuções do workflow no projeto</caption>

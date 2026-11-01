@@ -90,6 +90,7 @@ const TELAS = {
     ],
   },
   diario: { escopo: "global", migraDe: [], regras: [] },
+  lists: { escopo: "global", migraDe: [], regras: [] },
 };
 
 export const SCREEN_SCOPES = Object.freeze(

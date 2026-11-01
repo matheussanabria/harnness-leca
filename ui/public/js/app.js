@@ -4,6 +4,7 @@ import { md, parseChat, renderChat, parseFrontmatter } from "./shared/markdown.j
 import { state, GROUP_PALETTE, getActiveChatStorageKey, saveActiveChatState, restoreActiveChatState, clearActiveChatState } from "./shared/state.js";
 import { projectSelection } from "./shared/project-selection.js";
 import { createScreenStateClient } from "./shared/screen-state.js";
+import { hydratePageSizes } from "./shared/pagination-prefs.js";
 import { guardUnsavedTransition } from "./shared/unsaved-dialog.js";
 import { unsavedChanges } from "./shared/unsaved-changes.js";
 import * as groupsMod from "./modules/groups.js";
@@ -135,6 +136,7 @@ Object.assign(window, {
   const projectClient = createScreenStateClient({ project: start });
   await chatMod.hydrateEngineSettings({ client: projectClient });
   await skillsMod.hydrateSkillsState({ client: projectClient });
+  await hydratePageSizes();
 
   const chatFromUrl = urlParams.get("chat");
   if (chatFromUrl) await chatMod.resumeExistingChat(chatFromUrl, false);

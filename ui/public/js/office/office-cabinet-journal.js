@@ -1,9 +1,9 @@
 // @ts-check
 // DAI HQ — Armário de Conversas: lista paginada do diário de bordo.
 // Só a página atual entra no DOM; o diário pode ter centenas de sessões.
-import { bindPager, paginate, renderPager } from "../shared/pagination.js";
+import { bindPagers, getPageSize, paginate, renderPager } from "../shared/pagination.js";
 
-export const CABINET_PAGE_SIZE = 20;
+const CABINET_LIST_KEY = "cabinet";
 
 const ENGINE_STYLES = [
   ["claude", "#d97757", "CLAUDE"],
@@ -58,7 +58,7 @@ export function renderCabinetJournalItems(days, fallbackChats, filterText = "", 
   }
 
   if (flat.length) {
-    const data = paginate(flat, page, CABINET_PAGE_SIZE);
+    const data = paginate(flat, page, getPageSize(CABINET_LIST_KEY));
     let html = "";
     let lastDay = "";
     for (const { day, session } of data.items) {
@@ -69,12 +69,12 @@ export function renderCabinetJournalItems(days, fallbackChats, filterText = "", 
       }
       html += renderSessionItem(session);
     }
-    return html + renderPager(data, { label: "Paginação do armário", key: "cabinet" });
+    return html + renderPager(data, { label: "Paginação do armário", key: CABINET_LIST_KEY });
   }
 
   const chats = (fallbackChats || []).filter((c) => !q || (c.title || c.name || c.id || "").toLowerCase().includes(q));
   if (!chats.length) return empty;
-  const data = paginate(chats, page, CABINET_PAGE_SIZE);
+  const data = paginate(chats, page, getPageSize(CABINET_LIST_KEY));
   const rows = data.items
     .map(
       (c) => `
@@ -87,7 +87,7 @@ export function renderCabinetJournalItems(days, fallbackChats, filterText = "", 
       </div>`,
     )
     .join("");
-  return rows + renderPager(data, { label: "Paginação do armário", key: "cabinet" });
+  return rows + renderPager(data, { label: "Paginação do armário", key: CABINET_LIST_KEY });
 }
 
 /**
@@ -100,5 +100,5 @@ export function renderCabinetJournalItems(days, fallbackChats, filterText = "", 
  */
 export function mountCabinetList(listEl, days, chats, q = "", page = 1) {
   listEl.innerHTML = renderCabinetJournalItems(days, chats, q, page);
-  bindPager(listEl, (next) => mountCabinetList(listEl, days, chats, q, next), "cabinet");
+  bindPagers(listEl, (_key, next) => mountCabinetList(listEl, days, chats, q, next));
 }
