@@ -112,6 +112,30 @@ function unsupportedVersion(version) {
   return canvasError("Versao de board nao suportada.", "UNSUPPORTED_VERSION", 422, { version });
 }
 
+function unsupportedAssetType() {
+  return canvasError("Tipo de arquivo nao suportado.", "UNSUPPORTED_ASSET_TYPE", 415);
+}
+
+function assetTooLarge() {
+  return canvasError("O arquivo excede o limite de 25 MB.", "ASSET_TOO_LARGE", 413);
+}
+
+function emptyAsset() {
+  return canvasError("Arquivo vazio.", "EMPTY_ASSET", 400);
+}
+
+function boardAssetsFull() {
+  return canvasError("Os anexos do board excedem o limite de 200 MB.", "BOARD_ASSETS_FULL", 413);
+}
+
+function invalidAsset() {
+  return canvasError("Identificador de asset invalido.", "INVALID_ASSET", 400);
+}
+
+function assetNotFound() {
+  return canvasError("Asset nao encontrado.", "ASSET_NOT_FOUND", 404);
+}
+
 module.exports = {
   CanvasError,
   canvasError,
@@ -131,4 +155,10 @@ module.exports = {
   revisionRequired,
   revisionConflict,
   unsupportedVersion,
+  unsupportedAssetType,
+  assetTooLarge,
+  emptyAsset,
+  boardAssetsFull,
+  invalidAsset,
+  assetNotFound,
 };
