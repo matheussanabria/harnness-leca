@@ -1,5 +1,6 @@
 // @ts-check
 const crypto = require("node:crypto");
+const fs = require("node:fs");
 const path = require("node:path");
 const { getProjects } = require("../../config");
 const {
@@ -201,6 +202,47 @@ function updateBoard(project, id, input) {
 }
 
 /**
+ * @param {string} target
+ * @returns {boolean}
+ */
+function pathExists(target) {
+  try {
+    fs.lstatSync(target);
+    return true;
+  } catch (error) {
+    if (/** @type {NodeJS.ErrnoException} */ (error).code === "ENOENT") return false;
+    throw storageError();
+  }
+}
+
+/**
+ * Move canvas/<boardId>/ (the assets folder) into the trash when it exists.
+ * @param {string} dir
+ * @param {string} boardId
+ * @param {number} stamp
+ */
+function moveBoardDirectory(dir, boardId, stamp) {
+  const source = path.join(dir, boardId);
+  let stat;
+  try {
+    stat = fs.lstatSync(source);
+  } catch (error) {
+    if (/** @type {NodeJS.ErrnoException} */ (error).code === "ENOENT") return;
+    throw storageError();
+  }
+  if (stat.isSymbolicLink() || !stat.isDirectory()) throw storageError();
+
+  const destination = path.join(dir, TRASH_DIR, `${boardId}-${stamp}-assets`);
+  if (pathExists(destination)) throw storageError();
+  ensureDirectory(path.join(dir, TRASH_DIR));
+  try {
+    fs.renameSync(source, destination);
+  } catch {
+    throw storageError();
+  }
+}
+
+/**
  * @param {unknown} project
  * @param {unknown} id
  * @returns {{ ok: true, id: string }}
@@ -211,9 +253,12 @@ function deleteBoard(project, id) {
   const board = readRecord(dir, boardId);
   if (!board) throw boardNotFound(boardId);
 
-  const destination = path.join(dir, TRASH_DIR, `${boardId}-${Date.now()}.json`);
+  const stamp = Date.now();
+  const destination = path.join(dir, TRASH_DIR, `${boardId}-${stamp}.json`);
   moveFile(boardFile(dir, boardId), destination);
+  // Drop the index entry before the assets move: if that move fails, the listing must not show a board with no file.
   removeIndexEntry(dir, boardId);
+  moveBoardDirectory(dir, boardId, stamp);
   return { ok: true, id: boardId };
 }
 
