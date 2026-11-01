@@ -92,3 +92,51 @@ export function bindPager(container, onPage, key) {
     });
   }
 }
+
+/** @type {Map<string, number>} página atual de cada lista, por chave (vive enquanto a aba estiver aberta) */
+const pageByKey = new Map();
+
+/** @param {string} key @returns {number} */
+export const getPage = (key) => pageByKey.get(key) || 1;
+
+/** @param {string} key @param {number} page @returns {void} */
+export const setPage = (key, page) => void pageByKey.set(key, Math.max(1, Math.floor(page) || 1));
+
+/**
+ * Renderiza só a página atual de uma lista, lembrando a página pela chave.
+ * @template T
+ * @param {T[]} items
+ * @param {string} key
+ * @param {(item: T, index: number) => string} renderItem
+ * @param {{ pageSize?: number, label?: string }} [options]
+ * @returns {{ html: string, pager: string, total: number }}
+ */
+export function pagedHtml(items, key, renderItem, options = {}) {
+  const data = paginate(items, getPage(key), options.pageSize || DEFAULT_PAGE_SIZE);
+  setPage(key, data.page);
+  return {
+    html: data.items.map((item, i) => renderItem(item, data.start + i)).join(""),
+    pager: renderPager(data, { key, label: options.label }),
+    total: data.total,
+  };
+}
+
+/**
+ * Liga todos os paginadores do container; ao trocar de página guarda a nova página e chama onChange.
+ * @param {ParentNode} container
+ * @param {(key: string, page: number) => void} onChange
+ * @returns {void}
+ */
+export function bindPagers(container, onChange) {
+  for (const nav of Array.from(container.querySelectorAll(".pager[data-pager]"))) {
+    const key = nav.getAttribute("data-pager") || "";
+    for (const button of Array.from(nav.querySelectorAll("[data-page]"))) {
+      button.addEventListener("click", () => {
+        const target = Number(button.getAttribute("data-page"));
+        if (!Number.isFinite(target)) return;
+        setPage(key, target);
+        onChange(key, target);
+      });
+    }
+  }
+}

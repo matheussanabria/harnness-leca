@@ -3,6 +3,11 @@
 import { esc } from "../shared/dom.js";
 import { ds } from "./design-scrum-store.js";
 import { visibleStories } from "./design-scrum-filters.js";
+import { pagedHtml } from "../shared/pagination.js";
+
+const BACKLOG_PAGE_SIZE = 25;
+const EPICS_PAGE_SIZE = 9;
+const EPIC_STORIES_SHOWN = 20;
 
 /**
  * Renderiza a visão em lista do Backlog do Produto.
@@ -22,7 +27,10 @@ export function renderProductBacklog(scrum) {
     ...epics.map((e) => `<option value="${esc(e.id)}" ${e.id === ds.currentEpicFilter ? "selected" : ""}>${esc(e.title)}</option>`),
   ].join("");
 
-  const rowsHtml = filtered.map((st, i) => {
+  const backlogPage = pagedHtml(filtered, "scrum-backlog", renderBacklogRow, { pageSize: BACKLOG_PAGE_SIZE, label: "Paginação do backlog" });
+  const rowsHtml = backlogPage.html;
+
+  function renderBacklogRow(st, i) {
     const epic = epics.find((e) => e.id === st.epicId);
     const inSprint = Boolean(st.sprintId);
     const sprintObj = scrum.sprints?.find((sp) => sp.id === st.sprintId);
@@ -65,7 +73,7 @@ export function renderProductBacklog(scrum) {
         </td>
       </tr>
     `;
-  }).join("");
+  }
 
   return `
     <div class="audit-panel-box" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
@@ -105,6 +113,7 @@ export function renderProductBacklog(scrum) {
           </tbody>
         </table>
       </div>
+      ${backlogPage.pager}
     </div>
   `;
 }
@@ -117,7 +126,10 @@ export function renderEpicsWorkspace(scrum) {
   const epics = scrum.epics || [];
   const stories = scrum.stories || [];
 
-  const epicsCards = epics.map((ep) => {
+  const epicsPage = pagedHtml(epics, "scrum-epics", renderEpicCard, { pageSize: EPICS_PAGE_SIZE, label: "Paginação dos épicos" });
+  const epicsCards = epicsPage.html;
+
+  function renderEpicCard(ep) {
     const epicStories = stories.filter((s) => s.epicId === ep.id);
     const totalPoints = epicStories.reduce((acc, s) => acc + (s.points || 0), 0);
     const doneStories = epicStories.filter((s) => s.status === "done");
@@ -151,7 +163,7 @@ export function renderEpicsWorkspace(scrum) {
           Histórias vinculadas (${epicStories.length}):
         </div>
         <div style="display:flex;flex-direction:column;gap:5px;max-height:160px;overflow-y:auto">
-          ${epicStories.map((s) => `
+          ${epicStories.slice(0, EPIC_STORIES_SHOWN).map((s) => `
             <div style="display:flex;align-items:center;justify-content:space-between;background:var(--panel2);padding:4px 8px;border-radius:4px;font-size:11.5px">
               <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:6px">
                 <b>${esc(s.key)}:</b> ${esc(s.title)}
@@ -159,10 +171,11 @@ export function renderEpicsWorkspace(scrum) {
               <span class="audit-tag tag-${s.status === 'done' ? 'ok' : 'auto'}">${esc(s.status)}</span>
             </div>
           `).join('') || '<div style="color:var(--mute);font-size:11px">Nenhuma história vinculada a este épico.</div>'}
+          ${epicStories.length > EPIC_STORIES_SHOWN ? `<div style="color:var(--mute);font-size:11px">+${epicStories.length - EPIC_STORIES_SHOWN} histórias no Backlog do Produto.</div>` : ''}
         </div>
       </div>
     `;
-  }).join("");
+  }
 
   return `
     <div style="display:flex;flex-direction:column;gap:14px;flex:1;overflow:hidden">
@@ -177,6 +190,7 @@ export function renderEpicsWorkspace(scrum) {
       <div class="scrum-epics-grid">
         ${epicsCards || '<div style="color:var(--mute);padding:32px;text-align:center">Nenhum épico cadastrado.</div>'}
       </div>
+      ${epicsPage.pager}
     </div>
   `;
 }

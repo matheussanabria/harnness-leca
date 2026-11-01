@@ -1,6 +1,7 @@
 // @ts-check
 // Montagem do workspace e troca de vistas sem desmontar o painel lateral.
 import { $ } from "../shared/dom.js";
+import { bindPagers } from "../shared/pagination.js";
 import { ds } from "./design-scrum-store.js";
 import { renderSprintKanban } from "./design-scrum-sprint.js";
 import { renderProductBacklog, renderEpicsWorkspace } from "./design-scrum-backlog.js";
@@ -57,4 +58,5 @@ export function renderCurrentScrumView() {
   if (ds.currentScrumTab === "sprint") body.innerHTML = renderSprintKanban(ds.currentScrumData);
   else if (ds.currentScrumTab === "backlog") body.innerHTML = renderProductBacklog(ds.currentScrumData);
   else body.innerHTML = renderEpicsWorkspace(ds.currentScrumData);
+  bindPagers(body, () => renderCurrentScrumView());
 }

@@ -1,5 +1,6 @@
 // @ts-check
 import { $, esc } from "../shared/dom.js";
+import { bindPagers, pagedHtml, setPage } from "../shared/pagination.js";
 import { setupArtifactImport } from "./design-artifacts-import.js";
 import { setupArtifactAccess } from "./design-artifacts-access.js";
 import { setupArtifactPreview } from "./design-artifacts-preview.js";
@@ -154,6 +155,7 @@ export async function renderArtifactsWorkspace(container, slug, data, onChanged)
         <p>Ajuste a busca ou selecione outro tipo.</p>
       </div>
     </div>
+    <div id="artifactPager"></div>
     <section id="artifactPreview" class="artifact-preview" aria-label="Prévia do artefato" aria-live="polite" hidden></section>
     <section id="artifactRelations" class="artifact-relations" aria-label="Vínculos do artefato" aria-live="polite" hidden></section>
   </section>`;
@@ -161,6 +163,7 @@ export async function renderArtifactsWorkspace(container, slug, data, onChanged)
   const rows = /** @type {HTMLElement} */ ($("artifactRows"));
   const empty = /** @type {HTMLElement} */ ($("artifactEmpty"));
   const total = /** @type {HTMLElement} */ ($("artifactTotal"));
+  const pagerEl = /** @type {HTMLElement} */ ($("artifactPager"));
   const search = /** @type {HTMLInputElement} */ ($("artifactSearch"));
 
   const paint = () => {
@@ -173,7 +176,10 @@ export async function renderArtifactsWorkspace(container, slug, data, onChanged)
         item.metadata?.originalName, item.metadata?.source,
       ].some((value) => String(value || "").toLowerCase().includes(needle));
     });
-    rows.innerHTML = visible.map((item) => renderRow(item, canManage, selectedKey)).join("");
+    const paged = pagedHtml(visible, "artifacts", (item) => renderRow(item, canManage, selectedKey), { pageSize: 25, label: "Paginação dos artefatos" });
+    rows.innerHTML = paged.html;
+    pagerEl.innerHTML = paged.pager;
+    bindPagers(pagerEl, () => paint());
     empty.hidden = visible.length > 0;
     total.textContent = String(visible.length);
   };
@@ -193,6 +199,7 @@ export async function renderArtifactsWorkspace(container, slug, data, onChanged)
         other.setAttribute("aria-pressed", String(active));
       });
       persist();
+      setPage("artifacts", 1);
       void logArtifactsAction("filtrar-artefatos", currentFilter);
       paint();
     });
@@ -200,6 +207,7 @@ export async function renderArtifactsWorkspace(container, slug, data, onChanged)
   search.addEventListener("input", () => {
     query = search.value;
     persist();
+    setPage("artifacts", 1);
     paint();
   });
   search.addEventListener("change", () => {
