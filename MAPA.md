@@ -35,7 +35,7 @@ tests/                           node:test suites
 | `frontend` | canvas, chat, css, design, office, studio, web, window-manager | 16 | 41.3 KB |
 | `intelligence` | hia, runtime | 7 | 17.4 KB |
 | `office` | hq | 3 | 7.9 KB |
-| `planning` | product, projects | 4 | 10.3 KB |
+| `planning` | product, projects | 5 | 13.3 KB |
 | `telemetry` | program, usage | 8 | 23.0 KB |
 | `tools` | engines, mapa, setup, testing | 11 | 25.0 KB |
 <!-- mapa:index:end -->
