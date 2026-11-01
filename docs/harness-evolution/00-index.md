@@ -41,6 +41,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-12](02-epics/EP-12-prototype-engine/README.md) | Prototype Engine & Design System Multiframework | P1 | Concluído (contrato); piloto `dis-modular` só em `.trash`, Studio e `proto.json` sem rota | 32/32 |
 | [EP-13](02-epics/EP-13-memoria-agentes/README.md) | Memória e conhecimento dos agentes | P1 | Concluído; memória declarativa, índice gerado, 2 fases e faxina | 9/9 |
 | [EP-14](02-epics/EP-14-estado-das-telas/README.md) | Estado das telas persistido no servidor | P1 | Concluído; endpoints de estado/histórico das 13 telas, concorrência e migração | 12/12 |
+| [EP-17](02-epics/EP-17-sqlite-persistencia/README.md) | SQLite como sistema de registro, com RBAC e trilha de auditoria | P0 | Planejado (ADR-012, ADR-013); corrige a perda de contexto no F5 | 0/13 |
 
 ## 2. Dependências
 
@@ -216,6 +217,21 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [x] [14.10](02-epics/EP-14-estado-das-telas/14.10-telas-paginas.md) Adoção em deploy, office, overview e diário
 - [x] [14.12](02-epics/EP-14-estado-das-telas/14.12-lacunas-adocao.md) Lacunas de adoção: view ativa, artefatos, rotinas, diário e módulos restantes
 - [x] [14.11](02-epics/EP-14-estado-das-telas/14.11-fechamento-ep14.md) Fechamento: documentação, MAPA e verificação
+
+### EP-17 SQLite como sistema de registro, com RBAC e auditoria (0/13)
+- [ ] [17.01](02-epics/EP-17-sqlite-persistencia/17.01-fundacao-banco.md) Fundação do banco: conexão, migrações e repositórios
+- [ ] [17.02](02-epics/EP-17-sqlite-persistencia/17.02-chat-sessoes-mensagens.md) Sessões e mensagens do chat no banco (corrige a perda no F5)
+- [ ] [17.03](02-epics/EP-17-sqlite-persistencia/17.03-estado-telas-sqlite.md) Estado e histórico das telas no banco
+- [ ] [17.04](02-epics/EP-17-sqlite-persistencia/17.04-identidade-sessoes.md) Identidade local e sessões do servidor
+- [ ] [17.05](02-epics/EP-17-sqlite-persistencia/17.05-trilha-auditoria.md) Trilha de auditoria encadeada por hash
+- [ ] [17.06](02-epics/EP-17-sqlite-persistencia/17.06-rbac.md) RBAC: papéis, permissões e imposição por rota
+- [ ] [17.07](02-epics/EP-17-sqlite-persistencia/17.07-stores-dominio.md) Stores de domínio: scrum, projetos, permissões, deploy, rotinas
+- [ ] [17.08](02-epics/EP-17-sqlite-persistencia/17.08-atelie-canvas-metadados.md) Metadados e histórico do Ateliê e do Canvas
+- [ ] [17.09](02-epics/EP-17-sqlite-persistencia/17.09-telemetria-jsonl.md) Telemetria e logs de execução de JSONL para tabelas
+- [ ] [17.10](02-epics/EP-17-sqlite-persistencia/17.10-eventos-sessoes-canonicas.md) Consolidação do event store e das sessões canônicas
+- [ ] [17.11](02-epics/EP-17-sqlite-persistencia/17.11-exportacao-markdown.md) Exportação e projeção em Markdown
+- [ ] [17.12](02-epics/EP-17-sqlite-persistencia/17.12-backup-integridade.md) Backup, restauração e verificação de integridade
+- [ ] [17.13](02-epics/EP-17-sqlite-persistencia/17.13-avaliacao-restante-fechamento.md) Avaliação do restante e fechamento
 
 ## Trabalho disponível agora
 
