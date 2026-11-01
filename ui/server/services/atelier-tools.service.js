@@ -176,7 +176,13 @@ async function executeAtelierTool(toolName, args, ctx, deps = { fs, path }) {
         if (!screenId || typeof screenId !== "string" || !/^[a-zA-Z0-9_\-]+$/.test(screenId)) {
           return { ok: false, error: `screenId inválido: "${screenId}". Use apenas letras, números e traços.` };
         }
-        const cleanHtml = injectDataPidAttributes(sanitizeHtmlFragment(htmlContent || ""));
+        const sanitized = sanitizeHtmlFragment(htmlContent || "");
+        const cleanHtml = injectDataPidAttributes(sanitized);
+        const sentBytes = Buffer.byteLength(String(htmlContent || ""), "utf8");
+        const keptBytes = Buffer.byteLength(sanitized, "utf8");
+        const warning = sentBytes > 200 && keptBytes < sentBytes * 0.7
+          ? `O sanitizador removeu ${sentBytes - keptBytes} bytes do HTML enviado (iframe, script externo, meta ou handlers). Confira se a tela ficou completa.`
+          : undefined;
         const screensDir = deps.path.join(protoDir, "screens");
         if (!deps.fs.existsSync(screensDir)) deps.fs.mkdirSync(screensDir, { recursive: true });
         const filePath = deps.path.join(screensDir, `${screenId}.html`);
@@ -194,7 +200,7 @@ async function executeAtelierTool(toolName, args, ctx, deps = { fs, path }) {
             }
           } catch {}
         }
-        return { ok: true, result: { message: `Tela '${screenId}' atualizada.`, screen: `screens/${screenId}.html`, bytes: Buffer.byteLength(cleanHtml, "utf8") } };
+        return { ok: true, result: { message: `Tela '${screenId}' atualizada.`, screen: `screens/${screenId}.html`, bytes: Buffer.byteLength(cleanHtml, "utf8"), ...(warning ? { warning } : {}) } };
       }
 
       case "atelier_patch_styles": {
