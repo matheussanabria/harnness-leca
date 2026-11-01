@@ -30,7 +30,7 @@ tests/                           node:test suites
 | Domain | Modules | Files | Size |
 |---|---|---|---|
 | `agents` | skills | 1 | 0.7 KB |
-| `backend` | artifacts, atelier, chat, core, deploy, orchestration, projects, prototype, screen-state | 12 | 25.9 KB |
+| `backend` | artifacts, atelier, canvas, chat, core, deploy, orchestration, projects, prototype, screen-state | 13 | 28.0 KB |
 | `design` | atelier-quality, system | 3 | 10.1 KB |
 | `frontend` | canvas, chat, css, design, office, studio, web, window-manager | 16 | 40.4 KB |
 | `intelligence` | hia, runtime | 6 | 14.2 KB |
