@@ -1,6 +1,6 @@
 // @ts-check
 // Mensagens que o iframe do protótipo manda ao Ateliê (seleção, árvore, atalhos, navegação entre telas).
-import { $ } from "../shared/dom.js";
+import { $, showToast } from "../shared/dom.js";
 import { updatePropsMetrics } from "./prototype-props-panel.js";
 import { selectLayerNode } from "./prototype-layer-tree.js";
 import { renderElementMapping } from "./prototype-element-map.js";
@@ -8,6 +8,7 @@ import { canvasHandleMessage } from "./prototype-atelier-canvas.js";
 import { runHistory } from "./prototype-history-panel.js";
 import { isInspectorOn, singleScreenMode } from "./prototype-inspector-toggle.js";
 import { persistAtelierNode, persistAtelierScreen } from "./prototype-atelier-adoption.js";
+import { resolveScreenTarget } from "./prototype-nav-resolve.js";
 import { ctx, host } from "./prototype-atelier-ctx.js";
 import { onMultiClick, setMulti, paintSelectionBar, runBatch, runGroupAction } from "./prototype-atelier-multi.js";
 
@@ -55,11 +56,24 @@ function handleBridgeMessage(event) {
       ctx.pendingPid = "";
       setTimeout(() => host.post({ type: "HARNESS_PROTO_SELECT_BY_PID", pid }), 120);
     }
-  } else if (data.type === "HARNESS_PROTO_GOTO" && data.screen) {
-    ctx.screen = data.screen;
-    const select = /** @type {HTMLSelectElement} */ ($("atelierScreenSelect"));
-    if (select) select.value = data.screen;
-    persistAtelierScreen(ctx.screen);
-    host.reload();
+  } else if (data.type === "HARNESS_PROTO_GOTO") {
+    // Destino cru de link (EP-16.02): resolve para uma tela existente do protótipo.
+    if (data.target) {
+      const screenIds = (ctx.data?.screens || []).map((screen) => screen.id);
+      const resolved = resolveScreenTarget(data.target, screenIds);
+      if (resolved.kind === "screen") gotoAtelierScreen(resolved.screen);
+      else if (resolved.kind === "planned") showToast(`A tela "${resolved.screen}" ainda não existe neste protótipo.`);
+      return;
+    }
+    if (data.screen) gotoAtelierScreen(data.screen);
   }
+}
+
+/** Troca a tela do Ateliê e recarrega o preview. */
+function gotoAtelierScreen(screen) {
+  ctx.screen = screen;
+  const select = /** @type {HTMLSelectElement} */ ($("atelierScreenSelect"));
+  if (select) select.value = screen;
+  persistAtelierScreen(ctx.screen);
+  host.reload();
 }

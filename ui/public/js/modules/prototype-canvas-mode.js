@@ -5,6 +5,7 @@ import { mountToolbar } from "./prototype-canvas/canvas-toolbar.js";
 import { createPlay } from "./prototype-canvas/canvas-play.js";
 import { frameForScreen } from "./prototype-canvas/canvas-model.js";
 import { itemIframe } from "./prototype-canvas/canvas-items-view.js";
+import { resolveScreenTarget } from "./prototype-nav-resolve.js";
 
 /**
  * Fachada do modo canvas do Ateliê. O controlador do Ateliê conversa só com esta API:
@@ -57,10 +58,16 @@ export function createCanvasMode(options) {
     const data = event.data;
     const frame = engine.frameOfWindow(event.source);
     if (!frame || !data || typeof data !== "object") return false;
-    if (data.type === "HARNESS_PROTO_GOTO" && data.screen) {
-      if (play.active) return play.goto(data.screen) || true;
-      const target = frameForScreen(engine.doc, data.screen);
-      if (target) { engine.select(target.id); engine.fit(true, [target]); }
+    if (data.type === "HARNESS_PROTO_GOTO") {
+      // Destino cru de link (EP-16.02): resolve para uma tela existente do protótipo.
+      if (data.target) {
+        const screenIds = engine.doc.items.filter((i) => i.kind === "frame").map((i) => i.screen);
+        const resolved = resolveScreenTarget(data.target, screenIds);
+        if (resolved.kind === "screen") gotoCanvasScreen(resolved.screen);
+        else if (resolved.kind === "planned") notify?.(`A tela "${resolved.screen}" ainda não existe neste protótipo.`);
+        return true;
+      }
+      if (data.screen) gotoCanvasScreen(data.screen);
       return true;
     }
     if (data.type === "HARNESS_PROTO_KEY") {
@@ -77,6 +84,14 @@ export function createCanvasMode(options) {
     if (data.type === "HARNESS_PROTO_READY") postModeTo(frame, play.active ? "play" : restMode());
     if (data.type === "HARNESS_PROTO_READY" || data.type === "HARNESS_PROTO_TREE") return engine.selectedId !== frame.id;
     return false;
+  }
+
+  /** Move a câmera (ou o Play) até a tela de destino. */
+  function gotoCanvasScreen(screen) {
+    if (play.active) return play.goto(screen) || true;
+    const target = frameForScreen(engine.doc, screen);
+    if (target) { engine.select(target.id); engine.fit(true, [target]); }
+    return true;
   }
 
   function postToSelected(message) {
