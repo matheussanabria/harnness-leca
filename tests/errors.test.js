@@ -19,6 +19,8 @@ test("erros conhecidos viram título, mensagem e dica em português", () => {
     ["Google Gemini API retornou HTTP 400: API key not valid. Please pass a valid API key.", "auth", "gemini"],
     ["Google Gemini API retornou HTTP 503: The model is overloaded", "overloaded", "gemini"],
     ["connect ECONNREFUSED 127.0.0.1:63186", "server_down", "opencode"],
+    ["OpenCode erro: upstream connection lost", "upstream", "opencode"],
+    ["upstream closed", "upstream", "opencode"],
     ["fetch failed", "network", "gemini"],
     ["fetch failed", "local_offline", "ollama"],
     ["connect ECONNREFUSED 127.0.0.1:11434", "local_offline", "ollama"],

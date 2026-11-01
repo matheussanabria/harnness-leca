@@ -48,8 +48,8 @@ function sanitizeHtmlFragment(html) {
   let cleaned = html;
 
   // 1. Remove tags potencialmente perigosas e que quebram sandbox
-  cleaned = cleaned.replace(/<\s*(?:iframe|object|embed|applet|meta|base|form)[^>]*>.*?<\/\s*(?:iframe|object|embed|applet|meta|base|form)\s*>/gis, "");
-  cleaned = cleaned.replace(/<\s*(?:iframe|object|embed|applet|meta|base|form)[^>]*\/?>/gis, "");
+  cleaned = cleaned.replace(/<\s*(?:iframe|object|embed|applet|meta|base)[^>]*>.*?<\/\s*(?:iframe|object|embed|applet|meta|base)\s*>/gis, "");
+  cleaned = cleaned.replace(/<\s*(?:iframe|object|embed|applet|meta|base)[^>]*\/?>/gis, "");
 
   // 2. Remove tags script com src externo (HTTP/HTTPS/protocol relative)
   cleaned = cleaned.replace(/<\s*script[^>]*src\s*=\s*['"]?(?:https?:|\/\/)[^>]*>.*?<\/\s*script\s*>/gis, "");
@@ -61,6 +61,13 @@ function sanitizeHtmlFragment(html) {
   // 4. Remove URIs javascript:, vbscript: e data:text/html em atributos href, src, action
   cleaned = cleaned.replace(/(href|src|action)\s*=\s*['"]\s*(?:javascript:|vbscript:|data:(?:text\/html|application\/xhtml\+xml))[^'"]*['"]/gi, '$1="#"');
   cleaned = cleaned.replace(/(href|src|action)\s*=\s*(?:javascript:|vbscript:|data:(?:text\/html|application\/xhtml\+xml))[^\s>]*/gi, '$1="#"');
+
+  // 5. Formulários são legítimos em protótipos (campos, botões): mantém o conteúdo e só
+  // impede o envio real (action/method/target removidos, submit bloqueado).
+  cleaned = cleaned.replace(/<\s*form\b([^>]*)>/gi, (_m, attrs) => {
+    const safe = attrs.replace(/\s+(?:action|method|target|enctype)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+    return `<form${safe} onsubmit="return false">`;
+  });
 
   return cleaned;
 }

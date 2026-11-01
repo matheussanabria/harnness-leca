@@ -64,6 +64,17 @@ test("prototype-sanitizer: sanitizeHtmlFragment descarta scripts externos, handl
   assert.equal(clean.includes("Texto Seguro"), true);
 });
 
+test("prototype-sanitizer: mantém o conteúdo do formulário e bloqueia só o envio", () => {
+  const html = '<main><form class="item-form" action="http://evil.test/x" method="post"><label for="n">Nome</label><input id="n" type="text"><button type="submit">Salvar</button></form></main>';
+  const clean = sanitizeHtmlFragment(html);
+  assert.equal(clean.includes('<input id="n"'), true);
+  assert.equal(clean.includes("Salvar"), true);
+  assert.equal(clean.includes("evil.test"), false);
+  assert.equal(clean.includes("method="), false);
+  assert.equal(clean.includes('onsubmit="return false"'), true);
+  assert.equal(sanitizeHtmlFragment(clean), clean, "idempotente");
+});
+
 test("prototype-sanitizer: injectDataPidAttributes adiciona data-pid determinístico a nós HTML", () => {
   const rawHtml = `<div><header><h1>Olá</h1></header><p>Conteúdo</p></div>`;
   const result = injectDataPidAttributes(rawHtml);
