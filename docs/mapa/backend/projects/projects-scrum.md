@@ -3,7 +3,7 @@ domain: backend
 module: projects
 feature: projects-scrum
 summary: Project overview, project state and files, active project selection and Scrum lanes, transitions and impediments.
-paths: [ui/server/controllers/overview.controller.js, ui/server/controllers/project.controller.js, ui/server/services/project*.js, ui/server/controllers/scrum*.controller.js, ui/public/js/modules/design-scrum*.js, ui/public/css/design/09-scrum-story-details.css, ui/public/css/design/10-scrum-lanes.css, ui/public/css/design/11-scrum-lane-order.css, ui/public/css/design/12-scrum-story-transitions.css, ui/public/css/design/13-scrum-filters-metrics.css]
+paths: [ui/server/controllers/overview.controller.js, ui/server/controllers/project.controller.js, ui/server/services/project*.js, ui/server/controllers/scrum*.controller.js, ui/public/js/modules/design-scrum*.js, ui/public/css/design/09-scrum-story-details.css, ui/public/css/design/32-scrum-story-trace.css, ui/public/css/design/10-scrum-lanes.css, ui/public/css/design/11-scrum-lane-order.css, ui/public/css/design/12-scrum-story-transitions.css, ui/public/css/design/13-scrum-filters-metrics.css]
 keywords: [project, overview, active, scrum, lanes, transitions, impediments, jira, snapshot, filters, metrics, drawer]
 updated: 2026-11-01
 ---
@@ -36,5 +36,6 @@ updated: 2026-11-01
 | `ui/public/css/design/13-scrum-filters-metrics.css` | Styles of the Scrum filter bar and metrics strip. |
 | `ui/public/js/modules/design-scrum-story-card.js` | Story card; `design-scrum-story-drawer.js` is the details drawer and `design-scrum-status-mapping.js` maps Jira status to lanes. |
 | `ui/public/css/design/09-scrum-story-details.css` | Styles of Scrum story details (card and drawer). |
+| `ui/public/js/modules/design-scrum-story-trace.js` | Drawer section loader: calls the story `/dor` and `/commits` routes read-only, drops answers of a story that is no longer open; `design-scrum-story-trace-view.js` is the pure markup (maturity badge, DoR checks, commits); styles in `ui/public/css/design/32-scrum-story-trace.css`. |
 
 - Impediments (EP-05.05): `project-scrum-ops.js`, `project-scrum-persist.js` and `project-scrum-resolver.js` persist `impediment`/`impedimentHistory`, compose the summary with blockers and keep external snapshots intact.

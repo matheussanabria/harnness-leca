@@ -4,6 +4,7 @@ import { esc } from "../shared/dom.js";
 import { md } from "../shared/markdown.js";
 import { ds } from "./design-scrum-store.js";
 import { persistScrumState } from "./design-scrum-state.js";
+import { loadStoryTrace, traceSectionPlaceholder } from "./design-scrum-story-trace.js";
 
 function storyById(id) {
   return ds.currentScrumData?.stories?.find((story) => story.id === id || story.key === id);
@@ -122,6 +123,7 @@ export function renderStoryDetails(story) {
         <button type="button" class="btn-card-action" onclick="sendStoryToChatById('${esc(story.id)}')"><i class="fa-solid fa-message"></i> Enviar ao chat</button>
       </div>
       ${section("Metadados", "table-list", metadataHtml(story))}
+      ${section("Maturidade e evidencias", "clipboard-check", traceSectionPlaceholder())}
       ${section("Impedimento", "triangle-exclamation", impedimentHtml(story))}
       ${section("Historico de movimentacao", "clock-rotate-left", transitionHistoryHtml(story))}
       ${story.context ? section("Contexto", "circle-info", `<div class="story-detail-markdown">${md(story.context)}</div>`) : ""}
@@ -151,6 +153,7 @@ export function registerStoryDrawer() {
     drawer.hidden = false;
     drawer.classList.add("is-open");
     drawer.querySelector(".story-drawer-close")?.focus();
+    void loadStoryTrace(drawer, story);
   };
   window.closeStoryDetails = () => {
     const drawer = document.getElementById("scrumStoryDrawer");
