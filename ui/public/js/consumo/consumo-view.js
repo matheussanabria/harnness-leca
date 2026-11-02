@@ -5,6 +5,7 @@ import { pagedHtml } from "../shared/pagination.js";
 
 export const COMBOS_KEY = "consumo-combos";
 export const OPENCODE_KEY = "consumo-opencode";
+export const GEMINI_KEY = "consumo-gemini";
 
 const PROVIDER_ICONS = { claude: "fa-asterisk", codex: "fa-terminal", gemini: "fa-gem" };
 
@@ -56,6 +57,15 @@ export function renderOpenCode(rows) {
   const page = pagedHtml(rows, OPENCODE_KEY, (r) =>
     `<tr${r.viaRouter ? ' class="is-via"' : ""}><td>${esc(r.provider)}${r.viaRouter ? ' <span class="cg-badge">via 9Router</span>' : ""}</td><td>${esc(r.model)}</td>${num(r.calls)}${num(r.tokensIn)}${num(r.tokensOut)}<td>${esc(r.lastAtText)}</td></tr>`);
   return table(["Provedor", "Modelo", "Chamadas", "Entrada", "Saída", "Última"], page.html, "Consumo do OpenCode") + page.pager;
+}
+
+/** @param {any[]} rows @param {boolean} partial */
+export function renderGemini(rows, partial) {
+  if (!rows.length) return `<p class="c-empty">Sem atividade do Antigravity.</p>`;
+  const page = pagedHtml(rows, GEMINI_KEY, (r) =>
+    `<tr><td>${esc(r.day)}</td>${num(r.sessions)}${num(r.prompts)}${num(r.responses)}${num(r.errors)}</tr>`);
+  const note = `<p class="c-empty"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Somente contagem de atividade; tokens do Gemini aparecem no 9Router.${partial ? " Leitura parcial, atualize para completar." : ""}</p>`;
+  return note + table(["Dia (UTC)", "Sessões", "Pedidos", "Respostas", "Erros"], page.html, "Atividade do Antigravity por dia") + page.pager;
 }
 
 /** @param {{ days: any[], error: string }} trend */

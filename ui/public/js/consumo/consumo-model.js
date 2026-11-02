@@ -88,6 +88,13 @@ export function buildOpenCodeRows(stats) {
     .sort((a, b) => Number(a.viaRouter) - Number(b.viaRouter) || b.total - a.total);
 }
 
+/** Gemini/Antigravity activity per day (counts only; transcripts carry no token data). @param {any[]} days */
+export function buildGeminiRows(days) {
+  return (Array.isArray(days) ? days : []).map((d) => ({
+    day: d.day, sessions: cell(d.sessions), prompts: cell(d.prompts), responses: cell(d.responses), errors: cell(d.errors),
+  }));
+}
+
 /** "As of" labels per source, with a warning when a source reported problems. @param {any} loaded */
 export function buildAsOf(loaded) {
   const entry = (/** @type {string} */ id, /** @type {string} */ label, /** @type {any} */ src) => ({
@@ -101,6 +108,7 @@ export function buildAsOf(loaded) {
     entry("quotas", "Cotas", loaded.quotas),
     entry("combos", "9Router", loaded.combos),
     entry("opencode", "OpenCode", loaded.opencode),
+    entry("gemini", "Gemini", loaded.gemini),
   ];
 }
 

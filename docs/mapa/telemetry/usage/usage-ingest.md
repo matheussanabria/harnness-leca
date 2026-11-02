@@ -3,9 +3,9 @@ domain: telemetry
 module: usage
 feature: usage-ingest
 summary: Per-call usage ingest from Claude transcripts and Codex rollouts into usage.observed events and the summary API.
-paths: [ui/server/services/usage-ingest/*.js, tests/usage-ingest*.js, tests/usage-quota.test.js, tests/usage-cache-split.test.js, tests/codex-usage-fixtures.js, tests/usage-summary-extended.test.js, tests/usage-9router.test.js, tests/usage-opencode.test.js]
+paths: [ui/server/services/usage-ingest/*.js, tests/usage-ingest*.js, tests/usage-quota.test.js, tests/usage-cache-split.test.js, tests/codex-usage-fixtures.js, tests/usage-summary-extended.test.js, tests/usage-9router.test.js, tests/usage-opencode.test.js, tests/usage-gemini.test.js]
 keywords: [usage, ingest, transcript, codex, rollout, checkpoint, usage.observed, summary]
-updated: 2026-10-30
+updated: 2026-11-02
 ---
 # Usage ingest
 
@@ -45,3 +45,5 @@ updated: 2026-10-30
 | `ui/server/services/usage-ingest/opencode-stat-model.js` | Pure OpenCodeStat aggregation per provider/model (tokens, cache, cost, failures); 9router-provider calls flagged viaRouter and kept out of totals. |
 | `ui/server/services/usage-ingest/opencode-reader.js` | Read-only node:sqlite reader of the OpenCode DB (HARNESS_OPENCODE_DB), json_extract allow-list, one layout (session_message else message), rowid checkpoint; feeds `GET /api/usage/opencode`. |
 | `tests/usage-opencode.test.js` | OpenCode reader tests: layout choice, router dedupe, bounds, text/title sentinels, degradation, route. |
+| `ui/server/services/usage-ingest/gemini-activity-reader.js` | Read-only Antigravity transcript counter (HARNESS_GEMINI_DIR): reads only `type`/`created_at`, per-day prompts/responses/errors, size-cached, bounded; feeds `GET /api/usage/gemini` (tokens always null). |
+| `tests/usage-gemini.test.js` | Gemini activity reader tests: per-day counts, content sentinel, cache invalidation, degradation, route. |
