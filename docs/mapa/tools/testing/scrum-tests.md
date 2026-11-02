@@ -22,6 +22,7 @@ updated: 2026-11-01
 | `tests/design-screen-state.test.js` | Covers snapshot, apply, hydration, persistence and log of Scrum, Layers, Board and Audit screens; no emoji, 300-line limit (EP-14.09). |
 | `tests/project-selection.test.js` | Covers precedence, canonicalization, persistence, rollback and atomic write of the active project. |
 | `tests/design-scrum-details.test.js` | Validates panel, dynamic projection by `laneId`, accessible modal, relationships and status mapping. |
+| `tests/design-scrum-story-trace.test.js` | Drawer trace section: escaped markup for maturity, DoR and commits, encoded route URLs, error state and stale-answer guard. |
 | `tests/project-scrum-maturity.test.js` | Maturity default and gate: drafts stay out of the sprint, DoR required for `ready`, partial payloads keep stored fields, backlog edits do not move sprints. |
 | `tests/project-scrum-commits.test.js` | Trailer parsing and the git reader on temporary repositories, including hostile ids, branches, clamping and `GIT_*` hygiene. |
 | `tests/project-scrum-dor.test.js` | Mechanical Definition of Ready: required and advisory checks, boundaries, robustness, determinism. |

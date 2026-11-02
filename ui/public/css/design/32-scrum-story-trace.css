@@ -1,0 +1,17 @@
+/* Secao de rastreabilidade da historia: maturidade, Definition of Ready e commits. */
+.story-trace-maturity { margin-bottom: 8px; }
+.story-maturity-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel2); color: var(--text); font-size: 11.5px; }
+.story-maturity-badge.is-ready { border-color: #22c55e; color: #86efac; }
+.story-maturity-badge.is-draft, .story-maturity-badge.is-refining { border-color: #f59e0b; color: #fcd34d; }
+#storyTraceBody h4 { margin: 10px 0 6px; font-size: 11.5px; color: var(--mute); text-transform: uppercase; letter-spacing: .04em; }
+.story-dor-verdict { margin: 0 0 6px; font-size: 12px; }
+.story-dor-verdict.is-ready { color: #86efac; }
+.story-dor-verdict.is-blocked { color: #fca5a5; }
+.story-dor-checks, .story-commit-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.story-dor-check, .story-commit { display: grid; grid-template-columns: 16px 1fr auto; gap: 8px; align-items: start; font-size: 12px; }
+.story-dor-check.is-ok i { color: #22c55e; }
+.story-dor-check.is-fail i { color: #f59e0b; }
+.story-dor-check small, .story-commit small { display: block; color: var(--mute); font-size: 10.5px; }
+.story-dor-check em { display: block; color: var(--mute); font-style: normal; font-size: 11px; }
+.story-commit code { color: #a5b4fc; }
+.story-commit-unverified { color: #f59e0b; }
