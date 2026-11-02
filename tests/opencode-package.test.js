@@ -10,6 +10,7 @@ const { findViolations, patternToRegExp } = require("../tools/lib/opencode-packa
 const { packageConfig, AGENT } = require("../tools/lib/opencode-package/config");
 const { buildPrompt } = require("../tools/lib/opencode-package/prompt");
 const { cleanEnv } = require("../tools/lib/opencode-package/worktree");
+const { sandboxGit, initSandboxRepo } = require("./helpers/git-sandbox");
 const { runPackage, verifyStory } = require("../tools/lib/opencode-package/run");
 
 const REAL_ROOT = path.resolve(__dirname, "..");
@@ -37,10 +38,8 @@ nada
 /** Repositório git temporário com uma história e a branch base ep14/integracao. */
 function tempRepo() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "hl-pkg-test-"));
-  const sh = (/** @type {string[]} */ ...a) => spawnSync("git", a, { cwd: root, encoding: "utf8", env: cleanEnv() });
-  sh("init", "-q", "-b", "main");
-  sh("config", "user.email", "t@t");
-  sh("config", "user.name", "t");
+  const sh = (/** @type {string[]} */ ...a) => sandboxGit(root, a);
+  initSandboxRepo(root, { branch: "main" });
   fs.mkdirSync(path.join(root, EPIC_DIR), { recursive: true });
   fs.writeFileSync(path.join(root, EPIC_DIR, "99.01-historia.md"), STORY.replace("EP-99", "EP-14"));
   fs.writeFileSync(path.join(root, "README.md"), "x");

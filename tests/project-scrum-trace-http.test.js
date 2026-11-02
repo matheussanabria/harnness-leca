@@ -6,7 +6,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const http = require("node:http");
-const { spawnSync } = require("node:child_process");
+const { sandboxGit, initSandboxRepo } = require("./helpers/git-sandbox");
 const { createServer } = require("../ui/server");
 const { getCanonicalLanes } = require("../ui/server/services/project-scrum-lanes");
 
@@ -17,8 +17,7 @@ process.env.HARNESS_PROJECTS_DIR = projects;
 test.after(() => fs.rmSync(root, { recursive: true, force: true }));
 
 function git(args) {
-  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith("GIT_")));
-  const result = spawnSync("git", args, { cwd: repo, env, encoding: "utf8" });
+  const result = sandboxGit(repo, args);
   assert.equal(result.status, 0, result.stderr);
 }
 
@@ -37,11 +36,7 @@ function writeProject(slug, stories, repoPath) {
 }
 
 fs.mkdirSync(repo, { recursive: true });
-git(["init", "-q"]);
-git(["config", "user.name", "Tester"]);
-git(["config", "user.email", "tester@example.invalid"]);
-git(["config", "commit.gpgsign", "false"]);
-git(["config", "core.hooksPath", path.join(root, "no-hooks")]);
+initSandboxRepo(repo, { name: "Tester", email: "tester@example.invalid" });
 git(["commit", "-q", "--allow-empty", "-m", "feat: linked work", "-m", "Story: US-1"]);
 git(["commit", "-q", "--allow-empty", "-m", "chore: unrelated"]);
 

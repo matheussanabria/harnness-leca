@@ -4,7 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
-const { spawnSync } = require("node:child_process");
+const { initSandboxRepo } = require("./helpers/git-sandbox");
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "harness-hia-registry-"));
 const projectDir = path.join(root, "projects", "harness-leca");
@@ -25,7 +25,7 @@ fs.writeFileSync(path.join(projectDir, "coordination", "state.json"), JSON.strin
 }, null, 2), "utf8");
 fs.writeFileSync(path.join(root, "package.json"), JSON.stringify({ name: "harness-fixture" }, null, 2), "utf8");
 fs.writeFileSync(path.join(root, "sample.js"), "module.exports = 1;\n", "utf8");
-spawnSync("git", ["init"], { cwd: root, encoding: "utf8", windowsHide: true });
+initSandboxRepo(root);
 
 process.env.HARNESS_ROOT = root;
 test.after(() => fs.rmSync(root, { recursive: true, force: true }));
