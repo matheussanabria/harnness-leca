@@ -20,6 +20,8 @@
     "dev:web": "vite build --config ui/web/vite.config.ts --watch",
     "types:web": "tsc -p ui/web && tsc -p ui/web/tsconfig.node.json",
     "lint:web": "biome check ui/web",
+    "lint:proto": "node tools/atelier-pilot/lint-prototype.js",
+    "visual:proto": "node tools/atelier-pilot/visual-compare.js",
     "e2e:web": "node scripts/e2e-island-lab.js",
     "remote": "node ui/server.js --remote",
     "remote:tunnel": "node tools/tunnel.js",
