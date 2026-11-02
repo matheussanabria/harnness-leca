@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { spawnSync } = require("child_process");
 const { makeTempDir } = require("./helpers/temp-dir");
+const { sandboxGit, initSandboxRepo } = require("./helpers/git-sandbox");
 const service = require("../tools/lib/coordination/service");
 const { PROVIDERS } = require("../tools/lib/coordination/config");
 const { parseScopes, globsOverlap, findConflicts } = require("../tools/lib/coordination/scopes");
@@ -80,11 +81,8 @@ test("planWaves runs disjoint stories together, defers overlaps and dependants, 
 
 function repo() {
   const dir = makeTempDir("harness-flow-git-", test);
-  const run = (...a) => { // A pre-commit hook exports GIT_DIR/GIT_INDEX_FILE; inheriting them would make these commands rewrite the real repository.
-  const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith("GIT_")));
-  const r = spawnSync("git", a, { cwd: dir, encoding: "utf8", env }); assert.equal(r.status, 0, r.stderr); };
-  run("init", "-b", "main");
-  run("config", "user.email", "t@t"); run("config", "user.name", "t"); run("config", "commit.gpgsign", "false"); run("config", "core.hooksPath", require("os").devNull); // the user-level hooks path must not run in this throwaway repo
+  const run = (...a) => { const r = sandboxGit(dir, a); assert.equal(r.status, 0, r.stderr); };
+  initSandboxRepo(dir, { branch: "main" });
   fs.writeFileSync(path.join(dir, "a.txt"), "1");
   run("add", "."); run("commit", "-m", "init");
   return { dir, run };
