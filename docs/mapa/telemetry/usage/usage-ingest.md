@@ -3,7 +3,7 @@ domain: telemetry
 module: usage
 feature: usage-ingest
 summary: Per-call usage ingest from Claude transcripts and Codex rollouts into usage.observed events and the summary API.
-paths: [ui/server/services/usage-ingest/*.js, tests/usage-ingest*.js, tests/usage-cache-split.test.js, tests/codex-usage-fixtures.js, tests/usage-summary-extended.test.js]
+paths: [ui/server/services/usage-ingest/*.js, tests/usage-ingest*.js, tests/usage-quota.test.js, tests/usage-cache-split.test.js, tests/codex-usage-fixtures.js, tests/usage-summary-extended.test.js]
 keywords: [usage, ingest, transcript, codex, rollout, checkpoint, usage.observed, summary]
 updated: 2026-10-30
 ---
@@ -26,6 +26,12 @@ updated: 2026-10-30
 | `ui/server/services/usage-ingest/codex-call-normalizer.js` | Allow-list of token_count (last_token_usage), turn_context model and subagent flag; builds `usage.observed` (codex/openai). |
 | `ui/server/services/usage-ingest/codex-file-discovery.js` | Stat-only walk of `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` with cold-file caching. |
 | `ui/server/services/usage-ingest/codex-ingestor.js` | Bounded incremental Codex ingest: project from threads.cwd, subagent threads excluded, per-file checkpoint, idempotent publish. |
+| `ui/server/services/usage-ingest/quota-model.js` | QuotaSnapshot (provider, plan, window, used, limit, unit, resetsAt, confidence): allow-list validation, extras dropped. |
+| `ui/server/services/usage-ingest/quota-store.js` | Global store of the latest snapshot per provider+window, atomic JSON in coordination/. |
+| `ui/server/services/usage-ingest/codex-quota-normalizer.js` | Turns Codex token_count rate_limits into a snapshot (10080 weekly, 300 5h, else unknown). |
+| `ui/server/services/usage-ingest/quota-plans-config.js` | Manual plans (Claude Pro, Codex Plus, Gemini Pro) and optional limits from usage-plans.json. |
+| `ui/server/services/usage-ingest/quota-merge.js` | Merges observed and manual snapshots for `GET /api/usage/quotas`; stale after 1h, expired window becomes unknown. |
+| `tests/usage-quota.test.js` | Quota model, Codex extraction, store ordering and stale/expired handling. |
 | `tests/usage-ingest.test.js` | Ingest tests: dedup, incremental reads, replay, truncation, null vs zero, sidechain, privacy sentinels, bounds. |
 | `tests/usage-ingest-http.test.js` | Tests for the usage summary endpoint, runtime disable and error counting. |
 | `tests/usage-ingest-fixtures.js` | Shared transcript fixtures for the usage ingest tests (not a test file). |

@@ -1,6 +1,7 @@
 const {
   apiProjectEvents,
   apiProjectUsageSummary,
+  apiUsageQuotas,
   apiProjectProjections,
   apiProjectEventStream,
   apiProjectEventPublish,
@@ -16,6 +17,7 @@ const centralEventRoutes = [
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/events$/, handler: apiProjectEventPublish },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/projections$/, handler: apiProjectProjections },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/usage\/summary$/, handler: apiProjectUsageSummary },
+  { method: "GET", path: /^\/api\/usage\/quotas$/, handler: apiUsageQuotas },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/sessions\/stream$/, handler: apiProjectEventStream },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/attention$/, handler: apiProjectAttentionQueue },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/attention\/([\w-]+)\/ack$/, handler: apiProjectAttentionAck },
