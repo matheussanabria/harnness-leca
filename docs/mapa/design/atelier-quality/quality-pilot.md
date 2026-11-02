@@ -3,9 +3,9 @@ domain: design
 module: atelier-quality
 feature: quality-pilot
 summary: Atelier quality pilot: approval plan, audit, drivers, render review, contrast repair, DC import, quality prompt.
-paths: [docs/atelie-pilot/*, docs/atelie-resumo-executivo-plano-aprovacao.md, tools/atelier-pilot/**, tools/ds-docs/*.js, tools/import-dc-design-system.js, ui/public/js/modules/prototype-prompt-quality.js, ui/server/services/atelier-quality.service.js, ui/server/controllers/atelier-quality.controller.js, tests/atelier-*.test.js, tests/ds-dc-import.test.js]
-keywords: [atelier, quality, pilot, render-review, contrast, design-system, dc, directions, briefing, baseline]
-updated: 2026-10-30
+paths: [quality/biome-prototype/*, docs/atelie-pilot/*, docs/atelie-resumo-executivo-plano-aprovacao.md, tools/atelier-pilot/**, tools/ds-docs/*.js, tools/import-dc-design-system.js, ui/public/js/modules/prototype-prompt-quality.js, ui/server/services/atelier-quality.service.js, ui/server/controllers/atelier-quality.controller.js, tests/atelier-*.test.js, tests/ds-dc-import.test.js]
+keywords: [biome, lint, visual-diff, baseline, atelier, quality, pilot, render-review, contrast, design-system, dc, directions, briefing]
+updated: 2026-11-02
 ---
 # Atelier quality pilot (prototype quality: briefing, direction, render review)
 
@@ -27,7 +27,15 @@ updated: 2026-10-30
 | `ui/server/controllers/atelier-quality.controller.js` | `GET /api/project/:slug/design/atelier/quality-context` (route in `design.routes.js`). |
 | `tests/atelier-quality-prompt.test.js` | Covers the command parser, rules content, loader, service states and the bridge with the flag on and off. |
 | `tools/atelier-pilot/review-checks.js` | In-page render review checks via `page.evaluate`: overflow, contrast, default-blue links, default font, touch targets, structure. |
-| `tools/atelier-pilot/render-review.js` | Render review CLI: Edge through `playwright-core` at 360/390/768/1440 px, full-page screenshots, JSON report and severity summary. |
+| `tools/atelier-pilot/render-review.js` | Render review CLI: Chrome (Edge fallback) through `playwright-core` at 360/390/768/1440 px, full-page screenshots, JSON report and severity summary. |
+| `tools/atelier-pilot/lib/browser.js` | Shared launcher: playwright-core from this or the main checkout, Chrome (`HARNESS_CHROME_PATH`), Edge as fallback. |
+| `tools/atelier-pilot/lib/repo-root.js` | Finds the main checkout and the checkout that holds `projects/<slug>` when running inside a git worktree. |
+| `tools/atelier-pilot/lib/image-diff.js` | Pixel diff of two PNGs on a canvas inside the browser, with a red diff image; no image library. |
+| `tools/atelier-pilot/visual-compare.js` | Visual comparison CLI: screenshots per width against `baselines/<browser>/`, diff image, exit 1 above the threshold; `npm run visual:proto`. |
+| `tools/atelier-pilot/lint-prototype.js` | Biome check of a project's prototype HTML/CSS/JS with `quality/biome-prototype/biome.json`; `npm run lint:proto`. |
+| `quality/biome-prototype/biome.json` | Biome config for prototypes: no VCS ignore (projects/ is gitignored), skips `.versions`, `.history`, `.trash`, `baselines`, `data`. |
+| `tests/atelier-lint-prototype.test.js` | Argument parsing, clean pass, lint failure, ignored folders and malformed generated markup. |
+| `tests/atelier-visual-compare.test.js` | Baseline written, identical pass, colour change fails with a diff, size change fails, baseline update; skips without a browser. |
 | `tools/atelier-pilot/contrast-fix.js` | Deterministic contrast repair, no model: keeps text polarity, moves text colour first, scopes rules to one `data-pid` by specificity. |
 | `tools/atelier-pilot/apply-fix.js` | Applies the contrast repair to a COPY of a prototype, reviews it at four widths and prints fixes, skips and before/after counts. |
 | `tests/atelier-contrast-fix.test.js` | WCAG reference ratios, polarity, background ownership, scoping without `!important`, skips and independent recomputation of fixes. |

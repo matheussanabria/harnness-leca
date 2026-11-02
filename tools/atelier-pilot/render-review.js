@@ -3,7 +3,7 @@
 "use strict";
 /**
  * Render review for an Atelier prototype screen: screenshots plus in-page checks at several widths.
- * Drives the Microsoft Edge that is already installed (playwright-core, no browser download).
+ * Drives the installed Chrome, or Edge as a fallback (playwright-core, no browser download).
  *
  * Usage: node tools/atelier-pilot/render-review.js --proto <id> --screen <id> --out <dir>
  *          [--project harness-leca] [--base http://localhost:4321] [--widths 360,390,768,1440]
@@ -11,6 +11,7 @@
 const fs = require("fs");
 const path = require("path");
 const { pageChecks } = require("./review-checks");
+const { launchBrowser } = require("./lib/browser");
 
 const DEFAULT_WIDTHS = [360, 390, 768, 1440];
 
@@ -25,13 +26,9 @@ function parseArgs(argv) {
   return args;
 }
 
-/** Launches the installed Edge, or fails with a message that says what to do. */
+/** Launches Chrome (or Edge as a fallback); kept under its old name for the callers that import it. */
 async function launchEdge() {
-  let chromium;
-  try { ({ chromium } = require("playwright-core")); } catch { throw new Error("playwright-core is not installed. Run: npm install --save-dev --ignore-scripts playwright-core"); }
-  try { return await chromium.launch({ channel: "msedge", headless: true }); } catch (err) {
-    throw new Error(`Could not start the installed Microsoft Edge (${String(err.message).split("\n")[0]}). The render review needs Edge on this machine.`);
-  }
+  return (await launchBrowser()).browser;
 }
 
 /**
