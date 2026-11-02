@@ -3,16 +3,18 @@ domain: backend
 module: atelier
 feature: atelier-tools
 summary: Atelier server services that inject prototype context into agent runs and parse model tool tags, with tests.
-paths: [ui/server/services/atelier-proto-context.service.js, ui/server/services/atelier-nav-contract.service.js, ui/server/services/atelier-tool-tags.service.js, tests/atelier-proto-context.test.js, tests/atelier-nav-contract.test.js, tests/atelier-tool-tags.test.js, ui/server/services/atelier-engine-adapters.service.js, ui/server/services/prototype-sanitizer.service.js, tests/atelier-opencode-session-resume.test.js, tests/prototype-atelier.test.js]
+paths: [ui/server/services/atelier-proto-map.service.js, tests/atelier-proto-map.test.js, ui/server/services/atelier-proto-context.service.js, ui/server/services/atelier-nav-contract.service.js, ui/server/services/atelier-tool-tags.service.js, tests/atelier-proto-context.test.js, tests/atelier-nav-contract.test.js, tests/atelier-tool-tags.test.js, ui/server/services/atelier-engine-adapters.service.js, ui/server/services/prototype-sanitizer.service.js, tests/atelier-opencode-session-resume.test.js, tests/prototype-atelier.test.js]
 keywords: [atelier, prototype, context, tool tags, atelier_write_screen, atelier_patch_styles, navigation]
-updated: 2026-11-01
+updated: 2026-11-02
 ---
 # Atelier Tools
 
 | File | Responsibility |
 |---|---|
 | `ui/server/services/atelier-proto-context.service.js` | Reads prototype state from disk on each agent run and builds the prompt block so stage 2 continues stage 1. |
-| `ui/server/services/atelier-nav-contract.service.js` | Shared navigation contract (`data-action="goto:<screen-id>"`) and valid screen ID line for the three Atelier generation paths. |
+| `ui/server/services/atelier-nav-contract.service.js` | Shared navigation contract (`data-action="goto:<screen-id>"`), valid screen ID line, and nav graph extraction (edges and broken targets) for the three Atelier generation paths. |
+| `ui/server/services/atelier-proto-map.service.js` | Compact prototype map (screens, nav graph, storage keys, CSS classes, components; capped under 300 tokens) plus a 12-hex content hash so the agent detects a changed prototype. |
+| `tests/atelier-proto-map.test.js` | Map contents, hash stability and sensitivity, nav graph, and the 300-token budget. |
 | `tests/atelier-proto-context.test.js` | Context block contents, empty prototype, and loop delivery (model gets context, event shows only the request). |
 | `tests/atelier-nav-contract.test.js` | Navigation contract text, screen ID line, and its presence in the proto context and chat rules. |
 | `ui/server/services/atelier-tool-tags.service.js` | Parses `<tool name=...>` tags: raw HTML/CSS for `atelier_write_screen`/`atelier_patch_styles`, repaired JSON, unreadable tags returned as errors. |
