@@ -13,6 +13,9 @@ const { getPresenceStats } = require("../services/external-presence/presence-run
 const { getUsageStats } = require("../services/usage-ingest/usage-runtime");
 const { summarizeUsage, GROUPS } = require("../services/usage-ingest/usage-summary");
 
+const { getQuotaStore } = require("../services/usage-ingest/quota-store");
+const { loadPlanConfig } = require("../services/usage-ingest/quota-plans-config");
+const { buildQuotas } = require("../services/usage-ingest/quota-merge");
 const { parseUsageRange } = require("../services/usage-ingest/usage-range");
 
 const SLUG_RE = /^[a-z0-9][a-z0-9_-]{0,59}$/i;
@@ -87,6 +90,11 @@ async function apiProjectUsageSummary({ req, res, params: [slug] }) {
   });
 }
 
+/** GET /api/usage/quotas (global, read-only): latest quota snapshots per provider+window plus configured plans */
+async function apiUsageQuotas({ res }) {
+  return send(res, 200, buildQuotas({ stored: getQuotaStore().list(), config: loadPlanConfig(), nowMs: Date.now() }));
+}
+
 /** GET /api/project/:slug/projections */
 async function apiProjectProjections({ req, res, params: [slug] }) {
   if (!SLUG_RE.test(String(slug || ""))) return send(res, 400, { error: "Identificador de projeto inválido." });
@@ -151,4 +159,4 @@ async function apiProjectEventPublish({ req, res, params: [slug] }) {
   }
 }
 
-module.exports = { apiProjectEvents, apiProjectUsageSummary, apiProjectProjections, apiProjectEventStream, apiProjectEventPublish };
+module.exports = { apiProjectEvents, apiProjectUsageSummary, apiUsageQuotas, apiProjectProjections, apiProjectEventStream, apiProjectEventPublish };

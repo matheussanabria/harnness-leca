@@ -15,6 +15,8 @@ const { discoverRollouts } = require("./codex-file-discovery");
 const { readWindow } = require("./transcript-reader");
 const { createCheckpointStore } = require("./checkpoint-store");
 const { extractRecord, toEventBody } = require("./codex-call-normalizer");
+const { extractQuota } = require("./codex-quota-normalizer");
+const { getQuotaStore } = require("./quota-store");
 const { costOf } = require("./usage-cost");
 const { lookupCodexThreads } = require("../external-presence/presence-sources-db");
 
@@ -28,7 +30,7 @@ function defaultCoordinationDir() {
 /**
  * @param {{ codexHome?: string, resolveProject?: (cwd: string) => string | null, publish?: (slug: string, body: any) => { duplicated: boolean },
  *   estimator?: ((input: any) => any) | null, now?: () => number, host?: string, coordinationDir?: (slug: string) => string,
- *   limits?: Partial<typeof cfg.LIMITS> }} [options]
+ *   limits?: Partial<typeof cfg.LIMITS>, quotaStore?: { save: (s: unknown) => boolean } }} [options]
  */
 function createCodexIngestor(options = {}) {
   const L = { ...cfg.LIMITS, ...options.limits };
@@ -38,6 +40,9 @@ function createCodexIngestor(options = {}) {
   const host = options.host || os.hostname();
   const checkpoints = createCheckpointStore(options.coordinationDir || defaultCoordinationDir(), L.checkpointTtlMs, cfg.CHECKPOINT_FILE);
   let resolveProject = options.resolveProject || null;
+  /** Latest rate-limit snapshot seen in this tick (quotas are global, not per project). */
+  /** @type {import("./quota-model").QuotaSnapshot | null} */
+  let latestQuota = null;
   /** @type {Map<string, FileState>} */
   const states = new Map();
   /** @type {Map<string, { cwd: string, child: boolean }>} */
@@ -90,6 +95,8 @@ function createCodexIngestor(options = {}) {
   function handleLine(/** @type {{ text: string, end: number }} */ line, /** @type {FileState} */ st, /** @type {string} */ slug, /** @type {string} */ threadId) {
     stats.linesRead += 1;
     st.pos = line.end;
+    const q = extractQuota(line.text);
+    if (q && (!latestQuota || Date.parse(q.observedAt) >= Date.parse(latestQuota.observedAt))) latestQuota = q;
     const r = extractRecord(line.text);
     if (r.status === "unparsable") stats.linesUnparsable += 1;
     else if (r.status === "model") st.model = r.model || st.model;
@@ -149,6 +156,7 @@ function createCodexIngestor(options = {}) {
     stats.lastTickBytes = 0;
     const budget = { bytes: L.maxBytesPerTick, calls: L.maxCallsPerTick };
     let backlog = false;
+    latestQuota = null;
     try {
       const files = discoverRollouts(home, nowMs, cache).sort((a, b) => b.mtimeMs - a.mtimeMs);
       stats.filesTracked = files.length;
@@ -185,6 +193,7 @@ function createCodexIngestor(options = {}) {
       stats.filesUnmatched = unmatched;
       stats.filesSubagent = files.filter((f) => threads.get(f.threadId)?.child || states.get(f.file)?.skip).length;
       checkpoints.flush(nowMs);
+      if (latestQuota) (options.quotaStore || getQuotaStore()).save(latestQuota);
     } catch {
       stats.errors += 1;
     }
