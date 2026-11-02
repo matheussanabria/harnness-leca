@@ -36,3 +36,7 @@ projects/*/design/prototypes/*/.history/
 
 # React islands build output (ADR-011): npm run build:web
 ui/public/dist/
+
+# Agent worktrees and personal scratch folder: never committed
+.claude/worktrees/
+temp/
