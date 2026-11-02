@@ -48,6 +48,18 @@ test("combo rows sort by tokens and keep failures as a real number", async () =>
   assert.equal(oc[0].viaRouter, false);
 });
 
+test("cache share and in/out ratio: 9Router input includes cache, OpenCode input does not", async () => {
+  const { buildComboRows, buildOpenCodeRows, ioRatio } = await mod("consumo-model.js");
+  const [c] = buildComboRows([{ provider: "p", model: "m", calls: 1, tokensIn: 1000, tokensOut: 10, cacheRead: 900 }]);
+  assert.ok(c.cache.text.endsWith("(90%)"));
+  assert.equal(c.ratio, "100:1");
+  const [o] = buildOpenCodeRows([{ provider: "o", model: "y", calls: 1, tokensIn: 100, tokensOut: 10, cacheRead: 900 }]);
+  assert.ok(o.cache.text.endsWith("(90%)"));
+  assert.equal(o.ratio, "100:1");
+  assert.equal(buildComboRows([{ provider: "p", model: "m", tokensIn: 5 }])[0].cache.text, "n/d");
+  assert.equal(ioRatio(5, 0), "n/d");
+});
+
 test("views escape values, show badges and contain no emoji", async () => {
   const { renderQuotas, renderCombos, renderAsOf } = await mod("consumo-view.js");
   const { buildQuotaCards, buildComboRows } = await mod("consumo-model.js");

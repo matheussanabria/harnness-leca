@@ -67,6 +67,21 @@ export function buildFallbacks(routing) {
 /** @param {any} n */
 const cell = (n) => ({ text: formatCompact(n), title: formatExact(n), value: isNum(n) ? n : 0 });
 
+/** Cache read cell: compact value, tooltip with exact value and share of input (input already includes cache).
+ * @param {any} cacheRead @param {any} tokensIn */
+function cacheCell(cacheRead, tokensIn) {
+  const c = Number(cacheRead), t = Number(tokensIn);
+  if (!isNum(cacheRead)) return { text: NA, title: "sem dados de cache", value: 0 };
+  const pct = t > 0 ? Math.min(100, Math.round((c / t) * 100)) : 0;
+  return { text: `${formatCompact(c)} (${pct}%)`, title: `${formatExact(c)} lidos do cache, ${pct}% da entrada`, value: c };
+}
+
+/** Input-to-output ratio as "N:1"; n/d without output. @param {any} tokensIn @param {any} tokensOut */
+export function ioRatio(tokensIn, tokensOut) {
+  const i = Number(tokensIn), o = Number(tokensOut);
+  return o > 0 && i >= 0 ? `${Math.round(i / o)}:1` : NA;
+}
+
 /**
  * Combo/provider/model rows sorted by total tokens, largest first. 9Router keeps no failure data, so the
  * "Harness" column comes from the dispatcher's own outcomes (ok/failed per combo); n/d when none were recorded.
@@ -83,6 +98,8 @@ export function buildComboRows(combos, outcomes = []) {
       calls: cell(c.calls),
       tokensIn: cell(c.tokensIn),
       tokensOut: cell(c.tokensOut),
+      cache: cacheCell(c.cacheRead, c.tokensIn),
+      ratio: ioRatio(c.tokensIn, c.tokensOut),
       failures: cell(c.failures),
       total: (Number(c.tokensIn) || 0) + (Number(c.tokensOut) || 0),
       lastAtText: formatDateTime(c.lastAt),
@@ -93,16 +110,22 @@ export function buildComboRows(combos, outcomes = []) {
 /** OpenCode rows; calls routed through 9Router are flagged because they are already counted there. @param {any[]} stats */
 export function buildOpenCodeRows(stats) {
   return (Array.isArray(stats) ? stats : [])
-    .map((s) => ({
+    .map((s) => {
+      // OpenCode reports fresh input apart from cache reads; the share and ratio use input + cache.
+      const promptIn = (Number(s.tokensIn) || 0) + (Number(s.cacheRead) || 0);
+      return {
       provider: s.provider || NA,
       model: s.model || NA,
       viaRouter: Boolean(s.viaRouter),
       calls: cell(s.calls),
       tokensIn: cell(s.tokensIn),
       tokensOut: cell(s.tokensOut),
+      cache: cacheCell(s.cacheRead, promptIn),
+      ratio: ioRatio(promptIn, s.tokensOut),
       total: (Number(s.tokensIn) || 0) + (Number(s.tokensOut) || 0),
       lastAtText: formatDateTime(s.lastAt),
-    }))
+      };
+    })
     .sort((a, b) => Number(a.viaRouter) - Number(b.viaRouter) || b.total - a.total);
 }
 

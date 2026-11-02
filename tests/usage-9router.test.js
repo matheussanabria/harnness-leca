@@ -39,6 +39,17 @@ function addRows(db, n) {
 
 const quiet = () => {};
 
+test("sums cache counters from the tokens JSON and tolerates bad JSON", () => {
+  const { createAggregator } = require("../ui/server/services/usage-ingest/9router-stat-model");
+  const agg = createAggregator();
+  const base = { provider: "p", model: "m", promptTokens: 100, completionTokens: 1, status: "ok" };
+  agg.add({ ...base, tokens: JSON.stringify({ cached_tokens: 60, cache_creation_input_tokens: 5 }) });
+  agg.add({ ...base, tokens: "{not json" });
+  agg.add({ ...base });
+  const [s] = agg.list();
+  assert.deepEqual([s.calls, s.tokensIn, s.cacheRead, s.cacheWrite], [3, 300, 60, 5]);
+});
+
 test("aggregates per combo/provider/model with failures and lastAt", () => {
   const { file } = makeDb(3);
   const out = createNineRouterReader({ dbPath: file, warn: quiet }).read();

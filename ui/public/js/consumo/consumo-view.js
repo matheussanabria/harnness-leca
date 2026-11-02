@@ -48,16 +48,16 @@ export function renderCombos(rows, fallbacks = { script: 0, local: 0 }) {
   if (!rows.length) return `<p class="c-empty">Sem chamadas no 9Router.</p>`;
   const note = `<p class="c-empty"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> O 9Router não registra falhas; a coluna Harness conta turnos roteados por este app (ok / falha). Fallbacks para a nuvem: script ${fallbacks.script}, modelo local ${fallbacks.local}.</p>`;
   const page = pagedHtml(rows, COMBOS_KEY, (r) =>
-    `<tr><td>${esc(r.combo)}</td><td>${esc(r.provider)}</td><td>${esc(r.model)}</td>${num(r.calls)}${num(r.tokensIn)}${num(r.tokensOut)}<td class="n${r.outcome.failed ? " is-fail" : ""}" title="${esc(r.outcome.title)}">${esc(r.outcome.text)}</td><td>${esc(r.lastAtText)}</td></tr>`);
-  return note + table(["Combo", "Provedor", "Modelo", "Chamadas", "Entrada", "Saída", "Harness ok / falha", "Última"], page.html, "Consumo por combo do 9Router") + page.pager;
+    `<tr><td>${esc(r.combo)}</td><td>${esc(r.provider)}</td><td>${esc(r.model)}</td>${num(r.calls)}${num(r.tokensIn)}${num(r.cache)}${num(r.tokensOut)}<td class="n" title="entrada total (com cache) por token de saída">${esc(r.ratio)}</td><td class="n${r.outcome.failed ? " is-fail" : ""}" title="${esc(r.outcome.title)}">${esc(r.outcome.text)}</td><td>${esc(r.lastAtText)}</td></tr>`);
+  return note + table(["Combo", "Provedor", "Modelo", "Chamadas", "Entrada", "Cache", "Saída", "Ent.:Saí.", "Harness ok / falha", "Última"], page.html, "Consumo por combo do 9Router") + page.pager;
 }
 
 /** @param {any[]} rows */
 export function renderOpenCode(rows) {
   if (!rows.length) return `<p class="c-empty">Sem chamadas no OpenCode.</p>`;
   const page = pagedHtml(rows, OPENCODE_KEY, (r) =>
-    `<tr${r.viaRouter ? ' class="is-via"' : ""}><td>${esc(r.provider)}${r.viaRouter ? ' <span class="cg-badge">via 9Router</span>' : ""}</td><td>${esc(r.model)}</td>${num(r.calls)}${num(r.tokensIn)}${num(r.tokensOut)}<td>${esc(r.lastAtText)}</td></tr>`);
-  return table(["Provedor", "Modelo", "Chamadas", "Entrada", "Saída", "Última"], page.html, "Consumo do OpenCode") + page.pager;
+    `<tr${r.viaRouter ? ' class="is-via"' : ""}><td>${esc(r.provider)}${r.viaRouter ? ' <span class="cg-badge">via 9Router</span>' : ""}</td><td>${esc(r.model)}</td>${num(r.calls)}${num(r.tokensIn)}${num(r.cache)}${num(r.tokensOut)}<td class="n" title="entrada total (com cache) por token de saída">${esc(r.ratio)}</td><td>${esc(r.lastAtText)}</td></tr>`);
+  return table(["Provedor", "Modelo", "Chamadas", "Entrada", "Cache", "Saída", "Ent.:Saí.", "Última"], page.html, "Consumo do OpenCode") + page.pager;
 }
 
 /** @param {any[]} rows @param {boolean} partial */

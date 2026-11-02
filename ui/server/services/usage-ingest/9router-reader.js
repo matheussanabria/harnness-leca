@@ -1,13 +1,13 @@
 // @ts-check
 // Read-only, incremental reader of the local 9Router SQLite DB. Explicit column allow-lists only: apiKey,
-// providerConnections.data and apiKeys.key are never selected. Any failure degrades to an empty result.
+// providerConnections.data and apiKeys.key are never selected; `tokens` holds counters only. Any failure degrades to an empty result.
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { createAggregator } = require("./9router-stat-model");
 
 const MAX_ROWS_PER_TICK = 2000;
-const USAGE_COLUMNS = "id, timestamp, provider, model, promptTokens, completionTokens, status";
+const USAGE_COLUMNS = "id, timestamp, provider, model, promptTokens, completionTokens, status, tokens";
 
 /** @param {NodeJS.ProcessEnv} [env] @returns {string} */
 function defaultDbPath(env = process.env) {
