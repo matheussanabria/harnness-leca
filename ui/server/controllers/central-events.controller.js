@@ -18,6 +18,7 @@ const { loadPlanConfig } = require("../services/usage-ingest/quota-plans-config"
 const { buildQuotas } = require("../services/usage-ingest/quota-merge");
 const { createNineRouterReader } = require("../services/usage-ingest/9router-reader");
 const { createOpenCodeReader } = require("../services/usage-ingest/opencode-reader");
+const { createGeminiActivityReader } = require("../services/usage-ingest/gemini-activity-reader");
 const { parseUsageRange } = require("../services/usage-ingest/usage-range");
 
 const SLUG_RE = /^[a-z0-9][a-z0-9_-]{0,59}$/i;
@@ -112,6 +113,16 @@ async function apiUsageOpenCode({ res }) {
   return send(res, 200, { generatedAt: new Date().toISOString(), source: "opencode", layout, stats, total, viaRouter, warnings });
 }
 
+/** @type {ReturnType<typeof createGeminiActivityReader> | null} */
+let geminiReader = null;
+
+/** GET /api/usage/gemini (global, read-only): per-day step counts from Antigravity transcripts (no token data exists there) */
+async function apiUsageGemini({ res }) {
+  geminiReader = geminiReader || createGeminiActivityReader();
+  const { days, sessions, partial, warnings } = geminiReader.read();
+  return send(res, 200, { generatedAt: new Date().toISOString(), source: "gemini-transcripts", tokens: null, days, sessions, partial, warnings });
+}
+
 /** GET /api/usage/quotas (global, read-only): latest quota snapshots per provider+window plus configured plans */
 async function apiUsageQuotas({ res }) {
   return send(res, 200, buildQuotas({ stored: getQuotaStore().list(), config: loadPlanConfig(), nowMs: Date.now() }));
@@ -181,4 +192,4 @@ async function apiProjectEventPublish({ req, res, params: [slug] }) {
   }
 }
 
-module.exports = { apiProjectEvents, apiProjectUsageSummary, apiUsageQuotas, apiUsageCombos, apiUsageOpenCode, apiProjectProjections, apiProjectEventStream, apiProjectEventPublish };
+module.exports = { apiProjectEvents, apiProjectUsageSummary, apiUsageQuotas, apiUsageCombos, apiUsageOpenCode, apiUsageGemini, apiProjectProjections, apiProjectEventStream, apiProjectEventPublish };
