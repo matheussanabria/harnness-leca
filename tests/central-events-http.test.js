@@ -147,7 +147,7 @@ test("API de eventos - o stream abre com cabeçalho de SSE e envia o histórico"
 });
 
 test("API de eventos - as rotas seguem o padrão do repositório", () => {
-  assert.equal(centralEventRoutes.length, 10);
+  assert.equal(centralEventRoutes.length, 11);
   for (const route of centralEventRoutes) {
     assert.ok(route.method && route.path instanceof RegExp && route.handler);
   }
