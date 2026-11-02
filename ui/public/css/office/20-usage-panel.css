@@ -35,3 +35,17 @@
 .usage-state p { margin: 0; }
 .usage-state--error { color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
 @media (max-width: 520px) { .usage-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Provider strip: quota gauges per provider above the usage panel. */
+.ups { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; margin-bottom: 12px; }
+.ups-card { flex: 1 1 170px; display: flex; flex-direction: column; gap: 5px; padding: 8px 10px; border-radius: 8px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(148, 163, 184, 0.2); }
+.ups-card__head { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #f8fafc; text-transform: capitalize; }
+.ups-card__head small { color: var(--text-muted, #94a3b8); font-weight: 400; text-transform: none; }
+.ups-win { display: grid; grid-template-columns: 54px 1fr auto; align-items: center; gap: 6px; font-size: 11px; color: #cbd5e1; }
+.ups-win__val { font-variant-numeric: tabular-nums; color: #f8fafc; }
+.ups-bar { height: 6px; border-radius: 3px; background: rgba(148, 163, 184, 0.2); overflow: hidden; }
+.ups-bar span { display: block; height: 100%; background: #22c55e; }
+.ups-bar--warn span { background: #eab308; }
+.ups-bar--high span { background: #ef4444; }
+.ups-bar--unknown { background: repeating-linear-gradient(45deg, rgba(148, 163, 184, 0.15), rgba(148, 163, 184, 0.15) 5px, rgba(148, 163, 184, 0.3) 5px, rgba(148, 163, 184, 0.3) 10px); }
+.ups-link { align-self: center; font-size: 11.5px; color: #38bdf8; text-decoration: none; }
+.ups-link:hover { text-decoration: underline; }

@@ -3,9 +3,9 @@ domain: telemetry
 module: usage
 feature: usage-consumo-tab
 summary: Consumo tab of the orchestration center: usage panel formatters, view model, rendering, polling and styles.
-paths: [ui/public/js/modules/usage-*.js, ui/public/js/office3d/orchestration/tab-usage.js, ui/public/css/office/20-usage-panel.css, tests/usage-tab-*.test.js]
+paths: [ui/public/js/modules/usage-*.js, ui/public/js/office3d/orchestration/tab-usage.js, ui/public/css/office/20-usage-panel.css, tests/usage-tab-*.test.js, tests/usage-provider-strip.test.js]
 keywords: [consumo, usage, panel, tab, view-model, polling, css]
-updated: 2026-10-30
+updated: 2026-11-02
 ---
 # Consumo tab
 
@@ -21,3 +21,5 @@ updated: 2026-10-30
 | `ui/public/css/office/20-usage-panel.css` | Panel styles using the office dark theme tokens. |
 | `tests/usage-tab-model.test.js` | Pure logic tests: formatters, view model, split math, null-never-zero. |
 | `tests/usage-tab-panel.test.js` | Fake-DOM panel tests: states, polling stop when hidden, abort, retry. |
+| `ui/public/js/modules/usage-provider-strip.js` | Provider strip above the panel: quota gauges per provider from `GET /api/usage/quotas` (reuses the Consumo page model), 60 s polling while visible, link to `/consumo`. |
+| `tests/usage-provider-strip.test.js` | Strip tests: gauges, estimated/stale flags, n/d, escaping, failure notice, teardown, tab wiring. |
