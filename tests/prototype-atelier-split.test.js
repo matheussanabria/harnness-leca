@@ -111,3 +111,28 @@ test("pedido de seleção pendente é reenviado quando o iframe fica pronto", as
   await new Promise((resolve) => setTimeout(resolve, 200));
   assert.deepEqual(posted.at(-1), { type: "HARNESS_PROTO_SELECT_BY_PID", pid: "p-7" });
 });
+
+test("links de navegação: goto e href cru trocam a tela existente; tela inexistente só avisa", () => {
+  globalThis.location = { hash: "#/prototypes/p/home", pathname: "/", search: "" }; // a persistência da tela lê o endereço
+  globalThis.history = { replaceState() {}, pushState() {} };
+  reset();
+  ctx.data = { screens: [{ id: "home" }, { id: "orbit" }] };
+  ctx.screen = "home";
+  listeners.message({ data: { type: "HARNESS_PROTO_GOTO", screen: "orbit" } });
+  assert.equal(ctx.screen, "orbit");
+  assert.ok(posted.some((m) => m.type === "reload"));
+
+  reset();
+  listeners.message({ data: { type: "HARNESS_PROTO_GOTO", target: "screens/home.html#projetos" } });
+  assert.equal(ctx.screen, "home");
+  assert.ok(posted.some((m) => m.type === "reload"));
+
+  for (const message of [{ screen: "catalogo" }, { target: "screens/catalogo.html" }]) {
+    reset();
+    document.getElementById("syncToast").textContent = "";
+    listeners.message({ data: { type: "HARNESS_PROTO_GOTO", ...message } });
+    assert.equal(ctx.screen, "home", "a tela não muda");
+    assert.equal(posted.some((m) => m.type === "reload"), false, "o preview não recarrega");
+    assert.match(document.getElementById("syncToast").textContent, /catalogo/);
+  }
+});

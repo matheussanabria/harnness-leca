@@ -57,15 +57,13 @@ function handleBridgeMessage(event) {
       setTimeout(() => host.post({ type: "HARNESS_PROTO_SELECT_BY_PID", pid }), 120);
     }
   } else if (data.type === "HARNESS_PROTO_GOTO") {
-    // Destino cru de link (EP-16.02): resolve para uma tela existente do protótipo.
-    if (data.target) {
-      const screenIds = (ctx.data?.screens || []).map((screen) => screen.id);
-      const resolved = resolveScreenTarget(data.target, screenIds);
-      if (resolved.kind === "screen") gotoAtelierScreen(resolved.screen);
-      else if (resolved.kind === "planned") showToast(`A tela "${resolved.screen}" ainda não existe neste protótipo.`);
-      return;
-    }
-    if (data.screen) gotoAtelierScreen(data.screen);
+    // Destino de link (EP-16.02): `target` é o href cru, `screen` vem de data-action="goto:". Os dois passam pela mesma checagem.
+    const raw = data.target || data.screen;
+    if (!raw) return;
+    const screenIds = (ctx.data?.screens || []).map((screen) => screen.id);
+    const resolved = resolveScreenTarget(raw, screenIds);
+    if (resolved.kind === "screen") gotoAtelierScreen(resolved.screen);
+    else if (resolved.kind === "planned") showToast(`A tela "${resolved.screen}" ainda não existe neste protótipo.`);
   }
 }
 
