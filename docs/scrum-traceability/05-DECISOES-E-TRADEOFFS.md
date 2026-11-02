@@ -1,4 +1,4 @@
-> UPDATE 2026-11-01: the storage recommendation (option B, trace facts in the per-project events.sqlite) and the ADR-014 draft below are WITHDRAWN. EP-17 (ADR-012, ADR-013) makes harness.sqlite with a hash-chained audit log and protected retention classes the system of record. See 11-REALINHAMENTO-EP-17.md before using anything in this file about storage, retention or actors.
+> UPDATE 2026-11-01: the storage recommendation (option B, trace facts in the per-project events.sqlite) and the first ADR-014 draft are WITHDRAWN; section 10 now holds the rewritten ADR-014 proposal (2026-11-02). EP-17 (ADR-012, ADR-013) makes harness.sqlite with a hash-chained audit log and protected retention classes the system of record. See 11-REALINHAMENTO-EP-17.md before using anything in this file about storage, retention or actors.
 
 # 05 - Decisoes e tradeoffs - epic EP-18 (provisional) / ADR-014 (draft)
 
@@ -110,52 +110,98 @@ Decision [Proposed]: every state-changing trace or Scrum write carries
 
 Lane writes always pass `validateStoryTransition` (adjacent-only, origin check; svc/project-scrum-transitions.js:34-47). [Fact]
 
-## 10. ADR-014 draft (stays in this document)
+## 10. ADR-014 proposal (rewritten 2026-11-02; stays in this document)
+
+Status: proposal only. It is not placed under `docs/harness-evolution/03-decisions/`, and it must not be filed there until the owners of EP-17 accept ADR-012 and ADR-013, because it depends on both. The Portuguese draft of 2026-10-31 (trace facts as `trace.*` events in the per-project `events.sqlite`) is withdrawn; ADR-013 lists that approach as a rejected alternative.
 
 ```markdown
 ---
 id: ADR-014
-titulo: Rastreabilidade historia -> execucao -> commit -> evidencia sobre o event store por projeto
+titulo: Delivery traceability (story, execution, commit, evidence) on tables in harness.sqlite
 status: proposta
-data: 2026-10-31
-historias: [18.01, 18.02, 18.03, 18.04, 18.05]   # provisional numbering, EP-18 not yet created
-tags: [harness-evolution, adr, scrum, rastreabilidade, dai, eventos]
+data: 2026-11-02
+historias: [18.01b, 18.03, 18.09, 18.10, 18.11, 18.12, 18.13, 18.14]
+tags: [harness-evolution, adr, scrum, rastreabilidade, sqlite, auditoria]
 ---
 
-# ADR-014: Rastreabilidade de entrega sobre o event store por projeto
+# ADR-014: Delivery traceability on tables in harness.sqlite
 
-## Contexto
-O Scrum persiste historias em `projects/<slug>/scrum.json` sem ator, sem historico de sprint e sem vinculo
-com sessoes, commits ou evidencias; `lanesRevision` protege apenas a configuracao de raias. O motor de
-orquestracao ja replica os estagios do DAI `feature-delivery`, mas mantem runs em memoria e sem `storyId`.
-O DAI nao tem runtime nem testes; sua execucao e uma sessao Claude Code guiada por prompt com estado em
-`_status.md`. O event store SQLite por projeto (ADR-005, ainda proposta) ja e idempotente, mas tem allowlist
-fechada, retencao de 20000 eventos operacionais e envelope sem `storyId`. Nao ha autenticacao.
+## Context
 
-## Decisao
-1. Estado de planejamento (maturidade, sprint, raia) permanece no `scrum.json`; acrescentar `maturity`,
-   `storyRevision` e `sprintHistory` como chaves aditivas na whitelist.
-2. Fatos de execucao (run, estagio, tentativa, evidencia, gate, aprovacao, vinculo pendente) sao eventos
-   `trace.*` no event store existente, com colunas anulaveis `story_id` e `implementation_id` e uma classe
-   de retencao propria para auditoria. A Timeline junta `scrum.json` e eventos em leitura.
-3. Nenhum segundo pipeline: o motor do Harness e o registro dos runs; a definicao vem de um snapshot fixado do
-   manifest DAI com teste de divergencia; `_status.md` so entra como evidencia declarada.
-4. Classe de evidencia (declared / observed / validated) no payload; gate "passou" exige evidencia observada.
-5. IDs: reutilizar `storyId`, `runId`, `workflowRunId`, `attemptId`; novo `implementationId`; `traceId` no lugar
-   de `correlationId`. Commit vinculado por trailer `Story:` e/ou branch da historia, sempre com SHA verificado.
-6. Ator estruturado com `verified:false` ate existir autenticacao. Politica assistida primeiro; orfaos nao bloqueiam.
+A Scrum story lives in `projects/<slug>/scrum.json` with no link to the sessions, commits and test results that
+implemented it. Slice A (merged) added story `maturity`, the ready-only sprint rule, a mechanical Definition of
+Ready and a read-only reader of the `Story: <id>` commit trailer; none of it persists a trace fact.
+Two spikes (docs/scrum-traceability/01-discovery/sp1-sp2-findings.md) bound the design: the workflow runner only
+records state that a caller reports and launches no agent (SP-1), and the DAI export ships workflows as skill
+files without reading them at runtime or writing them into engine configuration (SP-2); Harness keeps its own
+hardcoded copy of the stages. EP-17 (ADR-012, ADR-013) makes `data/harness.sqlite` the system of record, with
+repositories, forward-only migrations, retention classes, a verified actor and a hash-chained `audit_log`
+written in the same transaction as the change. Count-based pruning of `events.sqlite` and an envelope without
+actor or hash make it unsuitable for audit (ADR-013, alternatives).
 
-## Alternativas consideradas
-- A. Estender `scrum.json`: simples, mas sem lock, sem replay e com perda de atualizacoes entre processos.
-- C. Modulo de auditoria independente com outbox: integridade maxima, custo e manutencao desproporcionais.
-- Entidade Demand: adiada; flag de maturidade cobre o MVP.
-- Duplicar workflows DAI no Harness: rejeitada por divergencia de gates e especialistas.
-- Parsear `_status.md` como fonte de auditoria: rejeitada (markdown sem ids, nao transacional).
+## Decision
 
-## Consequencias
-Positivas: replay e idempotencia reaproveitados; migracao aditiva; Scrum e raias preservados; multi-motor sem hooks.
-Negativas: nova classe de retencao e tipos na allowlist; duas stores (JSON + SQLite) sem transacao distribuida,
-reconciliadas por scan; trace local e fora do git; ator nao verificavel ate a autenticacao; ADR-005 precisa ser aceita.
+1. **Store.** Trace facts are normalized tables in `harness.sqlite`, created by a migration owned by EP-18
+   through the repositories of 17.01: `trace_implementations`, `trace_executions`, `trace_evidence`,
+   `trace_pending`. They are declared in the `protected` retention class (17.10 RF3). There is no second store.
+2. **Planning state stays with Scrum.** Maturity, sprint, lane and story revision remain Scrum state behind the
+   same service interface (file store now, tables after 17.07). `sprint_assignments` and `story_revision` are
+   requested from 17.07(b), not built here. The timeline joins Scrum rows and trace rows with a query.
+3. **Closed write paths.** Only the trace service and the collectors write these tables. No generic HTTP route
+   accepts a trace fact, so a client cannot forge one. The evidence class is minted by the server.
+4. **Evidence classes.** `declared` (a caller says so), `observed` (a collector saw it: a git SHA verified in the
+   project repository, a runner exit code), `validated` (a recorded test result, or an approval by a user holding
+   the permission). A gate counts as passed only with `observed` or `validated` evidence.
+5. **Audit.** Every trace mutation calls `ctx.audit.record` in the same transaction. The hash chain, redaction and
+   retention are those of ADR-013; this ADR adds only the actions `trace.link`, `trace.evidence.recorded`,
+   `scrum.maturity.changed` and `scrum.sprint.assigned`, and asks 17.06 for the permissions `trace:link` and
+   `trace:approve`.
+6. **Identity of things.** The story id never changes; a key rename keeps the id and records the old key as an
+   alias (a rule for the 17.07 importer). `implementationId` is new; `traceId` is used where the EP-08.04
+   `correlationId` was (ADR-TEL-003). A commit is linked by the `Story:` trailer written by the agent or the
+   person (docs/scrum-traceability/12-CONVENCAO-TRAILER-STORY.md), always with the SHA verified; a `commit-msg`
+   hook may warn and never blocks.
+7. **Observer, not launcher.** Harness records sessions and stage results reported by callers. Stage results
+   stay `declared` unless a collector proves them. A stage launcher is outside this ADR and needs its own decision.
+8. **DAI is an input, not a dependency.** The stage definition comes from a pinned snapshot of the DAI
+   `workflows/*/manifest.yaml`, read as files and guarded by a drift test. DAI is not modified; the proposed
+   `_status.md` header is postponed.
+9. **Actor.** The actor is whatever ADR-013 provides. Until 17.04 ships, a trace row records the PIN or anonymous
+   actor and is never presented as verified.
+10. **Orphans.** A run or commit with no story creates a `trace_pending` row. It never blocks work; the default
+    mode is observe, and enforcement is considered only after collector coverage is measured.
+
+## Alternatives considered
+
+| Alternative | Pros | Cons |
+|---|---|---|
+| `trace.*` events in per-project `events.sqlite` (the earlier draft) | Reuses the store, replay and idempotency | Rejected by ADR-013: count-based pruning deletes rows, no actor or hash chain, closed allowlist, local and unversioned |
+| Extend `scrum.json` with executions and evidence | One file, no new module | No lock, no replay, lost updates between processes, no audit chain; replaced by 17.07 anyway |
+| Independent audit module with an outbox | Maximum integrity | New infrastructure and a second owner; the single database already gives one transaction |
+| JSON columns on the story row | Fewer tables | Evidence cannot be indexed or queried by class, run or commit |
+| A Demand entity before the story | Cleaner intake model | Deferred; the `maturity` flag covers the need |
+| Copy DAI workflows into Harness | No runtime dependency | Gates and specialists drift from DAI |
+| Parse `_status.md` as an audit source | Cheap | Markdown without ids, not transactional; at most declared evidence |
+
+## Consequences
+
+Easier: one database and one transaction for a change and its audit row; retention and backup come from EP-17;
+the forged-evidence problem disappears because no generic route writes these tables; the drawer routes of slice A
+already serve the read side.
+
+Harder: EP-18 cannot start persistence before 17.01, 17.05 and 17.07(b); stage evidence stays `declared`
+until the collectors (18.11, 18.13) ship; the git link depends on the discipline of writing the trailer; the
+trace of a story that predates the migration is empty and is not backfilled.
+
+Migration: additive tables with their own migration name; no change to ADR-012 tables. Slice A and story 18.07
+write only to `scrum.json` and need no migration.
+
+Dependencies: ADR-012 and ADR-013 (both `proposta` today), stories 17.01, 17.05, 17.06, 17.07(b), 17.10.
+
+## Review
+
+Revisit when ADR-012 or ADR-013 change status or content, when a stage launcher is proposed, or when a second
+writer process or remote sync appears.
 ```
 
 ## 11. Open blocking questions
