@@ -3,7 +3,8 @@
 
 export const ds = {
   currentScrumData: null,
-  currentScrumTab: "sprint", // 'sprint' | 'backlog' | 'epics'
+  currentScrumTab: "sprint", // 'sprint' | 'backlog' | 'epics' | 'coordination'
+  coordinationPayload: null, // last GET /coordination/lanes result
   currentEpicFilter: "all",
   currentSearchQuery: "",
   currentAssigneeFilter: "all",

@@ -1,6 +1,8 @@
 // @ts-check
 // Montagem do workspace e troca de vistas sem desmontar o painel lateral.
 import { $ } from "../shared/dom.js";
+import { state } from "../shared/state.js";
+import { renderCoordinationLanes, fetchCoordinationLanes } from "./design-scrum-coordination.js";
 import { bindPagers } from "../shared/pagination.js";
 import { ds } from "./design-scrum-store.js";
 import { renderSprintKanban } from "./design-scrum-sprint.js";
@@ -24,6 +26,7 @@ export function renderScrumWorkspace(container, projectSlug, scrumData) {
         <button type="button" class="scrum-nav-tab ${ds.currentScrumTab === "sprint" ? "active" : ""}" onclick="switchScrumTab('sprint')"><i class="fa-solid fa-table-columns"></i> Kanban da Sprint</button>
         <button type="button" class="scrum-nav-tab ${ds.currentScrumTab === "backlog" ? "active" : ""}" onclick="switchScrumTab('backlog')"><i class="fa-solid fa-list"></i> Product Backlog (${scrumData.summary?.backlogStoriesCount || 0})</button>
         <button type="button" class="scrum-nav-tab ${ds.currentScrumTab === "epics" ? "active" : ""}" onclick="switchScrumTab('epics')"><i class="fa-solid fa-layer-group"></i> Epicos & Metas (${scrumData.summary?.totalEpicsCount || 0})</button>
+        <button type="button" class="scrum-nav-tab ${ds.currentScrumTab === "coordination" ? "active" : ""}" onclick="switchScrumTab('coordination')"><i class="fa-solid fa-people-arrows"></i> Coordenacao</button>
       </div>
       <div class="scrum-nav-summary">${jiraSyncButtonHtml(scrumData)} Sprint: <b>${scrumData.summary?.sprintPointsTotal || 0} pts</b> · Backlog: <b>${scrumData.summary?.backlogPointsTotal || 0} pts</b></div>
     </nav>
@@ -57,6 +60,18 @@ export function renderCurrentScrumView() {
   }
   if (ds.currentScrumTab === "sprint") body.innerHTML = renderSprintKanban(ds.currentScrumData);
   else if (ds.currentScrumTab === "backlog") body.innerHTML = renderProductBacklog(ds.currentScrumData);
+  else if (ds.currentScrumTab === "coordination") renderCoordinationTab(body);
   else body.innerHTML = renderEpicsWorkspace(ds.currentScrumData);
   bindPagers(body, () => renderCurrentScrumView());
+}
+
+/** Ledger lanes load on demand and refresh every time the tab opens. */
+function renderCoordinationTab(body) {
+  body.innerHTML = renderCoordinationLanes(ds.coordinationPayload || null);
+  const slug = state.P?.name || state.S?.active;
+  if (!slug) return;
+  void fetchCoordinationLanes(slug).then((payload) => {
+    ds.coordinationPayload = payload;
+    if (ds.currentScrumTab === "coordination") body.innerHTML = renderCoordinationLanes(payload);
+  });
 }

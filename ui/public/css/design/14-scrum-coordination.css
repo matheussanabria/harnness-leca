@@ -1,0 +1,15 @@
+/* Coordination ledger lanes on the Scrum board (read-only) */
+.coord-board { display: flex; flex-direction: column; gap: 10px; padding: 0 14px 14px; }
+.coord-note { margin: 0; font-size: 12px; opacity: 0.75; }
+.coord-lanes { display: flex; gap: 10px; overflow-x: auto; align-items: flex-start; }
+.coord-lane { flex: 0 0 240px; background: var(--surface-2, rgba(127, 127, 127, 0.08)); border-radius: 8px; padding: 8px; }
+.coord-lane-head { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.coord-count { margin-left: auto; font-size: 11px; opacity: 0.7; }
+.coord-lane-body { display: flex; flex-direction: column; gap: 6px; }
+.coord-card { background: var(--surface, rgba(127, 127, 127, 0.14)); border-radius: 6px; padding: 8px; }
+.coord-card-id { font-size: 11px; opacity: 0.7; }
+.coord-card-title { font-size: 12px; margin: 2px 0 6px; }
+.coord-card-meta { display: flex; flex-wrap: wrap; gap: 4px; }
+.coord-chip { font-size: 11px; padding: 1px 6px; border-radius: 10px; background: rgba(127, 127, 127, 0.18); }
+.coord-chip.is-expired { background: rgba(220, 80, 60, 0.25); }
+.coord-empty { font-size: 12px; opacity: 0.6; margin: 4px 0; }
