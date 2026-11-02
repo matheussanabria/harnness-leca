@@ -2,11 +2,12 @@
 // View da Central de Sessões (EP-09.03).
 // Funções puras de renderização: recebem dados e devolvem HTML. Sem DOM, sem rede.
 
-import { groupByLane, sortSessions, summarize } from "./central-sessions-model.js";
+import { sortSessions, summarize } from "./central-sessions-model.js";
 import { esc } from "./central-sessions-format.js";
 import { renderCentralFilters, renderCentralHeader, renderCentralToolbar } from "./central-sessions-toolbar.js";
-import { renderSessionCard, renderSessionRow } from "./central-sessions-card.js";
+import { renderSessionRow } from "./central-sessions-card.js";
 import { renderCentralDetail } from "./central-sessions-detail.js";
+import { isKanbanAllowed, renderKanbanLanes, renderKanbanNotice } from "./central-sessions-kanban.js";
 import { paginate, renderPager, getPageSize } from "../shared/pagination.js";
 
 export { renderCentralDetail, renderCentralFilters, renderCentralHeader };
@@ -42,35 +43,6 @@ export function renderCentralList(sessions) {
 }
 
 /**
- * Visão Kanban com as raias canônicas.
- * @param {object[]} sessions
- * @returns {string}
- */
-export function renderCentralKanban(sessions) {
-  const lanes = groupByLane(sessions);
-  if (!lanes.length) {
-    return `<p class="central-empty"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Nenhuma sessão para os filtros atuais.</p>`;
-  }
-  return `
-    <div class="central-kanban" role="list" aria-label="Sessões por workflow">
-      ${lanes
-        .map(
-          (lane) => `
-        <section class="central-lane" role="listitem" aria-label="${esc(lane.label)}">
-          <header class="central-lane__header">
-            <span class="central-lane__title">${esc(lane.label)}</span>
-            <span class="central-lane__count">${lane.sessions.length}</span>
-          </header>
-          <div class="central-lane__body">
-            ${lane.sessions.map(renderSessionCard).join("")}
-          </div>
-        </section>`,
-        )
-        .join("")}
-    </div>`;
-}
-
-/**
  * Composição da Central.
  * @param {{ slug: string, view: string, query: string, filters: object, options: object,
  *   sessions: object[], detail: object | null, selectedId: string, generatedAt: string, source: string, liveStatus?: object, page?: number }} params
@@ -80,7 +52,9 @@ export function renderCentral(params) {
   const sessions = sortSessions(params.sessions || []);
   const summary = summarize(sessions);
   const selected = sessions.find((session) => session.id === params.selectedId) || null;
-  // Só a página atual entra no DOM; o resumo do cabeçalho continua contando todas as sessões.
+  // Kanban usa todas as sessões (agrupa por raia antes de limitar); a lista usa só a página atual.
+  const kanbanOn = params.view === "kanban" && isKanbanAllowed(sessions.length, params.kanbanForce === true);
+  const kanbanBlocked = params.view === "kanban" && !kanbanOn;
   const pageData = paginate(sessions, params.page || 1, getPageSize("central"));
   return `
     <section class="central" data-source="${esc(params.source || "live")}">
@@ -89,8 +63,9 @@ export function renderCentral(params) {
       ${renderCentralFilters({ filters: params.filters, options: params.options })}
       <div class="central-body">
         <div class="central-content">
-          ${params.view === "kanban" ? renderCentralKanban(pageData.items) : renderCentralList(pageData.items)}
-          ${renderPager(pageData, { label: "Paginação das sessões", key: "central" })}
+          ${kanbanBlocked ? renderKanbanNotice(sessions.length) : ""}
+          ${kanbanOn ? renderKanbanLanes(sessions, params.laneLimits || {}) : renderCentralList(pageData.items)}
+          ${kanbanOn ? "" : renderPager(pageData, { label: "Paginação das sessões", key: "central" })}
         </div>
         ${renderCentralDetail({ session: selected, detail: params.detail })}
       </div>

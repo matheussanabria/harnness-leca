@@ -6,7 +6,7 @@
 
 /**
  * @typedef {Object} SessionClient
- * @property {(slug: string, filters?: object) => Promise<object>} listSessions
+ * @property {(slug: string, filters?: object, options?: { signal?: AbortSignal }) => Promise<object>} listSessions
  * @property {(slug: string, id: string) => Promise<object|null>} getSession
  */
 
@@ -22,23 +22,24 @@ export function createHttpSessionClient(options = {}) {
 
   /**
    * @param {string} url
+   * @param {AbortSignal} [signal] cancela a requisição quando abortado
    * @returns {Promise<any>}
    */
-  async function request(url) {
+  async function request(url, signal) {
     if (!fetchImpl) throw new Error("Sem transporte HTTP disponível.");
-    const res = await fetchImpl(`${baseUrl}${url}`, { headers: { Accept: "application/json" } });
+    const res = await fetchImpl(`${baseUrl}${url}`, { headers: { Accept: "application/json" }, signal });
     if (!res.ok) throw new Error(`Falha ao consultar ${url} (${res.status}).`);
     return res.json();
   }
 
   return {
-    async listSessions(slug, filters = {}) {
+    async listSessions(slug, filters = {}, options = {}) {
       const params = new URLSearchParams();
       for (const [key, value] of Object.entries(filters)) {
         if (value !== undefined && value !== null && String(value) !== "") params.set(key, String(value));
       }
       const query = params.toString();
-      return request(`/api/project/${encodeURIComponent(slug)}/sessions${query ? `?${query}` : ""}`);
+      return request(`/api/project/${encodeURIComponent(slug)}/sessions${query ? `?${query}` : ""}`, options.signal);
     },
     async getSession(slug, id) {
       try {
