@@ -169,3 +169,62 @@ test("Central - os arquivos novos seguem o limite de linhas e não usam emojis",
   }
   assert.ok(fs.existsSync(CSS_PATH));
 });
+
+function manySessions(total) {
+  return Array.from({ length: total }, (_, index) => ({
+    id: "k" + index,
+    title: "Sessão " + index,
+    primaryProvider: "claude",
+    projectId: "saude-dispensacao",
+    projectConfidence: "explicit",
+    executionStatus: "running",
+    workflowStatus: "running",
+    attentionStatus: "none",
+    lastObservedAt: "2026-10-21T10:00:00.000Z",
+  }));
+}
+
+test("Kanban - com 80 sessões cada raia mostra no máximo 5 cards, botão de mais e sem paginador", async () => {
+  const { renderCentral } = await loadView();
+  const html = renderCentral(baseParams({ view: "kanban", sessions: manySessions(80) }));
+
+  assert.match(html, /class="central-kanban"/);
+  assert.equal((html.match(/class="central-card"/g) || []).length, 5);
+  assert.match(html, /data-lane-more="implementation"/);
+  assert.match(html, /fa-solid fa-angles-down/);
+  assert.match(html, /Mostrar mais \(75\)/);
+  assert.doesNotMatch(html, /data-pager="central"/);
+  assert.doesNotMatch(html, /central-notice/);
+});
+
+test("Kanban - o limite por raia respeita laneLimits e soma o passo de 5", async () => {
+  const { renderCentral } = await loadView();
+  const html = renderCentral(
+    baseParams({ view: "kanban", sessions: manySessions(80), laneLimits: { implementation: 15 } }),
+  );
+  assert.equal((html.match(/class="central-card"/g) || []).length, 15);
+  assert.match(html, /Mostrar mais \(65\)/);
+});
+
+test("Kanban - acima de 100 sessões cai na lista com aviso e botão para forçar o Kanban", async () => {
+  const { renderCentral } = await loadView();
+  const html = renderCentral(baseParams({ view: "kanban", sessions: manySessions(150) }));
+
+  assert.match(html, /class="central-notice"/);
+  assert.match(html, /fa-solid fa-triangle-exclamation/);
+  assert.match(html, /data-kanban-force/);
+  assert.match(html, /Mostrar Kanban mesmo assim/);
+  assert.match(html, /class="central-list"/);
+  assert.doesNotMatch(html, /class="central-kanban"/);
+  assert.match(html, /data-pager="central"/);
+});
+
+test("Kanban - kanbanForce renderiza o Kanban acima do teto, sem o aviso", async () => {
+  const { renderCentral } = await loadView();
+  const html = renderCentral(baseParams({ view: "kanban", sessions: manySessions(150), kanbanForce: true }));
+
+  assert.match(html, /class="central-kanban"/);
+  assert.doesNotMatch(html, /central-notice/);
+  assert.equal((html.match(/class="central-card"/g) || []).length, 5);
+  assert.doesNotMatch(html, /data-pager="central"/);
+});

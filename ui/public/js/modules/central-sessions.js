@@ -4,6 +4,7 @@
 
 import { createHttpSessionClient } from "./central-sessions-api.js";
 import { renderCentral } from "./central-sessions-view.js";
+import { bindKanbanControls } from "./central-sessions-kanban-controls.js";
 import { createCentralLiveSubscription } from "./central-live.js";
 import { bindPagers } from "../shared/pagination.js";
 import { executeSessionAction } from "./central-action-dispatcher.js";
@@ -22,7 +23,7 @@ const FILTER_NAMES = ["provider", "executionStatus", "workflowStatus", "attentio
  * @type {Map<string, object>}
  */
 const uiMemory = new Map();
-const REMEMBERED = ["view", "page", "query", "filters", "selectedId"];
+const REMEMBERED = ["view", "page", "query", "filters", "selectedId", "laneLimits", "kanbanForce"];
 /** @type {{ disconnect: () => void } | null} */
 let activeSubscription = null;
 
@@ -43,6 +44,8 @@ export function createCentralState(state = {}) {
     filters: { ...(state.filters || {}) },
     selectedId: String(state.selectedId || ""),
     page: Math.max(1, Number(state.page) || 1),
+    laneLimits: {},
+    kanbanForce: false,
     sessions: [],
     detail: null,
     generatedAt: "",
@@ -120,6 +123,8 @@ export function renderCentralInto(container, state) {
     generatedAt: state.generatedAt,
     source: state.source,
     liveStatus: state.liveStatus,
+    laneLimits: state.laneLimits,
+    kanbanForce: state.kanbanForce,
   });
 }
 
@@ -135,7 +140,7 @@ export function setupCentralListeners(container, state, onChange, client) {
   if (!container) return;
 
   const search = /** @type {HTMLInputElement | null} */ (container.querySelector("#centralSearch"));
-  search?.addEventListener("input", () => onChange({ ...state, query: search.value, page: 1 }));
+  search?.addEventListener("input", () => onChange({ ...state, query: search.value, page: 1, laneLimits: {} }));
 
   const refresh = container.querySelector("#centralRefresh");
   refresh?.addEventListener("click", () => {
@@ -149,7 +154,7 @@ export function setupCentralListeners(container, state, onChange, client) {
       const filters = { ...state.filters };
       if (select.value) filters[name] = select.value;
       else delete filters[name];
-      onChange({ ...state, filters, page: 1 });
+      onChange({ ...state, filters, page: 1, laneLimits: {} });
     });
   }
 
@@ -179,6 +184,7 @@ export function setupCentralListeners(container, state, onChange, client) {
   }
 
   bindPagers(container, (_key, page) => onChange({ ...state, page }));
+  bindKanbanControls(container, state, onChange);
 
   for (const row of Array.from(container.querySelectorAll("[data-session-id]:not([data-session-action])"))) {
     const id = row.getAttribute("data-session-id") || "";
