@@ -69,10 +69,8 @@ window.openOfficeChatConversation = function(chatFile) {
 document.addEventListener("DOMContentLoaded", async () => {
   const screenClient = getScreenStateClient();
   const officeScreenState = new OfficeScreenState({ client: screenClient });
-  await officeScreenState.hydrate();
-  await hydratePageSizes();
-  hydrateOfficeSession(officeScreenState.state);
-  bindOfficeSessionClient(screenClient);
+  await Promise.all([officeScreenState.hydrate(), hydratePageSizes()]);
+  hydrateOfficeSession(officeScreenState.state); bindOfficeSessionClient(screenClient);
   setHudPersistence((hidden) => { void officeScreenState.setHudHidden(hidden); });
 
   const canvas2D = /** @type {HTMLCanvasElement} */ (document.getElementById("canvas2D"));
