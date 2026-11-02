@@ -143,3 +143,57 @@ test("Central lembra Kanban, página e filtros quando o painel remonta", async (
   assert.equal(second.state.page, 2);
   assert.deepEqual(second.state.filters, { provider: "claude" });
 });
+
+test("Central - mudança de status SSE troca só o badge, sem redesenhar o painel", async () => {
+  globalThis.window ??= { addEventListener() {}, removeEventListener() {}, location: { href: "" } };
+  globalThis.document ??= { addEventListener() {}, getElementById: () => null, querySelector: () => null, querySelectorAll: () => [] };
+  const mod = await import(pathToFileURL(path.join(MODULES, "central-sessions.js")).href);
+  const client = { listSessions: async () => ({ sessions: [], generatedAt: "", source: "live" }), getSession: async () => null };
+  const sources = [];
+  class FakeEventSource {
+    constructor(url) {
+      this.url = url;
+      sources.push(this);
+    }
+    addEventListener() {}
+    close() {}
+  }
+  const previous = globalThis.EventSource;
+  globalThis.EventSource = FakeEventSource;
+  try {
+    let innerWrites = 0;
+    const badge = {
+      outerHTML: "",
+      writes: [],
+    };
+    Object.defineProperty(badge, "outerHTML", {
+      get: () => "",
+      set: (value) => badge.writes.push(value),
+    });
+    const container = {
+      _html: "",
+      querySelector: (selector) => (selector === ".central-live-badge" ? badge : null),
+      querySelectorAll: () => [],
+    };
+    Object.defineProperty(container, "innerHTML", {
+      get: () => container._html,
+      set: (value) => {
+        innerWrites += 1;
+        container._html = value;
+      },
+    });
+    await mod.mountCentral(container, { slug: "status-test", client, state: {} });
+    assert.equal(sources.length, 1, "uma assinatura SSE por montagem");
+    const writesAfterMount = innerWrites;
+    const badgeWritesAfterMount = badge.writes.length;
+
+    sources[0].onopen();
+    sources[0].onopen();
+
+    assert.equal(innerWrites, writesAfterMount, "status não redesenha o painel inteiro");
+    assert.equal(badge.writes.length, badgeWritesAfterMount + 2, "badge trocado a cada status");
+    assert.match(badge.writes.at(-1), /central-live-badge--connected/);
+  } finally {
+    globalThis.EventSource = previous;
+  }
+});
