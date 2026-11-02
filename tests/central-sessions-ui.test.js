@@ -129,3 +129,17 @@ test("Central - módulos do redesenho respeitam limite de linhas, sem emojis e c
   const css = fs.readFileSync(path.join(ROOT, "ui", "public", "css", "design", "23-central-sessoes.css"), "utf8");
   assert.match(css, /padding:\s*14px 14px 88px/);
 });
+
+test("Central lembra Kanban, página e filtros quando o painel remonta", async () => {
+  globalThis.window ??= { addEventListener() {}, removeEventListener() {}, location: { href: "" } };
+  globalThis.document ??= { addEventListener() {}, getElementById: () => null, querySelector: () => null, querySelectorAll: () => [] };
+  const mod = await import(pathToFileURL(path.join(MODULES, "central-sessions.js")).href);
+  const client = { listSessions: async () => ({ sessions: [], generatedAt: "", source: "live" }), getSession: async () => null };
+  const makeContainer = () => ({ innerHTML: "", querySelector: () => null, querySelectorAll: () => [] });
+  const first = await mod.mountCentral(makeContainer(), { slug: "mem-test", client, autoLive: false, state: { view: "kanban", page: 2, filters: { provider: "claude" } } });
+  assert.equal(first.state.view, "kanban");
+  const second = await mod.mountCentral(makeContainer(), { slug: "mem-test", client, autoLive: false, state: { query: "", selectedId: "" } });
+  assert.equal(second.state.view, "kanban");
+  assert.equal(second.state.page, 2);
+  assert.deepEqual(second.state.filters, { provider: "claude" });
+});

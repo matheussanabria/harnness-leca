@@ -90,9 +90,7 @@ export function renderColumnWorkflows(ctx, x, y, w, h, projectData, journal) {
       rowY += 98;
     }
   } else {
-    const scheduled = projectData?.scheduled || [
-      { name: "extrair-pendentes.md", title: "Importar conversas novas e extrair memórias", agent: "opencode" }
-    ];
+    const scheduled = projectData?.scheduled || [];
     for (const r of scheduled) {
       ctx.fillStyle = "rgba(30, 41, 59, 0.85)";
       ctx.fillRect(x + 24, rowY, w - 48, 80);
