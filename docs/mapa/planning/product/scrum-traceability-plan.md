@@ -30,3 +30,5 @@ updated: 2026-11-01
 | `docs/scrum-traceability/01-discovery/raw-harness-sprint-workflow.md` | Verified evidence: sprint model, orchestration engine, approvals, identity. |
 | `docs/scrum-traceability/01-discovery/raw-dai-pipeline.md` | Verified evidence: DAI agents, pipeline, workflows, validators, rules. |
 | `docs/scrum-traceability/01-discovery/raw-dai-stories-gates.md` | Verified evidence: DAI story templates, DoR, gates, export, Scrum overlap. |
+| `docs/scrum-traceability/01-discovery/sp1-sp2-findings.md` | Spike results: the workflow runner records state and launches no agent (SP-1); the DAI export ships workflows as skill files, not engine config (SP-2). |
+| `docs/scrum-traceability/12-CONVENCAO-TRAILER-STORY.md` | Convention for the `Story: <id>` commit trailer: where it goes, how the reader parses it, the attribution-line pitfall. |
