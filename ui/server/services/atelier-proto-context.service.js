@@ -7,6 +7,7 @@
 const fs = require("fs");
 const path = require("path");
 const { NAV_RULES, navScreenLine } = require("./atelier-nav-contract.service");
+const { buildProtoMap } = require("./atelier-proto-map.service");
 
 const MAX_SCREEN_CHARS = 7000;
 const MAX_CSS_CHARS = 9000;
@@ -51,17 +52,21 @@ function buildProtoContext({ projectDir, protoId }) {
   if (!files.length && !css.trim()) return "";
 
   let registered = [];
+  let components = [];
   try {
-    registered = (JSON.parse(readText(path.join(protoDir, "proto.json"))).screens || []).map((/** @type {{id:string}} */ s) => s.id);
+    const manifest = JSON.parse(readText(path.join(protoDir, "proto.json")));
+    registered = (manifest.screens || []).map((/** @type {{id:string}} */ s) => s.id);
+    components = (manifest.components || []).map((/** @type {{id:string}} */ c) => c.id).filter(Boolean);
   } catch {
     /* proto.json ilegível: segue só com o disco */
   }
 
   const screens = files.map((f) => ({ id: f.replace(/\.html$/, ""), html: readText(path.join(screensDir, f)) }));
   const parts = [];
+  const keys = storageKeys(screens.map((s) => s.html));
+  parts.push(buildProtoMap({ protoId, screens, css, registered, storage: keys, components }).text);
   parts.push(`## Estado ATUAL do protótipo "${protoId}" (lido do disco agora)`);
   parts.push(`Telas em disco: ${screens.map((s) => `${s.id} (${s.html.length} caracteres${registered.includes(s.id) ? "" : ", NÃO registrada no proto.json"})`).join(", ") || "nenhuma"}.`);
-  const keys = storageKeys(screens.map((s) => s.html));
   if (keys.length) parts.push(`Chaves de storage já usadas pelas telas (REUSE exatamente estas, com o mesmo formato de dado): ${keys.join(", ")}.`);
 
   let budget = MAX_TOTAL_CHARS;
