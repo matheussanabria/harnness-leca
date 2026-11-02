@@ -30,14 +30,14 @@ tests/                           node:test suites
 | Domain | Modules | Files | Size |
 |---|---|---|---|
 | `agents` | skills | 1 | 0.7 KB |
-| `backend` | artifacts, atelier, canvas, chat, core, deploy, orchestration, projects, prototype, screen-state | 13 | 31.0 KB |
+| `backend` | artifacts, atelier, canvas, chat, core, deploy, orchestration, projects, prototype, screen-state | 13 | 33.1 KB |
 | `design` | atelier-quality, system | 3 | 10.1 KB |
 | `frontend` | canvas, chat, css, design, office, studio, web, window-manager | 16 | 41.3 KB |
 | `intelligence` | hia, runtime | 7 | 17.4 KB |
-| `office` | hq | 3 | 7.9 KB |
-| `planning` | product, projects | 5 | 13.3 KB |
-| `telemetry` | program, usage | 8 | 23.0 KB |
-| `tools` | engines, mapa, setup, testing | 11 | 25.0 KB |
+| `office` | hq | 3 | 9.1 KB |
+| `planning` | product, projects | 5 | 13.5 KB |
+| `telemetry` | program, usage | 9 | 28.4 KB |
+| `tools` | engines, mapa, setup, testing | 11 | 26.6 KB |
 <!-- mapa:index:end -->
 
 ## Map file format
