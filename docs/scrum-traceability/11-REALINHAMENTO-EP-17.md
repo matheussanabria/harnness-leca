@@ -73,9 +73,30 @@ Slice A edits the same files that story 17.07 will replace (`project-scrum-ops.j
 
 Because these are changes to documents of another epic, they are requests, not edits.
 
-## 6. Decisions needed from the user [Pending decision]
+## 6. Decisions [Decided 2026-11-01]
 
-1. Approve withdrawing option B (events.sqlite) and recording the new direction in a rewritten ADR-014: trace tables in `harness.sqlite` plus audit rows.
-2. Keep EP-18 as its own epic depending on EP-17, or fold the stories into EP-17 as 17.14 onward. Recommendation [Hypothesis]: separate epic, because the scopes and owners differ and EP-17 already has 13 stories.
-3. Approve the section 4 parallel track (UI drawer and 18.07 first).
-4. Confirm that 18.19 should be replaced by RBAC rather than hardened separately.
+The user answered "seguir" to the recommendations below, so they are taken as decided. They stay revisable until EP-17 leaves status `proposta`.
+
+1. Option B (events.sqlite) is withdrawn. Direction: trace tables in `harness.sqlite` plus audit rows. ADR-014 must be rewritten to say so before anyone proposes it.
+2. EP-18 stays a separate epic that depends on EP-17 (scopes and owners differ; EP-17 already has 13 stories).
+3. The section 4 parallel track is approved, in this order: story drawer first (done, branch `feat/scrum-story-drawer`), then 18.07, then spikes SP-1 and SP-2.
+4. 18.19 is replaced by RBAC (17.06) plus audit. Only the single-use confirmation for `commit-pr` and `deploy` remains.
+
+Answers to the open questions of 10, same date:
+
+- Story id on key rename: the id never changes; the key becomes an alias. Rule to carry into the 17.07 importer, otherwise commits with `Story: <id>` are orphaned.
+- `Story:` trailer: the agent writes it. A `commit-msg` hook may only warn, never block (local tool reused by other people, not everyone uses Scrum). Document the convention in the commit skill first; add the hook later.
+- DAI `_status.md` additive header: postponed until SP-2 answers whether the DAI export injects workflows. DAI stays untouched.
+
+## 7. Paste-ready requests to EP-17 owners
+
+Text for the owners of 17.05, 17.06 and 17.07. It is a request, not an edit of their documents.
+
+> Scrum traceability slice A is on main (story `maturity`, ready-only sprint entry, mechanical DoR, commit reader). It edits `project-scrum-ops.js`, `project-scrum-persist.js` and `project-scrum-sanitize.js`, which 17.07 replaces. To avoid a second rewrite:
+>
+> 1. 17.07 acceptance: the importer carries `maturity`; a story without it reads as `ready` and nothing is written for it; `tests/project-scrum-maturity.test.js` and `tests/project-scrum-trace-http.test.js` pass with `HARNESS_SCRUM_STORE=db`.
+> 2. 17.07(b) scope: a `sprint_assignments` table (story, sprint, assigned_at, actor, reason) instead of a history array, and `story_revision`.
+> 3. 17.07 importer rule: the story id is stable; a key rename keeps the id and records the old key as an alias.
+> 4. 17.05 audit actions: `trace.link`, `trace.evidence.recorded`, `scrum.maturity.changed`, `scrum.sprint.assigned`.
+> 5. 17.06 permissions: `trace:link`, `trace:approve`.
+> 6. 17.10 retention: declare the planned `trace_*` tables (implementations, executions, evidence, pending) in the `protected` class.
