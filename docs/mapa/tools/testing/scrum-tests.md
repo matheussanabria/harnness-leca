@@ -27,3 +27,5 @@ updated: 2026-11-01
 | `tests/project-scrum-commits.test.js` | Trailer parsing and the git reader on temporary repositories, including hostile ids, branches, clamping and `GIT_*` hygiene. |
 | `tests/project-scrum-dor.test.js` | Mechanical Definition of Ready: required and advisory checks, boundaries, robustness, determinism. |
 | `tests/project-scrum-trace-http.test.js` | The `/commits` and `/dor` routes end to end, repo isolation, 404s and the remote-access gate. |
+| `tests/project-scrum-duplicates.test.js` | Normalization and duplicate candidates: key aliases, accents, threshold boundary, cap, empty store, immutability. |
+| `tests/project-scrum-capture.test.js` | Draft capture: forced draft and null sprint, idempotent `dedupeKey`, ignored `storyRevision`, suggestions that never block, 400 without a title. |

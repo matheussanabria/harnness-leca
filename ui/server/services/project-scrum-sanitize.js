@@ -43,6 +43,8 @@ function sanitizeStory(story, defaultSprintId = null) {
     sprintId: story.sprintId !== undefined ? (story.sprintId ? String(story.sprintId) : null) : fallbackSprintId,
     // So entra quando enviada: assim uma edicao sem o campo nao zera a maturidade ja gravada.
     ...(maturity !== undefined ? { maturity } : {}),
+    // Optional and idempotency-only; storyRevision is deliberately never read from a payload (mass assignment).
+    ...(story.dedupeKey ? { dedupeKey: String(story.dedupeKey).trim().slice(0, 80) } : {}),
     status: normalizeStatus(story.status),
     points: optionalNumber(story.points),
     priority: optionalPriority(story.priority),
