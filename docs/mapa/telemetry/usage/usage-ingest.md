@@ -3,7 +3,7 @@ domain: telemetry
 module: usage
 feature: usage-ingest
 summary: Per-call usage ingest from Claude transcripts and Codex rollouts into usage.observed events and the summary API.
-paths: [ui/server/services/usage-ingest/*.js, tests/usage-ingest*.js, tests/usage-quota.test.js, tests/usage-cache-split.test.js, tests/codex-usage-fixtures.js, tests/usage-summary-extended.test.js]
+paths: [ui/server/services/usage-ingest/*.js, tests/usage-ingest*.js, tests/usage-quota.test.js, tests/usage-cache-split.test.js, tests/codex-usage-fixtures.js, tests/usage-summary-extended.test.js, tests/usage-9router.test.js]
 keywords: [usage, ingest, transcript, codex, rollout, checkpoint, usage.observed, summary]
 updated: 2026-10-30
 ---
@@ -39,3 +39,6 @@ updated: 2026-10-30
 | `tests/usage-ingest-codex.test.js` | Codex ingest tests: per-call usage, repeated totals, unknown model, replay, subagent exclusion, privacy sentinels. |
 | `tests/codex-usage-fixtures.js` | Rollout and state_5.sqlite fixtures with sentinel strings for Codex usage tests (not a test file). |
 | `tests/usage-summary-extended.test.js` | Tests for origin split, `groupBy=origin`, unpriced models, pricing metadata, window presets, 400s, 20k-event timing. |
+| `ui/server/services/usage-ingest/9router-stat-model.js` | Pure ComboStat aggregation (combo, provider, model, calls, tokens, failures, lastAt) of 9Router usageHistory rows. |
+| `ui/server/services/usage-ingest/9router-reader.js` | Read-only node:sqlite reader of the 9Router DB (HARNESS_9ROUTER_DB), column allow-list, id checkpoint, degrades to empty with warning; feeds `GET /api/usage/combos`. |
+| `tests/usage-9router.test.js` | 9Router reader tests: aggregation, incremental checkpoint, bounded ticks, degradation, secret sentinels, route. |
