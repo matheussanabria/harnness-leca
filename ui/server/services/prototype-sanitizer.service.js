@@ -84,22 +84,19 @@ function injectDataPidAttributes(html) {
   let counter = 0;
   // Expressão regular tolerante que localiza tags de abertura HTML
   return html.replace(/<([a-zA-Z0-9_-]+)([^>]*?)>/g, (match, tag, attrs) => {
-    const lowerTag = tag.toLowerCase();
-    if (["br", "hr", "wbr", "img", "input"].includes(lowerTag)) {
-      // Tags void / auto-fecháveis: se já tem data-pid mantém, senão adiciona
-      if (/data-pid\s*=/i.test(attrs)) return match;
-      counter++;
-      const isSelfClosing = attrs.trim().endsWith("/");
-      const cleanAttrs = isSelfClosing ? attrs.trim().slice(0, -1).trim() : attrs;
-      return `<${tag} ${cleanAttrs} data-pid="p-${counter}"${isSelfClosing ? " /" : ""}>`;
-    }
+    const trimmed = attrs.trim();
+    // Auto-fechamento em qualquer tag (br, img, mas também <line/>, <rect/> de SVG): a barra fica depois do data-pid.
+    const selfClosing = /(^|["'\s])\/$/.test(trimmed);
+    const body = selfClosing ? trimmed.slice(0, -1).trim() : trimmed;
 
     if (/data-pid\s*=/i.test(attrs)) {
-      return match;
+      // Repara a saída antiga, que punha o data-pid depois da barra (class="a"/ data-pid="p-1">).
+      const misplaced = /^(.*?["'])\s*\/\s+(data-pid\s*=\s*"[^"]*")\s*$/s.exec(trimmed);
+      return misplaced ? `<${tag} ${misplaced[1]} ${misplaced[2]} />` : match;
     }
 
     counter++;
-    return `<${tag}${attrs ? " " + attrs.trim() : ""} data-pid="p-${counter}">`;
+    return `<${tag}${body ? " " + body : ""} data-pid="p-${counter}"${selfClosing ? " /" : ""}>`;
   });
 }
 

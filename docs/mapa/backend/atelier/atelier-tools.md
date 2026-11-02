@@ -23,3 +23,4 @@ updated: 2026-11-02
 | `ui/server/services/prototype-sanitizer.service.js` | Strips dangerous tags, inline handlers and unsafe URIs from screen HTML; keeps `<form>` content and blocks only submission (`action`/`method` removed, `onsubmit` blocked). |
 | `tests/atelier-opencode-session-resume.test.js` | Session resume rules: 401/400 keep the session and emit `session_check_failed`, 404 creates a new one, healthy session is reused. |
 | `tests/prototype-atelier.test.js` | Sanitizer (scripts, handlers, iframes, forms kept and neutralized), data-pid injection, storage and versions. |
+| `tests/prototype-sanitizer-pid.test.js` | data-pid injection: slash after the id on self-closing SVG tags, void tags, repair of old malformed output, idempotence. |
