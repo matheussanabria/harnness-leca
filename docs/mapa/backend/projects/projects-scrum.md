@@ -22,6 +22,9 @@ updated: 2026-11-01
 | `ui/server/services/project-scrum-dor.js` | Pure, deterministic mechanical Definition of Ready (`dor-mechanical-v1`): 4 required and 5 advisory checks; always flags human review. |
 | `ui/server/services/project-scrum-commits.js` | Read-only git reader: commits whose last trailer block has `Story: <id>`, SHAs verified with `git cat-file`, no shell, no `GIT_*` env, no paths in results. |
 | `ui/server/controllers/scrum-trace.controller.js` | `GET /api/project/:slug/scrum/story/:id/commits` and `/dor`; commits use only the project's configured repo, never `projects/<slug>`. |
+| `ui/server/services/project-scrum-duplicates.js` | Pure `normalizeTitle` and `findDuplicateCandidates` (equal key, `dedupeKey`, normalized title or token Jaccard >= 0.6); capped at 5 candidates and 200 title characters. |
+| `ui/server/services/project-scrum-capture.js` | Draft capture: forces `maturity: draft` and `sprintId: null`, idempotent by client-sent `dedupeKey` (`duplicated: true`, writes nothing), reuses `upsertStory`; suggestions never block. |
+| `ui/server/controllers/scrum-capture.controller.js` | `POST /api/project/:slug/scrum/story/capture` and `GET /api/project/:slug/scrum/duplicates?title=`; a missing title answers 400. |
 | `ui/server/services/project-scrum-transitions.js` and `ui/server/controllers/scrum-transition.controller.js` | Validate the canonical matrix, active lanes and expected origin; persist move and history atomically. |
 | `ui/server/services/project-scrum.service.js` | Scrum facade; split into `project-scrum-*.js` modules in the same folder (defaults, migration, lanes, ops, persist, sanitize, transitions, resolver). |
 | `ui/server/services/project-screens.service.js` | Screens facade; split into `project-screens-*.js` modules in the same folder (canvas, fallback, logic, sistema). |

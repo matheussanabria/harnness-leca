@@ -7,18 +7,12 @@ const os = require("node:os");
 const path = require("node:path");
 const { STORY_ID_PATTERN, parseTrailers, readStoryCommits } = require("../ui/server/services/project-scrum-commits");
 
+const { cleanGitEnv, initSandboxRepo } = require("./helpers/git-sandbox");
+
 const created = [];
-const hooksDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "scrum-commits-hooks-"));
-created.push(hooksDirectory);
 
 function cleanEnv() {
-  const env = {};
-  for (const [key, value] of Object.entries(process.env)) {
-    if (!key.startsWith("GIT_") && typeof value === "string") env[key] = value;
-  }
-  env.GIT_OPTIONAL_LOCKS = "0";
-  env.LC_ALL = "C";
-  return env;
+  return cleanGitEnv({ GIT_OPTIONAL_LOCKS: "0", LC_ALL: "C" });
 }
 
 function git(cwd, args) {
@@ -30,11 +24,7 @@ function git(cwd, args) {
 function makeRepo() {
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), "scrum-commits-"));
   created.push(repo);
-  git(repo, ["init", "--quiet"]);
-  git(repo, ["config", "user.name", "Teste"]);
-  git(repo, ["config", "user.email", "teste@example.com"]);
-  git(repo, ["config", "commit.gpgsign", "false"]);
-  git(repo, ["config", "core.hooksPath", hooksDirectory.replace(/\\/g, "/")]);
+  initSandboxRepo(repo, { name: "Teste", email: "teste@example.com" });
   return repo;
 }
 
