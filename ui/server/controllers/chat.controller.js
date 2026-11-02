@@ -128,8 +128,9 @@ async function apiChat({ req, res }) {
     const impl = E.engines.get(engine);
     const observe = (fn, data) => { try { fn?.(data); } catch {} };
     const onDone = override.onDone ? (data) => { observe(override.onDone, data); tracked.onDone(data); } : tracked.onDone;
+    const onError = override.onError ? (err) => { observe(override.onError, err); tracked.onError(err); } : tracked.onError;
     const onChunk = override.onChunk ? (data) => { observe(override.onChunk, data); tracked.onChunk(data); } : tracked.onChunk;
-    if (impl) impl.stream({ prompt, slug, sessionId, history, model: override.model || model, effort: eff, daiAgent, chatId, permissionUrl, signal: ac.signal, ...tracked, onDone, onChunk });
+    if (impl) impl.stream({ prompt, slug, sessionId, history, model: override.model || model, effort: eff, daiAgent, chatId, permissionUrl, signal: ac.signal, ...tracked, onDone, onChunk, onError });
     else tracked.onError(new E.PublicError(`Motor "${engine}" não suportado.`));
   };
 

@@ -1,7 +1,7 @@
 // @ts-check
 // Consumo page controller: loads once, polls while visible, re-renders pages without refetching.
 import { loadConsumo } from "./consumo-api.js";
-import { buildAsOf, buildComboRows, buildGeminiRows, buildOpenCodeRows, buildQuotaCards, buildTrend } from "./consumo-model.js";
+import { buildAsOf, buildComboRows, buildFallbacks, buildGeminiRows, buildOpenCodeRows, buildQuotaCards, buildTrend } from "./consumo-model.js";
 import { renderAsOf, renderCombos, renderGemini, renderOpenCode, renderQuotas, renderTrend } from "./consumo-view.js";
 import { bindPagers } from "../shared/pagination.js";
 import { hydratePageSizes } from "../shared/pagination-prefs.js";
@@ -19,7 +19,7 @@ export function startConsumoPage(doc = document) {
     if (!loaded) return;
     const q = loaded.quotas;
     $("cQuotas").innerHTML = q.ok ? renderQuotas(buildQuotaCards(q.data)) : `<p class="c-empty">${q.error}</p>`;
-    $("cCombos").innerHTML = loaded.combos.ok ? renderCombos(buildComboRows(loaded.combos.data.combos)) : `<p class="c-empty">${loaded.combos.error}</p>`;
+    $("cCombos").innerHTML = loaded.combos.ok ? renderCombos(buildComboRows(loaded.combos.data.combos, loaded.routing.ok ? loaded.routing.data.combos : []), buildFallbacks(loaded.routing.ok ? loaded.routing.data : null)) : `<p class="c-empty">${loaded.combos.error}</p>`;
     $("cOpenCode").innerHTML = loaded.opencode.ok ? renderOpenCode(buildOpenCodeRows(loaded.opencode.data.stats)) : `<p class="c-empty">${loaded.opencode.error}</p>`;
     $("cGemini").innerHTML = loaded.gemini.ok ? renderGemini(buildGeminiRows(loaded.gemini.data.days), Boolean(loaded.gemini.data.partial)) : `<p class="c-empty">${loaded.gemini.error}</p>`;
     $("cTrend").innerHTML = renderTrend(buildTrend(loaded.trend));

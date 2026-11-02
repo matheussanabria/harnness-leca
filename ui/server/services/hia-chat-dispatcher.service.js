@@ -8,6 +8,7 @@ const { localInferenceQueue } = require("../../../tools/lib/hia/guard");
 const { redact } = require("../../../tools/lib/redact");
 const { resolveComboModel, rememberCombo } = require("../../../tools/lib/hia/combo-routing");
 const E = require("../../../tools/lib/engines");
+const { recordFallback, recordComboOutcome } = require("./routing-outcomes.service");
 const crypto = require("crypto");
 
 // "ollama:qwen2.5-coder:1.5b" -> "qwen2.5-coder:1.5b"
@@ -86,6 +87,7 @@ async function handleChatWithHia({ engine, model, prompt, slug, sessionId, histo
         text: `[HIA Aviso] Falha na execução da ferramenta local '${decision.targetId}'. Prosseguindo com o motor em nuvem...\n\n`,
         sessionId: sid,
       });
+      recordFallback({ from: "script", target: decision.targetId, reason: "tool_failed", slug });
       fallbackStream();
       return false;
     }
@@ -95,6 +97,7 @@ async function handleChatWithHia({ engine, model, prompt, slug, sessionId, histo
   if (decision.destination === "local_llm") {
     const impl = E.engines.get("ollama");
     if (!impl) {
+      recordFallback({ from: "local_llm", target: "ollama", reason: "engine_missing", slug });
       fallbackStream();
       return false;
     }
@@ -164,6 +167,7 @@ async function handleChatWithHia({ engine, model, prompt, slug, sessionId, histo
     }));
 
     if (failed && !emittedText) {
+      recordFallback({ from: "local_llm", target: model || "ollama", reason: "unavailable", slug });
       fallbackStream();
       return false;
     }
@@ -201,7 +205,20 @@ async function handleChatWithHia({ engine, model, prompt, slug, sessionId, histo
     // Remember the combo as soon as the engine reports the session id, so a dropped client or an aborted first turn
     // still keeps the conversation on its combo; the done event covers engines that report the id only at the end.
     const remember = (data) => rememberCombo(data?.sessionId || sessionId || "", comboModel);
-    fallbackStream({ model: comboModel, onChunk: (data) => { if (data?.sessionId) remember(data); }, onDone: remember });
+    const startedAt = Date.now();
+    let recorded = false;
+    // One outcome per turn; a turn the user cancelled is neither a success nor a combo failure.
+    const outcome = (ok, error) => {
+      if (recorded || (!ok && signal?.aborted)) return;
+      recorded = true;
+      recordComboOutcome({ combo: comboModel, ok, durationMs: Date.now() - startedAt, slug, error });
+    };
+    fallbackStream({
+      model: comboModel,
+      onChunk: (data) => { if (data?.sessionId) remember(data); },
+      onDone: (data) => { remember(data); outcome(true); },
+      onError: (err) => outcome(false, err),
+    });
     return false;
   }
   fallbackStream();

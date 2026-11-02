@@ -19,6 +19,7 @@ const { buildQuotas } = require("../services/usage-ingest/quota-merge");
 const { createNineRouterReader } = require("../services/usage-ingest/9router-reader");
 const { createOpenCodeReader } = require("../services/usage-ingest/opencode-reader");
 const { createGeminiActivityReader } = require("../services/usage-ingest/gemini-activity-reader");
+const { readRoutingOutcomes } = require("../services/usage-ingest/routing-outcomes-reader");
 const { parseUsageRange } = require("../services/usage-ingest/usage-range");
 
 const SLUG_RE = /^[a-z0-9][a-z0-9_-]{0,59}$/i;
@@ -123,6 +124,12 @@ async function apiUsageGemini({ res }) {
   return send(res, 200, { generatedAt: new Date().toISOString(), source: "gemini-transcripts", tokens: null, days, sessions, partial, warnings });
 }
 
+/** GET /api/usage/routing (global, read-only): Harness-side combo outcomes and fallbacks (9Router keeps no failure data) */
+async function apiUsageRouting({ res }) {
+  const { combos, fallbacks, warnings } = readRoutingOutcomes();
+  return send(res, 200, { generatedAt: new Date().toISOString(), source: "hia-telemetry", combos, fallbacks, warnings });
+}
+
 /** GET /api/usage/quotas (global, read-only): latest quota snapshots per provider+window plus configured plans */
 async function apiUsageQuotas({ res }) {
   return send(res, 200, buildQuotas({ stored: getQuotaStore().list(), config: loadPlanConfig(), nowMs: Date.now() }));
@@ -192,4 +199,4 @@ async function apiProjectEventPublish({ req, res, params: [slug] }) {
   }
 }
 
-module.exports = { apiProjectEvents, apiProjectUsageSummary, apiUsageQuotas, apiUsageCombos, apiUsageOpenCode, apiUsageGemini, apiProjectProjections, apiProjectEventStream, apiProjectEventPublish };
+module.exports = { apiProjectEvents, apiProjectUsageSummary, apiUsageQuotas, apiUsageCombos, apiUsageOpenCode, apiUsageGemini, apiUsageRouting, apiProjectProjections, apiProjectEventStream, apiProjectEventPublish };

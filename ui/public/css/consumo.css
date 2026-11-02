@@ -39,6 +39,7 @@ h2{font-size:16px;margin:28px 0 12px;display:flex;gap:8px;align-items:center}
 .c-table th{color:var(--mute);font-weight:500;font-size:12px}
 .c-table td.n{text-align:right;font-variant-numeric:tabular-nums}
 .c-table .is-via{color:var(--mute)}
+.c-table td.is-fail{color:var(--high);font-weight:600}
 .c-trend{display:flex;align-items:flex-end;gap:4px;height:130px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px 4px}
 .c-bar{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:8px}
 .c-bar span{display:block;width:100%;background:var(--accent);border-radius:3px 3px 0 0}

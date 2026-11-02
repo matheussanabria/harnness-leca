@@ -44,11 +44,12 @@ function table(headers, body, caption) {
 const num = (c) => `<td class="n" title="${esc(c.title)}">${esc(c.text)}</td>`;
 
 /** @param {any[]} rows */
-export function renderCombos(rows) {
+export function renderCombos(rows, fallbacks = { script: 0, local: 0 }) {
   if (!rows.length) return `<p class="c-empty">Sem chamadas no 9Router.</p>`;
+  const note = `<p class="c-empty"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> O 9Router não registra falhas; a coluna Harness conta turnos roteados por este app (ok / falha). Fallbacks para a nuvem: script ${fallbacks.script}, modelo local ${fallbacks.local}.</p>`;
   const page = pagedHtml(rows, COMBOS_KEY, (r) =>
-    `<tr><td>${esc(r.combo)}</td><td>${esc(r.provider)}</td><td>${esc(r.model)}</td>${num(r.calls)}${num(r.tokensIn)}${num(r.tokensOut)}${num(r.failures)}<td>${esc(r.lastAtText)}</td></tr>`);
-  return table(["Combo", "Provedor", "Modelo", "Chamadas", "Entrada", "Saída", "Falhas", "Última"], page.html, "Consumo por combo do 9Router") + page.pager;
+    `<tr><td>${esc(r.combo)}</td><td>${esc(r.provider)}</td><td>${esc(r.model)}</td>${num(r.calls)}${num(r.tokensIn)}${num(r.tokensOut)}<td class="n${r.outcome.failed ? " is-fail" : ""}" title="${esc(r.outcome.title)}">${esc(r.outcome.text)}</td><td>${esc(r.lastAtText)}</td></tr>`);
+  return note + table(["Combo", "Provedor", "Modelo", "Chamadas", "Entrada", "Saída", "Harness ok / falha", "Última"], page.html, "Consumo por combo do 9Router") + page.pager;
 }
 
 /** @param {any[]} rows */

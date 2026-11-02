@@ -52,13 +52,31 @@ export function buildQuotaCards(resp) {
   return [...providers.values()];
 }
 
+/** @param {any} o routing outcome of one combo */
+function harnessOutcome(o) {
+  if (!o) return { text: NA, title: "Sem turnos roteados registrados", failed: false };
+  return { text: `${o.ok} / ${o.failed}`, title: o.failed && o.lastError ? `Último erro: ${o.lastError}` : "Turnos ok / com falha", failed: o.failed > 0 };
+}
+
+/** Fallback counts (a cheaper route handed the turn to the cloud). @param {any} routing */
+export function buildFallbacks(routing) {
+  const f = (routing && routing.fallbacks) || {};
+  return { script: Number(f.script) || 0, local: Number(f.local_llm) || 0 };
+}
+
 /** @param {any} n */
 const cell = (n) => ({ text: formatCompact(n), title: formatExact(n), value: isNum(n) ? n : 0 });
 
-/** Combo/provider/model rows sorted by total tokens, largest first. @param {any[]} combos */
-export function buildComboRows(combos) {
+/**
+ * Combo/provider/model rows sorted by total tokens, largest first. 9Router keeps no failure data, so the
+ * "Harness" column comes from the dispatcher's own outcomes (ok/failed per combo); n/d when none were recorded.
+ * @param {any[]} combos @param {any[]} [outcomes] routing combos: { combo, ok, failed, lastError }
+ */
+export function buildComboRows(combos, outcomes = []) {
+  const byCombo = new Map((Array.isArray(outcomes) ? outcomes : []).map((o) => [o.combo, o]));
   return (Array.isArray(combos) ? combos : [])
     .map((c) => ({
+      outcome: harnessOutcome(c.combo ? byCombo.get(c.combo) : null),
       combo: c.combo || NA,
       provider: c.provider || NA,
       model: c.model || NA,

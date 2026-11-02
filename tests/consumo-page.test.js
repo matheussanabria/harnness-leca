@@ -38,6 +38,11 @@ test("combo rows sort by tokens and keep failures as a real number", async () =>
   ]);
   assert.equal(rows[0].model, "m2");
   assert.equal(rows[0].combo, "n/d");
+  assert.equal(rows[0].outcome.text, "n/d");
+  const merged = buildComboRows([{ combo: "a", provider: "p", model: "a", calls: 1, tokensIn: 1 }], [{ combo: "a", ok: 4, failed: 1, lastError: "ETIMEDOUT" }]);
+  assert.equal(merged[0].outcome.text, "4 / 1");
+  assert.equal(merged[0].outcome.failed, true);
+  assert.ok(merged[0].outcome.title.includes("ETIMEDOUT"));
   assert.equal(rows[0].tokensIn.text, "1,0 K");
   const oc = buildOpenCodeRows([{ provider: "9router", model: "x", viaRouter: true, calls: 1, tokensIn: 9e9 }, { provider: "o", model: "y", calls: 1, tokensIn: 1 }]);
   assert.equal(oc[0].viaRouter, false);

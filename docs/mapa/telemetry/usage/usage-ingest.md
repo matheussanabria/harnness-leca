@@ -3,7 +3,7 @@ domain: telemetry
 module: usage
 feature: usage-ingest
 summary: Per-call usage ingest from Claude transcripts and Codex rollouts into usage.observed events and the summary API.
-paths: [ui/server/services/usage-ingest/*.js, tests/usage-ingest*.js, tests/usage-quota.test.js, tests/usage-cache-split.test.js, tests/codex-usage-fixtures.js, tests/usage-summary-extended.test.js, tests/usage-9router.test.js, tests/usage-opencode.test.js, tests/usage-gemini.test.js]
+paths: [ui/server/services/usage-ingest/*.js, tests/usage-ingest*.js, tests/usage-quota.test.js, tests/usage-cache-split.test.js, tests/codex-usage-fixtures.js, tests/usage-summary-extended.test.js, tests/usage-9router.test.js, tests/usage-opencode.test.js, tests/usage-gemini.test.js, tests/usage-routing.test.js]
 keywords: [usage, ingest, transcript, codex, rollout, checkpoint, usage.observed, summary]
 updated: 2026-11-02
 ---
@@ -47,3 +47,6 @@ updated: 2026-11-02
 | `tests/usage-opencode.test.js` | OpenCode reader tests: layout choice, router dedupe, bounds, text/title sentinels, degradation, route. |
 | `ui/server/services/usage-ingest/gemini-activity-reader.js` | Read-only Antigravity transcript counter (HARNESS_GEMINI_DIR): reads only `type`/`created_at`, per-day prompts/responses/errors, size-cached, bounded; feeds `GET /api/usage/gemini` (tokens always null). |
 | `tests/usage-gemini.test.js` | Gemini activity reader tests: per-day counts, content sentinel, cache invalidation, degradation, route. |
+| `ui/server/services/routing-outcomes.service.js` | Records dispatcher fallbacks (script or local model to cloud) and combo turn success/failure into the HIA telemetry log; ids, status and a short error code only. |
+| `ui/server/services/usage-ingest/routing-outcomes-reader.js` | Bounded tail read of `logs/telemetry/hia-executions.jsonl`: per-combo ok/failed and fallback counts; feeds `GET /api/usage/routing`. |
+| `tests/usage-routing.test.js` | Routing outcome tests: once-only record, cancelled turn ignored, no error text stored, reader aggregation, degradation, route. |
