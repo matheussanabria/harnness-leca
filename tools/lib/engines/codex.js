@@ -16,6 +16,7 @@ function parseLine(line, onChunk, state) {
   if (event.type === "error") state.error = event.message || "Falha de comunicação do Codex.";
   if (event.type === "turn.failed") state.error = event.error?.message || "O turno do Codex falhou.";
   if (event.type === "session_meta" && payload.session_id) state.sessionId = payload.session_id;
+  if (event.type === "thread.started" && event.thread_id) state.sessionId = event.thread_id; // CLI recente
   if (event.type === "item.completed" && event.item?.type === "agent_message" && event.item.text) {
     state.text += event.item.text;
     onChunk({ type: "text", text: event.item.text, sessionId: state.sessionId });
@@ -67,4 +68,5 @@ function localModels() {
 }
 
 const engine = { id: "codex", stream, status: async (catalog) => ({ available: true, auth: catalog.auth, models: localModels() || catalog.models }) };
+engine.parseLine = parseLine; // exposto para testes
 module.exports = engine;
