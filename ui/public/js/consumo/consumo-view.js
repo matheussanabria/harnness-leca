@@ -69,15 +69,6 @@ export function renderGemini(rows, partial) {
   return note + table(["Dia (UTC)", "Sessões", "Pedidos", "Respostas", "Erros"], page.html, "Atividade do Antigravity por dia") + page.pager;
 }
 
-/** @param {{ days: any[], error: string }} trend */
-export function renderTrend(trend) {
-  if (trend.error) return `<p class="c-empty"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> ${esc(trend.error)}</p>`;
-  if (!trend.days.length) return `<p class="c-empty">Sem chamadas observadas no período.</p>`;
-  const bars = trend.days.map((d) =>
-    `<div class="c-bar" title="${esc(d.text)}"><span style="height:${d.heightPct}%"></span><em>${esc(d.label)}</em></div>`).join("");
-  return `<div class="c-trend" role="img" aria-label="Chamadas por dia">${bars}</div>`;
-}
-
 /** @param {any[]} asOf */
 export function renderAsOf(asOf) {
   return asOf.map((a) => {
