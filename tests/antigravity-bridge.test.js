@@ -94,3 +94,4 @@ test("geminiEngine: status reports Antigravity auth and availability", async () 
   assert.equal(st.available, true);
   assert.ok(st.auth.includes("Antigravity") || st.auth.includes("Google") || st.auth.includes("Studio"));
 });
+
