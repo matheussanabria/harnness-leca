@@ -1,45 +1,27 @@
 // @ts-check
-// Motor 3: Gemini (Google AI Studio com chave em global/.env; sem chave, grava na fila bridge/ do Antigravity).
-const fs = require("fs");
-const path = require("path");
+// Motor 3: Gemini / Antigravity.
+// Prioriza o Antigravity CLI nativo (agy) para usar a assinatura ativa do usuário sem custo de API.
+// Em fallback, consome a API do Google AI Studio com chave em global/.env (GEMINI_API_KEY).
 const crypto = require("crypto");
-const { ROOT } = require("../root");
 const { loadEnv } = require("../env");
-const { safeModel, getProjectContext } = require("./common");
+const { safeModel, getProjectContext, PublicError } = require("./common");
+const { resolveAgyBin } = require("../antigravity-bin");
+const { streamAntigravity } = require("./antigravity-stream");
 
-/** @param {import("../types").EngineRequest} req */
-async function streamGemini({ prompt, slug, sessionId, history, model, effort, daiAgent, signal, onChunk, onDone, onError }) {
-  loadEnv();
-  // A chave vem só do .env: aceitá-la da requisição deixaria uma página forjada mandar o contexto do projeto para outra conta.
-  const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  // A API do Gemini não guarda sessão: cada conversa ganha um id próprio, mantido pelo navegador entre os turnos.
+/**
+ * Fallback via Google AI Studio REST SSE API
+ * @param {string} key
+ * @param {import("../types").EngineRequest} req
+ */
+async function streamAiStudio(key, req) {
+  const { prompt, slug, sessionId, history, model, effort, daiAgent, signal, onChunk, onDone, onError } = req;
   const sid = typeof sessionId === "string" && /^[0-9a-f-]{36}$/i.test(sessionId) ? sessionId : crypto.randomUUID();
-
-  if (!key) {
-    // Se não tiver chave de API, grava na fila da Bridge local do Antigravity
-    const bridgeDir = path.join(ROOT, "bridge");
-    if (!fs.existsSync(bridgeDir)) fs.mkdirSync(bridgeDir, { recursive: true });
-    const item = {
-      id: sid,
-      data: new Date().toISOString(),
-      slug,
-      prompt,
-      status: "recebido",
-    };
-    fs.appendFileSync(path.join(bridgeDir, "gemini-inbox.jsonl"), JSON.stringify(item) + "\n", "utf8");
-
-    const note = `[✦ Modo Bridge Gemini/Antigravity]\n\nMensagem registrada na fila de processamento local (\`bridge/gemini-inbox.jsonl\`).\n\n💡 **Dica**: Para respostas instantâneas na tela do Gemini, adicione a chave do Google AI Studio em \`global/.env\` (\`GEMINI_API_KEY=...\`).`;
-    onChunk({ type: "text", text: note, sessionId: item.id });
-    return onDone({ sessionId: item.id, fullText: note });
-  }
 
   try {
     const ctx = getProjectContext(slug, { daiAgent });
     const targetModel = safeModel(model) || "gemini-3.8-flash";
-    // A chave vai no header, não na URL (URLs aparecem em logs e mensagens de erro).
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:streamGenerateContent?alt=sse`;
 
-    // Turnos anteriores da conversa (o navegador envia), para o Gemini não esquecer o que já foi dito.
     const past = (Array.isArray(history) ? history : [])
       .filter((t) => t && typeof t.text === "string" && t.text.trim())
       .slice(-40)
@@ -61,7 +43,7 @@ async function streamGemini({ prompt, slug, sessionId, history, model, effort, d
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify(body),
-      signal, // cliente saiu: cancela a requisição e a leitura do stream
+      signal,
     });
 
     if (res.status === 503 && targetModel === "gemini-3.8-flash") {
@@ -91,7 +73,7 @@ async function streamGemini({ prompt, slug, sessionId, history, model, effort, d
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split("\n");
-      buffer = lines.pop();
+      buffer = lines.pop() || "";
 
       for (const line of lines) {
         if (!line.startsWith("data: ")) continue;
@@ -103,7 +85,7 @@ async function streamGemini({ prompt, slug, sessionId, history, model, effort, d
           if (cand && cand.content && Array.isArray(cand.content.parts)) {
             for (const part of cand.content.parts) {
               if (part.thought) {
-                accumulatedThinking += (part.text || "");
+                accumulatedThinking += part.text || "";
                 onChunk({ type: "thinking", text: part.text, sessionId: sid });
               } else if (part.text) {
                 accumulatedText += part.text;
@@ -121,13 +103,44 @@ async function streamGemini({ prompt, slug, sessionId, history, model, effort, d
   }
 }
 
+/** @param {import("../types").EngineRequest} req */
+async function streamGemini(req) {
+  loadEnv();
+  const bin = resolveAgyBin();
+  if (bin) {
+    return streamAntigravity(bin, req);
+  }
+
+  const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (key) {
+    return streamAiStudio(key, req);
+  }
+
+  req.onError(
+    new PublicError(
+      "Antigravity CLI (agy) não encontrado e chave GEMINI_API_KEY não configurada. Defina AGY_BIN ou GEMINI_API_KEY em global/.env para conversar com o Gemini."
+    )
+  );
+}
+
 /** @type {import("../types").Engine} */
 const engine = {
   id: "gemini",
   stream: streamGemini,
   status: async (catalog) => {
+    loadEnv();
+    const bin = resolveAgyBin();
+    const hasAgy = Boolean(bin);
     const hasKey = Boolean(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY);
-    return { available: true, hasKey, auth: hasKey ? catalog._authComChave : catalog.auth };
+    const auth = hasKey
+      ? catalog._authComChave
+      : (hasAgy ? catalog.auth : (catalog._authBridge || catalog.auth));
+    return {
+      available: hasAgy || hasKey || true,
+      hasKey,
+      hasAgy,
+      auth,
+    };
   },
 };
 

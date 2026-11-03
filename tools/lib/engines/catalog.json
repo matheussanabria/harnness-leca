@@ -161,9 +161,10 @@
     "name": "Gemini / Antigravity",
     "icon": "✦",
     "color": "#7ca5f5",
-    "description": "Responde via Google AI Studio gratuito ou grava na fila local do Antigravity",
-    "auth": "Bridge Local / AI Studio Free",
+    "description": "Responde nativamente via Antigravity CLI com assinatura Google ou AI Studio",
+    "auth": "Antigravity CLI (Assinatura Google)",
     "_authComChave": "Google AI Studio (Gemini 3.8 / Flash)",
+    "_authBridge": "Bridge Local / AI Studio Free",
     "defaultModel": "gemini-3.8-flash",
     "defaultEffort": "medium",
     "effortLevels": [
@@ -185,6 +186,26 @@
         "id": "gemini-3.8-flash",
         "name": "Gemini 3.8 Flash (Recomendado)",
         "desc": "Geração de ponta com velocidade extrema"
+      },
+      {
+        "id": "gemini-4-argon",
+        "name": "Gemini 4 Argon (Assinatura)",
+        "desc": "Raciocínio analítico avançado e multimodal"
+      },
+      {
+        "id": "claude-sonnet-5-5",
+        "name": "Claude Sonnet 5.5 (Antigravity)",
+        "desc": "Modelo de alto desempenho via assinatura"
+      },
+      {
+        "id": "claude-opus-5-5",
+        "name": "Claude Opus 5.5 (Antigravity)",
+        "desc": "Desafios complexos de código via assinatura"
+      },
+      {
+        "id": "gpt-oss-120b-medium",
+        "name": "GPT-OSS 120B (Antigravity)",
+        "desc": "Modelo de alta escala open-weight"
       },
       {
         "id": "gemini-3.7-flash",

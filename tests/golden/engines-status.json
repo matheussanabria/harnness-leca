@@ -148,8 +148,8 @@
       "name": "Gemini / Antigravity",
       "icon": "✦",
       "color": "#7ca5f5",
-      "description": "Responde via Google AI Studio gratuito ou grava na fila local do Antigravity",
-      "auth": "Bridge Local / AI Studio Free",
+      "description": "Responde nativamente via Antigravity CLI com assinatura Google ou AI Studio",
+      "auth": "Antigravity CLI (Assinatura Google)",
       "defaultModel": "gemini-3.8-flash",
       "defaultEffort": "medium",
       "effortLevels": [
@@ -173,6 +173,26 @@
           "desc": "Geração de ponta com velocidade extrema"
         },
         {
+          "id": "gemini-4-argon",
+          "name": "Gemini 4 Argon (Assinatura)",
+          "desc": "Raciocínio analítico avançado e multimodal"
+        },
+        {
+          "id": "claude-sonnet-5-5",
+          "name": "Claude Sonnet 5.5 (Antigravity)",
+          "desc": "Modelo de alto desempenho via assinatura"
+        },
+        {
+          "id": "claude-opus-5-5",
+          "name": "Claude Opus 5.5 (Antigravity)",
+          "desc": "Desafios complexos de código via assinatura"
+        },
+        {
+          "id": "gpt-oss-120b-medium",
+          "name": "GPT-OSS 120B (Antigravity)",
+          "desc": "Modelo de alta escala open-weight"
+        },
+        {
           "id": "gemini-3.7-flash",
           "name": "Gemini 3.7 Flash",
           "desc": "Alta performance e consistência"
@@ -194,7 +214,8 @@
         }
       ],
       "available": true,
-      "hasKey": false
+      "hasKey": false,
+      "hasAgy": true
     },
     "codex": {
       "id": "codex",
@@ -434,7 +455,7 @@
       "name": "Gemini / Antigravity",
       "icon": "✦",
       "color": "#7ca5f5",
-      "description": "Responde via Google AI Studio gratuito ou grava na fila local do Antigravity",
+      "description": "Responde nativamente via Antigravity CLI com assinatura Google ou AI Studio",
       "auth": "Google AI Studio (Gemini 3.8 / Flash)",
       "defaultModel": "gemini-3.8-flash",
       "defaultEffort": "medium",
@@ -459,6 +480,26 @@
           "desc": "Geração de ponta com velocidade extrema"
         },
         {
+          "id": "gemini-4-argon",
+          "name": "Gemini 4 Argon (Assinatura)",
+          "desc": "Raciocínio analítico avançado e multimodal"
+        },
+        {
+          "id": "claude-sonnet-5-5",
+          "name": "Claude Sonnet 5.5 (Antigravity)",
+          "desc": "Modelo de alto desempenho via assinatura"
+        },
+        {
+          "id": "claude-opus-5-5",
+          "name": "Claude Opus 5.5 (Antigravity)",
+          "desc": "Desafios complexos de código via assinatura"
+        },
+        {
+          "id": "gpt-oss-120b-medium",
+          "name": "GPT-OSS 120B (Antigravity)",
+          "desc": "Modelo de alta escala open-weight"
+        },
+        {
           "id": "gemini-3.7-flash",
           "name": "Gemini 3.7 Flash",
           "desc": "Alta performance e consistência"
@@ -480,7 +521,8 @@
         }
       ],
       "available": true,
-      "hasKey": true
+      "hasKey": true,
+      "hasAgy": true
     },
     "codex": {
       "id": "codex",
