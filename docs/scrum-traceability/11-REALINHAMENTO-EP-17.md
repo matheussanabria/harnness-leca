@@ -100,3 +100,5 @@ Text for the owners of 17.05, 17.06 and 17.07. It is a request, not an edit of t
 > 4. 17.05 audit actions: `trace.link`, `trace.evidence.recorded`, `scrum.maturity.changed`, `scrum.sprint.assigned`.
 > 5. 17.06 permissions: `trace:link`, `trace:approve`.
 > 6. 17.10 retention: declare the planned `trace_*` tables (implementations, executions, evidence, pending) in the `protected` class.
+> 7. 17.07 importer and schema: story 18.07 (merged) adds an optional `dedupeKey` to a story (1 to 80 characters, `[A-Za-z0-9][A-Za-z0-9._:/-]*`). It makes draft capture idempotent: a second capture with the same key returns the existing story and writes nothing. Carry the field through the importer and keep it unique per project (case-insensitive) in the table, otherwise a retry after the migration creates a duplicate draft.
+> 8. 17.07 and 17.06 write path: `storyRevision` must never be read from a request payload (mass-assignment defense, pinned by `tests/project-scrum-capture.test.js`). Only the service increments it, in the same transaction as the change and its audit row.
