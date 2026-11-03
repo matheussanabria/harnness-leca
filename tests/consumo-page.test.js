@@ -67,8 +67,9 @@ test("views escape values, show badges and contain no emoji", async () => {
     quotas: [snap({ provider: "claude", confidence: "manual", stale: true })] }));
   assert.ok(!html.includes("<b>Pro</b>"));
   assert.ok(html.includes("estimado") && html.includes("desatualizado"));
-  const combos = renderCombos(buildComboRows([{ combo: "<img>", provider: "p", model: "m", calls: 1 }]));
+  const combos = renderCombos(buildComboRows([{ combo: "", provider: "p", model: "<img>", calls: 1 }]));
   assert.ok(!combos.includes("<img>"));
+  assert.ok(!combos.includes(">Combo<"), "the always-n/d Combo column is gone");
   const asOf = renderAsOf([{ id: "q", label: "Cotas", ok: false, error: "Servidor indisponível.", atText: "n/d", warnings: [] }]);
   assert.ok(asOf.includes("indisponível"));
   for (const out of [html, combos, asOf]) assert.ok(!EMOJI.test(out));

@@ -9,7 +9,7 @@ updated: 2026-11-02
 ---
 # Consumo page (/consumo)
 
-Read-only page fed by `GET /api/usage/quotas`, `/api/usage/combos`, `/api/usage/opencode` and, when `?p=<project>` is set, the project daily summary. Each source fails on its own and shows an unavailable chip. Combo and OpenCode tables show a Cache column (cache reads and share) and an input:output ratio; 9Router `promptTokens` already includes cached reads (counters come from the `tokens` JSON column), while OpenCode `tokens.input` excludes them, so its share uses input + cache.
+Read-only page fed by `GET /api/usage/quotas`, `/api/usage/combos`, `/api/usage/opencode` and, when `?p=<project>` is set, the project daily summary. Each source fails on its own and shows an unavailable chip. The 9Router table has no Combo column (9Router records no combo per call, so it was always n/d). Combo and OpenCode tables show a Cache column (cache reads and share) and an input:output ratio; 9Router `promptTokens` already includes cached reads (counters come from the `tokens` JSON column), while OpenCode `tokens.input` excludes them, so its share uses input + cache.
 
 | File | Responsibility |
 |---|---|
