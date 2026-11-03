@@ -9,7 +9,7 @@ updated: 2026-11-02
 ---
 # Coordination ledger view
 
-Shows `projects/<slug>/coordination/state.json` as lanes by ledger status. It never writes and never touches Scrum lanes (plan 04: ledger is the source for "who works on a story now", Scrum shows an advisory view). The ledger has no worktree field today, so a card shows one only if the story carries `worktree` or `branch`.
+Shows `projects/<slug>/coordination/state.json` as lanes by ledger status. It never writes and never touches Scrum lanes (plan 04: ledger is the source for "who works on a story now", Scrum shows an advisory view). A card shows the worktree recorded by `claim --worktree` (`{dir, branch}`): the branch name, or the last folder of `dir`; never an absolute path.
 
 | File | Responsibility |
 |---|---|

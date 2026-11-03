@@ -9,6 +9,20 @@ const LANE_ORDER = ["claimed", "in_progress", "review", "blocked", "ready", "pla
 const ACTIVE = new Set(["claimed", "in_progress", "review", "blocked"]);
 
 /**
+ * `claim --worktree` stores `{ dir, branch }`; older or hand-made entries may hold a plain string.
+ * Only the branch name (or the last folder of the path) is exposed: no absolute paths reach the UI.
+ * @param {any} value
+ * @returns {string|null}
+ */
+function worktreeLabel(value) {
+  if (!value) return null;
+  if (typeof value === "string") return value;
+  if (value.branch) return String(value.branch);
+  if (value.dir) return String(value.dir).split(/[\\/]/).filter(Boolean).pop() || null;
+  return null;
+}
+
+/**
  * @param {any} story
  * @param {number} now
  */
@@ -22,8 +36,7 @@ function toCard(story, now) {
     status: story.status,
     leaseExpiresAt: expiresAt,
     leaseExpired: Boolean(expiresAt) && Date.parse(expiresAt) < now,
-    // The ledger does not record worktrees today; show them only when a story carries one.
-    worktree: story.worktree || story.branch || null,
+    worktree: worktreeLabel(story.worktree),
     updatedAt: story.updatedAt || null,
   };
 }
