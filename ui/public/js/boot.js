@@ -18,3 +18,7 @@ await Promise.all(
 );
 
 await import("/js/app.js");
+
+// Live "who is working" strip in the header; a failure here must never block the app.
+const presenceRoot = document.getElementById("presenceStrip");
+if (presenceRoot) import("/js/modules/presence-strip.js").then((m) => m.mountPresenceStrip(presenceRoot)).catch(() => {});

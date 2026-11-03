@@ -1,0 +1,11 @@
+/* Header presence strip: engines working right now. FontAwesome icons only. */
+.presence-strip { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.pres-item { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--mute, #9a978e); }
+.pres-name { color: var(--text); }
+.pres-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mute, #9a978e); }
+.pres-item--active { border-color: #3cb371; }
+.pres-item--active .pres-dot { background: #3cb371; box-shadow: 0 0 0 0 rgba(60, 179, 113, 0.6); animation: pres-pulse 1.8s infinite; }
+.pres-item--unknown .pres-dot { background: repeating-linear-gradient(45deg, #9a978e, #9a978e 2px, transparent 2px, transparent 4px); }
+@keyframes pres-pulse { 70% { box-shadow: 0 0 0 6px rgba(60, 179, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(60, 179, 113, 0); } }
+@media (prefers-reduced-motion: reduce) { .pres-item--active .pres-dot { animation: none; } }
+@media (max-width: 900px) { .pres-text { display: none; } }
