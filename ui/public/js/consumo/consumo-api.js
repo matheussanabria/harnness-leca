@@ -22,21 +22,17 @@ async function getJson(url, opts) {
 }
 
 /**
- * Loads quotas, 9Router combos, OpenCode, Gemini activity and (when a project is given) the daily trend in parallel.
- * @param {{ project?: string, window?: string, signal?: AbortSignal, fetchImpl?: typeof fetch }} opts
+ * Loads quotas, 9Router combos, OpenCode, Gemini activity and routing outcomes in parallel.
+ * @param {{ signal?: AbortSignal, fetchImpl?: typeof fetch }} opts
  */
 export async function loadConsumo(opts) {
   const base = { signal: opts.signal, fetchImpl: opts.fetchImpl };
-  const trendUrl = opts.project
-    ? `/api/project/${encodeURIComponent(opts.project)}/usage/summary?window=${encodeURIComponent(opts.window || "14d")}&groupBy=day`
-    : "";
-  const [quotas, combos, opencode, gemini, routing, trend] = await Promise.all([
+  const [quotas, combos, opencode, gemini, routing] = await Promise.all([
     getJson("/api/usage/quotas", base),
     getJson("/api/usage/combos", base),
     getJson("/api/usage/opencode", base),
     getJson("/api/usage/gemini", base),
     getJson("/api/usage/routing", base),
-    trendUrl ? getJson(trendUrl, base) : Promise.resolve(/** @type {Source} */ ({ ok: false, error: "Nenhum projeto selecionado." })),
   ]);
-  return { quotas, combos, opencode, gemini, routing, trend, loadedAt: new Date().toISOString() };
+  return { quotas, combos, opencode, gemini, routing, loadedAt: new Date().toISOString() };
 }

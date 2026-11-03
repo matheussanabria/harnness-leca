@@ -1,6 +1,5 @@
 // @ts-check
 // Consumo page: pure view model. Missing values stay null and render as n/d, never as 0.
-import { bucketDays } from "../modules/usage-view-model.js";
 import { formatCompact, formatDateTime, formatExact, isNum, NA } from "../modules/usage-format.js";
 
 const WINDOW_LABELS = { "5h": "5 horas", weekly: "Semanal" };
@@ -151,10 +150,4 @@ export function buildAsOf(loaded) {
     entry("opencode", "OpenCode", loaded.opencode),
     entry("gemini", "Gemini", loaded.gemini),
   ];
-}
-
-/** Daily calls bars for the selected project. @param {any} trendSource */
-export function buildTrend(trendSource) {
-  if (!trendSource || !trendSource.ok) return { days: [], error: trendSource ? trendSource.error : "" };
-  return { days: bucketDays(trendSource.data.groups), error: "" };
 }

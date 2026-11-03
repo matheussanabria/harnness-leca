@@ -83,10 +83,16 @@ test("api: one failing source does not break the others", async () => {
   const r = await loadConsumo({ fetchImpl });
   assert.equal(r.combos.ok, false);
   assert.equal(r.quotas.ok, true);
-  assert.equal(r.trend.ok, false);
   assert.equal(r.gemini.ok, true);
   const { buildGeminiRows } = await mod("consumo-model.js");
   const { renderGemini } = await mod("consumo-view.js");
   const html = renderGemini(buildGeminiRows([{ day: "2026-08-04", sessions: 2, prompts: 7, responses: 20, errors: 0 }]), true);
   assert.ok(html.includes("2026-08-04") && html.includes("parcial") && !EMOJI.test(html));
+});
+
+test("page controller: loads as a module and drops the old trend source", async () => {
+  const page = await mod("consumo-page.js");
+  assert.equal(typeof page.startConsumoPage, "function");
+  const model = await mod("consumo-model.js");
+  assert.equal(model.buildTrend, undefined);
 });
