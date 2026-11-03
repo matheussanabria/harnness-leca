@@ -83,7 +83,7 @@ function injectDataPidAttributes(html) {
 
   let counter = 0;
   // Corpo de <script>/<style> e codigo, nao marcacao: nunca recebe data-pid (e perde os que ja vazaram).
-  const parts = html.split(/(<(script|style)\b[^>]*>[\s\S]*?<\/\2\s*>)/gi);
+  const parts = html.split(/(<(script|style)\b[^>]*>[\s\S]*?<\/\2[^>]*>)/gi);
   const out = [];
   for (let i = 0; i < parts.length; i += 3) {
     out.push(injectInMarkup(parts[i], () => ++counter));

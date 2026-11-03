@@ -2,7 +2,7 @@
 
 const vm = require("vm");
 
-const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
+const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script[^>]*>/gi;
 
 /**
  * Validates an HTML screen written by the agent before it reaches disk.
@@ -21,6 +21,8 @@ function validateScreenHtml(html) {
   if (roots.length > 1) {
     return `A tela tem ${roots.length} raízes "lp-app" (conteúdo duplicado). Envie a tela uma única vez.`;
   }
+  const storage = storageGuard(text);
+  if (storage) return storage;
   let m;
   SCRIPT_RE.lastIndex = 0;
   while ((m = SCRIPT_RE.exec(text))) {
@@ -32,6 +34,27 @@ function validateScreenHtml(html) {
     }
   }
   return null;
+}
+
+const STORAGE_HINT =
+  "Use um wrapper seguro: window.LPS=window.LPS||(function(){var o={};try{o=JSON.parse(window.name||'{}')||{}}catch(e){}var ls=null;try{ls=window.localStorage;ls.getItem('x')}catch(e){ls=null}" +
+  "return{getItem:function(k){if(ls){try{return ls.getItem(k)}catch(e){}}return o[k]==null?null:o[k]},setItem:function(k,v){v=String(v);if(ls){try{ls.setItem(k,v);return}catch(e){}}o[k]=v;try{window.name=JSON.stringify(o)}catch(e){}}," +
+  "removeItem:function(k){if(ls){try{ls.removeItem(k)}catch(e){}}delete o[k];try{window.name=JSON.stringify(o)}catch(e){}}}})(); e troque localStorage. por LPS.";
+const LPS_DEF = /window\.LPS\s*=\s*window\.LPS\s*\|\|\s*\(function\(\)\{[\s\S]*?\}\)\(\);/;
+
+/**
+ * The preview iframe is sandboxed without allow-same-origin, so direct
+ * localStorage/sessionStorage access throws and the screen renders empty.
+ * Scripts may touch them only inside the LPS wrapper, which probes safely.
+ */
+function storageGuard(text) {
+  const re = new RegExp(SCRIPT_RE.source, "gi");
+  const bodies = [];
+  let m;
+  while ((m = re.exec(text))) bodies.push(m[2]);
+  const code = bodies.join("\n").replace(LPS_DEF, "");
+  if (!/\b(?:localStorage|sessionStorage)\b/.test(code)) return null;
+  return "O preview roda em iframe sandbox e bloqueia localStorage/sessionStorage (a tela fica vazia). " + STORAGE_HINT;
 }
 
 module.exports = { validateScreenHtml };
