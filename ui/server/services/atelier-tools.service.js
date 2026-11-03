@@ -4,6 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 const { sanitizeHtmlFragment, injectDataPidAttributes } = require("./prototype-sanitizer.service");
+const { validateScreenHtml } = require("./atelier-screen-guards.service");
 const { writeScratchFile } = require("./atelier-scratchpad.service");
 const { createVersionSnapshot } = require("./prototype-version.service");
 
@@ -176,6 +177,8 @@ async function executeAtelierTool(toolName, args, ctx, deps = { fs, path }) {
         if (!screenId || typeof screenId !== "string" || !/^[a-zA-Z0-9_\-]+$/.test(screenId)) {
           return { ok: false, error: `screenId inválido: "${screenId}". Use apenas letras, números e traços.` };
         }
+        const guardError = validateScreenHtml(htmlContent);
+        if (guardError) return { ok: false, error: guardError };
         const sanitized = sanitizeHtmlFragment(htmlContent || "");
         const cleanHtml = injectDataPidAttributes(sanitized);
         const sentBytes = Buffer.byteLength(String(htmlContent || ""), "utf8");

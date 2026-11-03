@@ -82,6 +82,22 @@ function injectDataPidAttributes(html) {
   if (!html || typeof html !== "string") return "";
 
   let counter = 0;
+  // Corpo de <script>/<style> e codigo, nao marcacao: nunca recebe data-pid (e perde os que ja vazaram).
+  const parts = html.split(/(<(script|style)\b[^>]*>[\s\S]*?<\/\2\s*>)/gi);
+  const out = [];
+  for (let i = 0; i < parts.length; i += 3) {
+    out.push(injectInMarkup(parts[i], () => ++counter));
+    if (parts[i + 1]) {
+      const block = parts[i + 1];
+      const open = /^<[^>]*>/.exec(block)[0];
+      const rest = block.slice(open.length).replace(/\sdata-pid="p-\d+"/g, "");
+      out.push(injectInMarkup(open, () => ++counter) + rest);
+    }
+  }
+  return out.join("");
+}
+
+function injectInMarkup(html, next) {
   // Expressão regular tolerante que localiza tags de abertura HTML
   return html.replace(/<([a-zA-Z0-9_-]+)([^>]*?)>/g, (match, tag, attrs) => {
     const trimmed = attrs.trim();
@@ -95,8 +111,8 @@ function injectDataPidAttributes(html) {
       return misplaced ? `<${tag} ${misplaced[1]} ${misplaced[2]} />` : match;
     }
 
-    counter++;
-    return `<${tag}${body ? " " + body : ""} data-pid="p-${counter}"${selfClosing ? " /" : ""}>`;
+    const n = next();
+    return `<${tag}${body ? " " + body : ""} data-pid="p-${n}"${selfClosing ? " /" : ""}>`;
   });
 }
 

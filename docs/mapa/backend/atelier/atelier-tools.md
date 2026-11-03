@@ -3,7 +3,7 @@ domain: backend
 module: atelier
 feature: atelier-tools
 summary: Atelier server services that inject prototype context into agent runs and parse model tool tags, with tests.
-paths: [ui/server/services/atelier-screen-map.service.js, ui/server/services/atelier-screen-map-disk.service.js, tests/atelier-screen-map.test.js, ui/server/services/atelier-proto-map.service.js, tests/atelier-proto-map.test.js, ui/server/services/atelier-proto-context.service.js, ui/server/services/atelier-nav-contract.service.js, ui/server/services/atelier-tool-tags.service.js, tests/atelier-proto-context.test.js, tests/atelier-nav-contract.test.js, tests/atelier-tool-tags.test.js, ui/server/services/atelier-engine-adapters.service.js, ui/server/services/prototype-sanitizer.service.js, tests/atelier-opencode-session-resume.test.js, tests/prototype-atelier.test.js]
+paths: [ui/server/services/atelier-screen-map.service.js, ui/server/services/atelier-screen-map-disk.service.js, tests/atelier-screen-map.test.js, ui/server/services/atelier-proto-map.service.js, tests/atelier-proto-map.test.js, ui/server/services/atelier-proto-context.service.js, ui/server/services/atelier-nav-contract.service.js, ui/server/services/atelier-tool-tags.service.js, tests/atelier-proto-context.test.js, tests/atelier-nav-contract.test.js, tests/atelier-tool-tags.test.js, ui/server/services/atelier-engine-adapters.service.js, ui/server/services/prototype-sanitizer.service.js, ui/server/services/atelier-screen-guards.service.js, tests/atelier-screen-guards.test.js, tests/atelier-opencode-session-resume.test.js, tests/prototype-atelier.test.js]
 keywords: [atelier, prototype, context, tool tags, atelier_write_screen, atelier_patch_styles, navigation]
 updated: 2026-11-02
 ---
@@ -11,6 +11,8 @@ updated: 2026-11-02
 
 | File | Responsibility |
 |---|---|
+| `ui/server/services/atelier-screen-guards.service.js` | Pre-write check for `atelier_write_screen`: rejects leaked `<tool>` tags, duplicated `lp-app` roots and inline scripts with syntax errors. |
+| `tests/atelier-screen-guards.test.js` | Guard rules plus data-pid injection leaving script/style bodies untouched. |
 | `ui/server/services/atelier-proto-context.service.js` | Reads prototype state from disk on each agent run and builds the prompt block so stage 2 continues stage 1. |
 | `ui/server/services/atelier-nav-contract.service.js` | Shared navigation contract (`data-action="goto:<screen-id>"`), valid screen ID line, and nav graph extraction (edges and broken targets) for the three Atelier generation paths. |
 | `ui/server/services/atelier-proto-map.service.js` | Compact prototype map (screens, nav graph, storage keys, CSS classes, components; capped under 300 tokens) plus a 12-hex content hash so the agent detects a changed prototype. |
