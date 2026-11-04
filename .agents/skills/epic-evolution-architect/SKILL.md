@@ -64,6 +64,14 @@ de evolução previsíveis, modulares e rastreáveis, baseados na metodologia te
    - Responsabilidade Única (SRP): separação de visual/DOM, rede/HTTP e regras de negócio.
    - Design System & Ícones: ícones estritamente FontAwesome (`fa-solid` / `fa-regular`), nenhum emoji.
 
+## Passo 6 — Espelho no Canvas
+
+- Depois de criar ou atualizar um épico, projete-o em um mapa mental do Canvas: `node tools/epic-canvas.js docs/<programa>/02-epics/EP-xx-slug --push http://localhost:<porta> --project <slug>`.
+- Cada história vira um nó `[status] id título | after dependências`; a raiz mostra `(concluídas/total)`. A fonte da verdade continua sendo o frontmatter das histórias: rode o comando de novo após mudar um `status` e o quadro `Epic EP-xx` é atualizado (checagem de `rev`, sem duplicar).
+- Sem `--push`, o comando imprime o JSON `mindmap@1` (ou grava com `--out`) para revisão.
+- Não edite o status no Canvas esperando que volte para o arquivo: a sincronização é de arquivo para Canvas.
+
+
 ## Referências
 
 - Guia e convenção de pastas: `references/estrutura-pastas.md`
