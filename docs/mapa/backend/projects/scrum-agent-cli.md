@@ -13,9 +13,9 @@ Same services as the HTTP API (`projects-scrum.md`); the store is `scrum.json` t
 
 | File | Responsibility |
 |---|---|
-| `tools/scrum.js` | Entry: `story list\|get\|capture\|update\|move\|maturity`, `epic list`; JSON out; exit 0 ok, 1 error, 2 usage, 3 needs a human. |
+| `tools/scrum.js` | Entry: `story list\|get\|capture\|update\|link\|move\|maturity`, `epic list`; JSON out; exit 0 ok, 1 error, 2 usage, 3 needs a human. |
 | `tools/lib/scrum-cli/context.js` | Resolves slug (`--project` or `projects/.active`), project folder and code repo like the server. |
 | `tools/lib/scrum-cli/commands.js` | Command handlers over `project-scrum.service` and `project-scrum-capture`; update accepts content fields only. |
 | `tools/lib/scrum-cli/guard.js` | Requires `--actor` on writes; agents cannot mark `ready` or move into `pronto-para-deploy` or `concluido`. |
-| `ui/server/services/project-scrum-actor.js` | Validates `human:<id>` / `agent:<engine>:<run>`; stored as `actor` on transition records (CLI and HTTP). |
+| `ui/server/services/project-scrum-actor.js` | Validates `human:<id>` / `agent:<engine>:<run>` (stored as `actor` on transitions) and `normalizeLedgerId` for the story `ledgerId` field. |
 | `tests/scrum-cli.test.js` | End to end on a temp projects folder: actor rules, draft capture, duplicates, agent limits, recorded actor. |

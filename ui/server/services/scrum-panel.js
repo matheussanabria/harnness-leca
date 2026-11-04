@@ -19,7 +19,7 @@ function buildScrumPanel({ stories, ledgerLanes, commits, laneOrder }) {
   const rank = (/** @type {string} */ id) => { const i = laneOrder.indexOf(id); return i < 0 ? 0 : i; };
   const open = stories.filter((s) => s.laneId !== "concluido");
   const items = open.slice(0, MAX_STORIES).map((story) => {
-    const keys = [story.id, story.key].filter(Boolean).map((k) => String(k).toLowerCase());
+    const keys = [story.id, story.key, story.ledgerId].filter(Boolean).map((k) => String(k).toLowerCase());
     const held = keys.map((k) => ledger.get(k)).find(Boolean) || null;
     const mine = commits.filter((c) => (c.storyIds || []).some((id) => keys.includes(String(id).toLowerCase())));
     const last = mine[0] || null;
@@ -32,7 +32,7 @@ function buildScrumPanel({ stories, ledgerLanes, commits, laneOrder }) {
     };
   }).sort((a, b) => rank(b.laneId) - rank(a.laneId));
   const matched = new Set();
-  for (const story of open) for (const k of [story.id, story.key]) if (k) matched.add(String(k).toLowerCase());
+  for (const story of open) for (const k of [story.id, story.key, story.ledgerId]) if (k) matched.add(String(k).toLowerCase());
   const ledgerActive = [...ledger.values()]
     .filter((card) => ACTIVE.has(card.ledgerStatus) && !matched.has(String(card.id).toLowerCase()))
     .slice(0, MAX_LEDGER)

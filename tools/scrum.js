@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 // Scrum CRUD for agents and scripts. JSON on stdout, errors on stderr. Exit: 0 ok, 1 error, 2 usage, 3 needs human.
-//   node tools/scrum.js story list|get|capture|update|move|maturity ... [--project slug] [--actor human:x|agent:engine:run]
+//   node tools/scrum.js story list|get|capture|update|link|move|maturity ... [--project slug] [--actor human:x|agent:engine:run]
 //   node tools/scrum.js epic list
 const { resolveContext } = require('./lib/scrum-cli/context');
 const cmd = require('./lib/scrum-cli/commands');
@@ -26,6 +26,7 @@ function run(pos, opt) {
     get: () => cmd.get(c, a),
     capture: () => cmd.capture(c, opt),
     update: () => cmd.update(c, a, opt),
+    link: () => cmd.link(c, a, opt),
     move: () => cmd.move(c, a, opt),
     maturity: () => cmd.maturity(c, a, b, opt),
   };
@@ -35,7 +36,7 @@ function run(pos, opt) {
 try {
   const { pos, opt } = parse(process.argv.slice(2));
   const result = run(pos, opt);
-  if (result === undefined) { console.error('usage: node tools/scrum.js story list|get|capture|update|move|maturity | epic list'); process.exit(2); }
+  if (result === undefined) { console.error('usage: node tools/scrum.js story list|get|capture|update|link|move|maturity | epic list'); process.exit(2); }
   console.log(JSON.stringify(result, null, 2));
 } catch (err) {
   console.error(err.message);

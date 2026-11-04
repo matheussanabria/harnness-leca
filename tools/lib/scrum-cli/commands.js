@@ -3,10 +3,11 @@
 const svc = require('../../../ui/server/services/project-scrum.service');
 const { captureStory } = require('../../../ui/server/services/project-scrum-capture');
 const guard = require('./guard');
+const { normalizeLedgerId } = require('../../../ui/server/services/project-scrum-actor');
 
-const UPDATABLE = ['title', 'description', 'acceptanceCriteria', 'epicId', 'points', 'priority', 'assignee'];
+const UPDATABLE = ['ledgerId', 'title', 'description', 'acceptanceCriteria', 'epicId', 'points', 'priority', 'assignee'];
 
-const view = (s) => ({ id: s.id, key: s.key, title: s.title, laneId: s.laneId, maturity: s.maturity || 'ready', epicId: s.epicId || null, sprintId: s.sprintId || null, points: s.points ?? null });
+const view = (s) => ({ id: s.id, key: s.key, title: s.title, laneId: s.laneId, maturity: s.maturity || 'ready', epicId: s.epicId || null, ledgerId: s.ledgerId || null, sprintId: s.sprintId || null, points: s.points ?? null });
 const stories = (c) => svc.loadProjectScrum(c.slug, c.projectDir, c.repoRoot).scrum.stories;
 const find = (c, id) => {
   const story = stories(c).find((s) => s.id === id || s.key === id);
@@ -35,6 +36,14 @@ function update(c, id, o) {
   return view(find(c, story.id));
 }
 
+function link(c, id, o) {
+  guard.requireActor(o.actor);
+  if (!normalizeLedgerId(o.ledger)) throw new Error('--ledger must be a ledger card id such as EP-19.03.');
+  const story = find(c, id);
+  svc.upsertStory(c.slug, c.projectDir, c.repoRoot, { id: story.id, ledgerId: o.ledger });
+  return { ...view(find(c, story.id)), ledgerId: o.ledger };
+}
+
 function move(c, id, o) {
   const actor = guard.requireActor(o.actor);
   guard.assertLane(actor, o.to);
@@ -55,4 +64,4 @@ function epics(c) {
   return svc.loadProjectScrum(c.slug, c.projectDir, c.repoRoot).scrum.epics || [];
 }
 
-module.exports = { list, get, capture, update, move, maturity, epics };
+module.exports = { list, get, capture, update, link, move, maturity, epics };

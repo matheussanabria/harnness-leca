@@ -34,7 +34,7 @@ tests/                           node:test suites
 | `design` | atelier-quality, system | 3 | 11.4 KB |
 | `frontend` | canvas, chat, css, design, office, studio, web, window-manager | 21 | 53.2 KB |
 | `intelligence` | hia, runtime | 7 | 17.4 KB |
-| `office` | hq | 4 | 10.6 KB |
+| `office` | hq | 4 | 10.8 KB |
 | `planning` | epics, product, projects | 7 | 15.5 KB |
 | `telemetry` | program, usage | 9 | 30.3 KB |
 | `tools` | engines, mapa, setup, testing | 11 | 27.8 KB |

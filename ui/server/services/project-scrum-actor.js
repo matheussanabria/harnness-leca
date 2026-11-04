@@ -14,4 +14,12 @@ function normalizeActor(value) {
 /** @param {string | null} actor */
 const isAgentActor = (actor) => typeof actor === "string" && actor.startsWith("agent:");
 
-module.exports = { normalizeActor, isAgentActor, ACTOR_RE };
+const LEDGER_ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/;
+
+/** Id of the coordination-ledger card that tracks this story (e.g. EP-19.03); invalid values are dropped. */
+function normalizeLedgerId(value) {
+  const id = typeof value === "string" ? value.trim() : "";
+  return LEDGER_ID_RE.test(id) ? id : null;
+}
+
+module.exports = { normalizeActor, isAgentActor, normalizeLedgerId, ACTOR_RE };
