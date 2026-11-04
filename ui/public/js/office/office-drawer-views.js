@@ -5,6 +5,7 @@ import { renderAgentInteractiveDesk } from "./office-desk-chat.js";
 import { renderOfficeChatWindow } from "./office-chat-window.js";
 import { renderOfficeDatacenterStatus } from "./office-datacenter-status.js";
 import { renderCabinetJournalItems, mountCabinetList } from "./office-cabinet-journal.js";
+import { mountScrumPanel } from "./office-scrum-panel.js";
 
 /**
  * Renderiza o conteúdo do drawer com base no objeto selecionado
@@ -87,7 +88,13 @@ export function renderDrawerContent(objKey, state) {
           </div>
           <a href="/diario" style="color:var(--office-accent);text-decoration:none;font-weight:600;font-size:12.5px">Ver Diário de Bordo Completo <i class="fa-solid fa-book" aria-hidden="true"></i></a>
         </div>
+        <div class="drawer-card">
+          <div class="drawer-card-title"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Scrum: histórias abertas e agentes</div>
+          <div id="officeScrumPanel"></div>
+        </div>
       `;
+      const scrumEl = document.getElementById("officeScrumPanel");
+      if (scrumEl && state.activeProject) mountScrumPanel(scrumEl, state.activeProject);
       break;
     }
 
