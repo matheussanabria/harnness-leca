@@ -6,8 +6,10 @@ import { handleKey } from "../../features/mindmap/keymap.ts";
 import { layoutTree, offsetFromPosition, offsetMap } from "../../features/mindmap/layout.ts";
 import { subtreeIds } from "../../features/mindmap/tree.ts";
 import type { useMindEditor } from "../../features/mindmap/useMindEditor.ts";
+import { useViewActions } from "../../features/mindmap/useViewActions.ts";
 import { FocusFollower } from "./FocusFollower.tsx";
 import { type MindFlowNode, MindNodeView } from "./MindNodeView.tsx";
+import { MindToolbar } from "./MindToolbar.tsx";
 
 const nodeTypes = { mind: MindNodeView };
 const ZERO_OFFSET = { dx: 0, dy: 0 };
@@ -72,6 +74,10 @@ export function MindmapCanvas({ editor }: { editor: ReturnType<typeof useMindEdi
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (editingId) return;
+    // Inside the action bar, plain Tab/Enter/Space must keep their native button behaviour.
+    const target = event.target;
+    const inToolbar = target instanceof HTMLElement && target.closest(".mm-actionbar") !== null;
+    if (inToolbar && !(event.ctrlKey || event.metaKey)) return;
     if (handleKey(event, commands)) event.preventDefault();
   };
 
@@ -117,8 +123,24 @@ export function MindmapCanvas({ editor }: { editor: ReturnType<typeof useMindEdi
           <Background />
           <Controls showInteractive={false} />
         </ReactFlow>
+        <ToolbarHost editor={editor} nodes={nodes} onStructureAction={() => frame.current?.focus()} />
         <FocusFollower selectedId={selectedId} nodes={nodes} />
       </ReactFlowProvider>
     </div>
   );
+}
+
+/** Lives inside ReactFlowProvider so the view buttons can use the React Flow instance. */
+function ToolbarHost({
+  editor,
+  nodes,
+  onStructureAction,
+}: {
+  editor: ReturnType<typeof useMindEditor>;
+  nodes: MindFlowNode[];
+  onStructureAction(): void;
+}) {
+  const selected = nodes.find((node) => node.id === editor.selectedId);
+  const view = useViewActions(selected ? selected.position : null);
+  return <MindToolbar editor={editor} view={view} onStructureAction={onStructureAction} />;
 }

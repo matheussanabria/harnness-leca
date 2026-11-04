@@ -99,3 +99,18 @@ export function moveNode(doc: MindDoc, id: string, dx: number, dy: number): Mind
   if ((node.dx ?? 0) === next.dx && (node.dy ?? 0) === next.dy) return doc;
   return put(doc, { ...node, ...next });
 }
+
+/** Clears every manual offset in one immutable step; returns the same doc when there is nothing to reset. */
+export function resetOffsets(doc: MindDoc): MindDoc {
+  let changed = false;
+  const nodes: Record<string, MindNode> = {};
+  for (const node of Object.values(doc.nodes)) {
+    if ((node.dx ?? 0) !== 0 || (node.dy ?? 0) !== 0) {
+      nodes[node.id] = { ...node, dx: 0, dy: 0 };
+      changed = true;
+    } else {
+      nodes[node.id] = node;
+    }
+  }
+  return changed ? { ...doc, nodes } : doc;
+}
