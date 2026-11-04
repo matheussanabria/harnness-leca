@@ -14,6 +14,7 @@ export function useAutosave(api: MindmapApi, boardId: string, initialRev: number
   const latest = useRef(doc);
   latest.current = doc;
   const stateRef = useRef<SaveState>("saved");
+  const pending = useRef(false);
   const set = (next: SaveState) => {
     stateRef.current = next;
     setState(next);
@@ -22,6 +23,10 @@ export function useAutosave(api: MindmapApi, boardId: string, initialRev: number
   const flush = useCallback(async () => {
     const snapshot = latest.current;
     if (snapshot === lastSaved.current || stateRef.current === "conflict") return;
+    if (stateRef.current === "saving") {
+      pending.current = true; // never send two saves with the same rev; retry once this one ends
+      return;
+    }
     set("saving");
     try {
       const board = await api.save(boardId, rev.current, toData(snapshot));
@@ -30,6 +35,10 @@ export function useAutosave(api: MindmapApi, boardId: string, initialRev: number
       set(latest.current === snapshot ? "saved" : "dirty");
     } catch (error) {
       set(error instanceof ApiError && error.isConflict ? "conflict" : "error");
+    }
+    if (pending.current) {
+      pending.current = false;
+      void flush();
     }
   }, [api, boardId]);
 
