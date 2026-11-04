@@ -98,6 +98,7 @@ const { apiProjectScrumJiraSync } = require("./controllers/scrum-jira-sync.contr
 const { apiProjectScrumStoryTransition } = require("./controllers/scrum-transition.controller");
 const { apiProjectScrumStoryCommits, apiProjectScrumStoryDor } = require("./controllers/scrum-trace.controller");
 const { apiProjectCoordinationLanes } = require("./controllers/coordination-view.controller");
+const { apiProjectScrumPanel } = require("./controllers/scrum-panel.controller");
 const { apiProjectScrumStoryCapture, apiProjectScrumDuplicates } = require("./controllers/scrum-capture.controller");
 const {
   apiOrchestrationState,
@@ -126,6 +127,7 @@ const ROUTES = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/([\w.-]+)\/commits$/, handler: apiProjectScrumStoryCommits },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/([\w.-]+)\/dor$/, handler: apiProjectScrumStoryDor },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/coordination\/lanes$/, handler: apiProjectCoordinationLanes },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/scrum\/panel$/, handler: apiProjectScrumPanel },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/assign-sprint$/, handler: apiProjectScrumStoryAssignSprint },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/impediment$/, handler: apiProjectScrumStoryImpediment },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/delete$/, handler: apiProjectScrumStoryDelete },

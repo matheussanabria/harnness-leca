@@ -24,12 +24,12 @@ async function apiProjectScrumStoryTransition({ req, res, params: [slug] }) {
   const projectDir = path.join(getProjects(), slug);
   if (!fs.existsSync(projectDir)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
   try {
-    const { storyId, fromLaneId, toLaneId } = await readJsonBody(req);
+    const { storyId, fromLaneId, toLaneId, actor } = await readJsonBody(req);
     if (!storyId || !fromLaneId || !toLaneId) {
       return send(res, 400, { error: "Parâmetros 'storyId', 'fromLaneId' e 'toLaneId' são obrigatórios." });
     }
     const { repo } = getProjectRepoInfo(slug);
-    return send(res, 200, moveStoryToLane(slug, projectDir, repo || projectDir, storyId, fromLaneId, toLaneId));
+    return send(res, 200, moveStoryToLane(slug, projectDir, repo || projectDir, storyId, fromLaneId, toLaneId, undefined, actor));
   } catch (error) {
     if (error.code === "SCRUM_STORY_CONFLICT") {
       return send(res, 409, { error: error.message, currentLaneId: error.currentLaneId });

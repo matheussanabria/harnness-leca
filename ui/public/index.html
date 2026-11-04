@@ -6,34 +6,19 @@
 <title>Harness Leca</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/css/app-header.css">
 </head>
 <body>
-<header>
-  <div class="header-brand-wrap">
-    <span class="logo"><i class="fa-solid fa-asterisk"></i> Harness Leca</span>
+<header data-app-header data-current="home">
+  <div data-slot="left" class="header-brand-wrap">
     <select id="sel"></select>
     <span class="badge" id="act"></span>
   </div>
-  <div class="header-actions">
+  <div data-slot="right" class="header-actions">
     <button class="btn-remote-connect" id="btnConnectMobile" onclick="openRemoteConnectModal()" title="Conectar smartphone via Wi-Fi ou Túnel Remoto para usar e testar o app em tempo real">
       <i class="fa-solid fa-mobile-screen"></i> Celular
     </button>
     <span id="presenceStrip" class="presence-strip"></span>
-    <a href="/overview" class="btn-overview-link" title="Resumo paginado de todos os projetos e ações do sistema">
-      <i class="fa-solid fa-chart-simple"></i> Visão geral
-    </a>
-    <a href="/diario" class="btn-overview-link" title="Diário de atividade: o que foi pedido e feito, dia a dia">
-      <i class="fa-solid fa-book"></i> Diário
-    </a>
-    <a href="/consumo" class="btn-overview-link" title="Consumo: cotas, 9Router por combo e OpenCode">
-      <i class="fa-solid fa-gauge-high"></i> Consumo
-    </a>
-    <a href="/deploy" class="btn-overview-link" title="Painel de Deploys Rápidos (Easypanel / Hostinger VPS)">
-      <i class="fa-solid fa-rocket"></i> Deploy
-    </a>
-    <a href="/escritorio" class="btn-overview-link" title="Escritório Virtual dos Agentes (Habbo 2D & Diorama 3D)">
-      <i class="fa-solid fa-building"></i> Escritório
-    </a>
     <button class="btn-studio-toggle" id="btnToggleDesign" onclick="toggleDesignMode()" title="Abrir Visão 360° do Projeto: Scrum, Kanban de Sprint, Backlog, Épicos, Mapa e Auditoria">
       <i class="fa-solid fa-cubes-stacked"></i> Scrum & Projeto 360°
     </button>
@@ -188,6 +173,7 @@
 <div data-partial="/partials/dialogs-skills.html"></div>
 <div data-partial="/partials/dialogs-chat.html"></div>
 
+<script type="module" src="/js/shared/app-header.js"></script>
 <script type="module" src="/js/boot.js"></script>
 </body>
 </html>

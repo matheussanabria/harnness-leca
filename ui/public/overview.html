@@ -6,16 +6,12 @@
 <title>Harness Leca · Visão geral</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="/css/overview.css">
+<link rel="stylesheet" href="/css/app-header.css">
 </head>
 <body>
-<header>
-  <a class="logo" href="/">✱ Harness Leca</a>
-  <span class="badge">Visão geral</span>
-  <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+<header data-app-header data-current="overview">
+  <div data-slot="right">
     <span class="badge" id="totBadge">…</span>
-    <a class="nav-link" href="/deploy">🚀 Deploy</a>
-    <a class="nav-link" href="/diario">📓 Diário</a>
-    <a class="nav-link" href="/">✱ Abrir projeto</a>
   </div>
 </header>
 <main>
@@ -82,5 +78,6 @@
   </div>
 </main>
 <script src="/js/overview.js"></script>
+<script type="module" src="/js/shared/app-header.js"></script>
 </body>
 </html>

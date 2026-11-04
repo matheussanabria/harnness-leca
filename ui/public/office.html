@@ -6,6 +6,7 @@
   <title>DAI · Estação de Trabalho Imersiva do Agente 3D</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/css/office.css">
+  <link rel="stylesheet" href="/css/app-header.css">
   <script src="/js/vendor/three.min.js"></script>
   <script src="/js/vendor/OrbitControls.js"></script>
   <script src="/js/vendor/PointerLockControls.js"></script>
@@ -13,26 +14,8 @@
 </head>
 <body class="office-body">
   <!-- TOPBAR DAI -->
-  <header class="dai-topbar">
-    <div class="dai-brand-group">
-      <a class="dai-logo-wrap" href="/">
-        <span class="dai-logo-icon"><i class="fa-solid fa-cube" aria-hidden="true"></i></span>
-        <span class="dai-logo-text">DAI</span>
-      </a>
-      <span class="dai-tagline">Harness de Agentes · Skills · Workflows</span>
-    </div>
-
-    <!-- Navegação Central DAI -->
-    <nav class="dai-nav-links">
-      <a href="/" class="dai-nav-item" title="Ver lista de Projetos"><i class="fa-solid fa-folder" aria-hidden="true"></i> Projetos</a>
-      <a href="/escritorio" class="dai-nav-item active" title="Escritório Virtual dos Agentes"><i class="fa-solid fa-building" aria-hidden="true"></i> Escritório</a>
-      <a href="/?design=1" class="dai-nav-item" title="Agentes DAI em Ação"><i class="fa-solid fa-user" aria-hidden="true"></i> Agentes</a>
-      <a href="/" class="dai-nav-item" title="Catálogo de Skills"><i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i> Skills</a>
-      <a href="/" class="dai-nav-item" title="Workflows Automatizados"><i class="fa-solid fa-shuffle" aria-hidden="true"></i> Workflows</a>
-      <a href="/diario" class="dai-nav-item" title="Diário de Atividade e Memórias"><i class="fa-solid fa-box-archive" aria-hidden="true"></i> Memórias</a>
-      <a href="/deploy" class="dai-nav-item" title="Painel de Deploys e VPS"><i class="fa-solid fa-gear" aria-hidden="true"></i> Configurações</a>
-    </nav>
-
+  <header class="dai-topbar" data-app-header data-current="office">
+    <div data-slot="right">
     <!-- Usuário & Controles Direita -->
     <div class="dai-user-group">
       <button class="dai-hud-toggle-btn" id="btnToggleHud" title="Ocultar/Exibir menus da tela (Atalho: H)">
@@ -67,6 +50,7 @@
       </div>
       <div class="workspace-menu" id="workspaceMenu"></div>
       <div class="dai-user-avatar" title="Matheus (Líder de Produto)">M</div>
+    </div>
     </div>
   </header>
 
@@ -294,6 +278,7 @@
   </aside>
 
   <!-- Script Principal -->
+  <script type="module" src="/js/shared/app-header.js"></script>
   <script type="module" src="/js/office-app.js"></script>
 </body>
 </html>

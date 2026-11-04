@@ -54,17 +54,10 @@ details summary{cursor:pointer;color:var(--mute);font-size:12.5px;margin-top:8px
   .filters label,.filters select,.filters input{width:100%}
 }
 </style>
+<link rel="stylesheet" href="/css/app-header.css">
 </head>
 <body>
-<header>
-  <a class="logo" href="/"><i class="fa-solid fa-asterisk" aria-hidden="true"></i> Harness Leca</a>
-  <span class="badge">Diário</span>
-  <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
-    <a class="nav-link" href="/deploy"><i class="fa-solid fa-rocket" aria-hidden="true"></i> Deploy</a>
-    <a class="nav-link" href="/overview"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i> Visão geral</a>
-    <a class="nav-link" href="/escritorio"><i class="fa-solid fa-building" aria-hidden="true"></i> Escritório</a>
-    <a class="nav-link" href="/"><i class="fa-solid fa-asterisk" aria-hidden="true"></i> Abrir projeto</a>
-  </div>
+<header data-app-header data-current="diario">
 </header>
 <main>
   <h1>Diário de atividade</h1>
@@ -99,5 +92,6 @@ details summary{cursor:pointer;color:var(--mute);font-size:12.5px;margin-top:8px
   </nav>
 </main>
 <script type="module" src="/js/modules/diario-page.js"></script>
+<script type="module" src="/js/shared/app-header.js"></script>
 </body>
 </html>
