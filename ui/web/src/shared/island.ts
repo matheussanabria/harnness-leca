@@ -6,6 +6,8 @@ import { createRoot } from "react-dom/client";
 export interface IslandProps {
   slug: string;
   params: string[];
+  /** True when mounted inside a legacy workspace (Design) instead of the full-screen island host. */
+  embedded?: boolean;
 }
 
 export interface IslandHandle {

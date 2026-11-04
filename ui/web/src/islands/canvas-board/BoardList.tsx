@@ -2,6 +2,7 @@
 import { type FormEvent, useState } from "react";
 import type { BoardApi } from "../../features/board/api";
 import type { BoardSummary } from "../../features/board/types";
+import { NavLink, useBoardNav } from "./nav";
 import { useBoardList } from "./useBoardList";
 
 function BoardRow({
@@ -45,10 +46,10 @@ function BoardRow({
   }
   return (
     <li className="board-row">
-      <a className="board-row__open" href={`#/canvas-board/${board.id}`}>
+      <NavLink className="board-row__open" boardId={board.id}>
         <i className="fa-solid fa-pen-ruler" aria-hidden="true" /> {board.title}
         <small>Updated {new Date(board.updatedAt).toLocaleString()}</small>
-      </a>
+      </NavLink>
       {mode === "confirm" ? (
         <span className="board-row__actions">
           <button type="button" className="board-btn board-btn--danger" onClick={() => void onDelete(board.id)}>
@@ -84,6 +85,7 @@ function BoardRow({
 
 export function BoardList({ api }: { api: BoardApi }) {
   const list = useBoardList(api);
+  const nav = useBoardNav();
   const [title, setTitle] = useState("");
 
   async function onCreate(event: FormEvent) {
@@ -98,9 +100,11 @@ export function BoardList({ api }: { api: BoardApi }) {
         <h1 id="board-list-title">
           <i className="fa-solid fa-chalkboard" aria-hidden="true" /> Boards
         </h1>
-        <a className="board-btn" href="#/chats">
-          <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Back to chats
-        </a>
+        {nav.embedded ? null : (
+          <a className="board-btn" href="#/chats">
+            <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Back to chats
+          </a>
+        )}
       </header>
       <form className="board-list__create" onSubmit={(event) => void onCreate(event)}>
         <label htmlFor="board-new-title">New board</label>

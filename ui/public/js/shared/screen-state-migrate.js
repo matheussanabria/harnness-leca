@@ -59,6 +59,8 @@ const TELAS = {
   audit: { escopo: "projeto", migraDe: [], regras: [] },
   artifacts: { escopo: "projeto", migraDe: [], regras: [] },
   routines: { escopo: "projeto", migraDe: [], regras: [] },
+  "canvas-mindmap": { escopo: "projeto", migraDe: [], regras: [] },
+  "canvas-board": { escopo: "projeto", migraDe: [], regras: [] },
   overview: { escopo: "global", migraDe: [], regras: [] },
   office: {
     escopo: "global",

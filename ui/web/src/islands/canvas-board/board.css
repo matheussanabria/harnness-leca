@@ -190,3 +190,24 @@
   flex: 1;
   min-height: 0;
 }
+
+/* Embedded in the Design workspace: the container (flex column) sizes the island, not the viewport. */
+.board-island--embedded {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  overflow: auto;
+}
+
+.board-island--embedded .board-editor {
+  height: auto;
+}
+
+button.board-row__open {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}

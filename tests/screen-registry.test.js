@@ -34,6 +34,8 @@ const EXPECTED_IDS = [
   "audit",
   "artifacts",
   "routines",
+  "canvas-mindmap",
+  "canvas-board",
   "overview",
   "office",
   "lists",
@@ -62,7 +64,7 @@ function collectStorageKeys() {
 }
 
 test("EP-14.04: registro declara as telas canonicas", () => {
-  assert.equal(SCREENS.length, 14);
+  assert.equal(SCREENS.length, 16);
   assert.deepEqual(listScreens(), EXPECTED_IDS);
   for (const id of EXPECTED_IDS) {
     assert.equal(isScreenId(id), true, `tela ${id} deve existir`);
@@ -89,7 +91,7 @@ test("EP-14.04: cada tela declara escopo, campos com tipo/limite e migraDe", () 
   }
 
   const catalog = getScreenCatalog();
-  assert.equal(catalog.length, 14);
+  assert.equal(catalog.length, 16);
   assert.deepEqual(catalog.map((item) => item.id), EXPECTED_IDS);
 });
 

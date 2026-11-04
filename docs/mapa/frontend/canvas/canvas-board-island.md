@@ -2,14 +2,14 @@
 domain: frontend
 module: canvas
 feature: canvas-board-island
-summary: Excalidraw whiteboard React island (EP-19.04): API client, pure helpers, lazy editor chunk, route #/canvas-board.
+summary: Excalidraw whiteboard React island (EP-19.04): API client, pure helpers, lazy editor chunk, Design view canvas-board.
 paths: [ui/web/src/islands/canvas-board/**, ui/web/src/features/board/**, ui/web/build/excalidraw-assets.ts, tests/board-feature.test.js, tests/canvas-server-methods.test.js]
 keywords: [canvas, board, excalidraw, island, autosave, assets, rev, conflict, export, png, svg, lazy, fonts]
 updated: 2026-11-04
 ---
 # Canvas Board Island (story 19.04, old label 16.04)
 
-Route `#/canvas-board` lists boards (kind "board"); `#/canvas-board/<id>` opens one. The loader remounts the island on every route change.
+Design view `#/canvas-board` (embedded in `#designViewContainer`, props `embedded: true`) lists boards (kind "board") and opens one as internal state, so the hash never changes. Standalone (no `embedded`) it still reads `#/canvas-board/<id>` and uses hash links.
 Excalidraw (MIT, 0.18.1) is only imported by `ExcalidrawCanvas.tsx`, reached through `React.lazy`, so the island entry stays small.
 Fonts are copied to `dist/excalidraw/fonts` and `window.EXCALIDRAW_ASSET_PATH` points there. Board `data` is `{schema:"excalidraw@1", elements, appState subset, files}`;
 images are uploaded as assets and only `{ref:"<sha256>.<ext>", mimeType, created}` is stored, rehydrated on open. SVG is export-only (assets reject SVG uploads).
@@ -36,3 +36,4 @@ Server gate: `ui/server.js` allows PUT and DELETE only under `/api/canvas/`, and
 | `ui/web/build/excalidraw-assets.ts` | Vite plugin copying Excalidraw fonts into `dist/excalidraw/fonts`. |
 | `tests/board-feature.test.js` | node:test for the pure helpers, API client and session. |
 | `tests/canvas-server-methods.test.js` | HTTP gate: PUT, DELETE and binary upload only for the Canvas API. |
+| `ui/web/src/islands/canvas-board/nav.tsx` | `BoardNavContext` and `NavLink`: hash links standalone, buttons with internal navigation when embedded in the Design workspace. |

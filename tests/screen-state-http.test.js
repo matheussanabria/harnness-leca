@@ -63,15 +63,15 @@ async function patchScreen(id, body, project = SLUG) {
   return res;
 }
 
-test("screen-state-http: GET /api/screens lista o catalogo das 14 telas", () => {
+test("screen-state-http: GET /api/screens lista o catalogo das 16 telas", () => {
   const res = fakeRes();
   apiScreensCatalog({ res });
   assert.equal(res.status, 200);
   const body = json(res);
-  assert.equal(body.screens.length, 14);
+  assert.equal(body.screens.length, 16);
   assert.deepEqual(body.screens.map((screen) => screen.id), [
     "chats", "studio", "prototypes", "scrum", "layers", "board", "audit",
-    "artifacts", "routines", "overview", "office", "lists", "deploy", "diario",
+    "artifacts", "routines", "canvas-mindmap", "canvas-board", "overview", "office", "lists", "deploy", "diario",
   ]);
   assert.equal(body.screens.every((screen) => screen.icone.startsWith("fa-")), true);
 });

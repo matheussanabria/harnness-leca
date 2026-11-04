@@ -9,7 +9,7 @@ updated: 2026-10-31
 ---
 # React Islands (ADR-011)
 
-New UI screens are React islands mounted inside the legacy shell by `ui/public/js/shared/island-loader.js`.
+New UI screens are React islands mounted inside the legacy shell by `ui/public/js/shared/island-loader.js`: full-screen in `#islandHost` (`lab`), or embedded in a Design view when the loader gets a target element (props `embedded: true`, EP-19).
 Build with `npm run build:web` (or `npm run dev:web` to rebuild on save); output goes to `ui/public/dist/` (gitignored).
 
 | File | Responsibility |

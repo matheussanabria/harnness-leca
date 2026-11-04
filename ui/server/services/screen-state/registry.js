@@ -90,6 +90,12 @@ const SCREENS = [
     filter: texto(120), selectedRoutine: texto(120),
     approvalFilter: texto(32), tab: texto(32),
   }),
+  tela("canvas-mindmap", "Mapa mental", "projeto", "/?p=<slug>#/canvas-mindmap", "fa-sitemap", {
+    selectedBoard: texto(64),
+  }),
+  tela("canvas-board", "Quadro livre", "projeto", "/?p=<slug>#/canvas-board", "fa-chalkboard", {
+    selectedBoard: texto(64),
+  }),
   tela("overview", "Visão Geral", "global", "/overview", "fa-gauge-high", {
     query: texto(200), sortField: texto(32), sortAsc: booleano(),
     page: inteiro(100000), pageSize: inteiro(100),
