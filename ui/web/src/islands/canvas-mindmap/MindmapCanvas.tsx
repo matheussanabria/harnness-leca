@@ -21,7 +21,13 @@ interface DragShift {
   dy: number;
 }
 
-export function MindmapCanvas({ editor }: { editor: ReturnType<typeof useMindEditor> }) {
+export function MindmapCanvas({
+  editor,
+  boardTitle,
+}: {
+  editor: ReturnType<typeof useMindEditor>;
+  boardTitle: string;
+}) {
   const { doc, selectedId, editingId, commands, setSelectedId } = editor;
   const frame = useRef<HTMLDivElement>(null);
   const wasEditing = useRef(false);
@@ -123,7 +129,12 @@ export function MindmapCanvas({ editor }: { editor: ReturnType<typeof useMindEdi
           <Background />
           <Controls showInteractive={false} />
         </ReactFlow>
-        <ToolbarHost editor={editor} nodes={nodes} onStructureAction={() => frame.current?.focus()} />
+        <ToolbarHost
+          editor={editor}
+          nodes={nodes}
+          boardTitle={boardTitle}
+          onStructureAction={() => frame.current?.focus()}
+        />
         <FocusFollower selectedId={selectedId} nodes={nodes} />
       </ReactFlowProvider>
     </div>
@@ -134,13 +145,15 @@ export function MindmapCanvas({ editor }: { editor: ReturnType<typeof useMindEdi
 function ToolbarHost({
   editor,
   nodes,
+  boardTitle,
   onStructureAction,
 }: {
   editor: ReturnType<typeof useMindEditor>;
   nodes: MindFlowNode[];
+  boardTitle: string;
   onStructureAction(): void;
 }) {
   const selected = nodes.find((node) => node.id === editor.selectedId);
   const view = useViewActions(selected ? selected.position : null);
-  return <MindToolbar editor={editor} view={view} onStructureAction={onStructureAction} />;
+  return <MindToolbar editor={editor} view={view} boardTitle={boardTitle} onStructureAction={onStructureAction} />;
 }

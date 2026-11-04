@@ -2,11 +2,14 @@
 import { toolbarState } from "../../features/mindmap/toolbarState.ts";
 import type { useMindEditor } from "../../features/mindmap/useMindEditor.ts";
 import type { ViewActions } from "../../features/mindmap/useViewActions.ts";
+import { AgentGroup } from "./AgentGroup.tsx";
 import { ToolbarButton } from "./ToolbarButton.tsx";
 
 export interface MindToolbarProps {
   editor: ReturnType<typeof useMindEditor>;
   view: ViewActions;
+  /** Title of the board being edited; used as the context-pack heading. */
+  boardTitle: string;
   /** Called after an edit so keyboard focus returns to the canvas frame. */
   onStructureAction(): void;
 }
@@ -15,7 +18,7 @@ function Separator() {
   return <hr className="mm-actionbar__sep" aria-orientation="vertical" />;
 }
 
-export function MindToolbar({ editor, view, onStructureAction }: MindToolbarProps) {
+export function MindToolbar({ editor, view, boardTitle, onStructureAction }: MindToolbarProps) {
   const { doc, selectedId, commands } = editor;
   const state = toolbarState(doc, selectedId, editor.history);
   const node = doc.nodes[selectedId];
@@ -97,6 +100,8 @@ export function MindToolbar({ editor, view, onStructureAction }: MindToolbarProp
         disabled={!state.resetOffsets}
         onClick={run(commands.resetOffsets)}
       />
+      <Separator />
+      <AgentGroup doc={doc} selectedId={selectedId} boardTitle={boardTitle} state={state} />
     </div>
   );
 }

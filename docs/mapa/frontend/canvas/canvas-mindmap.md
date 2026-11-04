@@ -33,6 +33,8 @@ Route `#/canvas-mindmap[/<boardId>]`: no id lists boards, an id opens the editor
 | `ui/web/src/features/mindmap/toolbarState.ts` | Pure `toolbarState(doc, selectedId, history)`: which toolbar actions are enabled. |
 | `ui/web/src/features/mindmap/useViewActions.ts` | Zoom in/out, fit and center-on-selection through `useReactFlow()`. |
 | `ui/web/src/islands/canvas-mindmap/MindToolbar.tsx` | Floating action bar: structure, history, view and reset-positions groups with shortcut tooltips. |
+| `ui/web/src/features/mindmap/useCopyStatus.ts` | Timed status message (auto-clears after 2.5 s) for the copy buttons. |
+| `ui/web/src/islands/canvas-mindmap/AgentGroup.tsx` | Toolbar group with the Copy as Markdown and Copy as JSON buttons (context pack) and their status. |
 | `ui/web/src/islands/canvas-mindmap/ToolbarButton.tsx` | One accessible icon button (title, aria-label, disabled, danger variant). |
 | `ui/web/src/islands/canvas-mindmap/mindmap-toolbar.css` | Styles of the action bar. |
 | `ui/web/src/islands/canvas-mindmap/mindmap.css` | Island styles. |

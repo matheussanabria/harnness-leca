@@ -94,7 +94,7 @@ function Loaded({
         Enter: sibling, Tab: child, Shift+Tab: outdent, Delete: remove, F2: rename, Space: collapse, Ctrl+Z /
         Ctrl+Shift+Z: undo / redo.
       </p>
-      <MindmapCanvas editor={editor} />
+      <MindmapCanvas editor={editor} boardTitle={board.title} />
     </div>
   );
 }

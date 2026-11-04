@@ -70,6 +70,7 @@ test("toolbarState disables every structure action without a selection", async (
       undo: false,
       redo: false,
       resetOffsets: false,
+      copyContext: false,
     });
   }
 });
@@ -99,6 +100,16 @@ test("toolbarState protects the root and only enables collapse for parents", asy
   const leaf = toolbar.toolbarState(doc, "b", empty);
   assert.equal(leaf.toggleCollapse, false);
   assert.equal(leaf.remove, true);
+});
+
+test("toolbarState enables copyContext only when a node is selected", async () => {
+  const { toolbar, history, doc } = await fixture();
+  const empty = history.createHistory(doc);
+
+  assert.equal(toolbar.toolbarState(doc, null, empty).copyContext, false);
+  assert.equal(toolbar.toolbarState(doc, "ghost", empty).copyContext, false);
+  assert.equal(toolbar.toolbarState(doc, "r", empty).copyContext, true);
+  assert.equal(toolbar.toolbarState(doc, "a1", empty).copyContext, true);
 });
 
 test("toolbarState mirrors undo/redo history and offset presence", async () => {

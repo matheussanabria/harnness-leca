@@ -12,6 +12,8 @@ export interface ToolbarState {
   undo: boolean;
   redo: boolean;
   resetOffsets: boolean;
+  /** True when a node is selected, so an agent context pack can be built. */
+  copyContext: boolean;
 }
 
 /** True when at least one node carries a manual drag offset. */
@@ -39,5 +41,6 @@ export function toolbarState(
     undo: history.past.length > 0,
     redo: history.future.length > 0,
     resetOffsets: hasOffsets(doc),
+    copyContext: selected,
   };
 }

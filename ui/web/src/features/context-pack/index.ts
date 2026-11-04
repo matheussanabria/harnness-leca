@@ -1,5 +1,7 @@
 // Public surface of the pure mind-map context-pack feature.
 export { buildContextPack } from "./build.ts";
+export type { ClipboardEnv } from "./clipboard.ts";
+export { copyText } from "./clipboard.ts";
 export type { Bullet } from "./markdown.ts";
 export { truncationMarker } from "./markdown.ts";
 export type { ContextPack, PackJson, PackNode, PackOptions } from "./types.ts";

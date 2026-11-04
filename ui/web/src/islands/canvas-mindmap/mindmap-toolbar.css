@@ -90,3 +90,26 @@
   border: 0;
   background: var(--mm-actionbar-line);
 }
+
+.mm-actionbar .mm-agent-group {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.mm-actionbar .mm-agent-status {
+  flex: none;
+  max-width: 16rem;
+  padding: 0 0.45rem;
+  overflow: hidden;
+  color: var(--mm-actionbar-fg);
+  font-size: 0.7rem;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
