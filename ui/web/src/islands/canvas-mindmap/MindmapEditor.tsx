@@ -5,6 +5,7 @@ import { fromData } from "../../features/mindmap/serialize.ts";
 import { type SaveState, useAutosave } from "../../features/mindmap/useAutosave.ts";
 import { useMindEditor } from "../../features/mindmap/useMindEditor.ts";
 import { MindmapCanvas } from "./MindmapCanvas.tsx";
+import { useCanvasChatBridge } from "./useCanvasChatBridge.ts";
 
 const STATUS: Record<SaveState, { icon: string; text: string }> = {
   saved: { icon: "fa-circle-check", text: "Saved" },
@@ -46,6 +47,13 @@ function Loaded({
   const editor = useMindEditor(initial);
   const { state, flush, rebase } = useAutosave(api, board.id, board.rev, editor.doc);
   const [reloadError, setReloadError] = useState<string | null>(null);
+  useCanvasChatBridge({
+    boardId: board.id,
+    title: board.title,
+    doc: editor.doc,
+    selectedId: editor.selectedId,
+    applyExternal: editor.commands.applyExternal,
+  });
 
   // Best effort: persist pending edits when the island unmounts.
   useEffect(() => () => void flush(), [flush]);

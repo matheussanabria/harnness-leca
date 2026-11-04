@@ -5,6 +5,7 @@
 import { getIslandLoader } from "../shared/island-loader.js";
 import { createCanvasApi } from "./design-canvas-api.js";
 import { mountCanvasCatalog } from "./design-canvas-catalog.js";
+import { setCanvasChatContext } from "./canvas-chat-bridge.js";
 import { attachStudioSidebarToAtelier, parkStudioSidebar } from "./prototype-atelier-sidebar.js";
 import { initWorkspaceLayout } from "./prototype-workspace-layout.js";
 
@@ -66,6 +67,8 @@ export async function renderCanvasWorkspace(container, view, slug) {
   const catalogHost = /** @type {HTMLElement} */ (container.querySelector("#canvasCatalogHost"));
   initWorkspaceLayout(root);
   attachStudioSidebarToAtelier();
+  // Only the mind map understands chat answers for now; the board view keeps a plain chat.
+  setCanvasChatContext(info.kind === "mindmap" ? { kind: info.kind, slug } : null);
 
   const api = createCanvasApi(slug);
   const key = `${slug}:${view}`;

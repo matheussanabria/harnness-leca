@@ -59,6 +59,10 @@ export function useMindEditor(initial: MindDoc) {
         setSelectedId(parent);
       },
       toggle: () => apply(toggleCollapse(doc, selectedId)),
+      applyExternal: (next: MindDoc, focusId: string | null) => {
+        apply(next);
+        if (focusId !== null) setSelectedId(focusId);
+      },
       edit: () => setEditingId(selectedId),
       editNode: (id: string) => setEditingId(id),
       toggleNode: (id: string) => apply(toggleCollapse(doc, id)),
