@@ -11,11 +11,11 @@
 /** Views rendered inside the Design workspace. */
 export const VIEW_SCREENS = Object.freeze(["scrum", "layers", "board", "audit", "prototypes", "artifacts", "routines"]);
 /** Screens rendered by a React island (ui/web/src/islands/<name>) instead of legacy modules. */
-export const ISLAND_SCREENS = Object.freeze(["lab"]);
+export const ISLAND_SCREENS = Object.freeze(["lab", "canvas-mindmap"]);
 export const APP_SCREENS = Object.freeze(["chats", "studio", ...VIEW_SCREENS, ...ISLAND_SCREENS]);
 
 const SEGMENT = /^[\w.-]{1,120}$/;
-const MAX_PARAMS = { prototypes: 2, lab: 2 };
+const MAX_PARAMS = { prototypes: 2, lab: 2, "canvas-mindmap": 1 };
 
 /** @typedef {{ screen: string, params: string[] }} Route */
 
