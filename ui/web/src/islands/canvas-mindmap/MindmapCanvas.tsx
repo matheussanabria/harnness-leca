@@ -1,9 +1,10 @@
 // React Flow rendering of the mind map plus keyboard handling. All state comes from useMindEditor.
 import "@xyflow/react/dist/style.css";
 import { Background, Controls, type Edge, ReactFlow, ReactFlowProvider } from "@xyflow/react";
-import { type KeyboardEvent, useEffect, useMemo, useRef } from "react";
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { handleKey } from "../../features/mindmap/keymap.ts";
 import { layoutTree, offsetFromPosition, offsetMap } from "../../features/mindmap/layout.ts";
+import { subtreeIds } from "../../features/mindmap/tree.ts";
 import type { useMindEditor } from "../../features/mindmap/useMindEditor.ts";
 import { FocusFollower } from "./FocusFollower.tsx";
 import { type MindFlowNode, MindNodeView } from "./MindNodeView.tsx";
@@ -11,10 +12,19 @@ import { type MindFlowNode, MindNodeView } from "./MindNodeView.tsx";
 const nodeTypes = { mind: MindNodeView };
 const ZERO_OFFSET = { dx: 0, dy: 0 };
 
+/** Live drag state: the whole dragged subtree is shifted together, so children follow the parent while dragging. */
+interface DragShift {
+  ids: ReadonlySet<string>;
+  dx: number;
+  dy: number;
+}
+
 export function MindmapCanvas({ editor }: { editor: ReturnType<typeof useMindEditor> }) {
   const { doc, selectedId, editingId, commands, setSelectedId } = editor;
   const frame = useRef<HTMLDivElement>(null);
   const wasEditing = useRef(false);
+  const [drag, setDrag] = useState<DragShift | null>(null);
+  const dragStart = useRef({ x: 0, y: 0 });
   useEffect(() => {
     // Give the keyboard back to the tree once the inline editor closes.
     if (wasEditing.current && !editingId) frame.current?.focus();
@@ -26,11 +36,12 @@ export function MindmapCanvas({ editor }: { editor: ReturnType<typeof useMindEdi
     const offsets = offsetMap(doc);
     const flowNodes: MindFlowNode[] = placed.map((item) => {
       const offset = offsets.get(item.id) ?? ZERO_OFFSET;
+      const live = drag?.ids.has(item.id) ? drag : null;
       return {
         id: item.id,
         type: "mind",
         // Rendered position = tidy layout position + the node's offset and every ancestor's offset.
-        position: { x: item.x + offset.dx, y: item.y + offset.dy },
+        position: { x: item.x + offset.dx + (live?.dx ?? 0), y: item.y + offset.dy + (live?.dy ?? 0) },
         connectable: false,
         data: {
           text: doc.nodes[item.id]?.text ?? "",
@@ -57,7 +68,7 @@ export function MindmapCanvas({ editor }: { editor: ReturnType<typeof useMindEdi
         type: "default",
       }));
     return { nodes: flowNodes, edges: flowEdges };
-  }, [doc, selectedId, editingId, commands, setSelectedId]);
+  }, [doc, selectedId, editingId, commands, setSelectedId, drag]);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (editingId) return;
@@ -85,7 +96,19 @@ export function MindmapCanvas({ editor }: { editor: ReturnType<typeof useMindEdi
             setSelectedId(node.id);
             commands.editNode(node.id);
           }}
+          onNodeDragStart={(_, node) => {
+            dragStart.current = { x: node.position.x, y: node.position.y };
+            setDrag({ ids: new Set(subtreeIds(doc, node.id)), dx: 0, dy: 0 });
+          }}
+          onNodeDrag={(_, node) =>
+            setDrag((current) =>
+              current
+                ? { ...current, dx: node.position.x - dragStart.current.x, dy: node.position.y - dragStart.current.y }
+                : current,
+            )
+          }
           onNodeDragStop={(_, node) => {
+            setDrag(null);
             // The dropped position is absolute: convert it back into an offset from layout + ancestors.
             const offset = offsetFromPosition(doc, node.id, node.position.x, node.position.y);
             commands.moveNode(node.id, offset.dx, offset.dy);

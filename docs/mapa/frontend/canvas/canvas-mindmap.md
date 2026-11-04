@@ -27,7 +27,7 @@ Route `#/canvas-mindmap[/<boardId>]`: no id lists boards, an id opens the editor
 | `ui/web/src/islands/canvas-mindmap/MindmapIsland.tsx` | Route-aware root: board list or editor, loading and error states. |
 | `ui/web/src/islands/canvas-mindmap/BoardList.tsx` | List, create and delete mind-map boards. |
 | `ui/web/src/islands/canvas-mindmap/MindmapEditor.tsx` | Editor shell: toolbar, save status, conflict banner. |
-| `ui/web/src/islands/canvas-mindmap/MindmapCanvas.tsx` | React Flow canvas fed by the layout and keymap. |
+| `ui/web/src/islands/canvas-mindmap/MindmapCanvas.tsx` | React Flow canvas fed by the layout and keymap; the dragged subtree moves together live. |
 | `ui/web/src/islands/canvas-mindmap/FocusFollower.tsx` | Pans the canvas to the selected node at the current zoom when it leaves the comfortable area; positions come from the layout props. |
 | `ui/web/src/islands/canvas-mindmap/MindNodeView.tsx` | Custom node with inline text editing and collapse toggle. |
 | `ui/web/src/islands/canvas-mindmap/mindmap.css` | Island styles. |

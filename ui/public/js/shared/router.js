@@ -5,7 +5,8 @@
 //   #/scrum  #/layers  #/board  #/audit  #/artifacts  #/routines
 //   #/prototypes[/<protoId>[/<screen>]]  Atelier, optionally on a prototype and one of its screens
 //   #/lab[/<a>[/<b>]]                    React island lab (ADR-011), hidden from the navigation
-//   #/canvas-board[/<boardId>]           Canvas board island (Excalidraw), hidden from the navigation
+//   #/canvas-mindmap[/<boardId>]        Canvas mind map island, linked from the Design tabs
+//   #/canvas-board[/<boardId>]           Canvas board island (Excalidraw), linked from the Design tabs
 // The standalone pages keep their own paths (/overview, /office, /deploy, /diario).
 // The query string (?p=<project>) is untouched, so a full address looks like /?p=demo#/scrum.
 

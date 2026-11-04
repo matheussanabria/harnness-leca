@@ -53,9 +53,14 @@ export function BoardList({ api, onOpen }: { api: MindmapApi; onOpen(id: string)
 
   return (
     <section className="mm-list" aria-labelledby="mm-list-title">
-      <h1 id="mm-list-title">
-        <i className="fa-solid fa-diagram-project" aria-hidden="true" /> Mind maps
-      </h1>
+      <header className="mm-list__header">
+        <h1 id="mm-list-title">
+          <i className="fa-solid fa-diagram-project" aria-hidden="true" /> Mind maps
+        </h1>
+        <a className="mm-btn" href="#/chats">
+          <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Back to chats
+        </a>
+      </header>
       <form className="mm-form" onSubmit={(event) => void create(event)}>
         <label htmlFor="mm-new-title">New mind map title</label>
         <input id="mm-new-title" value={title} maxLength={120} onChange={(e) => setTitle(e.target.value)} />
