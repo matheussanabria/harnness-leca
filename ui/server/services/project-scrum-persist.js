@@ -10,6 +10,7 @@ const { migrateScrumData, migrateScrumFile, writeJsonAtomic } = require("./proje
 const { mergeLaneConfiguration } = require("./project-scrum-lanes");
 const { allowedTransitionLaneIds } = require("./project-scrum-transitions");
 const { withMaturity } = require("./project-scrum-maturity");
+const { velocityOf } = require("./project-scrum-velocity");
 
 function loadStoredProjectScrum(slug, projectDir, repoRoot) {
   const scrumFile = path.join(projectDir, "scrum.json");
@@ -33,6 +34,7 @@ function loadStoredProjectScrum(slug, projectDir, repoRoot) {
   data.lanesRevision = Number.isInteger(data.lanesRevision) && data.lanesRevision >= 0 ? data.lanesRevision : 0;
   data.transitionHistory = Array.isArray(data.transitionHistory) ? data.transitionHistory : [];
   data.impedimentHistory = Array.isArray(data.impedimentHistory) ? data.impedimentHistory : [];
+  data.sprintHistory = Array.isArray(data.sprintHistory) ? data.sprintHistory : [];
   if (!data.activeSprintId && data.sprints.length) data.activeSprintId = data.sprints[0].id;
   return data;
 }
@@ -59,6 +61,7 @@ function buildSummary(data) {
     impedimentRate: data.stories.length ? Math.round((blockedStories.length / data.stories.length) * 100) : 0,
     totalEpicsCount: data.epics.length,
     totalStoriesCount: data.stories.length,
+    velocity: velocityOf(data.sprints),
   };
 }
 
@@ -89,6 +92,7 @@ function saveProjectScrum(slug, projectDir, data) {
     lanesRevision: Number.isInteger(data.lanesRevision) && data.lanesRevision >= 0 ? data.lanesRevision : 0,
     transitionHistory: data.transitionHistory || [],
     impedimentHistory: data.impedimentHistory || [],
+    sprintHistory: data.sprintHistory || [],
     statusMapping: data.statusMapping || {},
     deletedSourceKeys: data.deletedSourceKeys || [],
   };
