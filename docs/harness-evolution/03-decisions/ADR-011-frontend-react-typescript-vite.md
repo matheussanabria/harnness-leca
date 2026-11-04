@@ -3,7 +3,7 @@ id: ADR-011
 titulo: Incremental frontend migration to React 19, TypeScript and Vite (Canvas as first island)
 status: aceita
 data: 2026-10-31
-historias: [16.00, 16.01, 16.02, 16.03, 16.04, 16.05]
+historias: [16.00, 19.01, 19.02, 19.03, 19.04, 19.05]
 tags: [harness-evolution, adr, frontend, react, typescript, vite, biome, canvas]
 ---
 
@@ -70,13 +70,15 @@ use (`harness:*`), never through shared mutable modules.
 
 ## Next stories
 
-| ID | Story | Depends on |
-|---|---|---|
-| 16.01 | Canvas server store: `projects/<slug>/canvas/` (index + per-board JSON, atomic write, `rev`, versioned migrations) | 16.00 |
-| 16.02 | Canvas assets: content-addressed upload + GET by hash confined to the board folder (no SVG) | 16.01 |
-| 16.03 | Mind-map island: model, commands (Enter/Tab/Shift+Tab, reparent with cycle guard, collapse), undo/redo, d3-hierarchy layout | 16.00, 16.01 |
-| 16.04 | Board island: Excalidraw, save/reopen, export, images from 16.02 | 16.01, 16.02 |
-| 16.05 | Selection to agent context pack (Markdown + JSON, deterministic char budget) | 16.03 |
+These stories now live in [EP-19](../02-epics/EP-19-canvas/README.md). They were first labelled 16.01 to 16.05, which collided with EP-16 (Atelier navigation); the canonical numbers are 19.01 to 19.05. Commits made before the renumbering still use the 16.0x labels. The foundation step above keeps its "16.00" label.
+
+| ID | Old label | Story | Depends on |
+|---|---|---|---|
+| 19.01 | 16.01 | Canvas server store: `projects/<slug>/canvas/` (index + per-board JSON, atomic write, `rev`, versioned migrations) | 16.00 |
+| 19.02 | 16.02 | Canvas assets: content-addressed upload + GET by hash confined to the board folder (no SVG) | 19.01 |
+| 19.03 | 16.03 | Mind-map island: model, commands (Enter/Tab/Shift+Tab, reparent with cycle guard, collapse), undo/redo, d3-hierarchy layout | 16.00, 19.01 |
+| 19.04 | 16.04 | Board island: Excalidraw, save/reopen, export, images from 19.02 | 19.01, 19.02 |
+| 19.05 | 16.05 | Selection to agent context pack (Markdown + JSON, deterministic char budget) | 19.03 |
 
 ## Alternatives considered
 

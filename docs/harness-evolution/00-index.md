@@ -42,6 +42,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-13](02-epics/EP-13-memoria-agentes/README.md) | Memória e conhecimento dos agentes | P1 | Concluído; memória declarativa, índice gerado, 2 fases e faxina | 9/9 |
 | [EP-14](02-epics/EP-14-estado-das-telas/README.md) | Estado das telas persistido no servidor | P1 | Concluído; endpoints de estado/histórico das 13 telas, concorrência e migração | 12/12 |
 | [EP-17](02-epics/EP-17-sqlite-persistencia/README.md) | SQLite como sistema de registro, com RBAC e trilha de auditoria | P0 | Planejado (ADR-012, ADR-013); corrige a perda de contexto no F5 | 0/13 |
+| [EP-19](02-epics/EP-19-canvas/README.md) | Canvas: whiteboard and mind maps (ADR-011; renumbered from 16.01-16.05) | P1 | Em andamento; 19.01 e 19.02 concluídas, 19.03 a 19.05 planejadas | 2/5 |
 
 ## 2. Dependências
 
@@ -232,6 +233,13 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [ ] [17.11](02-epics/EP-17-sqlite-persistencia/17.11-exportacao-markdown.md) Exportação e projeção em Markdown
 - [ ] [17.12](02-epics/EP-17-sqlite-persistencia/17.12-backup-integridade.md) Backup, restauração e verificação de integridade
 - [ ] [17.13](02-epics/EP-17-sqlite-persistencia/17.13-avaliacao-restante-fechamento.md) Avaliação do restante e fechamento
+
+### EP-19 Canvas: whiteboard and mind maps (2/5)
+- [x] [19.01](02-epics/EP-19-canvas/19.01-board-store-rest.md) Board store and REST (antes 16.01)
+- [x] [19.02](02-epics/EP-19-canvas/19.02-assets-content-addressed.md) Content-addressed assets (antes 16.02)
+- [ ] [19.03](02-epics/EP-19-canvas/19.03-mindmap-island.md) Mind-map island (antes 16.03)
+- [ ] [19.04](02-epics/EP-19-canvas/19.04-board-island-excalidraw.md) Board island with Excalidraw (antes 16.04)
+- [ ] [19.05](02-epics/EP-19-canvas/19.05-selection-context-pack.md) Selection to agent context pack (antes 16.05)
 
 ## Trabalho disponível agora
 

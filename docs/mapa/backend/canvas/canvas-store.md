@@ -7,7 +7,7 @@ paths: [ui/server/services/canvas/*.js, ui/server/controllers/canvas.controller.
 keywords: [canvas, board, mindmap, store, rev, migration, trash, index, adr-011, assets, sha256, upload, magic-bytes]
 updated: 2026-11-01
 ---
-# Canvas Store and Assets (stories 16.01 and 16.02)
+# Canvas Store and Assets (stories 19.01 and 19.02, formerly 16.01 and 16.02)
 
 Boards live in `projects/<slug>/canvas/<uuid>.json` with a rebuildable `index.json`; deletes move the file to `.trash/`.
 The server treats `data` as opaque JSON (4 MB cap). API: `GET/POST /api/canvas/boards`, `GET/PUT/DELETE /api/canvas/boards/:id`.
