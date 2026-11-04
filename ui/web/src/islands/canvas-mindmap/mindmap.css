@@ -1,10 +1,32 @@
 .mm-island {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.75rem;
-  max-width: 80rem;
+  width: 100%;
+  font-family: inherit;
+}
+
+.mm-island--list {
+  max-width: 64rem;
   margin: 1.5rem auto;
   padding: 0 1rem;
-  font-family: inherit;
+}
+
+/* The island host is fixed over the shell, so the editor owns the whole viewport. */
+.mm-island--editor {
+  align-items: stretch;
+  height: 100dvh;
+  min-height: 0;
+  padding: 0.75rem 1rem;
+  overflow: hidden;
+}
+
+.mm-editor {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
 }
 
 .mm-btn {
@@ -108,15 +130,57 @@
 }
 
 .mm-canvas {
-  height: 70vh;
-  min-height: 24rem;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
   border: 1px solid rgb(148 163 184 / 0.4);
   border-radius: 0.75rem;
+  /* React Flow defaults to a light controls palette; these shell variables flip with prefers-color-scheme. */
+  --mm-control-bg: var(--panel, #262624);
+  --mm-control-bg-hover: var(--panel2, #30302e);
+  --mm-control-fg: var(--text, #f0eee6);
+  --mm-control-line: var(--line, #3a3937);
+  --mm-control-muted: var(--mute, #9a978e);
+  --mm-control-accent: var(--accent, #d97757);
 }
 
 .mm-canvas:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 2px;
+}
+
+.mm-canvas .react-flow__controls {
+  overflow: hidden;
+  border: 1px solid var(--mm-control-line);
+  border-radius: 0.5rem;
+  box-shadow: none;
+}
+
+.mm-canvas .react-flow__controls-button {
+  border: 0;
+  border-bottom: 1px solid var(--mm-control-line);
+  background: var(--mm-control-bg);
+  color: var(--mm-control-fg);
+}
+
+.mm-canvas .react-flow__controls-button:last-child {
+  border-bottom: 0;
+}
+
+.mm-canvas .react-flow__controls-button svg {
+  fill: currentColor;
+}
+
+.mm-canvas .react-flow__controls-button:hover:not(:disabled) {
+  background: var(--mm-control-bg-hover);
+  color: var(--mm-control-accent);
+}
+
+.mm-canvas .react-flow__controls-button:disabled {
+  color: var(--mm-control-muted);
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .mm-node {

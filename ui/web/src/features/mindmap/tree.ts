@@ -2,7 +2,7 @@
 import type { MindDoc } from "./types.ts";
 
 export function createDoc(rootId: string, text = "Central idea"): MindDoc {
-  return { rootId, nodes: { [rootId]: { id: rootId, text, children: [], collapsed: false } } };
+  return { rootId, nodes: { [rootId]: { id: rootId, text, children: [], collapsed: false, dx: 0, dy: 0 } } };
 }
 
 /** Parent id of a node, or null for the root / unknown ids. */

@@ -15,7 +15,7 @@ Route `#/canvas-mindmap[/<boardId>]`: no id lists boards, an id opens the editor
 |---|---|
 | `ui/web/src/features/mindmap/types.ts` | Node, tree and board-data types; the tree is independent of any graphic ids. |
 | `ui/web/src/features/mindmap/tree.ts` | Read-only tree helpers (lookup, parent, descendants, visible nodes). |
-| `ui/web/src/features/mindmap/commands.ts` | Pure immutable commands: addChild, addSibling, outdent, reparent with cycle guard, deleteSubtree, rename, toggleCollapse. |
+| `ui/web/src/features/mindmap/commands.ts` | Pure immutable commands: addChild, addSibling, outdent, reparent with cycle guard, deleteSubtree, rename, toggleCollapse, moveNode (manual dx/dy offset, applied to the subtree). |
 | `ui/web/src/features/mindmap/history.ts` | Undo/redo stack capped at 200 entries. |
 | `ui/web/src/features/mindmap/serialize.ts` | Converts the tree to and from board `data`, validating untrusted input. |
 | `ui/web/src/features/mindmap/layout.ts` | d3-hierarchy tidy-tree layout that hides collapsed subtrees. |
@@ -28,6 +28,7 @@ Route `#/canvas-mindmap[/<boardId>]`: no id lists boards, an id opens the editor
 | `ui/web/src/islands/canvas-mindmap/BoardList.tsx` | List, create and delete mind-map boards. |
 | `ui/web/src/islands/canvas-mindmap/MindmapEditor.tsx` | Editor shell: toolbar, save status, conflict banner. |
 | `ui/web/src/islands/canvas-mindmap/MindmapCanvas.tsx` | React Flow canvas fed by the layout and keymap. |
+| `ui/web/src/islands/canvas-mindmap/FocusFollower.tsx` | Pans the canvas to the selected node at the current zoom when it leaves the comfortable area; positions come from the layout props. |
 | `ui/web/src/islands/canvas-mindmap/MindNodeView.tsx` | Custom node with inline text editing and collapse toggle. |
 | `ui/web/src/islands/canvas-mindmap/mindmap.css` | Island styles. |
-| `tests/mindmap-model.test.js`, `tests/mindmap-api.test.js` | Model, history, serialization and API client tests (Node type stripping). |
+| `tests/mindmap-model.test.js`, `tests/mindmap-api.test.js`, `tests/mindmap-position.test.js` | Model, history, serialization, manual position (dx/dy offsets) and API client tests (Node type stripping). |

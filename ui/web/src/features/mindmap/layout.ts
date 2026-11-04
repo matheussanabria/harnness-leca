@@ -16,6 +16,13 @@ export interface Placed {
   collapsed: boolean;
 }
 
+export interface Offset {
+  dx: number;
+  dy: number;
+}
+
+const ZERO: Offset = { dx: 0, dy: 0 };
+
 export function layoutTree(doc: MindDoc): Placed[] {
   const root = hierarchy<MindNode>(doc.nodes[doc.rootId] as MindNode, (node) =>
     node.collapsed ? [] : node.children.map((id) => doc.nodes[id]).filter((child): child is MindNode => !!child),
@@ -38,4 +45,48 @@ export function visibleOrder(doc: MindDoc): string[] {
     .slice()
     .sort((a, b) => a.y - b.y || a.x - b.x)
     .map((placed) => placed.id);
+}
+
+/** Accumulated manual offset of every node: its own dx/dy plus all ancestors'. */
+export function offsetMap(doc: MindDoc): Map<string, Offset> {
+  const parents = new Map<string, string>();
+  for (const node of Object.values(doc.nodes)) {
+    for (const child of node.children) parents.set(child, node.id);
+  }
+  const offsets = new Map<string, Offset>();
+  const resolve = (id: string): Offset => {
+    const cached = offsets.get(id);
+    if (cached) return cached;
+    const node = doc.nodes[id];
+    if (!node) return ZERO;
+    const parentId = parents.get(id);
+    const parent = parentId ? resolve(parentId) : ZERO;
+    const value = { dx: parent.dx + (node.dx ?? 0), dy: parent.dy + (node.dy ?? 0) };
+    offsets.set(id, value);
+    return value;
+  };
+  for (const id of Object.keys(doc.nodes)) resolve(id);
+  return offsets;
+}
+
+/** Accumulated manual offset of one node, ancestors included. */
+export function absoluteOffset(doc: MindDoc, id: string): Offset {
+  return offsetMap(doc).get(id) ?? ZERO;
+}
+
+/** Rendered position: the tidy layout position plus the accumulated manual offset. */
+export function renderedPosition(doc: MindDoc, placed: Pick<Placed, "id" | "x" | "y">): { x: number; y: number } {
+  const { dx, dy } = absoluteOffset(doc, placed.id);
+  return { x: placed.x + dx, y: placed.y + dy };
+}
+
+/**
+ * Converts a dropped rendered position back into the node's own offset, so the offset stays relative to the tidy
+ * layout position plus the ancestors' offsets.
+ */
+export function offsetFromPosition(doc: MindDoc, id: string, x: number, y: number): Offset {
+  const placed = layoutTree(doc).find((item) => item.id === id);
+  if (!placed) return ZERO;
+  const parent = placed.parentId ? absoluteOffset(doc, placed.parentId) : ZERO;
+  return { dx: x - placed.x - parent.dx, dy: y - placed.y - parent.dy };
 }

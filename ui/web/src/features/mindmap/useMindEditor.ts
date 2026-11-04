@@ -1,6 +1,14 @@
 // Editor state: document history, selection and inline editing, driven by the pure commands.
 import { useCallback, useMemo, useState } from "react";
-import { addChild, addSibling, deleteSubtree, outdent, rename, toggleCollapse } from "./commands.ts";
+import {
+  addChild,
+  addSibling,
+  deleteSubtree,
+  moveNode as moveNodeCommand,
+  outdent,
+  rename,
+  toggleCollapse,
+} from "./commands.ts";
 import type { History } from "./history.ts";
 import { createHistory, push, redo, undo } from "./history.ts";
 import { visibleOrder } from "./layout.ts";
@@ -58,8 +66,19 @@ export function useMindEditor(initial: MindDoc) {
         setEditingId(null);
       },
       cancelEdit: () => setEditingId(null),
-      undo: () => setHistory((h) => undo(h)),
-      redo: () => setHistory((h) => redo(h)),
+      moveNode: (id: string, dx: number, dy: number) => apply(moveNodeCommand(doc, id, dx, dy)),
+      undo: () => {
+        const next = undo(history);
+        if (next === history) return;
+        setHistory(next);
+        setSelectedId((current) => (next.present.nodes[current] ? current : next.present.rootId));
+      },
+      redo: () => {
+        const next = redo(history);
+        if (next === history) return;
+        setHistory(next);
+        setSelectedId((current) => (next.present.nodes[current] ? current : next.present.rootId));
+      },
       move: (direction: "up" | "down" | "left" | "right") => {
         const order = visibleOrder(doc);
         const at = order.indexOf(selectedId);
@@ -70,7 +89,7 @@ export function useMindEditor(initial: MindDoc) {
         if (direction === "right" && node && !node.collapsed) setSelectedId(node.children[0] ?? selectedId);
       },
     }),
-    [doc, selectedId, apply],
+    [doc, selectedId, apply, history],
   );
 
   return {

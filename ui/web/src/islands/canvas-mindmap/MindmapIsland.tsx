@@ -63,7 +63,10 @@ export function MindmapIsland({ slug, params }: IslandProps) {
   };
 
   return (
-    <main className="mm-island" aria-busy={load.status === "loading"}>
+    <main
+      className={`mm-island ${boardId === null ? "mm-island--list" : "mm-island--editor"}`}
+      aria-busy={load.status === "loading"}
+    >
       {boardId === null ? <BoardList api={api} onOpen={open} /> : null}
       {load.status === "loading" ? (
         <p role="status">

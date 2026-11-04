@@ -1,6 +1,6 @@
 // Board `data` <-> MindDoc. Input is untrusted: everything is validated and unknown shapes are rejected.
 import type { MindDoc, MindmapData, MindNode } from "./types.ts";
-import { MAX_NODES, MAX_TEXT, MINDMAP_SCHEMA } from "./types.ts";
+import { MAX_NODES, MAX_OFFSET, MAX_TEXT, MINDMAP_SCHEMA } from "./types.ts";
 
 export function toData(doc: MindDoc): MindmapData {
   return { schema: MINDMAP_SCHEMA, rootId: doc.rootId, nodes: Object.values(doc.nodes) };
@@ -11,12 +11,22 @@ export type ParseResult = { ok: true; doc: MindDoc } | { ok: false; error: strin
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
+/** Missing offsets mean 0; non-finite values are rejected; finite values are clamped to the model range. */
+function parseOffset(value: unknown): number | null {
+  if (value === undefined) return 0;
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, value));
+}
+
 function parseNode(raw: unknown): MindNode | null {
   if (!isRecord(raw)) return null;
   const { id, text, children, collapsed } = raw;
   if (typeof id !== "string" || !id || typeof text !== "string") return null;
   if (!Array.isArray(children) || !children.every((child) => typeof child === "string")) return null;
-  return { id, text: text.slice(0, MAX_TEXT), children: children as string[], collapsed: collapsed === true };
+  const dx = parseOffset(raw.dx);
+  const dy = parseOffset(raw.dy);
+  if (dx === null || dy === null) return null;
+  return { id, text: text.slice(0, MAX_TEXT), children: children as string[], collapsed: collapsed === true, dx, dy };
 }
 
 /** Validates ids, references, a single root and absence of cycles or shared children (each node reachable once). */

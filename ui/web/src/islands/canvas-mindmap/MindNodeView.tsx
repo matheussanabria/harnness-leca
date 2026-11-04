@@ -56,7 +56,7 @@ export function MindNodeView({ id, data }: NodeProps<MindFlowNode>) {
       {data.hasChildren ? (
         <button
           type="button"
-          className="mm-node__toggle"
+          className="mm-node__toggle nodrag"
           aria-label={data.collapsed ? "Expand branch" : "Collapse branch"}
           tabIndex={-1}
           onClick={(event) => {
