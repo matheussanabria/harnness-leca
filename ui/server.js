@@ -8,13 +8,15 @@ const netLib = require("../tools/lib/network");
 function createServer() {
   const server = http.createServer(async (req, res) => {
     try {
-      if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "POST" && req.method !== "PATCH") {
+      // PUT e DELETE existem só para a API do Canvas (/api/canvas/*, EP-16): rev em PUT, remoção de board em DELETE.
+      const canvasWrite = (req.method === "PUT" || req.method === "DELETE") && /^\/api\/canvas\//.test(req.url || "");
+      if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "POST" && req.method !== "PATCH" && !canvasWrite) {
         return send(res, 405, { error: "método não permitido" });
       }
       if (!hostOk(req)) {
         return send(res, 403, { error: "host não permitido" });
       }
-      if ((req.method === "POST" || req.method === "PATCH") && !postOk(req)) {
+      if ((req.method === "POST" || req.method === "PATCH" || canvasWrite) && !postOk(req)) {
         return send(res, 403, { error: "origem não permitida" });
       }
       await handle(req, res);
