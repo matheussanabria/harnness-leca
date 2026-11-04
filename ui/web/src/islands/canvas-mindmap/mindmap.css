@@ -264,3 +264,15 @@
 a.mm-btn {
   text-decoration: none;
 }
+
+/* Embedded in the Design workspace: the container (flex column) sizes the island, not the viewport. */
+.mm-island--embedded {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  overflow: auto;
+}
+
+.mm-island--embedded.mm-island--editor {
+  overflow: hidden;
+}

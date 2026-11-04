@@ -9,7 +9,7 @@ updated: 2026-11-04
 ---
 # Mind-map island (EP-19.03)
 
-Route `#/canvas-mindmap[/<boardId>]`: no id lists boards, an id opens the editor. Boards use the Canvas REST API (kind `mindmap`, `data.schema = "mindmap@1"`).
+Design view `#/canvas-mindmap` (embedded in `#designViewContainer`, props `embedded: true`): the list opens a board as internal state, so the hash never changes. Standalone it still reads `#/canvas-mindmap/<boardId>`. Boards use the Canvas REST API (kind `mindmap`, `data.schema = "mindmap@1"`).
 
 | File | Responsibility |
 |---|---|

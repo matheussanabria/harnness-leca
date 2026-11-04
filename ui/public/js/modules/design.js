@@ -9,6 +9,7 @@ import { renderArtifactsWorkspace } from "./design-artifacts.js";
 import { renderRoutinesWorkspace } from "./design-routines.js";
 import { renderWorkflowsWorkspace } from "./design-workflows.js";
 import { renderScrumWorkspace } from "./design-scrum.js";
+import { isIslandView, mountIslandView, unmountIslandView } from "./design-island-views.js";
 import { detachStudioSidebarFromAtelier } from "./prototype-atelier-sidebar.js";
 import { resetAtelierPromptState, setAtelierChatContext } from "./prototype-chat-bridge.js";
 import { persistDesignView, restoredDesignView } from "./design-view-state.js";
@@ -171,6 +172,9 @@ function renderCurrentDesignView() {
   const slug = state.P?.name || state.S?.active;
   const activeDraft = draftsBySlug.get(slug) || null;
 
+  if (isIslandView(currentView)) return void mountIslandView(container, currentView, slug || "");
+  unmountIslandView();
+
   if (currentView === "scrum") {
     renderScrumWorkspace(container, slug, currentScrumData);
   } else if (currentView === "layers") {
@@ -232,6 +236,7 @@ export async function toggleDesignMode(force, targetView) {
       renderCurrentDesignView();
     }
   } else {
+    unmountIslandView();
     detachStudioSidebarFromAtelier();
     setAtelierChatContext(null);
     resetAtelierPromptState();

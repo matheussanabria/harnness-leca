@@ -9,7 +9,7 @@ import { createRequire } from "node:module";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel) => fs.readFileSync(path.join(root, rel), "utf8");
-const { APP_SCREENS, VIEW_SCREENS, parseRoute, buildRoute, legacyRoute, routeFromLocation, sameRoute, createRouter } =
+const { APP_SCREENS, ISLAND_SCREENS, VIEW_SCREENS, parseRoute, buildRoute, legacyRoute, routeFromLocation, sameRoute, createRouter } =
   await import("../ui/public/js/shared/router.js");
 const { createRouteApplier } = await import("../ui/public/js/modules/route-apply.js");
 
@@ -191,17 +191,14 @@ test("lab routes parse with two parameters and build back to their own address",
   assert.equal(buildRoute("lab", ["x"]), "#/lab/x");
 });
 
-test("canvas-mindmap routes take one board id and build back to their own address", () => {
-  assert.deepEqual(parseRoute("#/canvas-mindmap"), { screen: "canvas-mindmap", params: [] });
-  assert.deepEqual(parseRoute("#/canvas-mindmap/board-1"), { screen: "canvas-mindmap", params: ["board-1"] });
-  assert.deepEqual(parseRoute("#/canvas-mindmap/a/b"), { screen: "canvas-mindmap", params: ["a"] });
-  assert.equal(buildRoute("canvas-mindmap", ["board-1"]), "#/canvas-mindmap/board-1");
-});
-
-test("canvas-board route takes one optional board id", () => {
-  assert.deepEqual(parseRoute("#/canvas-board"), { screen: "canvas-board", params: [] });
-  assert.deepEqual(parseRoute("#/canvas-board/abc/extra"), { screen: "canvas-board", params: ["abc"] });
-  assert.equal(buildRoute("canvas-board", ["abc"]), "#/canvas-board/abc");
+test("canvas-mindmap and canvas-board are Design views without parameters", () => {
+  for (const screen of ["canvas-mindmap", "canvas-board"]) {
+    assert.equal(VIEW_SCREENS.includes(screen), true, screen);
+    assert.deepEqual(parseRoute(`#/${screen}`), { screen, params: [] });
+    assert.deepEqual(parseRoute(`#/${screen}/abc/extra`), { screen, params: [] });
+    assert.equal(buildRoute(screen), `#/${screen}`);
+  }
+  assert.equal(ISLAND_SCREENS.includes("canvas-mindmap"), false);
 });
 
 test("an island route mounts after closing workspaces, and leaving unmounts before Design opens", async () => {

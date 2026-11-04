@@ -6,7 +6,15 @@ import { createDoc } from "../../features/mindmap/tree.ts";
 
 type Load = { status: "loading" } | { status: "error"; message: string } | { status: "ready"; boards: BoardSummary[] };
 
-export function BoardList({ api, onOpen }: { api: MindmapApi; onOpen(id: string): void }) {
+export function BoardList({
+  api,
+  onOpen,
+  embedded = false,
+}: {
+  api: MindmapApi;
+  onOpen(id: string): void;
+  embedded?: boolean;
+}) {
   const [load, setLoad] = useState<Load>({ status: "loading" });
   const [title, setTitle] = useState("");
   const [busy, setBusy] = useState(false);
@@ -57,9 +65,11 @@ export function BoardList({ api, onOpen }: { api: MindmapApi; onOpen(id: string)
         <h1 id="mm-list-title">
           <i className="fa-solid fa-diagram-project" aria-hidden="true" /> Mind maps
         </h1>
-        <a className="mm-btn" href="#/chats">
-          <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Back to chats
-        </a>
+        {embedded ? null : (
+          <a className="mm-btn" href="#/chats">
+            <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Back to chats
+          </a>
+        )}
       </header>
       <form className="mm-form" onSubmit={(event) => void create(event)}>
         <label htmlFor="mm-new-title">New mind map title</label>

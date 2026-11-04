@@ -183,3 +183,32 @@ test("leaving the route while the island is still loading never mounts it into t
   assert.equal(loader.activeName(), null);
   assert.equal(fake.host().hidden, true, "the host stays hidden after leaving");
 });
+
+test("mount with a target renders into it, passes embedded and never touches the global host", async () => {
+  const index = { default: { "canvas-mindmap": { file: "mm.js", css: [] } } };
+  const recorder = { unmounts: 0 };
+  const fake = fakeDoc();
+  const target = fakeElement("div");
+  target.children.push("old content");
+  const loader = createIslandLoader({
+    doc: fake.doc,
+    importer: async (url) => (url.includes("islands.js") ? index : fakeIsland(recorder)),
+  });
+  const mounted = await loader.mount("canvas-mindmap", { slug: "demo", params: [] }, target);
+  assert.equal(mounted, true);
+  assert.equal(recorder.el, target, "the island rendered into the target");
+  assert.deepEqual(recorder.props, { slug: "demo", params: [], embedded: true });
+  assert.equal(fake.host(), null, "#islandHost was never created");
+  loader.unmount();
+  assert.equal(recorder.unmounts, 1);
+  assert.equal(target.children.length, 0, "unmount clears the target");
+});
+
+test("an embedded island missing from the build shows a notice inside the target", async () => {
+  const fake = fakeDoc();
+  const target = fakeElement("div");
+  const loader = createIslandLoader({ doc: fake.doc, importer: async () => ({ default: {} }) });
+  assert.equal(await loader.mount("canvas-board", { slug: "demo", params: [] }, target), false);
+  assert.equal(target.children.length, 1);
+  assert.equal(fake.host(), null);
+});

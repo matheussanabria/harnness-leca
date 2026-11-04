@@ -3,7 +3,7 @@
 import { readStudioState, saveStudioState } from "./studio-state.js";
 import { getRouter, routeTo, VIEW_SCREENS } from "../shared/router.js";
 
-const DESIGN_VIEWS = new Set(["scrum", "layers", "board", "audit", "prototypes", "artifacts", "routines", "workflows"]);
+const DESIGN_VIEWS = new Set(["scrum", "layers", "board", "audit", "prototypes", "artifacts", "routines", "workflows", "canvas-mindmap", "canvas-board"]);
 let savedDesign = null;
 
 /** @param {unknown} value */

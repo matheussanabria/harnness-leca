@@ -4,12 +4,11 @@ import { Suspense, useRef, useState } from "react";
 import type { BoardApi } from "../../features/board/api";
 import { type ExportKind, exportBoard } from "./exportActions";
 import { LazyCanvas } from "./lazyCanvas";
+import { NavLink } from "./nav";
 import { ConflictBanner, SaveStatus } from "./SaveStatus";
 import { useBoardLoad } from "./useBoardLoad";
 import { useBoardSave } from "./useBoardSave";
 import { useShellTheme } from "./useShellTheme";
-
-const LIST_HREF = "#/canvas-board";
 
 function Notice({ icon, children }: { icon: string; children: React.ReactNode }) {
   return (
@@ -29,9 +28,9 @@ export function BoardEditor({ api, id }: { api: BoardApi; id: string }) {
         <button type="button" className="board-btn" onClick={reload}>
           <i className="fa-solid fa-rotate" aria-hidden="true" /> Try again
         </button>
-        <a className="board-btn" href={LIST_HREF}>
+        <NavLink className="board-btn">
           <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Back to boards
-        </a>
+        </NavLink>
       </div>
     );
   }
@@ -80,9 +79,9 @@ function OpenBoard({
   return (
     <section className="board-editor" aria-label={`Board ${savedTitle}`}>
       <header className="board-editor__bar">
-        <a className="board-btn" href={LIST_HREF} onClick={() => void save.flush()}>
+        <NavLink className="board-btn" onClick={() => void save.flush()}>
           <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Boards
-        </a>
+        </NavLink>
         <input
           className="board-editor__title"
           aria-label="Board title"

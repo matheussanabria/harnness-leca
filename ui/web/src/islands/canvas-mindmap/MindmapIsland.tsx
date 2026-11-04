@@ -24,9 +24,11 @@ type Load =
   | { status: "error"; message: string }
   | { status: "ready"; board: Board };
 
-export function MindmapIsland({ slug, params }: IslandProps) {
+export function MindmapIsland({ slug, params, embedded = false }: IslandProps) {
   const api = useMemo(() => createMindmapApi(slug), [slug]);
-  const boardId = params[0] ?? null;
+  // Embedded in the Design workspace the open board is internal state: the hash must not change (it would remount us).
+  const [openId, setOpenId] = useState<string | null>(null);
+  const boardId = embedded ? openId : (params[0] ?? null);
   const [load, setLoad] = useState<Load>(boardId ? { status: "loading" } : { status: "idle" });
 
   const loadBoard = useCallback(
@@ -56,18 +58,18 @@ export function MindmapIsland({ slug, params }: IslandProps) {
     };
   }, [boardId, loadBoard]);
 
-  const open = useCallback((id: string) => go(boardHash(id)), []);
-  const close = useCallback(() => go(LIST_HASH), []);
+  const open = useCallback((id: string) => (embedded ? setOpenId(id) : go(boardHash(id))), [embedded]);
+  const close = useCallback(() => (embedded ? setOpenId(null) : go(LIST_HASH)), [embedded]);
   const retry = () => {
     if (boardId) loadBoard(boardId);
   };
 
   return (
     <main
-      className={`mm-island ${boardId === null ? "mm-island--list" : "mm-island--editor"}`}
+      className={`mm-island ${boardId === null ? "mm-island--list" : "mm-island--editor"}${embedded ? " mm-island--embedded" : ""}`}
       aria-busy={load.status === "loading"}
     >
-      {boardId === null ? <BoardList api={api} onOpen={open} /> : null}
+      {boardId === null ? <BoardList api={api} onOpen={open} embedded={embedded} /> : null}
       {load.status === "loading" ? (
         <p role="status">
           <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" /> Loading board
