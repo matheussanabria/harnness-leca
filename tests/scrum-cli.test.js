@@ -43,3 +43,12 @@ test('agents cannot mark ready or finish; an allowed move records the actor', ()
   assert.equal(file.transitionHistory.at(-1).actor, 'agent:codex:run1');
   assert.equal(run('story', 'update', id, '--json', '{"status":"x"}', ...HUMAN).code, 1);
 });
+
+test('link stores a validated ledger id; bad ids and missing actors are refused', () => {
+  const id = JSON.parse(run('story', 'list').out)[0].id;
+  assert.equal(run('story', 'link', id, '--ledger', 'EP-19.03').code, 1, 'actor required');
+  assert.equal(run('story', 'link', id, '--ledger', '../x', ...AGENT).code, 1);
+  const linked = JSON.parse(run('story', 'link', id, '--ledger', 'EP-19.03', ...AGENT).out);
+  assert.equal(linked.ledgerId, 'EP-19.03');
+  assert.equal(JSON.parse(run('story', 'get', id).out).ledgerId, 'EP-19.03');
+});

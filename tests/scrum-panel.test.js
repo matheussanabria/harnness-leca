@@ -54,3 +54,17 @@ test('active ledger cards without a Scrum story are listed with their holder', (
   assert.equal(panel.ledgerActive[0].owner, 'claude');
   assert.deepEqual(panel.owners, { claude: 1 });
 });
+
+test('a story linked by ledgerId gets the ledger holder and the commits trailed with that id', () => {
+  const ledgerLanes = [{ id: 'review', cards: [{ id: 'EP-19.03', owner: 'gemini', worktree: 'feat/m' }] }];
+  const panel = buildScrumPanel({
+    stories: [story('us-9', 'em-revisao', { ledgerId: 'EP-19.03' })],
+    ledgerLanes,
+    commits: [{ storyIds: ['EP-19.03'], shortSha: 'f00ba12', subject: 'review fixes' }],
+    laneOrder: ORDER,
+  });
+  assert.equal(panel.items[0].owner, 'gemini');
+  assert.equal(panel.items[0].commitCount, 1);
+  assert.deepEqual(panel.ledgerActive, [], 'linked card is not listed twice');
+  assert.deepEqual(panel.owners, { gemini: 1 });
+});

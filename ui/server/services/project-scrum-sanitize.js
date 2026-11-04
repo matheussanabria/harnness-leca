@@ -1,6 +1,7 @@
 // @ts-check
 // Normalizacao apenas de historias criadas localmente; fontes externas usam adaptadores proprios.
 const { normalizeMaturity } = require("./project-scrum-maturity");
+const { normalizeLedgerId } = require("./project-scrum-actor");
 
 function normalizeStatus(value) {
   const status = String(value || "todo").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -44,6 +45,7 @@ function sanitizeStory(story, defaultSprintId = null) {
     // So entra quando enviada: assim uma edicao sem o campo nao zera a maturidade ja gravada.
     ...(maturity !== undefined ? { maturity } : {}),
     // Optional and idempotency-only; storyRevision is deliberately never read from a payload (mass assignment).
+    ...(normalizeLedgerId(story.ledgerId) ? { ledgerId: normalizeLedgerId(story.ledgerId) } : {}),
     ...(story.dedupeKey ? { dedupeKey: String(story.dedupeKey).trim().slice(0, 80) } : {}),
     status: normalizeStatus(story.status),
     points: optionalNumber(story.points),

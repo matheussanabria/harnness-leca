@@ -19,4 +19,4 @@ updated: 2026-11-04
 | `tests/scrum-panel.test.js` | Join rules, caps, ledger-only cards, escaping and no emoji. |
 
 - Mounted by the `whiteboard` case of `ui/public/js/office/office-drawer-views.js`; styles reuse `ui/public/css/design/14-scrum-coordination.css`, imported in `ui/public/css/office.css`.
-- Known gap: ledger ids (`EP-xx.yy`) and local Scrum ids (`us-...`) rarely coincide, so the ledger-only section carries most agent information until stories are linked.
+- A story links to its ledger card with `node tools/scrum.js story link <id> --ledger EP-xx.yy --actor ...`; the stored `ledgerId` is used for the holder join and for `Story:` trailer commits. Unlinked stories whose id or key equals a ledger id still match; other active ledger cards show in the ledger-only section.

@@ -19,7 +19,7 @@ async function apiProjectScrumPanel({ res, params: [slug] }) {
     const stories = loadProjectScrum(slug, projectDir, repo || projectDir).scrum.stories;
     const state = readLedger(getProjects(), slug);
     const ledgerLanes = state ? buildCoordinationView(state).lanes : [];
-    const ids = stories.flatMap((s) => [s.id, s.key]).filter(Boolean).slice(0, 200);
+    const ids = stories.flatMap((s) => [s.id, s.key, s.ledgerId]).filter(Boolean).slice(0, 200);
     const git = repo ? readStoryCommits(repo, ids, { maxCount: 500 }) : { available: false, commits: [] };
     const panel = buildScrumPanel({ stories, ledgerLanes, commits: git.commits || [], laneOrder: CANONICAL_LANES.map((l) => l.id) });
     return send(res, 200, { ok: true, ledger: Boolean(state), commits: Boolean(git.available), ...panel });
