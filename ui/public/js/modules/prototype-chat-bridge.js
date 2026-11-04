@@ -1,6 +1,7 @@
 // @ts-check
 // Liga o chat do Studio ao Ateliê: instrui o modelo sobre o protótipo aberto e grava a resposta nele.
 import { showToast } from "../shared/dom.js";
+import { applyCanvasReply, isCanvasChatActive, resetCanvasPromptState, setCanvasChatContext, wrapCanvasPrompt } from "./canvas-chat-bridge.js";
 import { logAtelierAction } from "./prototype-atelier-state.js";
 import { buildQualityRules, directionsReminder, loadQualityContext, parseQualityCommand } from "./prototype-prompt-quality.js";
 
@@ -10,6 +11,7 @@ let active = null;
 /** Ativa (ou desativa, com null) o modo Ateliê para o chat. */
 export function setAtelierChatContext(ctx) {
   active = ctx;
+  setCanvasChatContext(null); // the canvas views set their own mode right after this call
 }
 
 export function isAtelierChatActive() {
@@ -40,6 +42,7 @@ function hashText(text) {
 /** Esquece o que já foi enviado (próxima mensagem leva regras e código completos). */
 export function resetAtelierPromptState() {
   sent = null;
+  resetCanvasPromptState();
 }
 
 /**
@@ -50,6 +53,7 @@ export function resetAtelierPromptState() {
  * @returns {Promise<string>}
  */
 export async function wrapAtelierPrompt(text, opts = {}) {
+  if (isCanvasChatActive()) return wrapCanvasPrompt(text, opts);
   if (!active) return text;
   const { slug, protoId } = active;
   const screen = active.getScreen();
@@ -104,6 +108,7 @@ function prototypeFilesTarget(fullText) {
  * @param {string} fullText
  */
 export async function applyAtelierReply(fullText) {
+  if (isCanvasChatActive()) return applyCanvasReply(fullText);
   if (!active || !/<\s*arquivo\s+caminho/i.test(fullText || "")) return;
   const { slug, protoId } = active;
   try {
