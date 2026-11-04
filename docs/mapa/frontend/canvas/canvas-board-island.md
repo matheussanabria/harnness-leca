@@ -3,7 +3,7 @@ domain: frontend
 module: canvas
 feature: canvas-board-island
 summary: Excalidraw whiteboard React island (EP-19.04): API client, pure helpers, lazy editor chunk, Design view canvas-board.
-paths: [ui/web/src/islands/canvas-board/**, ui/web/src/features/board/**, ui/web/build/excalidraw-assets.ts, tests/board-feature.test.js, tests/canvas-server-methods.test.js]
+paths: [ui/web/src/islands/canvas-board/**, ui/web/src/features/board/**, ui/web/build/excalidraw-assets.ts, tests/board-feature.test.js, tests/board-chat-bridge.test.js, tests/canvas-server-methods.test.js]
 keywords: [canvas, board, excalidraw, island, autosave, assets, rev, conflict, export, png, svg, lazy, fonts]
 updated: 2026-11-04
 ---
@@ -34,6 +34,9 @@ Server gate: `ui/server.js` allows PUT and DELETE only under `/api/canvas/`, and
 | `ui/web/src/islands/canvas-board/ExcalidrawCanvas.tsx`, `lazyCanvas.ts` | Lazy Excalidraw wrapper and asset path setup. |
 | `ui/web/src/islands/canvas-board/exportActions.ts`, `dataUrl.ts`, `useShellTheme.ts`, `SaveStatus.tsx`, `board.css` | PNG/SVG export, browser helpers, theme follow (prefers-color-scheme), status UI, styles. |
 | `ui/web/build/excalidraw-assets.ts` | Vite plugin copying Excalidraw fonts into `dist/excalidraw/fonts`. |
-| `tests/board-feature.test.js` | node:test for the pure helpers, API client and session. |
+| `tests/board-feature.test.js`, `tests/board-chat-bridge.test.js` | node:test for the pure helpers, API client and session. |
 | `tests/canvas-server-methods.test.js` | HTTP gate: PUT, DELETE and binary upload only for the Canvas API. |
 | `ui/web/src/islands/canvas-board/nav.tsx` | `BoardNavContext` and `NavLink`: hash links standalone, buttons with internal navigation when embedded in the Design workspace. |
+| `ui/web/src/features/board/chatBridge.ts` | Pure helpers of the chat bridge: `boardStatePayload` (summary of the drawing for the prompt), `normalizeBoardBlock` (fence removal, supported Mermaid types only, caps) and `placeBelow` (new diagram below existing content). |
+| `ui/web/src/islands/canvas-board/applyMermaid.ts` | Converts Mermaid with `@excalidraw/mermaid-to-excalidraw` (lazy imports) and applies it as ONE undoable Excalidraw step, in replace or append mode. |
+| `ui/web/src/islands/canvas-board/useBoardChatBridge.ts` | Hook: publishes `harness:canvas-state` (debounced, `kind: board`) and runs `harness:canvas-apply` blocks in order, with a short note for success or refusal. |

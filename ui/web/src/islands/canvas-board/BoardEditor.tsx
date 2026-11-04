@@ -6,6 +6,7 @@ import { type ExportKind, exportBoard } from "./exportActions";
 import { LazyCanvas } from "./lazyCanvas";
 import { NavLink } from "./nav";
 import { ConflictBanner, SaveStatus } from "./SaveStatus";
+import { useBoardChatBridge } from "./useBoardChatBridge";
 import { useBoardLoad } from "./useBoardLoad";
 import { useBoardSave } from "./useBoardSave";
 import { useShellTheme } from "./useShellTheme";
@@ -53,6 +54,12 @@ function OpenBoard({
   const [title, setTitle] = useState(board.title);
   const [savedTitle, setSavedTitle] = useState(board.title);
   const [note, setNote] = useState(missing.length ? `${missing.length} image(s) could not be loaded.` : "");
+  const chat = useBoardChatBridge({
+    boardId: board.id,
+    title: savedTitle,
+    getApi: () => excalidraw.current,
+    onNote: setNote,
+  });
 
   async function commitTitle() {
     const next = title.trim();
@@ -114,7 +121,10 @@ function OpenBoard({
             onApi={(instance) => {
               excalidraw.current = instance;
             }}
-            onChange={save.onSceneChange}
+            onChange={(elements, appState, files) => {
+              chat.publish(elements);
+              save.onSceneChange(elements, appState, files);
+            }}
           />
         </Suspense>
       </div>

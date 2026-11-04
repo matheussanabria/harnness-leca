@@ -67,8 +67,8 @@ export async function renderCanvasWorkspace(container, view, slug) {
   const catalogHost = /** @type {HTMLElement} */ (container.querySelector("#canvasCatalogHost"));
   initWorkspaceLayout(root);
   attachStudioSidebarToAtelier();
-  // Only the mind map understands chat answers for now; the board view keeps a plain chat.
-  setCanvasChatContext(info.kind === "mindmap" ? { kind: info.kind, slug } : null);
+  // Both canvas kinds understand chat answers: <mindmap> outlines and <board> Mermaid diagrams.
+  setCanvasChatContext({ kind: info.kind, slug });
 
   const api = createCanvasApi(slug);
   const key = `${slug}:${view}`;
