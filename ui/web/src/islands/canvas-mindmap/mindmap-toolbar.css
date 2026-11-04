@@ -1,0 +1,92 @@
+/* Floating action bar for the mind-map canvas. Shell variables flip with prefers-color-scheme. */
+.mm-canvas {
+  --mm-actionbar-bg: var(--panel, #262624);
+  --mm-actionbar-hover: var(--panel2, #30302e);
+  --mm-actionbar-fg: var(--text, #f0eee6);
+  --mm-actionbar-line: var(--line, #3a3937);
+  --mm-actionbar-accent: var(--accent, #d97757);
+  --mm-actionbar-danger: #e5534b;
+  --mm-actionbar-focus: #2563eb;
+}
+
+@media (prefers-color-scheme: light) {
+  .mm-canvas {
+    --mm-actionbar-bg: var(--panel, #fff);
+    --mm-actionbar-hover: var(--panel2, #f0eee6);
+    --mm-actionbar-fg: var(--text, #1f1e1d);
+    --mm-actionbar-line: var(--line, #e3e0d5);
+    --mm-actionbar-accent: var(--accent, #b45309);
+  }
+}
+
+.mm-actionbar {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  max-width: calc(100% - 1.5rem);
+  padding: 0.25rem;
+  overflow-x: auto;
+  border: 1px solid var(--mm-actionbar-line);
+  border-radius: 999px;
+  background: var(--mm-actionbar-bg);
+  color: var(--mm-actionbar-fg);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.22);
+  transform: translateX(-50%);
+}
+
+.mm-actionbar .mm-tool {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.mm-actionbar .mm-tool:hover:not(:disabled) {
+  background: var(--mm-actionbar-hover);
+  color: var(--mm-actionbar-accent);
+}
+
+.mm-actionbar .mm-tool:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.mm-actionbar .mm-tool:focus-visible {
+  outline: 2px solid var(--mm-actionbar-focus);
+  outline-offset: 1px;
+}
+
+.mm-actionbar .mm-tool--on {
+  background: var(--mm-actionbar-hover);
+  color: var(--mm-actionbar-accent);
+}
+
+.mm-actionbar .mm-tool--danger:hover:not(:disabled) {
+  background: rgb(229 83 75 / 0.18);
+  color: var(--mm-actionbar-danger);
+}
+
+.mm-actionbar .mm-tool:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.mm-actionbar__sep {
+  flex: none;
+  width: 1px;
+  height: 1.25rem;
+  margin: 0 0.2rem;
+  border: 0;
+  background: var(--mm-actionbar-line);
+}
