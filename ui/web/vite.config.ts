@@ -3,6 +3,7 @@ import { readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { excalidrawAssets } from "./build/excalidraw-assets";
 import { islandsIndex } from "./build/islands-index";
 
 const root = import.meta.dirname;
@@ -16,7 +17,7 @@ const input = Object.fromEntries(
 export default defineConfig({
   root,
   base: "/dist/",
-  plugins: [react(), islandsIndex()],
+  plugins: [react(), islandsIndex(), excalidrawAssets()],
   build: {
     outDir: resolve(root, "../public/dist"),
     emptyOutDir: true,

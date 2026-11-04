@@ -198,6 +198,12 @@ test("canvas-mindmap routes take one board id and build back to their own addres
   assert.equal(buildRoute("canvas-mindmap", ["board-1"]), "#/canvas-mindmap/board-1");
 });
 
+test("canvas-board route takes one optional board id", () => {
+  assert.deepEqual(parseRoute("#/canvas-board"), { screen: "canvas-board", params: [] });
+  assert.deepEqual(parseRoute("#/canvas-board/abc/extra"), { screen: "canvas-board", params: ["abc"] });
+  assert.equal(buildRoute("canvas-board", ["abc"]), "#/canvas-board/abc");
+});
+
 test("an island route mounts after closing workspaces, and leaving unmounts before Design opens", async () => {
   const run = islandApplier({ studio: true, design: true });
   await run.apply({ screen: "lab", params: ["p"] });

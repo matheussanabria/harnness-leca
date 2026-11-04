@@ -5,17 +5,18 @@
 //   #/scrum  #/layers  #/board  #/audit  #/artifacts  #/routines
 //   #/prototypes[/<protoId>[/<screen>]]  Atelier, optionally on a prototype and one of its screens
 //   #/lab[/<a>[/<b>]]                    React island lab (ADR-011), hidden from the navigation
+//   #/canvas-board[/<boardId>]           Canvas board island (Excalidraw), hidden from the navigation
 // The standalone pages keep their own paths (/overview, /office, /deploy, /diario).
 // The query string (?p=<project>) is untouched, so a full address looks like /?p=demo#/scrum.
 
 /** Views rendered inside the Design workspace. */
 export const VIEW_SCREENS = Object.freeze(["scrum", "layers", "board", "audit", "prototypes", "artifacts", "routines"]);
 /** Screens rendered by a React island (ui/web/src/islands/<name>) instead of legacy modules. */
-export const ISLAND_SCREENS = Object.freeze(["lab", "canvas-mindmap"]);
+export const ISLAND_SCREENS = Object.freeze(["lab", "canvas-mindmap", "canvas-board"]);
 export const APP_SCREENS = Object.freeze(["chats", "studio", ...VIEW_SCREENS, ...ISLAND_SCREENS]);
 
 const SEGMENT = /^[\w.-]{1,120}$/;
-const MAX_PARAMS = { prototypes: 2, lab: 2, "canvas-mindmap": 1 };
+const MAX_PARAMS = { prototypes: 2, lab: 2, "canvas-mindmap": 1, "canvas-board": 1 };
 
 /** @typedef {{ screen: string, params: string[] }} Route */
 
