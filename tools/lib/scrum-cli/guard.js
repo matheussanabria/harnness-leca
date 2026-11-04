@@ -12,6 +12,13 @@ function requireActor(value) {
   return actor;
 }
 
+/** Writes that approve or commit work (start/close a sprint) need a human actor. Returns the actor. */
+function requireHuman(value, what) {
+  const actor = requireActor(value);
+  if (isAgentActor(actor)) throw new GuardError(`${what} needs a human actor.`);
+  return actor;
+}
+
 function assertMaturity(actor, maturity) {
   if (maturity === 'ready' && isAgentActor(actor)) throw new GuardError('Marking a story ready needs a human actor.');
 }
@@ -20,4 +27,4 @@ function assertLane(actor, toLaneId) {
   if (HUMAN_ONLY_LANES.has(toLaneId) && isAgentActor(actor)) throw new GuardError(`Moving to '${toLaneId}' needs a human actor.`);
 }
 
-module.exports = { GuardError, requireActor, assertMaturity, assertLane };
+module.exports = { GuardError, requireActor, requireHuman, assertMaturity, assertLane };

@@ -109,6 +109,7 @@ function assignStorySprint(slug, projectDir, repoRoot, storyId, sprintId) {
   if (!resolved) throw new Error(`Historia '${storyId}' nao encontrada.`);
   assertCanEnterSprint(resolved, sprintId);
   const data = loadStoredProjectScrum(slug, projectDir, repoRoot);
+  if (sprintId && data.sprints.find((item) => item.id === sprintId)?.status === "closed") throw new Error("Sprint encerrada nao aceita historias.");
   const entry = resolved.source === "jira-snapshot" ? localEntry(data, resolved) : data.stories.find((story) => sameStory(story, storyId));
   entry.sprintId = sprintId || null;
   entry.updatedAt = new Date().toISOString();
@@ -172,15 +173,23 @@ function upsertEpic(slug, projectDir, repoRoot, payload) {
 function upsertSprint(slug, projectDir, repoRoot, payload) {
   const data = loadStoredProjectScrum(slug, projectDir, repoRoot);
   const id = String(payload.id || `sprint-${Date.now()}`);
-  const sprint = {
-    id,
-    name: String(payload.name || `Sprint ${data.sprints.length + 1}`).trim(),
-    goal: String(payload.goal || "").trim(),
-    startDate: payload.startDate || new Date().toISOString().split("T")[0],
-    endDate: payload.endDate || new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0],
-    status: payload.status || "active",
-  };
   const index = data.sprints.findIndex((item) => item.id === id);
+  const current = index >= 0 ? data.sprints[index] : null;
+  // Merge: a partial payload (e.g. only { id, makeActive } when the board selects a sprint) never resets name, goal or dates.
+  // Status belongs to the lifecycle (start/close); a new sprint is always planned.
+  const text = (value, fallback) => (value === undefined ? fallback : String(value).trim());
+  const fallbackName = `Sprint ${data.sprints.length + 1}`;
+  const sprint = {
+    ...(current || {}),
+    id,
+    name: text(payload.name, current?.name || fallbackName) || fallbackName,
+    goal: text(payload.goal, current?.goal || ""),
+    startDate: payload.startDate || current?.startDate || new Date().toISOString().split("T")[0],
+    endDate: payload.endDate || current?.endDate || new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0],
+    status: current?.status || "planned",
+  };
+  const editsContent = payload.name !== undefined || payload.goal !== undefined || payload.startDate || payload.endDate;
+  if (current?.status === "closed" && editsContent) throw new Error("Sprint encerrada nao pode ser editada.");
   if (index >= 0) data.sprints[index] = sprint;
   else data.sprints.push(sprint);
   if (payload.makeActive || !data.activeSprintId) data.activeSprintId = id;
@@ -222,4 +231,4 @@ function reorderLanes(slug, projectDir, repoRoot, laneIds, expectedRevision) {
   return persistAndReload(slug, projectDir, repoRoot, data);
 }
 
-module.exports = { upsertStory, updateStoryStatus, moveStoryToLane, assignStorySprint, setStoryImpediment, deleteStory, upsertEpic, upsertSprint, updateStatusMapping, updateLanes, reorderLanes };
+module.exports = { sameStory, localEntry, upsertStory, updateStoryStatus, moveStoryToLane, assignStorySprint, setStoryImpediment, deleteStory, upsertEpic, upsertSprint, updateStatusMapping, updateLanes, reorderLanes };

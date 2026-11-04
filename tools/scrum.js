@@ -2,9 +2,11 @@
 'use strict';
 // Scrum CRUD for agents and scripts. JSON on stdout, errors on stderr. Exit: 0 ok, 1 error, 2 usage, 3 needs human.
 //   node tools/scrum.js story list|get|capture|update|link|move|maturity ... [--project slug] [--actor human:x|agent:engine:run]
+//   node tools/scrum.js sprint list|create|plan|start|close ...  (start and close need a human actor)
 //   node tools/scrum.js epic list
 const { resolveContext } = require('./lib/scrum-cli/context');
 const cmd = require('./lib/scrum-cli/commands');
+const sprint = require('./lib/scrum-cli/sprint-commands');
 const { GuardError } = require('./lib/scrum-cli/guard');
 
 function parse(argv) {
@@ -20,6 +22,10 @@ function run(pos, opt) {
   const [group, action, a, b] = pos;
   const c = resolveContext(opt.project);
   if (group === 'epic' && action === 'list') return cmd.epics(c);
+  if (group === 'sprint') {
+    const sprints = { list: () => sprint.list(c), create: () => sprint.create(c, opt), plan: () => sprint.plan(c, a, opt), start: () => sprint.start(c, a, opt), close: () => sprint.close(c, a, opt) };
+    return sprints[action] ? sprints[action]() : undefined;
+  }
   if (group !== 'story') return undefined;
   const table = {
     list: () => cmd.list(c, opt),
@@ -36,7 +42,7 @@ function run(pos, opt) {
 try {
   const { pos, opt } = parse(process.argv.slice(2));
   const result = run(pos, opt);
-  if (result === undefined) { console.error('usage: node tools/scrum.js story list|get|capture|update|link|move|maturity | epic list'); process.exit(2); }
+  if (result === undefined) { console.error('usage: node tools/scrum.js story list|get|capture|update|link|move|maturity | sprint list|create|plan|start|close | epic list'); process.exit(2); }
   console.log(JSON.stringify(result, null, 2));
 } catch (err) {
   console.error(err.message);

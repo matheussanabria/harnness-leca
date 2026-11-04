@@ -3,7 +3,7 @@ domain: backend
 module: projects
 feature: projects-scrum
 summary: Project overview, project state and files, active project selection and Scrum lanes, transitions and impediments.
-paths: [ui/server/controllers/overview.controller.js, ui/server/controllers/project.controller.js, ui/server/services/project*.js, ui/server/controllers/scrum*.controller.js, ui/public/js/modules/design-scrum*.js, ui/public/css/design/09-scrum-story-details.css, ui/public/css/design/32-scrum-story-trace.css, ui/public/css/design/10-scrum-lanes.css, ui/public/css/design/11-scrum-lane-order.css, ui/public/css/design/12-scrum-story-transitions.css, ui/public/css/design/13-scrum-filters-metrics.css]
+paths: [ui/server/routes/scrum-sprint.routes.js, ui/server/controllers/overview.controller.js, ui/server/controllers/project.controller.js, ui/server/services/project*.js, ui/server/controllers/scrum*.controller.js, ui/public/js/modules/design-scrum*.js, ui/public/css/design/09-scrum-story-details.css, ui/public/css/design/32-scrum-story-trace.css, ui/public/css/design/10-scrum-lanes.css, ui/public/css/design/11-scrum-lane-order.css, ui/public/css/design/12-scrum-story-transitions.css, ui/public/css/design/13-scrum-filters-metrics.css]
 keywords: [project, overview, active, scrum, lanes, transitions, impediments, jira, snapshot, filters, metrics, drawer]
 updated: 2026-11-01
 ---
@@ -20,6 +20,8 @@ updated: 2026-11-01
 | `ui/server/services/project-scrum-ops.js` and `ui/server/controllers/scrum.controller.js` | Persist lane config and order with `lanesRevision`; reject stale concurrency with HTTP 409. |
 | `ui/server/services/project-scrum-maturity.js` | Story maturity (`draft`, `refining`, `ready`; absent means `ready`): sprint entry guard and the `ready` gate backed by the DoR. |
 | `ui/server/services/project-scrum-dor.js` | Pure, deterministic mechanical Definition of Ready (`dor-mechanical-v1`): 4 required and 5 advisory checks; always flags human review. |
+| `ui/server/services/project-scrum-sprints.js` and `ui/server/controllers/scrum-sprint.controller.js` (routes in `ui/server/routes/scrum-sprint.routes.js`) | Sprint lifecycle `planned -> active -> closed`: `startSprint` needs a goal and ready stories, refuses a second running sprint (409) and records the commitment; `closeSprint` summarizes (done = lane `concluido`), sends unfinished stories to the backlog or a planned next sprint and appends `sprintHistory`. Routes `POST .../scrum/sprint/:id/start` and `/close`. |
+| `ui/server/services/project-scrum-velocity.js` | Pure velocity (completed points of closed sprints, average of the last three), exposed in `summary.velocity`. |
 | `ui/server/services/project-scrum-commits.js` | Read-only git reader: commits whose last trailer block has `Story: <id>`, SHAs verified with `git cat-file`, no shell, no `GIT_*` env, no paths in results. |
 | `ui/server/controllers/scrum-trace.controller.js` | `GET /api/project/:slug/scrum/story/:id/commits` and `/dor`; commits use only the project's configured repo, never `projects/<slug>`. |
 | `ui/server/services/project-scrum-duplicates.js` | Pure `normalizeTitle` and `findDuplicateCandidates` (equal key, `dedupeKey`, normalized title or token Jaccard >= 0.6); capped at 5 candidates and 200 title characters. |

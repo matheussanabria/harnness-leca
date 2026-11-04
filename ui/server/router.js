@@ -45,6 +45,7 @@ const { canonicalSessionRoutes } = require("./routes/canonical-sessions.routes")
 const { centralEventRoutes } = require("./routes/central-events.routes");
 const { screensRoutes } = require("./routes/screens.routes");
 const { canvasRoutes } = require("./routes/canvas.routes");
+const { scrumSprintRoutes } = require("./routes/scrum-sprint.routes");
 const { engineActivityRoutes } = require("./routes/engine-activity.routes");
 const { designRoutes } = require("./routes/design.routes");
 const { inspectRoutes } = require("./routes/inspect.routes");
@@ -98,8 +99,7 @@ const { apiProjectScrumJiraSync } = require("./controllers/scrum-jira-sync.contr
 const { apiProjectScrumStoryTransition } = require("./controllers/scrum-transition.controller");
 const { apiProjectScrumStoryCommits, apiProjectScrumStoryDor } = require("./controllers/scrum-trace.controller");
 const { apiProjectCoordinationLanes } = require("./controllers/coordination-view.controller");
-const { apiProjectScrumPanel } = require("./controllers/scrum-panel.controller");
-const { apiProjectScrumStoryCapture, apiProjectScrumDuplicates } = require("./controllers/scrum-capture.controller");
+const { apiProjectScrumPanel } = require("./controllers/scrum-panel.controller");const { apiProjectScrumStoryCapture, apiProjectScrumDuplicates } = require("./controllers/scrum-capture.controller");
 const {
   apiOrchestrationState,
   apiOrchestrationEvents,
@@ -132,8 +132,7 @@ const ROUTES = [
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/impediment$/, handler: apiProjectScrumStoryImpediment },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/delete$/, handler: apiProjectScrumStoryDelete },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/epic$/, handler: apiProjectScrumEpicSave },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/sprint$/, handler: apiProjectScrumSprintSave },
-  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/status-mapping$/, handler: apiProjectScrumStatusMappingSave },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/sprint$/, handler: apiProjectScrumSprintSave },  { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/status-mapping$/, handler: apiProjectScrumStatusMappingSave },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/lanes$/, handler: apiProjectScrumLanesSave },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/lanes\/order$/, handler: apiProjectScrumLanesOrder },
   ...designRoutes,
@@ -150,6 +149,7 @@ const ROUTES = [
   ...canonicalSessionRoutes,
   ...screensRoutes,
   ...canvasRoutes,
+  ...scrumSprintRoutes,
   ...engineActivityRoutes,
   { method: "GET", path: "/api/state", handler: apiState },
   { method: "GET", path: "/api/agents/active", handler: apiAgentsActive },
