@@ -9,7 +9,7 @@ updated: 2026-11-04
 ---
 # Canvas islands inside the Design workspace (EP-19)
 
-`canvas-mindmap` and `canvas-board` are Design views (route screens in `ui/public/js/shared/router.js` `VIEW_SCREENS`, tabs in `ui/public/index.html`, registered in `ui/server/services/screen-state/registry.js`). `design.js` mounts them into `#designViewContainer`; any other view or closing the Design unmounts them first. The loader (`island-loader.js`) accepts a target element as third argument of `mount`, passes `embedded: true` and never touches `#islandHost` in that case.
+`canvas-mindmap` and `canvas-board` are Design views (route screens in `ui/public/js/shared/router.js` `VIEW_SCREENS`, tabs in `ui/public/index.html`, registered in `ui/server/services/screen-state/registry.js`). `design.js` renders them through `design-canvas-workspace.js` (three-column workspace inside `#designViewContainer`); any other view or closing the Design unmounts them first. The loader (`island-loader.js`) accepts a target element as third argument of `mount`, passes `embedded: true` and never touches `#islandHost` in that case.
 
 | File | Responsibility |
 |---|---|

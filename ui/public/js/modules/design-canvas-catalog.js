@@ -193,7 +193,9 @@ export function mountCanvasCatalog(host, options) {
     if (el.hasAttribute("data-canvas-confirm")) return void confirmDelete(attr("data-canvas-confirm", el));
     if (el.hasAttribute("data-canvas-cancel")) { state.confirmingId = ""; return renderList(); }
     if (state.renamingId || state.confirmingId) return;
-    onSelect(attr("data-canvas-id", el));
+    const id = attr("data-canvas-id", el);
+    if (id === getSelectedId()) return; // re-rendering here would swap the nodes between the two clicks of a double click
+    onSelect(id);
     renderList();
   }
 

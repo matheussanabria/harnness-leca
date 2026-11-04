@@ -9,7 +9,7 @@ updated: 2026-11-04
 ---
 # Canvas Board Island (story 19.04, old label 16.04)
 
-Design view `#/canvas-board` (embedded in `#designViewContainer`, props `embedded: true`) lists boards (kind "board") and opens one as internal state, so the hash never changes. Standalone (no `embedded`) it still reads `#/canvas-board/<id>` and uses hash links.
+Design view `#/canvas-board`, shown in the canvas workspace (props `embedded: true`, board in `params[0]` chosen by the side catalog; the navigation links render nothing). Standalone it still lists boards and reads `#/canvas-board/<id>`.
 Excalidraw (MIT, 0.18.1) is only imported by `ExcalidrawCanvas.tsx`, reached through `React.lazy`, so the island entry stays small.
 Fonts are copied to `dist/excalidraw/fonts` and `window.EXCALIDRAW_ASSET_PATH` points there. Board `data` is `{schema:"excalidraw@1", elements, appState subset, files}`;
 images are uploaded as assets and only `{ref:"<sha256>.<ext>", mimeType, created}` is stored, rehydrated on open. SVG is export-only (assets reject SVG uploads).
