@@ -1,0 +1,74 @@
+/* Canvas catalog (Design workspace): inline rename and delete confirmation rows. */
+.canvas-catalog-body { display: flex; flex-direction: column; min-height: 0; }
+
+.canvas-catalog-error {
+  margin: 6px 8px 0;
+  color: #fca5a5;
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+.canvas-renaming,
+.canvas-confirming {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.canvas-rename-input {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+}
+
+.canvas-rename-input:focus { outline: 1px solid #2563eb; outline-offset: 0; }
+
+.canvas-item-actions { display: flex; flex-shrink: 0; gap: 4px; }
+
+.canvas-item-btn {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--mute);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.canvas-item-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.08); }
+.canvas-item-btn--danger:hover { color: #fca5a5; background: rgba(239, 68, 68, 0.14); }
+
+/* Edit button lives in the top-right corner, mirroring the delete button at the bottom. */
+.proto-item-wrap .proto-item-heading { padding-right: 22px; }
+
+.proto-item-edit {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--mute);
+  cursor: pointer;
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s, background 0.12s;
+}
+
+.proto-item-wrap:hover .proto-item-edit,
+.proto-item-edit:focus-visible { opacity: 1; }
+
+.proto-item-edit:hover { color: var(--text); background: rgba(255, 255, 255, 0.08); }

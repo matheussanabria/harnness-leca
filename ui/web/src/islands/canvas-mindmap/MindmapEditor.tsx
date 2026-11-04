@@ -14,16 +14,18 @@ const STATUS: Record<SaveState, { icon: string; text: string }> = {
   error: { icon: "fa-circle-exclamation", text: "Save failed" },
 };
 
-export function MindmapEditor({ api, board, onClose }: { api: MindmapApi; board: Board; onClose(): void }) {
+export function MindmapEditor({ api, board, onClose }: { api: MindmapApi; board: Board; onClose?: () => void }) {
   const parsed = fromData(board.data);
   if (!parsed.ok) {
     return (
       <p className="mm-banner mm-banner--error" role="alert">
         <i className="fa-solid fa-circle-exclamation" aria-hidden="true" /> This board is not a valid mind map:{" "}
         {parsed.error}{" "}
-        <button type="button" className="mm-btn" onClick={onClose}>
-          Back to boards
-        </button>
+        {onClose ? (
+          <button type="button" className="mm-btn" onClick={onClose}>
+            Back to boards
+          </button>
+        ) : null}
       </p>
     );
   }
@@ -39,7 +41,7 @@ function Loaded({
   api: MindmapApi;
   board: Board;
   initial: ReturnType<typeof useMindEditor>["doc"];
-  onClose(): void;
+  onClose?: () => void;
 }) {
   const editor = useMindEditor(initial);
   const { state, flush, rebase } = useAutosave(api, board.id, board.rev, editor.doc);
@@ -66,9 +68,11 @@ function Loaded({
   return (
     <div className="mm-editor">
       <header className="mm-toolbar">
-        <button type="button" className="mm-btn" onClick={onClose}>
-          <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Boards
-        </button>
+        {onClose ? (
+          <button type="button" className="mm-btn" onClick={onClose}>
+            <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Boards
+          </button>
+        ) : null}
         <h1 className="mm-title">{board.title}</h1>
         <button type="button" className="mm-btn" onClick={commands.undo} disabled={!editor.canUndo} aria-label="Undo">
           <i className="fa-solid fa-rotate-left" aria-hidden="true" />

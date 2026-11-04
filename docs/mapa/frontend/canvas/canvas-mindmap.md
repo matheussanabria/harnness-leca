@@ -9,7 +9,7 @@ updated: 2026-11-04
 ---
 # Mind-map island (EP-19.03)
 
-Design view `#/canvas-mindmap` (embedded in `#designViewContainer`, props `embedded: true`): the list opens a board as internal state, so the hash never changes. Standalone it still reads `#/canvas-mindmap/<boardId>`. Boards use the Canvas REST API (kind `mindmap`, `data.schema = "mindmap@1"`).
+Design view `#/canvas-mindmap`, shown in the canvas workspace (props `embedded: true`, board in `params[0]` chosen by the side catalog, no list or back button). Standalone it still lists boards and reads `#/canvas-mindmap/<boardId>`. Boards use the Canvas REST API (kind `mindmap`, `data.schema = "mindmap@1"`).
 
 | File | Responsibility |
 |---|---|
