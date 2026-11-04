@@ -191,6 +191,12 @@ test("lab routes parse with two parameters and build back to their own address",
   assert.equal(buildRoute("lab", ["x"]), "#/lab/x");
 });
 
+test("canvas-board route takes one optional board id", () => {
+  assert.deepEqual(parseRoute("#/canvas-board"), { screen: "canvas-board", params: [] });
+  assert.deepEqual(parseRoute("#/canvas-board/abc/extra"), { screen: "canvas-board", params: ["abc"] });
+  assert.equal(buildRoute("canvas-board", ["abc"]), "#/canvas-board/abc");
+});
+
 test("an island route mounts after closing workspaces, and leaving unmounts before Design opens", async () => {
   const run = islandApplier({ studio: true, design: true });
   await run.apply({ screen: "lab", params: ["p"] });
