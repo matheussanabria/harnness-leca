@@ -7,6 +7,8 @@ const { isLaneId, mergeLaneConfiguration, reorderLaneConfiguration, validateLane
 const { createTransitionRecord, validateStoryTransition } = require("./project-scrum-transitions");
 const { assertCanEnterSprint, assertMaturityChange, normalizeMaturity } = require("./project-scrum-maturity");
 
+const { normalizeActor } = require("./project-scrum-actor");
+
 function sameStory(story, id) {
   return story.id === id || story.key === id;
 }
@@ -86,7 +88,7 @@ function updateStoryStatus(slug, projectDir, repoRoot, storyId, requestedStatus)
   return moveStoryToLane(slug, projectDir, repoRoot, storyId, resolved.laneId, legacyStatusToLane(requestedStatus));
 }
 
-function moveStoryToLane(slug, projectDir, repoRoot, storyId, expectedLaneId, targetLaneId, now) {
+function moveStoryToLane(slug, projectDir, repoRoot, storyId, expectedLaneId, targetLaneId, now, actor) {
   const resolved = findResolved(slug, projectDir, repoRoot, storyId);
   if (!resolved) throw new Error(`Historia '${storyId}' nao encontrada.`);
   const data = loadStoredProjectScrum(slug, projectDir, repoRoot);
@@ -97,7 +99,7 @@ function moveStoryToLane(slug, projectDir, repoRoot, storyId, expectedLaneId, ta
   entry.updatedAt = new Date().toISOString();
   data.transitionHistory = [
     ...(Array.isArray(data.transitionHistory) ? data.transitionHistory : []),
-    createTransitionRecord(resolved, transition, now),
+    createTransitionRecord(resolved, transition, now, normalizeActor(actor)),
   ];
   return persistAndReload(slug, projectDir, repoRoot, data);
 }

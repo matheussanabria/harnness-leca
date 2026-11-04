@@ -54,7 +54,7 @@ function validateStoryTransition(actualLaneId, expectedLaneId, targetLaneId, lan
   return { fromLaneId: actualLaneId, toLaneId: targetLaneId, toStatus: laneToLegacyStatus(targetLaneId) };
 }
 
-function createTransitionRecord(story, transition, occurredAt = new Date().toISOString()) {
+function createTransitionRecord(story, transition, occurredAt = new Date().toISOString(), actor = null) {
   return {
     id: `${story.id}:${occurredAt}:${transition.toLaneId}`,
     storyId: story.id,
@@ -65,6 +65,7 @@ function createTransitionRecord(story, transition, occurredAt = new Date().toISO
     toStatus: transition.toStatus,
     occurredAt,
     storySource: story.source || story.origin || "local",
+    ...(actor ? { actor } : {}),
   };
 }
 
