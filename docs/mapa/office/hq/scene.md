@@ -3,7 +3,7 @@ domain: office
 module: hq
 feature: scene
 summary: DAI HQ virtual office scene, 3D and 2.5D engines, war screen, object catalog, agent state and telemetry.
-paths: [ui/public/js/office-3d.js, ui/public/js/office3d/**, ui/public/js/office-war-screen.js, ui/public/js/office-2d.js, ui/public/js/office2d/**, ui/public/js/office/*.js, ui/public/js/shared/pagination.js, ui/public/js/shared/pagination-prefs.js, tests/shared-pagination.test.js, tests/pagination-prefs.test.js, tests/office-2d-parity.test.js, tests/war-screen-projection.test.js, ui/public/js/office-screen*.js, ui/public/js/office-3d-controls.js]
+paths: [ui/public/js/office-3d.js, ui/public/js/office3d/**, ui/public/js/office-war-screen.js, ui/public/js/office-2d.js, ui/public/js/office2d/**, ui/public/js/office/*.js, ui/public/js/shared/pagination.js, ui/public/js/shared/pagination-prefs.js, tests/shared-pagination.test.js, tests/pagination-prefs.test.js, tests/office-2d-parity.test.js, tests/war-screen-projection.test.js, tests/office-scrum-refresh.test.js, ui/public/js/office-screen*.js, ui/public/js/office-3d-controls.js]
 keywords: [office, three.js, 3d, 2.5d, isometric, war-screen, kanban, scrum, avatar, catalog, telemetry]
 updated: 2026-11-01
 ---
@@ -27,9 +27,11 @@ Immersive virtual office (`ui/public/office.html`): 3D Three.js engine, retro 2.
 | `ui/public/js/office2d/iso-parity-furniture.js` | Draws workstation, monitor, war screen with current preset and war room chairs (EP-03.08). |
 | `ui/public/js/office/office-object-catalog.js` | Single canonical source of 2.5D and 3D objects, FontAwesome icons only, zero emojis, WindowManager binding (EP-03.01). |
 | `ui/public/js/office/office-action-dispatcher.js` | Standard contract for 5 action types (`window`, `drawer`, `seat`, `screen_focus`, `custom`), contextual sound, legacy support (EP-03.02). |
+| `ui/public/js/office/office-scrum-refresh.js` | Refetches the Scrum every 30 s and when the tab regains focus; fires `dai:scrumChanged` only when `scrumSignature` (sprint, lanes, stories, impediments) changed, so the war screen no longer stays stale. Started by `office-state.js`. |
 | `ui/public/js/office/office-agent-state.js` | Canonical catalog of 4 engines and 6 states, validation and change signature for 2.5D and 3D (EP-03.05). |
 | `ui/public/js/office/office-agent-telemetry.js` | Maps chat runs, periodic activity and transient states to LEDs, balloons, Avatar3D poses and pad color (EP-03.05). |
 | `tests/office-2d-parity.test.js` | 2D coverage of the catalog, canonical IDs, seat/focus actions, player state and limits (EP-03.08). |
+| `tests/office-scrum-refresh.test.js` | Signature rules, applied-once refresh, hidden tab, errors and project switch in flight. |
 | `tests/war-screen-projection.test.js` | Non-destructive tabs, active sprint, lanes, metrics, structural integration and limits (EP-05.06). |
 | `ui/public/js/office/office-cabinet-journal.js` | Paginated file-cabinet journal list for the drawer, with the global page-size preset (`bindPagers`); re-exported by `office-drawer-views.js`. |
 | `ui/public/js/shared/pagination.js` | Pure pagination helpers: `DEFAULT_PAGE_SIZE=5`, `PAGE_SIZE_PRESETS=[5,10,25,50]`, `renderPager` with size selector shown when total > 5, `bindPagers` handles size change (save, go to page 1), `pagedHtml` reads from `getPageSize(key)`. Used by Central, cabinet, Scrum, workflows, routines and artifacts. |

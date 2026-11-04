@@ -1,12 +1,14 @@
 // @ts-check
 // Gerenciador de estado central do Escritório Virtual
 import { projectSelection } from "./shared/project-selection.js";
+import { startScrumRefresh } from "./office/office-scrum-refresh.js";
 
 export const officeState = {
   projects: [],
   activeProject: "",
   projectData: null,
   scrumData: null,
+  scrumRefresh: null,
   engines: {},
   journal: [],
   activeAgents: {
@@ -56,6 +58,9 @@ export const officeState = {
       setInterval(() => {
         this.loadActiveAgents().then(() => this.notify());
       }, 10000);
+
+      // Mantém o telão em sincronia com o Scrum (a página de Scrum é outra janela)
+      if (!this.scrumRefresh) this.scrumRefresh = startScrumRefresh(this);
     } catch (e) {
       console.error("[OfficeState] Erro ao carregar dados iniciais:", e);
     }
