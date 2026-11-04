@@ -71,7 +71,7 @@ Columns: ID | Area | Item | Origin (date, chat/project) | Status (`open`, `block
 | ID | Item | Date |
 |---|---|---|
 | D-006 | Canvas stories renumbered from 16.01-16.05 to EP-19 (19.01-19.05); ADR-011, index and memory updated (was P-101). | 2026-11-04 |
-| D-007 | Canvas next stories delivered: mind-map island, board island, context pack, Design workspace, chat bridges (19.03-19.08; was P-103). | 2026-11-04 |
+| D-007 | Canvas next stories delivered: mind-map island, board island, context pack, Design workspace, chat bridges (19.03-19.09; was P-103). | 2026-11-04 |
 | D-001 | Fixed `export_native.py` (empty descriptions, missing skills/rules/limits, broken workflow links); regenerated and synced the 17 agent and 3 workflow skills to `~/.codex/skills`. | 2026-11-02 |
 | D-003 | Canvas board store + REST (labelled 16.01) and content-addressed assets (labelled 16.02) merged into main; 1781 tests passed. | 2026-11-01 |
 | D-002 | Installed `dai_guard` hook for Codex (`~/.codex/hooks/dai/`) and registered it in `config.toml`; added shared guidelines to `~/.codex/AGENTS.md`. | 2026-11-02 |

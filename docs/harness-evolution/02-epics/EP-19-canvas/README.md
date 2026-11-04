@@ -41,7 +41,7 @@ The Canvas stories were first labelled 16.01 to 16.05 in ADR-011 and in commits.
 | [19.06](19.06-canvas-no-workspace-do-design.md) | Canvas inside the Design workspace | P1 | concluida | 19.03, 19.04 |
 | [19.07](19.07-chat-mapa-mental-parser-e-ponte.md) | Mind-map chat: outline parser and chat bridge | P1 | concluida | 19.03, 19.06 |
 | [19.08](19.08-chat-mapa-mental-lado-da-ilha.md) | Mind-map chat: island side | P1 | concluida | 19.07 |
-| [19.09](19.09-chat-quadro-diagramas-mermaid.md) | Board chat: Mermaid diagrams | P1 | planejada | 19.04, 19.07 |
+| [19.09](19.09-chat-quadro-diagramas-mermaid.md) | Board chat: Mermaid diagrams | P1 | concluida | 19.04, 19.07 |
 
 ```mermaid
 flowchart LR
