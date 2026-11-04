@@ -4,20 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Harness Leca · Deploy de Projetos (Easypanel / Hostinger)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/css/index.css">
   <link rel="stylesheet" href="/css/deploy.css">
+<link rel="stylesheet" href="/css/app-header.css">
 </head>
 <body>
 
-<header>
-  <a class="logo" href="/">✱ Harness Leca</a>
-  <span class="badge badge-hostinger">🚀 Hostinger VPS · Easypanel</span>
-  <div style="margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <a class="nav-link" href="/overview">📊 Visão geral</a>
-    <a class="nav-link" href="/diario">📓 Diário</a>
-    <a class="nav-link" href="/escritorio">🏢 Escritório</a>
-    <a class="nav-link" href="/">✱ Abrir projeto</a>
-  </div>
+<header data-app-header data-current="deploy">
+  <div data-slot="left"><span class="badge badge-hostinger"><i class="fa-solid fa-server" aria-hidden="true"></i> Hostinger VPS · Easypanel</span></div>
 </header>
 
 <main>
@@ -358,5 +353,6 @@
 </script>
 <script type="module" src="/js/deploy/main.js"></script>
 
+<script type="module" src="/js/shared/app-header.js"></script>
 </body>
 </html>

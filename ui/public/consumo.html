@@ -7,13 +7,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="/css/consumo.css">
 <link rel="stylesheet" href="/css/office/20-usage-panel.css">
+<link rel="stylesheet" href="/css/app-header.css">
 </head>
 <body>
-<header>
-  <a class="logo" href="/"><i class="fa-solid fa-asterisk" aria-hidden="true"></i> Harness Leca</a>
-  <span class="badge">Consumo</span>
-  <span style="flex:1"></span>
-  <a class="nav-link" href="/"><i class="fa-solid fa-house" aria-hidden="true"></i> Início</a>
+<header data-app-header data-current="consumo">
 </header>
 <main>
   <h1>Consumo</h1>
@@ -32,5 +29,6 @@
   import { startConsumoPage } from "/js/consumo/consumo-page.js";
   startConsumoPage();
 </script>
+<script type="module" src="/js/shared/app-header.js"></script>
 </body>
 </html>
