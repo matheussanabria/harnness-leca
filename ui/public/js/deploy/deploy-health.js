@@ -1,6 +1,6 @@
 // @ts-check
 // Secao "Saude dos Ambientes" da tela /deploy (EP-10.02).
-import { esc } from "../../shared/dom.js";
+import { esc } from "../shared/dom.js";
 
 const STATE_META = {
   saudavel: { label: "Saudavel", icon: "fa-circle-check", className: "is-ok" },

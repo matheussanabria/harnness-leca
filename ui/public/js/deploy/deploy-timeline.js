@@ -1,6 +1,6 @@
 // @ts-check
 // Secao "Historico e Logs" da tela /deploy (EP-10.03).
-import { esc } from "../../shared/dom.js";
+import { esc } from "../shared/dom.js";
 
 const KIND_META = {
   webhook: { label: "Webhook", icon: "fa-plug" },

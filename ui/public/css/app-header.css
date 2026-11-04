@@ -7,6 +7,10 @@ header.app-header {
   padding: 12px 28px;
   border-bottom: 1px solid var(--line);
 }
+/* Screens may set their own header fill (deploy is sticky and dark); the shared one follows the theme. */
+header.app-header:not(.dai-topbar) {
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+}
 .app-brand {
   font-weight: 600;
   color: var(--accent);
