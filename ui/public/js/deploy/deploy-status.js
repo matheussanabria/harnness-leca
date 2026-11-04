@@ -1,6 +1,6 @@
 // @ts-check
 // Resumo operacional de deploy no painel tradicional (EP-10.05).
-import { esc } from "../../shared/dom.js";
+import { esc } from "../shared/dom.js";
 
 const STATE_META = {
   saudavel: { label: "Saudavel", icon: "fa-circle-check", className: "is-ok" },

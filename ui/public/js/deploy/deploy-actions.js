@@ -1,6 +1,6 @@
 // @ts-check
 // Secao "Acoes Autorizadas" da tela /deploy (EP-10.04).
-import { esc, showToast } from "../../shared/dom.js";
+import { esc, showToast } from "../shared/dom.js";
 import { requestConfirmation } from "../shared/confirm-dialog.js";
 
 const RISK_META = {

@@ -1,6 +1,6 @@
 // @ts-check
 // Secao "Pipelines de Deploy" da tela /deploy (EP-10.01).
-import { esc } from "../../shared/dom.js";
+import { esc } from "../shared/dom.js";
 import { requestConfirmation } from "../shared/confirm-dialog.js";
 
 const STAGE_META = {
