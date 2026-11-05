@@ -39,6 +39,10 @@ Design view `#/canvas-mindmap`, shown in the canvas workspace (props `embedded: 
 | `ui/web/src/islands/canvas-mindmap/MindToolbar.tsx` | Floating action bar: structure, history, view and reset-positions groups with shortcut tooltips. |
 | `ui/web/src/features/mindmap/useCopyStatus.ts` | Timed status message (auto-clears after 2.5 s) for the copy buttons. |
 | `ui/web/src/islands/canvas-mindmap/AgentGroup.tsx` | Toolbar group with the Copy as Markdown and Copy as JSON buttons (context pack) and their status. |
+| `ui/web/src/islands/canvas-mindmap/ExportGroup.tsx`, `rasterize.ts` | Toolbar group that downloads the whole map as Markdown outline, JSON, SVG or PNG (SVG drawn on a 2x canvas). |
+| `ui/web/src/features/mindmap/exportMindmap.ts` | Pure exports: `toOutlineMarkdown`, `toSvg` (collapsed branches expanded, manual offsets kept), `wrapText`. |
+| `ui/web/src/features/export/download.ts`, `fileName.ts` | Shared download helper and safe file name, used by the board and mind-map exports. |
+| `tests/mindmap-export.test.js` | Outline, SVG, text wrapping and file-name tests. |
 | `ui/web/src/islands/canvas-mindmap/ToolbarButton.tsx` | One accessible icon button (title, aria-label, disabled, danger variant). |
 | `ui/web/src/islands/canvas-mindmap/mindmap-toolbar.css` | Styles of the action bar. |
 | `ui/web/src/islands/canvas-mindmap/mindmap.css` | Island styles. |
