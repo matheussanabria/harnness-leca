@@ -1,5 +1,6 @@
 // @ts-check
-// Connects the Studio chat to the canvas islands (EP-19.07 and 19.08), like prototype-chat-bridge does for the Atelier.
+// Connects the Studio chat to the canvas islands (EP-19.07 to 19.09), like prototype-chat-bridge does for the Atelier.
+// Two kinds: "mindmap" (answers carry <mindmap> bullet outlines) and "board" (answers carry <board> Mermaid diagrams).
 // The island publishes its state with `harness:canvas-state`; this bridge adds it to the prompt and hands the
 // <mindmap> blocks of the answer back to the island with `harness:canvas-apply` (legacy and islands never share modules).
 import { showToast } from "../shared/dom.js";
@@ -9,7 +10,7 @@ export const CANVAS_APPLY_EVENT = "harness:canvas-apply";
 const MAX_BLOCKS = 3;
 const MAX_BLOCK_CHARS = 20000;
 
-/** @typedef {{ boardId: string, title: string, selectedId: string, selectedText: string, outline: string }} CanvasState */
+/** @typedef {{ boardId: string, title: string, selectedId: string, selectedText: string, outline: string, kind?: string }} CanvasState */
 
 /** @type {{ kind: string, slug: string } | null} */
 let context = null;
@@ -28,10 +29,20 @@ Use lista com "-" e 2 espaços por nível, no máximo 4 níveis e 40 tópicos po
 parent="selected" adiciona sob o nó selecionado; parent="root" adiciona sob a raiz; mode="new" substitui o mapa inteiro (o primeiro tópico vira a raiz).
 Fora do bloco, explique em 1-2 frases o que foi feito. Para apenas conversar, responda sem o bloco.`;
 
+const BOARD_RULES = `Você está no canvas de Quadros (diagramas) do harness. Para criar ou alterar o desenho, responda com um bloco neste formato exato:
+<board mode="append">
+flowchart TD
+  A[Início] --> B[Fim]
+</board>
+O conteúdo é um diagrama Mermaid dos tipos flowchart/graph, sequenceDiagram ou classDiagram, sem cercas de código.
+mode="replace" limpa o quadro e coloca o diagrama; mode="append" acrescenta abaixo do que já existe. Textos curtos, no máximo 25 nós.
+Fora do bloco, explique em 1-2 frases o que foi feito. Para apenas conversar, responda sem o bloco.`;
+
 /** @param {Event} event */
 function onState(event) {
   const detail = /** @type {CustomEvent} */ (event).detail;
-  latest = detail && typeof detail.boardId === "string" ? /** @type {CanvasState} */ (detail) : null;
+  const valid = detail && typeof detail.boardId === "string" && (!detail.kind || !context || detail.kind === context.kind);
+  latest = valid ? /** @type {CanvasState} */ (detail) : null;
 }
 
 /** Activates (or, with null, deactivates) the canvas mode of the chat. @param {{ kind: string, slug: string } | null} next */
@@ -73,10 +84,11 @@ export function wrapCanvasPrompt(text, opts = {}) {
   const changed = fresh || !sent || sent.hash !== hash;
   sent = { boardId: latest.boardId, hash };
   if (!changed) return text;
+  const board = context.kind === "board";
   const selected = latest.selectedText ? ` (nó selecionado: "${latest.selectedText}")` : "";
-  const map = `Mapa atual "${latest.title}"${selected}:\n${latest.outline}`;
-  if (fresh) return `${RULES}\n\n${map}\n\nPedido do usuário:\n${text}`;
-  return `O mapa mudou desde a última mensagem.\n${map}\n\nPedido do usuário:\n${text}`;
+  const map = `${board ? "Quadro atual" : "Mapa atual"} "${latest.title}"${selected}:\n${latest.outline}`;
+  if (fresh) return `${board ? BOARD_RULES : RULES}\n\n${map}\n\nPedido do usuário:\n${text}`;
+  return `${board ? "O quadro mudou" : "O mapa mudou"} desde a última mensagem.\n${map}\n\nPedido do usuário:\n${text}`;
 }
 
 /** @param {string} raw */
@@ -103,11 +115,31 @@ export function extractMindmapBlocks(fullText) {
   return blocks;
 }
 
-/** Hands the blocks of an answer to the open map. @param {string} fullText */
+/**
+ * Extracts the <board> blocks (Mermaid diagrams) of an answer: at most 3, each capped; `mode` is "replace" or "append".
+ * @param {string} fullText
+ * @returns {Array<{ mode: "append" | "replace", body: string }>}
+ */
+export function extractBoardBlocks(fullText) {
+  const blocks = [];
+  const pattern = /<\s*board([^>]*)>([\s\S]*?)<\s*\/\s*board\s*>/gi;
+  for (const match of String(fullText || "").matchAll(pattern)) {
+    if (blocks.length >= MAX_BLOCKS) break;
+    const body = match[2].replace(/^\s*\n/, "").trimEnd().slice(0, MAX_BLOCK_CHARS);
+    const mode = /mode\s*=\s*"replace"/i.test(match[1]) ? "replace" : "append";
+    if (body.trim()) blocks.push({ mode, body });
+  }
+  return blocks;
+}
+
+/** Hands the blocks of an answer to the open canvas. @param {string} fullText */
 export function applyCanvasReply(fullText) {
-  if (!context || !latest || !/<\s*mindmap/i.test(fullText || "")) return;
-  const blocks = extractMindmapBlocks(fullText);
+  if (!context || !latest) return;
+  const board = context.kind === "board";
+  if (!new RegExp(board ? "<\\s*board" : "<\\s*mindmap", "i").test(fullText || "")) return;
+  const blocks = board ? extractBoardBlocks(fullText) : extractMindmapBlocks(fullText);
   if (!blocks.length) return;
-  window.dispatchEvent(new CustomEvent(CANVAS_APPLY_EVENT, { detail: { boardId: latest.boardId, blocks } }));
-  showToast(blocks.length === 1 ? "Mapa mental atualizado pelo chat" : `Mapa mental atualizado pelo chat (${blocks.length} blocos)`);
+  window.dispatchEvent(new CustomEvent(CANVAS_APPLY_EVENT, { detail: { boardId: latest.boardId, kind: context.kind, blocks } }));
+  const what = board ? "Quadro" : "Mapa mental";
+  showToast(blocks.length === 1 ? `${what} atualizado pelo chat` : `${what} atualizado pelo chat (${blocks.length} blocos)`);
 }
