@@ -13,6 +13,8 @@ updated: 2026-10-30
 |---|---|
 | `ui/public/js/modules/studio.js` | Vibecoding Studio: app live preview, iframe with HMR, viewport switcher, mobile connection. Split into `studio-*.js`; `studio-store.js` holds shared state. |
 | `ui/public/js/modules/studio-layout.js` | Pointer Events resizer with ARIA separator, keyboard, double-click reset (440px), per-project persistence. |
+| `ui/public/js/modules/design-view-state.js` | Design view restored on reload: this tab's own `sessionStorage` entry (`harness:tab-design`) first, then the shared server state; also switches the chat scope on tab change. |
+| `tests/design-view-tab.test.js` | Tests that the Design screen comes from the tab, not from another tab's saved state. |
 | `tests/studio-wiring.test.js` | Ensures runtime uses the `studio-layout.js` resizer, Design buttons in canvas and mobile drawer, Design workspace style (EP-06). |
 | `ui/public/js/modules/studio-source.js` | Code editor: manual edit, language highlighting, line numbers, Ctrl+S, pending-change guard, `windowManager.unsaved`, hot-reload. |
 | `ui/public/js/modules/studio-source-tree.js` | Collapsible directory tree for the Studio code editor. |
