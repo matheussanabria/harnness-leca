@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harness · Catálogo</title>
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="/css/consumo.css">
+<link rel="stylesheet" href="/css/catalogo.css">
+<link rel="stylesheet" href="/css/app-header.css">
+</head>
+<body>
+<header data-app-header data-current="catalogo">
+</header>
+<main>
+  <h1>Catálogo</h1>
+  <p class="sub">Suas skills e agentes agrupados por área. A área é sugerida pelo nome e descrição; você pode trocá-la em cada item.</p>
+  <div id="kCatalog">
+    <div class="k-tabs" role="tablist" aria-label="Tipo">
+      <button type="button" class="k-tab is-on" role="tab" data-kind="skill"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Skills <span class="n" id="kCountSkill"></span></button>
+      <button type="button" class="k-tab" role="tab" data-kind="agent"><i class="fa-solid fa-user-gear" aria-hidden="true"></i> Agentes <span class="n" id="kCountAgent"></span></button>
+    </div>
+    <div class="k-toolbar">
+      <input type="search" id="kSearch" class="k-search" placeholder="Buscar por nome ou descrição" aria-label="Buscar">
+    </div>
+    <nav id="kAreas" class="k-areas" aria-label="Áreas"></nav>
+    <div id="kList"><p class="c-empty">Carregando...</p></div>
+  </div>
+  <div id="kBrowser" hidden>
+    <div class="k-bar"><button type="button" class="btn-row" id="kBack"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar</button><span id="kCrumb" class="k-crumb"></span></div>
+    <p id="kBrDesc" class="sub"></p>
+    <div class="k-split">
+      <aside class="k-treebox"><div id="kTree" class="k-tree"></div><small id="kTreeNote" class="c-empty"></small></aside>
+      <section id="kViewer" class="k-viewer" aria-live="polite"></section>
+    </div>
+  </div>
+</main>
+<script type="module">
+  import { startCatalogoPage } from "/js/catalogo/catalogo-page.js";
+  startCatalogoPage();
+</script>
+<script type="module" src="/js/shared/app-header.js"></script>
+</body>
+</html>

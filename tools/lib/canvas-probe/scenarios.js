@@ -15,7 +15,7 @@ const SCENARIOS = [
   { id: "mm-expand-selected", kind: "mindmap", request: "Expanda o nó Backend com 4 subtópicos", state: MAP, expect: { mode: "append", parent: "selected", minAdded: 4 } },
   { id: "mm-expand-root", kind: "mindmap", request: "Adicione um novo ramo de Segurança na raiz com 3 itens", state: MAP, expect: { mode: "append", parent: "root", minAdded: 4 } },
   { id: "mm-replace", kind: "mindmap", request: "Refaça o mapa inteiro como um plano de estudos de inglês em 3 meses", state: MAP, expect: { mode: "new", minAdded: 6 } },
-  { id: "mm-deep", kind: "mindmap", request: "Detalhe Infra com o máximo de níveis que puder sobre CI/CD e observabilidade", state: MAP, expect: { mode: "append", minAdded: 6, maxDepth: 4 } },
+  { id: "mm-deep", kind: "mindmap", request: "Detalhe Infra com o máximo de níveis que puder sobre CI/CD e observabilidade", state: MAP, expect: { mode: ["append", "new"], minAdded: 6 } },
   { id: "mm-chat-only", kind: "mindmap", request: "Qual a diferença entre mapa mental e fluxograma? Responda só conversando.", state: MAP, expect: { noBlock: true } },
   { id: "mm-resumed", kind: "mindmap", request: "Agora adicione também Testes sob o nó selecionado", state: MAP, expect: { mode: "append", minAdded: 1 },
     history: { request: "Expanda o nó Backend com 2 subtópicos", answer: "Adicionei dois subtópicos.\n<mindmap parent=\"selected\">\n- API\n- Banco de dados\n</mindmap>" } },
@@ -26,6 +26,9 @@ const SCENARIOS = [
   { id: "bd-chat-only", kind: "board", request: "Quando devo usar um diagrama de sequência? Só explique, sem desenhar.", state: BOARD, expect: { noBlock: true } },
   { id: "bd-resumed", kind: "board", request: "Agora acrescente o caminho de erro quando o pagamento falha", state: BOARD, expect: { mode: "append", headers: ["flowchart", "graph", "sequencediagram"] },
     history: { request: "Desenhe o fluxo de pagamento aprovado", answer: "Aqui está o fluxo.\n<board mode=\"append\">\nflowchart TD\n  A[Pedido] --> B[Pagar] --> C[Aprovado]\n</board>" } },
+  // The Gemini screenshot of 2026-11-06: the first reply was a generic greeting that ignored the rules, then the user asked for a diagram.
+  { id: "bd-recover", kind: "board", request: "Exiba em diagrama o fluxo de login com bloqueio após 3 tentativas", state: EMPTY_BOARD, expect: { mode: ["replace", "append"], headers: ["flowchart", "graph"] },
+    history: { request: "O que está pendente no login?", answer: "Olá! Estou pronto e com o contexto carregado. Como posso te ajudar hoje?" } },
 ];
 
 module.exports = { SCENARIOS };

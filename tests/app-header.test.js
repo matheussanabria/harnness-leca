@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const pub = path.join(__dirname, "..", "ui", "public");
-const pages = { "index.html": "home", "overview.html": "overview", "diario.html": "diario", "consumo.html": "consumo", "deploy.html": "deploy", "office.html": "office" };
+const pages = { "index.html": "home", "overview.html": "overview", "diario.html": "diario", "consumo.html": "consumo", "catalogo.html": "catalogo", "deploy.html": "deploy", "office.html": "office" };
 
 test("render: one current link, all screens present", async () => {
   const { NAV_ITEMS, renderNav } = await import(require("node:url").pathToFileURL(path.join(pub, "js", "shared", "app-header.js")).href);
@@ -35,4 +35,12 @@ test("no page keeps tag-level header rules that fight the shared header", () => 
     const css = fs.readFileSync(path.join(pub, f), "utf8");
     assert.ok(!/(^|\n)\s*header\s*\{/.test(css), `${f} still styles bare header`);
   }
+});
+
+test("hamburger toggle renders with FontAwesome and no emoji", async () => {
+  const { renderMenuToggle } = await import(require("node:url").pathToFileURL(path.join(pub, "js", "shared", "app-header.js")).href);
+  const html = renderMenuToggle();
+  assert.match(html, /fa-bars/);
+  assert.match(html, /aria-expanded="false"/);
+  assert.ok(!/[\u{1F300}-\u{1FAFF}☀-➿]/u.test(html), "no emojis");
 });

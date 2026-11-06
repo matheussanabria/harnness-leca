@@ -1,5 +1,5 @@
 // Pure mind-map exports: a Markdown outline and a standalone SVG. Collapsed branches are exported in full.
-import { layoutTree, NODE_HEIGHT, NODE_WIDTH, renderedPosition } from "./layout.ts";
+import { layoutTree, renderedPosition } from "./layout.ts";
 import type { MindDoc } from "./types.ts";
 
 const MARGIN = 24;
@@ -35,8 +35,8 @@ export function escapeXml(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-/** Greedy word wrap into at most MAX_LINES lines; when text is cut, the last line ends with "...". */
-export function wrapText(text: string, maxChars: number): string[] {
+/** Greedy word wrap into at most maxLines lines (default 2); when text is cut, the last line ends with "...". */
+export function wrapText(text: string, maxChars: number, maxLines = MAX_LINES): string[] {
   const lines: string[] = [];
   let current = "";
   for (const raw of oneLine(text).split(" ").filter(Boolean)) {
@@ -49,9 +49,9 @@ export function wrapText(text: string, maxChars: number): string[] {
     }
   }
   if (current) lines.push(current);
-  if (lines.length <= MAX_LINES) return lines;
-  const last = lines[MAX_LINES - 1] ?? "";
-  return [...lines.slice(0, MAX_LINES - 1), `${last.slice(0, Math.max(1, maxChars - 3))}...`];
+  if (lines.length <= maxLines) return lines;
+  const last = lines[maxLines - 1] ?? "";
+  return [...lines.slice(0, maxLines - 1), `${last.slice(0, Math.max(1, maxChars - 3))}...`];
 }
 
 export interface SvgExport {
@@ -69,37 +69,36 @@ export function toSvg(doc: MindDoc): SvgExport {
   const placed = layoutTree(expanded).map((item) => ({ ...item, ...renderedPosition(expanded, item) }));
   const minX = Math.min(...placed.map((p) => p.x));
   const minY = Math.min(...placed.map((p) => p.y));
-  const maxX = Math.max(...placed.map((p) => p.x)) + NODE_WIDTH;
-  const maxY = Math.max(...placed.map((p) => p.y)) + NODE_HEIGHT;
+  const maxX = Math.max(...placed.map((p) => p.x + p.w));
+  const maxY = Math.max(...placed.map((p) => p.y + p.h));
   const width = Math.ceil(maxX - minX + MARGIN * 2);
   const height = Math.ceil(maxY - minY + MARGIN * 2);
-  const at = new Map(placed.map((p) => [p.id, { x: p.x - minX + MARGIN, y: p.y - minY + MARGIN }]));
-  const maxChars = Math.floor((NODE_WIDTH - PAD_X * 2) / (FONT_SIZE * 0.55));
+  const at = new Map(placed.map((p) => [p.id, { x: p.x - minX + MARGIN, y: p.y - minY + MARGIN, w: p.w, h: p.h }]));
 
   const edges = placed
     .filter((p) => p.parentId && at.has(p.parentId))
     .map((p) => {
-      const from = at.get(p.parentId as string) as { x: number; y: number };
-      const to = at.get(p.id) as { x: number; y: number };
-      const x1 = from.x + NODE_WIDTH;
-      const y1 = from.y + NODE_HEIGHT / 2;
+      const from = at.get(p.parentId as string) as { x: number; y: number; w: number; h: number };
+      const to = at.get(p.id) as { x: number; y: number; w: number; h: number };
+      const x1 = from.x + from.w;
+      const y1 = from.y + from.h / 2;
       const x2 = to.x;
-      const y2 = to.y + NODE_HEIGHT / 2;
+      const y2 = to.y + to.h / 2;
       const mid = (x1 + x2) / 2;
       return `<path d="M${x1} ${y1} C${mid} ${y1} ${mid} ${y2} ${x2} ${y2}" fill="none" stroke="#94a3b8" stroke-width="1.5"/>`;
     });
   const boxes = placed.map((p) => {
-    const pos = at.get(p.id) as { x: number; y: number };
+    const pos = at.get(p.id) as { x: number; y: number; w: number; h: number };
     const isRoot = p.id === doc.rootId;
-    const lines = wrapText(doc.nodes[p.id]?.text ?? "", maxChars);
-    const first = pos.y + NODE_HEIGHT / 2 - ((lines.length - 1) * LINE_HEIGHT) / 2 + FONT_SIZE * 0.35;
+    const maxChars = Math.floor((pos.w - PAD_X * 2) / (FONT_SIZE * 0.55));
+    const maxLines = Math.max(MAX_LINES, Math.floor((pos.h - 8) / LINE_HEIGHT));
+    const lines = wrapText(doc.nodes[p.id]?.text ?? "", maxChars, maxLines);
+    const first = pos.y + pos.h / 2 - ((lines.length - 1) * LINE_HEIGHT) / 2 + FONT_SIZE * 0.35;
     const tspans = lines
-      .map(
-        (line, i) => `<tspan x="${pos.x + NODE_WIDTH / 2}" y="${first + i * LINE_HEIGHT}">${escapeXml(line)}</tspan>`,
-      )
+      .map((line, i) => `<tspan x="${pos.x + pos.w / 2}" y="${first + i * LINE_HEIGHT}">${escapeXml(line)}</tspan>`)
       .join("");
     return (
-      `<rect x="${pos.x}" y="${pos.y}" width="${NODE_WIDTH}" height="${NODE_HEIGHT}" rx="8" ` +
+      `<rect x="${pos.x}" y="${pos.y}" width="${pos.w}" height="${pos.h}" rx="8" ` +
       `fill="${isRoot ? "#2563eb" : "#ffffff"}" stroke="${isRoot ? "#1d4ed8" : "#cbd5e1"}" stroke-width="1.5"/>` +
       `<text text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="${FONT_SIZE}" ` +
       `fill="${isRoot ? "#ffffff" : "#0f172a"}">${tspans}</text>`

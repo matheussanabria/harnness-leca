@@ -8,6 +8,7 @@ import {
   logChatAction,
   CHAT_ACTIONS,
 } from "../shared/state.js";
+import { adoptStoredChat, parkActiveChat } from "./chat-scope.js";
 import { renderServicesSection } from "./services.js";
 import { renderSkillsSection } from "./skills.js";
 import { renderProjectChats } from "./projects-chat-render.js";
@@ -16,10 +17,14 @@ import { showIns, showMem, openFile } from "./projects-sync.js";
 export async function load(slug) {
   const previousSlug = state.P && state.P.slug;
   state.chatCurrentPage = 1;
+  // The conversation on screen belongs to the project being left: park it and start clean, so it is never
+  // saved under (or shown in) the new project.
+  if (previousSlug && previousSlug !== slug) parkActiveChat();
   state.P = await (await fetch("/api/project/" + slug)).json();
   const P = state.P;
   await hydrateChatState(slug);
-  restoreActiveChatState(slug);
+  if (previousSlug !== slug) adoptStoredChat(slug);
+  else restoreActiveChatState(slug);
   if (previousSlug !== slug) {
     void logChatAction(CHAT_ACTIONS.PROJECT, slug);
   }

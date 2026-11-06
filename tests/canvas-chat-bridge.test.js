@@ -31,15 +31,21 @@ test("a new session gets the rules, the map and the selected node", () => {
   assert.match(prompt, /Pedido do usuário:\nExpanda o backend$/);
 });
 
-test("a resumed session with the same map sends only the request; a changed map sends it again without the rules", () => {
+test("a resumed session repeats only a one-line format reminder; a changed map is sent again without the full rules", () => {
   bridge.setCanvasChatContext({ kind: "mindmap", slug: "demo" });
   publish(state());
   bridge.wrapCanvasPrompt("primeira");
-  assert.equal(bridge.wrapCanvasPrompt("segunda", { resumed: true }), "segunda");
+  const same = bridge.wrapCanvasPrompt("segunda", { resumed: true });
+  assert.match(same, /^Lembrete do canvas de Mapas Mentais: .*<mindmap parent="selected\|root" mode="new">/);
+  assert.match(same, /\n\nPedido do usuário:\nsegunda$/);
+  assert.equal(same.includes("Você está no canvas"), false, "the full rules are not repeated");
+  assert.equal(same.includes("Mapa atual"), false, "the unchanged map is not repeated");
   publish(state({ outline: "- Plano\n  - Backend\n  - API" }));
   const changed = bridge.wrapCanvasPrompt("terceira", { resumed: true });
   assert.match(changed, /^O mapa mudou desde a última mensagem\./);
-  assert.equal(changed.includes("<mindmap parent"), false, "the rules are not repeated");
+  assert.equal(changed.includes("Você está no canvas"), false, "the full rules are not repeated");
+  assert.match(changed, /Lembrete do canvas de Mapas Mentais/);
+  assert.match(changed, /Pedido do usuário:\nterceira$/);
   assert.match(changed, /- API/);
 });
 
@@ -117,7 +123,9 @@ test("board: a changed drawing is announced as such in a resumed session", () =>
   bridge.setCanvasChatContext({ kind: "board", slug: "demo" });
   publish(boardState());
   bridge.wrapCanvasPrompt("a");
-  assert.equal(bridge.wrapCanvasPrompt("b", { resumed: true }), "b");
+  const same = bridge.wrapCanvasPrompt("b", { resumed: true });
+  assert.match(same, /^Lembrete do canvas de Quadros: .*<board mode="append\|replace">/);
+  assert.match(same, /Pedido do usuário:\nb$/);
   publish(boardState({ outline: "Elementos: 3 formas, 2 setas/linhas, 0 imagens" }));
   assert.match(bridge.wrapCanvasPrompt("c", { resumed: true }), /^O quadro mudou desde a última mensagem\./);
 });
@@ -171,4 +179,33 @@ test("mind map: applyCanvasReply carries kind mindmap and ignores <board> answer
   target.removeEventListener(CANVAS_APPLY_EVENT, listener);
   assert.equal(received.length, 1);
   assert.equal(received[0].kind, "mindmap");
+});
+
+test("a code fence around the block content is stripped before parsing (P-109)", () => {
+  const mind = bridge.extractMindmapBlocks('<mindmap parent="root">\n```markdown\n- A\n  - B\n```\n</mindmap>');
+  assert.deepEqual(mind, [{ mode: "append", parent: "root", body: "- A\n  - B" }]);
+  const board = bridge.extractBoardBlocks('<board mode="replace">\n```mermaid\nflowchart TD\n  A --> B\n```\n</board>');
+  assert.deepEqual(board, [{ mode: "replace", body: "flowchart TD\n  A --> B" }]);
+});
+
+test("dropSupersededBlocks keeps only what follows the last replacing block (draft then correction)", () => {
+  const blocks = [{ mode: "new", n: 1 }, { mode: "append", n: 2 }, { mode: "new", n: 3 }, { mode: "append", n: 4 }];
+  assert.deepEqual(bridge.dropSupersededBlocks(blocks, "new").map((b) => b.n), [3, 4]);
+  const appendOnly = [{ mode: "append", n: 1 }, { mode: "append", n: 2 }];
+  assert.deepEqual(bridge.dropSupersededBlocks(appendOnly, "new"), appendOnly);
+  assert.deepEqual(bridge.dropSupersededBlocks([], "new"), []);
+  assert.deepEqual(bridge.dropSupersededBlocks([{ mode: "replace" }, { mode: "append" }], "replace"), [{ mode: "replace" }, { mode: "append" }]);
+});
+
+test("applyCanvasReply sends only the corrected map when the model sends a draft first", () => {
+  bridge.setCanvasChatContext({ kind: "mindmap", slug: "demo" });
+  publish(state());
+  const received = [];
+  const listener = (e) => received.push(e.detail);
+  target.addEventListener(CANVAS_APPLY_EVENT, listener);
+  bridge.applyCanvasReply('<mindmap mode="new">\n- Rascunho\n</mindmap>\nCorrigindo:\n<mindmap mode="new">\n- Final\n  - Item\n</mindmap>');
+  target.removeEventListener(CANVAS_APPLY_EVENT, listener);
+  assert.equal(received.length, 1);
+  assert.equal(received[0].blocks.length, 1);
+  assert.equal(received[0].blocks[0].body, "- Final\n  - Item");
 });

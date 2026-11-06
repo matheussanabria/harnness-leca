@@ -10,6 +10,7 @@ import { useViewActions } from "../../features/mindmap/useViewActions.ts";
 import { FocusFollower } from "./FocusFollower.tsx";
 import { type MindFlowNode, MindNodeView } from "./MindNodeView.tsx";
 import { MindToolbar } from "./MindToolbar.tsx";
+import { useReparentDrag } from "./useReparentDrag.ts";
 
 const nodeTypes = { mind: MindNodeView };
 const ZERO_OFFSET = { dx: 0, dy: 0 };
@@ -33,6 +34,7 @@ export function MindmapCanvas({
   const wasEditing = useRef(false);
   const [drag, setDrag] = useState<DragShift | null>(null);
   const dragStart = useRef({ x: 0, y: 0 });
+  const reparent = useReparentDrag(doc, commands.reparentNode);
   useEffect(() => {
     // Give the keyboard back to the tree once the inline editor closes.
     if (wasEditing.current && !editingId) frame.current?.focus();
@@ -51,15 +53,20 @@ export function MindmapCanvas({
         // Rendered position = tidy layout position + the node's offset and every ancestor's offset.
         position: { x: item.x + offset.dx + (live?.dx ?? 0), y: item.y + offset.dy + (live?.dy ?? 0) },
         connectable: false,
+        // Explicit size so React Flow, edges and the resizer all agree with the stored node size.
+        width: item.w,
+        height: item.h,
         data: {
           text: doc.nodes[item.id]?.text ?? "",
           selected: item.id === selectedId,
+          dropTarget: item.id === reparent.dropTargetId,
           editing: item.id === editingId,
           hasChildren: item.hasChildren,
           collapsed: item.collapsed,
           isRoot: item.parentId === null,
           onCommit: commands.commitText,
           onCancel: commands.cancelEdit,
+          onResize: commands.resizeNode,
           onToggle: (id: string) => {
             setSelectedId(id);
             commands.toggleNode(id);
@@ -76,7 +83,7 @@ export function MindmapCanvas({
         type: "default",
       }));
     return { nodes: flowNodes, edges: flowEdges };
-  }, [doc, selectedId, editingId, commands, setSelectedId, drag]);
+  }, [doc, selectedId, editingId, commands, setSelectedId, drag, reparent.dropTargetId]);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (editingId) return;
@@ -108,19 +115,24 @@ export function MindmapCanvas({
             setSelectedId(node.id);
             commands.editNode(node.id);
           }}
-          onNodeDragStart={(_, node) => {
+          onInit={reparent.onInit}
+          onNodeDragStart={(event, node) => {
+            reparent.onDragStart(event, node);
             dragStart.current = { x: node.position.x, y: node.position.y };
             setDrag({ ids: new Set(subtreeIds(doc, node.id)), dx: 0, dy: 0 });
           }}
-          onNodeDrag={(_, node) =>
+          onNodeDrag={(event, node) => {
+            reparent.onDrag(event, node);
             setDrag((current) =>
               current
                 ? { ...current, dx: node.position.x - dragStart.current.x, dy: node.position.y - dragStart.current.y }
                 : current,
-            )
-          }
-          onNodeDragStop={(_, node) => {
+            );
+          }}
+          onNodeDragStop={(event, node) => {
             setDrag(null);
+            // Shift+drag reparents (or snaps back when dropped on nothing); the position is not saved.
+            if (reparent.onDragStop(event, node)) return;
             // The dropped position is absolute: convert it back into an offset from layout + ancestors.
             const offset = offsetFromPosition(doc, node.id, node.position.x, node.position.y);
             commands.moveNode(node.id, offset.dx, offset.dy);

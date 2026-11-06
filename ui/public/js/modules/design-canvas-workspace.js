@@ -6,6 +6,7 @@ import { getIslandLoader } from "../shared/island-loader.js";
 import { createCanvasApi } from "./design-canvas-api.js";
 import { mountCanvasCatalog } from "./design-canvas-catalog.js";
 import { setCanvasChatContext } from "./canvas-chat-bridge.js";
+import { setChatArtifact } from "./chat-scope.js";
 import { attachStudioSidebarToAtelier, parkStudioSidebar } from "./prototype-atelier-sidebar.js";
 import { initWorkspaceLayout } from "./prototype-workspace-layout.js";
 
@@ -75,6 +76,7 @@ export async function renderCanvasWorkspace(container, view, slug) {
   /** @param {string | null} id */
   const open = (id) => {
     selection.set(key, id || "");
+    setChatArtifact(view, id);
     void loader.mount(view, { slug, params: id ? [id] : [] }, stage);
   };
   const catalog = mountCanvasCatalog(catalogHost, {

@@ -24,16 +24,15 @@ test("missing block, wrong parent, too few nodes and over-deep outlines are flag
   assert.ok(judge(env, scenario("mm-expand-root"), '<mindmap parent="selected">\n- A\n- B\n- C\n- D\n</mindmap>').codes.includes("WRONG_PARENT"));
   assert.ok(judge(env, scenario("mm-expand-selected"), '<mindmap parent="selected">\n- A\n</mindmap>').codes.includes("TOO_FEW_NODES"));
   const deep = '<mindmap>\n- a\n  - b\n    - c\n      - d\n        - e\n- f\n- g\n- h\n- i\n- j\n</mindmap>';
-  assert.ok(judge(env, scenario("mm-deep"), deep).codes.includes("OVER_DEPTH_LIMIT"));
+  assert.ok(judge(env, scenario("mm-deep"), deep).codes.includes("note:OVER_PROMPT_DEPTH_LIMIT"));
 });
 
-test("asterisk bullets are parsed; bullets inside a fence inside the block are lost (known gap, step 4)", () => {
-  const star = judge(env, scenario("mm-expand-selected"), '<mindmap parent="selected">\n* A\n* B\n* C\n* D\n</mindmap>');
+test("asterisk bullets and bullets wrapped in a fence inside the block are both parsed", () => {
+  const bullets = "* A\n* B\n* C\n* D";
+  const star = judge(env, scenario("mm-expand-selected"), `<mindmap parent="selected">\n${bullets}\n</mindmap>`);
   assert.equal(star.verdict, "PASS");
-  const fenced = judge(env, scenario("mm-expand-selected"), '<mindmap parent="selected">\n```\n* A\n* B\n* C\n* D\n```\n</mindmap>');
-  assert.equal(fenced.verdict, "FAIL");
-  assert.ok(fenced.codes.includes("EMPTY_OUTLINE"));
-  assert.ok(fenced.codes.includes("note:FENCE_INSIDE_BLOCK"));
+  const fenced = judge(env, scenario("mm-expand-selected"), `<mindmap parent="selected">\n\`\`\`\n${bullets}\n\`\`\`\n</mindmap>`);
+  assert.equal(fenced.verdict, "PASS");
 });
 
 test("chat-only scenarios fail when the model emits a block", () => {
@@ -60,12 +59,12 @@ test("declining an unsupported chart without a block is accepted, not a failure"
   assert.equal(v.verdict, "PASS");
 });
 
-test("prompts carry the rules once; the resumed scenario repeats the transcript without the rules", () => {
+test("prompts carry the rules once; the resumed turn repeats only the one-line reminder", () => {
   const fresh = buildPrompt(env, scenario("mm-expand-selected"));
   assert.match(fresh, /Você está no canvas de Mapas Mentais/);
   const resumed = buildPrompt(env, scenario("mm-resumed"));
   assert.equal(resumed.match(/Você está no canvas de Mapas Mentais/g).length, 1);
-  assert.match(resumed, /\[Usuário\]\nAgora adicione também Testes/);
+  assert.match(resumed, /\[Usuário\]\nLembrete do canvas de Mapas Mentais: .*\n\nPedido do usuário:\nAgora adicione também Testes sob o nó selecionado$/);
 });
 
 test("report aggregates pass counts per model", () => {
