@@ -22,3 +22,11 @@ for (const [file, id] of Object.entries(pages)) {
     assert.match(html, /\/js\/shared\/app-header\.js/);
   });
 }
+
+test("hamburger toggle renders with FontAwesome and no emoji", async () => {
+  const { renderMenuToggle } = await import(require("node:url").pathToFileURL(path.join(pub, "js", "shared", "app-header.js")).href);
+  const html = renderMenuToggle();
+  assert.match(html, /fa-bars/);
+  assert.match(html, /aria-expanded="false"/);
+  assert.ok(!/[\u{1F300}-\u{1FAFF}☀-➿]/u.test(html), "no emojis");
+});
