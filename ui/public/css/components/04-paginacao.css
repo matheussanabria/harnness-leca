@@ -210,24 +210,6 @@
   color: var(--accent);
 }
 
-.btn-overview-link {
-  font-size: 12.5px;
-  color: var(--text);
-  text-decoration: none;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 6px 12px;
-  background: var(--panel);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all .15s;
-}
-
-.btn-overview-link:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
 
 .mobile-inline-meta {
   display: none;

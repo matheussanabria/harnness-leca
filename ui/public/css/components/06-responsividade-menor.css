@@ -1,13 +1,4 @@
 @media (max-width: 480px) {
-  .header-actions {
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
-  .header-actions button,
-  .header-actions a {
-    padding: 7px 4px !important;
-    font-size: 11.5px !important;
-  }
   .chats-table th.col-group, .chats-table td.col-group,
   .chats-table th.col-status, .chats-table td.col-status {
     display: none;
@@ -54,18 +45,6 @@
 }
 
 @media (max-width: 360px) {
-  header .logo {
-    font-size: 12px;
-  }
-  .header-brand-wrap select {
-    font-size: 11px;
-    padding: 3px 5px;
-  }
-  .header-actions button,
-  .header-actions a {
-    font-size: 10.5px !important;
-    padding: 6px 2px !important;
-  }
   .btn-sync-action {
     font-size: 11px;
     padding: 5px 4px;

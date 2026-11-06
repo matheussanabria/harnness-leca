@@ -23,6 +23,20 @@ for (const [file, id] of Object.entries(pages)) {
   });
 }
 
+test("narrow header keeps nav labels for screen readers and 44px targets", () => {
+  const css = fs.readFileSync(path.join(pub, "css", "app-header.css"), "utf8");
+  assert.ok(!/\.app-nav-item span\s*\{\s*display:\s*none/.test(css), "labels must not be display:none");
+  assert.match(css, /min-height:\s*44px/);
+});
+
+test("no page keeps tag-level header rules that fight the shared header", () => {
+  const files = ["css/overview.css", "css/components/05-modal-conectar-celular.css", "css/components/06-responsividade-menor.css"];
+  for (const f of files) {
+    const css = fs.readFileSync(path.join(pub, f), "utf8");
+    assert.ok(!/(^|\n)\s*header\s*\{/.test(css), `${f} still styles bare header`);
+  }
+});
+
 test("hamburger toggle renders with FontAwesome and no emoji", async () => {
   const { renderMenuToggle } = await import(require("node:url").pathToFileURL(path.join(pub, "js", "shared", "app-header.js")).href);
   const html = renderMenuToggle();

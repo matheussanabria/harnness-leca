@@ -87,14 +87,26 @@ function visibleProjects() {
   return sortProjects(projects);
 }
 
+// Estados da lista (loading, erro, vazio) vivem em #ovState; a lista some enquanto houver estado.
+function showState(kind, html) {
+  const el = $("ovState");
+  el.className = "ov-state " + kind;
+  el.setAttribute("role", kind === "error" ? "alert" : "status");
+  el.innerHTML = html;
+  $("ovList").hidden = kind !== "";
+  el.hidden = !html;
+}
+function clearState() { $("ovState").innerHTML = ""; $("ovState").hidden = true; $("ovList").hidden = false; }
+
 async function loadOverview() {
+  if (!OV.projects.length) showState("loading", '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Carregando…');
   try {
     const r = await fetch(`/api/overview?page=${OV.page}&pageSize=${OV.pageSize}`);
     if (!r.ok) throw new Error("HTTP " + r.status);
     OV = { ...OV, ...await r.json() };
     render();
   } catch (err) {
-    $("rows").innerHTML = `<tr><td colspan="6" class="empty">Não foi possível carregar a visão geral (${esc(err.message)}).</td></tr>`;
+    showState("error", `Não foi possível carregar a visão geral (${esc(err.message)}). <button type="button" class="btn-row" data-retry>Tentar de novo</button>`);
   }
 }
 
@@ -120,146 +132,86 @@ function chips(c) {
   return `<span class="chips">${parts.join("")}</span>`;
 }
 
+// Um único modelo por projeto alimenta a tabela (desktop) e os cards (mobile/tablet).
+function rowModel(x) {
+  const pend = x.review && x.review.pendentes;
+  return {
+    slug: x.slug,
+    active: !!x.active,
+    href: "/?p=" + encodeURIComponent(x.slug),
+    meta: `${x.context} contexto · ${x.scheduled} agendada${x.scheduled === 1 ? "" : "s"}${x.lastChat ? " · último chat " + dateBR(x.lastChat) : ""}`,
+    chats: x.chats,
+    analyzed: !!(x.extraction && x.extraction.total),
+    extraction: chips(x.extraction),
+    review: pend
+      ? `<span class="status-badge status-alterada" title="Sugestões de memória esperando revisão">${pend} pendente${pend > 1 ? "s" : ""}</span>`
+      : '<span class="status-badge status-ok">em dia</span>',
+    memory: kb(x.memoryBytes || 0),
+  };
+}
+
+const nameHtml = (m) => `<a class="p-link" href="${m.href}" title="Abrir projeto">${esc(m.slug)}</a>${m.active ? '<span class="status-badge badge-active">ativo</span>' : ""}`;
+const actionsHtml = (m) => `<div class="acts">
+  <button type="button" class="btn-row sync" data-sync="${esc(m.slug)}" aria-label="Sincronizar ${esc(m.slug)}" title="Sincronizar conversas deste projeto (Claude, Gemini e OpenCode)"><i class="fa-solid fa-rotate" aria-hidden="true"></i> <span class="btn-label">Sync</span></button>
+  <a class="btn-row" href="${m.href}" aria-label="Abrir ${esc(m.slug)}">Abrir <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+</div>`;
+
+function tableRow(m) {
+  return `<tr data-slug="${esc(m.slug)}">
+    <td class="p-name"><div class="p-title">${nameHtml(m)}</div><div class="sub2">${m.meta}</div></td>
+    <td class="cell-num">${m.chats}${m.analyzed ? '<div class="sub2">analisadas</div>' : ""}</td>
+    <td>${m.extraction}</td>
+    <td class="cell-num">${m.review}</td>
+    <td class="cell-num">${m.memory}</td>
+    <td>${actionsHtml(m)}</td>
+  </tr>`;
+}
+
+function projectCard(m) {
+  return `<article class="p-card" data-slug="${esc(m.slug)}">
+    <div class="p-title">${nameHtml(m)}</div>
+    <div class="sub2">${m.meta}</div>
+    <dl class="p-stats">
+      <div><dt>Conversas</dt><dd>${m.chats}${m.analyzed ? ' <span class="sub2">analisadas</span>' : ""}</dd></div>
+      <div><dt>Extração</dt><dd>${m.extraction}</dd></div>
+      <div><dt>Revisões</dt><dd>${m.review}</dd></div>
+      <div><dt>Memória</dt><dd>${m.memory}</dd></div>
+    </dl>
+    ${actionsHtml(m)}
+  </article>`;
+}
+
 function render() {
-  const p = visibleProjects();
+  const models = visibleProjects().map(rowModel);
   $("sub").innerHTML = `${OV.total} projeto${OV.total === 1 ? "" : "s"} no harness · ${OV.active ? `ativo: <b>${esc(OV.active)}</b>` : "nenhum projeto ativo em <code>projects/.active</code>"}`;
   $("totBadge").textContent = `${OV.total} projeto${OV.total === 1 ? "" : "s"}`;
   $("pageInfo").textContent = OV.total ? `página ${OV.page} de ${OV.pages}` : "";
 
-  $("rows").innerHTML = p.length ? p.map(x => `
-    <tr data-slug="${esc(x.slug)}">
-      <td class="p-name">
-        <b onclick="openProject('${esc(x.slug)}')" title="Abrir projeto">${esc(x.slug)}${x.active ? '<span class="status-badge badge-active">ativo</span>' : ""}</b>
-        <div class="sub2">${x.context} contexto · ${x.scheduled} agendada${x.scheduled === 1 ? "" : "s"}${x.lastChat ? " · último chat " + dateBR(x.lastChat) : ""}</div>
-      </td>
-      <td class="cell-num">${x.chats}${x.extraction && x.extraction.total ? `<div class="sub2">analisadas</div>` : ""}</td>
-      <td>${chips(x.extraction)}</td>
-      <td class="cell-num">${x.review && x.review.pendentes
-        ? `<span class="status-badge status-alterada" title="Sugestões de memória esperando revisão">${x.review.pendentes} pendente${x.review.pendentes > 1 ? "s" : ""}</span>`
-        : '<span class="status-badge status-ok">em dia</span>'}</td>
-      <td class="cell-num">${kb(x.memoryBytes || 0)}</td>
-      <td>
-        <div class="acts">
-          <button class="btn-row sync" title="Sincronizar conversas deste projeto (Claude, Gemini e OpenCode)" onclick="syncRow('${esc(x.slug)}', this)"><i class="fa-solid fa-rotate"></i> Sync</button>
-          <button class="btn-row" onclick="openProject('${esc(x.slug)}')">Abrir <i class="fa-solid fa-arrow-right"></i></button>
-        </div>
-      </td>
-    </tr>`).join("")
-    : '<tr><td colspan="6" class="empty" style="text-align:center;padding:22px">Nenhum projeto ainda. Copie <code>projects/_template</code> ou importe conversas com <code>tools/import-claude-code-chats.js</code>.</td></tr>';
+  if (models.length) {
+    clearState();
+    $("rows").innerHTML = models.map(tableRow).join("");
+    $("cards").innerHTML = models.map(projectCard).join("");
+  } else {
+    $("rows").innerHTML = "";
+    $("cards").innerHTML = "";
+    showState("empty", 'Nenhum projeto ainda. Copie <code>projects/_template</code> ou importe conversas com <code>tools/import-claude-code-chats.js</code>. <button type="button" class="btn-row" data-retry>Recarregar</button>');
+  }
 
   const from = OV.total ? (OV.page - 1) * OV.pageSize + 1 : 0;
   const to = Math.min(OV.page * OV.pageSize, OV.total);
   $("pagerInfo").textContent = OV.total ? `Mostrando ${from}–${to} de ${OV.total}` : "—";
   $("btnPrev").disabled = OV.page <= 1;
   $("btnNext").disabled = OV.page >= OV.pages;
+  if (typeof applyLocks === "function") applyLocks();
 }
 
-function openProject(slug) { location.href = "/?p=" + encodeURIComponent(slug); }
-
-// ---------- sincronização de um projeto (POST /api/project/:slug/sync, resposta em JSON) ----------
-let rowBusy = false;
-function rowMsg(text, cls) {
-  const el = $("rowMsg");
-  el.textContent = text;
-  el.className = "row-msg show " + (cls || "");
-  clearTimeout(rowMsg._t);
-  rowMsg._t = setTimeout(() => { el.className = "row-msg"; }, 6000);
-}
-async function syncRow(slug, btn) {
-  if (rowBusy) return;
-  rowBusy = true;
-  const old = btn.textContent;
-  btn.disabled = true; btn.textContent = "… sincronizando";
-  rowMsg(`Sincronizando ${slug} (Claude, Gemini e OpenCode)…`, "");
-  try {
-    const res = await fetch(`/api/project/${encodeURIComponent(slug)}/sync`, {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ engine: "all" }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
-    const novo = (data.totalNova || 0) + (data.totalAtualizada || 0);
-    rowMsg(`${slug}: ${data.mensagem || (novo ? `${novo} conversa(s) atualizada(s)` : "tudo em dia")}`, novo ? "ok" : "");
-    await loadOverview();
-  } catch (err) {
-    rowMsg(`Erro em ${slug}: ${err.message}`, "err");
-  } finally {
-    rowBusy = false;
-    btn.disabled = false; btn.textContent = old;
-  }
-}
-
-// ---------- ação do sistema: sync geral em streaming (POST /api/sync, SSE) ----------
-let running = false;
-const ENGINES = ["claude", "gemini", "opencode"];
-
-function setRunState(text, cls) { $("runState").textContent = text; $("runState").className = "run-state " + (cls || ""); }
-function logLine(html) {
-  const log = $("log");
-  log.innerHTML += html + "\n";
-  log.scrollTop = log.scrollHeight;
-}
-const logEsc = (s) => `<b>${esc(s)}</b>`;
-
-async function runSyncAll() {
-  if (running) return;
-  const engines = [...document.querySelectorAll(".eng:checked")].map(c => c.value);
-  if (!engines.length) { setRunState("marque ao menos um motor", "err"); return; }
-  const dryRun = $("dryRun").checked;
-
-  running = true;
-  $("btnRun").disabled = true;
-  document.body.classList.add("running");
-  $("log").innerHTML = "";
-  setRunState("sincronizando…", "busy");
-  logLine(logEsc(`$ node tools/sync.js --engine ${engines.join(",")}${dryRun ? " --dry-run" : ""}`));
-
-  try {
-    const res = await fetch("/api/sync", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ engines, dryRun }),
-    });
-    if (!res.ok || !res.body) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || "HTTP " + res.status);
-    }
-    const reader = res.body.getReader();
-    const dec = new TextDecoder();
-    let buf = "";
-    let fim = null;
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buf += dec.decode(value, { stream: true });
-      let i;
-      while ((i = buf.indexOf("\n\n")) >= 0) {
-        const chunk = buf.slice(0, i).trim();
-        buf = buf.slice(i + 2);
-        if (!chunk.startsWith("data: ")) continue;
-        const ev = JSON.parse(chunk.slice(6));
-        if (ev.type === "log") logLine(esc(ev.line));
-        else if (ev.type === "error") { logLine(`<span style="color:#ef4444"><i class="fa-solid fa-triangle-exclamation"></i> ${esc(ev.error)}</span>`); fim = { code: -1, ms: 0 }; }
-        else if (ev.type === "done") fim = ev;
-      }
-    }
-    if (!fim) throw new Error("conexão interrompida");
-    if (fim.code === 0) {
-      setRunState(`concluído em ${(fim.ms / 1000).toFixed(1).replace(".", ",")}s`, "ok");
-      logLine(`<i class="fa-solid fa-check"></i> ${logEsc("sincronização concluída")}`);
-    } else {
-      setRunState(`finalizou com código ${fim.code}`, "err");
-      logLine(`<span style="color:#ef4444"><i class="fa-solid fa-triangle-exclamation"></i> sincronização terminou com código ${fim.code}</span>`);
-    }
-    await loadOverview();
-  } catch (err) {
-    setRunState("falhou", "err");
-    logLine(`<span style="color:#ef4444"><i class="fa-solid fa-triangle-exclamation"></i> ${esc(err.message || String(err))}</span>`);
-  } finally {
-    running = false;
-    $("btnRun").disabled = false;
-    document.body.classList.remove("running");
-  }
-}
+// Ações dos dois layouts passam por um único ponto (sem onclick inline).
+document.addEventListener("click", (ev) => {
+  const el = ev.target && ev.target.closest ? ev.target.closest("[data-sync],[data-retry]") : null;
+  if (!el) return;
+  if (el.hasAttribute("data-retry")) loadOverview();
+  else syncRow(el.getAttribute("data-sync"));
+});
 
 async function startOverview() {
   await hydrateOverviewState();

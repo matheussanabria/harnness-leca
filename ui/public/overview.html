@@ -7,6 +7,8 @@
 <link rel="icon" type="image/png" href="/img/favicon.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="/css/overview.css">
+<link rel="stylesheet" href="/css/overview-projects.css">
+<link rel="stylesheet" href="/css/overview-sync.css">
 <link rel="stylesheet" href="/css/app-header.css">
 </head>
 <body>
@@ -19,52 +21,55 @@
   <h1>Visão geral dos projetos</h1>
   <div class="sub" id="sub">Carregando resumos…</div>
 
-  <div class="card">
+  <div class="card sync-panel">
     <div class="sec">
-      <h4>Ações do sistema <span class="tag">node tools/sync.js</span></h4>
+      <h4>Sincronização <span class="tag" id="engSummary" aria-live="polite">3 de 3 motores</span></h4>
       <div class="act-bar">
-        <div class="eng-chips" id="engChips">
-          <label class="eng-chip claude"><input type="checkbox" class="eng" value="claude" checked> ✱ Claude Code</label>
-          <label class="eng-chip gemini"><input type="checkbox" class="eng" value="gemini" checked> ✦ Gemini</label>
-          <label class="eng-chip opencode"><input type="checkbox" class="eng" value="opencode" checked> ◆ OpenCode</label>
-        </div>
+        <fieldset class="eng-chips" id="engChips">
+          <legend class="sr-only">Motores a sincronizar</legend>
+          <label class="eng-chip claude"><input type="checkbox" class="eng" value="claude" checked> <i class="fa-solid fa-asterisk" aria-hidden="true"></i> Claude Code</label>
+          <label class="eng-chip gemini"><input type="checkbox" class="eng" value="gemini" checked> <i class="fa-solid fa-gem" aria-hidden="true"></i> Gemini</label>
+          <label class="eng-chip opencode"><input type="checkbox" class="eng" value="opencode" checked> <i class="fa-solid fa-code" aria-hidden="true"></i> OpenCode</label>
+        </fieldset>
         <label class="chk" title="Só mostra o que mudaria, sem gravar conversas"><input type="checkbox" id="dryRun"> Simulação (dry-run)</label>
-        <button class="btn-run" id="btnRun" onclick="runSyncAll()"><span class="sync-rot">🔄</span> Sincronizar todos os motores e conversas</button>
-        <span class="run-state" id="runState">pronto</span>
+        <button type="button" class="btn-run" id="btnRun" onclick="runSyncAll()"><span class="sync-rot"><i class="fa-solid fa-rotate" aria-hidden="true"></i></span> Sincronizar todos os motores e conversas</button>
+        <span class="run-state" id="runState" role="status" aria-live="polite">pronto</span>
       </div>
-      <div class="hint">
-        Dispara <code>node tools/sync.js</code> com os motores marcados: varre <code>~/.claude/projects</code>,
-        <code>~/.gemini/antigravity-ide/brain</code> e o banco do OpenCode, importa as conversas novas/alteradas para
-        <code>projects/&lt;slug&gt;/chats/</code> e roda a extração local do que mudou. Uma sincronização por vez; o log aparece abaixo.
-      </div>
-      <pre class="log" id="log"></pre>
-    </div>
-    <div class="sec">
-      <h4>Por projeto <span class="tag">conversa a conversa</span></h4>
-      <div class="hint" style="margin-top:0">
-        Cada linha tem o botão <b>🔄 Sync</b>, que sincroniza só aquele projeto (os 3 motores) e atualiza a lista.
-      </div>
+      <p class="hint">Cada projeto tem o botão <b><i class="fa-solid fa-rotate" aria-hidden="true"></i> Sync</b>, que sincroniza só aquele projeto (os 3 motores) e atualiza a lista.</p>
+      <details class="sync-details" id="syncDetails">
+        <summary>Detalhes técnicos e log</summary>
+        <div class="hint">
+          Dispara <code>node tools/sync.js</code> com os motores marcados: varre <code>~/.claude/projects</code>,
+          <code>~/.gemini/antigravity-ide/brain</code> e o banco do OpenCode, importa as conversas novas/alteradas para
+          <code>projects/&lt;slug&gt;/chats/</code> e roda a extração local do que mudou. Uma sincronização por vez.
+        </div>
+        <pre class="log" id="log" tabindex="0" aria-label="Log da sincronização"></pre>
+      </details>
     </div>
   </div>
 
   <h3 class="sech"><span>Projetos</span> <span id="pageInfo"></span></h3>
   <div class="card">
-    <div class="table-wrap">
-      <table class="table-full">
-        <thead>
-          <tr>
-            <th>Projeto</th>
-            <th>Conversas</th>
-            <th>Extração</th>
-            <th>Revisões</th>
-            <th>Memória</th>
-            <th style="text-align:right">Ações</th>
-          </tr>
-        </thead>
-        <tbody id="rows"><tr><td colspan="6" class="empty">Carregando…</td></tr></tbody>
-      </table>
+    <div id="ovState" class="ov-state loading" role="status" aria-live="polite">Carregando…</div>
+    <div id="ovList" hidden>
+      <div class="table-wrap p-table">
+        <table class="table-full">
+          <thead>
+            <tr>
+              <th scope="col">Projeto</th>
+              <th scope="col">Conversas</th>
+              <th scope="col">Extração</th>
+              <th scope="col">Revisões</th>
+              <th scope="col">Memória</th>
+              <th scope="col" style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="p-cards" id="cards"></div>
     </div>
-    <div class="row-msg" id="rowMsg"></div>
+    <div class="row-msg" id="rowMsg" role="status" aria-live="polite"></div>
     <div class="pager">
       <button id="btnPrev" onclick="goPage(OV.page - 1)">← Anterior</button>
       <span id="pagerInfo">—</span>
@@ -79,6 +84,7 @@
   </div>
 </main>
 <script src="/js/overview.js"></script>
+<script src="/js/overview-sync.js"></script>
 <script type="module" src="/js/shared/app-header.js"></script>
 </body>
 </html>

@@ -12,22 +12,22 @@
 <body>
 <header data-app-header data-current="home">
   <div data-slot="left" class="header-brand-wrap">
-    <select id="sel"></select>
+    <select id="sel" aria-label="Projeto ativo"></select>
     <span class="badge" id="act"></span>
   </div>
   <div data-slot="right" class="header-actions">
     <button class="btn-remote-connect" id="btnConnectMobile" onclick="openRemoteConnectModal()" title="Conectar smartphone via Wi-Fi ou Túnel Remoto para usar e testar o app em tempo real">
-      <i class="fa-solid fa-mobile-screen"></i> Celular
+      <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> <span class="hdr-label">Celular</span>
     </button>
     <span id="presenceStrip" class="presence-strip"></span>
     <button class="btn-studio-toggle" id="btnToggleDesign" onclick="toggleDesignMode()" title="Abrir Visão 360° do Projeto: Scrum, Kanban de Sprint, Backlog, Épicos, Mapa e Auditoria">
-      <i class="fa-solid fa-cubes-stacked"></i> Scrum & Projeto 360°
+      <i class="fa-solid fa-cubes-stacked" aria-hidden="true"></i> <span class="hdr-label">Scrum & Projeto 360°</span>
     </button>
     <button class="btn-studio-toggle" id="btnToggleStudio" onclick="toggleStudioMode()" title="Abrir Studio de Vibecoding com Live Preview da Aplicação e Agentes DAI">
-      <i class="fa-solid fa-palette"></i> Studio
+      <i class="fa-solid fa-palette" aria-hidden="true"></i> <span class="hdr-label">Studio</span>
     </button>
     <button class="btn-live-chat" onclick="openInteractiveChat()" title="Conversar com o Projeto">
-      <i class="fa-solid fa-message"></i> Conversar
+      <i class="fa-solid fa-message" aria-hidden="true"></i> <span class="hdr-label">Conversar</span>
     </button>
   </div>
 </header>

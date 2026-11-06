@@ -93,7 +93,7 @@ test("EP-14.10: overview hidrata pagina, tamanho e ordenacao do estado da tela",
   const els = new Map();
   const el = () => ({
     innerHTML: "", textContent: "", className: "", value: "", checked: false,
-    disabled: false, scrollTop: 0, scrollHeight: 0,
+    disabled: false, scrollTop: 0, scrollHeight: 0, hidden: false, setAttribute() {},
   });
   const calls = [];
   const patches = [];
@@ -102,6 +102,7 @@ test("EP-14.10: overview hidrata pagina, tamanho e ordenacao do estado da tela",
     document: {
       getElementById: (id) => sandbox.$(id),
       querySelectorAll: () => [],
+      addEventListener() {},
       body: { classList: { add() {}, remove() {} } },
     },
     location: { search: "", pathname: "/overview", href: "/overview" },
