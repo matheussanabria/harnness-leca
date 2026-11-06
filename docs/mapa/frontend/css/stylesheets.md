@@ -22,6 +22,7 @@ updated: 2026-10-31
 | `ui/public/css/studio.css` | Vibecoding Studio workspace, mobile/desktop viewport frames and responsive dock. |
 | `ui/public/css/review.css` | Memory review interface and skill management cards. |
 | `ui/public/css/inspector.css` | Active button, inspector notice strip, component result card and code viewer. |
+| `ui/public/css/design/33-scrum-mobile.css` | Mobile (max 760px) layout for Scrum & Projeto 360: page scroll, stacked filters, swipe Kanban, backlog table as cards. |
 | `ui/public/css/design/06-workspace-prototypes.css` | 4-area workspace (Catalog, Chat, Preview, Inspector), splitters and collapse buttons. |
 | `ui/public/css/design/07-layers-tree.css` | Layer tree (Figma/XD), search, hierarchical indent, category icons and inspector tabs. |
 | `ui/public/css/design/08-prototype-catalog.css` | Unified catalog, reusable components, preview header, versions and Atelier states. |
