@@ -3,17 +3,18 @@ domain: frontend
 module: web
 feature: catalog-page
 summary: Standalone /catalogo page: skills and agents in separate tabs, grouped by area, with a file browser per item.
-paths: [ui/public/catalogo.html, ui/public/css/catalogo.css, ui/public/js/catalogo/*.js, ui/server/services/catalog/*.js, ui/server/controllers/catalog.controller.js, ui/server/routes/catalog.routes.js, tests/catalog.test.js, tests/catalog-files.test.js, tests/catalog-remote.test.js, tests/catalog-sources.test.js]
-keywords: [catalog, catalogo, skills, agents, area, documentation, frontend, group, override, browser, tree, files]
+paths: [ui/public/catalogo.html, ui/public/css/catalogo.css, ui/public/js/catalogo/*.js, ui/server/services/catalog/*.js, ui/server/controllers/catalog.controller.js, ui/server/routes/catalog.routes.js, tests/catalog.test.js, tests/catalog-files.test.js, tests/catalog-remote.test.js, tests/catalog-sources.test.js, tests/catalog-areas-config.test.js]
+keywords: [catalog, areas-config, frontmatter-area, catalogo, skills, agents, area, documentation, frontend, group, override, browser, tree, files]
 updated: 2026-11-06
 ---
 # Skills and agents catalog (/catalogo)
 
-Reads a registry of sources (`catalog-sources.js`): user `~/.claude` (skills and agents), the harness `.agents/skills`, then every repo target of every project (`.agents/skills`, `skills/`, `.claude/agents`). A name present in several sources shows once: the first source in that order wins and the others are listed in `alsoIn` (a `+N` tag on the card). Each item gets a suggested area from keywords in its name and description; a manual choice is saved in `global/catalog-areas.json` (key `skill:<name>` or `agent:<name>`) and wins over the suggestion. Skills and agents are separate tabs. Opening an item shows its file tree (a skill is a folder, an agent is one `.md` file) and a viewer (rendered markdown or raw code). Browsing is read-only and works from the phone: remote requests already pass the router PIN gate, so the read endpoints add no extra check. Changing an area is limited to loopback; paths are validated (no `..`, dot entries, `node_modules` or symlinks leaving the item). Nav entry in `app-header.js`, route in `static.controller.js`.
+Reads a registry of sources (`catalog-sources.js`): user `~/.claude` (skills and agents), the harness `.agents/skills`, then every repo target of every project (`.agents/skills`, `skills/`, `.claude/agents`). A name present in several sources shows once: the first source in that order wins and the others are listed in `alsoIn` (a `+N` tag on the card). Area precedence: `area:` in the item frontmatter (the page locks the selector), then the manual choice saved in `global/catalog-areas.json` (key `skill:<name>` or `agent:<name>`), then a keyword suggestion from name and description; an id not in the config is ignored. The area list and keywords are data: `catalog-areas.data.json` (default) or your own `global/catalog-areas-config.json`, used when valid. Each card shows the origin (frontmatter, manual, sugerida). Skills and agents are separate tabs. Opening an item shows its file tree (a skill is a folder, an agent is one `.md` file) and a viewer (rendered markdown or raw code). Browsing is read-only and works from the phone: remote requests already pass the router PIN gate, so the read endpoints add no extra check. Changing an area is limited to loopback; paths are validated (no `..`, dot entries, `node_modules` or symlinks leaving the item). Nav entry in `app-header.js`, route in `static.controller.js`.
 
 | File | Responsibility |
 |---|---|
-| `ui/server/services/catalog/catalog-areas.js` | Area list (id, label, icon, keywords) and the pure `classify` suggester. |
+| `ui/server/services/catalog/catalog-areas.js` | Loads and validates the area config (custom file, else bundled default) and the pure `classify` suggester. |
+| `ui/server/services/catalog/catalog-areas.data.json` | Bundled default areas: id, label, FontAwesome icon, keywords, and the `other` fallback. |
 | `ui/server/services/catalog/catalog-sources.js` | Source registry: user, harness and project repo targets, url-safe ids, precedence order, no repeated folders. |
 | `ui/server/services/catalog/catalog-reader.js` | Reads skills and agents from the registry, dedupes by name (`alsoIn`), applies overrides, returns items and per-area counts. |
 | `ui/server/services/catalog/catalog-overrides.js` | Reads and atomically writes the manual area choices. |
@@ -31,3 +32,4 @@ Reads a registry of sources (`catalog-sources.js`): user `~/.claude` (skills and
 | `tests/catalog-files.test.js` | File tree and reader (traversal, binary, symlink) and tree view tests. |
 | `tests/catalog-remote.test.js` | Remote requests can browse (404, not 403), cannot change an area, traversal still refused. |
 | `tests/catalog-sources.test.js` | Registry order, project sources, precedence and `alsoIn`, browsing a project item, no repeated folders. |
+| `tests/catalog-areas-config.test.js` | Config load and validation, frontmatter/manual/suggested precedence, unknown areas ignored, origin tag in the view. |
