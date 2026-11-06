@@ -33,7 +33,7 @@ function paintViewer() {
   }
 }
 
-async function openFile(rel) {
+async function openFile(rel, fromUser = false) {
   state.file = rel;
   $("kTree").innerHTML = renderTree(state.tree, rel);
   try {
@@ -44,6 +44,8 @@ async function openFile(rel) {
     state.cache = { name: rel, size: 0, error: err.message };
   }
   paintViewer();
+  // On a narrow screen the viewer sits below the tree: bring it into view after a tap.
+  if (fromUser && window.matchMedia("(max-width: 760px)").matches) $("kViewer").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 /** Opens the browser for an item and shows its main file. */
@@ -77,7 +79,7 @@ export function wireBrowser() {
   $("kBack").addEventListener("click", closeBrowser);
   $("kTree").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-file]");
-    if (btn) openFile(btn.getAttribute("data-file"));
+    if (btn) openFile(btn.getAttribute("data-file"), true);
   });
   $("kViewer").addEventListener("click", (e) => {
     if (!e.target.closest("#kRawToggle")) return;

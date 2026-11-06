@@ -6,7 +6,7 @@
 .k-area{display:inline-flex;gap:6px;align-items:center;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font:inherit;font-size:12.5px;cursor:pointer}
 .k-area:hover,.k-area.is-on{border-color:var(--accent);color:var(--accent)}
 .k-area .n{color:var(--mute);font-variant-numeric:tabular-nums}
-.k-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.k-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr));gap:12px}
 .k-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .k-card h3{margin:0;font-size:14px;display:flex;gap:8px;align-items:center;overflow-wrap:anywhere}
 .k-card p{margin:0;font-size:12.5px;color:var(--mute);display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -45,3 +45,8 @@
 .k-md{font-size:14px;overflow-wrap:anywhere}
 .k-md pre{overflow:auto}
 .k-md table{border-collapse:collapse}.k-md th,.k-md td{border:1px solid var(--line);padding:4px 8px}
+/* Narrow screens: keep after the base rules so they win. */
+.k-treebox{overflow-x:hidden}
+.k-dir>.k-file{width:calc(100% - 14px)}
+@media (max-width:760px){.k-treebox{max-height:40vh}.k-viewer{max-height:none;overflow:visible}#kBrDesc{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}}
+@media (max-width:560px){main{padding:20px 14px}.k-tab{padding:8px 10px}.k-search{min-width:0}.k-select{max-width:100%}}

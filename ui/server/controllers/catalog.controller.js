@@ -31,9 +31,8 @@ async function apiCatalogAreaSet({ req, res }) {
   return send(res, 200, { ...buildCatalog(), canManage: true });
 }
 
-/** GET /api/catalog/tree?kind=&source=&ref=  (loopback only: it exposes file contents of ~/.claude) */
+/** GET /api/catalog/tree?kind=&source=&ref=  (read-only; remote requests already passed the PIN gate in the router) */
 async function apiCatalogTree({ req, res, url }) {
-  if (!netLib.isLocalhostRequest(req)) return send(res, 403, { error: "Browsing files is only available on the local computer." });
   const q = url.searchParams;
   const tree = listTree(q.get("kind") || "", q.get("source") || "", q.get("ref") || "");
   if (!tree) return send(res, 404, { error: "Item not found." });
@@ -42,7 +41,6 @@ async function apiCatalogTree({ req, res, url }) {
 
 /** GET /api/catalog/file?kind=&source=&ref=&path= */
 async function apiCatalogFile({ req, res, url }) {
-  if (!netLib.isLocalhostRequest(req)) return send(res, 403, { error: "Browsing files is only available on the local computer." });
   const q = url.searchParams;
   const out = readItemFile(q.get("kind") || "", q.get("source") || "", q.get("ref") || "", q.get("path") || "");
   const { status, ...body } = out;
