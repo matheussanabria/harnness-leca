@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harness Leca · Catálogo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="/css/consumo.css">
+<link rel="stylesheet" href="/css/catalogo.css">
+<link rel="stylesheet" href="/css/app-header.css">
+</head>
+<body>
+<header data-app-header data-current="catalogo">
+</header>
+<main>
+  <h1>Catálogo</h1>
+  <p class="sub">Suas skills e agentes agrupados por área. A área é sugerida pelo nome e descrição; você pode trocá-la em cada item.</p>
+  <div class="k-toolbar">
+    <input type="search" id="kSearch" class="k-search" placeholder="Buscar por nome ou descrição" aria-label="Buscar">
+    <div class="k-kinds" role="group" aria-label="Tipo">
+      <button type="button" class="btn-row is-on" data-kind="all">Todos</button>
+      <button type="button" class="btn-row" data-kind="skill">Skills</button>
+      <button type="button" class="btn-row" data-kind="agent">Agentes</button>
+    </div>
+  </div>
+  <nav id="kAreas" class="k-areas" aria-label="Áreas"></nav>
+  <div id="kList"><p class="c-empty">Carregando...</p></div>
+</main>
+<script type="module">
+  import { startCatalogoPage } from "/js/catalogo/catalogo-page.js";
+  startCatalogoPage();
+</script>
+<script type="module" src="/js/shared/app-header.js"></script>
+</body>
+</html>

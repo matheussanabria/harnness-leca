@@ -1,0 +1,43 @@
+// @ts-check
+// Escaped HTML renderers for the catalog page (FontAwesome icons only).
+
+export function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
+/** Area filter chips with counts. */
+export function renderAreaChips(areas, counts, current) {
+  const chip = (id, icon, label) =>
+    `<button type="button" class="k-area${current === id ? " is-on" : ""}" data-area="${esc(id)}">` +
+    `<i class="fa-solid ${esc(icon)}" aria-hidden="true"></i> ${esc(label)} <span class="n">${counts[id] || 0}</span></button>`;
+  return chip("all", "fa-layer-group", "Todas") + areas.filter((a) => counts[a.id]).map((a) => chip(a.id, a.icon, a.label)).join("");
+}
+
+function renderCard(item, areas, canManage) {
+  const icon = item.kind === "agent" ? "fa-user-gear" : "fa-wand-magic-sparkles";
+  const kind = item.kind === "agent" ? "Agente" : "Skill";
+  const options = areas
+    .map((a) => `<option value="${esc(a.id)}"${a.id === item.area ? " selected" : ""}>${esc(a.label)}</option>`)
+    .join("");
+  const select = canManage
+    ? `<select class="k-select" data-kind="${esc(item.kind)}" data-name="${esc(item.name)}" aria-label="Área de ${esc(item.name)}">${options}</select>`
+    : "";
+  const manual = item.manual ? `<span class="k-tag k-tag--manual" title="Área escolhida por você">manual</span>` : "";
+  return (
+    `<article class="k-card"><h3><i class="fa-solid ${icon}" aria-hidden="true"></i> ${esc(item.name)}</h3>` +
+    `<p>${esc(item.description || "Sem descrição.")}</p>` +
+    `<div class="k-meta"><span class="k-tag">${kind}</span><span class="k-tag">${esc(item.sourceLabel)}</span>${manual}${select}</div></article>`
+  );
+}
+
+/** Groups already filtered; one section per area. */
+export function renderGroups(groups, areas, canManage) {
+  if (!groups.length) return `<p class="c-empty">Nada encontrado.</p>`;
+  return groups
+    .map(
+      (g) =>
+        `<section class="k-group"><h2><i class="fa-solid ${esc(g.area.icon)}" aria-hidden="true"></i> ${esc(g.area.label)} <span class="n">${g.items.length}</span></h2>` +
+        `<div class="k-grid">${g.items.map((it) => renderCard(it, areas, canManage)).join("")}</div></section>`
+    )
+    .join("");
+}
