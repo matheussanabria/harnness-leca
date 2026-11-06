@@ -91,8 +91,8 @@ export function renderProductBacklog(scrum) {
         </div>
       </div>
 
-      <div style="overflow-x:auto;overflow-y:auto;flex:1">
-        <table class="audit-table">
+      <div class="scrum-backlog-scroll" style="overflow-x:auto;overflow-y:auto;flex:1">
+        <table class="audit-table scrum-backlog-table">
           <thead>
             <tr>
               <th>#</th>

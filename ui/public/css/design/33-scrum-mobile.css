@@ -1,0 +1,69 @@
+/* Mobile layout for "Scrum & Projeto 360": the page scrolls instead of clipping. */
+@media (max-width: 760px) {
+  .design-workspace { height: auto; min-height: calc(100dvh - 61px); overflow: visible; }
+  .design-view-container { overflow: visible; }
+  .design-header-bar { flex-direction: column; align-items: stretch; padding: 6px 10px; gap: 6px; }
+  .design-nav-tabs { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .design-nav-tabs::-webkit-scrollbar { display: none; }
+  .design-nav-tab { flex: 0 0 auto; white-space: nowrap; }
+
+  .scrum-workspace-layout { padding: 10px; overflow: visible; gap: 10px; }
+  .scrum-content-body, .scrum-sprint-view { overflow: visible; }
+  .scrum-nav-bar { padding: 8px; }
+  .scrum-nav-tabs { scrollbar-width: none; }
+  .scrum-nav-tabs::-webkit-scrollbar { display: none; }
+  .scrum-nav-tab { flex: 0 0 auto; }
+  .scrum-nav-summary { white-space: nowrap; overflow-x: auto; }
+
+  .scrum-filters-host, .scrum-metrics-host { padding: 0; }
+  .scrum-filter-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .scrum-filter-bar > * { min-width: 0; }
+  .scrum-filter-field:first-child, .scrum-filter-bar .scrum-filter-field:has(input[type="search"], input[type="text"]) { grid-column: 1 / -1; }
+  .scrum-filter-field .chats-search-input, .scrum-filter-field select { width: 100%; min-width: 0; flex: 1; }
+  .scrum-filter-toggle { min-height: 44px; }
+  .scrum-metrics-strip { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 2px 0 6px; }
+  .scrum-metric-item { flex: 0 0 auto; white-space: nowrap; }
+
+  .scrum-sprint-banner { padding: 12px; }
+  .scrum-sprint-banner-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .scrum-sprint-heading { flex-wrap: wrap; }
+  .scrum-sprint-controls { align-items: stretch; }
+  .scrum-button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .scrum-workspace-layout .btn-card-action { min-height: 40px; font-size: 12px; }
+
+  .scrum-kanban-board { overflow-y: visible; scroll-snap-type: x mandatory; align-items: flex-start; gap: 10px; margin: 0 -10px; padding: 0 10px 8px; }
+  .scrum-kanban-col { flex: 0 0 86%; min-width: 0; max-width: none; scroll-snap-align: center; }
+  .scrum-cards-container { max-height: 70dvh; }
+  .scrum-lane-drag { display: none; }
+
+  .scrum-epics-grid { grid-template-columns: 1fr; overflow: visible; padding-right: 0; }
+  .scrum-content-body .audit-panel-box { overflow: visible !important; }
+  .scrum-content-body .audit-panel-header { flex-direction: column; align-items: stretch; gap: 10px; }
+  .scrum-content-body .audit-panel-header > div:last-child { flex-wrap: wrap; }
+  .scrum-content-body .audit-panel-header select { flex: 1; min-width: 0; }
+
+  /* Backlog table becomes a list of cards. */
+  .scrum-backlog-scroll { overflow: visible !important; }
+  .scrum-backlog-table, .scrum-backlog-table tbody { display: block; width: 100%; }
+  .scrum-backlog-table thead { display: none; }
+  .scrum-backlog-table tr {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
+    margin-bottom: 10px; padding: 10px; border: 1px solid var(--line);
+    border-radius: 8px; background: var(--panel2);
+  }
+  .scrum-backlog-table td { display: block; width: auto !important; padding: 0; border: 0; text-align: left !important; }
+  .scrum-backlog-table td:nth-child(1) { order: 1; }
+  .scrum-backlog-table td:nth-child(2) { order: 2; }
+  .scrum-backlog-table td:nth-child(5) { order: 3; }
+  .scrum-backlog-table td:nth-child(6) { order: 4; }
+  .scrum-backlog-table td:nth-child(3) { order: 5; flex: 1 1 100%; }
+  .scrum-backlog-table td:nth-child(4) { order: 6; max-width: 100%; }
+  .scrum-backlog-table td:nth-child(7) { order: 7; }
+  .scrum-backlog-table td:nth-child(8) { order: 8; }
+  .scrum-backlog-table td:nth-child(9) { order: 9; flex: 1 1 100%; }
+  .scrum-backlog-table td:nth-child(9) > div { justify-content: flex-start !important; flex-wrap: wrap; }
+  .scrum-backlog-table td:nth-child(9) .btn-card-action { min-width: 40px; }
+  .scrum-backlog-table td[colspan] { flex: 1 1 100%; text-align: center !important; }
+
+  .scrum-story-card .story-card-nav-btns .btn-step-col { min-width: 40px; min-height: 36px; }
+}
