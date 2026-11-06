@@ -3,20 +3,14 @@
 const fs = require("fs");
 const path = require("path");
 const { listSources } = require("./catalog-sources");
-const { cleanBOM, parseFrontmatter } = require("../../../../tools/lib/skills/frontmatter");
+const cache = require("./catalog-cache");
 const { classify, listAreas, loadAreas } = require("./catalog-areas");
 const { readOverrides } = require("./catalog-overrides");
 
-/** Default sources (user, harness and every project repo); tests pass their own. */
-const defaultSources = () => listSources();
+/** Default sources (user, harness and every project repo), kept briefly by the cache; tests pass their own. */
+const defaultSources = () => cache.cachedSources(() => listSources());
 
-function readMeta(file) {
-  try {
-    return parseFrontmatter(cleanBOM(fs.readFileSync(file, "utf8"))).attributes;
-  } catch {
-    return {};
-  }
-}
+const readMeta = cache.readMeta;
 
 function listSkills(source) {
   if (!fs.existsSync(source.dir)) return [];
@@ -51,6 +45,15 @@ function listAgents(source) {
  * @param {{ sources?: ReturnType<typeof defaultSources>, overridesFile?: string, areaConfig?: ReturnType<typeof loadAreas> }} [opts]
  */
 function buildCatalog(opts = {}) {
+  cache.beginPass();
+  try {
+    return build(opts);
+  } finally {
+    cache.endPass();
+  }
+}
+
+function build(opts) {
   const sources = opts.sources || defaultSources();
   const overrides = readOverrides(opts.overridesFile);
   const config = opts.areaConfig || loadAreas();
