@@ -31,6 +31,8 @@ Design view `#/canvas-mindmap`, shown in the canvas workspace (props `embedded: 
 | `ui/web/src/islands/canvas-mindmap/BoardList.tsx` | List, create and delete mind-map boards. |
 | `ui/web/src/islands/canvas-mindmap/MindmapEditor.tsx` | Editor shell: toolbar, save status, conflict banner. |
 | `ui/web/src/islands/canvas-mindmap/MindmapCanvas.tsx` | React Flow canvas fed by the layout and keymap; the dragged subtree moves together live. |
+| `ui/web/src/features/mindmap/dropTarget.ts` | Pure drop-target resolution for Shift+drag reparenting (which node is under the pointer, cycle-safe). |
+| `ui/web/src/islands/canvas-mindmap/useReparentDrag.ts` | Hook: Shift+drag a node onto another to reparent it (highlights the target; snaps back when dropped on nothing). |
 | `ui/web/src/islands/canvas-mindmap/FocusFollower.tsx` | Pans the canvas to the selected node at the current zoom when it leaves the comfortable area; positions come from the layout props. |
 | `ui/web/src/islands/canvas-mindmap/MindNodeView.tsx` | Custom node with inline text editing, collapse toggle and a NodeResizer (shown when selected); text wraps. |
 | `ui/web/src/features/mindmap/toolbarState.ts` | Pure `toolbarState(doc, selectedId, history)`: which toolbar actions are enabled. |

@@ -10,6 +10,7 @@ export interface MindNodeData extends Record<string, unknown> {
   hasChildren: boolean;
   collapsed: boolean;
   isRoot: boolean;
+  dropTarget?: boolean;
   onCommit(id: string, text: string): void;
   onCancel(): void;
   onToggle(id: string): void;
@@ -33,7 +34,7 @@ export function MindNodeView({ id, data }: NodeProps<MindFlowNode>) {
   const label = data.text || "Empty node";
   return (
     <div
-      className={`mm-node${data.selected ? " mm-node--selected" : ""}${data.isRoot ? " mm-node--root" : ""}`}
+      className={`mm-node${data.selected ? " mm-node--selected" : ""}${data.isRoot ? " mm-node--root" : ""}${data.dropTarget ? " mm-node--drop-target" : ""}`}
       role="treeitem"
       aria-selected={data.selected}
       aria-expanded={data.hasChildren ? !data.collapsed : undefined}
