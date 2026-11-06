@@ -42,6 +42,9 @@ O conteúdo é um diagrama Mermaid dos tipos flowchart/graph, sequenceDiagram ou
 mode="replace" limpa o quadro e coloca o diagrama; mode="append" acrescenta abaixo do que já existe. Use mode="replace" somente quando o usuário pedir para refazer ou limpar o quadro; para acrescentar algo, use sempre mode="append". Textos curtos, no máximo 25 nós.
 Fora do bloco, explique em 1-2 frases o que foi feito. Para apenas conversar, responda sem o bloco.`;
 
+const MAP_REMINDER = `Lembrete do canvas de Mapas Mentais: para criar ou alterar o mapa, responda com um bloco <mindmap parent="selected|root" mode="new"> contendo uma lista com "-" (2 espaços por nível); para só conversar, responda sem o bloco.`;
+const BOARD_REMINDER = `Lembrete do canvas de Quadros: para criar ou alterar o desenho, responda com um bloco <board mode="append|replace"> com Mermaid (flowchart, sequenceDiagram ou classDiagram), sem cercas de código; para só conversar, responda sem o bloco.`;
+
 /** @param {Event} event */
 function onState(event) {
   const detail = /** @type {CustomEvent} */ (event).detail;
@@ -87,12 +90,15 @@ export function wrapCanvasPrompt(text, opts = {}) {
   const fresh = !opts.resumed || !sent || sent.boardId !== latest.boardId;
   const changed = fresh || !sent || sent.hash !== hash;
   sent = { boardId: latest.boardId, hash };
-  if (!changed) return text;
   const board = context.kind === "board";
+  const reminder = board ? BOARD_REMINDER : MAP_REMINDER;
+  // The rules go once per session, but a model that ignored them (or an engine that buries them under a long project
+  // context) needs the format again: every resumed message carries a one-line reminder, with the request last.
+  if (!changed) return `${reminder}\n\nPedido do usuário:\n${text}`;
   const selected = latest.selectedText ? ` (nó selecionado: "${latest.selectedText}")` : "";
   const map = `${board ? "Quadro atual" : "Mapa atual"} "${latest.title}"${selected}:\n${latest.outline}`;
   if (fresh) return `${board ? BOARD_RULES : RULES}\n\n${map}\n\nPedido do usuário:\n${text}`;
-  return `${board ? "O quadro mudou" : "O mapa mudou"} desde a última mensagem.\n${map}\n\nPedido do usuário:\n${text}`;
+  return `${board ? "O quadro mudou" : "O mapa mudou"} desde a última mensagem.\n${map}\n\n${reminder}\n\nPedido do usuário:\n${text}`;
 }
 
 /** @param {string} raw */

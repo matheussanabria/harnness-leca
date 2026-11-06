@@ -31,15 +31,21 @@ test("a new session gets the rules, the map and the selected node", () => {
   assert.match(prompt, /Pedido do usuário:\nExpanda o backend$/);
 });
 
-test("a resumed session with the same map sends only the request; a changed map sends it again without the rules", () => {
+test("a resumed session repeats only a one-line format reminder; a changed map is sent again without the full rules", () => {
   bridge.setCanvasChatContext({ kind: "mindmap", slug: "demo" });
   publish(state());
   bridge.wrapCanvasPrompt("primeira");
-  assert.equal(bridge.wrapCanvasPrompt("segunda", { resumed: true }), "segunda");
+  const same = bridge.wrapCanvasPrompt("segunda", { resumed: true });
+  assert.match(same, /^Lembrete do canvas de Mapas Mentais: .*<mindmap parent="selected\|root" mode="new">/);
+  assert.match(same, /\n\nPedido do usuário:\nsegunda$/);
+  assert.equal(same.includes("Você está no canvas"), false, "the full rules are not repeated");
+  assert.equal(same.includes("Mapa atual"), false, "the unchanged map is not repeated");
   publish(state({ outline: "- Plano\n  - Backend\n  - API" }));
   const changed = bridge.wrapCanvasPrompt("terceira", { resumed: true });
   assert.match(changed, /^O mapa mudou desde a última mensagem\./);
-  assert.equal(changed.includes("<mindmap parent"), false, "the rules are not repeated");
+  assert.equal(changed.includes("Você está no canvas"), false, "the full rules are not repeated");
+  assert.match(changed, /Lembrete do canvas de Mapas Mentais/);
+  assert.match(changed, /Pedido do usuário:\nterceira$/);
   assert.match(changed, /- API/);
 });
 
@@ -117,7 +123,9 @@ test("board: a changed drawing is announced as such in a resumed session", () =>
   bridge.setCanvasChatContext({ kind: "board", slug: "demo" });
   publish(boardState());
   bridge.wrapCanvasPrompt("a");
-  assert.equal(bridge.wrapCanvasPrompt("b", { resumed: true }), "b");
+  const same = bridge.wrapCanvasPrompt("b", { resumed: true });
+  assert.match(same, /^Lembrete do canvas de Quadros: .*<board mode="append\|replace">/);
+  assert.match(same, /Pedido do usuário:\nb$/);
   publish(boardState({ outline: "Elementos: 3 formas, 2 setas/linhas, 0 imagens" }));
   assert.match(bridge.wrapCanvasPrompt("c", { resumed: true }), /^O quadro mudou desde a última mensagem\./);
 });

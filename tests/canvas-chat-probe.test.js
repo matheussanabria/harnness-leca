@@ -59,12 +59,12 @@ test("declining an unsupported chart without a block is accepted, not a failure"
   assert.equal(v.verdict, "PASS");
 });
 
-test("prompts carry the rules once; the resumed scenario repeats the transcript without the rules", () => {
+test("prompts carry the rules once; the resumed turn repeats only the one-line reminder", () => {
   const fresh = buildPrompt(env, scenario("mm-expand-selected"));
   assert.match(fresh, /Você está no canvas de Mapas Mentais/);
   const resumed = buildPrompt(env, scenario("mm-resumed"));
   assert.equal(resumed.match(/Você está no canvas de Mapas Mentais/g).length, 1);
-  assert.match(resumed, /\[Usuário\]\nAgora adicione também Testes/);
+  assert.match(resumed, /\[Usuário\]\nLembrete do canvas de Mapas Mentais: .*\n\nPedido do usuário:\nAgora adicione também Testes sob o nó selecionado$/);
 });
 
 test("report aggregates pass counts per model", () => {
