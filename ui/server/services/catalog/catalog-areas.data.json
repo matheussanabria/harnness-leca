@@ -1,0 +1,161 @@
+{
+  "other": {
+    "id": "other",
+    "label": "Outros",
+    "icon": "fa-folder-open"
+  },
+  "areas": [
+    {
+      "id": "documentation",
+      "label": "Documentação",
+      "icon": "fa-book",
+      "keywords": [
+        "documentation",
+        "documentacao",
+        "readme",
+        "adr",
+        "changelog",
+        "runbook",
+        "technical-writing",
+        "documenter",
+        "obsidian",
+        "release-communication"
+      ]
+    },
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "icon": "fa-display",
+      "keywords": [
+        "frontend",
+        "angular",
+        "react",
+        "nextjs",
+        "css",
+        "componente",
+        "ui",
+        "ux",
+        "acessibilidade",
+        "accessibility",
+        "design"
+      ]
+    },
+    {
+      "id": "backend",
+      "label": "Backend",
+      "icon": "fa-server",
+      "keywords": [
+        "backend",
+        "java",
+        "spring",
+        "checkstyle",
+        "api",
+        "rest",
+        "data-modeling",
+        "sql",
+        "resilience",
+        "banco"
+      ]
+    },
+    {
+      "id": "quality",
+      "label": "Qualidade e testes",
+      "icon": "fa-vial",
+      "keywords": [
+        "test",
+        "teste",
+        "qa",
+        "bdd",
+        "bug",
+        "tdd",
+        "lint",
+        "quality",
+        "review",
+        "clean-code",
+        "refactor"
+      ]
+    },
+    {
+      "id": "security",
+      "label": "Segurança",
+      "icon": "fa-shield-halved",
+      "keywords": [
+        "security",
+        "seguranca",
+        "owasp",
+        "threat",
+        "supply-chain",
+        "secret"
+      ]
+    },
+    {
+      "id": "devops",
+      "label": "DevOps",
+      "icon": "fa-gears",
+      "keywords": [
+        "devops",
+        "docker",
+        "ci",
+        "cd",
+        "deploy",
+        "pipeline",
+        "github-actions",
+        "observability",
+        "release-operations",
+        "commit"
+      ]
+    },
+    {
+      "id": "product",
+      "label": "Produto e processo",
+      "icon": "fa-clipboard-list",
+      "keywords": [
+        "product",
+        "produto",
+        "backlog",
+        "scrum",
+        "agile",
+        "sprint",
+        "requirements",
+        "story",
+        "jira",
+        "discovery",
+        "okr"
+      ]
+    },
+    {
+      "id": "architecture",
+      "label": "Arquitetura",
+      "icon": "fa-sitemap",
+      "keywords": [
+        "architect",
+        "arquitetura",
+        "architecture",
+        "solid",
+        "sdd",
+        "design-document",
+        "technical-debt",
+        "breakdown",
+        "evolution"
+      ]
+    },
+    {
+      "id": "ai",
+      "label": "IA e automação",
+      "icon": "fa-robot",
+      "keywords": [
+        "llm",
+        "ai",
+        "agent",
+        "prompt",
+        "mcp",
+        "orchestr",
+        "coordination",
+        "alethe",
+        "harness",
+        "skill",
+        "postman"
+      ]
+    }
+  ]
+}

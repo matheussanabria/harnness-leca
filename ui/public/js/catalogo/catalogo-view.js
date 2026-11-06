@@ -13,21 +13,29 @@ export function renderAreaChips(areas, counts, current) {
   return chip("all", "fa-layer-group", "Todas") + areas.filter((a) => counts[a.id]).map((a) => chip(a.id, a.icon, a.label)).join("");
 }
 
+/** How the area was chosen, shown as a tag on each card. */
+const ORIGIN = {
+  frontmatter: `<span class="k-tag k-tag--manual" title="Área definida no frontmatter do arquivo (campo area)">frontmatter</span>`,
+  manual: `<span class="k-tag k-tag--manual" title="Área escolhida por você">manual</span>`,
+  suggested: `<span class="k-tag" title="Sugerida pelo nome e descrição">sugerida</span>`,
+};
+
 function renderCard(item, areas, canManage) {
   const icon = item.kind === "agent" ? "fa-user-gear" : "fa-wand-magic-sparkles";
   const kind = item.kind === "agent" ? "Agente" : "Skill";
   const options = areas
     .map((a) => `<option value="${esc(a.id)}"${a.id === item.area ? " selected" : ""}>${esc(a.label)}</option>`)
     .join("");
+  const fixed = item.areaSource === "frontmatter";
   const select = canManage
-    ? `<select class="k-select" data-kind="${esc(item.kind)}" data-name="${esc(item.name)}" aria-label="Área de ${esc(item.name)}">${options}</select>`
+    ? `<select class="k-select" data-kind="${esc(item.kind)}" data-name="${esc(item.name)}" aria-label="Área de ${esc(item.name)}"${fixed ? ' disabled title="Definida no frontmatter do arquivo (campo area)"' : ""}>${options}</select>`
     : "";
-  const manual = item.manual ? `<span class="k-tag k-tag--manual" title="Área escolhida por você">manual</span>` : "";
+  const origin = ORIGIN[item.areaSource] || ORIGIN.suggested;
   const also = item.alsoIn && item.alsoIn.length ? `<span class="k-tag" title="Também em: ${esc(item.alsoIn.join(", "))}">+${item.alsoIn.length}</span>` : "";
   return (
     `<article class="k-card"><h3><button type="button" class="k-open" data-open="${esc(item.kind)}:${esc(item.source)}:${esc(item.ref)}" title="Abrir arquivos"><i class="fa-solid ${icon}" aria-hidden="true"></i> ${esc(item.name)}</button></h3>` +
     `<p>${esc(item.description || "Sem descrição.")}</p>` +
-    `<div class="k-meta"><span class="k-tag">${kind}</span><span class="k-tag">${esc(item.sourceLabel)}</span>${also}${manual}${select}</div></article>`
+    `<div class="k-meta"><span class="k-tag">${kind}</span><span class="k-tag">${esc(item.sourceLabel)}</span>${also}${origin}${select}</div></article>`
   );
 }
 
