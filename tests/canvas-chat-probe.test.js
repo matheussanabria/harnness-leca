@@ -27,13 +27,12 @@ test("missing block, wrong parent, too few nodes and over-deep outlines are flag
   assert.ok(judge(env, scenario("mm-deep"), deep).codes.includes("OVER_DEPTH_LIMIT"));
 });
 
-test("asterisk bullets are parsed; bullets inside a fence inside the block are lost (known gap, step 4)", () => {
-  const star = judge(env, scenario("mm-expand-selected"), '<mindmap parent="selected">\n* A\n* B\n* C\n* D\n</mindmap>');
+test("asterisk bullets and bullets wrapped in a fence inside the block are both parsed", () => {
+  const bullets = "* A\n* B\n* C\n* D";
+  const star = judge(env, scenario("mm-expand-selected"), `<mindmap parent="selected">\n${bullets}\n</mindmap>`);
   assert.equal(star.verdict, "PASS");
-  const fenced = judge(env, scenario("mm-expand-selected"), '<mindmap parent="selected">\n```\n* A\n* B\n* C\n* D\n```\n</mindmap>');
-  assert.equal(fenced.verdict, "FAIL");
-  assert.ok(fenced.codes.includes("EMPTY_OUTLINE"));
-  assert.ok(fenced.codes.includes("note:FENCE_INSIDE_BLOCK"));
+  const fenced = judge(env, scenario("mm-expand-selected"), `<mindmap parent="selected">\n\`\`\`\n${bullets}\n\`\`\`\n</mindmap>`);
+  assert.equal(fenced.verdict, "PASS");
 });
 
 test("chat-only scenarios fail when the model emits a block", () => {

@@ -57,8 +57,11 @@ function parseOpencodeEvents(stdout) {
   const events = stdout.split(/\r?\n/).filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return {}; } });
   const err = events.find((e) => e.type === "error");
   if (err) {
-    const d = err.error && err.error.data;
-    throw new Error(`opencode: ${(d && d.message) || (err.error && err.error.name) || "erro"}${d && d.statusCode ? ` (HTTP ${d.statusCode})` : ""}`.slice(0, 300));
+    const e = err.error || {};
+    const d = e.data;
+    // Two shapes exist: { data: { message, statusCode } } and, for the free-usage limit, { message, status } at the top.
+    const status = (d && d.statusCode) || e.status;
+    throw new Error(`opencode: ${(d && d.message) || e.message || e.name || "erro"}${status ? ` (HTTP ${status})` : ""}`.slice(0, 300));
   }
   return events.map((e) => (e.part && e.part.type === "text" ? e.part.text : "")).join("").trim();
 }

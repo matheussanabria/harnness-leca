@@ -172,3 +172,32 @@ test("mind map: applyCanvasReply carries kind mindmap and ignores <board> answer
   assert.equal(received.length, 1);
   assert.equal(received[0].kind, "mindmap");
 });
+
+test("a code fence around the block content is stripped before parsing (P-109)", () => {
+  const mind = bridge.extractMindmapBlocks('<mindmap parent="root">\n```markdown\n- A\n  - B\n```\n</mindmap>');
+  assert.deepEqual(mind, [{ mode: "append", parent: "root", body: "- A\n  - B" }]);
+  const board = bridge.extractBoardBlocks('<board mode="replace">\n```mermaid\nflowchart TD\n  A --> B\n```\n</board>');
+  assert.deepEqual(board, [{ mode: "replace", body: "flowchart TD\n  A --> B" }]);
+});
+
+test("dropSupersededBlocks keeps only what follows the last replacing block (draft then correction)", () => {
+  const blocks = [{ mode: "new", n: 1 }, { mode: "append", n: 2 }, { mode: "new", n: 3 }, { mode: "append", n: 4 }];
+  assert.deepEqual(bridge.dropSupersededBlocks(blocks, "new").map((b) => b.n), [3, 4]);
+  const appendOnly = [{ mode: "append", n: 1 }, { mode: "append", n: 2 }];
+  assert.deepEqual(bridge.dropSupersededBlocks(appendOnly, "new"), appendOnly);
+  assert.deepEqual(bridge.dropSupersededBlocks([], "new"), []);
+  assert.deepEqual(bridge.dropSupersededBlocks([{ mode: "replace" }, { mode: "append" }], "replace"), [{ mode: "replace" }, { mode: "append" }]);
+});
+
+test("applyCanvasReply sends only the corrected map when the model sends a draft first", () => {
+  bridge.setCanvasChatContext({ kind: "mindmap", slug: "demo" });
+  publish(state());
+  const received = [];
+  const listener = (e) => received.push(e.detail);
+  target.addEventListener(CANVAS_APPLY_EVENT, listener);
+  bridge.applyCanvasReply('<mindmap mode="new">\n- Rascunho\n</mindmap>\nCorrigindo:\n<mindmap mode="new">\n- Final\n  - Item\n</mindmap>');
+  target.removeEventListener(CANVAS_APPLY_EVENT, listener);
+  assert.equal(received.length, 1);
+  assert.equal(received[0].blocks.length, 1);
+  assert.equal(received[0].blocks[0].body, "- Final\n  - Item");
+});
