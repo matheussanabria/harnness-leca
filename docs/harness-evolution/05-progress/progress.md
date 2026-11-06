@@ -27,8 +27,9 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-13 | 9/9 | **concluído** | 13.01 a 13.09 concluídas; memória declarativa atômica com frontmatter, índice gerado com teto, deduplicação trigram/hash, ferramenta save com recusa de segredos, revisão e colheita nativa, carregamento em duas fases e faxina periódica com lint | Portão satisfeito |
 | EP-14 | 12/12 | **concluído** | 14.01 a 14.12 concluídas; endpoints de estado e histórico das 13 telas, concorrência por `rev`, limite de 64 KB, migração de localStorage e cobertura total de testes | Portão satisfeito |
 | EP-17 | 0/13 | **planejado** | Épico, 13 histórias, ADR-012 e ADR-013 e inventário de persistência criados em 2026-11-01; nada implementado | Executar 17.01; depois 17.02 (corrige a perda de contexto no F5), 17.03 e 17.05 em paralelo |
+| EP-20 | 0/1 | **em revisão** | Edição de código pelo celular implementada; aguarda validação visual dos breakpoints móveis | Validar em 320px, 375px e 768px e registrar aceite |
 
-**Total: 136/149**
+**Total: 136/150**
 
 ## Registro
 

@@ -3,7 +3,7 @@ domain: frontend
 module: studio
 feature: studio-review-skills
 summary: Vibecoding Studio layout, views, state and code editor, plus memory review and skills manager modules.
-paths: [ui/public/js/modules/studio*.js, ui/public/js/modules/design-view-state.js, ui/public/js/modules/review.js, ui/public/js/modules/skills*.js, ui/public/css/studio/05-source-editor.css, tests/studio-wiring.test.js]
+paths: [ui/public/js/modules/studio*.js, ui/public/js/modules/design-view-state.js, ui/public/js/modules/review.js, ui/public/js/modules/skills*.js, ui/public/css/studio/05-source-editor.css, tests/studio-wiring.test.js, tests/source-editor-mobile.test.js]
 keywords: [studio, preview, splitter, source-editor, design-view, review, memory, skills]
 updated: 2026-10-30
 ---
@@ -20,6 +20,7 @@ updated: 2026-10-30
 | `ui/public/js/modules/studio-source-tree.js` | Collapsible directory tree for the Studio code editor. |
 | `ui/public/js/modules/studio-source-highlight.js` | Per-language syntax highlighting for the Studio code editor. |
 | `ui/public/css/studio/05-source-editor.css` | Styles for the Studio source editor. |
+| `tests/source-editor-mobile.test.js` | Mobile source-editor viewport, touch-control and return-control contract checks. |
 | `ui/public/js/modules/studio-views.js` | Switches Preview, Atelier and 2 Screens (Code opens as third column), normalizes aliases, lazy mount, per-project persistence, unsaved-code confirm. |
 | `ui/public/js/modules/studio-state.js` | Normalizes and persists the `studio` screen (view, sidebar, code, viewport, Design view) and logs actions (EP-14.08, EP-14.12). |
 | `ui/public/js/modules/design-view-state.js` | Reads `studio.designView/designOpen`, restores the Design tab at boot and saves view/open changes (EP-14.12). |
