@@ -1,6 +1,6 @@
 // @ts-check
 (() => {
-  // Ponte leve do Harness Leca para o iframe do protótipo
+  // Ponte leve do Harness para o iframe do protótipo
   if (typeof window === "undefined" || window === window.top) return;
 
   function sendToParent(type, payload = {}) {

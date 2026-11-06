@@ -15,7 +15,7 @@ export const NAV_ITEMS = [
 ];
 
 export function renderBrand() {
-  return '<a class="app-brand" href="/"><i class="fa-solid fa-asterisk" aria-hidden="true"></i> Harness Leca</a>';
+  return '<a class="app-brand" href="/"><img class="app-brand-logo" src="/img/harness-logo.png" alt="" width="32" height="32"> <span>Harness</span></a>';
 }
 
 export function renderNav(current) {
