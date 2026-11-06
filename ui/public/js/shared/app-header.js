@@ -28,6 +28,21 @@ export function renderNav(current) {
   return `<nav class="app-nav" aria-label="Navegação principal">${links.join("")}</nav>`;
 }
 
+export function renderMenuToggle() {
+  return '<button type="button" class="app-menu-toggle" aria-label="Abrir menu" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>';
+}
+
+// Mobile only (CSS hides the toggle on wide screens): opens or closes the nav and the right slot.
+function wireMenuToggle(header) {
+  const btn = header.querySelector(".app-menu-toggle");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    const open = header.classList.toggle("menu-open");
+    btn.setAttribute("aria-expanded", String(open));
+    btn.firstElementChild.className = open ? "fa-solid fa-xmark" : "fa-solid fa-bars";
+  });
+}
+
 // Wraps the existing slot children so brand and nav stay in a fixed order.
 export function mountAppHeader(header) {
   if (!header || header.dataset.appHeaderReady) return;
@@ -43,6 +58,10 @@ export function mountAppHeader(header) {
   if (left) brand.after(left);
   (left || brand).after(navEl);
   if (right) navEl.after(right);
+  const holder = document.createElement("div");
+  holder.innerHTML = renderMenuToggle();
+  (left || brand).after(holder.firstElementChild);
+  wireMenuToggle(header);
   header.dataset.appHeaderReady = "1";
 }
 

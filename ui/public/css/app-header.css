@@ -55,10 +55,30 @@ header.app-header:not(.dai-topbar) {
   border-radius: 6px;
   padding: 2px 8px;
 }
+.app-menu-toggle { display: none; }
 @media (max-width: 760px) {
   header.app-header { padding: 10px 14px; gap: 8px; }
   .app-nav-item span { display: none; }
   .app-nav-item { padding: 6px 9px; }
+}
+/* Mobile hamburger: brand + project select + toggle stay; nav and screen actions open as a panel. */
+@media (max-width: 760px) {
+  header.app-header:not(.dai-topbar) .app-brand { font-size: 15px; }
+  .app-header:not(.dai-topbar) [data-slot="left"] { flex: 1 1 0; min-width: 0; }
+  .app-header:not(.dai-topbar) [data-slot="left"] select { min-width: 0; flex: 1; max-width: 100%; }
+  .app-header:not(.dai-topbar) .app-menu-toggle {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 34px; margin-left: auto; cursor: pointer;
+    color: var(--text); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 8px;
+  }
+  .app-header:not(.dai-topbar):not(.menu-open) .app-nav,
+  .app-header:not(.dai-topbar):not(.menu-open) [data-slot="right"] { display: none; }
+  .app-header.menu-open:not(.dai-topbar) .app-nav { order: 10; flex-basis: 100%; justify-content: space-between; }
+  .app-header.menu-open:not(.dai-topbar) [data-slot="right"] {
+    order: 11; flex-basis: 100%; flex-direction: column; align-items: stretch; margin-left: 0;
+  }
+  .app-header.menu-open:not(.dai-topbar) [data-slot="right"] > * { width: 100%; justify-content: center; }
 }
 
 /* Office keeps its HUD theme: the same header, mapped to the DAI tokens. */
