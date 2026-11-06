@@ -18,6 +18,7 @@ import { applyAtelierLayout, beginAtelierAdoption, bindAtelierLayout, persistAte
 import { selectSingle, onMultiClick, bindSelectionBar, installHistoryKeys } from "./prototype-atelier-multi.js";
 import { setupBridgeListener } from "./prototype-atelier-messages.js";
 import { ctx, host } from "./prototype-atelier-ctx.js";
+import { setChatArtifact } from "./chat-scope.js";
 
 Object.assign(host, { post: postToPrototype, reload: reloadIframe, details: renderSelectedNodeDetails, move: moveElement, tree: renderLayerTree });
 
@@ -93,6 +94,7 @@ function renderAtelierLayout(container) {
     onPreview: (componentId) => openComponentModal(ctx.slug, componentId),
   });
   attachStudioSidebarToAtelier();
+  setChatArtifact("prototypes", ctx.protoId);
   setAtelierChatContext({
     slug: ctx.slug,
     protoId: ctx.protoId,
