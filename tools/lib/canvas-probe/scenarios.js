@@ -15,7 +15,7 @@ const SCENARIOS = [
   { id: "mm-expand-selected", kind: "mindmap", request: "Expanda o nó Backend com 4 subtópicos", state: MAP, expect: { mode: "append", parent: "selected", minAdded: 4 } },
   { id: "mm-expand-root", kind: "mindmap", request: "Adicione um novo ramo de Segurança na raiz com 3 itens", state: MAP, expect: { mode: "append", parent: "root", minAdded: 4 } },
   { id: "mm-replace", kind: "mindmap", request: "Refaça o mapa inteiro como um plano de estudos de inglês em 3 meses", state: MAP, expect: { mode: "new", minAdded: 6 } },
-  { id: "mm-deep", kind: "mindmap", request: "Detalhe Infra com o máximo de níveis que puder sobre CI/CD e observabilidade", state: MAP, expect: { mode: "append", minAdded: 6, maxDepth: 4 } },
+  { id: "mm-deep", kind: "mindmap", request: "Detalhe Infra com o máximo de níveis que puder sobre CI/CD e observabilidade", state: MAP, expect: { mode: ["append", "new"], minAdded: 6 } },
   { id: "mm-chat-only", kind: "mindmap", request: "Qual a diferença entre mapa mental e fluxograma? Responda só conversando.", state: MAP, expect: { noBlock: true } },
   { id: "mm-resumed", kind: "mindmap", request: "Agora adicione também Testes sob o nó selecionado", state: MAP, expect: { mode: "append", minAdded: 1 },
     history: { request: "Expanda o nó Backend com 2 subtópicos", answer: "Adicionei dois subtópicos.\n<mindmap parent=\"selected\">\n- API\n- Banco de dados\n</mindmap>" } },

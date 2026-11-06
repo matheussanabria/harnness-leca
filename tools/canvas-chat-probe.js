@@ -11,8 +11,9 @@ const { buildPrompt } = require("./lib/canvas-probe/prompts");
 const { judge } = require("./lib/canvas-probe/judge");
 const { toMarkdown } = require("./lib/canvas-probe/report");
 
-const USAGE = `Usage: node tools/canvas-chat-probe.js [--list] [--dry] [--engine opencode|claude --allow-claude] [--model a,b] [--only id,id] [--repeat n] [--out file.md] [--raw file.json]
+const USAGE = `Usage: node tools/canvas-chat-probe.js [--list] [--dry] [--engine opencode|claude --allow-claude] [--allow-paid] [--model a,b] [--only id,id] [--repeat n] [--out file.md] [--raw file.json]
   --dry     print the prompts without calling any model
+  --allow-paid  lets opencode use non-free models (9router combos, openrouter); they may cost
   claude    only runs with --allow-claude (it spends quota); the default engine is the free opencode`;
 
 /** @param {string[]} argv */
@@ -41,7 +42,7 @@ async function main(argv, io = console) {
       for (let run = 1; run <= repeat; run += 1) {
         const started = Date.now();
         try {
-          const answer = ask({ engine, model: model || undefined, prompt });
+          const answer = ask({ engine, model: model || undefined, prompt, allowPaid: flag("allow-paid", argv) });
           const verdict = judge(env, s, answer);
           rows.push({ model: model || engine, scenario: s.id, run, ...verdict, ms: Date.now() - started });
           raw.push({ model, scenario: s.id, run, answer });

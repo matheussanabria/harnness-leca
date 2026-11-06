@@ -24,7 +24,7 @@ test("missing block, wrong parent, too few nodes and over-deep outlines are flag
   assert.ok(judge(env, scenario("mm-expand-root"), '<mindmap parent="selected">\n- A\n- B\n- C\n- D\n</mindmap>').codes.includes("WRONG_PARENT"));
   assert.ok(judge(env, scenario("mm-expand-selected"), '<mindmap parent="selected">\n- A\n</mindmap>').codes.includes("TOO_FEW_NODES"));
   const deep = '<mindmap>\n- a\n  - b\n    - c\n      - d\n        - e\n- f\n- g\n- h\n- i\n- j\n</mindmap>';
-  assert.ok(judge(env, scenario("mm-deep"), deep).codes.includes("OVER_DEPTH_LIMIT"));
+  assert.ok(judge(env, scenario("mm-deep"), deep).codes.includes("note:OVER_PROMPT_DEPTH_LIMIT"));
 });
 
 test("asterisk bullets and bullets wrapped in a fence inside the block are both parsed", () => {

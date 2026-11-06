@@ -64,3 +64,8 @@ test("parseOpencodeEvents: erro com message e status no topo (limite de uso grat
   const err = JSON.stringify({ type: "error", error: { type: "provider.free-limit", message: "Free usage limit reached.", status: 429 } });
   assert.throws(() => L.parseOpencodeEvents(err), /^Error: opencode: Free usage limit reached\. \(HTTP 429\)$/);
 });
+
+test("askOpencode aceita ids com dois pontos (openrouter/...:free) e continua recusando metacaracteres de shell", () => {
+  assert.throws(() => L.askOpencode("x", "openrouter/google/modelo:free; rm -rf", { allowPaid: true }), /inválido/);
+  assert.throws(() => L.askOpencode("x", "opencode/modelo", {}), /não é um modelo gratuito/);
+});

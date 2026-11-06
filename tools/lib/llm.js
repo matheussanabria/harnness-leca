@@ -16,7 +16,7 @@ const { resolveOpencodeBin, opencodeRunArgs, opencodeCwdEnv } = require("./openc
 const DEFAULT_OPENCODE_MODEL = "opencode/deepseek-v4.1-flash-free";
 const TIMEOUT_MS = 300_000;
 const MAX_BUFFER = 16 * 1024 * 1024;
-const MODEL_RE = /^[A-Za-z0-9][A-Za-z0-9._\-\/]{0,80}$/;
+const MODEL_RE = /^[A-Za-z0-9][A-Za-z0-9._\-\/:]{0,80}$/;
 const FREE_MODEL_RE = /^opencode\/[A-Za-z0-9._-]+-free$/;
 
 /** Só os modelos gratuitos do OpenCode vão sem pedir licença: groq/openrouter e afins usam as suas chaves e podem custar. */

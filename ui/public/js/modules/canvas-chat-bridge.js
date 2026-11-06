@@ -30,7 +30,7 @@ const RULES = `Você está no canvas de Mapas Mentais do harness. Para criar ou 
   - Subtópico
 </mindmap>
 Use lista com "-" e 2 espaços por nível, no máximo 4 níveis e 40 tópicos por bloco, com textos curtos.
-parent="selected" adiciona sob o nó selecionado; parent="root" adiciona sob a raiz; mode="new" substitui o mapa inteiro (o primeiro tópico vira a raiz).
+parent="selected" adiciona sob o nó selecionado; parent="root" adiciona sob a raiz; mode="new" substitui o mapa inteiro (o primeiro tópico vira a raiz). Use mode="new" somente quando o usuário pedir para refazer ou recomeçar o mapa; para acrescentar ou detalhar, use parent.
 Fora do bloco, explique em 1-2 frases o que foi feito. Para apenas conversar, responda sem o bloco.`;
 
 const BOARD_RULES = `Você está no canvas de Quadros (diagramas) do harness. Para criar ou alterar o desenho, responda com um bloco neste formato exato:
@@ -39,7 +39,7 @@ flowchart TD
   A[Início] --> B[Fim]
 </board>
 O conteúdo é um diagrama Mermaid dos tipos flowchart/graph, sequenceDiagram ou classDiagram, sem cercas de código.
-mode="replace" limpa o quadro e coloca o diagrama; mode="append" acrescenta abaixo do que já existe. Textos curtos, no máximo 25 nós.
+mode="replace" limpa o quadro e coloca o diagrama; mode="append" acrescenta abaixo do que já existe. Use mode="replace" somente quando o usuário pedir para refazer ou limpar o quadro; para acrescentar algo, use sempre mode="append". Textos curtos, no máximo 25 nós.
 Fora do bloco, explique em 1-2 frases o que foi feito. Para apenas conversar, responda sem o bloco.`;
 
 /** @param {Event} event */

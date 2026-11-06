@@ -13,7 +13,7 @@ Runs a battery of scenarios against a real engine and judges each answer with th
 
 | File | Responsibility |
 |---|---|
-| `tools/canvas-chat-probe.js` | CLI: `--list`, `--dry` (prompts only), `--engine`, `--model a,b`, `--only`, `--repeat`, `--out` (Markdown), `--raw` (answers JSON). |
+| `tools/canvas-chat-probe.js` | CLI: `--list`, `--dry` (prompts only), `--engine`, `--model a,b`, `--only`, `--repeat`, `--allow-paid` (9Router combos, OpenRouter), `--out` (Markdown), `--raw` (answers JSON). |
 | `tools/lib/canvas-probe/scenarios.js` | 13 scenarios (7 mind map, 6 board): create, expand, replace, depth, chat-only, resumed session, unsupported Mermaid type. |
 | `tools/lib/canvas-probe/bridge-env.js` | Loads the bridge and the TS parsers under plain Node with a window stub. |
 | `tools/lib/canvas-probe/prompts.js` | Builds the exact app prompt; approximates a resumed session with a transcript (rules not repeated). |
