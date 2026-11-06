@@ -142,7 +142,7 @@ const ROUTES = [
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/source\/file$/, handler: apiProjectSourceFileSave },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/journal$/, handler: apiProjectJournal },
   ...artifactRoutes,
-  ...skillBindingRoutes,
+  ...skillBindingRoutes, ...require("./routes/catalog.routes").catalogRoutes,
   ...auditRoutes,
   // centralEventRoutes antes: /sessions/stream precisa vencer /sessions/([^/]+) (primeiro match ganha).
   ...centralEventRoutes,
