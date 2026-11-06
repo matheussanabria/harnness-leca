@@ -202,6 +202,7 @@ function render() {
   $("pagerInfo").textContent = OV.total ? `Mostrando ${from}–${to} de ${OV.total}` : "—";
   $("btnPrev").disabled = OV.page <= 1;
   $("btnNext").disabled = OV.page >= OV.pages;
+  if (typeof applyLocks === "function") applyLocks();
 }
 
 // Ações dos dois layouts passam por um único ponto (sem onclick inline).

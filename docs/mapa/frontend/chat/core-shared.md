@@ -3,7 +3,7 @@ domain: frontend
 module: chat
 feature: core-shared
 summary: Frontend bootstrap, shared state, screen-state client, hash router, per-screen state, API client, projects, groups.
-paths: [ui/public/js/app.js, ui/public/js/shared/*.js, ui/public/js/modules/projects.js, ui/public/js/modules/services.js, ui/public/js/deploy/*.js, tests/screen-*.test.js, ui/public/index.html, ui/public/overview.html, ui/public/js/boot.js, ui/public/js/overview.js, ui/public/css/overview.css, ui/public/css/overview-projects.css, ui/public/js/overview-sync.js]
+paths: [ui/public/js/app.js, ui/public/js/shared/*.js, ui/public/js/modules/projects.js, ui/public/js/modules/services.js, ui/public/js/deploy/*.js, tests/screen-*.test.js, ui/public/index.html, ui/public/overview.html, ui/public/js/boot.js, ui/public/js/overview.js, ui/public/css/overview.css, ui/public/css/overview-projects.css, ui/public/js/overview-sync.js, ui/public/css/overview-sync.css]
 keywords: [bootstrap, state, screen-state, router, api, sse, markdown, dom, projects, groups, services, deploy, office, diario, partials, boot]
 updated: 2026-10-31
 ---
@@ -38,6 +38,7 @@ updated: 2026-10-31
 | `ui/public/index.html` | Page shell; blocks live in `ui/public/partials/` and `ui/public/js/boot.js` loads them before `app.js`. |
 | `ui/public/overview.html` | Overview page; styles in `ui/public/css/overview.css`, list logic in `ui/public/js/overview.js`. |
 | `ui/public/js/overview.js` | Overview list: one row model rendered as table (>=1024px) and cards (below), list states (loading, error, empty) and click delegation. |
-| `ui/public/js/overview-sync.js` | Overview sync: per-project sync (JSON) and the system-wide sync stream (SSE) with its log. |
+| `ui/public/js/overview-sync.js` | Overview sync: per-project sync (JSON), system-wide sync stream (SSE), confirmation before writing, mutual locks between both and the engine summary. |
+| `ui/public/css/overview-sync.css` | Collapsed technical details of the sync panel and the confirmation dialog styles. |
 | `ui/public/css/overview-projects.css` | Cards/table switch at 1024px, card layout, list states and 44px touch targets below 1024px. |
 | `ui/public/js/shared/island-loader.js` | Legacy side JS that reads `/dist/islands.js`, injects CSS, mounts/unmounts React islands in `#islandHost`; shows a notice when the build is missing. |
