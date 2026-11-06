@@ -9,6 +9,10 @@ export const CANVAS_STATE_EVENT = "harness:canvas-state";
 export const CANVAS_APPLY_EVENT = "harness:canvas-apply";
 const MAX_BLOCKS = 3;
 const MAX_BLOCK_CHARS = 20000;
+const FENCE_LINE = /^[ \t]*```[\w-]*[ \t]*$/gm;
+
+/** Models sometimes wrap the block content in a code fence; the fence lines are noise for both parsers. @param {string} body */
+const unfence = (body) => body.replace(FENCE_LINE, "").replace(/^\s*\n/, "").trimEnd();
 
 /** @typedef {{ boardId: string, title: string, selectedId: string, selectedText: string, outline: string, kind?: string }} CanvasState */
 
@@ -109,7 +113,7 @@ export function extractMindmapBlocks(fullText) {
   const pattern = /<\s*mindmap([^>]*)>([\s\S]*?)<\s*\/\s*mindmap\s*>/gi;
   for (const match of String(fullText || "").matchAll(pattern)) {
     if (blocks.length >= MAX_BLOCKS) break;
-    const body = match[2].replace(/^\s*\n/, "").trimEnd().slice(0, MAX_BLOCK_CHARS);
+    const body = unfence(match[2]).slice(0, MAX_BLOCK_CHARS);
     if (body.trim()) blocks.push({ ...readAttributes(match[1]), body });
   }
   return blocks;
@@ -125,11 +129,21 @@ export function extractBoardBlocks(fullText) {
   const pattern = /<\s*board([^>]*)>([\s\S]*?)<\s*\/\s*board\s*>/gi;
   for (const match of String(fullText || "").matchAll(pattern)) {
     if (blocks.length >= MAX_BLOCKS) break;
-    const body = match[2].replace(/^\s*\n/, "").trimEnd().slice(0, MAX_BLOCK_CHARS);
+    const body = unfence(match[2]).slice(0, MAX_BLOCK_CHARS);
     const mode = /mode\s*=\s*"replace"/i.test(match[1]) ? "replace" : "append";
     if (body.trim()) blocks.push({ mode, body });
   }
   return blocks;
+}
+
+/**
+ * A block that replaces everything ("new" for the mind map, "replace" for the board) makes every earlier block moot,
+ * so a model that sends a draft and then a corrected block does not leave the draft behind in append mode.
+ * @template {{ mode: string }} B @param {B[]} blocks @param {string} replacing
+ */
+export function dropSupersededBlocks(blocks, replacing) {
+  const last = blocks.map((b) => b.mode).lastIndexOf(replacing);
+  return last > 0 ? blocks.slice(last) : blocks;
 }
 
 /** Hands the blocks of an answer to the open canvas. @param {string} fullText */
@@ -137,7 +151,9 @@ export function applyCanvasReply(fullText) {
   if (!context || !latest) return;
   const board = context.kind === "board";
   if (!new RegExp(board ? "<\\s*board" : "<\\s*mindmap", "i").test(fullText || "")) return;
-  const blocks = board ? extractBoardBlocks(fullText) : extractMindmapBlocks(fullText);
+  const blocks = board
+    ? dropSupersededBlocks(extractBoardBlocks(fullText), "replace")
+    : dropSupersededBlocks(extractMindmapBlocks(fullText), "new");
   if (!blocks.length) return;
   window.dispatchEvent(new CustomEvent(CANVAS_APPLY_EVENT, { detail: { boardId: latest.boardId, kind: context.kind, blocks } }));
   const what = board ? "Quadro" : "Mapa mental";

@@ -59,3 +59,8 @@ test("opencodeConfig: o agente extrator nega escrita, comandos, web e diretório
   assert.ok(!("prompt" in c.agent.extrator), "sem prompt customizado: o plano gratuito espera o do OpenCode");
   assert.ok(!("tools" in c.agent.extrator), "sem tools:false: zero ferramentas dá 403 no plano gratuito");
 });
+
+test("parseOpencodeEvents: erro com message e status no topo (limite de uso gratuito) mostra o motivo", () => {
+  const err = JSON.stringify({ type: "error", error: { type: "provider.free-limit", message: "Free usage limit reached.", status: 429 } });
+  assert.throws(() => L.parseOpencodeEvents(err), /^Error: opencode: Free usage limit reached\. \(HTTP 429\)$/);
+});
