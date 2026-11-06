@@ -1,5 +1,6 @@
 // @ts-check
 // Envio de mensagens e consumo do streaming com cancelamento e sessão canônica.
+import { CHAT_CONFLICT_MESSAGE, chatPresence } from "./chat-tabs.js";
 import { $, showToast } from "../shared/dom.js";
 import { state, saveActiveChatState, clearChatDraft } from "../shared/state.js";
 import { attachmentsBusy, hasAttachments, attachmentLabel, attachmentPrompt, clearChatAttachments } from "./chat-attachments.js";
@@ -26,6 +27,7 @@ export async function sendChatMessage(presentation = "main") {
   if (attachmentsBusy()) return showToast("Aguarde o envio dos anexos terminar.");
   const typed = input?.value ? input.value.trim() : "";
   if (!typed && !hasAttachments()) return;
+  if (chatPresence().hasConflict()) showToast(CHAT_CONFLICT_MESSAGE, 6000); // warns only: sending is never blocked
 
   const label = attachmentLabel();
   const text = [typed, label].filter(Boolean).join("\n\n");
