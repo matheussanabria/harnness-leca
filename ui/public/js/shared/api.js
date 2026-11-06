@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * Cliente de API HTTP e SSE para o servidor do Harness Leca.
+ * Cliente de API HTTP e SSE para o servidor do Harness.
  */
 
 export async function fetchJson(url, options = {}) {

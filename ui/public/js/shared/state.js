@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * Estado reativo compartilhado do Harness Leca Frontend.
+ * Estado reativo compartilhado do Harness Frontend.
  */
 import { createScreenStateClient } from "./screen-state.js";
 

@@ -53,7 +53,7 @@ export const officeScreenViewsMethods = {
     ctx.fillStyle = "#cbd5e1";
     let ty = startY + 110;
     [
-      "[SYSTEM] Conectado ao cluster local do Harness Leca.",
+      "[SYSTEM] Conectado ao cluster local do Harness.",
       "[PROJECT] Workspace Operacional Ativo",
       "[ENGINES] Claude Code · Gemini 1.5 Pro · OpenCode · Codex",
       "[MEMORIES] Base de conhecimento e memory.md sincronizados.",
