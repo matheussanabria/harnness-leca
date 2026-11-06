@@ -110,7 +110,9 @@ export function executeOfficeAction(target, context = {}, options = {}) {
   // 4. Execução por tipo canônico de ação
   switch (actionType) {
     case "window": {
-      const moduleId = descriptor.moduleId;
+      // A screen can open a different module per preset (the war screen on "kanban" opens the interactive Scrum board).
+      const presetModule = descriptor.moduleByPreset?.[officeScreenPresets.getPreset(descriptor.id)];
+      const moduleId = presetModule || descriptor.moduleId;
       let windowInstance = null;
       if (moduleId && wm && typeof wm.open === "function") {
         const projectId = state?.activeProject;
