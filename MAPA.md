@@ -37,7 +37,7 @@ tests/                           node:test suites
 | `office` | hq | 5 | 13.3 KB |
 | `planning` | epics, product, projects | 7 | 15.5 KB |
 | `telemetry` | program, usage | 9 | 30.3 KB |
-| `tools` | engines, mapa, setup, testing | 11 | 27.8 KB |
+| `tools` | canvas, engines, mapa, setup, testing | 12 | 29.6 KB |
 <!-- mapa:index:end -->
 
 ## Map file format
