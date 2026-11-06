@@ -40,6 +40,7 @@ function mountWorkspace() {
     </aside>
     <div class="source-editor-pane">
       <div class="source-editor-toolbar">
+        <button type="button" class="source-mobile-back" onclick="setStudioModeType('source')" title="Voltar ao Studio" aria-label="Voltar ao Studio"><i class="fa-solid fa-arrow-left"></i></button>
         <span id="studioSourcePath" class="source-editor-path">Selecione um arquivo</span>
         <span id="studioSourceLanguage" class="source-language" hidden></span>
         <span id="studioSourceDirty" class="source-dirty" hidden>Alterado</span>

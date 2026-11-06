@@ -32,10 +32,10 @@ tests/                           node:test suites
 | `agents` | skills | 1 | 0.7 KB |
 | `backend` | artifacts, atelier, canvas, chat, core, deploy, orchestration, projects, prototype, screen-state | 15 | 40.4 KB |
 | `design` | atelier-quality, system | 3 | 11.4 KB |
-| `frontend` | canvas, chat, css, design, office, studio, web, window-manager | 24 | 63.0 KB |
+| `frontend` | canvas, chat, css, design, office, studio, web, window-manager | 24 | 65.2 KB |
 | `intelligence` | hia, runtime | 7 | 17.4 KB |
 | `office` | hq | 5 | 13.3 KB |
-| `planning` | epics, product, projects | 7 | 15.5 KB |
+| `planning` | epics, product, projects | 8 | 16.3 KB |
 | `telemetry` | program, usage | 9 | 30.3 KB |
 | `tools` | canvas, engines, mapa, setup, testing | 12 | 29.7 KB |
 <!-- mapa:index:end -->

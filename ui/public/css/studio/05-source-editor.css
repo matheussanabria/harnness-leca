@@ -97,6 +97,7 @@
 }
 
 .btn-source-save:disabled { opacity: .45; cursor: default; }
+.source-mobile-back { display: none; }
 .source-code-shell { display: flex; flex: 1; min-height: 0; overflow: hidden; background: #1e1e1e; }
 .source-code-shell[hidden] { display: none; }
 .source-line-numbers { width: 50px; flex: 0 0 50px; margin: 0; padding: 14px 9px 14px 4px; overflow: hidden; border-right: 1px solid #2b2b2b; color: #858585; background: #1e1e1e; text-align: right; user-select: none; font: 13px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace; }
@@ -144,14 +145,61 @@ body.studio-source-open #studioWorkspace .studio-canvas { min-width: 280px; }
 #studioWorkspace.mode-2telas .studio-source-resizer { display: none !important; }
 
 @media (max-width: 768px) {
-  body.studio-source-open #studioWorkspace .studio-source-col,
+  body.studio-source-open #studioWorkspace .studio-source-col {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    width: 100vw;
+    width: 100dvw;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    border: 0;
+  }
+
   body.studio-source-open #studioWorkspace .studio-source-resizer { display: none; }
+
+  .studio-source-col .source-explorer {
+    height: min(34dvh, 260px);
+    flex: 0 0 min(34dvh, 260px);
+  }
+
+  .source-explorer-header,
+  .source-editor-toolbar {
+    min-height: 44px;
+  }
+
+  .source-icon-btn,
+  .source-mobile-back,
+  .source-editor-toolbar .btn-vp,
+  .btn-source-save {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .source-mobile-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    color: var(--text);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .source-editor-path { font-size: 11px; }
+  .source-language, .source-dirty { display: none; }
+  .source-editor-footer { padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); }
 }
 
 @media (max-width: 700px) {
   .studio-source-workspace { flex-direction: column; }
   .source-explorer { width: 100%; min-width: 0; height: 34%; border-right: 0; border-bottom: 1px solid var(--line); }
-  .source-editor-pane { height: 66%; }
+  .source-editor-pane { height: auto; }
   .source-editor, .source-highlight, .source-line-numbers { font-size: 12px; }
   .source-line-numbers { width: 42px; flex-basis: 42px; }
 }
