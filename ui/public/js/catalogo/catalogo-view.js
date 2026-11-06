@@ -23,10 +23,11 @@ function renderCard(item, areas, canManage) {
     ? `<select class="k-select" data-kind="${esc(item.kind)}" data-name="${esc(item.name)}" aria-label="Área de ${esc(item.name)}">${options}</select>`
     : "";
   const manual = item.manual ? `<span class="k-tag k-tag--manual" title="Área escolhida por você">manual</span>` : "";
+  const also = item.alsoIn && item.alsoIn.length ? `<span class="k-tag" title="Também em: ${esc(item.alsoIn.join(", "))}">+${item.alsoIn.length}</span>` : "";
   return (
     `<article class="k-card"><h3><button type="button" class="k-open" data-open="${esc(item.kind)}:${esc(item.source)}:${esc(item.ref)}" title="Abrir arquivos"><i class="fa-solid ${icon}" aria-hidden="true"></i> ${esc(item.name)}</button></h3>` +
     `<p>${esc(item.description || "Sem descrição.")}</p>` +
-    `<div class="k-meta"><span class="k-tag">${kind}</span><span class="k-tag">${esc(item.sourceLabel)}</span>${manual}${select}</div></article>`
+    `<div class="k-meta"><span class="k-tag">${kind}</span><span class="k-tag">${esc(item.sourceLabel)}</span>${also}${manual}${select}</div></article>`
   );
 }
 
