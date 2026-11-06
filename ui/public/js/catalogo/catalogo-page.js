@@ -1,9 +1,10 @@
 // @ts-check
 // Controller of /catalogo: loads GET /api/catalog, filters, regroups and saves manual areas.
 import { filterItems, groupByArea, areaCounts } from "./catalogo-model.js";
+import { openBrowser, wireBrowser } from "./catalogo-browser.js";
 import { renderAreaChips, renderGroups, esc } from "./catalogo-view.js";
 
-const filter = { kind: "all", area: "all", text: "" };
+const filter = { kind: "skill", area: "all", text: "" };
 let data = { areas: [], items: [], canManage: false };
 
 const $ = (id) => document.getElementById(id);
@@ -13,9 +14,12 @@ function paint() {
   $("kAreas").innerHTML = renderAreaChips(data.areas, counts, filter.area);
   const groups = groupByArea(filterItems(data.items, filter), data.areas);
   $("kList").innerHTML = renderGroups(groups, data.areas, data.canManage);
-  for (const btn of document.querySelectorAll(".k-kinds [data-kind]")) {
+  for (const btn of document.querySelectorAll(".k-tab")) {
     btn.classList.toggle("is-on", btn.getAttribute("data-kind") === filter.kind);
   }
+  const count = (kind) => data.items.filter((i) => i.kind === kind).length;
+  $("kCountSkill").textContent = count("skill");
+  $("kCountAgent").textContent = count("agent");
 }
 
 async function load() {
@@ -44,10 +48,11 @@ export function startCatalogoPage() {
     filter.text = e.target.value;
     paint();
   });
-  document.querySelector(".k-kinds").addEventListener("click", (e) => {
+  document.querySelector(".k-tabs").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-kind]");
     if (!btn) return;
     filter.kind = btn.getAttribute("data-kind");
+    filter.area = "all";
     paint();
   });
   $("kAreas").addEventListener("click", (e) => {
@@ -55,6 +60,14 @@ export function startCatalogoPage() {
     if (!btn) return;
     filter.area = btn.getAttribute("data-area");
     paint();
+  });
+  wireBrowser();
+  $("kList").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-open]");
+    if (!btn) return;
+    const [kind, source, ref] = btn.getAttribute("data-open").split(":");
+    const item = data.items.find((i) => i.kind === kind && i.source === source && i.ref === ref);
+    if (item) openBrowser(item);
   });
   $("kList").addEventListener("change", async (e) => {
     const sel = e.target.closest(".k-select");
