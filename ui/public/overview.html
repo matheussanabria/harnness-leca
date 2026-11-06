@@ -6,6 +6,7 @@
 <title>Harness Leca · Visão geral</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="/css/overview.css">
+<link rel="stylesheet" href="/css/overview-projects.css">
 <link rel="stylesheet" href="/css/app-header.css">
 </head>
 <body>
@@ -48,22 +49,26 @@
 
   <h3 class="sech"><span>Projetos</span> <span id="pageInfo"></span></h3>
   <div class="card">
-    <div class="table-wrap">
-      <table class="table-full">
-        <thead>
-          <tr>
-            <th>Projeto</th>
-            <th>Conversas</th>
-            <th>Extração</th>
-            <th>Revisões</th>
-            <th>Memória</th>
-            <th style="text-align:right">Ações</th>
-          </tr>
-        </thead>
-        <tbody id="rows"><tr><td colspan="6" class="empty">Carregando…</td></tr></tbody>
-      </table>
+    <div id="ovState" class="ov-state loading" role="status" aria-live="polite">Carregando…</div>
+    <div id="ovList" hidden>
+      <div class="table-wrap p-table">
+        <table class="table-full">
+          <thead>
+            <tr>
+              <th scope="col">Projeto</th>
+              <th scope="col">Conversas</th>
+              <th scope="col">Extração</th>
+              <th scope="col">Revisões</th>
+              <th scope="col">Memória</th>
+              <th scope="col" style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="p-cards" id="cards"></div>
     </div>
-    <div class="row-msg" id="rowMsg"></div>
+    <div class="row-msg" id="rowMsg" role="status" aria-live="polite"></div>
     <div class="pager">
       <button id="btnPrev" onclick="goPage(OV.page - 1)">← Anterior</button>
       <span id="pagerInfo">—</span>
@@ -78,6 +83,7 @@
   </div>
 </main>
 <script src="/js/overview.js"></script>
+<script src="/js/overview-sync.js"></script>
 <script type="module" src="/js/shared/app-header.js"></script>
 </body>
 </html>

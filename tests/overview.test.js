@@ -199,13 +199,16 @@ test("POST /api/sync sem projetos responde 400 (e não dispara o CLI)", async ()
 test("overview.html: a lista renderiza e o sync geral termina em 'concluído'", async () => {
   const vm = require("vm");
   const page = fs.readFileSync(path.join(__dirname, "..", "ui", "public", "overview.html"), "utf8").replace(/\r\n/g, "\n");
-  const script = fs.readFileSync(path.join(__dirname, "..", "ui", "public", "js", "overview.js"), "utf8").replace(/\r\n/g, "\n");
-  assert.ok(script.length > 2000 && script.includes("runSyncAll"), "não achei o script da página");
+  const jsDir = path.join(__dirname, "..", "ui", "public", "js");
+  const script = fs.readFileSync(path.join(jsDir, "overview.js"), "utf8").replace(/\r\n/g, "\n");
+  const syncScript = fs.readFileSync(path.join(jsDir, "overview-sync.js"), "utf8").replace(/\r\n/g, "\n");
+  assert.ok(script.length > 2000 && syncScript.includes("runSyncAll"), "não achei o script da página");
 
   const els = new Map();
   const el = () => ({
     innerHTML: "", textContent: "", className: "", value: "", checked: false, disabled: false,
-    scrollTop: 0, scrollHeight: 0, onclick: null,
+    scrollTop: 0, scrollHeight: 0, onclick: null, hidden: false,
+    setAttribute() {},
   });
   const checkedEngines = [{ value: "claude" }]; // só o Claude, para o dry-run do teste ser rápido
   const sandbox = {
@@ -213,6 +216,7 @@ test("overview.html: a lista renderiza e o sync geral termina em 'concluído'", 
     document: {
       getElementById: (id) => sandbox.$(id),
       querySelectorAll: (sel) => (sel === ".eng:checked" ? checkedEngines : []),
+      addEventListener() {},
       body: { classList: { add() {}, remove() {} } },
     },
     location: { search: "", pathname: "/overview" },
@@ -222,6 +226,7 @@ test("overview.html: a lista renderiza e o sync geral termina em 'concluído'", 
   };
   const ctx = vm.createContext(sandbox);
   vm.runInContext(script, ctx);
+  vm.runInContext(syncScript, ctx);
 
   // loadOverview() roda solto no fim do script: espera a tabela encher.
   const until = async (cond, ms = 5000) => { const end = Date.now() + ms; while (!cond() && Date.now() < end) await new Promise((r) => setTimeout(r, 20)); return cond(); };
@@ -230,6 +235,13 @@ test("overview.html: a lista renderiza e o sync geral termina em 'concluído'", 
   const rows = sandbox.$("rows").innerHTML;
   assert.match(rows, /alpha[\s\S]*beta/, "alpha primeiro (atividade mais recente)");
   assert.match(rows, /status-badge badge-active/, "o projeto ativo ganha o selo");
+  const cards = sandbox.$("cards").innerHTML;
+  for (const slug of ["alpha", "beta"]) {
+    assert.ok(rows.includes(`data-slug="${slug}"`) && cards.includes(`data-slug="${slug}"`), `${slug} na tabela e nos cards`);
+    assert.ok(rows.includes(`data-sync="${slug}"`) && cards.includes(`data-sync="${slug}"`), `${slug}: ação de sync nos dois layouts`);
+  }
+  assert.equal(sandbox.$("ovList").hidden, false, "a lista aparece quando há projetos");
+  assert.ok(!/onclick=/.test(rows + cards), "sem handlers inline");
   assert.match(rows, /2 pendente/, "exposição das pendências de extração");
   assert.match(sandbox.$("pagerInfo").textContent, /Mostrando 1–2 de 2/);
   assert.match(sandbox.$("sub").innerHTML, /2 projetos no harness/);

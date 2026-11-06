@@ -1,0 +1,36 @@
+/* Project list: cards below 1024px, table from 1024px. Both render the same model (js/overview.js). */
+.p-table { display: none; }
+.p-cards { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 12px; }
+@media (min-width: 640px) { .p-cards { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); } }
+@media (min-width: 1024px) {
+  .p-table { display: block; }
+  .p-cards { display: none; }
+}
+
+.p-card { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.p-title { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; min-width: 0; }
+.p-link { font-weight: 600; color: var(--text); text-decoration: none; overflow-wrap: anywhere; }
+.p-link:hover { color: var(--accent); }
+.p-link:focus-visible, .btn-row:focus-visible, .pager button:focus-visible, .btn-run:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.p-card .sub2 { color: var(--mute); font-size: 11.5px; }
+.p-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin: 0; }
+.p-stats > div { min-width: 0; }
+.p-stats dt { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--mute); }
+.p-stats dd { margin: 2px 0 0; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.p-card .acts { justify-content: stretch; gap: 8px; margin-top: 2px; }
+.p-card .acts .btn-row { flex: 1; justify-content: center; }
+
+a.btn-row { text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.p-name .p-title { cursor: auto; }
+
+.ov-state { padding: 22px 16px; text-align: center; color: var(--mute); font-size: 13.5px; }
+.ov-state.error { color: #ef4444; }
+.ov-state .btn-row { margin-left: 8px; }
+.ov-state[hidden], #ovList[hidden] { display: none; }
+
+/* Touch: 44px targets while the list is in card layout. */
+@media (max-width: 1023px) {
+  .p-card .btn-row, .ov-state .btn-row { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 14px; font-size: 13px; }
+  .pager button, .pager select { min-height: 44px; }
+  .eng-chip, .btn-run { min-height: 44px; }
+}
