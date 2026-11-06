@@ -24,6 +24,8 @@ updated: 2026-11-06
 | `ui/public/js/types/chat-models.d.ts` | Type declarations for the canonical chat models. |
 | `ui/public/js/modules/chat-session-store.js` | Isolates engine sessions per project and conversation (4 canonical engines), mirrored in `localStorage` key `harness:engine-sessions:v1` (60 chats max). |
 | `tests/chat-session-persistence.test.js` | Tests that the engine session survives F5 and that "New chat" resets it. |
+| `ui/public/js/modules/chat-scope.js` | Chat per project and scope (general chat, each design tab): `parkActiveChat`, `adoptStoredChat`, `switchChatScope`. Called by `projects-load.js` on project switch and by `persistDesignView`. Storage key `harness_active_chat_<slug>[::design:<view>]`; unsaved engine sessions are also scoped. |
+| `tests/chat-scope-state.test.js` | Tests per-project and per-scope isolation of the active chat and draft engine sessions. |
 | `ui/public/js/modules/chat-continue.js` | Continue-previous-chat modal (`continueChatDlg`), search, engine filters with FontAwesome, session reset. |
 | `ui/public/js/modules/chat-persist.js` | Manual and auto save to disk, runtime session migration, history rehydration (`resumeExistingChat`). |
 | `ui/public/js/modules/chat-execution-store.js` | Canonical execution lifecycle (`idle`, `streaming`, `waiting_approval`, `cancelled`, `error`), reactive listeners, granular cancel. |

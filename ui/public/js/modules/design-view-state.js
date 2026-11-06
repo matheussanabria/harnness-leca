@@ -1,5 +1,6 @@
 // @ts-check
 // Restauração da view ativa do Design no F5 (EP-14.12).
+import { switchChatScope } from "./chat-scope.js";
 import { readStudioState, saveStudioState } from "./studio-state.js";
 import { getRouter, routeTo, VIEW_SCREENS } from "../shared/router.js";
 
@@ -33,6 +34,8 @@ export async function restoredDesignState(options = {}) {
 
 /** @param {string} view @param {boolean} open */
 export function persistDesignView(view, open) {
+  // The chat follows the design tab: each one keeps its own conversation (the general chat when Design is closed).
+  switchChatScope(open ? `design:${view}` : "");
   void saveStudioState({ designView: view, designOpen: open });
   const route = getRouter()?.current();
   if (open && VIEW_SCREENS.includes(view)) {

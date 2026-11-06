@@ -2,6 +2,7 @@
 // Sessões dos motores isoladas por projeto e conversa.
 // A tabela vive em memória, mas é espelhada no localStorage: sem isso o F5 esquecia o id da sessão do motor, o servidor
 // abria uma sessão nova (sem a conversa anterior) e o modelo recomeçava do zero, até sobrescrevendo o que já tinha feito.
+import { state } from "../shared/state.js";
 import { cs } from "./chat-store.js";
 
 const ENGINE_IDS = ["claude", "opencode", "gemini", "codex", "ollama"];
@@ -47,7 +48,9 @@ function persist() {
 }
 
 export function chatSessionKey(slug, chatId) {
-  return `${String(slug || "global").toLowerCase()}::${chatId || "draft"}`;
+  // Unsaved chats of different scopes (design views) must not share engine sessions.
+  const scope = chatId || !state.chatScope ? "" : `:${state.chatScope}`;
+  return `${String(slug || "global").toLowerCase()}::${chatId || "draft"}${scope}`;
 }
 
 export function engineSessionsFor(slug, chatId) {
