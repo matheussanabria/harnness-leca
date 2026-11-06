@@ -36,7 +36,7 @@ function listSkills(source) {
     const file = path.join(source.dir, ent.name, "SKILL.md");
     if (!fs.existsSync(file)) continue;
     const meta = readMeta(file);
-    out.push({ kind: "skill", name: ent.name, description: meta.description || "", source: source.id, sourceLabel: source.label });
+    out.push({ kind: "skill", ref: ent.name, name: ent.name, description: meta.description || "", source: source.id, sourceLabel: source.label });
   }
   return out;
 }
@@ -48,7 +48,7 @@ function listAgents(source) {
     if (!ent.isFile() || !ent.name.endsWith(".md")) continue;
     const meta = readMeta(path.join(source.dir, ent.name));
     const name = meta.name || ent.name.replace(/\.md$/, "");
-    out.push({ kind: "agent", name, description: meta.description || "", source: source.id, sourceLabel: source.label, tools: meta.tools || "", model: meta.model || "" });
+    out.push({ kind: "agent", ref: ent.name, name, description: meta.description || "", source: source.id, sourceLabel: source.label, tools: meta.tools || "", model: meta.model || "" });
   }
   return out;
 }

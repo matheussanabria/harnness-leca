@@ -24,7 +24,7 @@ function renderCard(item, areas, canManage) {
     : "";
   const manual = item.manual ? `<span class="k-tag k-tag--manual" title="Área escolhida por você">manual</span>` : "";
   return (
-    `<article class="k-card"><h3><i class="fa-solid ${icon}" aria-hidden="true"></i> ${esc(item.name)}</h3>` +
+    `<article class="k-card"><h3><button type="button" class="k-open" data-open="${esc(item.kind)}:${esc(item.source)}:${esc(item.ref)}" title="Abrir arquivos"><i class="fa-solid ${icon}" aria-hidden="true"></i> ${esc(item.name)}</button></h3>` +
     `<p>${esc(item.description || "Sem descrição.")}</p>` +
     `<div class="k-meta"><span class="k-tag">${kind}</span><span class="k-tag">${esc(item.sourceLabel)}</span>${manual}${select}</div></article>`
   );

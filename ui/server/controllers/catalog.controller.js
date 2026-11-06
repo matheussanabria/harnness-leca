@@ -4,6 +4,7 @@ const netLib = require("../../../tools/lib/network");
 const { send, readJsonBody } = require("../config");
 const { buildCatalog } = require("../services/catalog/catalog-reader");
 const { setOverride } = require("../services/catalog/catalog-overrides");
+const { listTree, readItemFile } = require("../services/catalog/catalog-files");
 
 /** GET /api/catalog */
 async function apiCatalogGet({ req, res }) {
@@ -30,4 +31,22 @@ async function apiCatalogAreaSet({ req, res }) {
   return send(res, 200, { ...buildCatalog(), canManage: true });
 }
 
-module.exports = { apiCatalogGet, apiCatalogAreaSet };
+/** GET /api/catalog/tree?kind=&source=&ref=  (loopback only: it exposes file contents of ~/.claude) */
+async function apiCatalogTree({ req, res, url }) {
+  if (!netLib.isLocalhostRequest(req)) return send(res, 403, { error: "Browsing files is only available on the local computer." });
+  const q = url.searchParams;
+  const tree = listTree(q.get("kind") || "", q.get("source") || "", q.get("ref") || "");
+  if (!tree) return send(res, 404, { error: "Item not found." });
+  return send(res, 200, tree);
+}
+
+/** GET /api/catalog/file?kind=&source=&ref=&path= */
+async function apiCatalogFile({ req, res, url }) {
+  if (!netLib.isLocalhostRequest(req)) return send(res, 403, { error: "Browsing files is only available on the local computer." });
+  const q = url.searchParams;
+  const out = readItemFile(q.get("kind") || "", q.get("source") || "", q.get("ref") || "", q.get("path") || "");
+  const { status, ...body } = out;
+  return send(res, status, body);
+}
+
+module.exports = { apiCatalogGet, apiCatalogAreaSet, apiCatalogTree, apiCatalogFile };
