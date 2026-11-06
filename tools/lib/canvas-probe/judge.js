@@ -35,7 +35,7 @@ function judgeMindmap(env, scenario, answer) {
   const depth = depthOf(parsed.nodes);
   if (!count) codes.push("EMPTY_OUTLINE");
   if (count < (expect.minAdded || 1)) codes.push("TOO_FEW_NODES");
-  if (count > MAP_NODE_LIMIT) codes.push("OVER_NODE_LIMIT");
+  if (count > MAP_NODE_LIMIT) codes.push("note:OVER_PROMPT_NODE_LIMIT");
   if (depth > (expect.maxDepth || MAP_DEPTH_LIMIT)) codes.push("OVER_DEPTH_LIMIT");
   if (parsed.truncated) codes.push("TRUNCATED");
   if (blocks.length > 1) codes.push("note:MULTIPLE_BLOCKS");

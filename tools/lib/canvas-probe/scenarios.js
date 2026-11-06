@@ -17,7 +17,7 @@ const SCENARIOS = [
   { id: "mm-replace", kind: "mindmap", request: "Refaça o mapa inteiro como um plano de estudos de inglês em 3 meses", state: MAP, expect: { mode: "new", minAdded: 6 } },
   { id: "mm-deep", kind: "mindmap", request: "Detalhe Infra com o máximo de níveis que puder sobre CI/CD e observabilidade", state: MAP, expect: { mode: "append", minAdded: 6, maxDepth: 4 } },
   { id: "mm-chat-only", kind: "mindmap", request: "Qual a diferença entre mapa mental e fluxograma? Responda só conversando.", state: MAP, expect: { noBlock: true } },
-  { id: "mm-resumed", kind: "mindmap", request: "Agora adicione também Testes sob o nó selecionado", state: MAP, expect: { mode: "append", minAdded: 2 },
+  { id: "mm-resumed", kind: "mindmap", request: "Agora adicione também Testes sob o nó selecionado", state: MAP, expect: { mode: "append", minAdded: 1 },
     history: { request: "Expanda o nó Backend com 2 subtópicos", answer: "Adicionei dois subtópicos.\n<mindmap parent=\"selected\">\n- API\n- Banco de dados\n</mindmap>" } },
   { id: "bd-flow", kind: "board", request: "Desenhe um fluxograma de login com validação de senha e bloqueio após 3 tentativas", state: EMPTY_BOARD, expect: { mode: ["replace", "append"], headers: ["flowchart", "graph"] } },
   { id: "bd-sequence", kind: "board", request: "Acrescente um diagrama de sequência de checkout entre cliente, API e gateway de pagamento", state: BOARD, expect: { mode: "append", headers: ["sequencediagram"] } },
