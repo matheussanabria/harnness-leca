@@ -1,6 +1,7 @@
 // Custom React Flow node: label, inline editor and collapse indicator. Selection lives in the editor state.
-import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
+import { Handle, type Node, type NodeProps, NodeResizer, Position } from "@xyflow/react";
 import { type KeyboardEvent, useEffect, useRef } from "react";
+import { MAX_NODE_H, MAX_NODE_W, MIN_NODE_H, MIN_NODE_W } from "../../features/mindmap/types.ts";
 
 export interface MindNodeData extends Record<string, unknown> {
   text: string;
@@ -12,6 +13,7 @@ export interface MindNodeData extends Record<string, unknown> {
   onCommit(id: string, text: string): void;
   onCancel(): void;
   onToggle(id: string): void;
+  onResize(id: string, w: number, h: number): void;
 }
 
 export type MindFlowNode = Node<MindNodeData, "mind">;
@@ -38,6 +40,16 @@ export function MindNodeView({ id, data }: NodeProps<MindFlowNode>) {
       aria-label={label}
       tabIndex={-1}
     >
+      <NodeResizer
+        isVisible={data.selected && !data.editing}
+        minWidth={MIN_NODE_W}
+        maxWidth={MAX_NODE_W}
+        minHeight={MIN_NODE_H}
+        maxHeight={MAX_NODE_H}
+        handleClassName="mm-resize-handle nodrag"
+        lineClassName="mm-resize-line"
+        onResizeEnd={(_, params) => data.onResize(id, params.width, params.height)}
+      />
       <Handle type="target" position={Position.Left} isConnectable={false} className="mm-handle" />
       {data.editing ? (
         <input
