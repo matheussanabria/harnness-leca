@@ -10,6 +10,7 @@ const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "leca-chat-run-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
 process.env.HIA_ROUTING_ENABLED = "false";
 process.env.HARNESS_MAX_CHATS = "3";
+process.env.HARNESS_CHAT_GRACE_MS = "150";
 
 const SLUG = "projeto-chat";
 fs.mkdirSync(path.join(TMP_ROOT, "projects", SLUG), { recursive: true });
@@ -110,10 +111,12 @@ test("erro do motor: execution.failed com codigo, sem mensagem", async () => {
   assert.equal(projectSessions(SLUG).sessions.find((s) => s.sessionId === runId).executionStatus, "failed");
 });
 
-test("cliente desconecta: cancelled com reason client_disconnected, terminal unico", async () => {
+test("cliente desconecta e nao volta: cancelled com reason client_disconnected apos a carencia, terminal unico", async () => {
   const { res, call } = await chat({ engine: "fakea" });
   const runId = latestRunId();
   res.disconnect();
+  assert.equal(call.signal.aborted, false, "a queda da conexao nao cancela de imediato");
+  await new Promise((r) => setTimeout(r, 400));
   assert.equal(call.signal.aborted, true);
   call.onError(new Error("aborted")); // o motor reage ao abort depois do close
   call.onDone({ sessionId: "x", fullText: "tarde demais" });

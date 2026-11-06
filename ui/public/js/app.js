@@ -150,7 +150,8 @@ Object.assign(window, {
   const route = routeFromLocation(location);
   if (route) {
     await applyRoute(route);
-  } else if (!urlParams.get("module")) {
+  } else if (!urlParams.get("module") && !window.matchMedia("(max-width: 768px)").matches) {
+    // Phones always open the chats home: the saved Design screen is only restored on wide viewports.
     const savedDesign = await restoredDesignState();
     if (savedDesign.open) await designMod.toggleDesignMode(true, savedDesign.view);
   }

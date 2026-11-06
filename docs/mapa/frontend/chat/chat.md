@@ -5,7 +5,7 @@ feature: chat
 summary: Chat modules: send, stream, compare, render, sessions, persistence, mini dock, HIA feedback, canonical models.
 paths: [ui/public/js/modules/chat*.js, ui/public/js/types/chat-models.d.ts, ui/public/css/chat/04-mini-chat-dock.css, tests/chat-*.test.js]
 keywords: [chat, streaming, sse, compare, mini-dock, session, persist, hia, thinking, presentations]
-updated: 2026-10-30
+updated: 2026-11-06
 ---
 # Chat Modules
 
@@ -29,6 +29,7 @@ updated: 2026-10-30
 | `ui/public/js/modules/chat-execution-store.js` | Canonical execution lifecycle (`idle`, `streaming`, `waiting_approval`, `cancelled`, `error`), reactive listeners, granular cancel. |
 | `ui/public/js/modules/chat-send.js` | Sends messages in single or compare mode with isolated AbortController and canonical sessions. |
 | `ui/public/js/modules/chat-send-compare.js` | Compare mode: fires the selected engines in parallel and fills the comparison turn. |
+| `ui/public/js/modules/chat-stream-resume.js` | Reads the chat SSE stream and reattaches by `seq` after a screen lock or app switch; the stop button also stops the run on the server. |
 | `ui/public/js/modules/chat-stream-ui.js` | Reactive send/cancel button sync in the 3 presentations and stream cancellation. |
 | `ui/public/js/modules/chat-hia-feedback.js` | Local execution status, Script-First route metadata and tokens-saved counter per session. |
 | `ui/public/js/modules/chat-hia-panel.js` | Consumes `GET /api/hia/metrics` and renders telemetry, hardware and routing state in the settings popover. |
