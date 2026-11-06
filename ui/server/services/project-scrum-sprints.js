@@ -89,6 +89,8 @@ function closeSprint(slug, projectDir, repoRoot, sprintId, options = {}) {
   sprint.summary = summary;
   sprint.closedAt = now;
   sprint.closedBy = actor;
+  // The sprint the board points at must not stay a closed one: follow the carry-over target, else any open sprint.
+  if (data.activeSprintId === sprintId) data.activeSprintId = (next || data.sprints.find((item) => item.status !== "closed") || sprint).id;
   recordHistory(data, { id: `${sprintId}:close:${now}`, sprintId, type: "close", occurredAt: now, actor, ...summary });
   saveProjectScrum(slug, projectDir, data);
   return loadProjectScrum(slug, projectDir, repoRoot);

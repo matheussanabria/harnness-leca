@@ -103,11 +103,12 @@ export async function mountScrumBoard(el, slug, hooks = {}) {
     dragId = null;
   };
 
-  controller.subscribe(render);
+  const unsubscribe = controller.subscribe(render);
   /** @param {Event} event */
   const onExternal = (event) => controller.applyExternal(/** @type {CustomEvent} */ (event).detail?.scrum);
   window.addEventListener("dai:scrumChanged", onExternal);
-  detachExternal = () => window.removeEventListener("dai:scrumChanged", onExternal);
+  // A remount drops the previous controller's render so a late answer from it cannot overwrite the new board.
+  detachExternal = () => { unsubscribe(); window.removeEventListener("dai:scrumChanged", onExternal); };
 
   render();
   await controller.load();

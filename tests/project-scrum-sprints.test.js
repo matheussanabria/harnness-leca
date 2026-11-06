@@ -117,3 +117,20 @@ test('pure helpers: summarizeSprint without commitment and velocity average of t
   assert.equal(velocityOf(sprints).average, 3.7);
   assert.equal(velocityOf([{ status: 'active' }]).average, null);
 });
+
+test('closing the active sprint moves activeSprintId off the closed one', () => {
+  const p = project();
+  p.sprint('s1');
+  p.sprint('s2');
+  p.story('a', 's1', 1, 'concluido');
+  startSprint(p.slug, p.dir, p.dir, 's1', { actor: HUMAN });
+  assert.equal(p.read().activeSprintId, 's1');
+  closeSprint(p.slug, p.dir, p.dir, 's1', { actor: HUMAN, carryOver: 'next', nextSprintId: 's2' });
+  assert.equal(p.read().activeSprintId, 's2');
+  const q = project();
+  q.sprint('s1');
+  q.story('a', 's1', 1, 'concluido');
+  startSprint(q.slug, q.dir, q.dir, 's1', { actor: HUMAN });
+  closeSprint(q.slug, q.dir, q.dir, 's1', { actor: HUMAN });
+  assert.equal(q.read().activeSprintId, 's1', 'no open sprint left: stays on the only one');
+});

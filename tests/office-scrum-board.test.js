@@ -175,3 +175,21 @@ test('controller: selecting a story loads its trace; a late answer for another s
   c.applyExternal(fresh);
   assert.equal(renders, 0, 'the same object is ignored');
 });
+
+test('mount: a remount unsubscribes the previous controller so late answers cannot overwrite the board', async () => {
+  const { mountScrumBoard } = await load('scrum-board.js');
+  const el = { innerHTML: '', querySelector: () => null };
+  global.window = { addEventListener() {}, removeEventListener() {} };
+  global.sessionStorage = { getItem: () => null, setItem() {} };
+  let release;
+  const slow = new Promise((resolve) => { release = resolve; });
+  const okJson = (body) => ({ ok: true, json: async () => body });
+  const first = mountScrumBoard(el, 'p', { fetchImpl: async () => { await slow; return okJson({ scrum: scrum({ stories: [story('old', 'backlog')] }) }); } });
+  await new Promise((resolve) => setImmediate(resolve));
+  await mountScrumBoard(el, 'p', { fetchImpl: async () => okJson({ scrum: scrum() }) });
+  release();
+  await first;
+  assert.ok(!el.innerHTML.includes('Story old'), 'stale controller did not repaint');
+  assert.ok(el.innerHTML.includes('Story a'));
+  delete global.window; delete global.sessionStorage;
+});
