@@ -34,7 +34,7 @@ const {
   apiProjectServicesLogs,
   apiProjectServicesConfig,
 } = require("./controllers/services.controller");
-const { apiEngines, apiDai, apiAppPing, apiChat, apiChatSave } = require("./controllers/chat.controller");
+const { apiEngines, apiDai, apiAppPing, apiChat, apiChatSave, chatStreamRoutes } = require("./controllers/chat.controller");
 const { apiChatUpload } = require("./controllers/upload.controller");
 const { apiSync, apiProjectSync } = require("./controllers/sync.controller");
 const { apiRemoteInfo, apiRemotePin } = require("./controllers/remote.controller");
@@ -190,6 +190,7 @@ const ROUTES = [
   { method: "GET", path: "/api/remote/info", handler: apiRemoteInfo },
   { method: "POST", path: "/api/remote/pin", handler: apiRemotePin },
   { method: "POST", path: "/api/chat", handler: apiChat },
+  ...chatStreamRoutes,
   { method: "POST", path: "/api/chat/save", handler: apiChatSave },
   { method: "POST", path: "/api/chat/upload", handler: apiChatUpload },
   { method: "POST", path: "/api/permissions/request", handler: apiPermissionRequest },
