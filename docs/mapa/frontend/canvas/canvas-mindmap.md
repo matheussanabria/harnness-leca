@@ -5,7 +5,7 @@ feature: canvas-mindmap
 summary: Mind-map React island (EP-19.03): pure tree model, commands, history, d3 layout, API client, autosave and editor UI.
 paths: [ui/web/src/features/mindmap/*.ts, ui/web/src/islands/canvas-mindmap/*, tests/mindmap-*.test.js]
 keywords: [mindmap, canvas, react, react-flow, d3-hierarchy, undo, autosave, island, ep-19]
-updated: 2026-11-04
+updated: 2026-11-06
 ---
 # Mind-map island (EP-19.03)
 
@@ -15,13 +15,13 @@ Design view `#/canvas-mindmap`, shown in the canvas workspace (props `embedded: 
 |---|---|
 | `ui/web/src/features/mindmap/types.ts` | Node, tree and board-data types; the tree is independent of any graphic ids. |
 | `ui/web/src/features/mindmap/tree.ts` | Read-only tree helpers (lookup, parent, descendants, visible nodes). |
-| `ui/web/src/features/mindmap/commands.ts` | Pure immutable commands: addChild, addSibling, outdent, reparent with cycle guard, deleteSubtree, rename, toggleCollapse, moveNode (manual dx/dy offset, applied to the subtree), resetOffsets. |
+| `ui/web/src/features/mindmap/commands.ts` | Pure immutable commands: addChild, addSibling, outdent, reparent with cycle guard, deleteSubtree, rename, toggleCollapse, moveNode (manual dx/dy offset, applied to the subtree), resetOffsets, resizeNode (manual w/h, clamped 100-600 x 40-400). |
 | `ui/web/src/features/mindmap/history.ts` | Undo/redo stack capped at 200 entries. |
 | `ui/web/src/features/mindmap/serialize.ts` | Converts the tree to and from board `data`, validating untrusted input. |
 | `ui/web/src/features/mindmap/outline.ts` | `parseOutline`: Markdown bullet outline to a node tree (indentation stack, text cleaning, 200-node and 8-level caps). |
 | `ui/web/src/features/mindmap/outlineApply.ts` | `appendOutline` and `replaceWithOutline`: pure, immutable conversion of an outline into mind-map nodes (id retry, document cap). |
 | `ui/web/src/features/mindmap/chatBridge.ts` | Pure side of the chat bridge: `canvasStatePayload` (state published to the chat) and `applyBlocks` (`<mindmap>` blocks into one new document, with the node to focus). |
-| `ui/web/src/features/mindmap/layout.ts` | d3-hierarchy tidy-tree layout that hides collapsed subtrees. |
+| `ui/web/src/features/mindmap/layout.ts` | d3-hierarchy tidy-tree layout that hides collapsed subtrees; honours per-node w/h (`sizeOf`): sibling spacing by height, column spacing by widest node. |
 | `ui/web/src/features/mindmap/api.ts` | Typed client for the board endpoints; maps 409 to a conflict error that carries the current rev. |
 | `ui/web/src/features/mindmap/useMindEditor.ts` | Hook joining tree state, commands and history. |
 | `ui/web/src/features/mindmap/keymap.ts` | Keyboard shortcut table (Enter, Tab, Shift+Tab, Delete, F2, Space, undo, redo). |
@@ -34,14 +34,18 @@ Design view `#/canvas-mindmap`, shown in the canvas workspace (props `embedded: 
 | `ui/web/src/features/mindmap/dropTarget.ts` | Pure drop-target resolution for Shift+drag reparenting (which node is under the pointer, cycle-safe). |
 | `ui/web/src/islands/canvas-mindmap/useReparentDrag.ts` | Hook: Shift+drag a node onto another to reparent it (highlights the target; snaps back when dropped on nothing). |
 | `ui/web/src/islands/canvas-mindmap/FocusFollower.tsx` | Pans the canvas to the selected node at the current zoom when it leaves the comfortable area; positions come from the layout props. |
-| `ui/web/src/islands/canvas-mindmap/MindNodeView.tsx` | Custom node with inline text editing and collapse toggle. |
+| `ui/web/src/islands/canvas-mindmap/MindNodeView.tsx` | Custom node with inline text editing, collapse toggle and a NodeResizer (shown when selected); text wraps. |
 | `ui/web/src/features/mindmap/toolbarState.ts` | Pure `toolbarState(doc, selectedId, history)`: which toolbar actions are enabled. |
 | `ui/web/src/features/mindmap/useViewActions.ts` | Zoom in/out, fit and center-on-selection through `useReactFlow()`. |
 | `ui/web/src/islands/canvas-mindmap/useCanvasChatBridge.ts` | Hook: publishes `harness:canvas-state` (debounced) and applies `harness:canvas-apply` events as one undoable step. |
 | `ui/web/src/islands/canvas-mindmap/MindToolbar.tsx` | Floating action bar: structure, history, view and reset-positions groups with shortcut tooltips. |
 | `ui/web/src/features/mindmap/useCopyStatus.ts` | Timed status message (auto-clears after 2.5 s) for the copy buttons. |
 | `ui/web/src/islands/canvas-mindmap/AgentGroup.tsx` | Toolbar group with the Copy as Markdown and Copy as JSON buttons (context pack) and their status. |
+| `ui/web/src/islands/canvas-mindmap/ExportGroup.tsx`, `rasterize.ts` | Toolbar group that downloads the whole map as Markdown outline, JSON, SVG or PNG (SVG drawn on a 2x canvas). |
+| `ui/web/src/features/mindmap/exportMindmap.ts` | Pure exports: `toOutlineMarkdown`, `toSvg` (collapsed branches expanded, manual offsets kept), `wrapText`. |
+| `ui/web/src/features/export/download.ts`, `fileName.ts` | Shared download helper and safe file name, used by the board and mind-map exports. |
+| `tests/mindmap-export.test.js` | Outline, SVG, text wrapping and file-name tests. |
 | `ui/web/src/islands/canvas-mindmap/ToolbarButton.tsx` | One accessible icon button (title, aria-label, disabled, danger variant). |
 | `ui/web/src/islands/canvas-mindmap/mindmap-toolbar.css` | Styles of the action bar. |
 | `ui/web/src/islands/canvas-mindmap/mindmap.css` | Island styles. |
-| `tests/mindmap-model.test.js`, `tests/mindmap-api.test.js`, `tests/mindmap-position.test.js`, `tests/mindmap-toolbar.test.js`, `tests/mindmap-outline.test.js`, `tests/mindmap-chat-bridge.test.js` | Model, history, serialization, manual position (dx/dy offsets) and API client tests (Node type stripping). |
+| `tests/mindmap-model.test.js`, `tests/mindmap-api.test.js`, `tests/mindmap-position.test.js`, `tests/mindmap-toolbar.test.js`, `tests/mindmap-outline.test.js`, `tests/mindmap-chat-bridge.test.js`, `tests/mindmap-resize.test.js` | Model, history, serialization, manual position (dx/dy offsets) and API client tests (Node type stripping). |

@@ -3,7 +3,7 @@ id: ADR-011
 titulo: Incremental frontend migration to React 19, TypeScript and Vite (Canvas as first island)
 status: aceita
 data: 2026-10-31
-historias: [16.00, 19.01, 19.02, 19.03, 19.04, 19.05]
+historias: [16.00, 19.01, 19.02, 19.03, 19.04, 19.05, 19.06, 19.07, 19.08, 19.09]
 tags: [harness-evolution, adr, frontend, react, typescript, vite, biome, canvas]
 ---
 
@@ -79,6 +79,10 @@ These stories now live in [EP-19](../02-epics/EP-19-canvas/README.md). They were
 | 19.03 | 16.03 | Mind-map island: model, commands (Enter/Tab/Shift+Tab, reparent with cycle guard, collapse), undo/redo, d3-hierarchy layout | 16.00, 19.01 |
 | 19.04 | 16.04 | Board island: Excalidraw, save/reopen, export, images from 19.02 | 19.01, 19.02 |
 | 19.05 | 16.05 | Selection to agent context pack (Markdown + JSON, deterministic char budget) | 19.03 |
+| 19.06 | - | Canvas inside the Design workspace (three-column layout, embedded islands) | 19.03, 19.04 |
+| 19.07 | - | Mind-map chat: outline parser and chat bridge | 19.03, 19.06 |
+| 19.08 | - | Mind-map chat: island side | 19.07 |
+| 19.09 | - | Board chat: Mermaid diagrams on the Excalidraw board | 19.04, 19.07 |
 
 ## Alternatives considered
 

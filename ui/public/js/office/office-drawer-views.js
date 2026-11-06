@@ -6,6 +6,7 @@ import { renderOfficeChatWindow } from "./office-chat-window.js";
 import { renderOfficeDatacenterStatus } from "./office-datacenter-status.js";
 import { renderCabinetJournalItems, mountCabinetList } from "./office-cabinet-journal.js";
 import { mountScrumPanel } from "./office-scrum-panel.js";
+import { mountScrumBoard } from "./scrum-board/scrum-board.js";
 
 /**
  * Renderiza o conteúdo do drawer com base no objeto selecionado
@@ -20,7 +21,7 @@ export function renderDrawerContent(objKey, state) {
 
   if (!iconEl || !titleEl || !subtitleEl || !bodyEl) return;
 
-  bodyEl.classList.remove("drawer-body-chat");
+  bodyEl.classList.remove("drawer-body-chat", "drawer-body-scrum");
 
   const proj = state.projectData || {};
   const chats = proj.chats || [];
@@ -95,6 +96,23 @@ export function renderDrawerContent(objKey, state) {
       `;
       const scrumEl = document.getElementById("officeScrumPanel");
       if (scrumEl && state.activeProject) mountScrumPanel(scrumEl, state.activeProject);
+      break;
+    }
+
+    case "scrum": {
+      iconEl.innerHTML = '<i class="fa-solid fa-list-check" aria-hidden="true"></i>';
+      titleEl.textContent = "Scrum & Sprints";
+      subtitleEl.textContent = `Projeto "${state.activeProject}"`;
+      bodyEl.classList.add("drawer-body-scrum");
+      if (state.activeProject) {
+        void mountScrumBoard(bodyEl, state.activeProject, {
+          publish: (scrum) => {
+            state.scrumData = scrum;
+            window.dispatchEvent(new CustomEvent("dai:scrumChanged", { detail: { slug: state.activeProject, scrum } }));
+          },
+          onSubtitle: (text) => { subtitleEl.textContent = text; },
+        });
+      }
       break;
     }
 

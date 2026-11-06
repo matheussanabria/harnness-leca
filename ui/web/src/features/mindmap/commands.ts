@@ -1,7 +1,7 @@
 // Pure, immutable editing commands. A command that cannot apply returns the same doc reference.
 import { isInSubtree, parentOf, subtreeIds } from "./tree.ts";
 import type { MindDoc, MindNode } from "./types.ts";
-import { MAX_NODES, MAX_OFFSET, MAX_TEXT } from "./types.ts";
+import { MAX_NODE_H, MAX_NODE_W, MAX_NODES, MAX_OFFSET, MAX_TEXT, MIN_NODE_H, MIN_NODE_W } from "./types.ts";
 
 function put(doc: MindDoc, node: MindNode): MindDoc {
   return { ...doc, nodes: { ...doc.nodes, [node.id]: node } };
@@ -113,4 +113,16 @@ export function resetOffsets(doc: MindDoc): MindDoc {
     }
   }
   return changed ? { ...doc, nodes } : doc;
+}
+
+/** Manual resize: stores the node's own size, clamped to the allowed range. One resize stop is one history entry. */
+export function resizeNode(doc: MindDoc, id: string, w: number, h: number): MindDoc {
+  const node = doc.nodes[id];
+  if (!node || !Number.isFinite(w) || !Number.isFinite(h)) return doc;
+  const next = {
+    w: Math.max(MIN_NODE_W, Math.min(MAX_NODE_W, Math.round(w))),
+    h: Math.max(MIN_NODE_H, Math.min(MAX_NODE_H, Math.round(h))),
+  };
+  if (node.w === next.w && node.h === next.h) return doc;
+  return put(doc, { ...node, ...next });
 }

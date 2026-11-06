@@ -53,6 +53,9 @@ export function MindmapCanvas({
         // Rendered position = tidy layout position + the node's offset and every ancestor's offset.
         position: { x: item.x + offset.dx + (live?.dx ?? 0), y: item.y + offset.dy + (live?.dy ?? 0) },
         connectable: false,
+        // Explicit size so React Flow, edges and the resizer all agree with the stored node size.
+        width: item.w,
+        height: item.h,
         data: {
           text: doc.nodes[item.id]?.text ?? "",
           selected: item.id === selectedId,
@@ -63,6 +66,7 @@ export function MindmapCanvas({
           isRoot: item.parentId === null,
           onCommit: commands.commitText,
           onCancel: commands.cancelEdit,
+          onResize: commands.resizeNode,
           onToggle: (id: string) => {
             setSelectedId(id);
             commands.toggleNode(id);

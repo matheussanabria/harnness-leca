@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const pub = path.join(__dirname, "..", "ui", "public");
-const pages = { "index.html": "home", "overview.html": "overview", "diario.html": "diario", "consumo.html": "consumo", "deploy.html": "deploy", "office.html": "office" };
+const pages = { "index.html": "home", "overview.html": "overview", "diario.html": "diario", "consumo.html": "consumo", "catalogo.html": "catalogo", "deploy.html": "deploy", "office.html": "office" };
 
 test("render: one current link, all screens present", async () => {
   const { NAV_ITEMS, renderNav } = await import(require("node:url").pathToFileURL(path.join(pub, "js", "shared", "app-header.js")).href);

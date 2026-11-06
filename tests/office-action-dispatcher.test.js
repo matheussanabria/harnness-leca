@@ -9,6 +9,7 @@ import {
   unregisterCustomActionHandler,
   createLegacyTriggerObject
 } from "../ui/public/js/office/office-action-dispatcher.js";
+import { officeScreenPresets } from "../ui/public/js/office/office-screen-presets.js";
 
 test("EP-03.02 - Execução de ação tipo 'window' com WindowManager", () => {
   let openedModule = null;
@@ -180,4 +181,20 @@ test("EP-03.02 - Efeitos sonoros contextuais não lançam erro", () => {
   assert.doesNotThrow(() => triggerContextualSound("coffee_bar"));
   assert.doesNotThrow(() => triggerContextualSound("arcade_machine"));
   assert.doesNotThrow(() => triggerContextualSound("workstation_chair"));
+});
+
+test("war screen opens the interactive Scrum board on the kanban preset and Orchestration otherwise", () => {
+  const opened = [];
+  const wm = { open(moduleId) { opened.push(moduleId); return { id: `win-${moduleId}` }; }, focus() {} };
+  const context = { windowManager: wm, officeState: { activeProject: "demo", selectObject() {} }, muteSound: true };
+  const before = officeScreenPresets.getPreset("war_room_main_panel");
+  try {
+    officeScreenPresets.setPreset("war_room_main_panel", "kanban");
+    executeOfficeAction("war_room_main_panel", context);
+    officeScreenPresets.setPreset("war_room_main_panel", "orchestration");
+    executeOfficeAction("war_room_main_panel", context);
+  } finally {
+    officeScreenPresets.setPreset("war_room_main_panel", before);
+  }
+  assert.deepEqual(opened, ["scrum", "orchestration"]);
 });

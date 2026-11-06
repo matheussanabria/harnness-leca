@@ -8,6 +8,7 @@ const { removeDir } = require("./helpers/temp-dir");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-srv-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+process.env.HARNESS_CHAT_GRACE_MS = "400"; // a run with nobody attached is aborted after this long
 const proj = path.join(TMP_ROOT, "projects", "demo");
 fs.mkdirSync(path.join(proj, "chats"), { recursive: true });
 fs.mkdirSync(path.join(proj, "context"), { recursive: true });
@@ -143,7 +144,7 @@ test("POST /api/chat/save: valida, grava no projeto e não vaza erro interno", a
   assert.match((await bad.json()).error, /detalhe está no terminal/);
 });
 
-test("POST /api/chat: sem limite de respostas ao mesmo tempo, e fechar a conexão cancela o motor", async (t) => {
+test("POST /api/chat: sem limite de respostas ao mesmo tempo; a queda da conexão não cancela, o stop e a carência sim", async (t) => {
   const MAX_CHATS = 8; // padrão sem teto (HARNESS_MAX_CHATS=0): todas as conversas simultâneas são aceitas
   const signals = [];
   E.engines.set("fake", { id: "fake", status: async () => ({}), stream: ({ signal, onChunk }) => { signals.push(signal); onChunk({ type: "text", text: "oi" }); } });
@@ -156,8 +157,9 @@ test("POST /api/chat: sem limite de respostas ao mesmo tempo, e fechar a conexã
       body: JSON.stringify({ engine: "fake", prompt: "oi", slug: "demo" }),
     });
     const reader = res.body.getReader();
-    assert.match(new TextDecoder().decode((await reader.read()).value), /"type":"text"/);
-    return ac;
+    let seen = "";
+    while (!/"type":"text"/.test(seen)) seen += new TextDecoder().decode((await reader.read()).value);
+    return { ac, runId: /"runId":"([^"]+)"/.exec(seen)[1] };
   };
 
   const holders = [];
@@ -166,14 +168,24 @@ test("POST /api/chat: sem limite de respostas ao mesmo tempo, e fechar a conexã
   }
   assert.equal(signals.length, MAX_CHATS);
 
-  holders[0].abort();
-  assert.ok(await until(() => signals[0].aborted), "o motor recebe o cancelamento quando o cliente sai");
-  assert.equal(signals[1].aborted, false, "a outra conversa segue");
+  // Screen lock: the connection drops, the engine keeps running and the client reattaches from the next event.
+  holders[0].ac.abort();
+  await new Promise((r) => setTimeout(r, 100));
+  assert.equal(signals[0].aborted, false, "a queda da conexão não cancela o motor");
+  const re = await fetch(base + "/api/chat/attach?runId=" + holders[0].runId + "&from=1", { headers: { Origin: base } });
+  const reReader = re.body.getReader();
+  assert.match(new TextDecoder().decode((await reReader.read()).value), /"type":"text".*"seq":1/s);
+  await reReader.cancel();
 
-  const extra = await hang(); // a vaga foi liberada
-  holders.slice(1).forEach(h => h.abort());
-  extra.abort();
-  assert.ok(await until(() => signals.every((s) => s.aborted)));
+  // Explicit stop aborts the engine at once.
+  assert.equal((await post("/api/chat/stop", { runId: holders[1].runId })).status, 200);
+  assert.ok(await until(() => signals[1].aborted), "o stop cancela o motor");
+  assert.equal(signals[2].aborted, false, "a outra conversa segue");
+
+  // Nobody reattaches: the grace period aborts the abandoned run.
+  holders.slice(2).forEach((h) => h.ac.abort());
+  assert.ok(await until(() => signals.every((s) => s.aborted), 4000), "sem reconexão, a carência cancela");
+  assert.equal((await fetch(base + "/api/chat/attach?runId=nope", { headers: { Origin: base } })).status, 404);
 });
 
 test("POST /api/chat: validações e motor desconhecido (inclusive __proto__)", async () => {

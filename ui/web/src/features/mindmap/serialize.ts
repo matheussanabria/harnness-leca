@@ -1,6 +1,15 @@
 // Board `data` <-> MindDoc. Input is untrusted: everything is validated and unknown shapes are rejected.
 import type { MindDoc, MindmapData, MindNode } from "./types.ts";
-import { MAX_NODES, MAX_OFFSET, MAX_TEXT, MINDMAP_SCHEMA } from "./types.ts";
+import {
+  MAX_NODE_H,
+  MAX_NODE_W,
+  MAX_NODES,
+  MAX_OFFSET,
+  MAX_TEXT,
+  MIN_NODE_H,
+  MIN_NODE_W,
+  MINDMAP_SCHEMA,
+} from "./types.ts";
 
 export function toData(doc: MindDoc): MindmapData {
   return { schema: MINDMAP_SCHEMA, rootId: doc.rootId, nodes: Object.values(doc.nodes) };
@@ -18,6 +27,13 @@ function parseOffset(value: unknown): number | null {
   return Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, value));
 }
 
+/** Missing size means default (undefined); non-finite values are rejected; finite values are clamped. */
+function parseSize(value: unknown, min: number, max: number): number | undefined | null {
+  if (value === undefined) return undefined;
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return Math.max(min, Math.min(max, Math.round(value)));
+}
+
 function parseNode(raw: unknown): MindNode | null {
   if (!isRecord(raw)) return null;
   const { id, text, children, collapsed } = raw;
@@ -25,8 +41,20 @@ function parseNode(raw: unknown): MindNode | null {
   if (!Array.isArray(children) || !children.every((child) => typeof child === "string")) return null;
   const dx = parseOffset(raw.dx);
   const dy = parseOffset(raw.dy);
-  if (dx === null || dy === null) return null;
-  return { id, text: text.slice(0, MAX_TEXT), children: children as string[], collapsed: collapsed === true, dx, dy };
+  const w = parseSize(raw.w, MIN_NODE_W, MAX_NODE_W);
+  const h = parseSize(raw.h, MIN_NODE_H, MAX_NODE_H);
+  if (dx === null || dy === null || w === null || h === null) return null;
+  const node: MindNode = {
+    id,
+    text: text.slice(0, MAX_TEXT),
+    children: children as string[],
+    collapsed: collapsed === true,
+    dx,
+    dy,
+  };
+  if (w !== undefined) node.w = w;
+  if (h !== undefined) node.h = h;
+  return node;
 }
 
 /** Validates ids, references, a single root and absence of cycles or shared children (each node reachable once). */

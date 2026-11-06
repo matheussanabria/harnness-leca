@@ -34,7 +34,7 @@ const {
   apiProjectServicesLogs,
   apiProjectServicesConfig,
 } = require("./controllers/services.controller");
-const { apiEngines, apiDai, apiAppPing, apiChat, apiChatSave } = require("./controllers/chat.controller");
+const { apiEngines, apiDai, apiAppPing, apiChat, apiChatSave, chatStreamRoutes } = require("./controllers/chat.controller");
 const { apiChatUpload } = require("./controllers/upload.controller");
 const { apiSync, apiProjectSync } = require("./controllers/sync.controller");
 const { apiRemoteInfo, apiRemotePin } = require("./controllers/remote.controller");
@@ -142,7 +142,7 @@ const ROUTES = [
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/source\/file$/, handler: apiProjectSourceFileSave },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/journal$/, handler: apiProjectJournal },
   ...artifactRoutes,
-  ...skillBindingRoutes,
+  ...skillBindingRoutes, ...require("./routes/catalog.routes").catalogRoutes,
   ...auditRoutes,
   // centralEventRoutes antes: /sessions/stream precisa vencer /sessions/([^/]+) (primeiro match ganha).
   ...centralEventRoutes,
@@ -190,6 +190,7 @@ const ROUTES = [
   { method: "GET", path: "/api/remote/info", handler: apiRemoteInfo },
   { method: "POST", path: "/api/remote/pin", handler: apiRemotePin },
   { method: "POST", path: "/api/chat", handler: apiChat },
+  ...chatStreamRoutes,
   { method: "POST", path: "/api/chat/save", handler: apiChatSave },
   { method: "POST", path: "/api/chat/upload", handler: apiChatUpload },
   { method: "POST", path: "/api/permissions/request", handler: apiPermissionRequest },

@@ -5,7 +5,7 @@ feature: chat
 summary: Chat modules: send, stream, compare, render, sessions, persistence, mini dock, HIA feedback, canonical models.
 paths: [ui/public/js/modules/chat*.js, ui/public/js/types/chat-models.d.ts, ui/public/css/chat/04-mini-chat-dock.css, tests/chat-*.test.js]
 keywords: [chat, streaming, sse, compare, mini-dock, session, persist, hia, thinking, presentations]
-updated: 2026-10-30
+updated: 2026-11-06
 ---
 # Chat Modules
 
@@ -24,11 +24,16 @@ updated: 2026-10-30
 | `ui/public/js/types/chat-models.d.ts` | Type declarations for the canonical chat models. |
 | `ui/public/js/modules/chat-session-store.js` | Isolates engine sessions per project and conversation (4 canonical engines), mirrored in `localStorage` key `harness:engine-sessions:v1` (60 chats max). |
 | `tests/chat-session-persistence.test.js` | Tests that the engine session survives F5 and that "New chat" resets it. |
+| `ui/public/js/modules/chat-scope.js` | Chat per project and scope (general chat, each design tab): `parkActiveChat`, `adoptStoredChat`, `switchChatScope`, `setChatArtifact` (scope per artifact: `design:<view>:<mapId|protoId>`). Called by `projects-load.js` on project switch and by `persistDesignView`. Storage key `harness_active_chat_<slug>[::design:<view>]`; unsaved engine sessions are also scoped. |
+| `ui/public/js/modules/chat-tabs.js` | Multi-tab presence over BroadcastChannel: tabs never block each other; a warning shows only when two tabs hold the same chat key (`chatPresence`, `createChatPresence`). Chat send warns without blocking. |
+| `tests/chat-tabs.test.js` | Tests same-chat conflict warning, silence for different artifacts, and that two tabs do not erase each other's engine sessions. |
+| `tests/chat-scope-state.test.js` | Tests per-project and per-scope isolation of the active chat and draft engine sessions. |
 | `ui/public/js/modules/chat-continue.js` | Continue-previous-chat modal (`continueChatDlg`), search, engine filters with FontAwesome, session reset. |
 | `ui/public/js/modules/chat-persist.js` | Manual and auto save to disk, runtime session migration, history rehydration (`resumeExistingChat`). |
 | `ui/public/js/modules/chat-execution-store.js` | Canonical execution lifecycle (`idle`, `streaming`, `waiting_approval`, `cancelled`, `error`), reactive listeners, granular cancel. |
 | `ui/public/js/modules/chat-send.js` | Sends messages in single or compare mode with isolated AbortController and canonical sessions. |
 | `ui/public/js/modules/chat-send-compare.js` | Compare mode: fires the selected engines in parallel and fills the comparison turn. |
+| `ui/public/js/modules/chat-stream-resume.js` | Reads the chat SSE stream and reattaches by `seq` after a screen lock or app switch; the stop button also stops the run on the server. |
 | `ui/public/js/modules/chat-stream-ui.js` | Reactive send/cancel button sync in the 3 presentations and stream cancellation. |
 | `ui/public/js/modules/chat-hia-feedback.js` | Local execution status, Script-First route metadata and tokens-saved counter per session. |
 | `ui/public/js/modules/chat-hia-panel.js` | Consumes `GET /api/hia/metrics` and renders telemetry, hardware and routing state in the settings popover. |

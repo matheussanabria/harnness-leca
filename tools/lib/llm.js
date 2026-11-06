@@ -16,7 +16,7 @@ const { resolveOpencodeBin, opencodeRunArgs, opencodeCwdEnv } = require("./openc
 const DEFAULT_OPENCODE_MODEL = "opencode/deepseek-v4.1-flash-free";
 const TIMEOUT_MS = 300_000;
 const MAX_BUFFER = 16 * 1024 * 1024;
-const MODEL_RE = /^[A-Za-z0-9][A-Za-z0-9._\-\/]{0,80}$/;
+const MODEL_RE = /^[A-Za-z0-9][A-Za-z0-9._\-\/:]{0,80}$/;
 const FREE_MODEL_RE = /^opencode\/[A-Za-z0-9._-]+-free$/;
 
 /** Só os modelos gratuitos do OpenCode vão sem pedir licença: groq/openrouter e afins usam as suas chaves e podem custar. */
@@ -57,8 +57,11 @@ function parseOpencodeEvents(stdout) {
   const events = stdout.split(/\r?\n/).filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return {}; } });
   const err = events.find((e) => e.type === "error");
   if (err) {
-    const d = err.error && err.error.data;
-    throw new Error(`opencode: ${(d && d.message) || (err.error && err.error.name) || "erro"}${d && d.statusCode ? ` (HTTP ${d.statusCode})` : ""}`.slice(0, 300));
+    const e = err.error || {};
+    const d = e.data;
+    // Two shapes exist: { data: { message, statusCode } } and, for the free-usage limit, { message, status } at the top.
+    const status = (d && d.statusCode) || e.status;
+    throw new Error(`opencode: ${(d && d.message) || e.message || e.name || "erro"}${status ? ` (HTTP ${status})` : ""}`.slice(0, 300));
   }
   return events.map((e) => (e.part && e.part.type === "text" ? e.part.text : "")).join("").trim();
 }

@@ -1,0 +1,47 @@
+.k-toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.k-search{flex:1;min-width:220px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font:inherit;font-size:13px}
+.k-kinds{display:flex;gap:6px}
+.btn-row.is-on{border-color:var(--accent);color:var(--accent)}
+.k-areas{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.k-area{display:inline-flex;gap:6px;align-items:center;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font:inherit;font-size:12.5px;cursor:pointer}
+.k-area:hover,.k-area.is-on{border-color:var(--accent);color:var(--accent)}
+.k-area .n{color:var(--mute);font-variant-numeric:tabular-nums}
+.k-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.k-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.k-card h3{margin:0;font-size:14px;display:flex;gap:8px;align-items:center;overflow-wrap:anywhere}
+.k-card p{margin:0;font-size:12.5px;color:var(--mute);display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.k-card:hover p{-webkit-line-clamp:unset;line-clamp:unset}
+.k-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:auto;font-size:11.5px;color:var(--mute)}
+.k-tag{border:1px solid var(--line);border-radius:6px;padding:1px 7px}
+.k-tag--manual{color:var(--accent);border-color:var(--accent)}
+.k-select{margin-left:auto;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:2px 6px;font:inherit;font-size:12px}
+.k-group h2 .n{color:var(--mute);font-weight:400;font-size:13px}
+.k-tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+.k-tab{background:none;color:var(--mute);border:0;border-bottom:2px solid transparent;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.k-tab:hover{color:var(--text)}
+.k-tab.is-on{color:var(--accent);border-bottom-color:var(--accent)}
+.k-tab .n{color:var(--mute);font-size:12px}
+.k-open{background:none;border:0;color:inherit;font:inherit;font-weight:600;cursor:pointer;padding:0;display:inline-flex;gap:8px;align-items:center;text-align:left;overflow-wrap:anywhere}
+.k-open:hover{color:var(--accent)}
+.k-bar{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.k-crumb{font-size:14px;color:var(--mute)}
+.k-split{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:14px;align-items:start}
+@media (max-width:760px){.k-split{grid-template-columns:1fr}}
+.k-treebox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;max-height:75vh;overflow:auto}
+.k-dir summary{cursor:pointer;padding:3px 6px;font-size:13px;list-style:none;border-radius:6px}
+.k-dir summary:hover{background:var(--panel2)}
+.k-dir>.k-file,.k-dir>.k-dir{margin-left:14px}
+.k-file{display:flex;gap:6px;align-items:center;width:100%;background:none;border:0;color:var(--text);font:inherit;font-size:13px;text-align:left;padding:3px 6px;border-radius:6px;cursor:pointer}
+.k-file span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.k-file small{color:var(--mute);font-size:11px}
+.k-file:hover{background:var(--panel2)}
+.k-file.is-on{background:var(--panel2);color:var(--accent)}
+.k-viewer{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;min-width:0;max-height:75vh;overflow:auto}
+.k-vhead{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.k-vhead .btn-row{margin-left:auto}
+.k-code{margin:0;font:12.5px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.k-meta-block{margin-bottom:10px;font-size:12.5px}
+.k-meta-block pre{margin:6px 0 0;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;color:var(--mute)}
+.k-md{font-size:14px;overflow-wrap:anywhere}
+.k-md pre{overflow:auto}
+.k-md table{border-collapse:collapse}.k-md th,.k-md td{border:1px solid var(--line);padding:4px 8px}

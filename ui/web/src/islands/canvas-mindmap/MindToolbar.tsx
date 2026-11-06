@@ -3,6 +3,7 @@ import { toolbarState } from "../../features/mindmap/toolbarState.ts";
 import type { useMindEditor } from "../../features/mindmap/useMindEditor.ts";
 import type { ViewActions } from "../../features/mindmap/useViewActions.ts";
 import { AgentGroup } from "./AgentGroup.tsx";
+import { ExportGroup } from "./ExportGroup.tsx";
 import { ToolbarButton } from "./ToolbarButton.tsx";
 
 export interface MindToolbarProps {
@@ -102,6 +103,8 @@ export function MindToolbar({ editor, view, boardTitle, onStructureAction }: Min
       />
       <Separator />
       <AgentGroup doc={doc} selectedId={selectedId} boardTitle={boardTitle} state={state} />
+      <Separator />
+      <ExportGroup doc={doc} boardTitle={boardTitle} />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 // @ts-check
 // Envio de mensagens e consumo do streaming com cancelamento e sessão canônica.
+import { CHAT_CONFLICT_MESSAGE, chatPresence } from "./chat-tabs.js";
 import { $, showToast } from "../shared/dom.js";
 import { state, saveActiveChatState, clearChatDraft } from "../shared/state.js";
 import { attachmentsBusy, hasAttachments, attachmentLabel, attachmentPrompt, clearChatAttachments } from "./chat-attachments.js";
@@ -15,6 +16,7 @@ import { isChatStreamingFor, setChatStreaming, setChatAbortController } from "./
 import { getEngineSession, setEngineSession } from "./chat-session-store.js";
 import { hiaStatusFromThinking, applyHiaFeedback } from "./chat-hia-feedback.js";
 import { runComparison } from "./chat-send-compare.js";
+import { consumeChatStream } from "./chat-stream-resume.js";
 
 export async function sendChatMessage(presentation = "main") {
   const P = state.P;
@@ -25,6 +27,7 @@ export async function sendChatMessage(presentation = "main") {
   if (attachmentsBusy()) return showToast("Aguarde o envio dos anexos terminar.");
   const typed = input?.value ? input.value.trim() : "";
   if (!typed && !hasAttachments()) return;
+  if (chatPresence().hasConflict()) showToast(CHAT_CONFLICT_MESSAGE, 6000); // warns only: sending is never blocked
 
   const label = attachmentLabel();
   const text = [typed, label].filter(Boolean).join("\n\n");
@@ -123,23 +126,12 @@ export async function sendChatMessage(presentation = "main") {
       throw Object.assign(new Error(errJson.error || `HTTP ${res.status}`), { http: res.status });
     }
 
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    let buffer = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop();
-
-      for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
-        const jsonStr = line.slice(6).trim();
-        if (!jsonStr) continue;
+    await consumeChatStream({
+      response: res,
+      signal: ac.signal,
+      onReattach: () => setChatStatus("Reconectando à resposta em andamento..."),
+      onEvent: (data) => {
         try {
-          const data = JSON.parse(jsonStr);
           if (data.sessionId && !data.hiaRoute) {
             setEngineSession(P.slug, chatId, cs.currentEngine, data.sessionId);
           }
@@ -172,8 +164,8 @@ export async function sendChatMessage(presentation = "main") {
             if (document.body.classList.contains("studio-active") && window.reloadStudioIframe) setTimeout(window.reloadStudioIframe, 350);
           }
         } catch {}
-      }
-    }
+      },
+    });
   } catch (err) {
     if (err.name === "AbortError") {
       assistantTurn.text += `\n\n> *Resposta interrompida pelo usuário.*`;

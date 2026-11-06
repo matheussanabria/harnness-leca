@@ -9,12 +9,13 @@ export const NAV_ITEMS = [
   { id: "overview", href: "/overview", icon: "fa-chart-simple", label: "Visão geral", title: "Resumo de todos os projetos e ações do sistema" },
   { id: "diario", href: "/diario", icon: "fa-book", label: "Diário", title: "Diário de atividade: o que foi pedido e feito, dia a dia" },
   { id: "consumo", href: "/consumo", icon: "fa-gauge-high", label: "Consumo", title: "Cotas, 9Router por combo e OpenCode" },
+  { id: "catalogo", href: "/catalogo", icon: "fa-layer-group", label: "Catálogo", title: "Skills e agentes por área" },
   { id: "deploy", href: "/deploy", icon: "fa-rocket", label: "Deploy", title: "Deploys rápidos (Easypanel / Hostinger VPS)" },
   { id: "office", href: "/escritorio", icon: "fa-building", label: "Escritório", title: "Escritório virtual dos agentes" },
 ];
 
 export function renderBrand() {
-  return '<a class="app-brand" href="/"><i class="fa-solid fa-asterisk" aria-hidden="true"></i> Harness Leca</a>';
+  return '<a class="app-brand" href="/"><img class="app-brand-logo" src="/img/harness-logo.png" alt="" width="32" height="32"> <span>Harness</span></a>';
 }
 
 export function renderNav(current) {

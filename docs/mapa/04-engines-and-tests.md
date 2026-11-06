@@ -64,7 +64,7 @@ node --test tests/renderer-components-css.test.js   # Testa a injeção de compo
 node --test tests/prototype-semantic-parser.test.js # Testa parsing de tags x-import e extração de nós
 node --test tests/prototype-screen-decomposer.test.js # Testa decomposição de telas e anotação de data-node-id
 node --test tests/prototype-reconstruction.test.js # Testa reconstrução completa do protótipo DIS modular
-node --test tests/screen-registry.test.js           # Testa registro das 14 telas, saneamento e cobertura das chaves antigas
+node --test tests/screen-registry.test.js           # Testa registro das 16 telas, saneamento e cobertura das chaves antigas
 node --test tests/screen-state-client.test.js       # Testa hidratação, debounce, migração, reserva offline e retentativa do cliente
 node --test tests/chats-screen-state.test.js        # Testa adoção do estado nas telas de conversas, grupos e projetos (EP-14.07)
 ```
@@ -75,7 +75,7 @@ node --test tests/chats-screen-state.test.js        # Testa adoção do estado n
 | `scripts/lib/affected-tests.js` | Mapeia arquivo staged para testes por nome e por `require`/`import` direto; sem mapa, usa o contrato fixo. |
 | `.githooks/pre-push` | Roda a suíte completa no push (e a regressão completa quando `quality/regression-enforced` existe). |
 | `tests/affected-tests.test.js` | Regressão da seleção de testes afetados, do check restrito e do hook de pre-push. |
-| `tests/screen-registry.test.js` | Regressão do registro das 14 telas, do saneamento de campos, do limite de 64 KB e da cobertura das chaves antigas do `localStorage` (EP-14.04). |
+| `tests/screen-registry.test.js` | Regressão do registro das 16 telas, do saneamento de campos, do limite de 64 KB e da cobertura das chaves antigas do `localStorage` (EP-14.04). |
 | `tests/screen-state-store.test.js` e `tests/screen-state-http.test.js` | Regressão do armazenamento e dos endpoints de estado/histórico por tela: persistência, merge, 409 por `rev`, 413, anel de 500, slug, rotas e arquivos de apoio (EP-14.05). |
 | `tests/screen-state-client.test.js` | Regressão do cliente de estado das telas: espelho do registro, hidratação e cache, migração, debounce de 400 ms, `sendBeacon`, reserva offline e retentativa (EP-14.06). |
 | `tests/chats-screen-state.test.js` | Regressão da adoção nas conversas, grupos e projetos: hidratação de filtros/visão/página/rascunho/grupos, registro de ações de troca de projeto, abertura de chat e mudança de grupo, além da ausência de `localStorage` direto (EP-14.07). |

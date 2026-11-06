@@ -17,6 +17,7 @@ export const FACILITIES_DATA = [
     keyHint: "E",
     actionType: "window",
     moduleId: "orchestration",
+    moduleByPreset: { kanban: "scrum" },
     distance: 3.2,
     offsetY: 3.2,
     position3D: { x: -13.0, y: 0, z: -4.2 },

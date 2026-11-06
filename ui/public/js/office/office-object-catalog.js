@@ -21,6 +21,7 @@ import { FACILITIES_DATA } from "./catalog/facilities.data.js";
  * @property {string} keyHint Tecla de atalho (ex: "E")
  * @property {"window" | "drawer" | "seat" | "screen_focus" | "custom"} actionType
  * @property {string | null} [moduleId] Identificador do módulo no Window Manager (se aplicável)
+ * @property {Record<string, string>} [moduleByPreset] Módulo alternativo por preset de tela ativo (ex.: telão em "kanban" abre "scrum")
  * @property {number} [distance] Raio de proximidade em unidades 3D
  * @property {number} [offsetY] Elevação vertical do marcador 3D
  * @property {{ x?: number, y?: number, z?: number, dynamic?: string }} [position3D]

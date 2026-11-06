@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * Estado reativo compartilhado do Harness Leca Frontend.
+ * Estado reativo compartilhado do Harness Frontend.
  */
 import { createScreenStateClient } from "./screen-state.js";
 
@@ -50,6 +50,9 @@ export const state = {
   selectedCompareEngines: new Set(["claude"]),
   compareMode: false,
   currentChatFile: null,
+  currentChatTitle: null,
+  /** Chat scope inside the project: "" is the general chat; design views use "design:<view>". */
+  chatScope: "",
   chatSessionOrigin: null,
   chatSaveTimeout: null,
   enginesInfo: {},
@@ -177,8 +180,9 @@ export function getChatScreenState() {
 }
 
 // O conteúdo da conversa em andamento fica no localStorage: é volumoso demais para o limite de 64 KB do estado de tela.
-export function getActiveChatStorageKey(slug) {
-  return "harness_active_chat_" + (slug || (state.P ? state.P.slug : "global"));
+export function getActiveChatStorageKey(slug, scope = state.chatScope) {
+  const base = "harness_active_chat_" + (slug || (state.P ? state.P.slug : "global"));
+  return scope ? `${base}::${scope}` : base;
 }
 
 export function saveActiveChatState() {
@@ -195,6 +199,7 @@ export function saveActiveChatState() {
       compareMode: state.compareMode,
       selectedCompareEngines: Array.from(state.selectedCompareEngines),
       currentChatFile: state.currentChatFile,
+      currentChatTitle: state.currentChatTitle,
       chatSessionOrigin: state.chatSessionOrigin,
       chatTurns: state.chatTurns,
       timestamp: Date.now(),
@@ -215,6 +220,7 @@ export function restoreActiveChatState(slug) {
       state.chatTurns = data.chatTurns;
       if (data.currentEngine) state.currentEngine = data.currentEngine;
       if (data.currentChatFile) state.currentChatFile = data.currentChatFile;
+      if (data.currentChatTitle) state.currentChatTitle = data.currentChatTitle;
       if (data.chatSessionOrigin) state.chatSessionOrigin = data.chatSessionOrigin;
       if (typeof data.compareMode === "boolean") state.compareMode = data.compareMode;
       if (Array.isArray(data.selectedCompareEngines)) {

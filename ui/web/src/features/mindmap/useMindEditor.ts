@@ -9,6 +9,7 @@ import {
   rename,
   reparent as reparentCommand,
   resetOffsets as resetOffsetsCommand,
+  resizeNode as resizeNodeCommand,
   toggleCollapse,
 } from "./commands.ts";
 import type { History } from "./history.ts";
@@ -80,6 +81,7 @@ export function useMindEditor(initial: MindDoc) {
         setSelectedId(id);
       },
       resetOffsets: () => apply(resetOffsetsCommand(doc)),
+      resizeNode: (id: string, w: number, h: number) => apply(resizeNodeCommand(doc, id, w, h)),
       undo: () => {
         const next = undo(history);
         if (next === history) return;
