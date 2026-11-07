@@ -33,7 +33,7 @@ test("atelier-engine-adapters: formatGeminiContents mapeia turnos user, model e 
   assert.equal(contents[1].parts[0].text, "Planejando...");
   assert.equal(contents[1].parts[1].functionCall.name, "atelier_plan");
 
-  assert.equal(contents[2].role, "function");
+  assert.equal(contents[2].role, "user");
   assert.equal(contents[2].parts[0].functionResponse.name, "atelier_plan");
   assert.deepEqual(contents[2].parts[0].functionResponse.response.content, { ok: true });
 });

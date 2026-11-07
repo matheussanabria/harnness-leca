@@ -39,7 +39,8 @@ function formatGeminiContents(history) {
           });
         }
       }
-      if (parts.length) contents.push({ role: "function", parts });
+      // Na API do Gemini (Google AI Studio), respostas de ferramentas vão em turnos com role: "user"
+      if (parts.length) contents.push({ role: "user", parts });
     }
   }
 
