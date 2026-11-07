@@ -7,7 +7,7 @@ atualizado: 2026-10-21
 
 Documento mestre do programa de evolução. Cada entrega aceita tem um documento próprio em `02-epics/`, para que um agente receba só a história que vai implementar e as dependências dela.
 
-> Snapshot verificado em 2026-11-06: 136/150 entregas concluídas; as 13 do EP-17 e a 20.01 do EP-20 estão planejadas. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
+> Snapshot verificado em 2026-11-06: 136/163 entregas concluídas; as 13 do EP-17, a 20.01 do EP-20 e as 13 do EP-21 estão planejadas. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
 
 > Revisão de 2026-10-24: "concluído" significa contrato aceito (API, módulo e testes). Vários épicos têm entregas sem tela ou sem fiação no cliente; o detalhe verificado está em [epic-gaps](05-progress/epic-gaps.md). Os épicos abaixo marcados com "UI pendente" não devem ser tratados como utilizáveis pelo usuário.
 
@@ -60,7 +60,7 @@ flowchart TD
     MOD --> OPS["EP-09 a EP-12 Operação, qualidade e protótipos"]
 ```
 
-## 3. Backlog (136/150)
+## 3. Backlog (136/163)
 
 Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a criação e o aceite do documento da história. EP-12 detalha as 32 histórias do motor multiframework. `HAR-xxx` indica o item equivalente do [backlog da Fase 0](08-prioritized-backlog.md).
 
@@ -250,6 +250,21 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 ### EP-20 Responsividade e edição móvel (0/1)
 - [ ] [20.01](02-epics/EP-20-responsividade-mobile/20.01-edicao-codigo-celular.md) Edição de código-fonte pelo celular
 
+### EP-21 Diagramas estruturados: Mermaid nativo, Flow, ELK e modelos de IA (0/13)
+- [ ] [21.01](02-epics/EP-21-diagramas-estruturados/21.01-adr-formato-nativo.md) ADR-014 e contrato dos kinds
+- [ ] [21.02](02-epics/EP-21-diagramas-estruturados/21.02-backend-kinds.md) Backend aceita os kinds diagram e flow
+- [ ] [21.03](02-epics/EP-21-diagramas-estruturados/21.03-modelo-mermaid.md) Modelo puro do diagrama Mermaid
+- [ ] [21.04](02-epics/EP-21-diagramas-estruturados/21.04-ilha-mermaid.md) Ilha de diagramas Mermaid
+- [ ] [21.05](02-epics/EP-21-diagramas-estruturados/21.05-chat-diagram.md) Chat do diagrama Mermaid
+- [ ] [21.06](02-epics/EP-21-diagramas-estruturados/21.06-sonda-modelos.md) Sonda de modelos para diagramas
+- [ ] [21.07](02-epics/EP-21-diagramas-estruturados/21.07-modelo-flow.md) Modelo puro do Flow
+- [ ] [21.08](02-epics/EP-21-diagramas-estruturados/21.08-ilha-flow.md) Ilha Flow
+- [ ] [21.09](02-epics/EP-21-diagramas-estruturados/21.09-layout-elk.md) Layout automático com ELK.js
+- [ ] [21.10](02-epics/EP-21-diagramas-estruturados/21.10-chat-flow.md) Chat do Flow
+- [ ] [21.11](02-epics/EP-21-diagramas-estruturados/21.11-vinculos.md) Vínculos
+- [ ] [21.12](02-epics/EP-21-diagramas-estruturados/21.12-mermaid-para-excalidraw.md) Mermaid para Excalidraw, como ação explícita
+- [ ] [21.13](02-epics/EP-21-diagramas-estruturados/21.13-spike-bpmn-c4-plantuml.md) Spike de BPMN, C4 e PlantUML
+
 ## Trabalho disponível agora
 
 Os três chats usam o motor OpenCode; o que os distingue é a **frente**, e é ela que aparece no campo `owner` do ledger e nas assinaturas (`opencode/qualidade`, `opencode/jira`, `opencode/deploy`).
@@ -257,7 +272,7 @@ Os três chats usam o motor OpenCode; o que os distingue é a **frente**, e é e
 1. **opencode/qualidade:** 09.02 (event log, projeções e recuperação SSE) em andamento; 09.04 e 09.05 detalhadas em documentação; 11.05 (regressão automatizada) e a dívida de tipos. Destrava o restante do EP-09.
 2. **opencode/deploy:** EP-10 encerrado (5/5): pipelines, saude por ambiente, linha do tempo com logs, acoes autorizadas e paridade com o escritorio; proxima frente: EP-11 (11.04 e 11.05) ou apoio ao EP-09.
 3. **opencode/jira:** integração com o Jira (snapshot, consulta e sincronização com o quadro).
-4. EP-03, EP-06, EP-09, EP-13 e EP-14 encerrados (9/9, 5/5, 6/6, 9/9 e 12/12); EP-11 encerrado (5/5); 136/150 global (EP-17 e EP-20 planejados). Cada chat commita apenas os arquivos da própria frente, por caminho.
+4. EP-03, EP-06, EP-09, EP-13 e EP-14 encerrados (9/9, 5/5, 6/6, 9/9 e 12/12); EP-11 encerrado (5/5); 136/163 global (EP-17, EP-20 e EP-21 planejados). Cada chat commita apenas os arquivos da própria frente, por caminho.
 5. A próxima história de EP-09/EP-10/EP-11 deve ser criada e aceita a partir do template antes da implementação.
 6. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
 7. A divisão completa e os handoffs obrigatórios estão no [painel de coordenação](05-progress/multi-agent-sync.md).
