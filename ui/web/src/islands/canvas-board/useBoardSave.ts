@@ -5,6 +5,7 @@ import { createAutosave, type SaveState } from "../../features/board/autosave.ts
 import { createBoardSession, type Snapshot } from "../../features/board/session.ts";
 import { sceneSignature } from "../../features/board/signature.ts";
 import type { Board, FileManifest, SceneElement, SceneFiles } from "../../features/board/types";
+import { rasterizeSvg } from "./rasterizeSvg";
 
 const SAVE_DELAY_MS = 1200;
 
@@ -25,7 +26,7 @@ export function useBoardSave(api: BoardApi, board: Board, manifest: FileManifest
   const baseline = useRef<string | null>(null);
 
   const session = useMemo(
-    () => createBoardSession(api, board.id, { rev: board.rev, manifest }),
+    () => createBoardSession(api, board.id, { rev: board.rev, manifest }, rasterizeSvg),
     [api, board.id, board.rev, manifest],
   );
 
@@ -43,7 +44,7 @@ export function useBoardSave(api: BoardApi, board: Board, manifest: FileManifest
           const { unsupported } = await session.save(snapshot.current);
           setWarning(
             unsupported.length
-              ? `${unsupported.length} image(s) in an unsupported format (for example SVG) were not saved.`
+              ? `${unsupported.length} image(s) could not be saved (unsupported format, or an SVG the browser could not convert to PNG).`
               : "",
           );
         },

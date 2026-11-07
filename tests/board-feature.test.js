@@ -288,6 +288,36 @@ test("session reports unsupported files and keeps rev when the update fails", as
   assert.equal(api.calls.length, 0);
 });
 
+test("session rasterizes SVG images to PNG before upload and reports failed conversions", async () => {
+  const { createBoardSession } = await load("session.ts");
+  const api = fakeApi();
+  const seen = [];
+  const rasterize = async (url) => {
+    seen.push(url);
+    if (url.includes("BAD")) throw new Error("tainted");
+    return PNG_URL;
+  };
+  const session = createBoardSession(api, "b1", { rev: 1, manifest: {} }, rasterize);
+  const svg = (payload) => ({ mimeType: "image/svg+xml", dataURL: `data:image/svg+xml;base64,${payload}`, created: 2 });
+  const snap = {
+    elements: [
+      { id: "1", type: "image", fileId: "ok" },
+      { id: "2", type: "image", fileId: "bad" },
+    ],
+    appState: {},
+    files: { ok: { id: "ok", ...svg("AAAA") }, bad: { id: "bad", ...svg("BAD0") } },
+  };
+  const first = await session.save(snap);
+  assert.deepEqual(first.unsupported, ["bad"]);
+  assert.deepEqual(api.calls[0], ["upload", "b1", "ok.png", 4]);
+  const update = api.calls.find((c) => c[0] === "update");
+  assert.deepEqual(update[3].files.ok, { ref: `${HASH}.png`, mimeType: "image/png", created: 2 });
+  assert.equal(update[3].files.bad, undefined);
+  await session.save(snap);
+  assert.equal(api.calls.filter((c) => c[0] === "upload").length, 1, "an uploaded SVG is not converted again");
+  assert.equal(seen.filter((url) => url.includes("AAAA")).length, 1);
+});
+
 test("rehydrateFiles rebuilds data URLs and lists missing assets", async () => {
   const { rehydrateFiles } = await load("session.ts");
   const api = fakeApi();
