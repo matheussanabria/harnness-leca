@@ -186,7 +186,7 @@ test("screen-state-http: rotas registradas, arquivos enxutos, MAPA e gitignore",
   assert.equal(find(screensRoutes, "POST", "/api/screens/chats/history")?.handler?.name, "apiScreenHistoryPost");
   assert.equal(find(ROUTES, "GET", "/api/screens/chats/state")?.handler?.name, "apiScreenStateGet");
 
-  const routerSource = fs.readFileSync(path.join(__dirname, "..", "ui/server/router.js"), "utf8");
+  const routerSource = fs.readFileSync(path.join(__dirname, "..", "ui/server/routes/index.js"), "utf8");
   assert.match(routerSource, /screensRoutes/);
 
   const files = [

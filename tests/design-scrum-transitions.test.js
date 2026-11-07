@@ -22,7 +22,7 @@ test("cartao oferece drag e alternativa acessivel anterior e proxima", () => {
 test("drag e botoes usam o mesmo endpoint versionado por raia de origem", () => {
   const transition = read("ui/public/js/modules/design-scrum-story-transition.js");
   const sprint = read("ui/public/js/modules/design-scrum-sprint.js");
-  const router = read("ui/server/router.js");
+  const router = read("ui/server/routes/scrum.routes.js");
   const controller = read("ui/server/controllers/scrum-transition.controller.js");
   assert.match(transition, /scrum\/story\/transition/);
   assert.match(transition, /JSON\.stringify\(\{ storyId, fromLaneId, toLaneId \}\)/);

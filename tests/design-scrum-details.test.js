@@ -39,7 +39,7 @@ test("kanban suporta selecao de todas as sprints e sincronizacao de sprint ativa
 
 test("mapeamento de status possui UI, rota e persistencia separada", () => {
   const ui = read("ui/public/js/modules/design-scrum-status-mapping.js");
-  const router = read("ui/server/router.js");
+  const router = read("ui/server/routes/scrum.routes.js");
   const persistence = read("ui/server/services/project-scrum-persist.js");
   assert.match(ui, /scrum\/status-mapping/);
   assert.match(router, /scrum\\\/status-mapping/);
@@ -55,7 +55,7 @@ test("kanban usa laneId do backend e modal acessivel configura as doze raias", (
   const sprint = read("ui/public/js/modules/design-scrum-sprint.js");
   const config = read("ui/public/js/modules/design-scrum-lane-config.js");
   const data = read("ui/public/js/modules/design-scrum-data.js");
-  const router = read("ui/server/router.js");
+  const router = read("ui/server/routes/scrum.routes.js");
   const css = read("ui/public/css/design.css");
   assert.match(sprint, /scrum\.lanes/);
   assert.match(sprint, /story\.laneId === lane\.id/);
