@@ -7,7 +7,7 @@ atualizado: 2026-10-21
 
 Documento mestre do programa de evolução. Cada entrega aceita tem um documento próprio em `02-epics/`, para que um agente receba só a história que vai implementar e as dependências dela.
 
-> Snapshot verificado em 2026-11-06: 136/163 entregas concluídas; as 13 do EP-17, a 20.01 do EP-20 e as 13 do EP-21 estão planejadas. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
+> Snapshot verificado em 2026-11-06: 137/163 entregas concluídas; as 13 do EP-17, a 20.01 do EP-20 e as 12 restantes do EP-21 estão planejadas. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
 
 > Revisão de 2026-10-24: "concluído" significa contrato aceito (API, módulo e testes). Vários épicos têm entregas sem tela ou sem fiação no cliente; o detalhe verificado está em [epic-gaps](05-progress/epic-gaps.md). Os épicos abaixo marcados com "UI pendente" não devem ser tratados como utilizáveis pelo usuário.
 
@@ -44,7 +44,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-17](02-epics/EP-17-sqlite-persistencia/README.md) | SQLite como sistema de registro, com RBAC e trilha de auditoria | P0 | Planejado (ADR-012, ADR-013); corrige a perda de contexto no F5 | 0/13 |
 | [EP-19](02-epics/EP-19-canvas/README.md) | Canvas: whiteboard and mind maps (ADR-011; renumbered from 16.01-16.05) | P1 | Concluído; 19.01 a 19.09 (inclui o canvas no Design e o chat que cria mapas e diagramas) | 9/9 |
 | [EP-20](02-epics/EP-20-responsividade-mobile/README.md) | Responsividade e edição móvel | P1 | Planejado; primeiro recorte permite editar código-fonte pelo celular | 0/1 |
-| [EP-21](02-epics/EP-21-diagramas-estruturados/README.md) | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA | P1 | Planejado; 21.01 a 21.13 | 0/13 |
+| [EP-21](02-epics/EP-21-diagramas-estruturados/README.md) | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA | P1 | Em andamento; 21.01 concluida, 21.02 a 21.13 planejadas | 1/13 |
 
 ## 2. Dependências
 
@@ -60,7 +60,7 @@ flowchart TD
     MOD --> OPS["EP-09 a EP-12 Operação, qualidade e protótipos"]
 ```
 
-## 3. Backlog (136/163)
+## 3. Backlog (137/163)
 
 Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a criação e o aceite do documento da história. EP-12 detalha as 32 histórias do motor multiframework. `HAR-xxx` indica o item equivalente do [backlog da Fase 0](08-prioritized-backlog.md).
 
@@ -250,8 +250,8 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 ### EP-20 Responsividade e edição móvel (0/1)
 - [ ] [20.01](02-epics/EP-20-responsividade-mobile/20.01-edicao-codigo-celular.md) Edição de código-fonte pelo celular
 
-### EP-21 Diagramas estruturados: Mermaid nativo, Flow, ELK e modelos de IA (0/13)
-- [ ] [21.01](02-epics/EP-21-diagramas-estruturados/21.01-adr-formato-nativo.md) ADR-014 e contrato dos kinds
+### EP-21 Diagramas estruturados: Mermaid nativo, Flow, ELK e modelos de IA (1/13)
+- [x] [21.01](02-epics/EP-21-diagramas-estruturados/21.01-adr-formato-nativo.md) ADR-014 e contrato dos kinds
 - [ ] [21.02](02-epics/EP-21-diagramas-estruturados/21.02-backend-kinds.md) Backend aceita os kinds diagram e flow
 - [ ] [21.03](02-epics/EP-21-diagramas-estruturados/21.03-modelo-mermaid.md) Modelo puro do diagrama Mermaid
 - [ ] [21.04](02-epics/EP-21-diagramas-estruturados/21.04-ilha-mermaid.md) Ilha de diagramas Mermaid
