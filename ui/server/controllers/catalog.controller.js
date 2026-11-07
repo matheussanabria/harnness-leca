@@ -1,16 +1,23 @@
 // @ts-check
 // Skills and agents catalog grouped by area (GET list, POST manual area).
 const netLib = require("../../../tools/lib/network");
-const { send, readJsonBody } = require("../config");
+const { send, readJsonBody, getProjects } = require("../config");
 const { buildCatalog } = require("../services/catalog/catalog-reader");
 const { setOverride } = require("../services/catalog/catalog-overrides");
 const { listTree, readItemFile } = require("../services/catalog/catalog-files");
+const { getCanonicalLanes } = require("../services/project-scrum-lanes");
+const { bindingsBySkill, attachBindings } = require("../services/catalog/catalog-bindings");
 const { writeItemFile } = require("../services/catalog/catalog-write");
+
+/** Catalog plus the Scrum lanes each skill is linked to. */
+function catalogWithLinks() {
+  return attachBindings(buildCatalog(), bindingsBySkill(getProjects(), getCanonicalLanes()));
+}
 
 /** GET /api/catalog */
 async function apiCatalogGet({ req, res }) {
   const local = !req || netLib.isLocalhostRequest(req);
-  return send(res, 200, { ...buildCatalog(), canManage: local });
+  return send(res, 200, { ...catalogWithLinks(), canManage: local });
 }
 
 /** POST /api/catalog/area  body: { kind, name, area }  (area null clears the manual choice) */
@@ -29,7 +36,7 @@ async function apiCatalogAreaSet({ req, res }) {
   } catch (err) {
     return send(res, 400, { error: err.message });
   }
-  return send(res, 200, { ...buildCatalog(), canManage: true });
+  return send(res, 200, { ...catalogWithLinks(), canManage: true });
 }
 
 /** GET /api/catalog/tree?kind=&source=&ref=  (read-only; remote requests already passed the PIN gate in the router) */

@@ -35,11 +35,18 @@ function renderCard(item, areas, canManage) {
   return (
     `<article class="k-card"><h3><button type="button" class="k-open" data-open="${esc(item.kind)}:${esc(item.source)}:${esc(item.ref)}" title="Abrir arquivos"><i class="fa-solid ${icon}" aria-hidden="true"></i> ${esc(item.name)}</button></h3>` +
     `<p>${esc(item.description || "Sem descrição.")}</p>` +
-    `<div class="k-meta"><span class="k-tag">${kind}</span><span class="k-tag">${esc(item.sourceLabel)}</span>${also}${origin}${select}</div></article>`
+    `<div class="k-meta"><span class="k-tag">${kind}</span><span class="k-tag">${esc(item.sourceLabel)}</span>${also}${linkTag(item)}${origin}${select}</div></article>`
   );
 }
 
 /** Groups already filtered; one section per area. */
+/** Link tags of a skill: number of Scrum lanes, or a warning when a project skill has none. */
+export function linkTag(item) {
+  if (item.orphan) return `<span class="k-tag k-warn" title="Skill de projeto sem vínculo com nenhuma raia do Scrum"><i class="fa-solid fa-link-slash" aria-hidden="true"></i> sem vínculo</span>`;
+  const n = item.lanes ? item.lanes.length : 0;
+  return n ? `<span class="k-tag" title="${esc(item.lanes.map((l) => `${l.project}: ${l.laneName}`).join(", "))}"><i class="fa-solid fa-link" aria-hidden="true"></i> ${n} ${n === 1 ? "raia" : "raias"}</span>` : "";
+}
+
 export function renderGroups(groups, areas, canManage) {
   if (!groups.length) return `<p class="c-empty">Nada encontrado.</p>`;
   return groups

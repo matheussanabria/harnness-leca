@@ -56,3 +56,5 @@
 .k-editor:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .k-edmsg{min-height:1.2em;margin:0 0 8px;font-size:13px;color:var(--muted)}
 .k-vhead .btn-row + .btn-row{margin-left:0}
+.k-warn{border-color:var(--warn,#d97706);color:var(--warn,#d97706)}
+.k-links{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}.k-links:empty{display:none}.k-links-label{font-size:13px;color:var(--muted)}
