@@ -1,5 +1,6 @@
 // @ts-check
 // Read-only file browsing for one catalog item: a skill is a folder, an agent is a single .md file.
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const { defaultSources } = require("./catalog-reader");
@@ -52,8 +53,8 @@ function listTree(kind, source, ref, sources) {
   return { truncated: budget.left <= 0, tree };
 }
 
-/** Text content of one file inside the item. Returns { error } when it cannot be shown. */
-function readItemFile(kind, source, ref, rel, sources) {
+/** Resolves a relative path inside an item to a real file. Returns { real } or { status, error }. */
+function resolveFile(kind, source, ref, rel, sources) {
   const item = resolveItem(kind, source, ref, sources);
   if (!item) return { status: 404, error: "Item not found." };
   const parts = String(rel || "").split("/").filter(Boolean);
@@ -65,6 +66,17 @@ function readItemFile(kind, source, ref, rel, sources) {
   if (real !== item.root && !real.startsWith(item.root + path.sep)) return { status: 400, error: "Invalid path." };
   const stat = fs.statSync(real);
   if (!stat.isFile()) return { status: 400, error: "Not a file." };
+  return { real, stat };
+}
+
+/** Content revision: a hash of the bytes, so any change (even by another editor) is detected. */
+const revisionOf = (buf) => crypto.createHash("sha1").update(buf).digest("hex");
+
+/** Text content of one file inside the item. Returns { error } when it cannot be shown. */
+function readItemFile(kind, source, ref, rel, sources) {
+  const found = resolveFile(kind, source, ref, rel, sources);
+  if (!found.real) return found;
+  const { real, stat } = found;
   const ext = path.extname(real).toLowerCase();
   if (!TEXT_EXT.has(ext)) return { status: 200, name: path.basename(real), size: stat.size, binary: true, content: "" };
   const fd = fs.openSync(real, "r");
@@ -72,10 +84,10 @@ function readItemFile(kind, source, ref, rel, sources) {
     const buf = Buffer.alloc(Math.min(stat.size, MAX_BYTES));
     fs.readSync(fd, buf, 0, buf.length, 0);
     if (buf.includes(0)) return { status: 200, name: path.basename(real), size: stat.size, binary: true, content: "" };
-    return { status: 200, name: path.basename(real), size: stat.size, binary: false, truncated: stat.size > MAX_BYTES, content: buf.toString("utf8").replace(/^﻿/, "") };
+    return { status: 200, name: path.basename(real), size: stat.size, binary: false, truncated: stat.size > MAX_BYTES, revision: stat.size > MAX_BYTES ? "" : revisionOf(buf), content: buf.toString("utf8").replace(/^﻿/, "") };
   } finally {
     fs.closeSync(fd);
   }
 }
 
-module.exports = { listTree, readItemFile, resolveItem, MAX_BYTES };
+module.exports = { listTree, readItemFile, resolveItem, resolveFile, revisionOf, TEXT_EXT, MAX_BYTES };

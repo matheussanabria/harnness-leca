@@ -67,7 +67,7 @@ export function startCatalogoPage() {
     if (!btn) return;
     const [kind, source, ref] = btn.getAttribute("data-open").split(":");
     const item = data.items.find((i) => i.kind === kind && i.source === source && i.ref === ref);
-    if (item) openBrowser(item);
+    if (item) openBrowser(item, data.canManage);
   });
   $("kList").addEventListener("change", async (e) => {
     const sel = e.target.closest(".k-select");

@@ -50,3 +50,9 @@
 .k-dir>.k-file{width:calc(100% - 14px)}
 @media (max-width:760px){.k-treebox{max-height:40vh}.k-viewer{max-height:none;overflow:visible}#kBrDesc{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}}
 @media (max-width:560px){main{padding:20px 14px}.k-tab{padding:8px 10px}.k-search{min-width:0}.k-select{max-width:100%}}
+
+.k-vhead .k-actions{margin-left:auto;display:flex;gap:8px}.k-vhead .k-actions .btn-row{margin-left:0}
+.k-editor{width:100%;min-height:55vh;box-sizing:border-box;font:13px/1.5 ui-monospace,Consolas,monospace;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical;tab-size:2}
+.k-editor:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.k-edmsg{min-height:1.2em;margin:0 0 8px;font-size:13px;color:var(--muted)}
+.k-vhead .btn-row + .btn-row{margin-left:0}

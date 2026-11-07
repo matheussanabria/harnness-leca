@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { apiCatalogTree, apiCatalogFile, apiCatalogAreaSet } = require("../ui/server/controllers/catalog.controller");
+const { apiCatalogTree, apiCatalogFile, apiCatalogAreaSet, apiCatalogFileSave } = require("../ui/server/controllers/catalog.controller");
 
 // Remote requests only reach the controllers after the router PIN gate, so the read endpoints must not add
 // a loopback check; writes stay local-only.
@@ -33,4 +33,10 @@ test("path traversal from a remote request is still refused", async () => {
   const res = fakeRes();
   await apiCatalogFile({ req: remoteReq(), res, url: url("kind=skill&source=user&ref=..&path=x") });
   assert.ok([400, 404].includes(res.code), `status ${res.code}`);
+});
+
+test("remote request cannot edit a file", async () => {
+  const res = fakeRes();
+  await apiCatalogFileSave({ req: remoteReq(), res });
+  assert.equal(res.code, 403);
 });
