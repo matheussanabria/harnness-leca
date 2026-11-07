@@ -100,15 +100,17 @@ export async function saveCurrentChat(auto = false) {
   }
 }
 
-export async function resumeExistingChat(chatName, preferStudio = false) {
+export async function resumeExistingChat(chatName, preferStudio = false, { silent = false } = {}) {
   const P = state.P;
   if (!P) return;
+  // silent: restore the turns in the background (no alerts, no dialog, no focus); nothing is shown on failure.
+  const fail = (message) => (silent ? undefined : alert(message));
   try {
     const res = await fetch("/api/file?path=" + encodeURIComponent(`${P.slug}/chats/${chatName}`));
     const data = await res.json();
     const rawContent = data.content || "";
     if (!rawContent) {
-      alert("Não foi possível carregar o conteúdo da conversa.");
+      fail("Não foi possível carregar o conteúdo da conversa.");
       return;
     }
 
@@ -141,7 +143,7 @@ export async function resumeExistingChat(chatName, preferStudio = false) {
     }
 
     if (!turns.length) {
-      alert("A conversa selecionada não possui mensagens para retomar.");
+      fail("A conversa selecionada não possui mensagens para retomar.");
       return;
     }
 
@@ -170,6 +172,7 @@ export async function resumeExistingChat(chatName, preferStudio = false) {
     renderChatHistory();
     setStreamingUI(false);
     saveActiveChatState();
+    if (silent) return;
 
     const sessaoAviso = meta.sessao ? ` · Sessão: ${meta.sessao.slice(0, 14)}...` : "";
     setChatStatus(`Conversa carregada: "${cs.currentChatTitle}" (${turns.length} turnos)${sessaoAviso}`);
@@ -192,6 +195,6 @@ export async function resumeExistingChat(chatName, preferStudio = false) {
       }, 100);
     }
   } catch (err) {
-    alert("Erro ao retomar conversa: " + (err.message || String(err)));
+    fail("Erro ao retomar conversa: " + (err.message || String(err)));
   }
 }

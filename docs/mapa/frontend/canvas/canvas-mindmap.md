@@ -15,7 +15,7 @@ Design view `#/canvas-mindmap`, shown in the canvas workspace (props `embedded: 
 |---|---|
 | `ui/web/src/features/mindmap/types.ts` | Node, tree and board-data types; the tree is independent of any graphic ids. |
 | `ui/web/src/features/mindmap/tree.ts` | Read-only tree helpers (lookup, parent, descendants, visible nodes). |
-| `ui/web/src/features/mindmap/commands.ts` | Pure immutable commands: addChild, addSibling, outdent, reparent with cycle guard, deleteSubtree, rename, toggleCollapse, moveNode (manual dx/dy offset, applied to the subtree), resetOffsets, resizeNode (manual w/h, clamped 100-600 x 40-400). |
+| `ui/web/src/features/mindmap/commands.ts` | Pure immutable commands: addChild, addSibling, outdent, reparent with cycle guard, deleteSubtree, rename, toggleCollapse, moveNode (manual dx/dy offset, applied to the subtree), resetOffsets, resizeNode (manual w/h, clamped 100-600 x 40-400), resetSizes (toolbar button). |
 | `ui/web/src/features/mindmap/history.ts` | Undo/redo stack capped at 200 entries. |
 | `ui/web/src/features/mindmap/serialize.ts` | Converts the tree to and from board `data`, validating untrusted input. |
 | `ui/web/src/features/mindmap/outline.ts` | `parseOutline`: Markdown bullet outline to a node tree (indentation stack, text cleaning, 200-node and 8-level caps). |

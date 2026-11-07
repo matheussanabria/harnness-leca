@@ -59,3 +59,13 @@ test("layout keeps default positions and makes room for larger nodes", async () 
   const [top, bottom] = a.y < b.y ? [a, b] : [b, a];
   assert.ok(top.y + top.h <= bottom.y);
 });
+
+test("resetSizes clears every manual size in one step and is a no-op without sizes", async () => {
+  const { cmd, doc } = await fixture();
+  assert.equal(cmd.resetSizes(doc), doc);
+  const sized = cmd.resizeNode(cmd.resizeNode(doc, "a", 300, 120), "b", 150, 80);
+  const reset = cmd.resetSizes(sized);
+  assert.equal(reset.nodes.a.w, undefined);
+  assert.equal(reset.nodes.b.h, undefined);
+  assert.equal(sized.nodes.a.w, 300, "the original document is untouched");
+});

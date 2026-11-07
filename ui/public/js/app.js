@@ -14,6 +14,7 @@ import * as skillsMod from "./modules/skills.js";
 import * as servicesMod from "./modules/services.js";
 import * as studioMod from "./modules/studio.js";
 import * as chatMod from "./modules/chat.js";
+import { isActiveChatStreaming } from "./modules/chat-scope.js";
 import * as inspectorMod from "./modules/inspector.js";
 import * as designMod from "./modules/design.js";
 import { restoredDesignState } from "./modules/design-view-state.js";
@@ -107,6 +108,12 @@ Object.assign(window, {
     sel.value = start;
     sel.onchange = async (e) => {
       const select = /** @type {HTMLSelectElement} */ (e.target);
+      if (isActiveChatStreaming()) {
+        // Swapping the project now would put the streaming answer into the wrong project's chat.
+        select.value = projectSelection.activeProject;
+        showToast("Aguarde a resposta terminar (ou cancele) para trocar de projeto.");
+        return;
+      }
       select.disabled = true;
       try {
         const selected = await guardUnsavedTransition(async ({ force }) => {
