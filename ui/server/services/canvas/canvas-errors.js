@@ -57,7 +57,7 @@ function invalidId() {
 }
 
 function invalidKind() {
-  return canvasError("O tipo do board deve ser board ou mindmap.", "INVALID_KIND", 400);
+  return canvasError("O tipo do board deve ser board, mindmap, diagram ou flow.", "INVALID_KIND", 400);
 }
 
 function invalidTitle() {
@@ -66,6 +66,11 @@ function invalidTitle() {
 
 function invalidData() {
   return canvasError("O campo data deve ser um objeto JSON.", "INVALID_DATA", 400);
+}
+
+/** @param {string} kind */
+function invalidSchema(kind) {
+  return canvasError(`O conteudo nao corresponde ao formato do tipo ${kind}.`, "INVALID_SCHEMA", 400, { kind });
 }
 
 function boardTooLarge() {
@@ -148,6 +153,7 @@ module.exports = {
   invalidKind,
   invalidTitle,
   invalidData,
+  invalidSchema,
   boardTooLarge,
   projectRequired,
   projectNotFound,

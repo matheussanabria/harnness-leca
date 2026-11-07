@@ -29,6 +29,7 @@ const {
   readJsonFile,
 } = require("./canvas-fs");
 const { CURRENT_VERSION, migrateBoard } = require("./canvas-migrate");
+const { checkKindData } = require("./canvas-kinds");
 const {
   readIndex,
   removeIndexEntry,
@@ -129,7 +130,7 @@ function createBoard(project, input) {
   const body = requireBody(input);
   const kind = validateKind(body.kind);
   const title = validateTitle(body.title);
-  const data = body.data === undefined ? {} : validateData(body.data);
+  const data = body.data === undefined ? {} : checkKindData(kind, validateData(body.data), { allowBlank: true });
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -186,6 +187,7 @@ function updateBoard(project, id, input) {
   const current = readRecord(dir, boardId);
   if (!current) throw boardNotFound(boardId);
   if (current.rev !== rev) throw revisionConflict(current.rev);
+  if (data !== null) checkKindData(current.kind, data);
 
   const updatedAt = new Date().toISOString();
   const next = {
