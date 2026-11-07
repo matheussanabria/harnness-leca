@@ -68,7 +68,7 @@ function getRemoteSummary(port, pin, tunnelUrl = "") {
 function printRemoteBanner(summary) {
   console.log("");
   console.log("╭─────────────────────────────────────────────────────────────╮");
-  console.log("│           🚀 HARNESS LECA - ACESSO REMOTO & MOBILE          │");
+  console.log("│           🚀 HARNESS - ACESSO REMOTO & MOBILE          │");
   console.log("├─────────────────────────────────────────────────────────────┤");
   console.log(`│ 💻 Local:    http://localhost:${summary.port}`);
 

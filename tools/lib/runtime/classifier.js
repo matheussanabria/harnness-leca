@@ -5,7 +5,7 @@
 const { generateStructured } = require("./ollama-client");
 const { validateClassification } = require("./schema");
 
-const CLASSIFICATION_SYSTEM_PROMPT = `Você é um classificador determinístico de tarefas de engenharia de software para o Harness Leca.
+const CLASSIFICATION_SYSTEM_PROMPT = `Você é um classificador determinístico de tarefas de engenharia de software para o Harness.
 Sua única função é classificar o pedido em um formato JSON rigorosamente fechado.
 
 Valores permitidos:

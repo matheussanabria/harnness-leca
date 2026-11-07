@@ -1,5 +1,5 @@
 # Domínio 05: Interface de Operação, Chat e Estúdio Visual
-## Harness Leca — Especificação de Requisitos de Software
+## Harness — Especificação de Requisitos de Software
 
 ---
 

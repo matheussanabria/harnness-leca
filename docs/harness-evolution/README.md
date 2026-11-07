@@ -1,4 +1,4 @@
-# Evolução do Harness Leca — Fase 0
+# Evolução do Harness — Fase 0
 
 > O programa de implementação por épicos (EP-00 a EP-11) está no [índice mestre](00-index.md). Este README e os documentos `01` a `08` são o diagnóstico que serve de fonte para ele.
 

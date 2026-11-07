@@ -6,11 +6,11 @@
 
 ## 1. Visão Geral e Princípios Fundamentais
 
-O objetivo da camada de Intelligence & Automation (HIA) é transformar o Harness Leca de um mero despachante de prompts em uma plataforma cognitiva e computacional eficiente. A meta técnica primordial é resolver tarefas determinísticas sem LLM, tarefas semânticas rotineiras via inferência local em CPU, reservando os motores de nuvem (Claude, Codex, Gemini e OpenCode) estritamente para raciocínios de alta complexidade autorizados.
+O objetivo da camada de Intelligence & Automation (HIA) é transformar o Harness de um mero despachante de prompts em uma plataforma cognitiva e computacional eficiente. A meta técnica primordial é resolver tarefas determinísticas sem LLM, tarefas semânticas rotineiras via inferência local em CPU, reservando os motores de nuvem (Claude, Codex, Gemini e OpenCode) estritamente para raciocínios de alta complexidade autorizados.
 
 ```
 +-----------------------------------------------------------------------------------+
-|                        Interfaces do Harness Leca                                 |
+|                        Interfaces do Harness                                 |
 |          (Chat Interativo · Vibecoding Studio · Scrum · Escritório 3D)            |
 +-----------------------------------------------------------------------------------+
                                           |

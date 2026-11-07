@@ -16,7 +16,7 @@ const RULES = [
 /** @param {{ id: string, title: string, body: string, allowed: string[], branch: string }} story */
 function buildPrompt(story) {
   return [
-    `Você vai implementar a história EP-${story.id} ("${story.title}") do repositório Harness Leca, na branch ${story.branch}.`,
+    `Você vai implementar a história EP-${story.id} ("${story.title}") do repositório Harness, na branch ${story.branch}.`,
     "",
     "## Regras do repositório",
     ...RULES.map((r) => `- ${r}`),

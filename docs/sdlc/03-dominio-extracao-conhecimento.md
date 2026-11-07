@@ -1,5 +1,5 @@
 # Domínio 03: Destilação e Extração de Conhecimento
-## Harness Leca — Especificação de Requisitos de Software
+## Harness — Especificação de Requisitos de Software
 
 ---
 

@@ -33,5 +33,5 @@ Este documento registra as decisoes de design cruciais tomadas para o EP-12.
 ## ADR-012.04: Isolamento de Preview via Sandbox Iframe e PostMessage Seguro
 
 - **Status:** Aprovada
-- **Contexto:** Estilos CSS de prototipos legados e modernos podem conflitar com a folha de estilos do Harness Leca / Studio caso sejam renderizados diretamente no DOM principal da aplicacao.
+- **Contexto:** Estilos CSS de prototipos legados e modernos podem conflitar com a folha de estilos do Harness / Studio caso sejam renderizados diretamente no DOM principal da aplicacao.
 - **Decisao:** A renderizacao de telas de prototipos e componentes sempre ocorrera dentro de um `iframe` seguro com `sandbox="allow-scripts allow-same-origin"`. A comunicacao entre a barra de ferramentas do Atelie/Studio e o documento do preview sera mediada exclusivamente por eventos tipados via `postMessage`.

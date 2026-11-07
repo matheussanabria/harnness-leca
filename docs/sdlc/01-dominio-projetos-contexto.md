@@ -1,10 +1,10 @@
 # Domínio 01: Gestão de Projetos e Contexto
-## Harness Leca — Especificação de Requisitos de Software
+## Harness — Especificação de Requisitos de Software
 
 ---
 
 ## 1. Visão do Domínio
-O **Domínio de Projetos e Contexto** é o núcleo de isolamento do Harness Leca. Ele é responsável por gerenciar a identidade de cada projeto, suas instruções comportamentais personalizadas, sua memória durável e o acoplamento de arquivos de contexto suplementares.
+O **Domínio de Projetos e Contexto** é o núcleo de isolamento do Harness. Ele é responsável por gerenciar a identidade de cada projeto, suas instruções comportamentais personalizadas, sua memória durável e o acoplamento de arquivos de contexto suplementares.
 
 ---
 

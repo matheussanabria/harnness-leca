@@ -1,6 +1,6 @@
 # Rotinas, revisão de memória e sincronização
 
-Parte do [guia de instalação](../../SETUP.md) do Harness Leca.
+Parte do [guia de instalação](../../SETUP.md) do Harness.
 
 ## Rotinas (tarefas recorrentes)
 

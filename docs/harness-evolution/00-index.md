@@ -3,7 +3,7 @@ tags: [harness-evolution, indice, programa]
 atualizado: 2026-10-21
 ---
 
-# Harness Leca: índice mestre de implementação
+# Harness: índice mestre de implementação
 
 Documento mestre do programa de evolução. Cada entrega aceita tem um documento próprio em `02-epics/`, para que um agente receba só a história que vai implementar e as dependências dela.
 

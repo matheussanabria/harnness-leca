@@ -46,7 +46,7 @@ function buildFallbackProjectScreens(slug, projectDir) {
       title: `Visão Geral e Arquitetura · ${slug}`,
       route: `${slug}/principal`,
       comp: `${slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())}Module`,
-      resumo: `Mapa de funcionalidades e regras do projeto ${slug} mantido pelo Harness Leca.`,
+      resumo: `Mapa de funcionalidades e regras do projeto ${slug} mantido pelo Harness.`,
       fields: [
         {
           id: "f01",

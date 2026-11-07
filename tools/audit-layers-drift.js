@@ -210,7 +210,7 @@ function runAudit() {
   }
 
   console.log("=".repeat(78));
-  console.log(" AUDITORIA DE DOCUMENTAÇÃO EM CAMADAS (HARNESS LECA / DIS)");
+  console.log(" AUDITORIA DE DOCUMENTAÇÃO EM CAMADAS (HARNESS / DIS)");
   console.log(" Repositório: " + repoRoot);
   console.log(" Total de Funcionalidades auditadas: " + results.length);
   console.log("=".repeat(78) + "\n");

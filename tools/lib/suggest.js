@@ -1,5 +1,5 @@
 // @ts-check
-// Sugestor de grupos para conversas do Harness Leca.
+// Sugestor de grupos para conversas do Harness.
 // Lê a conversa inteira e os sinais de atividade (tools/lib/classify.js, sem modelo e sem rede), mapeia os temas da
 // árvore de tools/lib/taxonomy.js para os grupos/subgrupos do projeto e, com `llm: true`, usa um modelo gratuito do
 // opencode só para CONFIRMAR os temas propostos (o que o modelo sugere por conta própria é descartado).

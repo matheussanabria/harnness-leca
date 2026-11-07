@@ -1,4 +1,4 @@
-# Harness Leca: instruções para agentes (Antigravity/Gemini e similares)
+# Harness: instruções para agentes (Antigravity/Gemini e similares)
 
 Este workspace replica "Projetos" do Claude Chat. No Claude Code, um hook injeta instruções e memória a cada mensagem. **Você não tem esse hook**, então faça o equivalente à mão.
 

@@ -2,7 +2,7 @@
 
 [Voltar ao EP-12](README.md)
 
-Este documento define as interdependencias tecnicas entre as 8 fases do EP-12 e o relacionamento com os outros epicos do Harness Leca.
+Este documento define as interdependencias tecnicas entre as 8 fases do EP-12 e o relacionamento com os outros epicos do Harness.
 
 ---
 

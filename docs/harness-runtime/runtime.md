@@ -1,8 +1,8 @@
-# Implementação — Harness Leca Local AI Runtime (Fase 1)
+# Implementação — Harness Local AI Runtime (Fase 1)
 
 ## Objetivo
 
-Integrar o Ollama ao Harness Leca como runtime local de IA, inicialmente para classificação e extração estruturada, sem alterar o roteamento de Claude, Codex, Gemini ou OpenCode.
+Integrar o Ollama ao Harness como runtime local de IA, inicialmente para classificação e extração estruturada, sem alterar o roteamento de Claude, Codex, Gemini ou OpenCode.
 
 ## Contexto
 

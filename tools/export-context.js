@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // @ts-check
-// Exporta a memória curada do Harness Leca para o contexto nativo dos agentes:
+// Exporta a memória curada do Harness para o contexto nativo dos agentes:
 // 1. Claude Code: ~/.claude/projects/<pasta>/memory/MEMORY.md (só o bloco gerenciado)
 // 2. Gemini / Antigravity: Knowledge Item (memory.md) + regra global em ~/.gemini
 // 3. Pastas locais: .claude/context/ e .gemini/context/ no próprio harness-leca
@@ -68,7 +68,7 @@ function run(argv, io = console, options = {}) {
   const claudeDirsBySlug = mapClaudeDirs(targets.claudeProjectsDir, matchers());
 
   io.log(`\n======================================================`);
-  io.log(` Sincronizando contexto do Harness Leca -> Claude & Gemini`);
+  io.log(` Sincronizando contexto do Harness -> Claude & Gemini`);
   io.log(` Data: ${today} ${dryRun ? "[MODO SIMULACAO - DRY RUN]" : ""}`);
   io.log(`======================================================\n`);
 

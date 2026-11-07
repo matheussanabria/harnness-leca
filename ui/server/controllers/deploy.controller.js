@@ -85,7 +85,7 @@ async function apiDeployTrigger({ req, res }) {
 
     method = (method || "POST").toUpperCase();
     const reqHeaders = {
-      "User-Agent": "Harness-Leca-Deployer/1.0",
+      "User-Agent": "Harness-Deployer/1.0",
       ...(headers || {}),
     };
 

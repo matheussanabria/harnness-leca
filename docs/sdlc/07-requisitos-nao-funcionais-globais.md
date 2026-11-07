@@ -1,10 +1,10 @@
 # Domínio 07: Catálogo Global de Requisitos Não Funcionais (RNFs)
-## Harness Leca — Especificação de Engenharia de Software
+## Harness — Especificação de Engenharia de Software
 
 ---
 
 ## 1. Visão Geral
-Este documento estabelece as restrições arquiteturais, padrões de qualidade de código e diretrizes não funcionais que governam **todo e qualquer desenvolvimento** no Harness Leca.
+Este documento estabelece as restrições arquiteturais, padrões de qualidade de código e diretrizes não funcionais que governam **todo e qualquer desenvolvimento** no Harness.
 
 ---
 

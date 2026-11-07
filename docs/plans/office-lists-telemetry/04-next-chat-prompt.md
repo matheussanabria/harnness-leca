@@ -3,7 +3,7 @@
 Paste the block below into a new Claude Code chat in this repository.
 
 ```
-Continue the consumption-telemetry work for the 3D office / Harness Leca (repo: harness-leca).
+Continue the consumption-telemetry work for the 3D office / Harness (repo: harness-leca).
 
 ## State (already done)
 - Merged into main: pagination (presets 5/10/25/50, global prefs), Kanban fixes, Central sessions batching, removal of fake war-screen items, quota foundation, 9Router reader.

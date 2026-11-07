@@ -1,5 +1,5 @@
 // @ts-check
-// Integração do Harness Leca com o DAI (Desenvolvimento Assistido com IA).
+// Integração do Harness com o DAI (Desenvolvimento Assistido com IA).
 // Lê os agentes de .agents/ e skills/ de C:\Users\matheuss.rodrigues\git\DAI (ou DAI_PATH no .env).
 const fs = require("fs");
 const path = require("path");

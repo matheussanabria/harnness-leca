@@ -1,5 +1,5 @@
 // @ts-check
-// Gerenciamento e inclusão de Skills (.agents/skills) nos projetos e repositórios do Harness Leca.
+// Gerenciamento e inclusão de Skills (.agents/skills) nos projetos e repositórios do Harness.
 // Fachada: a implementação vive em ./skills/ (frontmatter, targets, reader, writer, templates, recognized).
 const { parseFrontmatter } = require("./skills/frontmatter");
 const { findProjectTargets } = require("./skills/targets");

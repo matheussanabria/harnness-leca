@@ -1,4 +1,4 @@
-# Harness Leca — Contexto: Scrum Automation & Development Traceability
+# Harness — Contexto: Scrum Automation & Development Traceability
 
 > Estado: proposta para revisão técnica. Não representa implementação confirmada.
 > Data: 2026-10-31

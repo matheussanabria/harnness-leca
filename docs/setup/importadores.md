@@ -1,6 +1,6 @@
 # Importadores e extração de conversas
 
-Parte do [guia de instalação](../../SETUP.md) do Harness Leca.
+Parte do [guia de instalação](../../SETUP.md) do Harness.
 
 ## Importar conversas de outros projetos do Claude Code
 

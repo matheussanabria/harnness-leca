@@ -1,4 +1,4 @@
-# Harness Leca map
+# Harness map
 
 Entry point for agents (Claude Code, Codex, Gemini, opencode) to find files and responsibilities without scanning the repository. Do not read this tree top to bottom.
 

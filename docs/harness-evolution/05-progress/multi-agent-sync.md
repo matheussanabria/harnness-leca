@@ -6,7 +6,7 @@ versao: 2.11.0
 
 # Painel de Coordenação Gemini + Codex
 
-> **Finalidade:** coordenar os dois chats ativos do Harness Leca — Gemini/Antigravity e Codex — e evitar sobreposição de arquivos, retrabalho e inconsistências de contratos. O [índice mestre](../00-index.md) define o backlog e [progress.md](progress.md) é a fonte oficial dos estados aceitos.
+> **Finalidade:** coordenar os dois chats ativos do Harness — Gemini/Antigravity e Codex — e evitar sobreposição de arquivos, retrabalho e inconsistências de contratos. O [índice mestre](../00-index.md) define o backlog e [progress.md](progress.md) é a fonte oficial dos estados aceitos.
 
 > **Frentes ativas (2026-10-21):** os três chats ativos usam o motor **OpenCode**; o que os diferencia é a **frente**, não o nome do motor. Por isso o owner no ledger é sempre `opencode/<frente>`: `opencode/qualidade`, `opencode/jira` e `opencode/deploy`. Cada chat commita apenas os arquivos da própria frente, por caminho (`git add <arquivos>`, nunca `-A` nem `.`).
 

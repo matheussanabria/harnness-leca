@@ -1,6 +1,6 @@
 // @ts-check
 // Inicializador de Túnel Remoto HTTPS (Cloudflare Quick Tunnel via cloudflared/untun)
-// Permite acessar o Harness Leca e o App de qualquer lugar pela internet (4G/5G).
+// Permite acessar o Harness e o App de qualquer lugar pela internet (4G/5G).
 const { spawn, execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");

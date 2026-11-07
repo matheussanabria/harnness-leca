@@ -1,6 +1,6 @@
 # Convention: the `Story:` commit trailer
 
-Status: in force for Harness Leca work. Reader: `ui/server/services/project-scrum-commits.js` (`parseTrailers`, `readStoryCommits`), exposed by `GET /api/project/:slug/scrum/story/:id/commits`.
+Status: in force for Harness work. Reader: `ui/server/services/project-scrum-commits.js` (`parseTrailers`, `readStoryCommits`), exposed by `GET /api/project/:slug/scrum/story/:id/commits`.
 
 ## Rule
 

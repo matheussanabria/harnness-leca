@@ -1,4 +1,4 @@
-# Harness Leca: adopting an existing project (agent procedure)
+# Harness: adopting an existing project (agent procedure)
 
 Audience: an AI agent asked to make an existing codebase follow the harness structure. Humans: [docs/setup/05-adopt-existing-projects.md](../setup/05-adopt-existing-projects.md). Ground rules are the same as in [BOOTSTRAP.md](BOOTSTRAP.md); in particular, the source code is read-only for this task and credential files are never opened.
 

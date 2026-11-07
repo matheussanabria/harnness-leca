@@ -36,7 +36,7 @@ async function streamAiStudio(key, req) {
       },
     };
     if (ctx) {
-      body.system_instruction = { parts: [{ text: `Você é o assistente Gemini do Harness Leca.\n${ctx}` }] };
+      body.system_instruction = { parts: [{ text: `Você é o assistente Gemini do Harness.\n${ctx}` }] };
     }
 
     let res = await fetch(url, {

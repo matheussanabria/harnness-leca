@@ -1,4 +1,4 @@
-# Harness Leca: office features with no main UI screen (read-only inventory)
+# Harness: office features with no main UI screen (read-only inventory)
 
 I compared office code (`office-state.js`, `office/`, `office3d/`, `office2d/`, drawer views) against `index.html`, `app.js`, `overview.js`, `design*.js` and `modules/`. I did not edit any code. "Main UI" here means `/` (index) plus the linked pages `/overview`, `/diario` and `/deploy`.
 

@@ -4,7 +4,7 @@
 Aprovado
 
 ## Contexto
-O Harness Leca precisa realizar tarefas recorrentes de apoio (como classificação de intenções, categorização de histórico, roteamento e extração de metadados) sem consumir cotas pagas ou atingir limites de taxa dos motores de nuvem (Claude, Gemini, Codex).
+O Harness precisa realizar tarefas recorrentes de apoio (como classificação de intenções, categorização de histórico, roteamento e extração de metadados) sem consumir cotas pagas ou atingir limites de taxa dos motores de nuvem (Claude, Gemini, Codex).
 O usuário dispõe de uma máquina Ryzen 5 7430U com 16 GB de RAM e GPU integrada, onde o Ollama já se encontra em operação servindo modelos como `qwen3.5:4b` e `qwen2.5-coder:1.5b`.
 
 ## Decisão

@@ -1,4 +1,4 @@
-# Harness Leca — Plano para revisão do agente integrado
+# Harness — Plano para revisão do agente integrado
 
 > Status: **Discovery / Plan only** — não editar código, migrations, stories ou dados de produção antes de aprovação.
 > Documento complementar: `CONTEXTO-SCRUM-TRACEABILITY.md`.
@@ -6,7 +6,7 @@
 
 ## Missão do agente
 
-Confrontar o contexto proposto com o **repositório real** do Harness Leca. Produzir plano incremental, riscos, contratos e critérios de aceite fundamentados em arquivos e testes existentes. Não supor implementações, endpoints ou schemas.
+Confrontar o contexto proposto com o **repositório real** do Harness. Produzir plano incremental, riscos, contratos e critérios de aceite fundamentados em arquivos e testes existentes. Não supor implementações, endpoints ou schemas.
 
 ## Fase 0 — Inventário e diagnóstico (obrigatório)
 
@@ -123,7 +123,7 @@ Os nomes são sugestões de entregáveis; **na etapa de discovery, gravar docume
 
 ## Prompt para agente integrado
 
-> Leia primeiro `CONTEXTO-SCRUM-TRACEABILITY.md` e `PLANO-REVISAO-SCRUM-TRACEABILITY.md`. Analise o repositório atual do Harness Leca e confronte cada premissa com evidências concretas em arquivos e testes. Identifique reutilização de componentes, lacunas, riscos e alternativas. Execute somente investigação não destrutiva e planejamento, sem implementar, criar histórias reais, movimentar raias, migrar dados ou fazer commits. Entregue diagnóstico AS-IS, desenho TO-BE, contratos, backlog e estratégia de testes/rollback. Distinga explicitamente fatos confirmados, hipóteses e decisões pendentes. Recomende um MVP de rastreabilidade história → execução → commit → evidência → timeline para aprovação.
+> Leia primeiro `CONTEXTO-SCRUM-TRACEABILITY.md` e `PLANO-REVISAO-SCRUM-TRACEABILITY.md`. Analise o repositório atual do Harness e confronte cada premissa com evidências concretas em arquivos e testes. Identifique reutilização de componentes, lacunas, riscos e alternativas. Execute somente investigação não destrutiva e planejamento, sem implementar, criar histórias reais, movimentar raias, migrar dados ou fazer commits. Entregue diagnóstico AS-IS, desenho TO-BE, contratos, backlog e estratégia de testes/rollback. Distinga explicitamente fatos confirmados, hipóteses e decisões pendentes. Recomende um MVP de rastreabilidade história → execução → commit → evidência → timeline para aprovação.
 
 
 ---

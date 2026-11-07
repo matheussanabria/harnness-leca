@@ -1,4 +1,4 @@
-# Harness Leca — Contexto arquitetural: Delivery Orchestrator
+# Harness — Contexto arquitetural: Delivery Orchestrator
 
 > Status: proposta para revisão; não é especificação confirmada pelo código.
 > Complementa `CONTEXTO-SCRUM-TRACEABILITY.md` e `PLANO-REVISAO-SCRUM-TRACEABILITY.md`.

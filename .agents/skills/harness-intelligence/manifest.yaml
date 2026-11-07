@@ -9,7 +9,7 @@ skill:
 
   why:
     purpose: >
-      Dar ao agente o procedimento para auditar o Harness Leca e entregar, de forma
+      Dar ao agente o procedimento para auditar o Harness e entregar, de forma
       incremental e reversível, a camada que decide entre script, modelo local e
       nuvem para cada tarefa, medindo consumo e qualidade.
     problem:

@@ -77,7 +77,7 @@ async function runWebhookStage(stage, projectId, envId) {
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     const response = await fetch(url, {
       method,
-      headers: { "User-Agent": "Harness-Leca-Pipeline/1.0", "Content-Type": "application/json" },
+      headers: { "User-Agent": "Harness-Pipeline/1.0", "Content-Type": "application/json" },
       body: method === "GET" || method === "HEAD" ? undefined : "{}",
       signal: controller.signal,
     });

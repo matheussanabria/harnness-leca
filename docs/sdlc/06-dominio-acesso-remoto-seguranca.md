@@ -1,5 +1,5 @@
 # Domínio 06: Acesso Remoto e Segurança Local
-## Harness Leca — Especificação de Requisitos de Software
+## Harness — Especificação de Requisitos de Software
 
 ---
 

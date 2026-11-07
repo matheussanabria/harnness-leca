@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // @ts-check
-// Converte os chats do Harness Leca (projects/<slug>/chats/*.md) em sessões nativas
+// Converte os chats do Harness (projects/<slug>/chats/*.md) em sessões nativas
 // do Claude Code (~/.claude/projects/<pasta>/<sessionId>.jsonl), permitindo que apareçam
 // no histórico interativo do comando `claude --resume` e sejam continuadas no terminal.
 //
@@ -184,7 +184,7 @@ function run(argv, io = console) {
   const projectsToProcess = targetProject ? [targetProject] : slugs;
 
   io.log(`\n======================================================`);
-  io.log(` Exportando Chats do Harness Leca -> Claude Code (.jsonl)`);
+  io.log(` Exportando Chats do Harness -> Claude Code (.jsonl)`);
   io.log(` Modo: ${dryRun ? "[SIMULAÇÃO / DRY RUN]" : "ESCRITA REAL"} ${force ? "[FORCE OVERWRITE]" : ""}`);
   io.log(`======================================================\n`);
 

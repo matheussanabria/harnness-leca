@@ -2,7 +2,7 @@
 name: harness-intelligence
 description: >-
   Planeja e conduz, por fases F0 a F7, a camada de Intelligence & Automation do
-  Harness Leca (Script-First, Local-First, Cloud-on-Demand) para reduzir o consumo
+  Harness (Script-First, Local-First, Cloud-on-Demand) para reduzir o consumo
   de cotas dos motores de IA sem perder qualidade. Use quando o usuário disser
   "plano diretor do harness", "reduzir consumo de cotas", "auditoria dos motores",
   "automation registry", "context engine", "roteador inteligente de tarefas",

@@ -1,4 +1,4 @@
-# Guia de instalação: Harness Leca
+# Guia de instalação: Harness
 
 Replica a arquitetura de **Projetos** do Claude Chat (instruções, memória, contexto, chats e tarefas programadas) dentro do Claude Code. A cada mensagem, o Claude recebe automaticamente as instruções e memórias do projeto ativo. Há também uma interface web local para ver tudo e um importador para trazer conversas antigas do Claude Code.
 

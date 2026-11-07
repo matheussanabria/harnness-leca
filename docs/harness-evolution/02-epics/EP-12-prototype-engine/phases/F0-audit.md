@@ -29,7 +29,7 @@ Copie e execute o prompt a seguir para realizar o diagnostico completo no reposi
 ### PROMPT DE AUDITORIA — FASE F0 (EP-12)
 
 Voce e um Engenheiro de Software Especialista em Arquitetura de Design Systems e Engenharia de Prototipos.
-Sua missao e executar a auditoria tecnica F0 do EP-12 no repositorio Harness Leca.
+Sua missao e executar a auditoria tecnica F0 do EP-12 no repositorio Harness.
 
 Siga rigorosamente as etapas abaixo e gere um relatorio detalhado em `docs/harness-evolution/02-epics/EP-12-prototype-engine/reports/F0-audit-results.md`:
 

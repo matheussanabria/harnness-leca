@@ -104,7 +104,7 @@ async function executeAction({ actionId, authorizationId, confirm = false, dryRu
     if (target.env.webhookUrl) {
       const response = await fetch(target.env.webhookUrl, {
         method: String(target.env.method || "POST").toUpperCase(),
-        headers: { "User-Agent": "Harness-Leca-Actions/1.0", "Content-Type": "application/json" },
+        headers: { "User-Agent": "Harness-Actions/1.0", "Content-Type": "application/json" },
         body: "{}",
       });
       const body = (await response.text()).slice(0, 500);

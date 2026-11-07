@@ -1,4 +1,4 @@
-# Harness Leca — arquitetura de projetos (estilo Claude Chat)
+# Harness — arquitetura de projetos (estilo Claude Chat)
 
 Este workspace replica Projetos do Claude Chat. A cada mensagem, um hook (`.claude/hooks/load-project.ps1`)
 injeta automaticamente as instruções e memórias abaixo; não é preciso relê-las.

@@ -1,5 +1,5 @@
 /**
- * Tipagens do Window Manager Híbrido (Harness Leca)
+ * Tipagens do Window Manager Híbrido (Harness)
  * Zero dependências externas — interpretado nativamente pela IDE e tsc.
  */
 

@@ -46,7 +46,7 @@ function renderTestContent(rule) {
   const titulo = rule.ruleTitle || "Regra de negocio";
   const detalhe = rule.detail || "Comportamento esperado pela regra de negocio do projeto.";
   if (rule.kind === "unit") {
-    return `// Teste gerado pelo Harness Leca (EP-11.02) para a regra: ${titulo}\n`
+    return `// Teste gerado pelo Harness (EP-11.02) para a regra: ${titulo}\n`
       + `// ${detalhe}\n`
       + `const test = require("node:test");\n`
       + `const assert = require("node:assert/strict");\n\n`

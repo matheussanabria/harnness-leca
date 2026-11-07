@@ -1,4 +1,4 @@
-# Plan: modernise the usage telemetry display (Harness Leca)
+# Plan: modernise the usage telemetry display (Harness)
 
 **Not checked:** I couldn't reach 9Router at `127.0.0.1:20128` or `%APPDATA%/9router`; both were blocked. Anything about 9Router's database or API below is a guess to confirm in task 1. Everything else comes from reading the code.
 

@@ -1,5 +1,5 @@
 # Domínio 02: Ingestão e Sincronização Multi-Motor
-## Harness Leca — Especificação de Requisitos de Software
+## Harness — Especificação de Requisitos de Software
 
 ---
 

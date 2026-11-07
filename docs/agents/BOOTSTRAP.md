@@ -1,4 +1,4 @@
-# Harness Leca: agent bootstrap
+# Harness: agent bootstrap
 
 Audience: an AI agent (any engine) asked to set up this repository and run the first import, sync and export. Humans: read [docs/setup/01-overview.md](../setup/01-overview.md) instead.
 

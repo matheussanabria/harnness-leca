@@ -1,4 +1,4 @@
-# Harness Leca — Plano de revisão técnica do Delivery Orchestrator
+# Harness — Plano de revisão técnica do Delivery Orchestrator
 
 > Execução autorizada nesta etapa: **somente leitura, diagnóstico e planejamento**.
 > Complementar a `PLANO-REVISAO-SCRUM-TRACEABILITY.md`. Não substituir o plano anterior.

@@ -2,7 +2,7 @@
 
 > **Data da Auditoria:** 17 de Outubro de 2026  
 > **Status:** Concluída com sucesso (Gate de Saída aprovado)  
-> **Contexto:** M2 — Centro de Orquestração do DAI HQ (Harness Leca)
+> **Contexto:** M2 — Centro de Orquestração do DAI HQ (Harness)
 
 ---
 

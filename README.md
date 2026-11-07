@@ -1,4 +1,4 @@
-# Harness Leca
+# Harness
 
 Replica a experiência e a arquitetura de **Projetos** do Claude Chat (instruções, memória, contexto, chats e tarefas programadas) para **Claude Code**, **Gemini/Antigravity** e **opencode**.
 

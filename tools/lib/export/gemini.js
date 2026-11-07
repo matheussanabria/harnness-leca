@@ -19,7 +19,7 @@ function planGeminiProject(data, targets) {
   const writes = [];
 
   // Gera metadata.summary com base nas descrições de user e feedback se houver itens
-  let summary = `Memória curada do projeto ${data.slug} preservada pelo Harness Leca (${data.chatsCount} conversas salvas no harness).`;
+  let summary = `Memória curada do projeto ${data.slug} preservada pelo Harness (${data.chatsCount} conversas salvas no harness).`;
   const highPrioritySummaries = items
     .filter((e) => e.item && (e.item.meta.type === "user" || e.item.meta.type === "feedback"))
     .map((e) => e.item.meta.description);
@@ -78,9 +78,9 @@ function planGeminiGlobal(overview, targets, today) {
   const list = overview
     .map((p) => `- **${p.slug}**: ${p.chatsCount} conversas salvas no harness-leca. Memória curada em \`ki-projeto-${p.slug}\` e em \`projects/${p.slug}/\`.`)
     .join("\n");
-  const content = `# Harness Leca: Conhecimento Global de Projetos
+  const content = `# Harness: Conhecimento Global de Projetos
 Gerado automaticamente em ${today}. Não editar manualmente.
-Este documento registra a lista e o estado dos projetos gerenciados pelo Harness Leca na máquina.
+Este documento registra a lista e o estado dos projetos gerenciados pelo Harness na máquina.
 
 ## Projetos Ativos e Memórias Disponíveis:
 ${list}

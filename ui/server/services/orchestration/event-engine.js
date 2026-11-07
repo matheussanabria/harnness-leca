@@ -1,5 +1,5 @@
 // @ts-check
-// Event Engine do Centro de Orquestração M2 (Harness Leca)
+// Event Engine do Centro de Orquestração M2 (Harness)
 const { EventEmitter } = require("node:events");
 const { validateEvent } = require("./event-contract");
 const { eventEngineProjection } = require("./event-engine-projection");

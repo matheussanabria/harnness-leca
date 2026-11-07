@@ -4,7 +4,7 @@
 
 ## 1. Tese
 
-- **Harness Leca**: governança de demandas, Product Backlog, Sprint Backlog, interface, sessões e rastreabilidade.
+- **Harness**: governança de demandas, Product Backlog, Sprint Backlog, interface, sessões e rastreabilidade.
 - **DAI**: catálogo de especialistas, skills, definição de workflows e critérios de validação.
 - **Adaptador** (a validar): traduz eventos de um `WorkflowRun` e artefatos de um dossiê para projeções da história e Audit Trail, sem duplicar orquestração.
 

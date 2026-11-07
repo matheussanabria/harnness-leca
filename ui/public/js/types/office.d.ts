@@ -1,5 +1,5 @@
 /**
- * Tipagens Estritas do Escritório Virtual DAI HQ (Harness Leca)
+ * Tipagens Estritas do Escritório Virtual DAI HQ (Harness)
  * Padrão inspirado nas diretrizes do dispensacao-web / TypeScript Strict
  * Zero dependências externas — interpretado nativamente pela IDE e TypeScript Language Server.
  */

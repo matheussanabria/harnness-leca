@@ -35,7 +35,7 @@ Subagent report, 2026-10-31. DAI repo HEAD 7248777. Nothing run or modified. Pat
 - Lost on non-Claude engines: manifest tools, hooks, subagent delegation and sandboxing; agent manifest.yaml contents; global rule injection (inject_global_rules is not in export_native.py). Gate machine-readability depends on the engine honoring skill text.
 
 ## Concurrency and identity
-- Claim/handoff/ledger documented in skills/orquestracao/multi-agent-coordination/ (SKILL.md:42-74, references/runbook-comandos.md): verbs init, status, inbox, claim, start, heartbeat, complete --evidence, handoff --to, notify; providers gemini, codex, claude, opencode; state at projects/<slug>/coordination/state.json. tools/coordination.js is NOT in the DAI repo (tools/ has only notion-sync): documentation without code in this checkout (the code lives in Harness Leca, see ADR-007).
+- Claim/handoff/ledger documented in skills/orquestracao/multi-agent-coordination/ (SKILL.md:42-74, references/runbook-comandos.md): verbs init, status, inbox, claim, start, heartbeat, complete --evidence, handoff --to, notify; providers gemini, codex, claude, opencode; state at projects/<slug>/coordination/state.json. tools/coordination.js is NOT in the DAI repo (tools/ has only notion-sync): documentation without code in this checkout (the code lives in Harness, see ADR-007).
 - Inside the dossier: no story id, run id, lock. Dossier keyed by slug. Idempotency limited to the "FAIL n/max_retries_per_state" counter (SKILL.md:37). orchestration/feed.md and docs/HANDOFF_TEMPLATE.md are legacy.
 
 ## Existing Scrum overlap in DAI

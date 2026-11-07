@@ -4,7 +4,7 @@
 
 const { generateStructured } = require("./ollama-client");
 
-const EXTRACTION_SYSTEM_PROMPT = `Você é um extrator determinístico de conhecimento para o Harness Leca.
+const EXTRACTION_SYSTEM_PROMPT = `Você é um extrator determinístico de conhecimento para o Harness.
 Analise a transcrição de conversa ou especificação técnica e extraia:
 1. "decisoes": lista de decisões técnicas/arquiteturais tomadas.
 2. "regras": lista de diretrizes, proibições, regras de negócio ou limites estabelecidos.

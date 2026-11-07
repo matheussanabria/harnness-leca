@@ -1,6 +1,6 @@
 > **Fonte prioritária:** DAI no caminho local informado em `01-CONFIGURACAO-REPOSITORIOS.md`; preservar branch e working tree.
 
-# DAI — Roteiro de identificação e comparação com Harness Leca
+# DAI — Roteiro de identificação e comparação com Harness
 
 > Status: **repositório DAI não identificado com segurança**.
 > Em consulta GitHub efetuada em 2026-10-31: a busca por `DAI user:matheussanabria` não retornou repositórios; `matheussanabria/harnness-leca` foi localizado. Busca global por `DAI` retorna projetos de terceiros não necessariamente relacionados. **Não considerar esses repositórios como DAI do usuário.**

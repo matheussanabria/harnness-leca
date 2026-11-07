@@ -1,5 +1,5 @@
 // @ts-check
-// Contrato Canônico de Eventos do Centro de Orquestração M2 (Harness Leca)
+// Contrato Canônico de Eventos do Centro de Orquestração M2 (Harness)
 const crypto = require("node:crypto");
 
 /**

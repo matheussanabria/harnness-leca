@@ -1,4 +1,4 @@
-# 03 - Comparativo Harness Leca x DAI
+# 03 - Comparativo Harness x DAI
 
 Status: planning only. Basis: Harness a89703c; DAI 7248777 (branch dev, working tree has uncommitted edits unrelated to the pipeline). DAI was read, not run.
 Tags: [Fact path:line], [Hypothesis], [Pending decision]. `DAI:<path>` = DAI evidence; plain path = Harness evidence. `svc/` = `ui/server/services/`.

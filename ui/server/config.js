@@ -151,7 +151,7 @@ function sendPinLoginPage(res) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Acesso Remoto - Harness Leca</title>
+  <title>Acesso Remoto - Harness</title>
   <style>
     :root { --bg: #090d16; --panel: #131b2e; --line: #1e293b; --text: #f1f5f9; --mute: #94a3b8; --primary: #6366f1; --primary-hover: #4f46e5; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }

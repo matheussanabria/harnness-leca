@@ -1,6 +1,6 @@
-# 01. Overview: what Harness Leca does
+# 01. Overview: what Harness does
 
-Harness Leca brings the **Projects** model of Claude Chat (instructions, memory, context files, chat history, scheduled tasks) to the AI coding tools you already use: **Claude Code**, **Codex**, **Gemini / Antigravity** and **opencode**. Everything runs on your machine. Nothing is sent anywhere by the harness itself.
+Harness brings the **Projects** model of Claude Chat (instructions, memory, context files, chat history, scheduled tasks) to the AI coding tools you already use: **Claude Code**, **Codex**, **Gemini / Antigravity** and **opencode**. Everything runs on your machine. Nothing is sent anywhere by the harness itself.
 
 Guides in this series: [02 Install](02-installation.md) | [03 Engines and credentials](03-engines-and-credentials.md) | [04 First sync](04-first-sync.md) | [05 Adopt existing projects](05-adopt-existing-projects.md). Agents should start at [docs/agents/BOOTSTRAP.md](../agents/BOOTSTRAP.md).
 

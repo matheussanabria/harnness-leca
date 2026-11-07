@@ -1,5 +1,5 @@
 # Especificação de Requisitos e Domínios de Negócio (SDLC)
-## Harness Leca
+## Harness
 
 > **Documento Oficial de Engenharia de Software e Ciclo de Vida do Produto (SDLC)**  
 > **Versão:** 1.0.0 | **Status:** Aprovado | **Natureza:** Local-first / Multi-Agent Workspace
@@ -15,8 +15,8 @@ Desenvolvedores que utilizam múltiplos agentes autônomos de IA (Claude Code vi
 3. **Dependência de Plataforma Web Fechada:** O recurso de "Projetos" com memória e instruções persistentes era exclusivo do Claude Chat web, indisponível nativamente em CLIs e IDEs locais.
 4. **Custo e Risco de Vazamento:** Ferramentas na nuvem expõem código proprietário e exigem chamadas de API pagas para interações que poderiam rodar localmente.
 
-### 1.2 A Solução: Harness Leca
-O **Harness Leca** atua como uma camada orquestradora *local-first* que replica e expande o conceito de "Projetos":
+### 1.2 A Solução: Harness
+O **Harness** atua como uma camada orquestradora *local-first* que replica e expande o conceito de "Projetos":
 - **Isolamento de Contexto:** Instruções e memórias exclusivas por projeto.
 - **Unificação Multi-Motor:** Ingestão agnóstica dos históricos do Claude Code, Gemini e OpenCode em formato único padronizado.
 - **Destilação de Conhecimento:** Extração incremental de fatos duráveis para que nenhum agente perca decisões prévias.

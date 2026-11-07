@@ -1,4 +1,4 @@
-# 02 - Diagnostico atual (AS-IS) - Harness Leca e DAI
+# 02 - Diagnostico atual (AS-IS) - Harness e DAI
 
 Status: planning only, no code changed. Date: 2026-10-31.
 Basis: Harness worktree commit a89703c, branch docs/scrum-traceability-plan. DAI repo HEAD 7248777, branch dev, with uncommitted edits (listed in 01-discovery/raw-dai-pipeline.md, none touch feature-delivery or `_status.md`). DAI was read, never run.
@@ -36,7 +36,7 @@ Note [Fact]: the same stage list lives twice. The Harness copy is hardcoded and 
 
 ```mermaid
 flowchart LR
-  subgraph HL[Harness Leca - a89703c]
+  subgraph HL[Harness - a89703c]
     UI[Scrum UI design-scrum*.js] -->|13 routes /api/project/slug/scrum| SC[Scrum services]
     SC -->|atomic tmp+rename, no lock| SJ[(scrum.json)]
     JS[(Jira snapshot + doc stories in repoRoot)] --> SC

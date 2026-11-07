@@ -87,7 +87,7 @@ function listRecognizedSkills(currentSlug) {
     try {
       for (const ent of fs.readdirSync(harnessAgentsDir, { withFileTypes: true })) {
         if (ent.isDirectory()) {
-          addSkillFolder(path.join(harnessAgentsDir, ent.name), "harness", "Harness Leca (.agents)", "harness");
+          addSkillFolder(path.join(harnessAgentsDir, ent.name), "harness", "Harness (.agents)", "harness");
         }
       }
     } catch {}
@@ -113,7 +113,7 @@ function listRecognizedSkills(currentSlug) {
     scanDai(daiSkillsDir, 1);
   }
 
-  // 4. Outros projetos no Harness Leca
+  // 4. Outros projetos no Harness
   if (fs.existsSync(PROJECTS)) {
     try {
       for (const proj of fs.readdirSync(PROJECTS, { withFileTypes: true })) {

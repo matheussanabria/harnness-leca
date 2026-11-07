@@ -2,7 +2,7 @@
 
 > **Documento:** Registro de Decisões Arquiteturais para o M2 (Centro de Orquestração)  
 > **Status:** Aprovado  
-> **Contexto:** Alinhamento com a arquitetura nativa e sem dependências do Harness Leca
+> **Contexto:** Alinhamento com a arquitetura nativa e sem dependências do Harness
 
 ---
 
@@ -38,7 +38,7 @@ Precisamos armazenar histórico de eventos observados e projetar o estado atual 
    - *Contras:* Perde todo o histórico e estado ao reiniciar o servidor ou crashar.
 2. **Banco de Dados Externo (PostgreSQL, MongoDB, Redis)**:
    - *Prós:* Recursos avançados de query e replicação.
-   - *Contras:* Viola a premissa de execução local autocontida e zero dependências do Harness Leca.
+   - *Contras:* Viola a premissa de execução local autocontida e zero dependências do Harness.
 3. **`node:sqlite` Nativo do Node 22 (em arquivo `orchestration.db` ou `events.jsonl` circular)**:
    - *Prós:* O Node >= 22.13 inclui `node:sqlite` nativo na biblioteca padrão (já utilizado em `tools/lib/engines/opencode.js` e `tools/import-opencode-chats.js`). Permite consultas SQL com índices, persistência rápida em arquivo local e zero pacotes npm adicionais.
 

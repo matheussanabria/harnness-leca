@@ -1,5 +1,5 @@
 # Domínio 04: Reidratação e Interoperabilidade de Agentes
-## Harness Leca — Especificação de Requisitos de Software
+## Harness — Especificação de Requisitos de Software
 
 ---
 
@@ -36,7 +36,7 @@ O **Domínio de Reidratação e Interoperabilidade** permite que o conhecimento 
 ## 5. Casos de Uso Principais
 
 ### UC-05: Restauração de Ambiente após Formatação / Nova Máquina
-1. O desenvolvedor clona o repositório do Harness Leca em um computador recém-formatado.
+1. O desenvolvedor clona o repositório do Harness em um computador recém-formatado.
 2. Executa `npm run export:context` para configurar os prompts dos agentes.
 3. Executa `npm run export:claude-sessions` para recriar as sessões na pasta `~/.claude/sessions/`.
 4. Digita `claude --resume` no terminal e retoma imediatamente o trabalho de onde parou na máquina anterior, sem perda de contexto.

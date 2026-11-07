@@ -1,14 +1,14 @@
 # Exportar contexto, interface web e desenvolvimento
 
-Parte do [guia de instalação](../../SETUP.md) do Harness Leca.
+Parte do [guia de instalação](../../SETUP.md) do Harness.
 
 ## Exportar contexto e reidratar histórico nos agentes (Claude Code & Gemini)
 
-Se você precisou restaurar o PC, trocou de máquina ou quer injetar as memórias e conversas do Harness Leca diretamente nos agentes instalados:
+Se você precisou restaurar o PC, trocou de máquina ou quer injetar as memórias e conversas do Harness diretamente nos agentes instalados:
 
 ### 1. Sincronizar Memória e Regras nos Agentes (`npm run export:context`)
 
-Exporta todas as memórias consolidadas, regras de negócio e índices de conversas preservados no Harness Leca diretamente para as pastas de contexto nativo:
+Exporta todas as memórias consolidadas, regras de negócio e índices de conversas preservados no Harness diretamente para as pastas de contexto nativo:
 
 ```bash
 npm run export:context                      # exporta todos os projetos
