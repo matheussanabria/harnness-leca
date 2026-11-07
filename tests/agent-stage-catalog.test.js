@@ -123,7 +123,7 @@ test("agent-stage-catalog: controller, rotas e limites estruturais", () => {
   assert.equal(apiOrchestrationAgentStage.name, "apiOrchestrationAgentStage");
   assert.equal(STAGES.length, STAGE_IDS.length);
 
-  const router = fs.readFileSync(path.join(__dirname, "..", "ui/server/router.js"), "utf8");
+  const router = fs.readFileSync(path.join(__dirname, "..", "ui/server/routes/index.js"), "utf8");
   assert.match(router, /orchestrationRoutes/);
 
   const routes = fs.readFileSync(path.join(__dirname, "..", "ui/server/routes/orchestration.routes.js"), "utf8");

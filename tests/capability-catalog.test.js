@@ -123,7 +123,7 @@ test("capability-catalog: controller e rotas registradas nos arquivos esperados"
   assert.equal(apiOrchestrationCapabilities.name, "apiOrchestrationCapabilities");
   assert.equal(apiOrchestrationCapabilityProvider.name, "apiOrchestrationCapabilityProvider");
 
-  const router = fs.readFileSync(path.join(__dirname, "..", "ui/server/router.js"), "utf8");
+  const router = fs.readFileSync(path.join(__dirname, "..", "ui/server/routes/index.js"), "utf8");
   assert.match(router, /orchestrationRoutes/);
 
   const routes = fs.readFileSync(path.join(__dirname, "..", "ui/server/routes/orchestration.routes.js"), "utf8");

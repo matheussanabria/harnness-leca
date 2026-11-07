@@ -13,7 +13,7 @@ updated: 2026-10-30
 |---|---|
 | `ui/server.js` | Creates the HTTP server (`createServer`), validates host/origin and enables the HMR proxy. |
 | `ui/server/config.js` | Ports, remote PIN, response helper (`send`) and JSON body reader (`readJsonBody`). |
-| `ui/server/router.js` | Regex/string route table and delegation to controllers. |
+| `ui/server/router.js` | Request handling: PIN gate, preview proxy, route matching against `ROUTES` (built in `ui/server/routes/index.js`, see route-registry) and static fallback. |
 | `ui/server/controllers/remote.controller.js` | QR Code info, mobile PIN validation and local network details. |
 | `ui/server/controllers/static.controller.js` | Safely serves HTML, CSS, JS and images inside `ui/public/`; the vendored DC runtime gets `Cross-Origin-Resource-Policy: cross-origin` for the opaque-origin iframe. |
 | `ui/server/controllers/source-workspace.controller.js` and `ui/server/services/source-workspace.service.js` | Studio source list/read/save with path confinement, secret blocking and fingerprint conflicts. |

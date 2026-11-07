@@ -171,7 +171,7 @@ test("workflow-routes: rotas registradas, sem emojis e abaixo de 300 linhas", ()
   assert.equal(find("GET", "/api/project/demo/workflow-plan/hotfix")?.handler?.name, "apiProjectWorkflowPlan");
   assert.equal(find("POST", "/api/project/demo/workflows/hotfix/runs")?.handler?.name, "apiProjectWorkflowRun");
 
-  const router = fs.readFileSync(path.join(__dirname, "..", "ui/server/router.js"), "utf8");
+  const router = fs.readFileSync(path.join(__dirname, "..", "ui/server/routes/index.js"), "utf8");
   assert.match(router, /orchestrationRoutes/);
 
   const files = [

@@ -19,7 +19,7 @@ test("UI oferece drag e botoes acessiveis usando o mesmo endpoint versionado", (
   const sprint = read("ui/public/js/modules/design-scrum-sprint.js");
   const order = read("ui/public/js/modules/design-scrum-lane-order.js");
   const config = read("ui/public/js/modules/design-scrum-lane-config.js");
-  const router = read("ui/server/router.js");
+  const router = read("ui/server/routes/scrum.routes.js");
   const css = read("ui/public/css/design.css");
 
   assert.match(sprint, /draggable="true"/);
