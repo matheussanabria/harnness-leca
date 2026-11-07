@@ -44,6 +44,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-17](02-epics/EP-17-sqlite-persistencia/README.md) | SQLite como sistema de registro, com RBAC e trilha de auditoria | P0 | Planejado (ADR-012, ADR-013); corrige a perda de contexto no F5 | 0/13 |
 | [EP-19](02-epics/EP-19-canvas/README.md) | Canvas: whiteboard and mind maps (ADR-011; renumbered from 16.01-16.05) | P1 | Concluído; 19.01 a 19.09 (inclui o canvas no Design e o chat que cria mapas e diagramas) | 9/9 |
 | [EP-20](02-epics/EP-20-responsividade-mobile/README.md) | Responsividade e edição móvel | P1 | Planejado; primeiro recorte permite editar código-fonte pelo celular | 0/1 |
+| [EP-21](02-epics/EP-21-diagramas-estruturados/README.md) | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA | P1 | Planejado; 21.01 a 21.13 | 0/13 |
 
 ## 2. Dependências
 
