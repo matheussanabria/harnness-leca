@@ -21,6 +21,8 @@ O Canvas tem dois kinds: `board` (Excalidraw) e `mindmap`. O servidor guarda `da
 - `canvas-validate.js` passa a ter um registro de kinds; `canvas-migrate.js` sobe para a versão 2 só se `links` exigir migração (campo opcional não exige).
 - UML, ER, estado e gantt ficam em Mermaid; editores visuais dedicados só com demanda medida.
 
+## Decidido
+- **Uma aba "Diagramas" no Design** (usuário, 2026-11-06). A view `canvas-diagram` lista no catálogo lateral os boards dos kinds `diagram` e `flow` juntos, com ícone por tipo; "Novo" escolhe o tipo (um modelo Mermaid ou Flow); a ilha montada segue o kind do board selecionado, e o contexto do chat também. Nenhuma aba nova para Flow.
+
 ## Questões em aberto
-- Abas no Design: duas novas (Diagramas, Fluxos) ou uma aba "Diagramas" com o tipo escolhido no catálogo. A interface já foi considerada poluída (2026-11-06); a proposta é uma aba só.
 - `mermaid.parse` sob Node puro (para a sonda) precisa de DOM? Resolver no 21.03; plano B é julgar no navegador com `playwright-core`.
