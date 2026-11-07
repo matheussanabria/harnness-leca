@@ -1,1 +1,1 @@
-{"version":1,"snapshots":[{"provider":"codex","plan":"plus","window":"weekly","used":6,"limit":null,"unit":"percent","resetsAt":"2026-11-13T12:49:34.000Z","observedAt":"2026-11-06T21:03:10.969Z","source":"codex-rollout","confidence":"exact"}]}
+{"version":1,"snapshots":[{"provider":"codex","plan":"plus","window":"weekly","used":6,"limit":null,"unit":"percent","resetsAt":"2026-11-13T12:49:34.000Z","observedAt":"2026-11-06T21:03:43.724Z","source":"codex-rollout","confidence":"exact"}]}
