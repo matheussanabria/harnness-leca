@@ -2,10 +2,11 @@
 // Repository-style browser for one skill or agent: file tree on the left, viewer on the right.
 import { md } from "../shared/markdown.js";
 import { esc } from "./catalogo-view.js";
+import { renderEditor } from "./catalogo-editor.js";
 import { renderTree, pickDefaultFile, splitFrontmatter, isMarkdown } from "./catalogo-tree.js";
 
 const $ = (id) => document.getElementById(id);
-const state = { item: null, tree: [], file: "", raw: false, cache: null };
+const state = { canEdit: false, item: null, tree: [], file: "", raw: false, cache: null };
 
 function query(extra) {
   const q = new URLSearchParams({ kind: state.item.kind, source: state.item.source, ref: state.item.ref, ...extra });
@@ -20,6 +21,7 @@ function paintViewer() {
     return;
   }
   const head = `<div class="k-vhead"><b>${esc(f.name)}</b><span class="k-tag">${f.size} B</span>` +
+    (state.canEdit && f.revision && !f.truncated ? `<button type="button" class="btn-row" id="kEdit"><i class="fa-solid fa-pen" aria-hidden="true"></i> Editar</button>` : "") +
     (isMarkdown(f.name) ? `<button type="button" class="btn-row" id="kRawToggle">${state.raw ? "Renderizado" : "Código"}</button>` : "") + `</div>`;
   if (f.error) return void (box.innerHTML = head + `<p class="c-empty">${esc(f.error)}</p>`);
   if (f.binary) return void (box.innerHTML = head + `<p class="c-empty">Arquivo binário ou sem prévia de texto.</p>`);
@@ -49,8 +51,9 @@ async function openFile(rel, fromUser = false) {
 }
 
 /** Opens the browser for an item and shows its main file. */
-export async function openBrowser(item) {
+export async function openBrowser(item, canEdit = false) {
   state.item = item;
+  state.canEdit = canEdit;
   state.raw = false;
   $("kBrowser").hidden = false;
   $("kCatalog").hidden = true;
@@ -82,6 +85,13 @@ export function wireBrowser() {
     if (btn) openFile(btn.getAttribute("data-file"), true);
   });
   $("kViewer").addEventListener("click", (e) => {
+    if (e.target.closest("#kEdit")) {
+      const target = { kind: state.item.kind, source: state.item.source, ref: state.item.ref, path: state.file };
+      return renderEditor($("kViewer"), state.cache, {
+        target, onCancel: paintViewer,
+        onSaved: (r) => { state.cache = { ...state.cache, ...r }; paintViewer(); },
+      });
+    }
     if (!e.target.closest("#kRawToggle")) return;
     state.raw = !state.raw;
     paintViewer();

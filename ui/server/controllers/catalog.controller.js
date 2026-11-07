@@ -5,6 +5,7 @@ const { send, readJsonBody } = require("../config");
 const { buildCatalog } = require("../services/catalog/catalog-reader");
 const { setOverride } = require("../services/catalog/catalog-overrides");
 const { listTree, readItemFile } = require("../services/catalog/catalog-files");
+const { writeItemFile } = require("../services/catalog/catalog-write");
 
 /** GET /api/catalog */
 async function apiCatalogGet({ req, res }) {
@@ -47,4 +48,20 @@ async function apiCatalogFile({ req, res, url }) {
   return send(res, status, body);
 }
 
-module.exports = { apiCatalogGet, apiCatalogAreaSet, apiCatalogTree, apiCatalogFile };
+/** POST /api/catalog/file/save  body: { kind, source, ref, path, content, revision }  (local computer only) */
+async function apiCatalogFileSave({ req, res }) {
+  if (!netLib.isLocalhostRequest(req)) return send(res, 403, { error: "Files can only be edited on the local computer." });
+  let body;
+  try {
+    body = await readJsonBody(req);
+  } catch {
+    return send(res, 400, { error: "Invalid JSON." });
+  }
+  const { status, ...out } = writeItemFile({
+    kind: String(body.kind || ""), source: String(body.source || ""), ref: String(body.ref || ""),
+    path: String(body.path || ""), content: body.content, revision: String(body.revision || ""),
+  });
+  return send(res, status, out);
+}
+
+module.exports = { apiCatalogGet, apiCatalogAreaSet, apiCatalogTree, apiCatalogFile, apiCatalogFileSave };
