@@ -90,6 +90,8 @@ header.app-header:not(.dai-topbar) {
 /* Mobile hamburger: brand + project select + toggle stay; nav and screen actions open as a panel. */
 @media (max-width: 760px) {
   header.app-header:not(.dai-topbar) .app-brand { font-size: 15px; }
+  .app-header .app-brand { min-height: 44px; }
+  .app-header:not(.dai-topbar) [data-slot="left"] select { min-height: 44px; }
   .app-header:not(.dai-topbar) [data-slot="left"] { flex: 1 1 0; min-width: 0; }
   .app-header:not(.dai-topbar) [data-slot="left"] select { min-width: 0; flex: 1; max-width: 100%; }
   .app-header:not(.dai-topbar) .app-menu-toggle {
