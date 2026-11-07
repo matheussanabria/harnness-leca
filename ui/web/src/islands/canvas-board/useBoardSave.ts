@@ -63,7 +63,7 @@ export function useBoardSave(api: BoardApi, board: Board, manifest: FileManifest
   const onSceneChange = useCallback(
     (elements: readonly SceneElement[], appState: unknown, files: SceneFiles) => {
       snapshot.current = { elements, appState, files };
-      const signature = sceneSignature(elements, appState);
+      const signature = sceneSignature(elements, appState, files);
       if (baseline.current === null) {
         baseline.current = signature; // first callback is the loaded scene, not an edit
         return;

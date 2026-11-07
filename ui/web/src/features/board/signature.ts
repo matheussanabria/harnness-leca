@@ -3,7 +3,14 @@
 import { sanitizeAppState } from "./sanitize.ts";
 import type { SceneElement } from "./types";
 
-export function sceneSignature(elements: readonly SceneElement[], appState: unknown): string {
+// Loaded image files are part of the signature: Excalidraw can deliver a file after its element, and that late
+// arrival must trigger a save so the image is uploaded instead of leaving a dangling reference.
+export function sceneSignature(
+  elements: readonly SceneElement[],
+  appState: unknown,
+  files: Record<string, unknown> = {},
+): string {
   const parts = elements.map((element) => `${element.id}:${String(element.version ?? "")}`);
-  return `${parts.join("|")}#${JSON.stringify(sanitizeAppState(appState))}`;
+  const fileIds = Object.keys(files).sort().join(",");
+  return `${parts.join("|")}#${JSON.stringify(sanitizeAppState(appState))}#${fileIds}`;
 }
