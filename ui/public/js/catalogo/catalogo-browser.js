@@ -1,7 +1,7 @@
 // @ts-check
 // Repository-style browser for one skill or agent: file tree on the left, viewer on the right.
 import { md } from "../shared/markdown.js";
-import { esc } from "./catalogo-view.js";
+import { esc, linkTag } from "./catalogo-view.js";
 import { renderEditor } from "./catalogo-editor.js";
 import { renderTree, pickDefaultFile, splitFrontmatter, isMarkdown } from "./catalogo-tree.js";
 
@@ -11,6 +11,15 @@ const state = { canEdit: false, item: null, tree: [], file: "", raw: false, cach
 function query(extra) {
   const q = new URLSearchParams({ kind: state.item.kind, source: state.item.source, ref: state.item.ref, ...extra });
   return q.toString();
+}
+
+/** Scrum lanes that reference a skill, one chip per project and lane. */
+function renderLinks(item) {
+  if (item.kind !== "skill") return "";
+  if (item.orphan) return linkTag(item);
+  if (!item.lanes || !item.lanes.length) return "";
+  const chips = item.lanes.map((l) => `<span class="k-tag"><i class="fa-solid fa-link" aria-hidden="true"></i> ${esc(l.project)} / ${esc(l.laneName)}</span>`).join("");
+  return `<span class="k-links-label">Raias do Scrum:</span> ${chips}`;
 }
 
 function paintViewer() {
@@ -59,6 +68,7 @@ export async function openBrowser(item, canEdit = false) {
   $("kCatalog").hidden = true;
   $("kCrumb").textContent = `${item.kind === "agent" ? "Agente" : "Skill"} / ${item.name}`;
   $("kBrDesc").textContent = item.description || "";
+  $("kBrLinks").innerHTML = renderLinks(item);
   $("kTree").innerHTML = `<p class="c-empty">Carregando...</p>`;
   $("kViewer").innerHTML = "";
   try {
