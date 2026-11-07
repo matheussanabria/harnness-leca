@@ -12,8 +12,9 @@ const {
   revisionRequired,
 } = require("./canvas-errors");
 
+const { KINDS } = require("./canvas-kinds");
+
 const ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const KINDS = Object.freeze(["board", "mindmap"]);
 const MAX_TITLE_LENGTH = 120;
 const MAX_BOARD_BYTES = 4 * 1024 * 1024;
 // C0 controls plus DEL; tabs and line breaks are also rejected in a title.
@@ -30,11 +31,11 @@ function validateBoardId(value) {
 
 /**
  * @param {unknown} value
- * @returns {"board" | "mindmap"}
+ * @returns {string}
  */
 function validateKind(value) {
   if (typeof value !== "string" || !KINDS.includes(value)) throw invalidKind();
-  return /** @type {"board" | "mindmap"} */ (value);
+  return value;
 }
 
 /**
