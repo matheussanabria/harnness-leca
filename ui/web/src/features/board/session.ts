@@ -18,10 +18,16 @@ export interface BoardSession {
   manifest(): FileManifest;
 }
 
+/** Converts an SVG data URL to a PNG data URL; null when it cannot. Injected so this module stays DOM-free. */
+export type Rasterize = (svgDataUrl: string) => Promise<string | null>;
+
+const SVG_MIME = "image/svg+xml";
+
 export function createBoardSession(
   api: BoardApi,
   id: string,
   initial: { rev: number; manifest: FileManifest },
+  rasterize?: Rasterize,
 ): BoardSession {
   let rev = initial.rev;
   const manifest: FileManifest = { ...initial.manifest };
@@ -35,11 +41,18 @@ export function createBoardSession(
 
   async function saveNow(snapshot: Snapshot): Promise<{ unsupported: string[] }> {
     const plan = planUploads(snapshot.elements, snapshot.files, manifest);
-    for (const fileId of plan.upload) {
+    const unsupported: string[] = [];
+    const uploads = [...plan.upload];
+    for (const fileId of plan.unsupported) {
+      if (rasterize && snapshot.files[fileId]?.mimeType === SVG_MIME) uploads.push(fileId);
+      else unsupported.push(fileId);
+    }
+    for (const fileId of uploads) {
       const file = snapshot.files[fileId];
-      const decoded = file ? decodeDataUrl(file.dataURL) : null;
+      const dataUrl = file?.mimeType === SVG_MIME ? await toPng(file.dataURL) : file?.dataURL;
+      const decoded = dataUrl ? decodeDataUrl(dataUrl) : null;
       if (!file || !decoded) {
-        plan.unsupported.push(fileId);
+        unsupported.push(fileId);
         continue;
       }
       const name = `${fileId}.${extensionForMime(decoded.mimeType)}`;
@@ -50,7 +63,15 @@ export function createBoardSession(
     assertWithinLimit(data);
     const board = await api.update(id, { rev, data });
     rev = board.rev;
-    return { unsupported: plan.unsupported };
+    return { unsupported };
+  }
+
+  async function toPng(svgDataUrl: string): Promise<string | null> {
+    try {
+      return (await rasterize?.(svgDataUrl)) ?? null;
+    } catch {
+      return null; // undecodable or tainted SVG: reported as unsupported, the save itself goes on
+    }
   }
 
   return {

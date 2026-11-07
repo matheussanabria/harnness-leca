@@ -199,7 +199,7 @@ test("skill-bindings: alteração só vem do loopback", async () => {
 });
 
 test("skill-bindings: rota registrada, limite de 300 linhas e sem emojis", () => {
-  const router = fs.readFileSync(path.join(__dirname, "..", "ui/server/router.js"), "utf8");
+  const router = fs.readFileSync(path.join(__dirname, "..", "ui/server/routes/index.js"), "utf8");
   assert.match(router, /skillBindingRoutes/);
 
   const routes = fs.readFileSync(path.join(__dirname, "..", "ui/server/routes/skill-bindings.routes.js"), "utf8");

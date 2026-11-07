@@ -163,8 +163,9 @@ test("audit-routes: rotas registradas, sem emojis e abaixo de 300 linhas", () =>
   assert.equal(find("GET", "/api/project/demo/audit/summary")?.handler?.name, "apiProjectAuditSummary");
   assert.equal(find("POST", "/api/project/demo/audit/evidence")?.handler?.name, "apiProjectAuditEvidenceSave");
 
+  const routeTable = fs.readFileSync(path.join(__dirname, "..", "ui/server/routes/index.js"), "utf8");
+  assert.match(routeTable, /auditRoutes/);
   const router = fs.readFileSync(path.join(__dirname, "..", "ui/server/router.js"), "utf8");
-  assert.match(router, /auditRoutes/);
   assert.ok(router.split(/\r?\n/).length < 300, "router.js passou de 300 linhas.");
 
   const files = [

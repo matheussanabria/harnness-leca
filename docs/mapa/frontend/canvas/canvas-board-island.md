@@ -33,6 +33,7 @@ Server gate: `ui/server.js` allows PUT and DELETE only under `/api/canvas/`, and
 | `ui/web/src/islands/canvas-board/useBoardLoad.ts`, `useBoardSave.ts` | Load plus rehydrate; autosave wiring and warnings. |
 | `ui/web/src/islands/canvas-board/ExcalidrawCanvas.tsx`, `lazyCanvas.ts` | Lazy Excalidraw wrapper and asset path setup. |
 | `ui/web/src/islands/canvas-board/exportActions.ts`, `dataUrl.ts`, `useShellTheme.ts`, `SaveStatus.tsx`, `board.css` | PNG/SVG export, browser helpers, theme follow (prefers-color-scheme), status UI, styles. |
+| `ui/web/src/islands/canvas-board/rasterizeSvg.ts` | Converts SVG images (e.g. Mermaid diagrams drawn as an image) to PNG in the browser before upload, since the asset endpoint refuses SVG. Injected into the session by `useBoardSave.ts`. |
 | `ui/web/build/excalidraw-assets.ts` | Vite plugin copying Excalidraw fonts into `dist/excalidraw/fonts`. |
 | `tests/board-feature.test.js`, `tests/board-chat-bridge.test.js` | node:test for the pure helpers, API client and session. |
 | `tests/canvas-server-methods.test.js` | HTTP gate: PUT, DELETE and binary upload only for the Canvas API. |
