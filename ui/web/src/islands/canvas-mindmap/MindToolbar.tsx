@@ -101,6 +101,12 @@ export function MindToolbar({ editor, view, boardTitle, onStructureAction }: Min
         disabled={!state.resetOffsets}
         onClick={run(commands.resetOffsets)}
       />
+      <ToolbarButton
+        icon="fa-compress"
+        label="Reset node sizes"
+        disabled={!state.resetSizes}
+        onClick={run(commands.resetSizes)}
+      />
       <Separator />
       <AgentGroup doc={doc} selectedId={selectedId} boardTitle={boardTitle} state={state} />
       <Separator />

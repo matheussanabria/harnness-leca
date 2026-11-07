@@ -126,3 +126,19 @@ export function resizeNode(doc: MindDoc, id: string, w: number, h: number): Mind
   if (node.w === next.w && node.h === next.h) return doc;
   return put(doc, { ...node, ...next });
 }
+
+/** Clears every manual size in one immutable step; returns the same doc when there is nothing to reset. */
+export function resetSizes(doc: MindDoc): MindDoc {
+  let changed = false;
+  const nodes: Record<string, MindNode> = {};
+  for (const node of Object.values(doc.nodes)) {
+    if (node.w !== undefined || node.h !== undefined) {
+      const { w: _w, h: _h, ...rest } = node;
+      nodes[node.id] = rest;
+      changed = true;
+    } else {
+      nodes[node.id] = node;
+    }
+  }
+  return changed ? { ...doc, nodes } : doc;
+}

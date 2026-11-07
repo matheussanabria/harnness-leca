@@ -5,6 +5,7 @@ import { state, saveActiveChatState, restoreActiveChatState, getActiveChatStorag
 import { cs } from "./chat-store.js";
 import { activateEngineSessions } from "./chat-session-store.js";
 import { chatPresence } from "./chat-tabs.js";
+import { isChatStreamingFor, subscribeAllChatExecutions } from "./chat-execution-store.js";
 
 /** Saves the conversation on screen under the current project and scope, then empties the in-memory chat. */
 export function parkActiveChat() {
@@ -32,6 +33,7 @@ export function adoptStoredChat(slug) {
   cs.currentChatTitle = restored ? state.currentChatTitle : null;
   activateEngineSessions(slug, cs.currentChatFile);
   announceChat(slug);
+  if (!restored) void restoreLastSavedChat(slug);
   if (typeof document === "undefined") return;
   for (const id of ["btnSaveChat", "btnSaveStudioChat"]) {
     const button = /** @type {HTMLButtonElement | null} */ (document.getElementById(id));
@@ -46,9 +48,63 @@ export function adoptStoredChat(slug) {
     .catch(() => {});
 }
 
-/** Moves the chat to another scope of the same project; a no-op when the scope does not change. @param {string} scope */
+/** Newest saved chat of a project (file names start with the date). @param {{ chats?: Array<{ name: string }> } | null} project */
+export function latestSavedChat(project) {
+  const names = (project?.chats || []).map((chat) => chat.name).filter((name) => typeof name === "string" && name);
+  return names.sort().at(-1) || null;
+}
+
+/**
+ * Nothing stored in this browser for the general chat: bring back the project's newest saved chat, quietly, so the
+ * conversation can simply be continued. Design scopes start empty. @param {string} slug
+ */
+async function restoreLastSavedChat(slug) {
+  if (state.chatScope !== "") return;
+  const name = latestSavedChat(state.P);
+  if (!name) return;
+  const { resumeExistingChat } = await import("./chat-persist.js");
+  // The user may have switched project or typed in the meantime: only fill an empty chat of the same project.
+  if (state.P?.slug !== slug || state.chatScope !== "" || state.chatTurns.length > 0) return;
+  await resumeExistingChat(name, false, { silent: true });
+}
+
+/** True while the conversation on screen is receiving an answer: it must not be swapped out underneath the stream. */
+export function isActiveChatStreaming() {
+  return Boolean(state.P && isChatStreamingFor(state.P.slug, cs.currentChatFile));
+}
+
+/** @type {string | null} */
+let pendingScope = null;
+/** @type {(() => void) | null} */
+let stopWaiting = null;
+
+/** Applies the last requested scope as soon as the running answer ends. */
+function applyWhenIdle() {
+  if (stopWaiting) return;
+  stopWaiting = subscribeAllChatExecutions(() => {
+    if (isActiveChatStreaming()) return;
+    stopWaiting?.();
+    stopWaiting = null;
+    const next = pendingScope;
+    pendingScope = null;
+    if (next !== null) switchChatScope(next);
+  });
+}
+
+/**
+ * Moves the chat to another scope of the same project; a no-op when the scope does not change. While an answer is
+ * streaming the switch waits for it to end, so the answer lands in the chat that asked for it.
+ * @param {string} scope
+ */
 export function switchChatScope(scope) {
   const next = scope || "";
+  if (isActiveChatStreaming()) {
+    pendingScope = next;
+    applyWhenIdle();
+    void import("../shared/dom.js").then(({ showToast }) => showToast("O chat muda quando a resposta terminar.", 4000)).catch(() => {});
+    return false;
+  }
+  pendingScope = null;
   if (next === state.chatScope) return false;
   if (state.P) parkActiveChat();
   state.chatScope = next;

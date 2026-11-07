@@ -70,6 +70,7 @@ test("toolbarState disables every structure action without a selection", async (
       undo: false,
       redo: false,
       resetOffsets: false,
+      resetSizes: false,
       copyContext: false,
     });
   }

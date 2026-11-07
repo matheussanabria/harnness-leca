@@ -52,3 +52,27 @@ test("rascunhos de escopos diferentes nao compartilham a sessao do motor", () =>
   state.chatScope = "design:prototypes";
   assert.equal(sessions.getEngineSession("a", null, "claude"), "ses_atelie");
 });
+
+test("o ultimo chat salvo do projeto e o de nome (data) mais recente", async () => {
+  const { latestSavedChat } = await import("../ui/public/js/modules/chat-scope.js");
+  assert.equal(latestSavedChat(null), null);
+  assert.equal(latestSavedChat({ chats: [] }), null);
+  assert.equal(
+    latestSavedChat({ chats: [{ name: "2026-10-01-a.md" }, { name: "2026-11-05-c.md" }, { name: "2026-11-02-b.md" }] }),
+    "2026-11-05-c.md",
+  );
+});
+
+test("enquanto uma resposta chega, a troca de escopo espera e nao mexe no chat", async () => {
+  const exec = await import("../ui/public/js/modules/chat-execution-store.js");
+  const { switchChatScope } = await import("../ui/public/js/modules/chat-scope.js");
+  state.P = /** @type {any} */ ({ slug: "a" });
+  state.chatScope = "";
+  state.chatTurns = [{ role: "user", text: "pergunta" }];
+  exec.setChatStreaming("a", null, true, "claude");
+  assert.equal(switchChatScope("design:board"), false);
+  assert.equal(state.chatScope, "", "o escopo nao muda no meio do streaming");
+  assert.equal(state.chatTurns.length, 1, "a conversa em andamento fica no lugar");
+  exec.setChatStreaming("a", null, false, "claude");
+  assert.equal(state.chatScope, "design:board", "a troca pendente e aplicada quando a resposta termina");
+});
