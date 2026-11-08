@@ -16,7 +16,7 @@ updated: 2026-10-30
 | `ui/public/js/modules/design-artifacts-state.js` | Normalizes, reads and writes filter, search, selection and sort of the `artifacts` screen (EP-14.12). |
 | `ui/public/js/modules/design-artifacts-import.js` | Uploads files and folders in sequence with origin, progress, per-file errors and inventory reload. |
 | `ui/public/js/modules/design-artifacts-access.js` | Toggles an imported artifact between project and local-only, with confirmation and list reload. |
-| `ui/public/js/modules/design-artifacts-preview.js` | Opens escaped text, sandboxed HTML iframe, image or PDF link, with close and error messages. |
+| `ui/public/js/modules/design-artifacts-preview.js` | Opens escaped text, sandboxed HTML iframe, image (error fallback, real-size toggle, open in tab) or PDF link, with close and error messages. |
 | `ui/public/js/modules/design-artifacts-relationships.js` | Screen/field links panel: add, remove, orphans, and opening the Map at the linked screen and field. |
 | `ui/public/js/modules/design-routines.js` | Routines tab of the 360 view: routine catalog, idempotent run, approval queue with decision, project history (EP-08.05). |
 | `ui/public/js/modules/design-routines-state.js` | Normalizes, reads and writes search, approval, tab and selected routine of the `routines` screen (EP-14.12). |

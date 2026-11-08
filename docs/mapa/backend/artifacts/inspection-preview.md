@@ -27,6 +27,7 @@ updated: 2026-10-30
 | `tests/artifact-import.test.js` | Covers import, collision, security, controller, binary route and file limits. |
 | `tests/artifact-metadata.test.js` | Covers manifest, checksum, local/project access, remote filter, controller, route and file limits. |
 | `tests/artifact-preview.test.js` | Covers text, HTML, image, PDF, remote access, invalid manifest, controller, route and limits. |
+| `tests/artifact-image-preview-ui.test.js` | Covers image preview UI: load-error fallback (HEIC/corrupt), real-size toggle, open in new tab, no emoji. |
 | `tests/artifact-relationships.test.js` | Covers stable key, add/remove, orphans, remote filter, controller, routes and limits. |
 | `tests/capability-catalog.test.js` | Covers versioned catalog, states, `resolveCapability`, legacy fields, endpoints and limits (EP-08.01). |
 | `tests/agent-stage-catalog.test.js` | Covers canonical SDLC stages, agent roles, stage/agent queries, endpoints and limits (EP-08.02). |
