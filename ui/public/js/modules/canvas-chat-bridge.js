@@ -24,6 +24,10 @@ let latest = null;
 let sent = null;
 let listening = false;
 
+// Agent engines (Antigravity) load AGENTS.md and run its start-of-task protocol (coordination inbox, repo status), which buries
+// the canvas rules. This chat is answered inline, so the protocol is switched off explicitly.
+const INLINE_ONLY = `Isto é uma conversa embutida na interface, não uma tarefa do repositório: não execute o protocolo de início do AGENTS.md (inbox de coordenação, status do repositório, leitura de memórias) e não use ferramentas. Responda direto ao pedido.`;
+
 const RULES = `Você está no canvas de Mapas Mentais do harness. Para criar ou expandir o mapa, responda com um bloco neste formato exato:
 <mindmap parent="selected">
 - Tópico
@@ -31,7 +35,8 @@ const RULES = `Você está no canvas de Mapas Mentais do harness. Para criar ou 
 </mindmap>
 Use lista com "-" e 2 espaços por nível, no máximo 4 níveis e 40 tópicos por bloco, com textos curtos.
 parent="selected" adiciona sob o nó selecionado; parent="root" adiciona sob a raiz; mode="new" substitui o mapa inteiro (o primeiro tópico vira a raiz). Use mode="new" somente quando o usuário pedir para refazer ou recomeçar o mapa; para acrescentar ou detalhar, use parent.
-Fora do bloco, explique em 1-2 frases o que foi feito. Para apenas conversar, responda sem o bloco.`;
+Fora do bloco, explique em 1-2 frases o que foi feito. Para apenas conversar, responda sem o bloco.
+${INLINE_ONLY}`;
 
 const BOARD_RULES = `Você está no canvas de Quadros (diagramas) do harness. Para criar ou alterar o desenho, responda com um bloco neste formato exato:
 <board mode="append">
@@ -40,10 +45,11 @@ flowchart TD
 </board>
 O conteúdo é um diagrama Mermaid dos tipos flowchart/graph, sequenceDiagram ou classDiagram, sem cercas de código.
 mode="replace" limpa o quadro e coloca o diagrama; mode="append" acrescenta abaixo do que já existe. Use mode="replace" somente quando o usuário pedir para refazer ou limpar o quadro; para acrescentar algo, use sempre mode="append". Textos curtos, no máximo 25 nós.
-Fora do bloco, explique em 1-2 frases o que foi feito. Para apenas conversar, responda sem o bloco.`;
+Fora do bloco, explique em 1-2 frases o que foi feito. Para apenas conversar, responda sem o bloco.
+${INLINE_ONLY}`;
 
-const MAP_REMINDER = `Lembrete do canvas de Mapas Mentais: para criar ou alterar o mapa, responda com um bloco <mindmap parent="selected|root" mode="new"> contendo uma lista com "-" (2 espaços por nível); para só conversar, responda sem o bloco.`;
-const BOARD_REMINDER = `Lembrete do canvas de Quadros: para criar ou alterar o desenho, responda com um bloco <board mode="append|replace"> com Mermaid (flowchart, sequenceDiagram ou classDiagram), sem cercas de código; para só conversar, responda sem o bloco.`;
+const MAP_REMINDER = `Lembrete do canvas de Mapas Mentais: para criar ou alterar o mapa, responda com um bloco <mindmap parent="selected|root" mode="new"> contendo uma lista com "-" (2 espaços por nível); para só conversar, responda sem o bloco. ${INLINE_ONLY}`;
+const BOARD_REMINDER = `Lembrete do canvas de Quadros: para criar ou alterar o desenho, responda com um bloco <board mode="append|replace"> com Mermaid (flowchart, sequenceDiagram ou classDiagram), sem cercas de código; para só conversar, responda sem o bloco. ${INLINE_ONLY}`;
 
 /** @param {Event} event */
 function onState(event) {
