@@ -44,3 +44,12 @@ test("hamburger toggle renders with FontAwesome and no emoji", async () => {
   assert.match(html, /aria-expanded="false"/);
   assert.ok(!/[\u{1F300}-\u{1FAFF}☀-➿]/u.test(html), "no emojis");
 });
+
+test("phone header: brand and project select reach 44px, usage tables scroll inside their block", () => {
+  const css = fs.readFileSync(path.join(pub, "css", "app-header.css"), "utf8");
+  assert.match(css, /\.app-header \.app-brand \{ min-height: 44px; \}/);
+  assert.match(css, /\[data-slot="left"\] select \{ min-height: 44px; \}/);
+  const consumo = fs.readFileSync(path.join(pub, "css", "consumo.css"), "utf8");
+  assert.match(consumo, /\.usage-section\{overflow-x:auto\}/);
+  assert.match(consumo, /minmax\(min\(300px,100%\),1fr\)/);
+});

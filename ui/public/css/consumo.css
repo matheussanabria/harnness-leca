@@ -19,7 +19,7 @@ h2{font-size:16px;margin:28px 0 12px;display:flex;gap:8px;align-items:center}
 .c-asof{font-size:12px;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:2px 9px}
 .c-asof.is-error{color:var(--warn);border-color:var(--warn)}
 .c-empty{color:var(--mute);font-size:13px;font-style:italic}
-.c-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.c-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px}
 .c-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
 .c-card h3{margin:0 0 10px;font-size:15px;display:flex;gap:8px;align-items:center;text-transform:capitalize}
 .c-card h3 small{color:var(--mute);font-weight:400;text-transform:none}
@@ -46,5 +46,7 @@ h2{font-size:16px;margin:28px 0 12px;display:flex;gap:8px;align-items:center}
 .pager__btn.is-active{border-color:var(--accent);color:var(--accent)}
 .pager__btn:disabled{opacity:.4;cursor:default}
 .pager__select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:3px 6px}
+/* Tabelas de uso rolam dentro do bloco, nunca alargam a página. */
+.usage-section{overflow-x:auto}
 @media (max-width:600px){header{padding:10px 14px}main{padding:16px 12px}h1{font-size:22px}}
 .c-dark{background:#0f172a;color:#e2e8f0;border:1px solid var(--line);border-radius:14px;padding:14px 18px}
