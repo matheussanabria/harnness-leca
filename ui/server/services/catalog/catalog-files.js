@@ -26,6 +26,18 @@ function resolveItem(kind, source, ref, sources = defaultSources()) {
   return { kind, root: real, isDir: fs.statSync(real).isDirectory() };
 }
 
+const MF = "manifest";
+
+/** Folder holding `<agent>/manifest.yaml` (repos that keep agent manifests under .agents), or "". */
+function agentManifestDir(ref, sources) {
+  const name = String(ref).replace(/\.md$/, "");
+  for (const root of sources.manifestRoots || []) {
+    const dir = path.join(root, name);
+    if (fs.existsSync(path.join(dir, "manifest.yaml"))) return fs.realpathSync(dir);
+  }
+  return "";
+}
+
 /** Sorts folders first, then names; hides dot-entries. */
 function listDir(dir, rel, depth, budget) {
   if (depth > MAX_DEPTH) return [];
@@ -47,7 +59,13 @@ function listDir(dir, rel, depth, budget) {
 function listTree(kind, source, ref, sources) {
   const item = resolveItem(kind, source, ref, sources);
   if (!item) return null;
-  if (!item.isDir) return { truncated: false, tree: [{ type: "file", name: path.basename(item.root), path: path.basename(item.root), size: fs.statSync(item.root).size }] };
+  if (!item.isDir) {
+    const own = { type: "file", name: path.basename(item.root), path: path.basename(item.root), size: fs.statSync(item.root).size };
+    const mdir = agentManifestDir(ref, sources || defaultSources());
+    if (!mdir) return { truncated: false, tree: [own] };
+    const b = { left: MAX_ENTRIES };
+    return { truncated: false, tree: [{ type: "dir", name: MF, path: MF, children: listDir(mdir, MF, 2, b) }, own] };
+  }
   const budget = { left: MAX_ENTRIES };
   const tree = listDir(item.root, "", 1, budget);
   return { truncated: budget.left <= 0, tree };
@@ -59,6 +77,16 @@ function resolveFile(kind, source, ref, rel, sources) {
   if (!item) return { status: 404, error: "Item not found." };
   const parts = String(rel || "").split("/").filter(Boolean);
   if (parts.some((p) => p === ".." || p === "." || p.includes("\\") || p.startsWith("."))) return { status: 400, error: "Invalid path." };
+  if (!item.isDir && parts[0] === MF && parts.length > 1) {
+    const mdir = agentManifestDir(ref, sources || defaultSources());
+    if (!mdir) return { status: 404, error: "File not found." };
+    const t = path.join(mdir, ...parts.slice(1));
+    if (!fs.existsSync(t)) return { status: 404, error: "File not found." };
+    const r = fs.realpathSync(t);
+    if (!r.startsWith(mdir + path.sep)) return { status: 400, error: "Invalid path." };
+    const st = fs.statSync(r);
+    return st.isFile() ? { real: r, stat: st } : { status: 400, error: "Not a file." };
+  }
   const target = item.isDir ? path.join(item.root, ...parts) : item.root;
   if (!item.isDir && parts.join("/") !== path.basename(item.root)) return { status: 404, error: "File not found." };
   if (!fs.existsSync(target)) return { status: 404, error: "File not found." };
