@@ -18,8 +18,9 @@ function paint() {
     btn.classList.toggle("is-on", btn.getAttribute("data-kind") === filter.kind);
   }
   const count = (kind) => data.items.filter((i) => i.kind === kind).length;
-  $("kCountSkill").textContent = count("skill");
-  $("kCountAgent").textContent = count("agent");
+  if ($("kCountSkill")) $("kCountSkill").textContent = count("skill");
+  if ($("kCountAgent")) $("kCountAgent").textContent = count("agent");
+  if ($("kCountWorkflow")) $("kCountWorkflow").textContent = count("workflow");
 }
 
 async function load() {
@@ -27,7 +28,17 @@ async function load() {
     const res = await fetch("/api/catalog");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     data = await res.json();
+    const params = new URLSearchParams(window.location.search);
+    const kindParam = params.get("kind");
+    const nameParam = params.get("name");
+    if (kindParam && ["skill", "agent", "workflow"].includes(kindParam)) {
+      filter.kind = kindParam;
+    }
     paint();
+    if (kindParam && nameParam) {
+      const target = data.items.find((i) => i.kind === kindParam && (i.name === nameParam || i.ref === nameParam));
+      if (target) openBrowser(target, data.canManage);
+    }
   } catch (err) {
     $("kList").innerHTML = `<p class="c-empty">Não foi possível carregar o catálogo: ${esc(err.message)}</p>`;
   }
@@ -68,6 +79,19 @@ export function startCatalogoPage() {
     const [kind, source, ref] = btn.getAttribute("data-open").split(":");
     const item = data.items.find((i) => i.kind === kind && i.source === source && i.ref === ref);
     if (item) openBrowser(item, data.canManage);
+  });
+  document.addEventListener("click", (e) => {
+    const nav = e.target.closest("[data-nav-kind]");
+    if (!nav) return;
+    const targetKind = nav.getAttribute("data-nav-kind");
+    const targetName = nav.getAttribute("data-nav-name");
+    const target = data.items.find((i) => i.kind === targetKind && (i.name === targetName || i.ref === targetName));
+    if (target) {
+      filter.kind = targetKind;
+      filter.area = "all";
+      paint();
+      openBrowser(target, data.canManage);
+    }
   });
   $("kList").addEventListener("change", async (e) => {
     const sel = e.target.closest(".k-select");

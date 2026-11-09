@@ -6,6 +6,7 @@ const { listSources } = require("./catalog-sources");
 const cache = require("./catalog-cache");
 const { classify, listAreas, loadAreas } = require("./catalog-areas");
 const { readOverrides } = require("./catalog-overrides");
+const { listWorkflowsFromSources, builtinWorkflows } = require("./catalog-workflows");
 
 /** Default sources (user, harness and every project repo), kept briefly by the cache; tests pass their own. */
 const defaultSources = () => cache.cachedSources(() => listSources());
@@ -54,6 +55,7 @@ function buildCatalog(opts = {}) {
 }
 
 function build(opts) {
+  const isCustomSources = Boolean(opts.sources);
   const sources = opts.sources || defaultSources();
   const overrides = readOverrides(opts.overridesFile);
   const config = opts.areaConfig || loadAreas();
@@ -61,7 +63,14 @@ function build(opts) {
   const known = (id) => (areaList.some((a) => a.id === id) ? id : "");
   const seen = new Map();
   const items = [];
-  const all = [...sources.skills.flatMap(listSkills), ...sources.agents.flatMap(listAgents)];
+  const workflowSources = sources.workflows || [];
+  const discoveredWorkflows = workflowSources.flatMap(listWorkflowsFromSources);
+  const allWorkflows = isCustomSources ? discoveredWorkflows : builtinWorkflows(discoveredWorkflows);
+  const all = [
+    ...sources.skills.flatMap(listSkills),
+    ...sources.agents.flatMap(listAgents),
+    ...allWorkflows,
+  ];
   for (const item of all) {
     const key = `${item.kind}:${item.name}`;
     if (seen.has(key)) {

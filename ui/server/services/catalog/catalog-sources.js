@@ -40,9 +40,17 @@ function targetSkillsDir(target) {
   return isDir(b) ? b : "";
 }
 
+/** Workflows dir of a project target: .agents/workflows first, then workflows/. */
+function targetWorkflowsDir(target) {
+  const a = path.join(target.path, ".agents", "workflows");
+  if (isDir(a)) return a;
+  const b = path.join(target.path, "workflows");
+  return isDir(b) ? b : "";
+}
+
 /**
  * @param {{ home?: string, root?: string, projectTargets?: (slug: string) => Array<any> }} [opts]
- * @returns {{ skills: Array<{id:string,label:string,scope:string,dir:string}>, agents: Array<{id:string,label:string,scope:string,dir:string}> }}
+ * @returns {{ skills: Array<{id:string,label:string,scope:string,dir:string}>, agents: Array<{id:string,label:string,scope:string,dir:string}>, workflows: Array<{id:string,label:string,scope:string,dir:string}> }}
  */
 function listSources(opts = {}) {
   const claude = path.join(opts.home || os.homedir(), ".claude");
@@ -53,6 +61,10 @@ function listSources(opts = {}) {
     { id: "harness", label: "Harness (.agents)", scope: "harness", dir: path.join(root, ".agents", "skills") },
   ];
   const agents = [{ id: "user", label: "Usuário (~/.claude)", scope: "user", dir: path.join(claude, "agents") }];
+  const workflows = [
+    { id: "user", label: "Usuário (~/.claude)", scope: "user", dir: path.join(claude, "workflows") },
+    { id: "harness", label: "Harness (.agents)", scope: "harness", dir: path.join(root, ".agents", "workflows") },
+  ];
   const seenDirs = new Set(skills.map((s) => path.resolve(s.dir)));
 
   for (const slug of listProjectSlugs(root)) {
@@ -69,9 +81,14 @@ function listSources(opts = {}) {
         seenDirs.add(path.resolve(adir));
         agents.push({ id: safeId("p", slug, target.id), label, scope: "project", dir: adir });
       }
+      const wdir = targetWorkflowsDir(target);
+      if (wdir && !seenDirs.has(path.resolve(wdir))) {
+        seenDirs.add(path.resolve(wdir));
+        workflows.push({ id: safeId("p", slug, target.id), label, scope: "project", dir: wdir });
+      }
     }
   }
-  return { skills, agents };
+  return { skills, agents, workflows };
 }
 
 module.exports = { listSources, listProjectSlugs, safeId };
