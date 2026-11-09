@@ -2,7 +2,7 @@
 domain: tools
 module: vault
 feature: vault-knowledge
-summary: Read-only keyword lookup into an external Obsidian knowledge vault (spike); returns paths and token cost, copies nothing.
+summary: Read-only keyword lookup into an external Obsidian knowledge vault (spike); prints paths and token cost.
 paths: [tools/vault-knowledge.js, tools/lib/vault/*.js, tests/vault-knowledge.test.js]
 keywords: [obsidian, vault, cerebro-digital, knowledge, conhecimento, find, stats, onedrive]
 updated: 2026-11-09
