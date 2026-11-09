@@ -100,3 +100,4 @@ test("catalog-router: code compliance (lines and emojis)", () => {
   assert.ok(lines < 250, `File must be under 250 lines, got ${lines}`);
   assert.doesNotMatch(content, /[\u{1F300}-\u{1FAFF}]/u, "Emojis are strictly prohibited");
 });
+

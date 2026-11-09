@@ -1,0 +1,118 @@
+/* mermaid.css — Estilos para renderização de diagramas Mermaid e alternância de código */
+
+.mermaid-card {
+  margin: 16px 0;
+  background: var(--panel, #181a1f);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.mermaid-card .code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--panel2, #1f232b);
+  border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+  user-select: none;
+}
+
+.mermaid-card .code-block-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text, #f1f5f9);
+}
+
+.mermaid-card .code-block-info i {
+  color: var(--accent, #3b82f6);
+}
+
+.mermaid-card .code-block-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--accent, #60a5fa);
+  text-transform: uppercase;
+}
+
+.mermaid-card .code-block-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mermaid-card .btn-code-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+  color: var(--mute, #94a3b8);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mermaid-card .btn-code-action:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text, #ffffff);
+  border-color: var(--accent, #3b82f6);
+}
+
+.mermaid-diagram-wrap {
+  padding: 20px;
+  background: #11141a;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+}
+
+.mermaid-diagram-wrap .mermaid {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  font-family: inherit;
+}
+
+.mermaid-diagram-wrap svg {
+  max-width: 100%;
+  height: auto !important;
+  display: block;
+}
+
+.mermaid-raw-source {
+  margin: 0;
+  padding: 14px 18px;
+  background: #0d1017;
+  font: 12.5px/1.5 ui-monospace, Consolas, monospace;
+  color: #e2e8f0;
+  overflow-x: auto;
+}
+
+.mermaid-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 6px;
+  color: #f87171;
+  font-size: 13px;
+  margin: 12px;
+}

@@ -1,6 +1,7 @@
 // @ts-check
 // Repository-style browser for one skill or agent: file tree on the left, viewer on the right.
 import { md } from "../shared/markdown.js";
+import { renderMermaidInContainer } from "../shared/mermaid-renderer.js";
 import { esc, linkTag } from "./catalogo-view.js";
 import { renderEditor } from "./catalogo-editor.js";
 import { renderTree, pickDefaultFile, splitFrontmatter, isMarkdown } from "./catalogo-tree.js";
@@ -64,6 +65,7 @@ function paintViewer() {
     const { meta, body } = splitFrontmatter(f.content);
     const metaHtml = meta ? `<details class="k-meta-block"><summary>Frontmatter</summary><pre>${esc(meta)}</pre></details>` : "";
     box.innerHTML = head + note + metaHtml + `<div class="k-md">${md(body)}</div>`;
+    renderMermaidInContainer(box).catch(() => {});
   } else {
     box.innerHTML = head + note + `<pre class="k-code">${esc(f.content)}</pre>`;
   }
