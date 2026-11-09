@@ -84,7 +84,7 @@ test("catalog-files: browses and reads workflow files and virtual documentation"
 
 test("workflows-view: renderSkill and renderStage generate catalog links with no emoji", () => {
   const skillHtml = renderSkill({ name: "bdd-scenarios", available: true, bound: true });
-  assert.match(skillHtml, /href="\/catalogo\?kind=skill&name=bdd-scenarios"/);
+  assert.match(skillHtml, /href="\/catalogo\/skills\/bdd-scenarios"/);
   assert.match(skillHtml, /workflow-skill-link/);
 
   const stageHtml = renderStage({
@@ -99,12 +99,13 @@ test("workflows-view: renderSkill and renderStage generate catalog links with no
     requiresApproval: false,
   });
 
-  assert.match(stageHtml, /href="\/catalogo\?kind=agent&name=business-analyst"/);
+  assert.match(stageHtml, /href="\/catalogo\/agents\/business-analyst"/);
   assert.match(stageHtml, /workflow-agent-link/);
-  assert.match(stageHtml, /href="\/catalogo\?kind=skill&name=requirements-engineering"/);
+  assert.match(stageHtml, /href="\/catalogo\/skills\/requirements-engineering"/);
   assert.match(stageHtml, /disponível no catálogo global/);
 
   // Strict check: no unicode emojis allowed
   assert.doesNotMatch(skillHtml, /[\u{1F300}-\u{1FAFF}]/u);
   assert.doesNotMatch(stageHtml, /[\u{1F300}-\u{1FAFF}]/u);
 });
+

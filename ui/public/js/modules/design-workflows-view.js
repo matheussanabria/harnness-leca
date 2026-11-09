@@ -26,7 +26,7 @@ function agentNames(stage) {
     if (id === "sessao" || id === "session") {
       return `<span class="workflow-agent-item"><i class="fa-solid fa-terminal" aria-hidden="true"></i> ${esc(label)}</span>`;
     }
-    return `<a href="/catalogo?kind=agent&name=${encodeURIComponent(id)}" target="_blank" class="workflow-agent-link" title="Ver agente '${esc(label)}' no Catálogo"><i class="fa-solid fa-user-gear" aria-hidden="true"></i> ${esc(label)}</a>`;
+    return `<a href="/catalogo/agents/${encodeURIComponent(id)}" target="_blank" class="workflow-agent-link" title="Ver agente '${esc(label)}' no Catálogo"><i class="fa-solid fa-user-gear" aria-hidden="true"></i> ${esc(label)}</a>`;
   }).join(", ");
 }
 
@@ -50,7 +50,7 @@ export function renderSkill(skill) {
     : "fa-circle-xmark";
   return `<li class="workflow-skill ${available ? "is-available" : "is-missing"} ${isGlobal ? "is-global" : ""}">
     <i class="fa-solid ${icon}" aria-hidden="true"></i>
-    <a href="/catalogo?kind=skill&name=${encodeURIComponent(skill.name)}" target="_blank" class="workflow-skill-link" title="Ver skill '${esc(skill.name)}' no Catálogo"><span class="workflow-skill-name">${esc(skill.name)}</span></a>
+    <a href="/catalogo/skills/${encodeURIComponent(skill.name)}" target="_blank" class="workflow-skill-link" title="Ver skill '${esc(skill.name)}' no Catálogo"><span class="workflow-skill-name">${esc(skill.name)}</span></a>
     <span class="workflow-skill-state">${esc(state)}</span>
   </li>`;
 }

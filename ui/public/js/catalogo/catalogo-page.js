@@ -1,8 +1,15 @@
 // @ts-check
-// Controller of /catalogo: loads GET /api/catalog, filters, regroups and saves manual areas.
+// Controller of /catalogo: loads GET /api/catalog, filters, routes and manages history.
 import { filterItems, groupByArea, areaCounts } from "./catalogo-model.js";
-import { openBrowser, wireBrowser } from "./catalogo-browser.js";
+import { openBrowser, closeBrowser, wireBrowser } from "./catalogo-browser.js";
 import { renderAreaChips, renderGroups, esc } from "./catalogo-view.js";
+import {
+  parseRoute,
+  pushRoute,
+  replaceRoute,
+  navigateBack,
+  initRouter,
+} from "./catalogo-router.js";
 
 const filter = { kind: "skill", area: "all", text: "" };
 let data = { areas: [], items: [], canManage: false };
@@ -23,22 +30,33 @@ function paint() {
   if ($("kCountWorkflow")) $("kCountWorkflow").textContent = count("workflow");
 }
 
+function applyRoute(route, shouldPush = false) {
+  if (route.view === "detail" && route.id) {
+    const target = data.items.find((i) => i.kind === route.kind && (i.name === route.id || i.ref === route.id));
+    if (target) {
+      filter.kind = route.kind;
+      if (shouldPush) pushRoute(route);
+      else if (route.legacy) replaceRoute(route);
+      paint();
+      openBrowser(target, data.canManage);
+      return;
+    }
+  }
+
+  filter.kind = route.kind || "skill";
+  closeBrowser();
+  if (shouldPush) pushRoute(route);
+  else if (route.legacy) replaceRoute(route);
+  paint();
+}
+
 async function load() {
   try {
     const res = await fetch("/api/catalog");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     data = await res.json();
-    const params = new URLSearchParams(window.location.search);
-    const kindParam = params.get("kind");
-    const nameParam = params.get("name");
-    if (kindParam && ["skill", "agent", "workflow"].includes(kindParam)) {
-      filter.kind = kindParam;
-    }
-    paint();
-    if (kindParam && nameParam) {
-      const target = data.items.find((i) => i.kind === kindParam && (i.name === nameParam || i.ref === nameParam));
-      if (target) openBrowser(target, data.canManage);
-    }
+    const currentRoute = parseRoute(window.location.pathname, window.location.search);
+    applyRoute(currentRoute, false);
   } catch (err) {
     $("kList").innerHTML = `<p class="c-empty">Não foi possível carregar o catálogo: ${esc(err.message)}</p>`;
   }
@@ -59,40 +77,41 @@ export function startCatalogoPage() {
     filter.text = e.target.value;
     paint();
   });
+
   document.querySelector(".k-tabs").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-kind]");
     if (!btn) return;
-    filter.kind = btn.getAttribute("data-kind");
+    const nextKind = btn.getAttribute("data-kind");
     filter.area = "all";
-    paint();
+    applyRoute({ view: "list", kind: nextKind }, true);
   });
+
   $("kAreas").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-area]");
     if (!btn) return;
     filter.area = btn.getAttribute("data-area");
     paint();
   });
-  wireBrowser();
+
+  wireBrowser(() => navigateBack({ view: "list", kind: filter.kind }));
+  initRouter((route) => applyRoute(route, false));
+
   $("kList").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-open]");
     if (!btn) return;
     const [kind, source, ref] = btn.getAttribute("data-open").split(":");
     const item = data.items.find((i) => i.kind === kind && i.source === source && i.ref === ref);
-    if (item) openBrowser(item, data.canManage);
+    if (item) applyRoute({ view: "detail", kind: item.kind, id: item.name }, true);
   });
+
   document.addEventListener("click", (e) => {
     const nav = e.target.closest("[data-nav-kind]");
     if (!nav) return;
     const targetKind = nav.getAttribute("data-nav-kind");
     const targetName = nav.getAttribute("data-nav-name");
-    const target = data.items.find((i) => i.kind === targetKind && (i.name === targetName || i.ref === targetName));
-    if (target) {
-      filter.kind = targetKind;
-      filter.area = "all";
-      paint();
-      openBrowser(target, data.canManage);
-    }
+    applyRoute({ view: "detail", kind: targetKind, id: targetName }, true);
   });
+
   $("kList").addEventListener("change", async (e) => {
     const sel = e.target.closest(".k-select");
     if (!sel) return;
@@ -104,5 +123,6 @@ export function startCatalogoPage() {
     }
     paint();
   });
+
   load();
 }

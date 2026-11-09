@@ -108,13 +108,24 @@ export async function openBrowser(item, canEdit = false) {
   }
 }
 
+export function getCurrentItem() {
+  return state.item;
+}
+
 export function closeBrowser() {
   $("kBrowser").hidden = true;
   $("kCatalog").hidden = false;
+  state.item = null;
 }
 
-export function wireBrowser() {
-  $("kBack").addEventListener("click", closeBrowser);
+export function wireBrowser(onBack) {
+  $("kBack").addEventListener("click", () => {
+    if (typeof onBack === "function") {
+      onBack();
+    } else {
+      closeBrowser();
+    }
+  });
   $("kTree").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-file]");
     if (btn) openFile(btn.getAttribute("data-file"), true);
