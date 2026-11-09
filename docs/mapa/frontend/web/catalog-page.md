@@ -3,9 +3,9 @@ domain: frontend
 module: web
 feature: catalog-page
 summary: Standalone /catalogo page: skills and agents in separate tabs, grouped by area, with a file browser per item.
-paths: [ui/public/catalogo.html, ui/public/css/catalogo.css, ui/public/js/catalogo/*.js, ui/server/services/catalog/*.js, ui/server/controllers/catalog.controller.js, ui/server/routes/catalog.routes.js, tests/catalog.test.js, tests/catalog-files.test.js, tests/catalog-remote.test.js, tests/catalog-sources.test.js, tests/catalog-areas-config.test.js, tests/catalog-cache.test.js, tests/catalog-write.test.js, tests/catalog-bindings.test.js, ui/public/js/catalogo/catalogo-editor.js]
+paths: [ui/public/catalogo.html, ui/public/css/catalogo.css, ui/public/js/catalogo/*.js, tests/catalog-manifest.test.js, ui/server/services/catalog/*.js, ui/server/controllers/catalog.controller.js, ui/server/routes/catalog.routes.js, tests/catalog.test.js, tests/catalog-files.test.js, tests/catalog-remote.test.js, tests/catalog-sources.test.js, tests/catalog-areas-config.test.js, tests/catalog-cache.test.js, tests/catalog-write.test.js, tests/catalog-bindings.test.js, ui/public/js/catalogo/catalogo-editor.js]
 keywords: [catalog, cache, mtime, areas-config, frontmatter-area, catalogo, skills, agents, area, documentation, frontend, group, override, browser, tree, files]
-updated: 2026-11-06
+updated: 2026-11-09
 ---
 # Skills and agents catalog (/catalogo)
 
@@ -30,12 +30,14 @@ Reads a registry of sources (`catalog-sources.js`): user `~/.claude` (skills and
 | `ui/public/js/catalogo/catalogo-view.js` | Escaped HTML for chips, groups and cards. |
 | `ui/public/js/catalogo/catalogo-tree.js` | Pure helpers: tree HTML, default file (SKILL.md) and frontmatter split. |
 | `ui/public/js/catalogo/catalogo-browser.js` | File browser controller: loads the tree, shows files, rendered/raw toggle. |
+| `ui/public/js/catalogo/catalogo-manifest.js` | Agent manifest: parses the flat frontmatter and renders it as an open table (tools as chips) above the agent text; cards also show model and tool count. |
 | `ui/public/js/catalogo/catalogo-editor.js` | Inline editor: textarea, confirm before save, 409 handling with explicit overwrite. |
 | `ui/public/js/catalogo/catalogo-page.js` | Controller: load, tabs, filters, open item, area change saved through the API. |
 | `tests/catalog.test.js` | Classifier, reader, overrides, filter model and escaping tests. |
 | `tests/catalog-files.test.js` | File tree and reader (traversal, binary, symlink) and tree view tests. |
 | `tests/catalog-bindings.test.js` | Index across projects, ignored folders, corrupt manifest, orphan rules and the card tag. |
 | `tests/catalog-write.test.js` | Save with revision, 409 conflict, agent edit, BOM, traversal, no create or binary, body validation. |
+| `tests/catalog-manifest.test.js` | Manifest parsing (folded lines) and rendering (escaping, tool chips). |
 | `tests/catalog-remote.test.js` | Remote requests can browse (404, not 403), cannot change an area or edit a file, traversal still refused. |
 | `tests/catalog-sources.test.js` | Registry order, project sources, precedence and `alsoIn`, browsing a project item, no repeated folders. |
 | `tests/catalog-areas-config.test.js` | Config load and validation, frontmatter/manual/suggested precedence, unknown areas ignored, origin tag in the view. |

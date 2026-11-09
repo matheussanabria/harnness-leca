@@ -3,6 +3,7 @@
 import { md } from "../shared/markdown.js";
 import { esc, linkTag } from "./catalogo-view.js";
 import { renderEditor } from "./catalogo-editor.js";
+import { renderManifest } from "./catalogo-manifest.js";
 import { renderTree, pickDefaultFile, splitFrontmatter, isMarkdown } from "./catalogo-tree.js";
 
 const $ = (id) => document.getElementById(id);
@@ -37,7 +38,8 @@ function paintViewer() {
   const note = f.truncated ? `<p class="c-empty">Mostrando só o início do arquivo.</p>` : "";
   if (isMarkdown(f.name) && !state.raw) {
     const { meta, body } = splitFrontmatter(f.content);
-    const metaHtml = meta ? `<details class="k-meta-block"><summary>Frontmatter</summary><pre>${esc(meta)}</pre></details>` : "";
+    const agentMf = state.item.kind === "agent" ? renderManifest(meta) : "";
+    const metaHtml = agentMf || (meta ? `<details class="k-meta-block"><summary>Frontmatter</summary><pre>${esc(meta)}</pre></details>` : "");
     box.innerHTML = head + note + metaHtml + `<div class="k-md">${md(body)}</div>`;
   } else {
     box.innerHTML = head + note + `<pre class="k-code">${esc(f.content)}</pre>`;

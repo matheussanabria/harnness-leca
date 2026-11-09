@@ -42,6 +42,11 @@
 .k-code{margin:0;font:12.5px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
 .k-meta-block{margin-bottom:10px;font-size:12.5px}
 .k-meta-block pre{margin:6px 0 0;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;color:var(--mute)}
+.k-manifest{margin-bottom:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px}
+.k-manifest h4{margin:0 0 6px;font-size:13px}
+.k-manifest table{border-collapse:collapse;width:100%}
+.k-manifest th{width:90px;text-align:left;color:var(--mute);font-weight:600;vertical-align:top;padding:3px 8px 3px 0}
+.k-manifest td{padding:3px 0;overflow-wrap:anywhere}
 .k-md{font-size:14px;overflow-wrap:anywhere}
 .k-md pre{overflow:auto}
 .k-md table{border-collapse:collapse}.k-md th,.k-md td{border:1px solid var(--line);padding:4px 8px}
