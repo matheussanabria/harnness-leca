@@ -21,6 +21,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { contaTestes, contaRegrasSemRn, g9PorFeature } = require("./lib/audit-layers-rastreio");
 
 const DEFAULT_REPO_ROOT = "c:/Users/matheuss.rodrigues/git/saude/dispensacao";
 const DEFAULT_HARNESS_PROJECT_DIR = "c:/Users/matheuss.rodrigues/git/harness-leca/projects/saude-dispensacao";
@@ -30,18 +31,21 @@ function parseArgs() {
   let repoRoot = DEFAULT_REPO_ROOT;
   let feature = null;
   let jsonOutput = false;
+  let rastreioConfig = null;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--repo" && args[i + 1]) {
       repoRoot = args[++i];
     } else if (args[i] === "--feature" && args[i + 1]) {
       feature = args[++i];
+    } else if (args[i] === "--rastreio-config" && args[i + 1]) {
+      rastreioConfig = path.resolve(args[++i]);
     } else if (args[i] === "--json") {
       jsonOutput = true;
     }
   }
 
-  return { repoRoot: path.resolve(repoRoot), feature, jsonOutput };
+  return { repoRoot: path.resolve(repoRoot), feature, jsonOutput, rastreioConfig };
 }
 
 /**
@@ -95,8 +99,10 @@ function auditFeature(featureDir, featureSlug, repoRoot) {
       regra: { total: 0, implementado: 0, soNoPrototipo: 0, aConfirmar: 0 },
       api: { total: 0, implementado: 0, soNoPrototipo: 0, aConfirmar: 0 },
       dados: { total: 0, implementado: 0, soNoPrototipo: 0, aConfirmar: 0 },
-      testes: { total: 0, implementado: 0, pendente: 0 }
+      testes: { total: 0, comProva: 0, semProva: 0, porSt: {} }
     },
+    regrasSemRn: 0,
+    g9: [],
     drifts: []
   };
 
@@ -109,6 +115,8 @@ function auditFeature(featureDir, featureSlug, repoRoot) {
       const raw = fs.readFileSync(mapFile, "utf8").replace(/^\uFEFF/, "");
       const mapJson = JSON.parse(raw);
       const telas = Array.isArray(mapJson.telas) ? mapJson.telas : [];
+      summary.camadas.testes = contaTestes(mapJson);
+      summary.regrasSemRn = contaRegrasSemRn(mapJson).semRn;
 
       for (const tela of telas) {
         const campos = Array.isArray(tela.campos) ? tela.campos : [];
@@ -184,7 +192,7 @@ function auditFeature(featureDir, featureSlug, repoRoot) {
 }
 
 function runAudit() {
-  const { repoRoot, feature, jsonOutput } = parseArgs();
+  const { repoRoot, feature, jsonOutput, rastreioConfig } = parseArgs();
   const featuresBaseDir = path.join(repoRoot, "doc/sistema/features");
 
   if (!fs.existsSync(featuresBaseDir)) {
@@ -192,6 +200,8 @@ function runAudit() {
     process.exit(1);
   }
 
+  const g9 = rastreioConfig ? g9PorFeature(rastreioConfig, repoRoot) : null;
+  if (g9 && g9.erro) console.error(`[audit] G9 indisponível: ${g9.erro}`);
   const results = [];
   const entries = fs.readdirSync(featuresBaseDir, { withFileTypes: true });
 
@@ -201,6 +211,7 @@ function runAudit() {
 
     const featDir = path.join(featuresBaseDir, ent.name);
     const res = auditFeature(featDir, ent.name, repoRoot);
+    if (g9 && g9.por) res.g9 = g9.por[ent.name] || [];
     results.push(res);
   }
 
@@ -225,6 +236,8 @@ function runAudit() {
       console.log(`    Regra: ${r.camadas.regra.implementado} implementadas, ${r.camadas.regra.aConfirmar} a conferir`);
       console.log(`    API:   ${r.camadas.api.implementado} implementadas, ${r.camadas.api.aConfirmar} a conferir`);
       console.log(`    Dados: ${r.camadas.dados.implementado} mapeados, ${r.camadas.dados.aConfirmar} a conferir`);
+      const t = r.camadas.testes;
+      console.log(`    Testes: ${t.total} grupos (${t.comProva} com prova, ${t.semProva} sem); ${r.regrasSemRn} regra(s) sem rn`);
     }
 
     const docs = [];
@@ -233,6 +246,7 @@ function runAudit() {
     if (r.dossieFiles["06-testes.md"]) docs.push("Testes");
     console.log(`    Dossiê: [${docs.join(", ") || "nenhum arquivo padrão"}]`);
 
+    for (const x of r.g9) console.log(`    ${x.nivel === "erro" ? "ERRO " : "aviso"} G9  ${x.m}`);
     if (r.drifts.length > 0) {
       console.log(`    ⚠️  Drifts detectados (${r.drifts.length}):`);
       for (const d of r.drifts) {
