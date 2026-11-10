@@ -1,0 +1,7 @@
+sem_mapa: { motivo: "no screen of its own", em: [calc] }
+cenarios:
+  F1:
+    pytest: ["test_fmt.py#test_money_two_decimals"]
+    regras: [BR-fmt-001]
+regras:
+  BR-fmt-001: { codigo: [fmt.py] }

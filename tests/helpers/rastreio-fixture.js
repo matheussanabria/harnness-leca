@@ -15,6 +15,7 @@ const PKG = 'br/com/procempa/saude/dispensacao';
 // RASTREIO_RUNNER=legacy runs the old copy under saude/dispensacao; default runs tools/rastreio.
 const RUNNER = process.env.RASTREIO_RUNNER === 'legacy' ? 'legacy' : 'new';
 const NEW_CLI = path.join(__dirname, '..', '..', 'tools', 'rastreio', 'cli.mjs');
+const CONFIG = path.join(__dirname, '..', 'fixtures', 'rastreio', 'saude-dispensacao.config.json');
 const legacyAvailable = () => fs.existsSync(path.join(LEGACY_TOOLS, 'rastreio.mjs'));
 // Fixture tests need the legacy gate only when the legacy runner is selected.
 const runnerAvailable = () => RUNNER === 'new' || legacyAvailable();
@@ -105,7 +106,7 @@ function buildProject(edit) {
 function runGate(root) {
   const args = RUNNER === 'legacy'
     ? [path.join(root, 'tools', 'doc-features', 'rastreio.mjs'), '--json']
-    : [NEW_CLI, '--root', root, '--json'];
+    : [NEW_CLI, '--config', CONFIG, '--root', root, '--json'];
   const r = spawnSync(process.execPath, args, { cwd: root, encoding: 'utf8' });
   let results = [];
   try { results = JSON.parse(r.stdout); } catch { /* keep empty; the test shows stderr */ }
@@ -115,4 +116,4 @@ function runGate(root) {
 const ALFA = 'doc/sistema/features/alfa';
 const find = (run, slug) => run.results.find((x) => x.slug === slug);
 
-module.exports = { buildProject, runGate, legacyAvailable, runnerAvailable, find, ALFA, PKG, LEGACY_DIR };
+module.exports = { buildProject, runGate, legacyAvailable, runnerAvailable, find, NEW_CLI, CONFIG, ALFA, PKG, LEGACY_DIR };

@@ -5,7 +5,7 @@ import { cabecalho, lerSeExiste } from '../util.mjs';
 
 export function gateG8(ctx, f) {
   const stTxt = lerSeExiste(join(f.dir, ctx.cfg.arquivos.status)) || '';
-  const linha = stTxt.split(/\r?\n/).find((l) => /Rastreabilidade \(piloto\)/.test(l));
+  const linha = stTxt.split(/\r?\n/).find((l) => l.includes(ctx.cfg.textos.linhaStatus));
   if (!linha) return;
   const nReg = Object.keys(f.regras).length, nEnt = f.entradas.length;
   const mReg = linha.match(/\((\d+) (?:regras|contratos)[^)]*\)/), mEnt = linha.match(/(\d+) entradas/);
@@ -21,6 +21,7 @@ export function lerCabecalho(ctx, dir) {
 
 export function gateG5(ctx, f, h) {
   const { placeholder } = ctx.cfg.ids;
+  if (!placeholder) return;
   const re = new RegExp(`${placeholder}[A-Z]+`);
   for (const campo of ['historias', 'prefixo']) {
     const v = [].concat(h?.[campo] || []).join(' ');

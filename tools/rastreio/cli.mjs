@@ -5,10 +5,10 @@
 // git. Exits 1 on any error (warnings do not block).
 //
 // Usage:
-//   node tools/rastreio/cli.mjs --root <project dir>                 every feature that has a rastreio.yml
-//   node tools/rastreio/cli.mjs --root <dir> --features a,b          only these
-//   node tools/rastreio/cli.mjs --root <dir> --features a --arquivo x.yml   use another YAML (testing)
-//   node tools/rastreio/cli.mjs --root <dir> --json
+//   node tools/rastreio/cli.mjs --config <rastreio.config.json> [--root <project dir>] [--features a,b] [--json]
+//   --root defaults to the config's "root" field (relative to the config file), else the config's folder.
+//   --arquivo x.yml (with one feature) uses another YAML in place of the feature's own (testing).
+// Exit: 0 ok, 1 gate errors, 2 invalid config.
 //
 // Gates: G1 entry without proof, G2 rule without code/proof, G3 broken link, G4 code/test/request missing,
 // G5 placeholder id in the header, G6 module test without link (warning), G7 reused id, G8 stale count in
@@ -16,14 +16,15 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { dispensacaoConfig } from './config.mjs';
+import { carregaConfig } from './config.mjs';
 import { criaContexto } from './carrega.mjs';
 import { verifica } from './verifica.mjs';
 
 export function roda(argv, cwd = process.cwd()) {
   const opt = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : null; };
   const flag = (n) => argv.includes(n);
-  const cfg = dispensacaoConfig(resolve(cwd, opt('--root') || '.'));
+  const { cfg, erros } = carregaConfig(opt('--config') && resolve(cwd, opt('--config')), opt('--root') && resolve(cwd, opt('--root')));
+  if (erros) { for (const m of erros) console.error(`[rastreio] ${m}`); return 2; }
   const ctx = criaContexto(cfg);
   const { features } = cfg.docs;
   const { rastreio } = cfg.arquivos;

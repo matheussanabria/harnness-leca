@@ -1,9 +1,8 @@
-// rastreio/carrega: builds the context every gate receives (config + test/request indexes + cross-feature lookups).
+// rastreio/carrega: builds the context every gate receives (config + stack indexes + cross-feature lookups).
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import yaml from './vendor/js-yaml.mjs';
-import { indexaJunit } from './adapters/junit.mjs';
-import { indexaKarma } from './adapters/karma.mjs';
+import { criaStacks } from './adapters/index.mjs';
 import { indexaPostman } from './adapters/postman.mjs';
 import { lerTexto } from './util.mjs';
 
@@ -37,13 +36,5 @@ export function criaContexto(cfg) {
     try { rnPorSlug.set(n, new Set(Object.keys(carregaYaml(arq).regras || {}))); } catch { /* invalid YAML: reported at verification */ }
   }
 
-  return {
-    cfg,
-    junit: indexaJunit(cfg),
-    specs: indexaKarma(cfg),
-    requests: indexaPostman(cfg),
-    idsDe,
-    rnPorSlug,
-    arqRastreio,
-  };
+  return { cfg, stacks: criaStacks(cfg), requests: indexaPostman(cfg), idsDe, rnPorSlug, arqRastreio };
 }
