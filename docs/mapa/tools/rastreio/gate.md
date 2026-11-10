@@ -3,8 +3,8 @@ domain: tools
 module: rastreio
 feature: gate
 summary: Traceability gate G1-G9 (rastreio.yml vs code, tests, Postman, regras.md, layer map), extracted into modular ESM files.
-paths: [tools/lib/audit-layers-rastreio.js, tools/audit-layers-drift.js, tests/audit-layers-rastreio.test.js, tools/rastreio/**, tests/rastreio-gate.test.js, tests/rastreio-config.test.js, tests/helpers/rastreio-fixture.js, tests/fixtures/rastreio/**, docs/rastreio-gate/**]
-keywords: [audit-layers-drift, rastreio, config, pytest, adapter, gate, G1, G2, G3, G4, G5, G6, G7, G8, G9, rastreabilidade, baseline, junit, karma, postman, regras.md]
+paths: [.agents/skills/rastreio-adocao/**, .agents/skills/rastreio-migrar-feature/**, tools/lib/audit-layers-rastreio.js, tools/audit-layers-drift.js, tests/audit-layers-rastreio.test.js, tools/rastreio/**, tests/rastreio-gate.test.js, tests/rastreio-config.test.js, tests/helpers/rastreio-fixture.js, tests/fixtures/rastreio/**, docs/rastreio-gate/**]
+keywords: [skill, gate-local, adocao, audit-layers-drift, rastreio, config, pytest, adapter, gate, G1, G2, G3, G4, G5, G6, G7, G8, G9, rastreabilidade, baseline, junit, karma, postman, regras.md]
 updated: 2026-11-10
 ---
 # Traceability gate (rastreio)
@@ -23,6 +23,9 @@ Files are `.mjs` (ESM) on purpose: the source and the vendored `js-yaml` are ESM
 | `tools/rastreio/util.mjs` | `_status.md` header parser, glob matching, file reads. |
 | `tools/lib/audit-layers-rastreio.js` | Used by `tools/audit-layers-drift.js`: counts `testes.grupos` by status, rules without `rn`, and runs the gate (`--rastreio-config`) to report G9 per feature. |
 | `tests/audit-layers-rastreio.test.js` | Counting units plus a provoked G9 defect through the auditor CLI. |
+| `.agents/skills/rastreio-adocao/SKILL.md` | Skill: adopt the gate in a new project (config, features, rastreio.yml, regras.md); pitfalls such as `fontes_api`. |
+| `.agents/skills/rastreio-adocao/workflows/gate-local.md` | Workflow: pre-commit order (doc agent, coverage, rastreio) with the D3 separation. |
+| `.agents/skills/rastreio-migrar-feature/SKILL.md` | Skill: per-feature migration checklist, mandatory caveat, optional Haiku fan-out. |
 | `tools/rastreio/gates/entradas.mjs` | G1 entry without proof, G3 broken links, G4 missing test or request. |
 | `tools/rastreio/gates/regras.mjs` | G2 rule without code or proof, G3 YAML vs regras.md, G4 missing code file. |
 | `tools/rastreio/gates/g6.mjs` | G6 (warning) module test without a link. |
