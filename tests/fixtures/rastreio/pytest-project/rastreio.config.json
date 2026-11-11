@@ -1,0 +1,8 @@
+{
+  "docs": { "features": "docs/features" },
+  "ids": { "regra": "BR" },
+  "textos": { "linhaStatus": "Traceability" },
+  "stacks": [
+    { "tipo": "pytest", "raizMain": "src/app", "raizTest": "tests" }
+  ]
+}

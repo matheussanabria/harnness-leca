@@ -12,7 +12,13 @@ const LEGACY_DIR = process.env.RASTREIO_LEGACY_DIR
 const LEGACY_TOOLS = path.join(LEGACY_DIR, 'tools', 'doc-features');
 const PKG = 'br/com/procempa/saude/dispensacao';
 
+// RASTREIO_RUNNER=legacy runs the old copy under saude/dispensacao; default runs tools/rastreio.
+const RUNNER = process.env.RASTREIO_RUNNER === 'legacy' ? 'legacy' : 'new';
+const NEW_CLI = path.join(__dirname, '..', '..', 'tools', 'rastreio', 'cli.mjs');
+const CONFIG = path.join(__dirname, '..', 'fixtures', 'rastreio', 'saude-dispensacao.config.json');
 const legacyAvailable = () => fs.existsSync(path.join(LEGACY_TOOLS, 'rastreio.mjs'));
+// Fixture tests need the legacy gate only when the legacy runner is selected.
+const runnerAvailable = () => RUNNER === 'new' || legacyAvailable();
 
 const BASE_FILES = {
   'doc/sistema/features/alfa/rastreio.yml': `cenarios:
@@ -78,7 +84,7 @@ function write(root, rel, content) {
 function buildProject(edit) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rastreio-'));
   for (const [rel, content] of Object.entries(BASE_FILES)) write(root, rel, content);
-  fs.cpSync(LEGACY_TOOLS, path.join(root, 'tools', 'doc-features'), {
+  if (RUNNER === 'legacy') fs.cpSync(LEGACY_TOOLS, path.join(root, 'tools', 'doc-features'), {
     recursive: true,
     filter: (src) => !/[\\/](logs|rascunho-rastreio|_mensagens)([\\/]|$)/.test(src),
   });
@@ -98,8 +104,10 @@ function buildProject(edit) {
 
 // Runs the gate on the project and returns { code, results: [{slug, erros, avisos, resumo}] }.
 function runGate(root) {
-  const r = spawnSync(process.execPath, [path.join(root, 'tools', 'doc-features', 'rastreio.mjs'), '--json'],
-    { cwd: root, encoding: 'utf8' });
+  const args = RUNNER === 'legacy'
+    ? [path.join(root, 'tools', 'doc-features', 'rastreio.mjs'), '--json']
+    : [NEW_CLI, '--config', CONFIG, '--root', root, '--json'];
+  const r = spawnSync(process.execPath, args, { cwd: root, encoding: 'utf8' });
   let results = [];
   try { results = JSON.parse(r.stdout); } catch { /* keep empty; the test shows stderr */ }
   return { code: r.status, results, stderr: r.stderr };
@@ -108,4 +116,4 @@ function runGate(root) {
 const ALFA = 'doc/sistema/features/alfa';
 const find = (run, slug) => run.results.find((x) => x.slug === slug);
 
-module.exports = { buildProject, runGate, legacyAvailable, find, ALFA, PKG, LEGACY_DIR };
+module.exports = { buildProject, runGate, legacyAvailable, runnerAvailable, find, NEW_CLI, CONFIG, ALFA, PKG, LEGACY_DIR };

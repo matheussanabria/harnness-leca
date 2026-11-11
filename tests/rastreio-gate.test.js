@@ -8,10 +8,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const {
-  buildProject, runGate, legacyAvailable, find, ALFA, PKG, LEGACY_DIR,
+  buildProject, runGate, legacyAvailable, runnerAvailable, find, NEW_CLI, CONFIG, ALFA, PKG, LEGACY_DIR,
 } = require('./helpers/rastreio-fixture');
 
-const skip = legacyAvailable() ? false : 'legacy rastreio gate not found (set RASTREIO_LEGACY_DIR)';
+const skip = runnerAvailable() ? false : 'legacy rastreio gate not found (set RASTREIO_LEGACY_DIR)';
+// The baseline test reads the real project, so it needs that folder whatever the runner.
+const skipReal = fs.existsSync(path.join(LEGACY_DIR, 'doc', 'sistema', 'features')) ? false : 'saude/dispensacao not found (set RASTREIO_LEGACY_DIR)';
 const BASELINE = path.join(__dirname, 'fixtures', 'rastreio', 'saude-dispensacao-baseline.json');
 const TEST_JAVA = `dispensacao-novo/dispensacao-api/src/test/java/${PKG}/servico/FooTest.java`;
 
@@ -21,9 +23,10 @@ function mut(edit) {
 }
 const msgs = (run, slug, kind, g) => (find(run, slug)?.[kind] || []).filter((x) => x.g === g).map((x) => x.m);
 
-test('baseline: real project output is identical to the frozen one', { skip }, () => {
-  const r = spawnSync(process.execPath, ['tools/doc-features/rastreio.mjs', '--json'],
-    { cwd: LEGACY_DIR, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+test('baseline: real project output is identical to the frozen one', { skip: skipReal }, () => {
+  const legacy = process.env.RASTREIO_RUNNER === 'legacy';
+  const args = legacy ? ['tools/doc-features/rastreio.mjs', '--json'] : [NEW_CLI, '--config', CONFIG, '--root', LEGACY_DIR, '--json'];
+  const r = spawnSync(process.execPath, args, { cwd: LEGACY_DIR, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
   assert.equal(r.status, 0);
   const frozen = JSON.parse(fs.readFileSync(BASELINE, 'utf8'));
   assert.equal(frozen.length, 22);
