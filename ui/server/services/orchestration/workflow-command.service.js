@@ -44,7 +44,7 @@ function fail(status, message, extra = {}) {
  */
 function runWorkflowCommand({ slug, projectDir, text, actor }) {
   const parsed = parseWorkflowCommand(text);
-  if (parsed.kind === "none") return fail(400, "Comando de workflow inválido.");
+  if (parsed.kind === "none") return fail(400, "Comando de workflow inválido. Use /workflows para listar ou /workflow <slug> <descrição> para iniciar.");
 
   if (parsed.kind === "list") {
     const workflows = listWorkflows().map((item) => getWorkflow(item.id)).filter(Boolean);

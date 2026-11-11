@@ -26,6 +26,7 @@ test("parser: list, start with flags, and non-commands", () => {
   assert.deepEqual(parseWorkflowCommand("/workflow feature-delivery Cadastro de cliente --story US-9 --from=bdd"), {
     kind: "start", slug: "feature-delivery", description: "Cadastro de cliente", story: "US-9", from: "bdd",
   });
+  assert.deepEqual(parseWorkflowCommand("/workflows feature-delivery Cadastro"), { kind: "start", slug: "feature-delivery", description: "Cadastro", story: "", from: "" }); // plural alias
   assert.equal(parseWorkflowCommand("oi /workflow").kind, "none");
   assert.equal(parseWorkflowCommand("/workflowx a").kind, "none");
   assert.equal(isWorkflowCommand("/workflow"), true);
