@@ -19,7 +19,7 @@ function load() {
 export function buildSuggestions(value, data) {
   const v = String(value || "");
   if (!v.startsWith("/")) return [];
-  const slugMatch = /^\/workflow\s+(\S*)$/i.exec(v);
+  const slugMatch = /^\/workflows?\s+(\S*)$/i.exec(v);
   if (slugMatch) {
     const part = slugMatch[1].toLowerCase();
     return (data.workflows || [])

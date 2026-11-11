@@ -26,6 +26,7 @@ test("parser: list, start with flags, and non-commands", () => {
   assert.deepEqual(parseWorkflowCommand("/workflow feature-delivery Cadastro de cliente --story US-9 --from=bdd"), {
     kind: "start", slug: "feature-delivery", description: "Cadastro de cliente", story: "US-9", from: "bdd",
   });
+  assert.deepEqual(parseWorkflowCommand("/workflows feature-delivery Cadastro"), { kind: "start", slug: "feature-delivery", description: "Cadastro", story: "", from: "" }); // plural alias
   assert.equal(parseWorkflowCommand("oi /workflow").kind, "none");
   assert.equal(parseWorkflowCommand("/workflowx a").kind, "none");
   assert.equal(isWorkflowCommand("/workflow"), true);
@@ -74,4 +75,19 @@ test("suggestions come from the catalog", () => {
   const s = listCommandSuggestions();
   assert.deepEqual(s.workflows.map((w) => w.slug).sort(), ["feature-delivery", "hotfix"].sort());
   assert.ok(s.commands.some((c) => c.command === "/workflows"));
+});
+
+test("start without a description is refused and creates no run", () => {
+  const before = listWorkflowRuns().length;
+  const out = runWorkflowCommand({ slug: SLUG, projectDir, text: "/workflow feature-delivery" });
+  assert.equal(out.ok, false);
+  assert.equal(out.status, 400);
+  assert.match(out.error, /Descreva o que quer entregar/);
+  assert.equal(listWorkflowRuns().length, before);
+});
+
+test("the card always offers cancel next to the primary action", () => {
+  const out = runWorkflowCommand({ slug: SLUG, projectDir, text: "/workflow feature-delivery Teste do cancelar" });
+  assert.equal(out.ok, true);
+  assert.deepEqual(out.card.actions.map((a) => a.id), ["advance", "cancel"]);
 });

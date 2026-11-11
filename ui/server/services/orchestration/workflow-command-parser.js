@@ -1,9 +1,9 @@
 // @ts-check
-// Pure parser of chat workflow commands: "/workflows" and "/workflow <slug> <description> [--story K] [--from S]".
+// Pure parser of chat workflow commands: "/workflows" and "/workflow(s) <slug> <description> [--story K] [--from S]".
 // No I/O and no knowledge of the catalog: slug resolution lives in workflow-command.service.js.
 
 const LIST_RE = /^\/workflows\s*$/i;
-const START_RE = /^\/workflow(?:\s+([\s\S]*))?$/i;
+const START_RE = /^\/workflows?(?:\s+([\s\S]*))?$/i;
 
 /**
  * @param {string} text

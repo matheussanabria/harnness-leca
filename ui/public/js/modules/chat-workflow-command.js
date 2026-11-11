@@ -51,6 +51,16 @@ async function onCardAction(btn) {
   btn.setAttribute("disabled", "true");
   const base = `/api/orchestration/workflow-runs/${encodeURIComponent(wfExec || "")}`;
   const fail = (/** @type {any} */ data, fallback) => { btn.removeAttribute("disabled"); showToast(data.error || fallback); };
+  if (wfAction === "cancel") {
+    const res = await postJson(`${base}/cancel`, { reason: "Cancelado pelo chat." });
+    if (!res.ok) return fail(res.data, "Não foi possível cancelar.");
+    const t = state.chatTurns.find((x) => x.workflowCard?.executionId === wfExec);
+    if (!t) return;
+    t.workflowCard = { ...t.workflowCard, status: "cancelled", gate: false, actions: [] };
+    t.workflowHtml = workflowCardHtml(t.workflowCard);
+    saveActiveChatState();
+    return renderChatHistory(true);
+  }
   if (wfAction === "approve") {
     const ap = await postJson(`${base}/approve`, { stageId: wfStage, decision: "approved", actor: "chat" });
     if (!ap.ok) return fail(ap.data, "Aprovação falhou.");
@@ -67,7 +77,7 @@ async function onCardAction(btn) {
     stageId: cur ? cur.id : "",
     stageLabel: cur ? cur.label : "",
     gate: Boolean(cur?.requiresApproval),
-    actions: cur ? [{ id: cur.requiresApproval ? "approve" : "advance", label: cur.requiresApproval ? "Aprovar e avançar" : "Avançar etapa" }] : [],
+    actions: cur ? [{ id: cur.requiresApproval ? "approve" : "advance", label: cur.requiresApproval ? "Aprovar e avançar" : "Avançar etapa" }, { id: "cancel", label: "Cancelar execução" }] : [],
   };
   turn.workflowHtml = workflowCardHtml(turn.workflowCard);
   saveActiveChatState();

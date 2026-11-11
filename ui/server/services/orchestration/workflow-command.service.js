@@ -18,6 +18,14 @@ function listCommandSuggestions() {
   };
 }
 
+/** Primary action plus an always-available cancel, so a wrong click is never a dead end. */
+function cardActions(awaiting) {
+  return [
+    { id: awaiting ? "approve" : "advance", label: awaiting ? "Aprovar e avançar" : "Avançar etapa" },
+    { id: "cancel", label: "Cancelar execução" },
+  ];
+}
+
 function buildCard(run) {
   const current = run.currentStage;
   const awaiting = Boolean(current && current.requiresApproval);
@@ -31,7 +39,7 @@ function buildCard(run) {
     awaitingApproval: awaiting,
     seed: run.meta?.seed || "",
     storyKey: run.meta?.storyKey || "",
-    actions: current ? [{ id: awaiting ? "approve" : "advance", label: awaiting ? "Aprovar e avançar" : "Avançar etapa" }] : [],
+    actions: current ? cardActions(awaiting) : [],
   };
 }
 
@@ -44,7 +52,7 @@ function fail(status, message, extra = {}) {
  */
 function runWorkflowCommand({ slug, projectDir, text, actor }) {
   const parsed = parseWorkflowCommand(text);
-  if (parsed.kind === "none") return fail(400, "Comando de workflow inválido.");
+  if (parsed.kind === "none") return fail(400, "Comando de workflow inválido. Use /workflows para listar ou /workflow <slug> <descrição> para iniciar.");
 
   if (parsed.kind === "list") {
     const workflows = listWorkflows().map((item) => getWorkflow(item.id)).filter(Boolean);
@@ -62,6 +70,9 @@ function runWorkflowCommand({ slug, projectDir, text, actor }) {
   }
 
   try {
+    if (!parsed.description && !parsed.from) {
+      return fail(400, `Descreva o que quer entregar: /workflow ${workflow.id} <descrição curta>.`);
+    }
     const meta = { seed: parsed.description, storyKey: parsed.story, source: "chat" };
     const started = startWorkflowRun({ slug, projectDir, workflowId: workflow.id, actor: actor || "chat", meta, fromStage: parsed.from });
     let run = started.run;
