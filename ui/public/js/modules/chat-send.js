@@ -16,6 +16,7 @@ import { isChatStreamingFor, setChatStreaming, setChatAbortController } from "./
 import { getEngineSession, setEngineSession } from "./chat-session-store.js";
 import { hiaStatusFromThinking, applyHiaFeedback } from "./chat-hia-feedback.js";
 import { runComparison } from "./chat-send-compare.js";
+import { isWorkflowCommandText, runChatWorkflowCommand } from "./chat-workflow-command.js";
 import { consumeChatStream } from "./chat-stream-resume.js";
 
 export async function sendChatMessage(presentation = "main") {
@@ -28,6 +29,17 @@ export async function sendChatMessage(presentation = "main") {
   const typed = input?.value ? input.value.trim() : "";
   if (!typed && !hasAttachments()) return;
   if (chatPresence().hasConflict()) showToast(CHAT_CONFLICT_MESSAGE, 6000); // warns only: sending is never blocked
+
+  if (typed && !hasAttachments() && isWorkflowCommandText(typed)) {
+    state.chatTurns.push({ role: "user", text: typed });
+    clearChatDraft(P.slug);
+    for (const id of [chatPresentation(presentation).input, "chatInput", "studioChatInput", "miniChatInput"]) {
+      const el = /** @type {HTMLInputElement} */ ($(id));
+      if (el) { el.value = ""; el.style.height = "auto"; }
+    }
+    renderChatHistory();
+    return runChatWorkflowCommand(P.slug, typed);
+  }
 
   const label = attachmentLabel();
   const text = [typed, label].filter(Boolean).join("\n\n");

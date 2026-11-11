@@ -18,8 +18,8 @@ export function isFileRef(value: unknown): value is FileRef {
     ASSET_REF_RE.test(ref) &&
     typeof mimeType === "string" &&
     mimeType.startsWith("image/") &&
-    typeof created === "number" &&
-    Number.isFinite(created)
+    // `created` is optional: Mermaid images arrive without it and JSON drops undefined, so such boards must still load.
+    (created === undefined || (typeof created === "number" && Number.isFinite(created)))
   );
 }
 
@@ -52,8 +52,9 @@ export function planUploads(elements: readonly SceneElement[], files: SceneFiles
 }
 
 /** Manifest entry for an uploaded file. */
-export function refFromAsset(asset: Pick<AssetInfo, "hash" | "ext">, mimeType: string, created: number): FileRef {
-  return { ref: `${asset.hash}.${asset.ext}`, mimeType, created };
+export function refFromAsset(asset: Pick<AssetInfo, "hash" | "ext">, mimeType: string, created?: number): FileRef {
+  const stamp = typeof created === "number" && Number.isFinite(created) ? created : Date.now();
+  return { ref: `${asset.hash}.${asset.ext}`, mimeType, created: stamp };
 }
 
 /** Keeps only manifest entries still referenced by a live image element. */

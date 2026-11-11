@@ -12,6 +12,8 @@ const {
   apiOrchestrationWorkflow,
   apiProjectWorkflowPlan,
   apiProjectWorkflowRun,
+  apiWorkflowCommands,
+  apiProjectWorkflowCommand,
 } = require("../controllers/orchestration-workflows.controller");
 const {
   apiOrchestrationWorkflowRuns,
@@ -36,6 +38,8 @@ const orchestrationRoutes = [
   { method: "GET", path: "/api/orchestration/agent-stages", handler: apiOrchestrationAgentStages },
   { method: "GET", path: /^\/api\/orchestration\/agent-stages\/([\w-]+)$/, handler: apiOrchestrationAgentStage },
   { method: "GET", path: "/api/orchestration/workflows", handler: apiOrchestrationWorkflows },
+  { method: "GET", path: "/api/orchestration/workflow-commands", handler: apiWorkflowCommands },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/workflow-command$/, handler: apiProjectWorkflowCommand },
   { method: "GET", path: /^\/api\/orchestration\/workflows\/([\w-]+)$/, handler: apiOrchestrationWorkflow },
   { method: "GET", path: "/api/orchestration/workflow-runs", handler: apiOrchestrationWorkflowRuns },
   { method: "GET", path: /^\/api\/orchestration\/workflow-runs\/([\w-]+)$/, handler: apiOrchestrationWorkflowRunDetail },

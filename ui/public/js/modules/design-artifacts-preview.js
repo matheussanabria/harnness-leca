@@ -40,7 +40,19 @@ function previewBody(payload, title) {
       <p class="artifact-preview-note"><i class="fa-solid fa-shield-halved"></i> HTML isolado; scripts e acesso à origem do harness estão desativados.</p>`;
   }
   if (payload.previewKind === "image") {
-    return `<div class="artifact-preview-image"><img src="${esc(payload.url)}" alt="Prévia de ${esc(title)}" loading="lazy" referrerpolicy="no-referrer"></div>`;
+    const url = esc(payload.url);
+    return `<div class="artifact-preview-image" data-artifact-image>
+      <img src="${url}" alt="Prévia de ${esc(title)}" referrerpolicy="no-referrer" data-artifact-image-el>
+      <div class="artifact-preview-image-error" hidden>
+        <i class="fa-solid fa-image"></i>
+        <strong>Este navegador não consegue exibir a imagem</strong>
+        <p>Formatos como HEIC/HEIF ou arquivos corrompidos não têm prévia. Abra o arquivo original para ver o conteúdo.</p>
+      </div>
+    </div>
+    <div class="artifact-preview-image-actions">
+      <button type="button" class="artifact-preview-zoom" data-artifact-image-zoom aria-pressed="false"><i class="fa-solid fa-magnifying-glass-plus"></i> Tamanho real</button>
+      <a href="${url}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-up-right-from-square"></i> Abrir em nova aba</a>
+    </div>`;
   }
   if (payload.previewKind === "pdf") {
     return `<div class="artifact-preview-pdf">
@@ -74,6 +86,30 @@ function renderPanel(panel, payload, title) {
     </header>
     <div class="artifact-preview-body">${previewBody(payload, title)}</div>`;
   panel.querySelector("[data-artifact-preview-close]")?.focus();
+  bindImage(panel);
+}
+
+function bindImage(panel) {
+  const img = panel.querySelector("[data-artifact-image-el]");
+  if (!(img instanceof HTMLImageElement)) return;
+  const box = panel.querySelector("[data-artifact-image]");
+  const showError = () => {
+    img.hidden = true;
+    box?.querySelector(".artifact-preview-image-error")?.removeAttribute("hidden");
+    panel.querySelector(".artifact-preview-image-actions [data-artifact-image-zoom]")?.setAttribute("hidden", "");
+  };
+  img.addEventListener("error", showError, { once: true });
+  if (img.complete && img.naturalWidth === 0 && img.getAttribute("src")) showError();
+}
+
+function toggleZoom(panel, button) {
+  const box = panel.querySelector("[data-artifact-image]");
+  if (!box) return;
+  const on = box.classList.toggle("is-actual-size");
+  button.setAttribute("aria-pressed", String(on));
+  button.innerHTML = on
+    ? '<i class="fa-solid fa-magnifying-glass-minus"></i> Ajustar à tela'
+    : '<i class="fa-solid fa-magnifying-glass-plus"></i> Tamanho real';
 }
 
 export function setupArtifactPreview(container, slug) {
@@ -91,6 +127,8 @@ export function setupArtifactPreview(container, slug) {
       panel.innerHTML = "";
       return;
     }
+    const zoom = target.closest("[data-artifact-image-zoom]");
+    if (zoom) { toggleZoom(panel, zoom); return; }
     const button = target.closest("[data-artifact-preview]");
     if (!(button instanceof HTMLButtonElement) || button.disabled) return;
     const kind = button.dataset.artifactKind || "";

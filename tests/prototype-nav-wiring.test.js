@@ -27,8 +27,11 @@ function click(el) {
     querySelector: () => ({ appendChild: (w) => warnings.push(w.textContent), querySelector: () => null }),
     createElement: () => ({ style: {}, remove() {} }),
   };
-  const win = {};
-  new Function("document", "window", "setTimeout", generateRuntimeJs(SCREENS))(doc, win, () => 0);
+  const win = { addEventListener: () => {}, scrollTo: () => {} };
+  const location = { hash: "" };
+  const history = { pushState: (_s, _t, url) => { location.hash = url; } };
+  new Function("document", "window", "setTimeout", "location", "history", generateRuntimeJs(SCREENS))(doc, win, () => 0, location, history);
+  shown.length = 0; // the runtime activates the first screen on load; the assertions are about the click
   let prevented = false;
   assert.ok(handler, "the runtime registers a click handler");
   handler({ target: { closest: (sel) => el[sel] || null }, preventDefault: () => { prevented = true; } });
@@ -55,6 +58,17 @@ test("data-action goto still switches the screen and the tab buttons keep their 
   const got = click(action("goto:orbit"));
   assert.deepEqual(got.shown, ["screen-orbit"]);
   assert.equal(got.exposesShowScreen, true);
+});
+
+test("exported HTML uses a picker with previous/next above 8 screens and tabs below", () => {
+  const many = Array.from({ length: 9 }, (_, i) => `s${i}`);
+  const big = compileSingleHtmlPrototype(fixture(many), "", "p");
+  assert.match(big, /id="screenSelect"/);
+  assert.match(big, /showRelativeScreen\(1\)/);
+  assert.equal((big.match(/class="tab-btn[^"]*" data-screen=/g) || []).length, 0);
+  const small = compileSingleHtmlPrototype(fixture(["home", "orbit"]), "", "p");
+  assert.doesNotMatch(small, /id="screenSelect"/);
+  assert.match(small, /data-screen="orbit"/);
 });
 
 function fixture(screens) {

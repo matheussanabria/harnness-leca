@@ -30,7 +30,7 @@ function parseLine(line, onChunk, state) {
 }
 
 /** @param {import("../types").EngineRequest} req */
-function stream({ prompt, slug, sessionId, model, effort, daiAgent, signal, onChunk, onDone, onError }) {
+function stream({ prompt, slug, sessionId, model, effort, daiAgent, readOnly, signal, onChunk, onDone, onError }) {
   const bin = resolveCodexBin();
   if (!bin) return onError(new PublicError("Codex CLI não encontrado. Defina CODEX_BIN em global/.env."));
   const cwd = path.join(ROOT, "projects", slug);
@@ -38,6 +38,7 @@ function stream({ prompt, slug, sessionId, model, effort, daiAgent, signal, onCh
   const selectedModel = safeModel(model);
   if (selectedModel) args.push("--model", selectedModel);
   args.push("-c", `model_reasoning_effort=${safeEffort(effort)}`);
+  if (readOnly) args.push("-c", 'sandbox_mode="read-only"'); // Ateliê: o backend grava, o modelo só emite tags
   const context = validSession(sessionId) ? "" : getProjectContext(slug, { daiAgent });
   args.push(`${context}\nPergunta do usuário:\n${prompt}`);
   const child = cp.spawn(bin, args, { cwd, shell: false, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });

@@ -28,6 +28,21 @@ function fail(status, message) {
   return error;
 }
 
+function sanitizeMeta(meta) {
+  const m = meta && typeof meta === "object" ? meta : {};
+  return { seed: String(m.seed || "").slice(0, 2000), storyKey: String(m.storyKey || "").slice(0, 80), source: String(m.source || "").slice(0, 40) };
+}
+
+/** Resumes at `fromStage`: earlier stages are marked skipped. Unknown stage is a 400. */
+function applyFromStage(run, fromStage) {
+  const wanted = String(fromStage || "").trim();
+  if (!wanted) return;
+  const index = run.stageState.findIndex((item) => item.id === wanted);
+  if (index < 0) throw fail(400, `Etapa '${wanted}' não existe neste workflow.`);
+  for (let i = 0; i < index; i += 1) run.stageState[i].status = "skipped";
+  run.currentIndex = index;
+}
+
 function record(run, entry) {
   return recordWorkflowEvent(run.projectDir, {
     slug: run.slug,
@@ -41,7 +56,7 @@ function record(run, entry) {
 /**
  * @param {any} params
  */
-function startWorkflowRun({ slug, projectDir, workflowId, laneId, actor, dryRun, idempotencyKey, routineId, allowRetryAfterFailure }) {
+function startWorkflowRun({ slug, projectDir, workflowId, laneId, actor, dryRun, idempotencyKey, routineId, allowRetryAfterFailure, meta, fromStage }) {
   const plan = buildWorkflowPlan({ slug, projectDir, workflowId, laneId });
   if (dryRun) return { ok: true, dryRun: true, plan };
 
@@ -81,7 +96,10 @@ function startWorkflowRun({ slug, projectDir, workflowId, laneId, actor, dryRun,
     approvals: [],
     approvalRequested: "",
     eventIds: [],
+    // Chat command context (US-1794354938549): seed text for the story stage and linked Scrum story.
+    meta: sanitizeMeta(meta),
   };
+  applyFromStage(run, fromStage);
   putRun(run);
   if (scope) claimIdempotency(scope, run.executionId);
 

@@ -1,0 +1,15 @@
+{
+  "docs": { "features": "doc/sistema/features", "postman": "doc/postman" },
+  "ids": { "regra": "RN", "placeholder": "DIS-NOVA-", "postmanPrefixo": "^DIS-\\d+\\s*\\|\\s*" },
+  "arquivos": { "rastreio": "rastreio.yml", "regras": "regras.md", "mapa": "mapa-camadas.json", "status": "_status.md" },
+  "textos": { "linhaStatus": "Rastreabilidade (piloto)" },
+  "stacks": [
+    {
+      "tipo": "junit",
+      "modulo": "dispensacao-novo/dispensacao-api",
+      "raizMain": "dispensacao-novo/dispensacao-api/src/main/java/br/com/procempa/saude/dispensacao",
+      "raizTest": "dispensacao-novo/dispensacao-api/src/test/java/br/com/procempa/saude/dispensacao"
+    },
+    { "tipo": "karma", "raiz": "dispensacao-novo/dispensacao-web/src/app", "prefixo": "web:" }
+  ]
+}

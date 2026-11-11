@@ -1,0 +1,244 @@
+[
+ {
+  "slug": "autenticacao-perfis",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 23,
+   "regras": 5,
+   "semProva": 3,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "autorizacao-permissoes",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 35,
+   "regras": 10,
+   "semProva": 2,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "autorizador-primeira-entrega",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 16,
+   "regras": 15,
+   "semProva": 0,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "base-compartilhada",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 7,
+   "regras": 7,
+   "semProva": 2,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "base-config",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 4,
+   "regras": 3,
+   "semProva": 1,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "base-estilos",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 2,
+   "regras": 1,
+   "semProva": 0,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "calculo-dispensacao",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 34,
+   "regras": 10,
+   "semProva": 0,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "consulta-paciente",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 19,
+   "regras": 15,
+   "semProva": 8,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "consultas-apoio-prescricao",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 57,
+   "regras": 18,
+   "semProva": 2,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "entregas-liberadas",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 23,
+   "regras": 18,
+   "semProva": 0,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "entregas-previstas",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 72,
+   "regras": 32,
+   "semProva": 3,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "formulario-nova-prescricao",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 8,
+   "regras": 9,
+   "semProva": 0,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "historico-medicamentos",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 40,
+   "regras": 23,
+   "semProva": 4,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "nova-prescricao",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 9,
+   "regras": 7,
+   "semProva": 1,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "programas-saude",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 33,
+   "regras": 21,
+   "semProva": 3,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "proximas-entregas",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 28,
+   "regras": 21,
+   "semProva": 0,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "registro-entrega",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 30,
+   "regras": 24,
+   "semProva": 3,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "saldo-administrativo",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 13,
+   "regras": 7,
+   "semProva": 1,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "saldo-terapeutico",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 38,
+   "regras": 17,
+   "semProva": 3,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "shell-paciente",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 8,
+   "regras": 8,
+   "semProva": 3,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "telefone-contato-paciente",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 11,
+   "regras": 10,
+   "semProva": 0,
+   "testesSemElo": 0
+  }
+ },
+ {
+  "slug": "visao-geral-paciente",
+  "erros": [],
+  "avisos": [],
+  "resumo": {
+   "entradas": 54,
+   "regras": 7,
+   "semProva": 2,
+   "testesSemElo": 0
+  }
+ }
+]

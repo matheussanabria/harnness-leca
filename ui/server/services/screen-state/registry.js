@@ -71,7 +71,7 @@ const SCREENS = [
     componentFilter: texto(120), selectedLayer: texto(120), tab: texto(32),
     expanded: lista(500), zoom: inteiro(200, 25),
     activeScreen: texto(120), focusedField: texto(120), filterOnlyFocused: booleano(),
-    viewport: texto(16),
+    viewport: texto(16), audience: texto(16),
   }),
   tela("board", "Quadro", "projeto", "/?p=<slug>#/board", "fa-table-columns", {
     sprint: texto(120), filter: texto(120), selectedCard: texto(120),
