@@ -206,7 +206,7 @@
     <div class="chat-composer-container">
       <div id="studioChatAttachTray" class="chat-attach-tray" style="display:none"></div>
       <div class="chat-composer-card">
-        <textarea id="studioChatInput" class="chat-composer-input" placeholder="Peça alterações visuais ou novas features... (Enter para enviar, Shift+Enter para nova linha)" rows="1" oninput="handleStudioChatInput(this)" onkeydown="handleStudioChatKey(event)"></textarea>
+        <textarea id="studioChatInput" class="chat-composer-input" placeholder="Peça alterações visuais ou novas features... (Enter para enviar, Shift+Enter para nova linha)" rows="1" oninput="handleStudioChatInput(this)" onkeydown="handleStudioChatKey(event)" onpaste="onChatPaste(event)"></textarea>
 
         <div class="chat-composer-toolbar">
           <div class="chat-composer-tools-left">

@@ -13,6 +13,9 @@ updated: 2026-11-06
 |---|---|
 | `ui/public/js/modules/chat.js` | Aggregating chat facade (engines, SSE streaming, persistence, mini-dock). Split into `chat-*.js` modules; `chat-store.js` holds the shared mutable state. |
 | `ui/public/js/modules/chat-code-actions.js` | Copy code (`copyCodeFromContainer`) and apply single files to the Prototype Atelier (`applySingleAtelierFile`). |
+| `ui/public/js/modules/chat-attachments.js` | Chat attachments (files, images, audio): upload on pick, paste (`onChatPaste`, also in Studio) and drop (`uploadChatFiles`); chips in the 3 trays. |
+| `ui/public/js/modules/chat-attachments-input.js` | Pure clipboard/drop helpers (`filesFromTransfer`, `pastedFileName`) and `bindChatDrop`, a document-level drop delegate for composers and histories with the `chat-drop-active` highlight. |
+| `tests/chat-attachments-input.test.js` | Tests the paste/drop helpers and the drop delegation (zone highlight, ignored drops). |
 | `ui/public/js/modules/chat-ui-interaction.js` | Provider menus, more options, settings, scroll anchoring in the 3 presentations, composer for Chat and Studio. |
 | `ui/public/js/modules/chat-render.js` | Renders history in the 3 presentations, comparison arena with timer, collapsible thinking, smart scroll anchor. |
 | `ui/public/js/modules/chat-render-thinking.js` | "Internal reasoning" block: keeps scroll and open/closed choice across redraws; counter, expand and copy bar. |
