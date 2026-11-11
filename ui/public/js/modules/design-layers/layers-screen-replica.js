@@ -4,6 +4,7 @@ import { dls } from "../design-layers-store.js";
 import { renderStage2MedicamentosCalculo } from "./layers-screen-replica-s2.js";
 import { renderStage3SucessoEntrega } from "./layers-screen-replica-s3.js";
 import { renderStage4VisaoGeral } from "./layers-screen-replica-s4.js";
+import { hasPrototypeFrame, renderPrototypeFrame } from "./layers-screen-replica-proto.js";
 
 /**
  * Renderiza o marcador circular amarelo numerado.
@@ -222,7 +223,9 @@ export function renderScreenReplica(sc) {
   if (!sc) return '<div class="replica-empty">Nenhuma tela selecionada.</div>';
 
   let formHtml = "";
-  if (sc.id === "s1" || /origem/i.test(sc.title || "")) {
+  if (hasPrototypeFrame(sc)) {
+    formHtml = renderPrototypeFrame(sc);
+  } else if (sc.id === "s1" || /origem/i.test(sc.title || "")) {
     formHtml = renderStage1OrigemReceita(sc);
   } else if (sc.id === "s2" || /medicamento/i.test(sc.title || "")) {
     formHtml = renderStage2MedicamentosCalculo(sc);

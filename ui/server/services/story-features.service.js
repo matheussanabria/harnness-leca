@@ -4,6 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 const { routeKey } = require("./project-screens-features");
+const { readFieldLinks } = require("./story-field-links.service");
 
 const KEY_RE = /^[A-Z]+-\d+$/;
 
@@ -46,7 +47,7 @@ function screensOf(dir, slug, screens) {
  * @param {any[]} screens telas finais do Mapa em Camadas
  * @returns {{ found: boolean, stories: Record<string, { dona: any[], relacionada: any[] }> }}
  */
-function readStoryFeatures(repoRoot, screens) {
+function readFeatureStories(repoRoot, screens) {
   const root = path.join(repoRoot, "doc", "sistema", "features");
   let dirs = [];
   try {
@@ -74,6 +75,24 @@ function readStoryFeatures(repoRoot, screens) {
     }
   }
   return { found: true, stories };
+}
+
+/**
+ * Funcionalidades (por _status.md) e telas/campos (por _historias-funcionalidades.json) de cada historia.
+ * @param {string} repoRoot
+ * @param {any[]} screens
+ * @returns {{ found: boolean, stories: Record<string, { dona: any[], relacionada: any[], campos: { dona: any[], relacionada: any[] } }> }}
+ */
+function readStoryFeatures(repoRoot, screens) {
+  const base = readFeatureStories(repoRoot, screens);
+  const fieldLinks = readFieldLinks(repoRoot, screens);
+  /** @type {Record<string, any>} */
+  const stories = {};
+  for (const key of new Set([...Object.keys(base.stories), ...Object.keys(fieldLinks)])) {
+    const features = base.stories[key] || { dona: [], relacionada: [] };
+    stories[key] = { ...features, campos: fieldLinks[key] || { dona: [], relacionada: [] } };
+  }
+  return { found: base.found || Object.keys(fieldLinks).length > 0, stories };
 }
 
 module.exports = { readStoryFeatures, parseStories };
