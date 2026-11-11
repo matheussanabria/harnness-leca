@@ -2,7 +2,7 @@
 import { $, showToast, esc } from "../shared/dom.js";
 import { state } from "../shared/state.js";
 import { renderKanbanBoard } from "./design-board.js";
-import { renderLayersWorkspace } from "./design-layers.js";
+import { renderLayersWorkspace, loadStoryFiles } from "./design-layers.js";
 import { renderAuditWorkspace } from "./design-audit.js";
 import { renderPrototypesWorkspace } from "./design-prototypes.js";
 import { renderArtifactsWorkspace } from "./design-artifacts.js";
@@ -61,6 +61,7 @@ export async function loadAllProjectDesignData(slug) {
       fetch(`/api/project/${encodeURIComponent(slug)}/scrum`),
       fetch(`/api/project/${encodeURIComponent(slug)}/artifacts`),
     ]);
+    await loadStoryFiles(slug);
 
     if (resProfile.ok) currentProfileData = await resProfile.json();
     if (resIndex.ok) currentDesignData = await resIndex.json();
