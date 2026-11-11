@@ -36,7 +36,7 @@ function stagePromptFor(run, projectDir) {
   if (!current) return "";
   let stage = null;
   try {
-    stage = buildWorkflowPlan({ slug: run.slug, projectDir, workflowId: run.workflowId }).stages.find((item) => item.id === current.id) || null;
+    stage = buildWorkflowPlan({ slug: run.slug, projectDir, workflowId: run.workflowId, laneId: "" }).stages.find((item) => item.id === current.id) || null;
   } catch {
     stage = null;
   }
