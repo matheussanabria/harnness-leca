@@ -75,11 +75,12 @@ test("workflow-definitions: catálogo, ordem e políticas por etapa", () => {
   const dev = full.stages.find((stage) => stage.id === "dev");
   const prototype = full.stages.find((stage) => stage.id === "prototype");
   const review = full.stages.find((stage) => stage.id === "review");
-  assert.deepEqual(start.permissions, { read: true, write: false, exec: false });
+  assert.deepEqual(start.permissions, { read: true, dossier: true, write: false, exec: false });
   assert.equal(dev.permissions.write, true);
   assert.equal(dev.permissions.exec, true);
   assert.equal(prototype.requiresApproval, true);
   assert.equal(review.permissions.write, false);
+  assert.equal(review.permissions.dossier, true, "every stage may write its dossier file");
   assert.equal(review.requiresApproval, false);
 
   assert.equal(isValidWorkflow("hotfix"), true);

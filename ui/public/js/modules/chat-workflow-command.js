@@ -123,10 +123,13 @@ function replyFinishedOk() {
 }
 
 /** Offers "Concluir e avançar" only after the stage was executed. */
-function markStageExecuted(/** @type {string|undefined} */ wfExec) {
+async function markStageExecuted(/** @type {string|undefined} */ wfExec) {
   const turn = state.chatTurns.find((t) => t.workflowCard?.executionId === wfExec);
-  const card = turn?.workflowCard;
+  let card = turn?.workflowCard;
   if (!turn || !card || card.status === "cancelled" || !card.actionsAfterRun?.length) return;
+  // The server knows whether the stage file was written in the dossier; the warning is informative only.
+  const fresh = await getJson(cardUrl(wfExec)).catch(() => null);
+  if (fresh?.ok && fresh.data.card?.stageId === card.stageId) card = { ...card, output: fresh.data.card.output, dossier: fresh.data.card.dossier };
   turn.workflowCard = { ...card, executed: true, actions: card.actionsAfterRun };
   turn.workflowHtml = workflowCardHtml(turn.workflowCard);
   saveActiveChatState();

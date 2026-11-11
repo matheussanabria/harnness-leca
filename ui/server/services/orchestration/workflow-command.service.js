@@ -6,7 +6,8 @@ const { startWorkflowRun, advanceWorkflowRun } = require("./workflow-runner.serv
 const { parseWorkflowCommand } = require("./workflow-command-parser");
 const { buildWorkflowPlan } = require("./workflow-plan.service");
 const { buildStagePrompt } = require("./workflow-stage-prompt");
-const { getRun, snapshot } = require("./workflow-run-store");
+const { getRun, snapshot, commit } = require("./workflow-run-store");
+const { createDossier, dossierRel, stageOutput, previousOutputs } = require("./workflow-dossier.service");
 
 const COMMANDS = Object.freeze([
   { command: "/workflows", description: "Lista os workflows do catálogo com suas etapas." },
@@ -42,12 +43,21 @@ function stagePromptFor(run, projectDir) {
   }
   const done = (run.stages || []).filter((item) => item.status === "completed");
   const previous = done.length ? done[done.length - 1] : null;
-  return buildStagePrompt(run, stage, previous);
+  const view = dossierView(run, projectDir, current.id);
+  return buildStagePrompt(run, stage, previous, view && { dossier: view.dossier, output: view.output, inputs: view.inputs });
+}
+
+/** Dossier facts of the current stage, computed from a snapshot (it has `stages`, not `stageState`). */
+function dossierView(run, projectDir, stageId) {
+  if (!run.meta?.dossierSlug) return null;
+  const like = { ...run, projectDir, stageState: run.stages || [] };
+  return { dossier: dossierRel(like), output: stageOutput(like, stageId), inputs: previousOutputs(like, stageId) };
 }
 
 function buildCard(run, projectDir = "") {
   const current = run.currentStage;
   const awaiting = Boolean(current && current.requiresApproval);
+  const view = current && projectDir ? dossierView(run, projectDir, current.id) : null;
   return {
     executionId: run.executionId,
     workflowId: run.workflowId,
@@ -59,6 +69,8 @@ function buildCard(run, projectDir = "") {
     seed: run.meta?.seed || "",
     storyKey: run.meta?.storyKey || "",
     stagePrompt: projectDir ? stagePromptFor(run, projectDir) : "",
+    dossier: view ? view.dossier : "",
+    output: view ? view.output : null,
     executed: false,
     actions: current ? cardActions(awaiting) : [],
     actionsAfterRun: current ? cardActions(awaiting, true) : [],
@@ -98,9 +110,14 @@ function runWorkflowCommand({ slug, projectDir, text, actor }) {
     const meta = { seed: parsed.description, storyKey: parsed.story, source: "chat" };
     const started = startWorkflowRun({ slug, projectDir, workflowId: workflow.id, actor: actor || "chat", meta, fromStage: parsed.from });
     let run = started.run;
-    // Dossier creation is the "start" stage; resuming with --from skips it. Next stage (story) is seeded by meta.seed.
+    // The "start" stage creates the dossier for real (folder + _status.md); --from resumes and skips it, but the
+    // dossier is still created so later stages have a place to write. Next stage (story) is seeded by meta.seed.
+    const live = getRun(run.executionId);
+    const dossier = live ? createDossier(live) : null;
     if (!parsed.from && run.currentStage?.id === "start") {
-      run = advanceWorkflowRun(run.executionId, { stageId: "start", status: "completed", note: "Dossiê criado pelo comando /workflow." }).run;
+      run = advanceWorkflowRun(run.executionId, { stageId: "start", status: "completed", note: dossier ? `Dossiê criado em ${dossier.rel}.` : "Dossiê não pôde ser criado (continua sem arquivos)." }).run;
+    } else if (live) {
+      run = commit(live);
     }
     return { ok: true, kind: "start", run, card: buildCard(run, projectDir) };
   } catch (err) {
