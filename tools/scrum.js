@@ -2,7 +2,7 @@
 'use strict';
 // Scrum CRUD for agents and scripts. JSON on stdout, errors on stderr. Exit: 0 ok, 1 error, 2 usage, 3 needs human.
 //   node tools/scrum.js story list|get|capture|update|link|move|maturity|done-check ... [--project slug] [--actor human:x|agent:engine:run]
-//     done-check <id> [--tests pass] [--lint pass|na:why] [--browser ...] [--map ...] [--commit <sha>|awaiting-user]; exit 3 while items are open
+//     done-check <id> [--tests pass] [--lint pass|na:why] [--browser ...] [--map ...] [--stages na:why] [--commit <sha>|awaiting-user]; exit 3 while items are open
 //   node tools/scrum.js sprint list|create|plan|start|close ...  (start and close need a human actor)
 //   node tools/scrum.js epic list
 const { resolveContext } = require('./lib/scrum-cli/context');
