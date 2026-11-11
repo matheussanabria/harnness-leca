@@ -1,6 +1,6 @@
 // @ts-check
 // Aprovações das etapas sensíveis de uma execução de workflow (EP-08.05).
-const { getRun, listRuns, snapshot, track, MAX_APPROVALS } = require("./workflow-run-store");
+const { getRun, listRuns, commit, track, MAX_APPROVALS } = require("./workflow-run-store");
 const { emitWorkflowEvent } = require("./workflow-events");
 const { recordWorkflowEvent } = require("./workflow-history.service");
 
@@ -121,7 +121,7 @@ function approveWorkflowRun(executionId, { stageId, decision, actor, note } = {}
     });
   }
 
-  return { ok: true, decision: { ...entry }, run: snapshot(run) };
+  return { ok: true, decision: { ...entry }, run: commit(run) };
 }
 
 /**

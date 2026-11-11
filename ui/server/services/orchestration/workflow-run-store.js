@@ -9,7 +9,41 @@ const runs = new Map();
 /** @type {Map<string, string>} */
 const idempotency = new Map();
 
+let loaded = false;
+
+/** Rehydrates runs persisted by a previous server process (once per process; never throws). */
+function ensureLoaded() {
+  if (loaded) return;
+  loaded = true;
+  try {
+    const fs = require("fs");
+    const path = require("path");
+    const { getProjects } = require("../../config");
+    const { loadProjectRuns } = require("./workflow-run-persist");
+    const root = getProjects();
+    const found = [];
+    for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+      if (entry.isDirectory()) found.push(...loadProjectRuns(path.join(root, entry.name), entry.name));
+    }
+    found.sort((a, b) => String(a.startedAt).localeCompare(String(b.startedAt)));
+    for (const run of found.slice(-MAX_RUNS)) {
+      if (runs.has(run.executionId)) continue;
+      runs.set(run.executionId, run);
+      if (run.idempotencyKey) idempotency.set(`${run.slug}:${run.workflowId}:${run.idempotencyKey}`, run.executionId);
+    }
+  } catch {
+    /* no projects folder or unreadable: start empty */
+  }
+}
+
+/** Persists the run (best effort) and returns its snapshot: use after every state change. */
+function commit(run) {
+  require("./workflow-run-persist").saveRunState(run);
+  return snapshot(run);
+}
+
 function putRun(run) {
+  ensureLoaded();
   runs.set(run.executionId, run);
   if (runs.size > MAX_RUNS) {
     const oldest = runs.keys().next().value;
@@ -21,10 +55,12 @@ function putRun(run) {
 }
 
 function getRun(executionId) {
+  ensureLoaded();
   return runs.get(String(executionId || "").trim()) || null;
 }
 
 function listRuns(slug, routineId) {
+  ensureLoaded();
   const wanted = String(slug || "").trim();
   const routine = String(routineId || "").trim();
   return [...runs.values()]
@@ -64,6 +100,7 @@ function track(run, eventId) {
 }
 
 function findIdempotency(key) {
+  ensureLoaded();
   return idempotency.get(String(key || "").trim()) || "";
 }
 
@@ -78,6 +115,7 @@ module.exports = {
   getRun,
   listRuns,
   snapshot,
+  commit,
   track,
   findIdempotency,
   claimIdempotency,

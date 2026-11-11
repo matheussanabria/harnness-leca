@@ -9,6 +9,7 @@ const {
   getRun,
   listRuns,
   snapshot,
+  commit,
   track,
   findIdempotency,
   claimIdempotency,
@@ -132,7 +133,7 @@ function startWorkflowRun({ slug, projectDir, workflowId, laneId, actor, dryRun,
 
   requestApprovalIfNeeded(run);
 
-  return { ok: true, dryRun: false, idempotent: false, run: snapshot(run) };
+  return { ok: true, dryRun: false, idempotent: false, run: commit(run) };
 }
 
 /**
@@ -206,7 +207,7 @@ function advanceWorkflowRun(executionId, { stageId, status, note, sessionId, val
       run.currentIndex += 1;
       requestApprovalIfNeeded(run);
     }
-    return { ok: true, run: snapshot(run) };
+    return { ok: true, run: commit(run) };
   }
 
   if (state === "failed") {
@@ -218,13 +219,13 @@ function advanceWorkflowRun(executionId, { stageId, status, note, sessionId, val
     if (run.allowRetryAfterFailure) {
       // Opt-in (Q1): a execução segue aberta na mesma etapa; um `started` futuro
       // abre a tentativa N+1. Sem a opção, mantém o comportamento de sempre.
-      return { ok: true, run: snapshot(run) };
+      return { ok: true, run: commit(run) };
     }
     track(run, emitWorkflowEvent({ type: "execution.failed", projectId: run.slug, executionId: run.executionId, payload: { error: run.error, noteLength: noteText.length } }));
     record(run, { type: "execution.failed", status: "failed", stageId: current.id, note: run.error });
     run.status = "failed";
     run.finishedAt = new Date().toISOString();
-    return { ok: true, run: snapshot(run) };
+    return { ok: true, run: commit(run) };
   }
 
   if (state === "blocked") {
@@ -234,7 +235,7 @@ function advanceWorkflowRun(executionId, { stageId, status, note, sessionId, val
     attempts.closeAttempt(run, current.id, "blocked");
     track(run, emitWorkflowEvent({ type: "task.blocked", projectId: run.slug, executionId: run.executionId, taskId, payload: eventPayload }));
     record(run, { type: "task.blocked", status: "blocked", stageId: current.id, note: noteText });
-    return { ok: true, run: snapshot(run) };
+    return { ok: true, run: commit(run) };
   }
 
   if (current.status === "pending") current.status = state === "progressed" ? "progressed" : "running";
@@ -242,7 +243,7 @@ function advanceWorkflowRun(executionId, { stageId, status, note, sessionId, val
   else if (state === "progressed") current.status = "progressed";
   const type = state === "progressed" ? "task.progressed" : "task.started";
   track(run, emitWorkflowEvent({ type, projectId: run.slug, executionId: run.executionId, taskId, payload: attempts.decorate(run, current.id, payload, sessionId) }));
-  return { ok: true, run: snapshot(run) };
+  return { ok: true, run: commit(run) };
 }
 
 /**
@@ -265,7 +266,7 @@ function cancelWorkflowRun(executionId, { reason } = {}) {
   record(run, { type: "execution.cancelled", status: "cancelled", note: text });
   run.status = "cancelled";
   run.finishedAt = new Date().toISOString();
-  return { ok: true, run: snapshot(run) };
+  return { ok: true, run: commit(run) };
 }
 
 function listWorkflowRuns(slug) {
