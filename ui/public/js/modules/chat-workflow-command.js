@@ -1,7 +1,8 @@
 // @ts-check
 // Chat integration for /workflows and /workflow: intercepts the command, shows cards and advances gates.
 import { state, saveActiveChatState } from "../shared/state.js";
-import { showToast } from "../shared/dom.js";
+import { $, showToast } from "../shared/dom.js";
+import { CHAT_PRESENTATIONS } from "./chat-presentations.js";
 import { renderChatHistory } from "./chat-render.js";
 import { workflowListHtml, workflowErrorHtml, workflowCardHtml } from "./chat-workflow-command-view.js";
 import { installWorkflowSuggest } from "./chat-workflow-suggest.js";
@@ -16,6 +17,13 @@ export function isWorkflowCommandText(text) {
 /** @param {string} url @param {any} body */
 async function postJson(url, body) {
   const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, data };
+}
+
+/** @param {string} url */
+async function getJson(url) {
+  const res = await fetch(url);
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, data };
 }
@@ -48,6 +56,7 @@ export async function runChatWorkflowCommand(slug, text) {
 /** Approves when gated, advances one stage and refreshes the card. @param {HTMLElement} btn */
 async function onCardAction(btn) {
   const { wfAction, wfExec, wfStage } = btn.dataset;
+  if (wfAction === "run") return runStageInChat(btn, wfExec);
   btn.setAttribute("disabled", "true");
   const base = `/api/orchestration/workflow-runs/${encodeURIComponent(wfExec || "")}`;
   const fail = (/** @type {any} */ data, fallback) => { btn.removeAttribute("disabled"); showToast(data.error || fallback); };
@@ -67,21 +76,41 @@ async function onCardAction(btn) {
   }
   const adv = await postJson(`${base}/advance`, { stageId: wfStage, status: "completed", note: "Avançado pelo chat." });
   if (!adv.ok) return fail(adv.data, "Não foi possível avançar.");
-  const run = adv.data.run;
-  const cur = run.currentStage;
   const turn = state.chatTurns.find((t) => t.workflowCard?.executionId === wfExec);
   if (!turn) return;
-  turn.workflowCard = {
-    ...turn.workflowCard,
-    status: run.status,
-    stageId: cur ? cur.id : "",
-    stageLabel: cur ? cur.label : "",
-    gate: Boolean(cur?.requiresApproval),
-    actions: cur ? [{ id: cur.requiresApproval ? "approve" : "advance", label: cur.requiresApproval ? "Aprovar e avançar" : "Avançar etapa" }, { id: "cancel", label: "Cancelar execução" }] : [],
-  };
+  // The server builds the card (actions + prompt of the new stage); a finished run has no stage left.
+  const run = adv.data.run;
+  const fresh = run.currentStage ? await getJson(cardUrl(wfExec)) : null;
+  turn.workflowCard = fresh?.ok
+    ? fresh.data.card
+    : { ...turn.workflowCard, status: run.status, stageId: "", stageLabel: "", gate: false, stagePrompt: "", actions: [] };
   turn.workflowHtml = workflowCardHtml(turn.workflowCard);
   saveActiveChatState();
   renderChatHistory(true);
+}
+
+function cardUrl(/** @type {string|undefined} */ executionId) {
+  return `/api/project/${encodeURIComponent(state.P?.slug || "")}/workflow-card/${encodeURIComponent(executionId || "")}`;
+}
+
+/** Injects the stage prompt into the visible chat composer and sends it through the normal chat path. */
+async function runStageInChat(/** @type {HTMLElement} */ btn, /** @type {string|undefined} */ wfExec) {
+  const turn = state.chatTurns.find((t) => t.workflowCard?.executionId === wfExec);
+  const prompt = turn?.workflowCard?.stagePrompt;
+  if (!prompt) return showToast("Esta etapa não tem prompt disponível. Inicie o workflow de novo.");
+  const target = Object.entries(CHAT_PRESENTATIONS).find(([, p]) => /** @type {HTMLElement|null} */ ($(p.input))?.offsetParent);
+  const [name, pres] = target || ["main", CHAT_PRESENTATIONS.main];
+  const input = /** @type {HTMLTextAreaElement|null} */ ($(pres.input));
+  if (!input) return showToast("Campo de mensagem não encontrado.");
+  input.value = prompt;
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  btn.setAttribute("disabled", "true");
+  try {
+    const { sendChatMessage } = await import("./chat-send.js");
+    await sendChatMessage(name);
+  } finally {
+    btn.removeAttribute("disabled");
+  }
 }
 
 let installed = false;

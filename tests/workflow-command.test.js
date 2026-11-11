@@ -65,7 +65,7 @@ test("--from resumes at a stage and the gate card asks for approval", () => {
   assert.equal(out.ok, true);
   assert.equal(out.card.stageId, "prototype");
   assert.equal(out.card.gate, true);
-  assert.equal(out.card.actions[0].id, "approve");
+  assert.deepEqual(out.card.actions.map((a) => a.id), ["run", "approve", "cancel"]);
   assert.equal(out.run.stages[0].status, "skipped");
   const bad = runWorkflowCommand({ slug: SLUG, projectDir, text: "/workflow feature-delivery x --from zzz" });
   assert.equal(bad.ok, false);
@@ -89,5 +89,33 @@ test("start without a description is refused and creates no run", () => {
 test("the card always offers cancel next to the primary action", () => {
   const out = runWorkflowCommand({ slug: SLUG, projectDir, text: "/workflow feature-delivery Teste do cancelar" });
   assert.equal(out.ok, true);
-  assert.deepEqual(out.card.actions.map((a) => a.id), ["advance", "cancel"]);
+  assert.deepEqual(out.card.actions.map((a) => a.id), ["run", "advance", "cancel"]);
+});
+
+test("stage prompt carries the delivery context, the stage gate and the stop rule", () => {
+  const { buildStagePrompt } = require("../ui/server/services/orchestration/workflow-stage-prompt");
+  const run = { workflowId: "feature-delivery", executionId: "wf-1", meta: { seed: "Cadastro de cliente", storyKey: "US-9" } };
+  const stage = { label: "História", gate: "Critérios de aceite verificáveis", agents: [{ id: "business-analyst", label: "Business Analyst" }], skills: [{ name: "spec-templates", available: true }, { name: "ausente", available: false }], requiresApproval: false, permissions: { write: true } };
+  const text = buildStagePrompt(run, stage, { id: "start", label: "Início" });
+  assert.match(text, /executar a etapa "História"/);
+  assert.match(text, /Cadastro de cliente/);
+  assert.match(text, /US-9/);
+  assert.match(text, /Business Analyst/);
+  assert.match(text, /spec-templates/);
+  assert.doesNotMatch(text, /ausente/);
+  assert.match(text, /Critérios de aceite verificáveis/);
+  assert.match(text, /Execute somente esta etapa e pare/);
+});
+
+test("the card exposes run, conclude and cancel, with the stage prompt and a refreshable card by execution", () => {
+  const { cardForExecution } = require("../ui/server/services/orchestration/workflow-command.service");
+  const out = runWorkflowCommand({ slug: SLUG, projectDir, text: "/workflow feature-delivery Contexto do prompt" });
+  assert.equal(out.ok, true);
+  assert.deepEqual(out.card.actions.map((a) => a.id), ["run", "advance", "cancel"]);
+  assert.match(out.card.stagePrompt, /executar a etapa "História"/);
+  assert.match(out.card.stagePrompt, /Contexto do prompt/);
+  const again = cardForExecution(SLUG, projectDir, out.card.executionId);
+  assert.equal(again.stageId, out.card.stageId);
+  assert.equal(cardForExecution("outro-projeto", projectDir, out.card.executionId), null);
+  assert.equal(cardForExecution(SLUG, projectDir, "wf-inexistente"), null);
 });

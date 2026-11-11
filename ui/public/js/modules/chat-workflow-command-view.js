@@ -2,6 +2,8 @@
 // Pure renderers for the /workflow chat command: list of workflows, error and stage card.
 import { esc } from "../shared/dom.js";
 
+const ACTION_ICONS = Object.freeze({ run: "fa-play", advance: "fa-forward-step", approve: "fa-check", cancel: "fa-xmark" });
+
 /** @param {any[]} workflows */
 export function workflowListHtml(workflows) {
   const items = (workflows || [])
@@ -29,7 +31,7 @@ export function workflowCardHtml(card) {
   const story = card.storyKey ? ` <span class="wf-cmd-tag">${esc(card.storyKey)}</span>` : "";
   const gate = card.gate && !cancelled ? `<div class="wf-cmd-gate">Gate: aguardando aprovação desta etapa.</div>` : "";
   const buttons = (card.actions || [])
-    .map((a) => `<button type="button" class="perm-btn${a.id === "cancel" ? "" : " primary"}" data-wf-action="${esc(a.id)}" data-wf-exec="${esc(card.executionId)}" data-wf-stage="${esc(card.stageId)}"><i class="fa-solid ${a.id === "cancel" ? "fa-xmark" : "fa-forward-step"}"></i> ${esc(a.label)}</button>`)
+    .map((a) => `<button type="button" class="perm-btn${a.id === "run" ? " primary" : ""}" data-wf-action="${esc(a.id)}" data-wf-exec="${esc(card.executionId)}" data-wf-stage="${esc(card.stageId)}"><i class="fa-solid ${ACTION_ICONS[a.id] || "fa-forward-step"}"></i> ${esc(a.label)}</button>`)
     .join("");
   return `<div class="wf-cmd-card"><div class="wf-cmd-title"><i class="fa-solid ${icon}"></i> <code>${esc(card.workflowId)}</code>${story}</div><div>Etapa atual: <b>${esc(stage)}</b></div>${seed}${gate}<div class="perm-actions">${buttons}</div></div>`;
 }
