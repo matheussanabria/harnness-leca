@@ -107,7 +107,9 @@ async function runStageInChat(/** @type {HTMLElement} */ btn, /** @type {string|
   btn.setAttribute("disabled", "true");
   try {
     const { sendChatMessage } = await import("./chat-send.js");
-    await sendChatMessage(name);
+    const card = turn?.workflowCard;
+    const label = card?.stageLabel || card?.stageId || "etapa";
+    await sendChatMessage(name, { displayText: `Executar etapa: ${label} (${card?.workflowId || "workflow"})` });
   } finally {
     btn.removeAttribute("disabled");
   }

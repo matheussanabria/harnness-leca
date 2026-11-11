@@ -18,8 +18,13 @@ import { hiaStatusFromThinking, applyHiaFeedback } from "./chat-hia-feedback.js"
 import { runComparison } from "./chat-send-compare.js";
 import { isWorkflowCommandText, runChatWorkflowCommand } from "./chat-workflow-command.js";
 import { consumeChatStream } from "./chat-stream-resume.js";
+import { buildUserTurn, engineText } from "./chat-user-turn.js";
 
-export async function sendChatMessage(presentation = "main") {
+/**
+ * @param {string} [presentation]
+ * @param {{ displayText?: string }} [options] displayText: short text for the bubble while the engine gets the full prompt
+ */
+export async function sendChatMessage(presentation = "main", options = {}) {
   const P = state.P;
   if (!P) return;
   const chatId = cs.currentChatFile;
@@ -46,7 +51,7 @@ export async function sendChatMessage(presentation = "main") {
   const promptText = (typed || "Analise os anexos.") + attachmentPrompt();
   clearChatAttachments();
 
-  state.chatTurns.push({ role: "user", text });
+  state.chatTurns.push(buildUserTurn(text, options.displayText));
   saveActiveChatState();
   clearChatDraft(P.slug);
 
@@ -126,7 +131,7 @@ export async function sendChatMessage(presentation = "main") {
         prompt: await wrapAtelierPrompt(promptText, { resumed: Boolean(getEngineSession(P.slug, chatId, cs.currentEngine)) }),
         slug: P.slug,
         sessionId: getEngineSession(P.slug, chatId, cs.currentEngine),
-        history: state.chatTurns.slice(0, -2).map((t) => ({ role: t.role, text: t.text })),
+        history: state.chatTurns.slice(0, -2).map((t) => ({ role: t.role, text: engineText(t) })),
         model: cs.engineSettings[cs.currentEngine]?.model,
         effort: cs.engineSettings[cs.currentEngine]?.effort,
         daiAgent: cs.activeDaiAgent || undefined,

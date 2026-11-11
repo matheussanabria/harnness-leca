@@ -2,6 +2,7 @@
 // Renderização do histórico do chat.
 import { $, esc } from "../shared/dom.js";
 import { md } from "../shared/markdown.js";
+import { userBubbleHtml } from "./chat-user-turn.js";
 import { state } from "../shared/state.js";
 import { cs } from "./chat-store.js";
 import { scheduleDebouncedChatSave } from "./chat-mini.js";
@@ -65,7 +66,7 @@ export function renderChatHistory(keepScroll = false) {
   const html = state.chatTurns
     .map((t, idx) => {
       if (t.role === "user") {
-        return `<div class="msg user"><div class="bubble"><p>${esc(t.text).replace(/\n/g, "<br>")}</p></div></div>`;
+        return userBubbleHtml(t, esc);
       }
 
       if (t.workflowHtml) {
