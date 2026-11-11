@@ -30,6 +30,7 @@ updated: 2026-10-31
 | `tests/design-workflows-ui.test.js` | Tab registration, view-state restore, CSS import, FontAwesome, no emoji or `confirm`/`alert`/`prompt`, 300-line limit (EP-08.06). |
 | `tests/helpers/temp-dir.js` | Shared helper creating a temp dir and registering its removal, with Windows retries. |
 | `tests/helpers/git-sandbox.js` | Isolates throwaway git repos in tests: strips inherited `GIT_*` (the pre-commit hook exports `GIT_DIR`/`GIT_INDEX_FILE`), sets `core.hooksPath` to `os.devNull`. Use `initSandboxRepo`/`sandboxGit` for any test that runs git. |
+| `tests/git-isolation-guard.test.js` | Guard: fails when a test spawns git without the sandbox helper (read-only `precommit.test.js` is allowed) and checks that `cleanGitEnv` drops every `GIT_*` variable. |
 | `tests/helpers/project-fixture.js`, `project-fixture-design-system.js`, `project-fixture-prototype.js`, `project-fixture-design-index.js`, `project-fixture-files.js` | Create a temp project outside `projects/` and return `{ dir, slug, cleanup }`. |
 | `scripts/lib/web-gates.js` | Pre-commit gates for islands: Biome on staged `ui/web` files, `tsc` on both `ui/web` projects, `npm audit` (high or worse) when package files change. |
 | `tests/web-gates.test.js` | Web gates skip unrelated commits, lint and type-check island files, and run `npm audit` on dependency changes. |
