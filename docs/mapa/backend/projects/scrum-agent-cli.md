@@ -18,6 +18,7 @@ Same services as the HTTP API (`projects-scrum.md`); the store is `scrum.json` t
 | `tools/lib/scrum-cli/commands.js` | Command handlers over `project-scrum.service` and `project-scrum-capture`; update accepts content fields only. |
 | `tools/lib/scrum-cli/sprint-commands.js` | `sprint list\|create\|plan\|start\|close`; agents may create and plan, start and close need a human actor (`--carry-over backlog\|next`, `--next <id>`). |
 | `tools/lib/scrum-cli/done-check.js` | `story done-check <id>`: read-only definition of done (criteria on the story plus declared evidence for tests, lint, browser, map, commit; `na:<reason>` allowed); exit 3 while any item is open. |
+| `tools/lib/scrum-cli/done-check-stages.js` | Stage gate used by done-check: reads the story dossier registry; see `process/delivery/rota-curta.md`. Without a dossier, `--stages na:<reason>` is required. |
 | `tools/lib/scrum-cli/guard.js` | Requires `--actor` on writes; agents cannot mark `ready` or move into `pronto-para-deploy` or `concluido`. |
 | `ui/server/services/project-scrum-actor.js` | Validates `human:<id>` / `agent:<engine>:<run>` (stored as `actor` on transitions) and `normalizeLedgerId` for the story `ledgerId` field. |
 | `tests/project-scrum-sprints.test.js`, `tests/scrum-sprint-http.test.js` | Lifecycle rules, merge-safe `upsertSprint`, summary and velocity, 409 on a second running sprint, CLI actor rules. |
