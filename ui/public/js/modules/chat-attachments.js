@@ -3,6 +3,7 @@
 // Cada anexo sobe na hora para projects/<slug>/context/uploads/ e o caminho vai no prompt para o motor ler o arquivo.
 import { $, esc, showToast } from "../shared/dom.js";
 import { state } from "../shared/state.js";
+import { bindChatDrop, droppedFileName, filesFromTransfer, pastedFileName } from "./chat-attachments-input.js";
 
 /** @type {{ id: number, name: string, path?: string, kind: string, thumb?: string, error?: string, transcript?: string }[]} */
 let items = [];
@@ -83,15 +84,19 @@ export function onChatFilesChosen(input) {
   input.value = "";
 }
 
+/** Anexa arquivos soltos ou colados; cada um sobe na hora, como no botão de anexar. */
+export function uploadChatFiles(files, nameOf = droppedFileName) {
+  Array.from(files).forEach((f, i) => upload(f, nameOf(f, i)));
+}
+
 export function onChatPaste(e) {
-  const files = Array.from(e.clipboardData?.files || []);
+  const files = filesFromTransfer(e.clipboardData);
   if (!files.length) return;
   e.preventDefault();
-  files.forEach((f, i) => {
-    const ext = (f.type.split("/")[1] || "png").replace("jpeg", "jpg");
-    upload(f, f.name && f.name !== "image.png" ? f.name : `colado-${Date.now()}-${i}.${ext}`);
-  });
+  uploadChatFiles(files, pastedFileName);
 }
+
+if (typeof document !== "undefined") bindChatDrop((files) => uploadChatFiles(files));
 
 export function removeChatAttachment(id) {
   items = items.filter((a) => a.id !== id);
