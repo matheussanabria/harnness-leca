@@ -3,9 +3,9 @@ domain: frontend
 module: chat
 feature: chat
 summary: Chat modules: send, stream, compare, render, sessions, persistence, mini dock, HIA feedback, canonical models.
-paths: [ui/public/js/modules/chat*.js, ui/public/js/types/chat-models.d.ts, ui/public/css/chat/04-mini-chat-dock.css, tests/chat-*.test.js]
+paths: [ui/public/js/modules/chat*.js, ui/public/js/types/chat-models.d.ts, ui/public/css/chat/04-mini-chat-dock.css, tests/chat-*.test.js, tests/bdd-traceability.test.js, docs/features/chat-clipboard-drop/*]
 keywords: [chat, streaming, sse, compare, mini-dock, session, persist, hia, thinking, presentations]
-updated: 2026-11-06
+updated: 2026-11-11
 ---
 # Chat Modules
 
@@ -16,6 +16,8 @@ updated: 2026-11-06
 | `ui/public/js/modules/chat-attachments.js` | Chat attachments (files, images, audio): upload on pick, paste (`onChatPaste`, also in Studio) and drop (`uploadChatFiles`); chips in the 3 trays. |
 | `ui/public/js/modules/chat-attachments-input.js` | Pure clipboard/drop helpers (`filesFromTransfer`, `pastedFileName`) and `bindChatDrop`, a document-level drop delegate for composers and histories with the `chat-drop-active` highlight. |
 | `tests/chat-attachments-input.test.js` | Tests the paste/drop helpers and the drop delegation (zone highlight, ignored drops). |
+| `docs/features/chat-clipboard-drop/02-bdd.feature` | BDD scenarios CP-01..CP-11 for paste and drop (US-1794180293134); `@auto` ones are named in test titles, `@manual` ones need the browser. |
+| `tests/bdd-traceability.test.js` | Guard: every `@auto` scenario id in `docs/features/*/02-bdd.feature` must appear in a test title under `tests/`. |
 | `ui/public/js/modules/chat-ui-interaction.js` | Provider menus, more options, settings, scroll anchoring in the 3 presentations, composer for Chat and Studio. |
 | `ui/public/js/modules/chat-render.js` | Renders history in the 3 presentations, comparison arena with timer, collapsible thinking, smart scroll anchor. |
 | `ui/public/js/modules/chat-render-thinking.js` | "Internal reasoning" block: keeps scroll and open/closed choice across redraws; counter, expand and copy bar. |
