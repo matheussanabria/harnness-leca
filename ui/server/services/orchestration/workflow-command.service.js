@@ -4,6 +4,9 @@
 const { listWorkflows, getWorkflow } = require("./workflow-definitions");
 const { startWorkflowRun, advanceWorkflowRun } = require("./workflow-runner.service");
 const { parseWorkflowCommand } = require("./workflow-command-parser");
+const { buildWorkflowPlan } = require("./workflow-plan.service");
+const { buildStagePrompt } = require("./workflow-stage-prompt");
+const { getRun, snapshot } = require("./workflow-run-store");
 
 const COMMANDS = Object.freeze([
   { command: "/workflows", description: "Lista os workflows do catálogo com suas etapas." },
@@ -18,15 +21,31 @@ function listCommandSuggestions() {
   };
 }
 
-/** Primary action plus an always-available cancel, so a wrong click is never a dead end. */
-function cardActions(awaiting) {
-  return [
-    { id: awaiting ? "approve" : "advance", label: awaiting ? "Aprovar e avançar" : "Avançar etapa" },
-    { id: "cancel", label: "Cancelar execução" },
-  ];
+/** "Executar etapa" injects the stage context into the chat; the conclusion is a separate, explicit click. */
+function cardActions(awaiting, executed = false) {
+  const run = { id: "run", label: executed ? "Executar novamente" : "Executar etapa" };
+  const cancel = { id: "cancel", label: "Cancelar execução" };
+  if (!executed) return [run, cancel];
+  // Concluding is offered only after the stage execution finished in the chat.
+  return [run, { id: awaiting ? "approve" : "advance", label: awaiting ? "Aprovar e avançar" : "Concluir e avançar" }, cancel];
 }
 
-function buildCard(run) {
+/** Prompt for the current stage; a plan failure never breaks the card (generic prompt instead). */
+function stagePromptFor(run, projectDir) {
+  const current = run.currentStage;
+  if (!current) return "";
+  let stage = null;
+  try {
+    stage = buildWorkflowPlan({ slug: run.slug, projectDir, workflowId: run.workflowId }).stages.find((item) => item.id === current.id) || null;
+  } catch {
+    stage = null;
+  }
+  const done = (run.stages || []).filter((item) => item.status === "completed");
+  const previous = done.length ? done[done.length - 1] : null;
+  return buildStagePrompt(run, stage, previous);
+}
+
+function buildCard(run, projectDir = "") {
   const current = run.currentStage;
   const awaiting = Boolean(current && current.requiresApproval);
   return {
@@ -39,7 +58,10 @@ function buildCard(run) {
     awaitingApproval: awaiting,
     seed: run.meta?.seed || "",
     storyKey: run.meta?.storyKey || "",
+    stagePrompt: projectDir ? stagePromptFor(run, projectDir) : "",
+    executed: false,
     actions: current ? cardActions(awaiting) : [],
+    actionsAfterRun: current ? cardActions(awaiting, true) : [],
   };
 }
 
@@ -80,10 +102,17 @@ function runWorkflowCommand({ slug, projectDir, text, actor }) {
     if (!parsed.from && run.currentStage?.id === "start") {
       run = advanceWorkflowRun(run.executionId, { stageId: "start", status: "completed", note: "Dossiê criado pelo comando /workflow." }).run;
     }
-    return { ok: true, kind: "start", run, card: buildCard(run) };
+    return { ok: true, kind: "start", run, card: buildCard(run, projectDir) };
   } catch (err) {
     return fail(err.status || 500, err.message || "Falha ao iniciar o workflow.");
   }
 }
 
-module.exports = { runWorkflowCommand, listCommandSuggestions, buildCard };
+/** Fresh card for a run (after the user advanced a stage); null when the run is unknown (e.g. server restarted). */
+function cardForExecution(slug, projectDir, executionId) {
+  const run = getRun(executionId);
+  if (!run || run.slug !== slug) return null;
+  return buildCard(snapshot(run), projectDir);
+}
+
+module.exports = { runWorkflowCommand, listCommandSuggestions, buildCard, cardForExecution };

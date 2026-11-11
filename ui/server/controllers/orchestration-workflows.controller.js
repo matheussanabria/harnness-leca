@@ -6,7 +6,7 @@ const { send, readJsonBody, getProjects } = require("../config");
 const netLib = require("../../../tools/lib/network");
 const { listWorkflows, getWorkflow } = require("../services/orchestration/workflow-definitions");
 const { buildWorkflowPlan } = require("../services/orchestration/workflow-plan.service");
-const { runWorkflowCommand, listCommandSuggestions } = require("../services/orchestration/workflow-command.service");
+const { runWorkflowCommand, listCommandSuggestions, cardForExecution } = require("../services/orchestration/workflow-command.service");
 const { startWorkflowRun } = require("../services/orchestration/workflow-runner.service");
 
 function projectDir(slug) {
@@ -95,7 +95,17 @@ async function apiProjectWorkflowCommand({ req, res, params: [slug] }) {
   return send(res, result.ok ? 200 : result.status || 400, result);
 }
 
+/** GET /api/project/:slug/workflow-card/:executionId (current card of a run: actions + stage prompt) */
+function apiProjectWorkflowCard({ res, params: [slug, executionId] }) {
+  const dir = projectDir(slug);
+  if (!dir) return send(res, 404, { error: "Projeto não encontrado." });
+  const card = cardForExecution(slug, dir, executionId);
+  if (!card) return send(res, 404, { error: "Execução não encontrada (o servidor pode ter reiniciado). Inicie o workflow de novo." });
+  return send(res, 200, { ok: true, card });
+}
+
 module.exports = {
+  apiProjectWorkflowCard,
   apiWorkflowCommands,
   apiProjectWorkflowCommand,
   apiOrchestrationWorkflows,
