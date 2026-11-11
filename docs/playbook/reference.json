@@ -1,0 +1,29 @@
+{
+  "agents": {
+    "heading": { "pt": "Os agentes do esquadrão", "en": "The squad's agents" },
+    "intro": {
+      "pt": "Cada agente tem papel, estágios em que atua e um caminho no DAI. A lista e os estágios são lidos do DAI na hora de gerar a página.",
+      "en": "Each agent has a role, the stages it works in and a path in DAI. The list and the stages are read from DAI when the page is generated."
+    },
+    "legend": {
+      "pt": "Um asterisco marca o estágio em que o agente só apoia; sem asterisco, ele executa.",
+      "en": "An asterisk marks a stage where the agent only supports; without it, the agent executes."
+    }
+  },
+  "matrix": {
+    "heading": { "pt": "Quem atua em cada estágio", "en": "Who works in each stage" },
+    "intro": {
+      "pt": "A matriz vem da tabela de estados do workflow feature-delivery, então acompanha o DAI sem edição manual.",
+      "en": "The matrix comes from the feature-delivery workflow's state table, so it follows DAI without manual editing."
+    },
+    "agent": { "pt": "Agente", "en": "Agent" },
+    "legend": { "pt": "E = executa o estágio. A = apoia o estágio.", "en": "E = executes the stage. A = supports the stage." }
+  },
+  "examples": {
+    "heading": { "pt": "Exemplo de artefato de cada estágio", "en": "An example artifact for each stage" },
+    "intro": {
+      "pt": "Todos os exemplos são sintéticos e usam uma funcionalidade fictícia, o cadastro de fornecedor. Servem de forma, não de conteúdo real.",
+      "en": "All examples are synthetic and use a fictional feature, supplier registration. They show the shape, not real content."
+    }
+  }
+}

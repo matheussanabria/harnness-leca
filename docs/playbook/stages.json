@@ -1,0 +1,291 @@
+{
+  "heading": {
+    "pt": "A esteira de uma funcionalidade",
+    "en": "The line a feature travels"
+  },
+  "intro": {
+    "pt": "É o workflow feature-delivery. Um estágio por pedido, todos lendo e escrevendo o mesmo dossiê em docs/features/<slug>/. A ordem é fixa porque cada estágio consome o que o anterior produziu. Modelagem e protótipo formam juntos a fase de Design/Projeto do SDLC: o modelo vem primeiro porque os mocks do protótipo precisam refletir as entidades e o contrato. Se o protótipo revelar um campo que o modelo não tem, volte à modelagem; nunca invente campo só no mock.",
+    "en": "This is the feature-delivery workflow. One stage per request, all reading and writing the same dossier in docs/features/<slug>/. The order is fixed because each stage consumes what the previous one produced. Modeling and prototype together form the Design phase of the SDLC: the model comes first because the prototype's mocks must reflect the entities and the contract. If the prototype reveals a field the model lacks, go back to modeling; never invent a field only in the mock."
+  },
+  "after": {
+    "pt": "Depois de cada estágio, a memória recebe o que for durável e o mapa recebe qualquer arquivo novo. É isso que mantém a fábrica atualizada sem uma etapa de limpeza no fim.",
+    "en": "After each stage, memory receives anything durable and the map receives any new file. That is what keeps the factory current without a clean-up step at the end."
+  },
+  "items": [
+    {
+      "id": "start",
+      "phase": "planning",
+      "name": {
+        "pt": "Abrir",
+        "en": "Open"
+      },
+      "text": {
+        "pt": "Define o escopo e cria o dossiê da funcionalidade.",
+        "en": "Sets the scope and creates the feature dossier."
+      },
+      "who": {
+        "pt": "orquestrador, product-owner",
+        "en": "orchestrator, product-owner"
+      },
+      "out": {
+        "pt": "dossiê com slug",
+        "en": "dossier with a slug"
+      },
+      "gate": {
+        "pt": "Escopo confirmado pelo usuário",
+        "en": "Scope confirmed by the user"
+      },
+      "trigger": false
+    },
+    {
+      "id": "story",
+      "phase": "requirements",
+      "name": {
+        "pt": "História",
+        "en": "Story"
+      },
+      "text": {
+        "pt": "Escreve a user story e os critérios de aceite. Publica no Jira quando autorizado.",
+        "en": "Writes the user story and acceptance criteria. Publishes to Jira when authorized."
+      },
+      "who": {
+        "pt": "business-analyst, product-owner",
+        "en": "business-analyst, product-owner"
+      },
+      "out": {
+        "pt": "user-story.md",
+        "en": "user-story.md"
+      },
+      "gate": {
+        "pt": "Ler antes de gravar, pré-visualizar e reler depois",
+        "en": "Read before writing, preview, re-read after"
+      },
+      "trigger": false
+    },
+    {
+      "id": "bdd",
+      "phase": "requirements",
+      "name": {
+        "pt": "Cenários",
+        "en": "Scenarios"
+      },
+      "text": {
+        "pt": "Traduz os critérios em cenários Gherkin: caminho feliz, alternativo e erro.",
+        "en": "Turns criteria into Gherkin scenarios: happy, alternative and error paths."
+      },
+      "who": {
+        "pt": "qa-engineer",
+        "en": "qa-engineer"
+      },
+      "out": {
+        "pt": "arquivos .feature",
+        "en": ".feature files"
+      },
+      "gate": {
+        "pt": "Todo critério coberto por cenário",
+        "en": "Every criterion covered by a scenario"
+      },
+      "trigger": false
+    },
+    {
+      "id": "modeling",
+      "phase": "design",
+      "name": {
+        "pt": "Modelagem",
+        "en": "Modeling"
+      },
+      "text": {
+        "pt": "Modela entidades, relacionamentos, contrato de API e decisões de arquitetura, e confere o legado, se houver. É a fonte dos dados que o protótipo vai simular.",
+        "en": "Models entities, relationships, API contract and architecture decisions, and checks the legacy system, if any. It is the source of the data the prototype will simulate."
+      },
+      "who": {
+        "pt": "software-architect, backend-engineer",
+        "en": "software-architect, backend-engineer"
+      },
+      "out": {
+        "pt": "ERD, contrato de API, SDD, ADR",
+        "en": "ERD, API contract, SDD, ADR"
+      },
+      "gate": {
+        "pt": "Todo campo e regra com dono no backend; contrato revisado",
+        "en": "Every field and rule owned by the backend; contract reviewed"
+      },
+      "trigger": false
+    },
+    {
+      "id": "prototype",
+      "phase": "design",
+      "name": {
+        "pt": "Protótipo",
+        "en": "Prototype"
+      },
+      "text": {
+        "pt": "Monta a tela com componentes do design system e dados simulados (mocks) gerados a partir do modelo e do contrato. Revisa usabilidade e acessibilidade.",
+        "en": "Builds the screen from design-system components and simulated data (mocks) generated from the model and the contract. Reviews usability and accessibility."
+      },
+      "who": {
+        "pt": "ux-ui-designer",
+        "en": "ux-ui-designer"
+      },
+      "out": {
+        "pt": "design/prototypes/ e mocks",
+        "en": "design/prototypes/ and mocks"
+      },
+      "gate": {
+        "pt": "Mocks batem com o contrato; só componentes do DS; WCAG 2.1 AA",
+        "en": "Mocks match the contract; DS components only; WCAG 2.1 AA"
+      },
+      "trigger": false
+    },
+    {
+      "id": "dev",
+      "phase": "implementation",
+      "name": {
+        "pt": "Código",
+        "en": "Code"
+      },
+      "text": {
+        "pt": "Implementa conforme o plano, com mocks no front quando a tela é nova.",
+        "en": "Implements per the plan, with front-end mocks when the screen is new."
+      },
+      "who": {
+        "pt": "software-developer, frontend/backend",
+        "en": "software-developer, frontend/backend"
+      },
+      "out": {
+        "pt": "código em worktree",
+        "en": "code in a worktree"
+      },
+      "gate": {
+        "pt": "Arquivos até 300 linhas; nomes de campo lidos do backend",
+        "en": "Files up to 300 lines; field names read from the backend"
+      },
+      "trigger": false
+    },
+    {
+      "id": "tests",
+      "phase": "testing",
+      "name": {
+        "pt": "Testes",
+        "en": "Tests"
+      },
+      "text": {
+        "pt": "Executa BDD, unitários, integração e E2E. Registra evidências no Postman.",
+        "en": "Runs BDD, unit, integration and E2E. Records evidence in Postman."
+      },
+      "who": {
+        "pt": "qa-engineer",
+        "en": "qa-engineer"
+      },
+      "out": {
+        "pt": "testes e doc/postman/<ID>/",
+        "en": "tests and doc/postman/<ID>/"
+      },
+      "gate": {
+        "pt": "Teste de regressão para cada correção",
+        "en": "A regression test for every fix"
+      },
+      "trigger": false
+    },
+    {
+      "id": "review",
+      "phase": "testing",
+      "name": {
+        "pt": "Revisão",
+        "en": "Review"
+      },
+      "text": {
+        "pt": "Checklist de revisão em 7 dimensões, mais revisão de segurança.",
+        "en": "A review checklist across 7 dimensions, plus a security review."
+      },
+      "who": {
+        "pt": "code-review-checklist, security-engineer",
+        "en": "code-review-checklist, security-engineer"
+      },
+      "out": {
+        "pt": "achados classificados",
+        "en": "classified findings"
+      },
+      "gate": {
+        "pt": "Nenhum bloqueador aberto",
+        "en": "No open blockers"
+      },
+      "trigger": false
+    },
+    {
+      "id": "commit-pr",
+      "phase": "deployment",
+      "name": {
+        "pt": "Commit e PR",
+        "en": "Commit and PR"
+      },
+      "text": {
+        "pt": "Separa o diff em commits atômicos com corpo descritivo e escreve a narrativa do PR.",
+        "en": "Splits the diff into atomic commits with a descriptive body and writes the PR narrative."
+      },
+      "who": {
+        "pt": "skill commit",
+        "en": "commit skill"
+      },
+      "out": {
+        "pt": "commits locais, PR",
+        "en": "local commits, PR"
+      },
+      "gate": {
+        "pt": "Só quando o usuário pede; pre-commit passa",
+        "en": "Only when the user asks; pre-commit passes"
+      },
+      "trigger": false
+    },
+    {
+      "id": "deploy",
+      "phase": "deployment",
+      "name": {
+        "pt": "Entrega",
+        "en": "Deploy"
+      },
+      "text": {
+        "pt": "Empacota, publica com runbook e prevê rollback.",
+        "en": "Packages, releases with a runbook and plans rollback."
+      },
+      "who": {
+        "pt": "devops-engineer",
+        "en": "devops-engineer"
+      },
+      "out": {
+        "pt": "release, runbook",
+        "en": "release, runbook"
+      },
+      "gate": {
+        "pt": "Pre-push e CI verdes",
+        "en": "Pre-push and CI green"
+      },
+      "trigger": false
+    },
+    {
+      "id": "maintain",
+      "phase": "maintenance",
+      "name": {
+        "pt": "Manutenção",
+        "en": "Maintenance"
+      },
+      "text": {
+        "pt": "Roda por gatilho: bug, incidente ou pedido de mudança depois do deploy. Triagem ligada à feature de origem; o item que vira trabalho abre um novo dossiê com Origem e entra numa variante (hotfix, domain-change ou domain-creation). Bug aponta o cenário BDD que faltou, para o teste de regressão.",
+        "en": "Runs on a trigger: a bug, incident or change request after deploy. Triage is tied to the originating feature; an item that becomes work opens a new dossier with Origin and enters a variant (hotfix, domain-change or domain-creation). A bug points to the BDD scenario that was missing, for the regression test."
+      },
+      "who": {
+        "pt": "qa-engineer, product-owner",
+        "en": "qa-engineer, product-owner"
+      },
+      "out": {
+        "pt": "10-manutencao.md na origem e novo dossiê",
+        "en": "10-manutencao.md in the origin and a new dossier"
+      },
+      "gate": {
+        "pt": "Item classificado, ligado à origem, variante escolhida",
+        "en": "Item classified, linked to the origin, variant chosen"
+      },
+      "trigger": true
+    }
+  ]
+}

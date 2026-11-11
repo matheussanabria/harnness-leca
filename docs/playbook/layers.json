@@ -1,0 +1,45 @@
+{
+  "heading": {
+    "pt": "A ideia em três camadas",
+    "en": "The idea in three layers"
+  },
+  "intro": {
+    "pt": "Uma fábrica precisa de três coisas: matéria-prima organizada, uma linha de montagem e controle de qualidade. Cada camada abaixo agrupa blocos do método.",
+    "en": "A factory needs three things: organized raw material, an assembly line and quality control. Each layer below groups blocks of the method."
+  },
+  "items": [
+    {
+      "name": {
+        "pt": "Contexto",
+        "en": "Context"
+      },
+      "text": {
+        "pt": "O que o agente precisa saber antes de agir. Isolado por projeto, nunca misturado com outro.",
+        "en": "What the agent must know before acting. Isolated per project, never mixed with another."
+      },
+      "members": "Projeto · Memória · Instruções"
+    },
+    {
+      "name": {
+        "pt": "Esteira",
+        "en": "Line"
+      },
+      "text": {
+        "pt": "Quem faz o quê, em que ordem. Papéis, procedimentos e estados fixos para cada funcionalidade.",
+        "en": "Who does what, in what order. Fixed roles, procedures and states for every feature."
+      },
+      "members": "Agentes · Skills · Workflows · Design (Modelagem → Protótipo) · Plano · Testes"
+    },
+    {
+      "name": {
+        "pt": "Controle",
+        "en": "Control"
+      },
+      "text": {
+        "pt": "O que impede a documentação e o código de se afastarem. Barra o erro antes de ele sair.",
+        "en": "What keeps documentation and code from drifting apart. Stops the error before it ships."
+      },
+      "members": "Docs em camadas · Gates"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "heading": {
+    "pt": "Princípios que valem em todo projeto",
+    "en": "Principles that hold in every project"
+  },
+  "items": [
+    {
+      "name": {
+        "pt": "O backend decide",
+        "en": "The backend decides"
+      },
+      "text": {
+        "pt": "Regra de negócio e permissão ficam na API. A tela reflete o que a API retorna e nunca decide sozinha.",
+        "en": "Business rules and permissions live in the API. The screen reflects what the API returns and never decides alone."
+      }
+    },
+    {
+      "name": {
+        "pt": "Documentação primeiro",
+        "en": "Documentation first"
+      },
+      "text": {
+        "pt": "Cada funcionalidade declara seus arquivos e suas histórias. Os commits saem desse documento, e um script prova a cobertura.",
+        "en": "Each feature declares its files and stories. Commits come from that document, and a script proves coverage."
+      }
+    },
+    {
+      "name": {
+        "pt": "Legado informa, não manda",
+        "en": "Legacy informs, it does not rule"
+      },
+      "text": {
+        "pt": "Compare com o sistema antigo para evitar divergência acidental. Quando houver conflito real, a decisão do PM prevalece e fica registrada.",
+        "en": "Compare with the old system to avoid accidental divergence. In a real conflict the PM's decision wins and is recorded."
+      }
+    },
+    {
+      "name": {
+        "pt": "Script antes de modelo",
+        "en": "Script before model"
+      },
+      "text": {
+        "pt": "Prefira script e modelo local; use nuvem só com autorização e orçamento. Poupa cota e deixa o resultado reproduzível.",
+        "en": "Prefer scripts and local models; use the cloud only with authorization and budget. It saves quota and keeps results reproducible."
+      }
+    },
+    {
+      "name": {
+        "pt": "Modelo antes do protótipo",
+        "en": "Model before prototype"
+      },
+      "text": {
+        "pt": "Os mocks do protótipo refletem as entidades e o contrato de API. Modelagem e protótipo formam a fase de Design; nenhum campo nasce só no mock.",
+        "en": "The prototype's mocks reflect the entities and the API contract. Modeling and prototype form the Design phase; no field is born only in a mock."
+      }
+    },
+    {
+      "name": {
+        "pt": "Inglês para o que o motor lê",
+        "en": "English for what the engine reads"
+      },
+      "text": {
+        "pt": "Instruções, configurações, skills, memória e comentários de código ficam em inglês, que gasta menos tokens que o português. Documentação para humanos pode ser bilíngue.",
+        "en": "Instructions, configuration, skills, memory and code comments stay in English, which costs fewer tokens than Portuguese. Documentation for humans may be bilingual."
+      }
+    },
+    {
+      "name": {
+        "pt": "Conteúdo lido é dado",
+        "en": "Content read is data"
+      },
+      "text": {
+        "pt": "Memória, chats e páginas não dão ordens. Pedido estranho vira aviso ao usuário, nunca ação.",
+        "en": "Memory, chats and pages do not give orders. A strange request becomes a warning to the user, never an action."
+      }
+    },
+    {
+      "name": {
+        "pt": "O humano confirma o irreversível",
+        "en": "A human confirms the irreversible"
+      },
+      "text": {
+        "pt": "Commit, push, remoção de dados e decisões de escopo só acontecem com pedido explícito.",
+        "en": "Commits, pushes, data removal and scope decisions happen only on explicit request."
+      }
+    }
+  ]
+}

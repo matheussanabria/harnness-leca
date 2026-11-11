@@ -1,0 +1,82 @@
+{
+  "heading": {
+    "pt": "O que falta para virar uma fábrica",
+    "en": "What is missing to become a factory"
+  },
+  "intro": {
+    "pt": "Pontos que vi ao ler o código e que impedem hoje o uso direto em qualquer projeto. Cada um vira uma tarefa de generalização.",
+    "en": "Points I saw while reading the code that block direct use in any project today. Each becomes a generalization task."
+  },
+  "items": [
+    {
+      "name": {
+        "pt": "Caminhos fixos nas ferramentas",
+        "en": "Hard-coded paths in tools"
+      },
+      "text": {
+        "pt": "Verificado em 09/11/2026: o `audit-layers-drift.js` ainda traz como padrão os caminhos desta máquina e do dispensação. Já aceita `--repo`, mas a pasta do projeto no harness continua fixa no código.",
+        "en": "Checked on 2026-11-09: `audit-layers-drift.js` still defaults to this machine's and dispensação's paths. It already accepts `--repo`, but the harness project folder is still fixed in the code."
+      }
+    },
+    {
+      "name": {
+        "pt": "Scaffold de projeto incompleto",
+        "en": "Incomplete project scaffold"
+      },
+      "text": {
+        "pt": "O `projects/_template/` não mudou desde 15/10: instruções, memória e três pastas vazias. Existem templates de workspace (dev, scrum, qualidade, ops) e templates de skills web e API, mas nenhum cria o esqueleto de documentação nem o contrato de funcionalidade, nem ativa os gates.",
+        "en": "`projects/_template/` has not changed since 2026-10-15: instructions, memory and three empty folders. Workspace templates (dev, scrum, quality, ops) and web and API skill templates exist, but none creates the documentation skeleton or the feature contract, or switches on the gates."
+      }
+    },
+    {
+      "name": {
+        "pt": "Método sem documento próprio",
+        "en": "Method without its own document"
+      },
+      "text": {
+        "pt": "Não achei no harness um documento que descreva o método separado do dispensação. Este playbook é o primeiro; as instruções do dispensação são específicas do projeto, o que é esperado.",
+        "en": "I found no document in the harness that describes the method apart from dispensação. This playbook is the first; the dispensação instructions are project-specific, which is expected."
+      }
+    },
+    {
+      "name": {
+        "pt": "Ferramentas de documentação fora do harness",
+        "en": "Documentation tools outside the harness"
+      },
+      "text": {
+        "pt": "Confirmado: o fluxo documentação-primeiro mora em `tools/doc-features/` (cobertura, commits, executar) e `tools/story-file-map/`, dentro do repositório do dispensação. Precisam subir para o Harness e receber o repositório como parâmetro.",
+        "en": "Confirmed: the documentation-first flow lives in `tools/doc-features/` (coverage, commits, execute) and `tools/story-file-map/`, inside the dispensação repository. They need to move up into Harness and take the repository as a parameter."
+      }
+    },
+    {
+      "name": {
+        "pt": "Arquivos do motor ainda em português",
+        "en": "Engine-read files still in Portuguese"
+      },
+      "text": {
+        "pt": "A regra de inglês para o que o motor lê já vale para conteúdo novo, mas instruções, skills, workflows e memória existentes seguem em português. Traduzir esses arquivos é a tarefa que mais poupa tokens; a documentação para humanos fica bilíngue.",
+        "en": "The English rule for engine-read content already applies to new content, but existing instructions, skills, workflows and memory are still in Portuguese. Translating those files is the task that saves the most tokens; human-facing documentation stays bilingual."
+      }
+    },
+    {
+      "name": {
+        "pt": "Nomes dos artefatos fora de ordem",
+        "en": "Artifact names out of order"
+      },
+      "text": {
+        "pt": "A ordem do workflow no DAI já foi corrigida (modelagem antes do protótipo), mas os arquivos mantêm `03-prototipo.md` e `04-modelagem.md` para não quebrar dossiês existentes. Renumerar fica para uma migração à parte.",
+        "en": "The workflow order in DAI is already fixed (modeling before prototype), but the files keep `03-prototipo.md` and `04-modelagem.md` so existing dossiers do not break. Renumbering is left for a separate migration."
+      }
+    },
+    {
+      "name": {
+        "pt": "Motores e cotas",
+        "en": "Engines and quotas"
+      },
+      "text": {
+        "pt": "No `state.json` de coordenação do dispensação, só os três provedores opencode estão ativos; Claude, Gemini e Codex estão desativados (Gemini por cota). O `AGENTS.md` ainda diz que o Gemini está ativo e está desatualizado. O método precisa funcionar com qualquer combinação.",
+        "en": "In dispensação's coordination `state.json`, only the three opencode providers are enabled; Claude, Gemini and Codex are disabled (Gemini for quota). `AGENTS.md` still says Gemini is active and is out of date. The method must work with any combination."
+      }
+    }
+  ]
+}

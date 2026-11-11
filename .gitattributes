@@ -8,3 +8,5 @@ ui/public/js/vendor/dc-runtime/** -text
 # React islands (ADR-011): Biome expects LF, so island code and its config never convert to CRLF.
 ui/web/** text eol=lf
 biome.json text eol=lf
+# Rastreio fixtures: tests match LF strings, so they must not become CRLF on Windows checkouts.
+tests/fixtures/rastreio/** text eol=lf

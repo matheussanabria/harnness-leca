@@ -1,0 +1,40 @@
+{
+  "heading": {
+    "pt": "Exemplo real: dispensação",
+    "en": "Real example: dispensação"
+  },
+  "intro": {
+    "pt": "Sistema de saúde com web em Angular e API em Spring Boot, tocado com este método. Serve de prova de que a esteira funciona fora do próprio Harness.",
+    "en": "A health system with an Angular web app and a Spring Boot API, run with this method. It shows the line works outside Harness itself."
+  },
+  "stats": [
+    {
+      "value": "18",
+      "label": {
+        "pt": "agentes de papel no esquadrão",
+        "en": "role agents in the squad"
+      }
+    },
+    {
+      "value": "3",
+      "label": {
+        "pt": "workflows (feature, produto, sprint)",
+        "en": "workflows (feature, product, sprint)"
+      }
+    },
+    {
+      "value": "473",
+      "label": {
+        "pt": "histórias DIS no snapshot do Jira",
+        "en": "DIS stories in the Jira snapshot"
+      }
+    },
+    {
+      "value": "1",
+      "label": {
+        "pt": "commit por funcionalidade e por repositório",
+        "en": "commit per feature and per repository"
+      }
+    }
+  ]
+}
