@@ -110,7 +110,7 @@ test("EP-02.05: Compositor autônomo e manipulação de teclado em chat-stream-u
   assert.match(streamUiJs, /if \(e\.key === "Enter" && !e\.shiftKey\)/);
   assert.match(streamUiJs, /sendChatMessage\(\)/);
 
-  assert.match(sendJs, /export async function sendChatMessage\(presentation = "main"\)/);
+  assert.match(sendJs, /export async function sendChatMessage\(presentation = "main"(, options = \{\})?\)/);
   assert.match(sendJs, /chatPresentation\(presentation\)\.input/);
 });
 

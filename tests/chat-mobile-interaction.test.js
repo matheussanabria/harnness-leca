@@ -199,7 +199,7 @@ test("Chat e Studio usam um contrato declarativo comum para menus", () => {
 
 test("Cada apresentação envia diretamente do próprio compositor", () => {
   assert.match(presentationsJs, /mini: Object\.freeze/);
-  assert.match(sendJs, /sendChatMessage\(presentation = "main"\)/);
+  assert.match(sendJs, /sendChatMessage\(presentation = "main"(, options = \{\})?\)/);
   assert.match(sendJs, /chatPresentation\(presentation\)\.input/);
   assert.match(studioCompanionJs, /sendChatMessage\("studio"\)/);
   assert.match(miniJs, /sendChatMessage\("mini"\)/);
