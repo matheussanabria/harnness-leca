@@ -65,7 +65,8 @@ test("--from resumes at a stage and the gate card asks for approval", () => {
   assert.equal(out.ok, true);
   assert.equal(out.card.stageId, "prototype");
   assert.equal(out.card.gate, true);
-  assert.deepEqual(out.card.actions.map((a) => a.id), ["run", "approve", "cancel"]);
+  assert.deepEqual(out.card.actions.map((a) => a.id), ["run", "cancel"]);
+  assert.deepEqual(out.card.actionsAfterRun.map((a) => a.id), ["run", "approve", "cancel"]);
   assert.equal(out.run.stages[0].status, "skipped");
   const bad = runWorkflowCommand({ slug: SLUG, projectDir, text: "/workflow feature-delivery x --from zzz" });
   assert.equal(bad.ok, false);
@@ -89,7 +90,9 @@ test("start without a description is refused and creates no run", () => {
 test("the card always offers cancel next to the primary action", () => {
   const out = runWorkflowCommand({ slug: SLUG, projectDir, text: "/workflow feature-delivery Teste do cancelar" });
   assert.equal(out.ok, true);
-  assert.deepEqual(out.card.actions.map((a) => a.id), ["run", "advance", "cancel"]);
+  assert.deepEqual(out.card.actions.map((a) => a.id), ["run", "cancel"]); // no conclude before the stage ran
+  assert.deepEqual(out.card.actionsAfterRun.map((a) => a.id), ["run", "advance", "cancel"]);
+  assert.equal(out.card.executed, false);
 });
 
 test("stage prompt carries the delivery context, the stage gate and the stop rule", () => {
@@ -111,7 +114,9 @@ test("the card exposes run, conclude and cancel, with the stage prompt and a ref
   const { cardForExecution } = require("../ui/server/services/orchestration/workflow-command.service");
   const out = runWorkflowCommand({ slug: SLUG, projectDir, text: "/workflow feature-delivery Contexto do prompt" });
   assert.equal(out.ok, true);
-  assert.deepEqual(out.card.actions.map((a) => a.id), ["run", "advance", "cancel"]);
+  assert.deepEqual(out.card.actions.map((a) => a.id), ["run", "cancel"]); // no conclude before the stage ran
+  assert.deepEqual(out.card.actionsAfterRun.map((a) => a.id), ["run", "advance", "cancel"]);
+  assert.equal(out.card.executed, false);
   assert.match(out.card.stagePrompt, /executar a etapa "História"/);
   assert.match(out.card.stagePrompt, /Contexto do prompt/);
   const again = cardForExecution(SLUG, projectDir, out.card.executionId);

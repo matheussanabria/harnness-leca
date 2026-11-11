@@ -22,12 +22,12 @@ function listCommandSuggestions() {
 }
 
 /** "Executar etapa" injects the stage context into the chat; the conclusion is a separate, explicit click. */
-function cardActions(awaiting) {
-  return [
-    { id: "run", label: "Executar etapa" },
-    { id: awaiting ? "approve" : "advance", label: awaiting ? "Aprovar e avançar" : "Concluir e avançar" },
-    { id: "cancel", label: "Cancelar execução" },
-  ];
+function cardActions(awaiting, executed = false) {
+  const run = { id: "run", label: executed ? "Executar novamente" : "Executar etapa" };
+  const cancel = { id: "cancel", label: "Cancelar execução" };
+  if (!executed) return [run, cancel];
+  // Concluding is offered only after the stage execution finished in the chat.
+  return [run, { id: awaiting ? "approve" : "advance", label: awaiting ? "Aprovar e avançar" : "Concluir e avançar" }, cancel];
 }
 
 /** Prompt for the current stage; a plan failure never breaks the card (generic prompt instead). */
@@ -59,7 +59,9 @@ function buildCard(run, projectDir = "") {
     seed: run.meta?.seed || "",
     storyKey: run.meta?.storyKey || "",
     stagePrompt: projectDir ? stagePromptFor(run, projectDir) : "",
+    executed: false,
     actions: current ? cardActions(awaiting) : [],
+    actionsAfterRun: current ? cardActions(awaiting, true) : [],
   };
 }
 

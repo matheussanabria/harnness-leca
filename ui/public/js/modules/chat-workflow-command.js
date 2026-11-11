@@ -65,7 +65,7 @@ async function onCardAction(btn) {
     if (!res.ok) return fail(res.data, "Não foi possível cancelar.");
     const t = state.chatTurns.find((x) => x.workflowCard?.executionId === wfExec);
     if (!t) return;
-    t.workflowCard = { ...t.workflowCard, status: "cancelled", gate: false, actions: [] };
+    t.workflowCard = { ...t.workflowCard, status: "cancelled", gate: false, actions: [], actionsAfterRun: [] };
     t.workflowHtml = workflowCardHtml(t.workflowCard);
     saveActiveChatState();
     return renderChatHistory(true);
@@ -83,7 +83,7 @@ async function onCardAction(btn) {
   const fresh = run.currentStage ? await getJson(cardUrl(wfExec)) : null;
   turn.workflowCard = fresh?.ok
     ? fresh.data.card
-    : { ...turn.workflowCard, status: run.status, stageId: "", stageLabel: "", gate: false, stagePrompt: "", actions: [] };
+    : { ...turn.workflowCard, status: run.status, stageId: "", stageLabel: "", gate: false, stagePrompt: "", actions: [], actionsAfterRun: [] };
   turn.workflowHtml = workflowCardHtml(turn.workflowCard);
   saveActiveChatState();
   renderChatHistory(true);
@@ -111,6 +111,24 @@ async function runStageInChat(/** @type {HTMLElement} */ btn, /** @type {string|
   } finally {
     btn.removeAttribute("disabled");
   }
+  if (replyFinishedOk()) markStageExecuted(wfExec);
+}
+
+/** True when the last assistant turn ended normally: text received, no error, not interrupted by the user. */
+function replyFinishedOk() {
+  const last = state.chatTurns[state.chatTurns.length - 1];
+  return Boolean(last && last.role === "assistant" && last.engine !== "workflow" && last.text && !last.errorInfo && !/interrompida pelo usuário/.test(last.text));
+}
+
+/** Offers "Concluir e avançar" only after the stage was executed. */
+function markStageExecuted(/** @type {string|undefined} */ wfExec) {
+  const turn = state.chatTurns.find((t) => t.workflowCard?.executionId === wfExec);
+  const card = turn?.workflowCard;
+  if (!turn || !card || card.status === "cancelled" || !card.actionsAfterRun?.length) return;
+  turn.workflowCard = { ...card, executed: true, actions: card.actionsAfterRun };
+  turn.workflowHtml = workflowCardHtml(turn.workflowCard);
+  saveActiveChatState();
+  renderChatHistory(true);
 }
 
 let installed = false;
