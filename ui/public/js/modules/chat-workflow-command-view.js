@@ -31,8 +31,14 @@ export function workflowCardHtml(card) {
   const story = card.storyKey ? ` <span class="wf-cmd-tag">${esc(card.storyKey)}</span>` : "";
   const gate = card.gate && !cancelled ? `<div class="wf-cmd-gate">Gate: aguardando aprovação desta etapa.</div>` : "";
   const executed = card.executed && !cancelled && !done ? `<div class="wf-cmd-desc"><i class="fa-solid fa-check"></i> Etapa executada. Revise o resultado e conclua para avançar.</div>` : "";
+  const live = !cancelled && !done;
+  const dossierLine = card.dossier && live ? `<div class="wf-cmd-desc"><i class="fa-regular fa-folder-open"></i> ${esc(card.dossier)}</div>` : "";
+  const out = card.output;
+  const missing = card.executed && live && out && out.file && !out.exists
+    ? `<div class="wf-cmd-gate"><i class="fa-solid fa-triangle-exclamation"></i> O arquivo da etapa (${esc(out.path || out.file)}) ainda não existe ou está vazio. Você pode concluir mesmo assim.</div>`
+    : "";
   const buttons = (card.actions || [])
     .map((a) => `<button type="button" class="perm-btn${a.id === "run" ? " primary" : ""}" data-wf-action="${esc(a.id)}" data-wf-exec="${esc(card.executionId)}" data-wf-stage="${esc(card.stageId)}"><i class="fa-solid ${ACTION_ICONS[a.id] || "fa-forward-step"}"></i> ${esc(a.label)}</button>`)
     .join("");
-  return `<div class="wf-cmd-card"><div class="wf-cmd-title"><i class="fa-solid ${icon}"></i> <code>${esc(card.workflowId)}</code>${story}</div><div>Etapa atual: <b>${esc(stage)}</b></div>${seed}${gate}${executed}<div class="perm-actions">${buttons}</div></div>`;
+  return `<div class="wf-cmd-card"><div class="wf-cmd-title"><i class="fa-solid ${icon}"></i> <code>${esc(card.workflowId)}</code>${story}</div><div>Etapa atual: <b>${esc(stage)}</b></div>${seed}${dossierLine}${gate}${executed}${missing}<div class="perm-actions">${buttons}</div></div>`;
 }

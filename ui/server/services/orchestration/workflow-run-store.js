@@ -39,6 +39,7 @@ function ensureLoaded() {
 /** Persists the run (best effort) and returns its snapshot: use after every state change. */
 function commit(run) {
   require("./workflow-run-persist").saveRunState(run);
+  require("./workflow-dossier.service").syncDossier(run);
   return snapshot(run);
 }
 

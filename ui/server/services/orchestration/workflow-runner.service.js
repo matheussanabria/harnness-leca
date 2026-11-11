@@ -40,7 +40,10 @@ function applyFromStage(run, fromStage) {
   if (!wanted) return;
   const index = run.stageState.findIndex((item) => item.id === wanted);
   if (index < 0) throw fail(400, `Etapa '${wanted}' não existe neste workflow.`);
-  for (let i = 0; i < index; i += 1) run.stageState[i].status = "skipped";
+  for (let i = 0; i < index; i += 1) {
+    run.stageState[i].status = "skipped";
+    run.stageState[i].reason = `Retomado a partir de '${wanted}'`;
+  }
   run.currentIndex = index;
 }
 

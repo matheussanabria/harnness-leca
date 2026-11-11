@@ -32,7 +32,8 @@ const WORKFLOW_INDEX = new Map(WORKFLOW_DEFINITIONS.map((workflow) => [workflow.
 function stagePolicy(stageId) {
   return {
     stageId,
-    permissions: { read: true, write: WRITE_STAGES.has(stageId), exec: WRITE_STAGES.has(stageId) },
+    // dossier: every stage may write its file inside the feature dossier; write/exec = touches code or runs commands.
+    permissions: { read: true, dossier: true, write: WRITE_STAGES.has(stageId), exec: WRITE_STAGES.has(stageId) },
     requiresApproval: APPROVAL_STAGES.has(stageId),
     mode: "local",
   };
