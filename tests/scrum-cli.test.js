@@ -52,3 +52,18 @@ test('link stores a validated ledger id; bad ids and missing actors are refused'
   assert.equal(linked.ledgerId, 'EP-19.03');
   assert.equal(JSON.parse(run('story', 'get', id).out).ledgerId, 'EP-19.03');
 });
+
+test('done-check lists open items, accepts na with a reason and exits 0 only when all are done', () => {
+  const id = JSON.parse(run('story', 'list').out)[0].id;
+  const none = run('story', 'done-check', id);
+  assert.equal(none.code, 3);
+  assert.equal(JSON.parse(none.out).open, 6);
+  const patch = JSON.stringify({ acceptanceCriteria: ['Paste attaches the image'] });
+  assert.equal(run('story', 'update', id, '--json', patch, ...AGENT).code, 0);
+  const noReason = run('story', 'done-check', id, '--tests', 'pass', '--lint', 'na', '--browser', 'pass', '--map', 'pass', '--commit', 'awaiting-user');
+  assert.equal(noReason.code, 3);
+  assert.equal(JSON.parse(noReason.out).open, 2);
+  const full = run('story', 'done-check', id, '--tests', 'pass', '--lint', 'na:biome ignores path', '--browser', 'pass', '--map', 'pass', '--commit', 'abc1234');
+  assert.equal(full.code, 0, full.err);
+  assert.equal(JSON.parse(full.out).ready, true);
+});
