@@ -52,10 +52,12 @@ const {
 const { apiPrototypesAgentRun } = require("../controllers/atelier-agent-run.controller");
 const { apiHandoffExport } = require("../controllers/handoff-export.controller");
 const { apiProjectDesignStoryFiles } = require("../controllers/design-story-files.controller");
+const { apiProjectDesignStoryFeatures } = require("../controllers/design-story-features.controller");
 
 const designRoutes = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/export\/handoff$/, handler: apiHandoffExport },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/story-files$/, handler: apiProjectDesignStoryFiles },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/story-features$/, handler: apiProjectDesignStoryFeatures },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/profile$/, handler: apiProjectDesignProfileGet },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/profile\/detect$/, handler: apiProjectDesignProfileDetect },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/profile$/, handler: apiProjectDesignProfileSave },
