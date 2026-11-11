@@ -8,7 +8,7 @@ const { pathToFileURL } = require("url");
 const load = () => import(pathToFileURL(path.join(__dirname, "..", "ui", "public", "js", "modules", "chat-attachments-input.js")).href);
 const file = (name, type) => ({ name, type });
 
-test("transferHasFiles detects Files in types or files list", async () => {
+test("CP-04: transferHasFiles detects Files in types or files list", async () => {
   const m = await load();
   assert.equal(m.transferHasFiles({ types: ["text/plain"] }), false);
   assert.equal(m.transferHasFiles({ types: ["Files"] }), true);
@@ -16,7 +16,7 @@ test("transferHasFiles detects Files in types or files list", async () => {
   assert.equal(m.transferHasFiles(null), false);
 });
 
-test("filesFromTransfer falls back to items when files is empty", async () => {
+test("CP-09: filesFromTransfer falls back to items when files is empty", async () => {
   const m = await load();
   const f = file("x.png", "image/png");
   assert.deepEqual(m.filesFromTransfer({ files: [f] }), [f]);
@@ -25,7 +25,7 @@ test("filesFromTransfer falls back to items when files is empty", async () => {
   assert.deepEqual(m.filesFromTransfer(null), []);
 });
 
-test("pastedFileName renames the generic clipboard image and keeps real names", async () => {
+test("CP-06, CP-07, CP-08: pastedFileName renames the generic clipboard image and keeps real names", async () => {
   const m = await load();
   assert.equal(m.pastedFileName(file("image.png", "image/png"), 0, 7), "colado-7-0.png");
   assert.equal(m.pastedFileName(file("", "image/jpeg"), 1, 7), "colado-7-1.jpg");
@@ -46,7 +46,7 @@ function fakeDoc() {
 }
 const inside = {};
 
-test("drop on a composer zone uploads the files and clears the highlight", async () => {
+test("CP-01, CP-02, CP-03: drop on a composer zone uploads the files and clears the highlight", async () => {
   const m = await load();
   const doc = fakeDoc();
   const z = { classList: { add: () => doc.active.add(z), remove: () => doc.active.delete(z) }, contains: (n) => n === inside };
@@ -70,7 +70,7 @@ test("drop on a composer zone uploads the files and clears the highlight", async
   assert.equal(prevented, 3);
 });
 
-test("drops outside a chat zone or without files are ignored", async () => {
+test("CP-04, CP-05: drops outside a chat zone or without files are ignored", async () => {
   const m = await load();
   const doc = fakeDoc();
   const got = [];
