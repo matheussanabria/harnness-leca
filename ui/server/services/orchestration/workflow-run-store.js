@@ -53,6 +53,7 @@ function snapshot(run) {
     stages: run.stageState.map((item) => ({ ...item })),
     approvals: run.approvals.map((item) => ({ ...item })),
     warnings: [...(run.warnings || [])],
+    meta: { ...(run.meta || {}) },
     totals: { stages: run.stageState.length, completed, events: run.eventIds.length },
   };
 }

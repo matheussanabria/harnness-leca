@@ -25,3 +25,6 @@ updated: 2026-10-30
 | `ui/server/services/orchestration/workflow-approval.service.js` and `workflow-history.service.js` | Decides sensitive-step approvals, publishes `execution.approval_requested`/`approved`/`rejected`, persists `workflow-runs.jsonl` (EP-08.05). |
 | `ui/server/controllers/orchestration-routines.controller.js` and `orchestration-approvals.controller.js` | Routine catalog, idempotent run, approval queue, decision and history; writes restricted to loopback (EP-08.05). |
 | `ui/server/services/orchestration/event-engine.js` | Event engine; `event-engine-projection.js` is the mixin with the event projection. |
+| `ui/server/services/orchestration/workflow-command-parser.js` | Pure parser of `/workflows` and `/workflow <slug> <desc> [--story K] [--from S]`. |
+| `ui/server/services/orchestration/workflow-command.service.js` | Resolves slug against the catalog, starts the run (dossier, completes `start`, seeds `story`), builds the gate card; lists autocomplete suggestions. Routes: `POST /api/project/:slug/workflow-command` (loopback) and `GET /api/orchestration/workflow-commands`. |
+| `tests/workflow-command.test.js` | Covers parser, slug resolution, invalid slug error, `--from`/`--story`, gate card and suggestions. |
