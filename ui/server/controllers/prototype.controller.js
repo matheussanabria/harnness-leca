@@ -113,12 +113,13 @@ async function apiPrototypesGet({ res, params: [slug, protoId] }) {
 }
 
 /** GET /api/project/:slug/design/prototypes/:protoId/render/:screenId? */
-async function apiPrototypesRender({ res, params: [slug, protoId, screenId] }) {
+async function apiPrototypesRender({ req, res, params: [slug, protoId, screenId] }) {
   const projectDir = path.join(getProjects(), slug);
   const { repo } = getProjectRepoInfo(slug);
   const context = getProjectDesignContext(slug, projectDir, repo || projectDir);
+  const part = new URL(req.url, "http://x").searchParams.get("part") === "content" ? "content" : undefined;
 
-  const result = renderPrototypeScreen(projectDir, repo || projectDir, protoId, screenId, context);
+  const result = renderPrototypeScreen(projectDir, repo || projectDir, protoId, screenId, context, undefined, { part });
   if (!result.ok) {
     return send(res, result.status || 400, { error: result.error });
   }

@@ -9,6 +9,7 @@ import { resolveActiveLayer } from "./design-layers/layers-audience-profiles.js"
 import { renderLayersTabsNav } from "./design-layers/layers-tabs-nav.js";
 import { renderScreenReplica } from "./design-layers/layers-screen-replica.js";
 import { renderLayersRightColumn } from "./design-layers/layers-right-content.js";
+import { fitPrototypeFrames } from "./design-layers/layers-screen-replica-proto.js";
 import { renderStoryFilesPanel } from "./design-layers/layers-story-files.js";
 import { hydrateLayersState, persistLayersState, isLayersStateHydrated } from "./design-layers-state.js";
 
@@ -76,6 +77,7 @@ export function renderLayersWorkspace(container, projectSlug, screensData) {
       ${renderStoryFilesPanel(dls.storyFiles)}
     </div>
   `;
+  fitPrototypeFrames(container);
 
   if (!isLayersStateHydrated()) {
     hydrateLayersState().then((changed) => {

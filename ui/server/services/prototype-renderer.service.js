@@ -12,9 +12,10 @@ const { renderSandboxScreen } = require("./prototype-sandbox-renderer.service");
  * @param {string} screenId
  * @param {object} [context]
  * @param {object} [deps]
+ * @param {{ part?: string }} [options] part "content": so a area de conteudo da tela, sem cabecalho e menu
  */
-function renderPrototypeScreen(projectDir, repoRoot, protoId, screenId, context = {}, deps = { fs, path }) {
-  return renderSandboxScreen(projectDir, repoRoot, protoId, screenId, { context }, deps);
+function renderPrototypeScreen(projectDir, repoRoot, protoId, screenId, context = {}, deps = { fs, path }, options = {}) {
+  return renderSandboxScreen(projectDir, repoRoot, protoId, screenId, { context, part: options.part }, deps);
 }
 
 module.exports = {

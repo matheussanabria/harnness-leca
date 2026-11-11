@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const { getPrototypesBaseDir } = require("./prototype-storage.service");
 const { loadSandboxAssets, loadBridgeScript, buildSandboxHeaders } = require("./prototype-sandbox-common.service");
 const { renderDcScreen } = require("./prototype-sandbox-dc.service");
+const { extractContentSection, SECTION_CSS } = require("./prototype-section-extract");
 
 /**
  * Renderiza uma tela de protótipo em sandbox iframe isolada e segura.
@@ -42,7 +43,10 @@ function renderSandboxScreen(projectDir, repoRoot, protoId, screenId, options = 
     return { ok: false, status: 404, error: `Tela '${targetScreen}' não encontrada no protótipo '${protoId}'.` };
   }
 
-  const screenHtml = deps.fs.readFileSync(screenFile, "utf8");
+  const rawScreenHtml = deps.fs.readFileSync(screenFile, "utf8");
+  const sectionOnly = options.part === "content";
+  const screenHtml = sectionOnly ? extractContentSection(rawScreenHtml) : rawScreenHtml;
+  const sectionStyle = sectionOnly ? `<style id="harnessSectionStyle">${SECTION_CSS}</style>\n  ` : "";
   const { tokensCss, themeCss, componentsCss, protoCss, headHtml } = loadSandboxAssets(projectDir, protoDir, deps);
   // CSS dos componentes do DS só entra em protótipos que pedem (metadata.dsComponents), para não afetar os antigos.
   const dsComponentsStyle = protoManifest?.metadata?.dsComponents && componentsCss ? `<style id="dsComponentsStyle">${componentsCss}</style>\n  ` : "";
@@ -65,6 +69,7 @@ function renderSandboxScreen(projectDir, repoRoot, protoId, screenId, options = 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style id="dsTokensStyle">${tokensCss}\n${themeCss}</style>
   ${dsComponentsStyle}<style id="protoCustomStyle">${protoCss}</style>
+  ${sectionStyle}
   <style id="harnessBridgeStyle">
     [data-node-id], [data-pid] { transition: outline 0.15s ease-in-out; cursor: pointer; }
     [data-node-id]:hover, [data-pid]:hover { outline: 1px dashed rgba(59, 130, 246, 0.7); outline-offset: 1px; }
