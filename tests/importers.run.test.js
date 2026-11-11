@@ -163,3 +163,19 @@ test("sync: importa os 3 motores em memória, só em projetos que já existem, e
   assert.deepEqual(row(second, "gemini"), [0, 0, 1]);
   assert.deepEqual(row(second, "opencode"), [0, 0, 1]);
 });
+
+test("claude-code: o envelope <contexto_do_harness> não vira título nem texto do turno", (t) => {
+  const home = newHome(t);
+  const dir = path.join(home, ".claude", "projects", "c--envelope");
+  fs.mkdirSync(dir, { recursive: true });
+  const envelope = "<contexto_do_harness>\nAviso: dados do usuário\n</contexto_do_harness>";
+  const events = [
+    { type: "user", timestamp: "2026-01-10T10:00:00.000Z", cwd: "C:/git/x", message: { content: `${envelope}\n\nPergunta real` } },
+    { type: "assistant", timestamp: "2026-01-10T10:00:05.000Z", message: { id: "m1", content: [{ type: "text", text: "Resposta" }] } },
+  ];
+  fs.writeFileSync(path.join(dir, "abcd1234-0000-0000-0000-000000000000.jsonl"), events.map((e) => JSON.stringify(e)).join("\n"));
+  claudeCode.run(["--from", "c--envelope", "--project", SLUG], io(), { home });
+  const [name] = files();
+  assert.match(name, /pergunta-real/);
+  assert.doesNotMatch(fs.readFileSync(path.join(chats(), name), "utf8"), /contexto_do_harness/);
+});

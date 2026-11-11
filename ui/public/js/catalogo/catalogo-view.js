@@ -38,8 +38,16 @@ function renderCard(item, areas, canManage) {
   return (
     `<article class="k-card"><h3><button type="button" class="k-open" data-open="${esc(item.kind)}:${esc(item.source)}:${esc(item.ref)}" title="Abrir arquivos"><i class="fa-solid ${icon}" aria-hidden="true"></i> ${esc(item.label || item.name)}</button></h3>` +
     `<p>${esc(item.description || "Sem descrição.")}</p>` +
-    `<div class="k-meta"><span class="k-tag">${kind}</span><span class="k-tag">${esc(item.sourceLabel)}</span>${stagesTag}${also}${linkTag(item)}${origin}${select}</div></article>`
+    `<div class="k-meta"><span class="k-tag">${kind}</span><span class="k-tag">${esc(item.sourceLabel)}</span>${stagesTag}${also}${agentTags(item)}${linkTag(item)}${origin}${select}</div></article>`
   );
+}
+
+/** Model and tool count of an agent, taken from its manifest. */
+function agentTags(item) {
+  if (item.kind !== "agent") return "";
+  const n = String(item.tools || "").split(",").filter((t) => t.trim()).length;
+  return (item.model ? `<span class="k-tag" title="Modelo do manifesto"><i class="fa-solid fa-microchip" aria-hidden="true"></i> ${esc(item.model)}</span>` : "") +
+    (n ? `<span class="k-tag" title="${esc(item.tools)}"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> ${n} ferramentas</span>` : "");
 }
 
 /** Groups already filtered; one section per area. */

@@ -375,3 +375,13 @@ test("exportFileName makes safe download names", async () => {
   assert.equal(exportFileName("../..", "svg"), "board.svg");
   assert.equal(exportFileName("   ", "svg"), "board.svg");
 });
+
+test("images without a created stamp (Mermaid output) survive save and reload", async () => {
+  const { refFromAsset } = await load("assetRefs.ts");
+  const { deserializeScene } = await load("serialize.ts");
+  const ref = refFromAsset({ hash: HASH, ext: "png" }, "image/png", undefined);
+  assert.equal(typeof ref.created, "number");
+  // Boards already saved by the old code have no `created` at all: they must still load their files.
+  const legacy = { schema: "excalidraw@1", elements: [], appState: {}, files: { f1: { ref: `${HASH}.png`, mimeType: "image/png" } } };
+  assert.deepEqual(Object.keys(deserializeScene(legacy).files), ["f1"]);
+});

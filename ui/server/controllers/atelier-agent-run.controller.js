@@ -4,6 +4,8 @@ const path = require("path");
 const { getProjects, send, readJsonBody, slugs } = require("../config");
 const { createAtelierAgentLoop } = require("../services/atelier-agent-loop.service");
 const { buildGeminiModelTurn, buildOpenCodeModelTurn } = require("../services/atelier-engine-adapters.service");
+const { buildEngineModelTurn } = require("../services/atelier-cli-engine-turn.service");
+const { engines } = require("../../../tools/lib/engines");
 const { finalizeVersion } = require("../services/atelier-tools.service");
 const { buildProtoContext } = require("../services/atelier-proto-context.service");
 const { loadEnv } = require("../../../tools/lib/env");
@@ -30,23 +32,20 @@ async function apiPrototypesAgentRun({ req, res, params: [slug, protoId] }) {
   const startedAt = Date.now();
   console.log(`[agent-run] ${protoId} engine=${engine} model=${model || "(padrão do servidor)"} effort=${effort}`);
 
+  // Gemini com chave e modelo gemini-* usa a API (tool-use nativo); OpenCode tem fluxo v2 próprio; qualquer outro
+  // motor (claude, codex, ollama, gemini via Antigravity) roda pelo motor do harness em modo somente leitura.
   let modelTurn;
-  if (engine === "gemini") {
-    const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    if (!key) {
-      return send(res, 400, { error: "Chave do Gemini (GEMINI_API_KEY) não configurada no ambiente." });
-    }
-    modelTurn = buildGeminiModelTurn({ key, model: model || "gemini-3.7-flash", effort });
+  const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (engine === "gemini" && geminiKey && (!model || /^gemini/i.test(model))) {
+    modelTurn = buildGeminiModelTurn({ key: geminiKey, model: model || "gemini-3.7-flash", effort });
   } else if (engine === "opencode") {
     modelTurn = buildOpenCodeModelTurn({ model, effort, sessionId });
   } else {
-    // Fallback padrão para Gemini
-    const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    if (key) {
-      modelTurn = buildGeminiModelTurn({ key, model: model || "gemini-3.7-flash", effort });
-    } else {
-      return send(res, 400, { error: `Motor '${engine}' não suportado ou sem credenciais configuradas.` });
-    }
+    const impl = engines.get(engine);
+    if (!impl) return send(res, 400, { error: `Motor '${engine}' não suportado.` });
+    // Id de sessão de outro motor (ex.: "ses_..." do OpenCode) não vale aqui: sem sessão, o histórico vai por texto.
+    const nativeSession = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId || "") ? sessionId : "";
+    modelTurn = buildEngineModelTurn({ impl, engine, slug, model, effort, sessionId: nativeSession });
   }
 
   res.writeHead(200, {

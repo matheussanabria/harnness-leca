@@ -24,10 +24,13 @@ Tudo roda localmente na sua máquina, com preservação total de privacidade. Th
 | `npm run types:web` / `npm run lint:web` | TypeScript check and Biome lint of `ui/web` |
 | `npm run e2e:web` | E2E of the island foundation in headless Edge (own server on port 4399) |
 
+> 💡 **Guia Completo:** Para a documentação e parâmetros de todos os scripts do `package.json`, consulte **[docs/setup/COMANDOS.md](docs/setup/COMANDOS.md)**.
+
 ---
 
 ## 📚 Documentação
 
+- 📋 **[docs/setup/COMANDOS.md](file:///c:/Users/matheuss.rodrigues/git/harness-leca/docs/setup/COMANDOS.md):** Catálogo detalhado com a descrição e parâmetros de todos os scripts do `package.json`.
 - **Getting started (English):** [overview](docs/setup/01-overview.md), [installation](docs/setup/02-installation.md), [engines and credentials](docs/setup/03-engines-and-credentials.md), [first import, sync and export](docs/setup/04-first-sync.md), [adopting existing projects](docs/setup/05-adopt-existing-projects.md).
 - **For AI agents:** [docs/agents/BOOTSTRAP.md](docs/agents/BOOTSTRAP.md) (setup and first sync) and [docs/agents/ADOPTION.md](docs/agents/ADOPTION.md) (adopting a project).
 - 📐 **[docs/sdlc/README.md](file:///c:/Users/matheuss.rodrigues/git/harness-leca/docs/sdlc/README.md):** Especificação oficial de requisitos de software (SDLC), domínios de negócio (DDD), regras de negócio, RFs e RNFs.

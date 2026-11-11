@@ -12,6 +12,7 @@ import { renderAtelierHtml, renderScreenOptions, renderVersions } from "./protot
 import { attachStudioSidebarToAtelier, detachStudioSidebarFromAtelier } from "./prototype-atelier-sidebar.js";
 import { bindCanvasMode, canvasPost, canvasReload, canvasSetInspector } from "./prototype-atelier-canvas.js";
 import { mountHistory, refreshHistorySoon } from "./prototype-history-panel.js";
+import { mountExportMenu, downloadHandoff } from "./prototype-export-menu.js";
 import { bindInspectorToggle, singleScreenMode } from "./prototype-inspector-toggle.js";
 import { bindInspectorTabs } from "./prototype-atelier-inspector-tabs.js";
 import { applyAtelierLayout, beginAtelierAdoption, bindAtelierLayout, persistAtelierActive, persistAtelierInspector, persistAtelierScreen, persistAtelierViewport, restoredAtelierNode, restoredAtelierScreen, restoredAtelierViewport } from "./prototype-atelier-adoption.js";
@@ -88,7 +89,7 @@ function renderAtelierLayout(container) {
   }
   ctx.pendingPid = restoredAtelierNode();
   const catalog = document.querySelector(".proto-col-catalog");
-  if (catalog) bindPrototypeCatalog(catalog, navigateCatalog, ctx.options.onDelete);
+  if (catalog) bindPrototypeCatalog(catalog, navigateCatalog, ctx.options.onDelete, (target) => void downloadHandoff({ slug: ctx.slug, protos: target === "all" ? "all" : [target], ds: true, mcp: true }));
   if (catalog) bindComponentCatalog(catalog, {
     onLocate: locateComponent,
     onPreview: (componentId) => openComponentModal(ctx.slug, componentId),
@@ -106,6 +107,7 @@ function renderAtelierLayout(container) {
   });
   bindAtelierEvents(container);
   mountHistory({ slug: ctx.slug, protoId: ctx.protoId, onMoved: refreshAtelierPreview });
+  mountExportMenu({ slug: ctx.slug, protoId: ctx.protoId });
   bindSelectionBar();
   installHistoryKeys();
   persistAtelierActive(ctx.protoId, ctx.screen);
