@@ -19,6 +19,7 @@ updated: 2026-10-30
 | `ui/public/js/modules/prototype-canvas/canvas-interactions.js` | Mouse, wheel (pan/zoom), drag, resize, drawing items and keyboard shortcuts. |
 | `ui/public/js/modules/prototype-canvas/canvas-toolbar.js` | Tools (select, hand, frame, text, note, rectangle, code), zoom, duplicate, delete and Play. |
 | `ui/public/js/modules/prototype-canvas/canvas-play.js` | Play navigation: each screen becomes a canvas frame and `goto:` links move the camera to the target frame. |
+| `ui/public/js/modules/design-layers/layers-audience-profiles.js`, `layers-audience.js`, `ui/public/css/design/34-layers-audience.css` | "Quem esta olhando" selector (Tudo, Usuario final, Produto, Desenvolvimento, QA): each profile limits visible layers; persisted as `audience` in the `layers` screen state. |
 | `ui/public/js/modules/design-layers/` | Layered map in 2 columns: `layers-header` metrics, `layers-stages-nav`, `layers-tabs-nav` (6 tabs), `layers-screen-replica` and `layers-detail-*.js`. |
 | `ui/public/js/modules/design-scrum-state.js`, `ui/public/js/modules/design-layers-state.js`, `ui/public/js/modules/design-audit.js` | Adopt the per-screen state client: snapshot, validated apply, single hydration, persistence keeping early user actions (EP-14.09). `design-audit.js` is split into `design-audit-*.js` with `design-audit-store.js` for shared state. |
 | `ui/public/js/modules/design-board.js` | Component kanban with filter, grouping by stage/feature, card selection and 25-200% zoom persisted per screen (EP-14.09). |

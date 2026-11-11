@@ -101,7 +101,12 @@ export async function rehydrateFiles(
         const response = await fetchImpl(api.assetUrl(id, entry.ref));
         if (!response.ok) throw new Error(String(response.status));
         const dataURL = await toDataUrl(await response.blob());
-        files[fileId] = { id: fileId, mimeType: entry.mimeType, dataURL, created: entry.created };
+        files[fileId] = {
+          id: fileId,
+          mimeType: entry.mimeType,
+          dataURL,
+          created: typeof entry.created === "number" ? entry.created : Date.now(),
+        };
       } catch {
         missing.push(fileId);
       }

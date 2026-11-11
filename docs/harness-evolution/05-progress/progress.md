@@ -19,7 +19,7 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-05 | 7/7 | **concluído** | 05.01 a 05.06 entregaram schema v2, 12 raias, ordem persistida, transições auditáveis, impedimentos/filtros/métricas e projeção do Kanban no telão; 05.07 entregou a integração com o Jira: leitura viva no servidor com PAT do ambiente, botão Sincronizar Jira, consulta local por script (`tools/jira-query.js`), redação de CPF/CNS/e-mail/telefone e panorama em `context/jira-resumo.md` | Portão satisfeito; MCP de Jira e rotinas com comentários para agente em nuvem bloqueados até a decisão do PM sobre a 10.9 (LGPD) |
 | EP-06 | 5/5 | **concluído** | 06.01 a 06.05 concluídas; layout responsivo, chat compartilhado, visualizações Código/Design/Preview, guard de alterações e mapeamento de elemento para arquivo/componente | Portão satisfeito |
 | EP-07 | 5/5 | **concluído** | 07.01 a 07.05 concluídas; inventário, importação, manifesto de origem, acesso local/projeto, prévia segura e vínculos navegáveis no Mapa em Camadas | Portão satisfeito; EP-11 liberado |
-| EP-08 | 5/5 | **concluído (contrato); UI pendente** | 08.01 a 08.05 concluídas; catálogo de capacidades por provedor, etapas do SDLC com agentes/papéis/gates, vínculos de skills por projeto e raia, execução de workflows com eventos canônicos e rotinas com aprovação e histórico | Portão satisfeito; EP-09 liberado |
+| EP-08 | 8/8 | **concluído** | 08.01 a 08.08 concluídas; catálogo, etapas, vínculo de skills, execução de workflows, rotinas/aprovação, UI de workflows, catálogo global com rotas canônicas e renderização de diagramas Mermaid | Portão satisfeito; EP-09 liberado |
 | EP-09 | 6/6 | **concluído** | 09.01 (registro canônico), 09.02 (event log e SSE), 09.03 (Central), 09.04 (navegação e retomada), 09.05 (fila de atenção e aprovações) e 09.06 (monitor de motores e estados de atividade) implementadas | Portão satisfeito |
 | EP-10 | 5/5 | **concluído** | 10.01 a 10.05 concluídas; pipelines, saúde, histórico, ações autorizadas e paridade com o escritório | Portão satisfeito |
 | EP-11 | 5/5 | **concluído** | 11.01 a 11.05 concluídas (regressão automatizada em `scripts/regressao.js`); matriz de auditoria, estados de teste, Quadro de Componentes e auditoria visual do Design System (`GET /audit/design-system`) | Encerrado |
@@ -30,7 +30,7 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-20 | 0/1 | **em revisão** | Edição de código pelo celular implementada; aguarda validação visual dos breakpoints móveis | Validar em 320px, 375px e 768px e registrar aceite |
 | EP-21 | 2/13 | **em andamento** | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA; 13 histórias criadas, ADR-014 aceito (21.01 e 21.02 concluidas). |
 
-**Total: 138/163**
+**Total: 141/166**
 
 ## Registro
 

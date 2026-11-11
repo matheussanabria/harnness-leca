@@ -2,6 +2,7 @@
 import { esc } from "../../shared/dom.js";
 import { dls } from "../design-layers-store.js";
 import { LAYERS_NAV } from "./layers-state.js";
+import { visibleLayerIds, resolveActiveLayer } from "./layers-audience-profiles.js";
 
 /**
  * Renderiza as 6 abas de navegação por camadas com título, subtítulo e destaque ativo.
@@ -9,7 +10,8 @@ import { LAYERS_NAV } from "./layers-state.js";
  * @returns {string}
  */
 export function renderLayersTabsNav(sc) {
-  const curLayer = dls.activeLayer || "ui";
+  const visible = visibleLayerIds(dls.activeAudience || "all");
+  const curLayer = resolveActiveLayer(dls.activeAudience || "all", dls.activeLayer || "ui");
 
   const getLayerCount = (layerId) => {
     if (!sc) return 0;
@@ -24,7 +26,7 @@ export function renderLayersTabsNav(sc) {
     }
   };
 
-  const tabsHtml = LAYERS_NAV.map((l) => {
+  const tabsHtml = LAYERS_NAV.filter((l) => visible.includes(l.id)).map((l) => {
     const isActive = l.id === curLayer;
     const count = getLayerCount(l.id);
 

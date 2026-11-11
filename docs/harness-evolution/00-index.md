@@ -7,7 +7,7 @@ atualizado: 2026-10-21
 
 Documento mestre do programa de evolução. Cada entrega aceita tem um documento próprio em `02-epics/`, para que um agente receba só a história que vai implementar e as dependências dela.
 
-> Snapshot verificado em 2026-11-06: 138/163 entregas concluídas; as 13 do EP-17, a 20.01 do EP-20 e as 11 restantes do EP-21 estão planejadas. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
+> Snapshot verificado em 2026-11-09: 141/166 entregas concluídas; as 13 do EP-17, a 20.01 do EP-20 e as 11 restantes do EP-21 estão planejadas. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
 
 > Revisão de 2026-10-24: "concluído" significa contrato aceito (API, módulo e testes). Vários épicos têm entregas sem tela ou sem fiação no cliente; o detalhe verificado está em [epic-gaps](05-progress/epic-gaps.md). Os épicos abaixo marcados com "UI pendente" não devem ser tratados como utilizáveis pelo usuário.
 
@@ -34,7 +34,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-05](02-epics/EP-05-scrum/README.md) | Scrum & Sprints | P1 | Concluído | 7/7 |
 | [EP-06](02-epics/EP-06-studio/README.md) | Studio, código e preview | P1 | Concluído | 5/5 |
 | [EP-07](02-epics/EP-07-artefatos/README.md) | Artefatos e documentação | P1 | Concluído | 5/5 |
-| [EP-08](02-epics/EP-08-agentes/README.md) | Agentes, skills e workflows | P1 | Concluído (contrato); UI pendente: só 08.05 tem tela | 5/5 |
+| [EP-08](02-epics/EP-08-agentes/README.md) | Agentes, skills e workflows | P1 | Concluído | 8/8 |
 | [EP-09](02-epics/EP-09-observabilidade/README.md) | Central de sessões, observabilidade e orquestração | P1 | Concluído; descoberta, event log SSE, Central, ações e fila de atenção | 6/6 |
 | [EP-10](02-epics/EP-10-deploy/README.md) | Datacenter e deploys | P2 | Concluído; 10.01 a 10.05 aceitas; frente opencode/deploy | 5/5 |
 | [EP-11](02-epics/EP-11-auditoria-qualidade/README.md) | Auditoria, testes e Design System | P2 | Concluído; 11.01 a 11.05 aceitas; frente opencode/qualidade | 5/5 |
@@ -60,7 +60,7 @@ flowchart TD
     MOD --> OPS["EP-09 a EP-12 Operação, qualidade e protótipos"]
 ```
 
-## 3. Backlog (138/163)
+## 3. Backlog (141/166)
 
 Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a criação e o aceite do documento da história. EP-12 detalha as 32 histórias do motor multiframework. `HAR-xxx` indica o item equivalente do [backlog da Fase 0](08-prioritized-backlog.md).
 
@@ -133,12 +133,15 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [x] [07.04](02-epics/EP-07-artefatos/07.04-previews-seguros.md) Previews seguros
 - [x] [07.05](02-epics/EP-07-artefatos/07.05-relacionamentos-mapa-camadas.md) Relacionamentos e Mapa em Camadas (HAR-012, HAR-013)
 
-### EP-08 Agentes, skills e workflows (5/5)
+### EP-08 Agentes, skills e workflows (8/8)
 - [x] [08.01](02-epics/EP-08-agentes/08.01-catalogo-capacidades.md) Catálogo padronizado de capacidades
 - [x] [08.02](02-epics/EP-08-agentes/08.02-agentes-por-etapa-sdlc.md) Agentes associados às etapas do SDLC
 - [x] [08.03](02-epics/EP-08-agentes/08.03-skills-projeto-raia.md) Vínculo de skills por projeto e raia (HAR-016)
 - [x] [08.04](02-epics/EP-08-agentes/08.04-execucao-workflows.md) Execução de workflows
 - [x] [08.05](02-epics/EP-08-agentes/08.05-rotinas-aprovacao-historico.md) Rotinas com aprovação e histórico (HAR-017)
+- [x] [08.06](02-epics/EP-08-agentes/08.06-ui-workflows.md) Workflows UI: catalog, plan and runs
+- [x] [08.07](02-epics/EP-08-agentes/08.07-gestao-global-workflows-e-rotas.md) Gestão global de workflows e roteamento canônico
+- [x] [08.08](02-epics/EP-08-agentes/08.08-renderizacao-diagramas-mermaid-workflows.md) Renderização de diagramas Mermaid nos workflows
 
 ### EP-09 Central de sessões, observabilidade e orquestração (6/6)
 - [x] [09.01](02-epics/EP-09-observabilidade/09.01-descoberta-registro-canonico.md) Descoberta e registro canônico de sessões (implementada)
@@ -272,7 +275,7 @@ Os três chats usam o motor OpenCode; o que os distingue é a **frente**, e é e
 1. **opencode/qualidade:** 09.02 (event log, projeções e recuperação SSE) em andamento; 09.04 e 09.05 detalhadas em documentação; 11.05 (regressão automatizada) e a dívida de tipos. Destrava o restante do EP-09.
 2. **opencode/deploy:** EP-10 encerrado (5/5): pipelines, saude por ambiente, linha do tempo com logs, acoes autorizadas e paridade com o escritorio; proxima frente: EP-11 (11.04 e 11.05) ou apoio ao EP-09.
 3. **opencode/jira:** integração com o Jira (snapshot, consulta e sincronização com o quadro).
-4. EP-03, EP-06, EP-09, EP-13 e EP-14 encerrados (9/9, 5/5, 6/6, 9/9 e 12/12); EP-11 encerrado (5/5); 138/163 global (EP-17 e EP-20 planejados; EP-21 em andamento, 21.01 e 21.02 aceitas). Cada chat commita apenas os arquivos da própria frente, por caminho.
+4. EP-03, EP-06, EP-08, EP-09, EP-13 e EP-14 encerrados (9/9, 5/5, 8/8, 6/6, 9/9 e 12/12); EP-11 encerrado (5/5); 141/166 global (EP-17 e EP-20 planejados; EP-21 em andamento, 21.01 e 21.02 aceitas). Cada chat commita apenas os arquivos da própria frente, por caminho.
 5. A próxima história de EP-09/EP-10/EP-11 deve ser criada e aceita a partir do template antes da implementação.
 6. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
 7. A divisão completa e os handoffs obrigatórios estão no [painel de coordenação](05-progress/multi-agent-sync.md).

@@ -4,6 +4,8 @@ import { $, esc } from "../shared/dom.js";
 import { dls } from "./design-layers-store.js";
 import { renderLayersModuleHeader } from "./design-layers/layers-header.js";
 import { renderStagesNav } from "./design-layers/layers-stages-nav.js";
+import { renderAudienceSelector } from "./design-layers/layers-audience.js";
+import { resolveActiveLayer } from "./design-layers/layers-audience-profiles.js";
 import { renderLayersTabsNav } from "./design-layers/layers-tabs-nav.js";
 import { renderScreenReplica } from "./design-layers/layers-screen-replica.js";
 import { renderLayersRightColumn } from "./design-layers/layers-right-content.js";
@@ -50,6 +52,8 @@ export function renderLayersWorkspace(container, projectSlug, screensData) {
 
       <!-- 2. Barra de Navegação por Etapas -->
       ${renderStagesNav(screens)}
+
+      ${renderAudienceSelector()}
 
       <!-- 3. Barra de Navegação pelas 6 Camadas -->
       ${renderLayersTabsNav(cur)}
@@ -126,6 +130,17 @@ if (typeof window !== "undefined") {
     const container = $("designViewContainer");
     if (container) renderLayersWorkspace(container, "", dls.currentScreensData);
     return true;
+  };
+
+  // @ts-ignore
+  window.setLayersAudience = (audience) => {
+    dls.activeAudience = audience;
+    dls.activeLayer = resolveActiveLayer(audience, dls.activeLayer);
+    void persistLayersState({ audience, selectedLayer: dls.activeLayer });
+    const container = $("designViewContainer");
+    if (container && dls.currentScreensData) {
+      renderLayersWorkspace(container, "", dls.currentScreensData);
+    }
   };
 
   // @ts-ignore

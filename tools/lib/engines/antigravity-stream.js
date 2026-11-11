@@ -103,10 +103,11 @@ function createAntigravityStreamParser(sinks, initialSessionId) {
  * @param {import("../types").EngineRequest} req
  */
 function streamAntigravity(bin, req) {
-  const { prompt, slug, sessionId, model, effort, daiAgent, signal, onChunk, onDone, onError, onToolUse, onToolResult } = req;
+  const { prompt, slug, sessionId, model, effort, daiAgent, readOnly, signal, onChunk, onDone, onError, onToolUse, onToolResult } = req;
 
   const validSession = isUuid(sessionId);
-  const args = ["-p", "-", "--output-format", "stream-json", "--dangerously-skip-permissions"];
+  const args = ["-p", "-", "--output-format", "stream-json"];
+  if (!readOnly) args.push("--dangerously-skip-permissions"); // readOnly (Ateliê): sem liberar escrita nem comandos
 
   if (validSession) {
     args.push("--conversation", sessionId);

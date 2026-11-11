@@ -3,6 +3,7 @@ const path = require("path");
 const { spawn } = require("child_process");
 const { getRoot, slugs, send, readJsonBody, HEADERS } = require("../config");
 const syncCore = require("../../../tools/lib/sync-core");
+const autoSync = require("../services/auto-sync.service");
 
 const SYNC_ENGINES = ["claude", "gemini", "opencode"];
 let syncRunning = false;
@@ -22,7 +23,7 @@ async function apiSync({ req, res }) {
     return send(res, 400, { error: `Motor inválido. Use: ${SYNC_ENGINES.join(", ")} ou "all".` });
   }
   if (!slugs().length) return send(res, 400, { error: "Nenhum projeto em projects/ para sincronizar." });
-  if (syncRunning) return send(res, 409, { error: "Já há uma sincronização em andamento." });
+  if (syncRunning || !autoSync.acquireManual()) return send(res, 409, { error: "Já há uma sincronização em andamento." });
 
   const dryRun = body && body.dryRun === true;
   const syncScript = path.resolve(__dirname, "..", "..", "..", "tools", "sync.js");
@@ -52,6 +53,7 @@ async function apiSync({ req, res }) {
     if (finished) return;
     finished = true;
     syncRunning = false;
+    autoSync.releaseManual();
     if (buf.trim()) emit({ type: "log", line: buf.trimEnd() });
     emit({ type: "done", code, ms: Date.now() - started });
     res.end();
@@ -87,6 +89,7 @@ async function apiSync({ req, res }) {
     if (finished) return;
     finished = true;
     syncRunning = false;
+    autoSync.releaseManual();
     try {
       child.kill();
     } catch {

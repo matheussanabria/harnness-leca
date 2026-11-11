@@ -24,6 +24,8 @@ const { ROOT } = require("./lib/root");
 
 const { redact } = require("./lib/redact"); // redação de segredos comuns (heurística)
 const { slugify } = require("./lib/text");
+const { stripEnvelope, isEnvelopeTitle } = require("./lib/envelope");
+const fingerprints = require("./lib/sync-fingerprint");
 const { renderChat } = require("./lib/chat-format");
 const { writeChat } = require("./lib/chat-store");
 const { flag, opt, CliError, runAsScript } = require("./lib/cli");
@@ -82,9 +84,10 @@ function convert(db, session, withTools) {
       let part;
       try { part = JSON.parse(p.data); } catch { continue; }
 
-      if (part.type === "text" && (part.text || "").trim()) {
-        push(who, { kind: "text", text: part.text.trim() });
-        if (who === "user" && !firstUserText) firstUserText = part.text.trim();
+      const text = part.type === "text" ? (who === "user" ? stripEnvelope(part.text) : String(part.text || "").trim()) : "";
+      if (part.type === "text" && text) {
+        push(who, { kind: "text", text });
+        if (who === "user" && !firstUserText) firstUserText = text;
       } else if (part.type === "reasoning" && withTools && (part.text || "").trim()) {
         push("assistant", { kind: "thinking", text: part.text.trim() });
       } else if (part.type === "tool" && withTools) {
@@ -162,7 +165,11 @@ function run(argv, io = console, { home = os.homedir(), sessionIds } = {}) {
     const chatsDir = path.join(dest, "chats");
     if (!dry) fs.mkdirSync(chatsDir, { recursive: true });
 
+    const cache = fingerprints.open();
     for (const s of selected) {
+      const fpKey = `opencode:${s.id}`, fp = `${s.timeUpdated}:${s.title}:${has("no-tools") ? 0 : 1}`, shortKey = slugify(s.id.slice(0, 12));
+      const hit = dry ? "" : cache.unchanged(fpKey, fp, chatsDir, shortKey);
+      if (hit) { io.log(`[sem mudança] ${hit}  (em cache)`); result.igual++; continue; }
       const c = convert(db, s, !has("no-tools"));
       if (!c) { result.ignoradas++; continue; }
       const date = iso(c.first).slice(0, 10) || "sem-data";
@@ -173,7 +180,9 @@ function run(argv, io = console, { home = os.homedir(), sessionIds } = {}) {
       io.log(`${dry ? "[dry-run] " : ""}[${state}] ${name}  (${c.turns.length} turnos)`);
       for (const old of removed) io.log(`  (renomeada; removido ${old})`);
       result[state === "sem mudança" ? "igual" : state]++;
+      if (!dry) cache.remember(fpKey, fp, chatsDir);
     }
+    cache.save();
     const processed = result.nova + result.atualizada + result.igual;
     io.log(`\n${processed} conversas processadas (${result.nova + result.atualizada} novas ou atualizadas), ${result.ignoradas} ignoradas (vazias ou subagentes).`);
     io.log(`Para ver o que ainda precisa de extração: node tools/extraction-state.js --project ${slug} status`);

@@ -3,7 +3,7 @@
 // Formata histórico com tool-calls/results e extrai respostas estruturadas.
 const { getGeminiFunctionDeclarations, getOpenCodeTools } = require("./atelier-tools.service");
 const { parseToolTags } = require("./atelier-tool-tags.service");
-const { NAV_RULES } = require("./atelier-nav-contract.service");
+const { TOOL_INSTRUCTION } = require("./atelier-tool-instruction.service");
 const V2 = require("../../../tools/lib/opencode-v2");
 const { runTurn, TurnError } = require("../../../tools/lib/opencode-v2-turn");
 const { ocFetch } = require("../../../tools/lib/opencode-detect");
@@ -246,17 +246,7 @@ function buildOpenCodeModelTurn({
       userText = `Resultados das ferramentas executadas:\n${JSON.stringify(lastMsg.toolResults, null, 2)}\n\nContinue a execução do protótipo chamando a próxima ferramenta ou concluindo.`;
     }
 
-    const toolInstruction = `Você é o gerador de código e design do Ateliê.
-Sua única responsabilidade é emitir tags estruturadas que o backend do Ateliê intercepta e grava nos arquivos do protótipo:
-- Para definir o plano: <tool name="atelier_plan">{"steps":[{"id":"1","title":"...","status":"in_progress"}]}</tool>
-- Para gerar o HTML da tela, escreva o HTML CRU no corpo da tag, SEM JSON e SEM escapes: <tool name="atelier_write_screen" screenId="home"><main>...</main></tool>
-- Para aplicar CSS, também CRU no corpo: <tool name="atelier_patch_styles" mode="append">.card { padding: 16px; }</tool>
-- Para fazer perguntas necessárias: <tool name="atelier_ask_user">{"question":"...","options":["A","B"]}</tool>
-- Para finalizar: <tool name="atelier_complete">{"summary":"..."}</tool>
-${NAV_RULES}
-IMPORTANTE: Não tente usar bash, grep ou ferramentas do terminal. Não se preocupe com modo somente leitura: apenas emita as tags acima no texto da sua resposta e o sistema gravará o código. Prossiga imediatamente com a implementação.`;
-
-    const fullPrompt = `${toolInstruction}\n\n${userText}`;
+    const fullPrompt = `${TOOL_INSTRUCTION}\n\n${userText}`;
 
     // 3. Turno com streaming (eventos da API v2): o raciocínio sai em tempo real, igual à CLI nativa
     let turn;

@@ -16,11 +16,18 @@ function emptyBox(message, icon = "fa-inbox") {
 }
 
 function agentNames(stage) {
-  const executors = (stage.agents || [])
-    .filter((agent) => agent.role === "executor")
-    .map((agent) => agent.label || agent.id);
-  if (executors.length) return executors.join(", ");
-  return (stage.executors || []).join(", ");
+  const executors = (stage.agents && stage.agents.length)
+    ? stage.agents.filter((agent) => agent.role === "executor")
+    : (stage.executors || []).map((id) => ({ id, label: id }));
+  if (!executors.length) return "—";
+  return executors.map((agent) => {
+    const id = agent.id || agent;
+    const label = agent.label || id;
+    if (id === "sessao" || id === "session") {
+      return `<span class="workflow-agent-item"><i class="fa-solid fa-terminal" aria-hidden="true"></i> ${esc(label)}</span>`;
+    }
+    return `<a href="/catalogo/agents/${encodeURIComponent(id)}" target="_blank" class="workflow-agent-link" title="Ver agente '${esc(label)}' no Catálogo"><i class="fa-solid fa-user-gear" aria-hidden="true"></i> ${esc(label)}</a>`;
+  }).join(", ");
 }
 
 function permissionText(permissions) {
@@ -33,18 +40,24 @@ function permissionText(permissions) {
 }
 
 export function renderSkill(skill) {
-  const available = skill.available === true;
-  const state = available ? (skill.bound ? "disponível e vinculada" : "disponível, não vinculada") : "ausente no projeto";
-  return `<li class="workflow-skill ${available ? "is-available" : "is-missing"}">
-    <i class="fa-solid ${available ? "fa-circle-check" : "fa-circle-xmark"}"></i>
-    <span class="workflow-skill-name">${esc(skill.name)}</span>
+  const isGlobal = skill.scope === "global" || (skill.globalAvailable === true && !skill.bound);
+  const available = skill.available === true || isGlobal;
+  const state = isGlobal
+    ? "disponível no catálogo global"
+    : (available ? (skill.bound ? "disponível e vinculada" : "disponível, não vinculada") : "ausente no projeto");
+  const icon = available
+    ? (isGlobal ? "fa-globe" : "fa-circle-check")
+    : "fa-circle-xmark";
+  return `<li class="workflow-skill ${available ? "is-available" : "is-missing"} ${isGlobal ? "is-global" : ""}">
+    <i class="fa-solid ${icon}" aria-hidden="true"></i>
+    <a href="/catalogo/skills/${encodeURIComponent(skill.name)}" target="_blank" class="workflow-skill-link" title="Ver skill '${esc(skill.name)}' no Catálogo"><span class="workflow-skill-name">${esc(skill.name)}</span></a>
     <span class="workflow-skill-state">${esc(state)}</span>
   </li>`;
 }
 
 export function renderStage(stage) {
   const skills = stage.skills || [];
-  const missing = skills.filter((skill) => skill.available !== true).length;
+  const missing = skills.filter((skill) => skill.available !== true && skill.globalAvailable !== true).length;
   const approval = stage.requiresApproval
     ? `<span class="workflow-badge is-approval"><i class="fa-solid fa-user-check"></i> Aprovação obrigatória</span>`
     : "";
@@ -60,7 +73,7 @@ export function renderStage(stage) {
       <h5>${esc(stage.label || stage.id)}</h5>
       ${approval}
     </header>
-    <p class="workflow-agent"><i class="fa-solid fa-user-gear"></i> ${esc(agentNames(stage) || "—")}</p>
+    <p class="workflow-agent">${agentNames(stage)}</p>
     ${gate}
     ${skillList}
     <p class="workflow-permissions"><i class="fa-solid fa-lock"></i> Permissões: ${esc(permissionText(stage.permissions))}</p>

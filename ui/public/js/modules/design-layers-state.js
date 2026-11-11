@@ -3,6 +3,7 @@
 // campo em foco, filtro de rastreamento e viewport sobrevivem ao F5.
 import { getScreenStateClient } from "../shared/screen-state.js";
 import { dls } from "./design-layers-store.js";
+import { AUDIENCE_IDS } from "./design-layers/layers-audience-profiles.js";
 
 export const LAYERS_SCREEN_ID = "layers";
 export const LAYER_IDS = Object.freeze(["ui", "rules", "api", "data", "tests", "legacy"]);
@@ -18,6 +19,7 @@ export function layersStateFromStore() {
     selectedLayer: LAYER_IDS.includes(dls.activeLayer) ? dls.activeLayer : "ui",
     focusedField: text(dls.focusedFieldId, 120),
     filterOnlyFocused: Boolean(dls.filterOnlyFocused),
+    audience: AUDIENCE_IDS.includes(dls.activeAudience) ? dls.activeAudience : "all",
     viewport: LAYER_VIEWPORTS.includes(dls.activeViewport) ? dls.activeViewport : "desktop",
   };
 }
@@ -36,6 +38,7 @@ export function applyLayersState(state = {}) {
   if (own(state, "selectedLayer") && LAYER_IDS.includes(state.selectedLayer)) set("activeLayer", state.selectedLayer);
   if (own(state, "focusedField")) set("focusedFieldId", text(state.focusedField, 120) || null);
   if (typeof state.filterOnlyFocused === "boolean") set("filterOnlyFocused", state.filterOnlyFocused);
+  if (own(state, "audience") && AUDIENCE_IDS.includes(state.audience)) set("activeAudience", state.audience);
   if (own(state, "viewport") && LAYER_VIEWPORTS.includes(state.viewport)) set("activeViewport", state.viewport);
   return changed;
 }

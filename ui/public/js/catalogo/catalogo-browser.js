@@ -1,6 +1,7 @@
 // @ts-check
 // Repository-style browser for one skill or agent: file tree on the left, viewer on the right.
 import { md } from "../shared/markdown.js";
+import { renderMermaidInContainer } from "../shared/mermaid-renderer.js";
 import { esc, linkTag } from "./catalogo-view.js";
 import { renderEditor } from "./catalogo-editor.js";
 import { renderManifest } from "./catalogo-manifest.js";
@@ -14,8 +15,33 @@ function query(extra) {
   return q.toString();
 }
 
+function renderWorkflowOverview(item) {
+  if (item.kind !== "workflow" || !item.stages || !item.stages.length) return "";
+  const stagesHtml = item.stages.map((st) => {
+    const agentsHtml = (st.agents && st.agents.length)
+      ? st.agents.map((ag) => `<button type="button" class="k-ref-chip k-ref-agent" data-nav-kind="agent" data-nav-name="${esc(ag.id)}" title="Ver agente ${esc(ag.label || ag.id)}"><i class="fa-solid fa-user-gear" aria-hidden="true"></i> ${esc(ag.label || ag.id)}</button>`).join(" ")
+      : `<span class="k-tag"><i class="fa-solid fa-terminal" aria-hidden="true"></i> Sessao</span>`;
+    const skillsHtml = (st.skills && st.skills.length)
+      ? st.skills.map((sk) => `<button type="button" class="k-ref-chip k-ref-skill" data-nav-kind="skill" data-nav-name="${esc(sk)}" title="Ver skill ${esc(sk)}"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ${esc(sk)}</button>`).join(" ")
+      : `<span class="k-muted-text">Sem skills exigidas</span>`;
+    const approvalBadge = st.requiresApproval ? `<span class="k-tag k-warn"><i class="fa-solid fa-user-check" aria-hidden="true"></i> Aprovacao</span>` : "";
+    return `<div class="k-wf-stage-row">
+      <div class="k-wf-stage-head"><span class="k-tag">#${st.order}</span> <strong>${esc(st.label || st.id)}</strong> ${approvalBadge}</div>
+      <div class="k-wf-stage-meta"><span class="k-links-label">Agente(s):</span> ${agentsHtml}</div>
+      <div class="k-wf-stage-meta"><span class="k-links-label">Skills:</span> ${skillsHtml}</div>
+      ${st.gate ? `<div class="k-wf-stage-gate"><i class="fa-solid fa-door-closed" aria-hidden="true"></i> ${esc(st.gate)}</div>` : ""}
+    </div>`;
+  }).join("");
+
+  return `<details class="k-wf-stages-accordion" open>
+    <summary><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Etapas do Workflow (${item.stages.length})</summary>
+    <div class="k-wf-stages-list">${stagesHtml}</div>
+  </details>`;
+}
+
 /** Scrum lanes that reference a skill, one chip per project and lane. */
 function renderLinks(item) {
+  if (item.kind === "workflow") return renderWorkflowOverview(item);
   if (item.kind !== "skill") return "";
   if (item.orphan) return linkTag(item);
   if (!item.lanes || !item.lanes.length) return "";
@@ -41,6 +67,7 @@ function paintViewer() {
     const agentMf = state.item.kind === "agent" ? renderManifest(meta) : "";
     const metaHtml = agentMf || (meta ? `<details class="k-meta-block"><summary>Frontmatter</summary><pre>${esc(meta)}</pre></details>` : "");
     box.innerHTML = head + note + metaHtml + `<div class="k-md">${md(body)}</div>`;
+    renderMermaidInContainer(box).catch(() => {});
   } else {
     box.innerHTML = head + note + `<pre class="k-code">${esc(f.content)}</pre>`;
   }
@@ -68,7 +95,7 @@ export async function openBrowser(item, canEdit = false) {
   state.raw = false;
   $("kBrowser").hidden = false;
   $("kCatalog").hidden = true;
-  $("kCrumb").textContent = `${item.kind === "agent" ? "Agente" : "Skill"} / ${item.name}`;
+  $("kCrumb").textContent = `${item.kind === "agent" ? "Agente" : item.kind === "workflow" ? "Workflow" : "Skill"} / ${item.label || item.name}`;
   $("kBrDesc").textContent = item.description || "";
   $("kBrLinks").innerHTML = renderLinks(item);
   $("kTree").innerHTML = `<p class="c-empty">Carregando...</p>`;
@@ -85,13 +112,24 @@ export async function openBrowser(item, canEdit = false) {
   }
 }
 
+export function getCurrentItem() {
+  return state.item;
+}
+
 export function closeBrowser() {
   $("kBrowser").hidden = true;
   $("kCatalog").hidden = false;
+  state.item = null;
 }
 
-export function wireBrowser() {
-  $("kBack").addEventListener("click", closeBrowser);
+export function wireBrowser(onBack) {
+  $("kBack").addEventListener("click", () => {
+    if (typeof onBack === "function") {
+      onBack();
+    } else {
+      closeBrowser();
+    }
+  });
   $("kTree").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-file]");
     if (btn) openFile(btn.getAttribute("data-file"), true);
