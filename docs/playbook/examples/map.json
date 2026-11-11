@@ -1,0 +1,13 @@
+{
+  "start": "_status.md",
+  "story": "01-story.md",
+  "bdd": "02-bdd.feature",
+  "modeling": "04-modelagem.md",
+  "prototype": "03-prototipo.md",
+  "dev": "05-dev-notas.md",
+  "tests": "06-testes.md",
+  "review": "07-code-review.md",
+  "commit-pr": "08-commit-pr.md",
+  "deploy": "09-deploy.md",
+  "maintain": "10-manutencao.md"
+}

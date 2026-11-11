@@ -1,0 +1,152 @@
+{
+  "heading": {
+    "pt": "Boilerplate: abrir um projeto novo",
+    "en": "Boilerplate: opening a new project"
+  },
+  "intro": {
+    "pt": "Onze passos na ordem. Os comandos existem no harness-leca; o que é específico do dispensação aparece entre colchetes angulares para você trocar.",
+    "en": "Eleven steps in order. The commands exist in harness-leca; anything specific to dispensação appears in angle brackets for you to replace."
+  },
+  "treeHeading": {
+    "pt": "Estrutura proposta",
+    "en": "Proposed structure"
+  },
+  "treeNote": {
+    "pt": "Derivada do dispensação e do _template. Ainda não foi validada como template único; veja a seção de lacunas.",
+    "en": "Derived from dispensação and the _template. It has not been validated as a single template yet; see the gaps section."
+  },
+  "tree": [
+    "harness/",
+    "  projects/<slug>/",
+    "    instructions.md        # how the agent behaves here",
+    "    memory.md              # generated index (use tools/memory.js)",
+    "    memory/<type>/*.md     # user | feedback | project | reference",
+    "    app.json  mcp.json     # services and MCPs",
+    "    context/  chats/  scheduled/  coordination/  design/",
+    "",
+    "<repo>/",
+    "  .AGENT.md                # points to the project skills",
+    "  .agents/skills/<name>/SKILL.md",
+    "  design/design.json  design/prototypes/",
+    "  doc/",
+    "    <STORY-ID>/            # user-story, BDD",
+    "    postman/<STORY-ID>/    # test evidence",
+    "    db/                    # ERD, schema, migrations",
+    "    sistema/features/",
+    "      _contrato.md",
+    "      <slug>/_status.md  mapa-camadas.json",
+    "  MAPA.md  docs/mapa/<domain>/<module>/<feature>.md"
+  ],
+  "steps": [
+    {
+      "title": {
+        "pt": "Criar o projeto",
+        "en": "Create the project"
+      },
+      "text": {
+        "pt": "Copie `projects/_template/` ou adote um repositório existente com [[npm run adopt -- --path <folder>]]. Depois aponte `projects/.active` para o slug.",
+        "en": "Copy `projects/_template/` or adopt an existing repository with [[npm run adopt -- --path <folder>]]. Then point `projects/.active` at the slug."
+      }
+    },
+    {
+      "title": {
+        "pt": "Escrever as instruções",
+        "en": "Write the instructions"
+      },
+      "text": {
+        "pt": "No `instructions.md`, escrito em inglês: stack, fonte da verdade, regras de git e segredos, e quais skills de documentação usar.",
+        "en": "In `instructions.md`, written in English: stack, source of truth, git and secret rules, and which documentation skills to use."
+      }
+    },
+    {
+      "title": {
+        "pt": "Semear a memória",
+        "en": "Seed the memory"
+      },
+      "text": {
+        "pt": "Grave os primeiros fatos com [[node tools/memory.js save --project <slug> --type feedback --name <slug> --description <summary> --body <text>]]. Nunca edite `memory.md` à mão.",
+        "en": "Save the first facts with [[node tools/memory.js save --project <slug> --type feedback --name <slug> --description <summary> --body <text>]]. Never edit `memory.md` by hand."
+      }
+    },
+    {
+      "title": {
+        "pt": "Registrar serviços e MCPs",
+        "en": "Register services and MCPs"
+      },
+      "text": {
+        "pt": "`app.json` descreve como subir cada serviço; `mcp.json` liga o MCP do design system.",
+        "en": "`app.json` says how to start each service; `mcp.json` connects the design-system MCP."
+      }
+    },
+    {
+      "title": {
+        "pt": "Declarar agentes e skills do projeto",
+        "en": "Declare the project's agents and skills"
+      },
+      "text": {
+        "pt": "Skills específicas ficam em `.agents/skills/<name>/SKILL.md` do repositório, citadas no `.AGENT.md`. As globais vêm do DAI.",
+        "en": "Specific skills live in the repository's `.agents/skills/<name>/SKILL.md`, cited in `.AGENT.md`. Global ones come from DAI."
+      }
+    },
+    {
+      "title": {
+        "pt": "Escolher o workflow",
+        "en": "Choose the workflow"
+      },
+      "text": {
+        "pt": "Em geral feature-delivery. Cada funcionalidade ganha um dossiê próprio.",
+        "en": "Usually feature-delivery. Each feature gets its own dossier."
+      }
+    },
+    {
+      "title": {
+        "pt": "Montar o esqueleto de documentação",
+        "en": "Build the documentation skeleton"
+      },
+      "text": {
+        "pt": "Pastas por história, `doc/sistema/features/_contrato.md` com o cabeçalho obrigatório do `_status.md`, e `mapa-camadas.json` por tela.",
+        "en": "Folders per story, `doc/sistema/features/_contrato.md` with the mandatory `_status.md` header, and `mapa-camadas.json` per screen."
+      }
+    },
+    {
+      "title": {
+        "pt": "Ativar os gates",
+        "en": "Switch on the gates"
+      },
+      "text": {
+        "pt": "Rode [[npm run setup:hooks]], registre o mapa com [[node tools/mapa.js build --write]] e confira o CI.",
+        "en": "Run [[npm run setup:hooks]], register the map with [[node tools/mapa.js build --write]] and check the CI."
+      }
+    },
+    {
+      "title": {
+        "pt": "Ligar a fonte de histórias",
+        "en": "Connect the story source"
+      },
+      "text": {
+        "pt": "Opcional. No dispensação, um snapshot do Jira consultado por [[node tools/jira-query.js]]. O Harness não consulta o Jira ao vivo.",
+        "en": "Optional. In dispensação, a Jira snapshot queried with [[node tools/jira-query.js]]. Harness does not query Jira live."
+      }
+    },
+    {
+      "title": {
+        "pt": "Agendar rotinas",
+        "en": "Schedule routines"
+      },
+      "text": {
+        "pt": "Coloque tarefas recorrentes em `scheduled/`, como a extração de pendências das conversas.",
+        "en": "Put recurring tasks in `scheduled/`, such as extracting pending items from conversations."
+      }
+    },
+    {
+      "title": {
+        "pt": "Sincronizar e exportar",
+        "en": "Sync and export"
+      },
+      "text": {
+        "pt": "[[npm run sync]] unifica os chats dos três motores; [[npm run export:context]] leva memória e regras ao Claude Code e ao Gemini.",
+        "en": "[[npm run sync]] unifies chats from the three engines; [[npm run export:context]] carries memory and rules to Claude Code and Gemini."
+      }
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "theme": {
+    "auto": {
+      "pt": "Tema: auto",
+      "en": "Theme: auto"
+    },
+    "light": {
+      "pt": "Tema: claro",
+      "en": "Theme: light"
+    },
+    "dark": {
+      "pt": "Tema: escuro",
+      "en": "Theme: dark"
+    }
+  },
+  "copy": {
+    "pt": "Copiar",
+    "en": "Copy"
+  },
+  "copied": {
+    "pt": "Copiado",
+    "en": "Copied"
+  },
+  "eyebrow": {
+    "pt": "Rascunho v0.2 · para revisão",
+    "en": "Draft v0.2 · for review"
+  },
+  "h1": {
+    "pt": "Do chat de projeto à fábrica de software",
+    "en": "From project chat to software factory"
+  },
+  "lede": {
+    "pt": "O Harness guarda o contexto de cada projeto e leva cada funcionalidade por uma esteira fixa, com agentes, skills e verificações automáticas. Este playbook descreve a esteira e serve de boilerplate para qualquer projeto novo.",
+    "en": "Harness keeps each project's context and moves every feature down a fixed line of agents, skills and automatic checks. This playbook describes that line and works as the boilerplate for any new project."
+  },
+  "who": {
+    "pt": "Quem",
+    "en": "Who"
+  },
+  "out": {
+    "pt": "Produz",
+    "en": "Produces"
+  },
+  "gate": {
+    "pt": "Gate",
+    "en": "Gate"
+  },
+  "foot": {
+    "pt": "Fontes: harness-leca (CLAUDE.md, AGENTS.md, MAPA.md, scripts/pre-commit.js, tools/), memória do projeto saude-dispensacao e repositório DAI. Não li linha a linha o ci.yml, o regressao.js nem o corpo de cada workflow; essas partes seguem as descrições dos arquivos.",
+    "en": "Sources: harness-leca (CLAUDE.md, AGENTS.md, MAPA.md, scripts/pre-commit.js, tools/), the saude-dispensacao project memory and the DAI repository. I did not read ci.yml, regressao.js or each workflow body line by line; those parts follow the files' descriptions."
+  },
+  "readers": [
+    {
+      "title": {
+        "pt": "Gestão de produto",
+        "en": "Product management"
+      },
+      "text": {
+        "pt": "O que a fábrica entrega, em que ordem, e onde ficam as evidências de cada história.",
+        "en": "What the factory delivers, in what order, and where the evidence for each story lives."
+      }
+    },
+    {
+      "title": {
+        "pt": "Quem desenvolve",
+        "en": "Developers"
+      },
+      "text": {
+        "pt": "Como abrir um projeto, qual a esteira e quais verificações bloqueiam um commit.",
+        "en": "How to open a project, what the line looks like and which checks block a commit."
+      }
+    },
+    {
+      "title": {
+        "pt": "Quem produz conteúdo",
+        "en": "Content creators"
+      },
+      "text": {
+        "pt": "O vocabulário e a lógica por trás do método, para explicar sem precisar de código.",
+        "en": "The vocabulary and logic behind the method, so you can explain it without code."
+      }
+    }
+  ]
+}

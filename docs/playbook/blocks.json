@@ -1,0 +1,186 @@
+{
+  "heading": {
+    "pt": "Os 12 blocos do método",
+    "en": "The 12 blocks of the method"
+  },
+  "intro": {
+    "pt": "Cada bloco diz o que é, onde mora no repositório e o que um projeto novo precisa trazer. Os caminhos vêm do harness-leca e do projeto de dispensação.",
+    "en": "Each block says what it is, where it lives in the repository and what a new project must bring. Paths come from harness-leca and the dispensação project."
+  },
+  "items": [
+    {
+      "name": {
+        "pt": "Projeto",
+        "en": "Project"
+      },
+      "text": {
+        "pt": "Unidade isolada de contexto, com instruções, memória, chats e rotinas próprias.",
+        "en": "An isolated unit of context with its own instructions, memory, chats and routines."
+      },
+      "where": [
+        "projects/<slug>/",
+        "projects/_template/",
+        "npm run adopt"
+      ]
+    },
+    {
+      "name": {
+        "pt": "Memória",
+        "en": "Memory"
+      },
+      "text": {
+        "pt": "Índice leve mais itens por tipo (user, feedback, project, reference). Gravada só pelo CLI, lida como dado e nunca como ordem.",
+        "en": "A light index plus items by type (user, feedback, project, reference). Written only through the CLI, read as data and never as orders."
+      },
+      "where": [
+        "memory.md",
+        "memory/<type>/",
+        "tools/memory.js"
+      ]
+    },
+    {
+      "name": {
+        "pt": "Instruções",
+        "en": "Instructions"
+      },
+      "text": {
+        "pt": "Como o agente se comporta: regras globais e regras do projeto. Só mudam quando o usuário pede.",
+        "en": "How the agent behaves: global rules and project rules. They change only when the user asks."
+      },
+      "where": [
+        "global/instructions.md",
+        "projects/<slug>/instructions.md"
+      ]
+    },
+    {
+      "name": {
+        "pt": "Agentes",
+        "en": "Agents"
+      },
+      "text": {
+        "pt": "Papéis do esquadrão (analista, arquiteto, dev, QA, segurança) e coordenação entre motores, com posse por história.",
+        "en": "Squad roles (analyst, architect, dev, QA, security) and coordination between engines, with ownership per story."
+      },
+      "where": [
+        "DAI/.agents/",
+        "coordination/state.json"
+      ]
+    },
+    {
+      "name": {
+        "pt": "Skills",
+        "en": "Skills"
+      },
+      "text": {
+        "pt": "Procedimentos reutilizáveis com contrato e validação. Globais (DAI) ou específicas de um projeto.",
+        "en": "Reusable procedures with a contract and validation. Global (DAI) or specific to a project."
+      },
+      "where": [
+        "DAI/skills/",
+        ".agents/skills/"
+      ]
+    },
+    {
+      "name": {
+        "pt": "Workflows",
+        "en": "Workflows"
+      },
+      "text": {
+        "pt": "Esteiras com estados e gates: feature-delivery, product-delivery e sprint-cycle.",
+        "en": "Lines with states and gates: feature-delivery, product-delivery and sprint-cycle."
+      },
+      "where": [
+        "DAI/workflows/"
+      ]
+    },
+    {
+      "name": {
+        "pt": "Modelagem de dados",
+        "en": "Data modeling"
+      },
+      "text": {
+        "pt": "Primeira metade do Design. Entidades, diagrama ER, contrato de API e ADRs, feitos antes do protótipo e conferidos contra o legado quando ele existe.",
+        "en": "First half of Design. Entities, ER diagram, API contract and ADRs, done before the prototype and checked against the legacy system when one exists."
+      },
+      "where": [
+        "doc/db/",
+        "doc/sistema/schema.sql"
+      ]
+    },
+    {
+      "name": {
+        "pt": "Prototipação",
+        "en": "Prototyping"
+      },
+      "text": {
+        "pt": "Segunda metade do Design. Protótipo montado com componentes do design system via MCP, com mocks que refletem o modelo e o contrato, antes de qualquer código.",
+        "en": "Second half of Design. A prototype built from design-system components through MCP, with mocks that reflect the model and the contract, before any code."
+      },
+      "where": [
+        "design/design.json",
+        "design/prototypes/",
+        "MCP dis-design-system"
+      ]
+    },
+    {
+      "name": {
+        "pt": "Plano de implementação",
+        "en": "Implementation plan"
+      },
+      "text": {
+        "pt": "Especificação (SDD) mais quebra técnica e a lista de componentes do DS. O plano diz o que construir e com quais peças.",
+        "en": "A specification (SDD) plus technical breakdown and the list of DS components. The plan says what to build and with which parts."
+      },
+      "where": [
+        "software-design-document",
+        "spec-templates",
+        "technical-breakdown"
+      ]
+    },
+    {
+      "name": {
+        "pt": "Testes",
+        "en": "Tests"
+      },
+      "text": {
+        "pt": "BDD, TDD, E2E, evidências no Postman e acessibilidade. Toda correção ganha um teste de regressão.",
+        "en": "BDD, TDD, E2E, Postman evidence and accessibility. Every fix gets a regression test."
+      },
+      "where": [
+        "doc/<ID>/",
+        "doc/postman/<ID>/",
+        "tests/"
+      ]
+    },
+    {
+      "name": {
+        "pt": "Documentação em camadas",
+        "en": "Layered documentation"
+      },
+      "text": {
+        "pt": "Dossiê por funcionalidade, mapa em camadas das telas e mapa de arquivos. A documentação manda e os commits saem dela.",
+        "en": "A dossier per feature, a layered map of screens and a file map. Documentation leads and commits come from it."
+      },
+      "where": [
+        "doc/sistema/features/<slug>/",
+        "mapa-camadas.json",
+        "MAPA.md"
+      ]
+    },
+    {
+      "name": {
+        "pt": "Gates",
+        "en": "Gates"
+      },
+      "text": {
+        "pt": "Verificações automáticas que barram ou denunciam desvio, no commit, no push e de forma contínua.",
+        "en": "Automatic checks that block or report drift, at commit, at push and continuously."
+      },
+      "where": [
+        "scripts/pre-commit.js",
+        ".github/workflows/ci.yml",
+        "tools/audit-layers-drift.js"
+      ]
+    }
+  ]
+}

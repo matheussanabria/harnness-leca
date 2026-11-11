@@ -1,0 +1,57 @@
+{
+  "note": {
+    "pt": "As etiquetas seguem as 7 fases tradicionais do SDLC: Planejamento (abrir), Requisitos (história, cenários), Design (modelagem, protótipo), Implementação (código), Testes (testes, revisão), Implantação (commit e PR, deploy) e Manutenção. A Manutenção é o último cartão e não é um elo da fila: ela roda por gatilho e reabre a esteira com um novo dossiê.",
+    "en": "The badges follow the 7 traditional SDLC phases: Planning (open), Requirements (story, scenarios), Design (modeling, prototype), Implementation (code), Testing (tests, review), Deployment (commit and PR, deploy) and Maintenance. Maintenance is the last card and is not a link in the queue: it runs on a trigger and reopens the line with a new dossier."
+  },
+  "items": [
+    {
+      "id": "planning",
+      "label": {
+        "pt": "1 Planejamento",
+        "en": "1 Planning"
+      }
+    },
+    {
+      "id": "requirements",
+      "label": {
+        "pt": "2 Requisitos",
+        "en": "2 Requirements"
+      }
+    },
+    {
+      "id": "design",
+      "label": {
+        "pt": "3 Design",
+        "en": "3 Design"
+      }
+    },
+    {
+      "id": "implementation",
+      "label": {
+        "pt": "4 Implementação",
+        "en": "4 Implementation"
+      }
+    },
+    {
+      "id": "testing",
+      "label": {
+        "pt": "5 Testes",
+        "en": "5 Testing"
+      }
+    },
+    {
+      "id": "deployment",
+      "label": {
+        "pt": "6 Implantação",
+        "en": "6 Deployment"
+      }
+    },
+    {
+      "id": "maintenance",
+      "label": {
+        "pt": "7 Manutenção",
+        "en": "7 Maintenance"
+      }
+    }
+  ]
+}

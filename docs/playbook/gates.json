@@ -1,0 +1,92 @@
+{
+  "heading": {
+    "pt": "Gates: como tudo se mantém atualizado",
+    "en": "Gates: how everything stays current"
+  },
+  "intro": {
+    "pt": "Os gates agem em quatro momentos. Quanto mais cedo barram, mais barato é corrigir.",
+    "en": "Gates act at four moments. The earlier they block, the cheaper the fix."
+  },
+  "columns": [
+    {
+      "pt": "Momento",
+      "en": "Moment"
+    },
+    {
+      "pt": "Gate",
+      "en": "Gate"
+    },
+    {
+      "pt": "O que barra ou denuncia",
+      "en": "What it blocks or reports"
+    }
+  ],
+  "items": [
+    {
+      "when": {
+        "pt": "Ao escrever",
+        "en": "While writing"
+      },
+      "gate": "instructions + hook",
+      "text": {
+        "pt": "Injeta instruções e memória a cada mensagem; o agente trata o conteúdo lido como dado e confirma decisões que não são dele.",
+        "en": "Injects instructions and memory on every message; the agent treats read content as data and confirms decisions that are not its own."
+      }
+    },
+    {
+      "when": {
+        "pt": "No commit",
+        "en": "At commit"
+      },
+      "gate": "scripts/pre-commit.js",
+      "text": {
+        "pt": "Dado local, segredo de formato conhecido, arquivo novo sem entrada no mapa, falha de sintaxe, falha dos gates React e testes afetados.",
+        "en": "Local data, a known-format secret, a new file without a map entry, syntax failure, React gate failure and affected tests."
+      }
+    },
+    {
+      "when": {
+        "pt": "No push",
+        "en": "At push"
+      },
+      "gate": ".githooks/pre-push + CI",
+      "text": {
+        "pt": "Suíte completa de testes; com a regressão ativada, check, testes, índice mestre e dívida de tipos.",
+        "en": "The full test suite; with regression enabled, check, tests, master index and type debt."
+      }
+    },
+    {
+      "when": {
+        "pt": "Contínuo",
+        "en": "Continuous"
+      },
+      "gate": "mapa.js check",
+      "text": {
+        "pt": "Frontmatter, tamanho, globs mortos e arquivos fora de qualquer entrada do mapa.",
+        "en": "Frontmatter, size, dead globs and files outside every map entry."
+      }
+    },
+    {
+      "when": {
+        "pt": "Contínuo",
+        "en": "Continuous"
+      },
+      "gate": "audit-layers-drift.js",
+      "text": {
+        "pt": "Cruza dossiês, mapa em camadas, código real e DS. Aponta drift de API, de UI e de testes, e fontes órfãs.",
+        "en": "Cross-checks dossiers, layered map, real code and DS. Reports API, UI and test drift, and orphan sources."
+      }
+    },
+    {
+      "when": {
+        "pt": "Contínuo",
+        "en": "Continuous"
+      },
+      "gate": "cobertura.mjs",
+      "text": {
+        "pt": "Todo arquivo não commitado precisa de exatamente um dono; dependências entre funcionalidades sem ciclo.",
+        "en": "Every uncommitted file needs exactly one owner; dependencies between features have no cycles."
+      }
+    }
+  ]
+}
