@@ -1,5 +1,6 @@
-/* Protótipo real dentro da tela do Mapa em Camadas */
-.replica-proto-wrap { display: flex; flex-direction: column; gap: 8px; }
-.replica-proto-frame { width: 100%; height: 640px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; background: #fff; }
+/* Protótipo real dentro da tela do Mapa em Camadas: largura logica pelo modo, reduzida para caber */
+.replica-proto-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.replica-proto-stage { width: 100%; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; background: #fff; }
+.replica-proto-frame { display: block; border: 0; background: #fff; transform-origin: top left; }
 .replica-proto-note { margin: 0; font-size: 11.5px; color: #94a3b8; }
 .replica-proto-note code { font-size: 11px; }
