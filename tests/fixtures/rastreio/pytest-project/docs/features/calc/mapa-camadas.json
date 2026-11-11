@@ -1,0 +1,13 @@
+{
+  "telas": [
+    {
+      "id": "calculator",
+      "regras": [
+        { "titulo": "Sum", "st": "implementado", "rn": ["BR-calc-001"] },
+        { "titulo": "Zero divisor", "st": "implementado", "rn": ["BR-calc-002"] },
+        { "titulo": "Money format", "st": "implementado", "rn": ["BR-fmt-001"] }
+      ],
+      "testes": { "grupos": [{ "endpoint": "/calc", "st": "teste-unitario", "regras": ["Sum", "Zero divisor"] }] }
+    }
+  ]
+}

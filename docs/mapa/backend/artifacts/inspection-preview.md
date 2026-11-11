@@ -19,7 +19,7 @@ updated: 2026-10-30
 | `ui/server/services/prototype-sandbox-renderer.service.js` | Prototype sandbox facade: `metadata.runtime === "dc"` goes to the DC branch, others to `screens/<id>.html`. |
 | `ui/server/services/prototype-sandbox-dc.service.js` | Renders a DC prototype with local runtime, sandbox CSP, `startScreen.default`, data URI assets, stable `data-pid`, React loaded before boot. |
 | `ui/server/services/dc-template-runtime.service.js` | Encodes `sc-for` and `sc-if` as `<template>` nodes before HTML parsing so loops inside tables render mock rows. |
-| `ui/server/services/prototype-exporter-runtime.service.js` | JS embedded in the single-HTML export: screen resolver equal to the ESM one, `a[href]` and `goto:` handling, on-page warning for planned screens, global `showScreen` for the tabs. |
+| `ui/server/services/prototype-exporter-runtime.service.js` | JS embedded in the single-HTML export: screen resolver equal to the ESM one, `a[href]` and `goto:` handling, on-page warning for planned screens, global `showScreen` for the tabs and picker, one history entry per screen (`#screen-id` deep links and Back button), previous/next and scroll to top. |
 | `ui/server/services/prototype-sandbox-common.service.js` | Styles, harness bridge and CSP headers shared by the static and DC sandbox branches. |
 | `ui/public/js/vendor/dc-runtime/` | React 18.3.1, ReactDOM 18.3.1 and Claude Design `support.js` with checked hashes, served to the isolated sandbox. |
 | `ui/server/services/artifact-inventory.service.js` | Deduplicates, merges metadata, filters local access, sorts, summarizes and limits the artifact inventory. |
@@ -27,6 +27,7 @@ updated: 2026-10-30
 | `tests/artifact-import.test.js` | Covers import, collision, security, controller, binary route and file limits. |
 | `tests/artifact-metadata.test.js` | Covers manifest, checksum, local/project access, remote filter, controller, route and file limits. |
 | `tests/artifact-preview.test.js` | Covers text, HTML, image, PDF, remote access, invalid manifest, controller, route and limits. |
+| `tests/artifact-image-preview-ui.test.js` | Covers image preview UI: load-error fallback (HEIC/corrupt), real-size toggle, open in new tab, no emoji. |
 | `tests/artifact-relationships.test.js` | Covers stable key, add/remove, orphans, remote filter, controller, routes and limits. |
 | `tests/capability-catalog.test.js` | Covers versioned catalog, states, `resolveCapability`, legacy fields, endpoints and limits (EP-08.01). |
 | `tests/agent-stage-catalog.test.js` | Covers canonical SDLC stages, agent roles, stage/agent queries, endpoints and limits (EP-08.02). |

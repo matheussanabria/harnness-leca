@@ -1,0 +1,10 @@
+cenarios:
+  C1:
+    pytest: ["test_calc.py#test_add_sums_two_numbers"]
+    regras: [BR-calc-001]
+  C2:
+    pytest: ["test_divide_*"]
+    regras: [BR-calc-002]
+regras:
+  BR-calc-001: { codigo: [calc.py] }
+  BR-calc-002: { codigo: [calc.py] }

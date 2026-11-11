@@ -3,7 +3,7 @@ domain: tools
 module: testing
 feature: running-tests
 summary: How to run the test suite, git hooks for affected tests, and screen-state and workflows regression tests.
-paths: [scripts/pre-commit.js, scripts/lib/affected-tests.js, .githooks/pre-push, tests/helpers/**, tests/affected-tests.test.js, tests/screen-*.test.js, tests/design-workflows-*.test.js, scripts/lib/web-gates.js, scripts/e2e-island-lab.js, tests/web-gates.test.js, tests/island-loader.test.js]
+paths: [scripts/pre-commit.js, scripts/lib/affected-tests.js, .githooks/pre-push, tests/helpers/**, tests/affected-tests.test.js, tests/screen-*.test.js, tests/design-workflows-*.test.js, scripts/lib/web-gates.js, scripts/e2e-island-lab.js, tests/web-gates.test.js, tests/island-loader.test.js, tests/rastreio-gate.test.js, tests/fixtures/rastreio/**]
 keywords: [tests, npm test, e2e, islands, biome, web-gates, node --test, pre-commit, pre-push, affected tests, fixtures]
 updated: 2026-10-31
 ---
@@ -35,3 +35,5 @@ updated: 2026-10-31
 | `tests/web-gates.test.js` | Web gates skip unrelated commits, lint and type-check island files, and run `npm audit` on dependency changes. |
 | `scripts/e2e-island-lab.js` | E2E for `#/lab`: builds if needed, starts its own UI server, checks props, state, unmount on leave and remount on Back. |
 | `tests/island-loader.test.js` | Island loader with a fake DOM: index then entry import, CSS dedupe, unmount, not-built and missing-entry notices, unknown island, throwing unmount. |
+| `tests/rastreio-gate.test.js` | Phase 0 safety net of the traceability gate: frozen 22-feature baseline of saude-dispensacao (skips when the legacy gate is absent) plus one provoked defect per gate G1-G9. Plan: `docs/rastreio-gate/`. |
+| `tests/helpers/rastreio-fixture.js` | Builds a throwaway project for the gate and runs it; the runner is the single point to swap in phase 1. Baseline data in `tests/fixtures/rastreio/`. |

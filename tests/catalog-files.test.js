@@ -102,3 +102,18 @@ test("tree view: picks SKILL.md, escapes names, no emoji", async () => {
   assert.deepEqual(mod.splitFrontmatter("---\nname: a\n---\n# T"), { meta: "name: a", body: "# T" });
   assert.equal(mod.splitFrontmatter("# T").meta, "");
 });
+
+test("an agent shows the manifest.yaml kept under .agents/<name> of a repo", () => {
+  const { dir, sources } = fixture();
+  const root = path.join(dir, "repo", ".agents");
+  fs.mkdirSync(path.join(root, "helper"), { recursive: true });
+  fs.writeFileSync(path.join(root, "helper", "manifest.yaml"), "agent:\n  id: helper\n");
+  fs.writeFileSync(path.join(root, "helper", "AGENT.md"), "# Helper");
+  const withMf = { ...sources, manifestRoots: [root] };
+  const t = listTree("agent", "user", "helper.md", withMf);
+  assert.deepEqual(t.tree.map((n) => n.path), ["manifest", "helper.md"]);
+  assert.deepEqual(t.tree[0].children.map((n) => n.path), ["manifest/AGENT.md", "manifest/manifest.yaml"]);
+  assert.match(readItemFile("agent", "user", "helper.md", "manifest/manifest.yaml", withMf).content, /id: helper/);
+  assert.equal(readItemFile("agent", "user", "helper.md", "manifest/../x", withMf).status, 400);
+  assert.equal(listTree("agent", "user", "helper.md", sources).tree.length, 1);
+});

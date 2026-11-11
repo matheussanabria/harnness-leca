@@ -1,6 +1,7 @@
 // @ts-check
 import { esc } from "../shared/dom.js";
 import { renderPrototypeCatalog } from "./prototype-catalog.js";
+import { renderExportMenu, renderExportPanel } from "./prototype-export-menu.js";
 
 export function renderScreenOptions(screens, activeScreen) {
   return screens
@@ -65,9 +66,11 @@ export function renderAtelierHtml(model) {
             <button type="button" id="btnAtelierInspector" class="btn-proto-vp active" title="Ligar ou desligar o inspetor" aria-pressed="true"><i class="fa-solid fa-crosshairs"></i> <span>Inspetor</span></button>
             <button type="button" id="btnAtelierModeCanvas" class="btn-proto-vp" title="Alternar entre tela única e canvas"><i class="fa-solid fa-object-group"></i> Canvas</button>
             <button type="button" id="btnAtelierPlay" class="btn-proto-vp" title="Iniciar a navegação (cada tela vira um quadro do canvas)"><i class="fa-solid fa-play"></i> Iniciar</button>
+            ${renderExportMenu()}
             <button type="button" id="btnReloadProtoFrame" class="btn-proto-vp" title="Recarregar tela"><i class="fa-solid fa-rotate"></i></button>
           </div>
         </div>
+        ${renderExportPanel()}
         <div id="atelierHistoryPanel" class="proto-history" hidden>
           <div class="proto-history__head"><i class="fa-solid fa-clock-rotate-left"></i> Histórico <small>mais recente primeiro</small><button type="button" class="btn-proto-vp" data-history-mark title="Marcar o estado atual com um nome; nunca é apagado do histórico"><i class="fa-solid fa-star"></i> Marcar ponto</button><button type="button" class="proto-panel-action-btn" data-history-close title="Fechar"><i class="fa-solid fa-xmark"></i></button></div>
           <ul id="atelierHistoryList" class="proto-history__list"></ul>

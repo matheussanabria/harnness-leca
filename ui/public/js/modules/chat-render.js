@@ -68,6 +68,10 @@ export function renderChatHistory(keepScroll = false) {
         return `<div class="msg user"><div class="bubble"><p>${esc(t.text).replace(/\n/g, "<br>")}</p></div></div>`;
       }
 
+      if (t.workflowHtml) {
+        return `<div class="msg assistant"><div class="who"><i class="fa-solid fa-diagram-project"></i> Workflow</div><div class="bubble">${t.workflowHtml}</div></div>`;
+      }
+
       if (t.role === "comparison") {
         const cols = t.engines
           .map((eng) => {

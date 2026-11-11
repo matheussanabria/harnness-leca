@@ -6,6 +6,7 @@ const { send, readJsonBody, getProjects } = require("../config");
 const netLib = require("../../../tools/lib/network");
 const { listWorkflows, getWorkflow } = require("../services/orchestration/workflow-definitions");
 const { buildWorkflowPlan } = require("../services/orchestration/workflow-plan.service");
+const { runWorkflowCommand, listCommandSuggestions } = require("../services/orchestration/workflow-command.service");
 const { startWorkflowRun } = require("../services/orchestration/workflow-runner.service");
 
 function projectDir(slug) {
@@ -72,7 +73,31 @@ async function apiProjectWorkflowRun({ req, res, params: [slug, workflowId] }) {
   }
 }
 
+/** GET /api/orchestration/workflow-commands (autocomplete source) */
+function apiWorkflowCommands({ res }) {
+  return send(res, 200, listCommandSuggestions());
+}
+
+/** POST /api/project/:slug/workflow-command  { text } */
+async function apiProjectWorkflowCommand({ req, res, params: [slug] }) {
+  if (!netLib.isLocalhostRequest(req)) {
+    return send(res, 403, { error: "Comandos de workflow restritos ao host local." });
+  }
+  let body;
+  try {
+    body = await readJsonBody(req);
+  } catch {
+    return send(res, 400, { error: "JSON inválido" });
+  }
+  const dir = projectDir(slug);
+  if (!dir) return send(res, 404, { error: "Projeto não encontrado." });
+  const result = runWorkflowCommand({ slug, projectDir: dir, text: body?.text, actor: body?.actor });
+  return send(res, result.ok ? 200 : result.status || 400, result);
+}
+
 module.exports = {
+  apiWorkflowCommands,
+  apiProjectWorkflowCommand,
   apiOrchestrationWorkflows,
   apiOrchestrationWorkflow,
   apiProjectWorkflowPlan,
