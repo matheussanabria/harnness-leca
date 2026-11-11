@@ -31,7 +31,7 @@ const { MAX_FILE } = require("./lib/limits");
 // Remove blocos injetados pelo IDE/harness que não fazem parte da fala do usuário.
 function cleanUser(text) {
   return text
-    .replace(/<(system-reminder|ide_[a-z_]+|command-[a-z-]+|local-command-[a-z-]+|project-harness|task-notification)>[\s\S]*?<\/\1>/g, "")
+    .replace(/<(system-reminder|ide_[a-z_]+|command-[a-z-]+|local-command-[a-z-]+|project-harness|contexto_do_harness|task-notification)>[\s\S]*?<\/\1>/g, "")
     .trim();
 }
 
