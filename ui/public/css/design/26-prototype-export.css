@@ -1,0 +1,24 @@
+/* Exportar pacote do Ateliê (prototype-export-menu.js) e ação por card do catálogo. */
+.proto-export {
+  position: absolute; z-index: 30; top: 44px; right: 12px; width: min(340px, calc(100% - 24px));
+  display: flex; flex-direction: column; gap: 4px; padding: 12px; border: 1px solid var(--line, #2b2f3a); border-radius: 10px;
+  background: var(--panel, #161923); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+.proto-export[hidden] { display: none; }
+.proto-export__head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-weight: 600; }
+.proto-export__head .proto-panel-action-btn { margin-left: auto; }
+.proto-export__opt { display: flex; align-items: center; gap: 8px; min-height: 32px; font-size: 12.5px; cursor: pointer; }
+.proto-export__hint { margin: 4px 0 8px; color: var(--mute, #8b93a7); font-size: 11.5px; line-height: 1.45; }
+.proto-export__go { justify-content: center; min-height: 36px; }
+
+.proto-item-export, .proto-export-all {
+  display: grid; place-items: center; border: 0; background: transparent; color: var(--mute); cursor: pointer;
+  transition: color 0.12s, background 0.12s;
+}
+.proto-item-export { position: absolute; right: 30px; bottom: 6px; width: 22px; height: 22px; border-radius: 4px; font-size: 11px; opacity: 0.7; }
+.proto-item-export:hover, .proto-item-export:focus-visible, .proto-export-all:hover { color: #a5b4fc; background: rgba(99, 102, 241, 0.16); opacity: 1; }
+.proto-export-all { float: right; width: 24px; height: 18px; border-radius: 4px; font-size: 11px; }
+@media (pointer: coarse) {
+  .proto-item-export, .proto-export-all { width: 44px; height: 44px; }
+  .proto-item-export { right: 44px; bottom: 0; }
+}

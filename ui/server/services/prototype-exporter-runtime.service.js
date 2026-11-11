@@ -50,18 +50,45 @@ function generateRuntimeJs(screenIds) {
   'use strict';
   var knownScreens = ${idsJson};
 
-  function showScreen(screenId) {
+  var current = knownScreens[0];
+
+  function showScreen(screenId, fromHistory) {
+    if (knownScreens.indexOf(screenId) < 0) return;
+    current = screenId;
     document.querySelectorAll('.proto-screen-panel').forEach(function(el) {
       el.style.display = 'none';
     });
     document.querySelectorAll('.tab-btn').forEach(function(btn) {
       btn.classList.remove('active');
-      if (btn.getAttribute('onclick').indexOf("'" + screenId + "'") !== -1) btn.classList.add('active');
+      if (btn.getAttribute('data-screen') === screenId) btn.classList.add('active');
     });
+    var select = document.getElementById('screenSelect');
+    if (select) select.value = screenId;
+    var index = knownScreens.indexOf(screenId);
+    var prev = document.getElementById('screenPrev');
+    var next = document.getElementById('screenNext');
+    if (prev) prev.disabled = index <= 0;
+    if (next) next.disabled = index >= knownScreens.length - 1;
     var active = document.getElementById('screen-' + screenId);
     if (active) active.style.display = 'block';
+    // Back button and deep links: one history entry per screen (#screen-id); skipped when coming from history itself.
+    if (!fromHistory && location.hash !== '#' + screenId) {
+      try { history.pushState(null, '', '#' + screenId); } catch (e) { location.hash = screenId; }
+    }
+    window.scrollTo(0, 0);
   }
-  window.showScreen = showScreen; // the tab buttons call it from an inline onclick
+  window.showScreen = showScreen; // the tab buttons and the screen picker call it from inline handlers
+  window.showRelativeScreen = function(step) {
+    var target = knownScreens[knownScreens.indexOf(current) + step];
+    if (target) showScreen(target);
+  };
+  function screenFromHash() {
+    var id = decodeURIComponent((location.hash || '').replace(/^#/, ''));
+    return knownScreens.indexOf(id) >= 0 ? id : knownScreens[0];
+  }
+  window.addEventListener('popstate', function() { showScreen(screenFromHash(), true); });
+  window.addEventListener('hashchange', function() { showScreen(screenFromHash(), true); });
+  if (location.hash) showScreen(screenFromHash(), true); else showScreen(knownScreens[0], true);
 
   function showPlannedWarning(screenName) {
     var nav = document.querySelector('.offline-nav-bar');
