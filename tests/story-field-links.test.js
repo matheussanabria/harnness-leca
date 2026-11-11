@@ -75,7 +75,7 @@ test("CP-06: painel mostra Ver no mapa com tela e campo, e sem mapa ainda sem te
 test("CP-07: tela com protótipo ligado recebe o protótipo", () => {
   const root = repoWith({ proto: { prototipo: "dis-paciente", telas: { "entregas-liberadas-s1": "entregas-liberadas", s2: 5 } } });
   const out = attachPrototypes(SCREENS, root);
-  assert.deepEqual(out[1].prototype, { id: "dis-paciente", screen: "entregas-liberadas" });
+  assert.deepEqual(out[1].prototype, { id: "dis-paciente", screen: "entregas-liberadas", selectors: {} });
   assert.equal(out[0].prototype, undefined);
 });
 

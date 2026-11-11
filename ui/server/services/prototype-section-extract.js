@@ -26,7 +26,10 @@ function extractContentSection(html) {
     }
   }
   if (end < 0) return html;
-  return `<div class="ds dis dis-shell dis-shell--section" data-component="dis.section-only">${html.slice(open.index, end)}</div>`;
+  // Os scripts da tela (acordeao, busca, paginacao) ficam fora do <main>; sem eles a secao nao funciona.
+  const outside = html.slice(0, open.index) + html.slice(end);
+  const scripts = (outside.match(/<script\b[\s\S]*?<\/script>/gi) || []).join("\n");
+  return `<div class="ds dis dis-shell dis-shell--section" data-component="dis.section-only">${html.slice(open.index, end)}</div>\n${scripts}`;
 }
 
 module.exports = { extractContentSection, SECTION_CSS };
