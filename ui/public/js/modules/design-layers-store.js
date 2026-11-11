@@ -3,6 +3,7 @@
 
 export const dls = {
   currentScreensData: null,
+  storyFiles: null, // resposta de GET /design/story-files (historia -> arquivos do git)
   activeScreenId: null,
   activeAudience: "all", // 'all' | 'user' | 'product' | 'dev' | 'qa'
   activeLayer: "ui", // 'ui' | 'rules' | 'api' | 'data' | 'tests' | 'legacy'
