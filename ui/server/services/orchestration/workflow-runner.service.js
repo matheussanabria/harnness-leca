@@ -3,6 +3,7 @@
 const crypto = require("node:crypto");
 const { getStage } = require("./agent-stage-catalog");
 const { buildWorkflowPlan } = require("./workflow-plan.service");
+const { sanitizeMeta, applyFromStage, applyDispensed, nextActiveIndex } = require("./workflow-run-setup");
 const { emitWorkflowEvent } = require("./workflow-events");
 const {
   putRun,
@@ -29,24 +30,6 @@ function fail(status, message) {
   return error;
 }
 
-function sanitizeMeta(meta) {
-  const m = meta && typeof meta === "object" ? meta : {};
-  return { seed: String(m.seed || "").slice(0, 2000), storyKey: String(m.storyKey || "").slice(0, 80), source: String(m.source || "").slice(0, 40) };
-}
-
-/** Resumes at `fromStage`: earlier stages are marked skipped. Unknown stage is a 400. */
-function applyFromStage(run, fromStage) {
-  const wanted = String(fromStage || "").trim();
-  if (!wanted) return;
-  const index = run.stageState.findIndex((item) => item.id === wanted);
-  if (index < 0) throw fail(400, `Etapa '${wanted}' não existe neste workflow.`);
-  for (let i = 0; i < index; i += 1) {
-    run.stageState[i].status = "skipped";
-    run.stageState[i].reason = `Retomado a partir de '${wanted}'`;
-  }
-  run.currentIndex = index;
-}
-
 function record(run, entry) {
   return recordWorkflowEvent(run.projectDir, {
     slug: run.slug,
@@ -60,7 +43,7 @@ function record(run, entry) {
 /**
  * @param {any} params
  */
-function startWorkflowRun({ slug, projectDir, workflowId, laneId, actor, dryRun, idempotencyKey, routineId, allowRetryAfterFailure, meta, fromStage }) {
+function startWorkflowRun({ slug, projectDir, workflowId, laneId, actor, dryRun, idempotencyKey, routineId, allowRetryAfterFailure, meta, fromStage, flags }) {
   const plan = buildWorkflowPlan({ slug, projectDir, workflowId, laneId });
   if (dryRun) return { ok: true, dryRun: true, plan };
 
@@ -104,6 +87,7 @@ function startWorkflowRun({ slug, projectDir, workflowId, laneId, actor, dryRun,
     meta: sanitizeMeta(meta),
   };
   applyFromStage(run, fromStage);
+  applyDispensed(run, flags);
   putRun(run);
   if (scope) claimIdempotency(scope, run.executionId);
 
@@ -196,7 +180,8 @@ function advanceWorkflowRun(executionId, { stageId, status, note, sessionId, val
     current.status = "completed";
     track(run, emitWorkflowEvent({ type: "task.completed", projectId: run.slug, executionId: run.executionId, taskId, payload: eventPayload }));
     record(run, { type: "task.completed", status: "completed", stageId: current.id, note: noteText });
-    if (run.currentIndex === run.stageState.length - 1) {
+    const next = nextActiveIndex(run, run.currentIndex);
+    if (next < 0) {
       track(run, emitWorkflowEvent({
         type: "execution.completed",
         projectId: run.slug,
@@ -207,7 +192,7 @@ function advanceWorkflowRun(executionId, { stageId, status, note, sessionId, val
       run.status = "completed";
       run.finishedAt = new Date().toISOString();
     } else {
-      run.currentIndex += 1;
+      run.currentIndex = next;
       requestApprovalIfNeeded(run);
     }
     return { ok: true, run: commit(run) };

@@ -59,8 +59,8 @@ function plan() {
 
 test("workflow-definitions: catálogo, ordem e políticas por etapa", () => {
   const workflows = listWorkflows();
-  assert.equal(workflows.length, 2);
-  assert.deepEqual(workflows.map((item) => item.id), ["feature-delivery", "hotfix"]);
+  assert.equal(workflows.length, 3);
+  assert.deepEqual(workflows.map((item) => item.id), ["feature-delivery", "hotfix", "rota-curta"]);
 
   const full = getWorkflow("feature-delivery");
   assert.equal(full.stageCount, 10);

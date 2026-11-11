@@ -80,7 +80,7 @@ test("workflow-http: catálogo, plano e erros de entrada", () => {
   const list = fakeRes();
   apiOrchestrationWorkflows({ res: list });
   assert.equal(list.status, 200);
-  assert.equal(json(list).workflows.length, 2);
+  assert.equal(json(list).workflows.length, 3);
 
   const detail = fakeRes();
   apiOrchestrationWorkflow({ res: detail, params: ["nao-existe"] });

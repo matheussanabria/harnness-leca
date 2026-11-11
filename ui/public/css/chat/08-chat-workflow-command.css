@@ -14,3 +14,5 @@
 .chat-full-prompt { margin-top: 6px; font-size: 12px; }
 .chat-full-prompt summary { cursor: pointer; color: var(--mute); }
 .chat-full-prompt pre { margin: 6px 0 0; max-height: 260px; overflow: auto; white-space: pre-wrap; word-break: break-word; font-size: 11.5px; color: var(--text); }
+.wf-cmd-dispensed { color: var(--mute); text-decoration: line-through; }
+.wf-cmd-dispensed small { text-decoration: none; }

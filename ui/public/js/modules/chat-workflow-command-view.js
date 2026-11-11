@@ -8,7 +8,11 @@ const ACTION_ICONS = Object.freeze({ run: "fa-play", advance: "fa-forward-step",
 export function workflowListHtml(workflows) {
   const items = (workflows || [])
     .map((wf) => {
-      const stages = (wf.stages || []).map((s) => `<li>${s.requiresApproval ? '<i class="fa-solid fa-lock"></i> ' : ""}${esc(s.label)}</li>`).join("");
+      const stages = (wf.stages || [])
+        .map((s) => s.dispensed
+          ? `<li class="wf-cmd-dispensed" title="${esc(s.dispensed)}"><i class="fa-regular fa-circle-xmark"></i> ${esc(s.label)} <small>(dispensada)</small></li>`
+          : `<li>${s.requiresApproval ? '<i class="fa-solid fa-lock"></i> ' : ""}${esc(s.label)}</li>`)
+        .join("");
       return `<div class="wf-cmd-item"><div class="wf-cmd-title"><i class="fa-solid fa-diagram-project"></i> <code>${esc(wf.id)}</code> ${esc(wf.label)}</div><div class="wf-cmd-desc">${esc(wf.description)}</div><ol class="wf-cmd-stages">${stages}</ol></div>`;
     })
     .join("");
