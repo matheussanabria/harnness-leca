@@ -76,3 +76,18 @@ test("suggestions come from the catalog", () => {
   assert.deepEqual(s.workflows.map((w) => w.slug).sort(), ["feature-delivery", "hotfix"].sort());
   assert.ok(s.commands.some((c) => c.command === "/workflows"));
 });
+
+test("start without a description is refused and creates no run", () => {
+  const before = listWorkflowRuns().length;
+  const out = runWorkflowCommand({ slug: SLUG, projectDir, text: "/workflow feature-delivery" });
+  assert.equal(out.ok, false);
+  assert.equal(out.status, 400);
+  assert.match(out.error, /Descreva o que quer entregar/);
+  assert.equal(listWorkflowRuns().length, before);
+});
+
+test("the card always offers cancel next to the primary action", () => {
+  const out = runWorkflowCommand({ slug: SLUG, projectDir, text: "/workflow feature-delivery Teste do cancelar" });
+  assert.equal(out.ok, true);
+  assert.deepEqual(out.card.actions.map((a) => a.id), ["advance", "cancel"]);
+});

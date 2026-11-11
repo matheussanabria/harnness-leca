@@ -22,13 +22,14 @@ export function workflowErrorHtml(message) {
 export function workflowCardHtml(card) {
   if (!card) return "";
   const done = card.status === "completed";
-  const icon = done ? "fa-circle-check" : card.gate ? "fa-lock" : "fa-forward";
-  const stage = done ? "Concluído" : card.stageLabel || card.stageId;
+  const cancelled = card.status === "cancelled";
+  const icon = cancelled ? "fa-ban" : done ? "fa-circle-check" : card.gate ? "fa-lock" : "fa-forward";
+  const stage = cancelled ? "Cancelado" : done ? "Concluído" : card.stageLabel || card.stageId;
   const seed = card.seed ? `<div class="wf-cmd-desc"><i class="fa-regular fa-lightbulb"></i> ${esc(card.seed)}</div>` : "";
   const story = card.storyKey ? ` <span class="wf-cmd-tag">${esc(card.storyKey)}</span>` : "";
-  const gate = card.gate ? `<div class="wf-cmd-gate">Gate: aguardando aprovação desta etapa.</div>` : "";
+  const gate = card.gate && !cancelled ? `<div class="wf-cmd-gate">Gate: aguardando aprovação desta etapa.</div>` : "";
   const buttons = (card.actions || [])
-    .map((a) => `<button type="button" class="perm-btn primary" data-wf-action="${esc(a.id)}" data-wf-exec="${esc(card.executionId)}" data-wf-stage="${esc(card.stageId)}"><i class="fa-solid fa-forward-step"></i> ${esc(a.label)}</button>`)
+    .map((a) => `<button type="button" class="perm-btn${a.id === "cancel" ? "" : " primary"}" data-wf-action="${esc(a.id)}" data-wf-exec="${esc(card.executionId)}" data-wf-stage="${esc(card.stageId)}"><i class="fa-solid ${a.id === "cancel" ? "fa-xmark" : "fa-forward-step"}"></i> ${esc(a.label)}</button>`)
     .join("");
   return `<div class="wf-cmd-card"><div class="wf-cmd-title"><i class="fa-solid ${icon}"></i> <code>${esc(card.workflowId)}</code>${story}</div><div>Etapa atual: <b>${esc(stage)}</b></div>${seed}${gate}<div class="perm-actions">${buttons}</div></div>`;
 }
