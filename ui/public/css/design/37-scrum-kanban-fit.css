@@ -1,0 +1,11 @@
+/* Kanban da sprint: colunas sem rolagem horizontal propria, rodape do card que quebra e barras escuras */
+.scrum-kanban-board, .scrum-cards-container { color-scheme: dark; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.scrum-kanban-col { min-height: 0; }
+.scrum-cards-container { min-width: 0; overflow-x: hidden; }
+.scrum-story-card { min-width: 0; }
+.story-card-foot { flex-wrap: wrap; gap: 6px; }
+.story-card-signals, .story-card-nav-btns { flex-wrap: wrap; min-width: 0; }
+.story-card-carry { display: inline-flex; align-items: center; gap: 5px; align-self: flex-start; padding: 1px 7px; border-radius: 999px; border: 1px solid #f59e0b; color: #fbbf24; font-size: 10.5px; }
+.scrum-col-head { flex-wrap: wrap; gap: 4px 8px; }
+.scrum-col-title { flex: 1 1 auto; min-width: 0; }
+.scrum-lane-order-actions { flex-wrap: wrap; }
