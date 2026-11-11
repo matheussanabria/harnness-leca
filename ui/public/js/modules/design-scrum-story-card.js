@@ -30,6 +30,7 @@ export function renderStoryCard(story, epics = [], transitions = {}, lanes = [])
         ${story.points !== null && story.points !== undefined ? `<span class="story-pts-badge">${esc(story.points)} pts</span>` : ""}
       </div>
       <div class="story-card-title">${esc(story.title)}</div>
+      ${story.carryFrom ? `<div class="story-card-carry" title="Historia aberta de sprint anterior">${icon("clock-rotate-left", `veio da ${esc(story.carryFrom)}`)}</div>` : ""}
       <div class="story-card-source-status">${icon("circle-dot")} ${esc(story.sourceStatus?.name || "Status local")}</div>
       <div class="story-card-foot">
         <div class="story-card-signals">

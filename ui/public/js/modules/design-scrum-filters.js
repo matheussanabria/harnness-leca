@@ -45,7 +45,18 @@ export function storiesForSprint(stories = [], scrum = {}, selectedFilter = ds.s
   const current = selectedFilter || (scrum.activeSprintId ? "active" : "all");
   if (current === "all") return stories;
   const targetSprintId = current === "active" ? scrum.activeSprintId : current;
-  return stories.filter((story) => story.sprintId === targetSprintId);
+  const own = stories.filter((story) => story.sprintId === targetSprintId);
+  return targetSprintId && targetSprintId === scrum.activeSprintId ? own.concat(carriedOver(stories, scrum, targetSprintId)) : own;
+}
+
+const NOT_CARRIED_LANES = new Set(["concluido", "backlog"]);
+
+/** Historias abertas de sprints anteriores ainda ativas no Jira, com a sprint de origem em carryFrom. */
+export function carriedOver(stories = [], scrum = {}, activeSprintId = scrum.activeSprintId) {
+  const open = new Map((scrum.sprints || []).filter((sprint) => sprint.status === "active" && sprint.id !== activeSprintId).map((sprint) => [sprint.id, sprint.name]));
+  return stories
+    .filter((story) => open.has(story.sprintId) && story.status !== "done" && !NOT_CARRIED_LANES.has(story.laneId))
+    .map((story) => ({ ...story, carryFrom: open.get(story.sprintId) }));
 }
 
 /**
