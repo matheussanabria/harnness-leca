@@ -24,6 +24,8 @@ updated: 2026-11-02
 | `tests/atelier-nav-contract.test.js` | Navigation contract text, screen ID line, and its presence in the proto context and chat rules. |
 | `ui/server/services/atelier-tool-tags.service.js` | Parses `<tool name=...>` tags: raw HTML/CSS for `atelier_write_screen`/`atelier_patch_styles`, repaired JSON, unreadable tags returned as errors. |
 | `tests/atelier-tool-tags.test.js` | Tag parser (JSON, repaired JSON, raw HTML/CSS, errors) and `cssRules`/`cssContent` + `atelier_parse_error` tools. |
+| `ui/server/services/atelier-cli-engine-turn.service.js` | Model turn for every other engine (claude, codex, ollama, gemini via Antigravity): runs the harness engine with `readOnly: true`, collects the text and parses the `<tool>` tags; resumes the native session or sends the transcript. |
+| `ui/server/services/atelier-tool-instruction.service.js` | Shared `TOOL_INSTRUCTION` prompt (tag syntax and navigation rules) used by the OpenCode and CLI-engine turns. |
 | `ui/server/services/atelier-engine-adapters.service.js` | Gemini and OpenCode model turns for the agent loop; resumes the engine session and drops it only when the server answers 404/410 (`isSessionGone`), so auth or network errors never silently open a new session. |
 | `ui/server/services/prototype-sanitizer.service.js` | Strips dangerous tags, inline handlers and unsafe URIs from screen HTML; keeps `<form>` content and blocks only submission (`action`/`method` removed, `onsubmit` blocked). |
 | `tests/atelier-opencode-session-resume.test.js` | Session resume rules: 401/400 keep the session and emit `session_check_failed`, 404 creates a new one, healthy session is reused. |

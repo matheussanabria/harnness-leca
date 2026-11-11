@@ -11,7 +11,7 @@ const { describeError, errorEvent } = require("./errors");
 const { extractToolUse, extractToolResult } = require("./claude-tool-use");
 
 /** @param {import("../types").EngineRequest} req */
-function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, chatId, permissionUrl, signal, onChunk, onDone, onError, onToolUse, onToolResult }) {
+function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, chatId, permissionUrl, readOnly, signal, onChunk, onDone, onError, onToolUse, onToolResult }) {
   const projDir = path.join(ROOT, "projects", slug);
   const args = ["-p", "-", "--output-format", "stream-json", "--verbose"];
   const isClaudeUuid = sessionId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId);
@@ -25,7 +25,10 @@ function streamClaude({ prompt, slug, sessionId, model, effort, daiAgent, chatId
   args.push("--effort", safeEffort(effort));
   let cwd;
   try {
-    const session = claudeSession(projDir, chatId && permissionUrl ? { chatId, url: permissionUrl } : undefined);
+    // readOnly (Ateliê): só leitura e sem MCPs; quem grava é o backend do Ateliê a partir das tags do texto.
+    const session = readOnly
+      ? { cwd: projDir, args: ["--tools", READ_TOOLS.join(","), "--strict-mcp-config"] }
+      : claudeSession(projDir, chatId && permissionUrl ? { chatId, url: permissionUrl } : undefined);
     cwd = session.cwd;
     args.push(...session.args);
   } catch (err) {

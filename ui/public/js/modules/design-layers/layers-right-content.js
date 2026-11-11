@@ -1,6 +1,7 @@
 // @ts-check
 import { esc } from "../../shared/dom.js";
 import { dls } from "../design-layers-store.js";
+import { resolveActiveLayer } from "./layers-audience-profiles.js";
 import { renderDetailUiLayer, renderDetailRulesLayer } from "./layers-detail-ui-rules.js";
 import { renderDetailApiLayer, renderDetailDataLayer } from "./layers-detail-api-data.js";
 import { renderDetailTestsLayer, renderDetailLegacyLayer } from "./layers-detail-tests-legacy.js";
@@ -41,7 +42,7 @@ export function renderLayersRightColumn(sc) {
 
   // Conteúdo da camada ativa
   let layerContentHtml = "";
-  const layer = dls.activeLayer || "ui";
+  const layer = resolveActiveLayer(dls.activeAudience || "all", dls.activeLayer || "ui");
 
   switch (layer) {
     case "ui":

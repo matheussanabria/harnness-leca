@@ -61,6 +61,7 @@ function listSources(opts = {}) {
     { id: "harness", label: "Harness (.agents)", scope: "harness", dir: path.join(root, ".agents", "skills") },
   ];
   const agents = [{ id: "user", label: "Usuário (~/.claude)", scope: "user", dir: path.join(claude, "agents") }];
+  const manifestRoots = [];
   const workflows = [
     { id: "user", label: "Usuário (~/.claude)", scope: "user", dir: path.join(claude, "workflows") },
     { id: "harness", label: "Harness (.agents)", scope: "harness", dir: path.join(root, ".agents", "workflows") },
@@ -76,6 +77,8 @@ function listSources(opts = {}) {
         seenDirs.add(path.resolve(sdir));
         skills.push({ id: safeId("p", slug, target.id), label, scope: "project", dir: sdir });
       }
+      const mroot = path.join(target.path, ".agents");
+      if (isDir(mroot) && !manifestRoots.includes(mroot)) manifestRoots.push(mroot);
       const adir = path.join(target.path, ".claude", "agents");
       if (isDir(adir) && !seenDirs.has(path.resolve(adir))) {
         seenDirs.add(path.resolve(adir));
@@ -88,7 +91,7 @@ function listSources(opts = {}) {
       }
     }
   }
-  return { skills, agents, workflows };
+  return { skills, agents, workflows, manifestRoots };
 }
 
 module.exports = { listSources, listProjectSlugs, safeId };

@@ -35,6 +35,7 @@ export function renderPrototypeCatalog(items, activeId, componentsOrProto = null
           </span>
           <span class="proto-item-detail"><i class="fa-solid ${icon}"></i> ${esc(detail)}</span>
         </button>
+        ${item.kind === "atelier" ? `<button type="button" class="proto-item-export" data-prototype-export="${esc(item.id)}" title="Exportar protótipo e design system" aria-label="Exportar ${esc(item.title || item.id)}"><i class="fa-solid fa-file-export"></i></button>` : ""}
         <button type="button" class="proto-item-delete" data-prototype-delete="${esc(item.id)}" data-prototype-kind="${item.kind}" title="Excluir protótipo" aria-label="Excluir ${esc(item.title || item.id)}"><i class="fa-solid fa-trash-can"></i></button>
       </div>`;
   }).join("");
@@ -45,7 +46,7 @@ export function renderPrototypeCatalog(items, activeId, componentsOrProto = null
 
   return `
     <div class="proto-catalog-list">
-      <div class="proto-catalog-section-title">Protótipos do projeto (${items.length})</div>
+      <div class="proto-catalog-section-title">Protótipos do projeto (${items.length})${items.some((i) => i.kind === "atelier") ? `<button type="button" class="proto-export-all" data-export-all title="Exportar tudo: protótipos e design system" aria-label="Exportar todos os protótipos e o design system"><i class="fa-solid fa-file-export"></i></button>` : ""}</div>
       ${prototypesHtml || '<div class="proto-catalog-empty">Nenhum protótipo no projeto.</div>'}
       ${componentsHtml}
     </div>`;
@@ -67,7 +68,21 @@ function renderDsComponents(components, mcpServer) {
     ${mcpServer ? `<div class="proto-mcp-hint"><i class="fa-solid fa-plug"></i> Boilerplates via MCP <code>${esc(mcpServer)}</code></div>` : ""}`;
 }
 
-export function bindPrototypeCatalog(container, onSelect, onDelete) {
+/**
+ * @param {Element} container
+ * @param {(id: string, kind: string) => void} onSelect
+ * @param {((id: string, kind: string) => void) | undefined} onDelete
+ * @param {((target: string) => void) | undefined} [onExport]  receives a prototype id or "all"
+ */
+export function bindPrototypeCatalog(container, onSelect, onDelete, onExport) {
+  container.querySelectorAll("[data-prototype-export], [data-export-all]").forEach((button) => {
+    const element = /** @type {HTMLElement} */ (button);
+    if (!onExport) { element.hidden = true; return; }
+    element.addEventListener("click", (event) => {
+      event.stopPropagation();
+      onExport("prototypeExport" in element.dataset ? element.dataset.prototypeExport || "" : "all");
+    });
+  });
   container.querySelectorAll("[data-prototype-id]").forEach((button) => {
     button.addEventListener("click", () => {
       const element = /** @type {HTMLElement} */ (button);

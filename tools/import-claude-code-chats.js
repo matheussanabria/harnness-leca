@@ -20,6 +20,8 @@ const { ROOT } = require("./lib/root");
 
 const { redact } = require("./lib/redact"); // redação de segredos comuns (heurística)
 const { slugify } = require("./lib/text");
+const { stripEnvelope } = require("./lib/envelope");
+const fingerprints = require("./lib/sync-fingerprint");
 const { renderChat } = require("./lib/chat-format");
 const { writeChat } = require("./lib/chat-store");
 const { flag, opt, CliError, runAsScript } = require("./lib/cli");
@@ -28,12 +30,7 @@ const { MAX_FILE } = require("./lib/limits");
 
 
 
-// Remove blocos injetados pelo IDE/harness que não fazem parte da fala do usuário.
-function cleanUser(text) {
-  return text
-    .replace(/<(system-reminder|ide_[a-z_]+|command-[a-z-]+|local-command-[a-z-]+|project-harness|task-notification)>[\s\S]*?<\/\1>/g, "")
-    .trim();
-}
+const cleanUser = stripEnvelope;
 
 function toolHint(b) {
   const i = b.input || {};
@@ -145,11 +142,15 @@ function run(argv, io = console, { home = os.homedir(), sessionIds } = {}) {
   }
   const chatsDir = path.join(dest, "chats");
   if (!dry) fs.mkdirSync(chatsDir, { recursive: true });
+  const cache = fingerprints.open();
 
   for (const f of fs.readdirSync(dirName).filter((n) => n.endsWith(".jsonl") && (!sessionIds || sessionIds.has(n.slice(0, -6))))) {
     const sessionId = slugify(f.replace(/\.jsonl$/, "")); // só [a-z0-9-] no nome do arquivo gerado
     const src = path.join(dirName, f), st = fs.lstatSync(src);
     if (!st.isFile() || st.size > MAX_FILE) { io.log(`ignorado (symlink ou > 200 MB): ${f}`); result.ignoradas++; continue; }
+    const fpKey = `claude:${sessionId}`, fp = `${st.mtimeMs}:${st.size}:${has("no-tools") ? 0 : 1}`;
+    const hit = dry ? "" : cache.unchanged(fpKey, fp, chatsDir, sessionId.slice(0, 8));
+    if (hit) { io.log(`[sem mudança] ${hit}  (em cache)`); result.igual++; continue; }
     const c = convert(src, !has("no-tools"));
     if (!c.turns.length) { result.ignoradas++; continue; }
     const date = (c.first || "").slice(0, 10) || "sem-data";
@@ -159,7 +160,9 @@ function run(argv, io = console, { home = os.homedir(), sessionIds } = {}) {
     io.log(`${dry ? "[dry-run] " : ""}[${state}] ${name}  (${c.turns.length} turnos)`);
     for (const old of removed) io.log(`  (renomeada; removido ${old})`);
     result[state === "sem mudança" ? "igual" : state]++;
+    if (!dry) cache.remember(fpKey, fp, chatsDir);
   }
+  cache.save();
   const processed = result.nova + result.atualizada + result.igual;
   io.log(`\n${processed} conversas processadas (${result.nova + result.atualizada} novas ou atualizadas), ${result.ignoradas} vazias ignoradas.`);
   io.log(`Para ver o que ainda precisa de extração: node tools/extraction-state.js --project ${slug} status`);
