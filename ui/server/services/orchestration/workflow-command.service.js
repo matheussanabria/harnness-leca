@@ -11,7 +11,7 @@ const { createDossier, dossierRel, stageOutput, previousOutputs } = require("./w
 
 const COMMANDS = Object.freeze([
   { command: "/workflows", description: "Lista os workflows do catálogo com suas etapas." },
-  { command: "/workflow", description: "Inicia um workflow: /workflow <slug> <descrição> [--story <chave>] [--from <etapa>]." },
+  { command: "/workflow", description: "Inicia um workflow: /workflow <slug> <descrição> [--story <chave>] [--from <etapa>] [--visual]." },
 ]);
 
 /** Single source of chat commands and slugs, derived from the workflow catalog (autocomplete). */
@@ -108,7 +108,7 @@ function runWorkflowCommand({ slug, projectDir, text, actor }) {
       return fail(400, `Descreva o que quer entregar: /workflow ${workflow.id} <descrição curta>.`);
     }
     const meta = { seed: parsed.description, storyKey: parsed.story, source: "chat" };
-    const started = startWorkflowRun({ slug, projectDir, workflowId: workflow.id, actor: actor || "chat", meta, fromStage: parsed.from });
+    const started = startWorkflowRun({ slug, projectDir, workflowId: workflow.id, actor: actor || "chat", meta, fromStage: parsed.from, flags: { visual: parsed.visual } });
     let run = started.run;
     // The "start" stage creates the dossier for real (folder + _status.md); --from resumes and skips it, but the
     // dossier is still created so later stages have a place to write. Next stage (story) is seeded by meta.seed.

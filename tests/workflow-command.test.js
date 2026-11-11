@@ -24,9 +24,9 @@ const { listWorkflowRuns } = require("../ui/server/services/orchestration/workfl
 test("parser: list, start with flags, and non-commands", () => {
   assert.deepEqual(parseWorkflowCommand("/workflows"), { kind: "list" });
   assert.deepEqual(parseWorkflowCommand("/workflow feature-delivery Cadastro de cliente --story US-9 --from=bdd"), {
-    kind: "start", slug: "feature-delivery", description: "Cadastro de cliente", story: "US-9", from: "bdd",
+    kind: "start", slug: "feature-delivery", description: "Cadastro de cliente", story: "US-9", from: "bdd", visual: false,
   });
-  assert.deepEqual(parseWorkflowCommand("/workflows feature-delivery Cadastro"), { kind: "start", slug: "feature-delivery", description: "Cadastro", story: "", from: "" }); // plural alias
+  assert.deepEqual(parseWorkflowCommand("/workflows feature-delivery Cadastro"), { kind: "start", slug: "feature-delivery", description: "Cadastro", story: "", from: "", visual: false }); // plural alias
   assert.equal(parseWorkflowCommand("oi /workflow").kind, "none");
   assert.equal(parseWorkflowCommand("/workflowx a").kind, "none");
   assert.equal(isWorkflowCommand("/workflow"), true);
@@ -74,7 +74,7 @@ test("--from resumes at a stage and the gate card asks for approval", () => {
 
 test("suggestions come from the catalog", () => {
   const s = listCommandSuggestions();
-  assert.deepEqual(s.workflows.map((w) => w.slug).sort(), ["feature-delivery", "hotfix"].sort());
+  assert.deepEqual(s.workflows.map((w) => w.slug).sort(), ["feature-delivery", "hotfix", "rota-curta"].sort());
   assert.ok(s.commands.some((c) => c.command === "/workflows"));
 });
 

@@ -11,6 +11,9 @@ const WRITE_STAGES = new Set(["dev", "tests", "commit-pr", "deploy"]);
 const APPROVAL_STAGES = new Set(["prototype", "commit-pr", "deploy"]);
 // Atalho de correção pontual: subconjunto ordenado do fluxo completo.
 const HOTFIX_STAGE_IDS = Object.freeze(["start", "dev", "tests", "review", "commit-pr", "deploy"]);
+// Rota curta (ajuste pequeno): história e BDD obrigatórios; modelagem sempre dispensada; protótipo só com --visual.
+const SHORT_ROUTE_STAGE_IDS = Object.freeze(["start", "story", "bdd", "prototype", "modeling", "dev", "tests", "review", "commit-pr"]);
+const SHORT_ROUTE_RULE = "até 3 arquivos, sem tela nova, sem mudança de contrato";
 
 const WORKFLOW_DEFINITIONS = Object.freeze([
   Object.freeze({
@@ -24,6 +27,17 @@ const WORKFLOW_DEFINITIONS = Object.freeze([
     label: "Hotfix",
     description: "Atalho de correção pontual, sem protótipo nem modelagem.",
     stages: HOTFIX_STAGE_IDS,
+  }),
+  Object.freeze({
+    id: "rota-curta",
+    label: "Rota curta",
+    description: `Ajuste pequeno (${SHORT_ROUTE_RULE}): história, BDD, desenvolvimento, testes, revisão e commit. Protótipo só com --visual.`,
+    stages: SHORT_ROUTE_STAGE_IDS,
+    // Dispensed stages are recorded as skipped with this reason. unlessFlag: the flag brings the stage back.
+    dispensed: Object.freeze({
+      modeling: Object.freeze({ reason: `Dispensada na rota curta (${SHORT_ROUTE_RULE})`, unlessFlag: "" }),
+      prototype: Object.freeze({ reason: "Sem elemento visual novo (use --visual para incluir o protótipo)", unlessFlag: "visual" }),
+    }),
   }),
 ]);
 
@@ -39,6 +53,22 @@ function stagePolicy(stageId) {
   };
 }
 
+/**
+ * Stages a workflow dispenses for the given flags: { stageId: reason }. Pure.
+ * @param {string} workflowId @param {{ [flag: string]: boolean }} [flags]
+ */
+function getDispensedStages(workflowId, flags = {}) {
+  const workflow = WORKFLOW_INDEX.get(String(workflowId || "").trim());
+  const rules = workflow && workflow.dispensed ? workflow.dispensed : {};
+  /** @type {{ [stageId: string]: string }} */
+  const out = {};
+  for (const [stageId, rule] of Object.entries(rules)) {
+    if (rule.unlessFlag && flags[rule.unlessFlag] === true) continue;
+    out[stageId] = rule.reason;
+  }
+  return out;
+}
+
 function workflowDetail(workflow) {
   return {
     id: workflow.id,
@@ -52,6 +82,8 @@ function workflowDetail(workflow) {
         label: stage ? stage.label : stageId,
         order: stage ? stage.order : -1,
         gate: stage ? stage.gate : "",
+        // Default dispensation shown in /workflows (a flag such as --visual can bring the stage back).
+        dispensed: workflow.dispensed && workflow.dispensed[stageId] ? workflow.dispensed[stageId].reason : "",
         ...stagePolicy(stageId),
       };
     }),
@@ -90,4 +122,5 @@ module.exports = {
   getWorkflow,
   isValidWorkflow,
   getWorkflowStageIds,
+  getDispensedStages,
 };

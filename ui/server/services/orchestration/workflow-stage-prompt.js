@@ -31,6 +31,20 @@ function accessLines(stage, ctx) {
 }
 
 /**
+ * Scenario-to-test link: the repository has no Gherkin runner, so the id in the test title is what proves a scenario is covered.
+ * @param {any} stage @returns {string[]}
+ */
+function scenarioLines(stage) {
+  if (stage.id === "bdd") {
+    return ["", "Dê a cada cenário um id CP-01, CP-02 e assim por diante, cobrindo caminho feliz, alternativo e de erro (Dado/Quando/Então)."];
+  }
+  if (stage.id === "tests") {
+    return ["", 'Cada cenário do BDD vira um teste automatizado com o id no título, por exemplo test("CP-02: soltar texto selecionado não faz nada"). Escreva os testes dos cenários CP-nn antes de dar a etapa por concluída.'];
+  }
+  return [];
+}
+
+/**
  * @param {{ workflowId: string, executionId: string, meta?: { seed?: string, storyKey?: string } }} run
  * @param {any} stage plan stage ({ id, label, agents, skills, gate, requiresApproval, permissions }) or null
  * @param {{ id: string, label: string } | null} [previous] last completed stage, for continuity
@@ -53,7 +67,7 @@ function buildStagePrompt(run, stage, previous = null, ctx = null) {
     if (skills.length) lines.push(`Skills da etapa: ${skills.join(", ")}.`);
     if (stage.gate) lines.push(`Critério de saída (gate): ${stage.gate}.`);
     if (stage.requiresApproval) lines.push("Esta etapa exige aprovação do usuário antes de avançar.");
-    lines.push(...accessLines(stage, ctx));
+    lines.push(...accessLines(stage, ctx), ...scenarioLines(stage));
   }
 
   lines.push(
