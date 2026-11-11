@@ -19,7 +19,11 @@ function copia() {
 const ler = (root, rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 const gravar = (root, rel, txt) => fs.writeFileSync(path.join(root, rel), txt, 'utf8');
 const troca = (root, rel, de, para) => {
-  const t = ler(root, rel);
+  let t = ler(root, rel);
+  if (!t.includes(de) && de.includes('\n')) {
+    const deCrlf = de.replace(/\r?\n/g, '\r\n');
+    if (t.includes(deCrlf)) de = deCrlf;
+  }
   assert.ok(t.includes(de), `fixture: "${de}" not found in ${rel}`);
   gravar(root, rel, t.replaceAll(de, para));
 };
