@@ -1,0 +1,31 @@
+'use strict';
+// Definition of done for a story. Read-only: reports each item as done or open, never moves the story.
+// Criteria come from the story itself; the other items are evidence the caller declares via flags.
+const EVIDENCE = [
+  { flag: 'tests', label: 'Automated tests pass' },
+  { flag: 'lint', label: 'Lint ran' },
+  { flag: 'browser', label: 'UI verified in a real browser' },
+  { flag: 'map', label: 'MAPA / docs/mapa updated' },
+  { flag: 'commit', label: 'Commit done' },
+];
+
+/** pass | done | <sha> => done. na:<reason> => done with a reason. Anything else, or na without a reason => open. */
+function judge(value) {
+  const v = String(value || '').trim();
+  if (!v) return { done: false, note: 'no evidence given' };
+  if (/^na:\s*\S/i.test(v)) return { done: true, note: `not applicable: ${v.slice(3).trim()}` };
+  if (/^na:?$/i.test(v)) return { done: false, note: 'na needs a reason (na:<reason>)' };
+  if (/^(fail|failed|open|no|pending|awaiting.*)$/i.test(v)) return { done: false, note: v };
+  return { done: true, note: v };
+}
+
+const hasCriteria = (value) => (Array.isArray(value) ? value.length > 0 : String(value || '').trim().length > 0);
+
+function doneCheck(story, opt) {
+  const items = [{ item: 'Acceptance criteria on the story', ...(hasCriteria(story.acceptanceCriteria) ? { done: true, note: 'present' } : { done: false, note: 'empty (node tools/scrum.js story update)' }) }];
+  EVIDENCE.forEach((e) => items.push({ item: e.label, ...judge(opt[e.flag]) }));
+  const open = items.filter((i) => !i.done);
+  return { id: story.id, key: story.key, ready: open.length === 0, open: open.length, items };
+}
+
+module.exports = { doneCheck, judge };

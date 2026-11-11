@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 // Scrum CRUD for agents and scripts. JSON on stdout, errors on stderr. Exit: 0 ok, 1 error, 2 usage, 3 needs human.
-//   node tools/scrum.js story list|get|capture|update|link|move|maturity ... [--project slug] [--actor human:x|agent:engine:run]
+//   node tools/scrum.js story list|get|capture|update|link|move|maturity|done-check ... [--project slug] [--actor human:x|agent:engine:run]
+//     done-check <id> [--tests pass] [--lint pass|na:why] [--browser ...] [--map ...] [--commit <sha>|awaiting-user]; exit 3 while items are open
 //   node tools/scrum.js sprint list|create|plan|start|close ...  (start and close need a human actor)
 //   node tools/scrum.js epic list
 const { resolveContext } = require('./lib/scrum-cli/context');
@@ -35,6 +36,7 @@ function run(pos, opt) {
     link: () => cmd.link(c, a, opt),
     move: () => cmd.move(c, a, opt),
     maturity: () => cmd.maturity(c, a, b, opt),
+    'done-check': () => cmd.check(c, a, opt),
   };
   return table[action] ? table[action]() : undefined;
 }
@@ -42,8 +44,9 @@ function run(pos, opt) {
 try {
   const { pos, opt } = parse(process.argv.slice(2));
   const result = run(pos, opt);
-  if (result === undefined) { console.error('usage: node tools/scrum.js story list|get|capture|update|link|move|maturity | sprint list|create|plan|start|close | epic list'); process.exit(2); }
+  if (result === undefined) { console.error('usage: node tools/scrum.js story list|get|capture|update|link|move|maturity|done-check | sprint list|create|plan|start|close | epic list'); process.exit(2); }
   console.log(JSON.stringify(result, null, 2));
+  if (result && result.ready === false) process.exit(3);
 } catch (err) {
   console.error(err.message);
   process.exit(err instanceof GuardError ? 3 : 1);

@@ -3,6 +3,7 @@
 const svc = require('../../../ui/server/services/project-scrum.service');
 const { captureStory } = require('../../../ui/server/services/project-scrum-capture');
 const guard = require('./guard');
+const { doneCheck } = require('./done-check');
 const { normalizeLedgerId } = require('../../../ui/server/services/project-scrum-actor');
 
 const UPDATABLE = ['ledgerId', 'title', 'description', 'acceptanceCriteria', 'epicId', 'points', 'priority', 'assignee'];
@@ -60,8 +61,10 @@ function maturity(c, id, state, o) {
   return view(find(c, story.id));
 }
 
+const check = (c, id, o) => doneCheck(find(c, id), o);
+
 function epics(c) {
   return svc.loadProjectScrum(c.slug, c.projectDir, c.repoRoot).scrum.epics || [];
 }
 
-module.exports = { list, get, capture, update, link, move, maturity, epics };
+module.exports = { list, get, capture, update, link, move, maturity, check, epics };
