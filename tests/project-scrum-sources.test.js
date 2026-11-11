@@ -221,3 +221,20 @@ test("le sprints (Server e Cloud) e comentarios do snapshot Jira", () => {
   assert.equal(resolved.activeSprintId, "jira-13");
   assert.equal(resolved.sprints.find((s) => s.id === "jira-12").status, "completed");
 });
+
+test("raia vem do status do Jira; raia local so vence com transicao registrada", () => {
+  const issue = (key, id, name) => ({ key, fields: { summary: key, status: { id, name, statusCategory: { key: "indeterminate" } }, issuetype: { name: "Story" } } });
+  const snapshot = normalizeJiraSnapshot([issue("DIS-1", "1", "SELECIONADO"), issue("DIS-2", "2", "A Fazer"), issue("DIS-3", "3", "SELECIONADO")]);
+  const local = {
+    schemaVersion: 2,
+    stories: [
+      { id: "dis-1", key: "DIS-1", status: "in_progress", laneId: "em-desenvolvimento" },
+      { id: "dis-3", key: "DIS-3", status: "todo", laneId: "pronto-para-dev" },
+    ],
+    transitionHistory: [{ storyKey: "DIS-3", toLaneId: "pronto-para-dev" }],
+  };
+  const lane = (key) => resolveScrumData(local, snapshot).stories.find((item) => item.key === key).laneId;
+  assert.equal(lane("DIS-1"), "refinamento");
+  assert.equal(lane("DIS-2"), "discovery");
+  assert.equal(lane("DIS-3"), "pronto-para-dev");
+});

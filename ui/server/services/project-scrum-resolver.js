@@ -10,6 +10,20 @@ function defaultBoardStatus(sourceStatus) {
   return "todo";
 }
 
+const NAME_LANES = [
+  [/impediment/, "backlog"], [/^a fazer$|^to do$/, "discovery"], [/selecionado|priorizado/, "refinamento"],
+  [/desenvolvimento|in progress/, "em-desenvolvimento"], [/revis/, "em-revisao"], [/^em testes?$/, "em-testes"],
+  [/^testado$/, "pronto-para-homologacao"], [/^em homologa/, "em-homologacao"], [/^homologado$/, "pronto-para-deploy"],
+  [/conclu|cancelad|^done$/, "concluido"],
+];
+
+/** Raia padrao pelo nome do status do Jira; cai na categoria quando o nome e desconhecido. */
+function defaultLaneForStatus(status) {
+  const name = String(status?.name || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+  const hit = NAME_LANES.find(([pattern]) => pattern.test(name));
+  return hit ? hit[1] : legacyStatusToLane(defaultBoardStatus(status));
+}
+
 function statusMapping(local, snapshot) {
   const saved = local.statusMapping || {};
   const statuses = new Map();
@@ -20,21 +34,29 @@ function statusMapping(local, snapshot) {
     const storedLaneId = legacyStatusToLane(saved[key]) || (isLaneId(saved[key]) ? saved[key] : null);
     if (!statuses.has(key)) statuses.set(key, {
       ...status,
-      boardLaneId: storedLaneId || legacyStatusToLane(defaultBoardStatus(status)),
+      boardLaneId: storedLaneId || defaultLaneForStatus(status),
     });
   }
   return [...statuses.values()];
 }
 
-function mergeSourceStory(source, localStory, document, mapping) {
+/** Mover localmente vence o Jira so quando houve transicao registrada para essa raia; o resto e semente antiga. */
+function hasLocalMove(localStory, transitions) {
+  const key = String(localStory?.key || localStory?.id || "").toUpperCase();
+  return isLaneId(localStory?.laneId) && transitions.some((move) =>
+    String(move.storyKey || move.storyId).toUpperCase() === key && move.toLaneId === localStory.laneId);
+}
+
+function mergeSourceStory(source, localStory, document, mapping, transitions = []) {
   const override = localStory?.localOverrides || {};
   const mapped = mapping.find((item) => (item.id || item.name) === (source.sourceStatus?.id || source.sourceStatus?.name));
+  const moved = hasLocalMove(localStory, transitions);
   const status = localStory?.status || defaultBoardStatus(source.sourceStatus);
   const merged = {
     ...source,
     sprintId: source.sprintId ?? localStory?.sprintId ?? null,
     status,
-    laneId: isLaneId(localStory?.laneId) ? localStory.laneId : (mapped?.boardLaneId ?? legacyStatusToLane(status)),
+    laneId: moved ? localStory.laneId : (mapped?.boardLaneId ?? defaultLaneForStatus(source.sourceStatus)),
     context: document?.context ?? null,
     description: document?.description ?? source.description,
     userStory: document?.userStory ?? null,
@@ -96,7 +118,7 @@ function resolveScrumData(local = {}, snapshot = {}, documents = new Map()) {
   const deleted = new Set((local.deletedSourceKeys || []).map((key) => String(key).toUpperCase()));
   const stories = (snapshot.stories || []).filter((source) => !deleted.has(source.key.toUpperCase())).map((source) => {
     sourceKeys.add(source.key.toUpperCase());
-    return mergeSourceStory(source, byKey.get(source.key.toUpperCase()), documents.get(source.key.toUpperCase()), mapping);
+    return mergeSourceStory(source, byKey.get(source.key.toUpperCase()), documents.get(source.key.toUpperCase()), mapping, local.transitionHistory || []);
   });
   stories.push(...localStories
     .filter((story) => !sourceKeys.has(String(story.key || story.id).toUpperCase()))

@@ -31,3 +31,11 @@ test("exporta pedindo sprint e comentarios e completa comentarios truncados", as
 test("recusa exportar sem credenciais", async () => {
   await assert.rejects(exportJiraSnapshot({ baseUrl: "", token: "", project: "DIS", out: "x" }), /JIRA_BASE_URL/);
 });
+
+test("token recusado gera mensagem acionavel", async () => {
+  const fetchImpl = async () => ({ ok: false, status: 401, json: async () => ({}) });
+  await assert.rejects(
+    exportJiraSnapshot({ baseUrl: "https://x", token: "t", project: "DIS", out: "unused.json", fetchImpl }),
+    /recusou o token \(HTTP 401\).*JIRA_PAT/,
+  );
+});

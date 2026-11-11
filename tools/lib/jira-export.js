@@ -12,6 +12,9 @@ function createClient(baseUrl, token, fetchImpl = fetch) {
     const response = await fetchImpl(`${baseUrl.replace(/\/$/, "")}/rest/api/2/${route}`, {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
     });
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(`Jira recusou o token (HTTP ${response.status}). Gere um novo JIRA_PAT, atualize o ambiente e reinicie o Harness.`);
+    }
     if (!response.ok) throw new Error(`Jira ${response.status} em ${route.split("?")[0]}`);
     return response.json();
   };
