@@ -23,9 +23,13 @@ for (const [file, id] of Object.entries(pages)) {
   });
 }
 
-test("narrow header keeps nav labels for screen readers and 44px targets", () => {
+test("phone header shows global nav labels in a horizontal scroller", () => {
   const css = fs.readFileSync(path.join(pub, "css", "app-header.css"), "utf8");
-  assert.ok(!/\.app-nav-item span\s*\{\s*display:\s*none/.test(css), "labels must not be display:none");
+  const phoneCss = css.slice(css.indexOf("/* Phone: global navigation"), css.indexOf("/* Mobile hamburger"));
+  assert.ok(!phoneCss.includes(".app-nav-item span"), "phone labels must remain visible");
+  assert.match(css, /overflow-x:\s*auto/);
+  assert.match(css, /flex-wrap:\s*nowrap/);
+  assert.match(css, /flex:\s*0 0 auto/);
   assert.match(css, /min-height:\s*44px/);
 });
 

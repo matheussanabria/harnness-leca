@@ -79,11 +79,10 @@ header.app-header:not(.dai-topbar) {
   .app-header [data-slot="right"] button,
   .app-header [data-slot="right"] a { min-height: 44px; }
 }
-/* Phone: nav keeps icons only (labels stay for screen readers); 44px touch targets. */
+/* Phone: global navigation keeps its names and scrolls horizontally when needed. */
 @media (max-width: 760px) {
   header.app-header { padding: 10px 14px; gap: 8px; }
-  .app-nav-item span { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-  .app-nav-item { padding: 6px 9px; min-height: 44px; justify-content: center; }
+  .app-nav-item { flex: 0 0 auto; min-height: 44px; }
   .app-header [data-slot="right"] button,
   .app-header [data-slot="right"] a { min-height: 44px; }
 }
@@ -102,7 +101,15 @@ header.app-header:not(.dai-topbar) {
   }
   .app-header:not(.dai-topbar):not(.menu-open) .app-nav,
   .app-header:not(.dai-topbar):not(.menu-open) [data-slot="right"] { display: none; }
-  .app-header.menu-open:not(.dai-topbar) .app-nav { order: 10; flex-basis: 100%; justify-content: space-between; }
+  .app-header.menu-open:not(.dai-topbar) .app-nav {
+    order: 10;
+    flex: 0 0 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
   .app-header.menu-open:not(.dai-topbar) [data-slot="right"] {
     order: 11; flex-basis: 100%; flex-direction: column; align-items: stretch; margin-left: 0;
   }
