@@ -117,6 +117,8 @@ export interface EngineRequest extends EngineSink {
   /** conversa no servidor da interface e onde ele atende (pedidos de permissão do motor) */
   chatId?: string;
   permissionUrl?: string;
+  /** só leitura: o motor não grava arquivos nem roda comandos (usado pelo Ateliê) */
+  readOnly?: boolean;
   signal?: AbortSignal;
 }
 
