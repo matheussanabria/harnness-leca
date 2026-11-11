@@ -5,6 +5,7 @@
 import { esc } from "../../shared/dom.js";
 import { state } from "../../shared/state.js";
 import { dls } from "../design-layers-store.js";
+import { buildMarkers, markersMessage, activeMarkerMessage, bindFieldClicks } from "./layers-screen-replica-markers.js";
 
 /** Largura logica do quadro por modo (px) e altura logica comum. */
 export const FRAME_WIDTHS = { desktop: 1024, tablet: 768, mobile: 390 };
@@ -39,7 +40,8 @@ export function renderPrototypeFrame(sc) {
   const width = FRAME_WIDTHS[mode];
   const url = prototypeFrameUrl(slug, sc.prototype, "content");
   const selectors = JSON.stringify(sc.prototype.selectors || {});
-  return `<div class="replica-proto-wrap" data-frame-width="${width}" data-frame-height="${FRAME_HEIGHT}" data-selectors="${esc(selectors)}">
+  const markers = JSON.stringify(buildMarkers(sc));
+  return `<div class="replica-proto-wrap" data-frame-width="${width}" data-frame-height="${FRAME_HEIGHT}" data-selectors="${esc(selectors)}" data-markers="${esc(markers)}">
     <div class="replica-proto-stage">
       <iframe class="replica-proto-frame" style="width:${width}px;height:${FRAME_HEIGHT}px" src="${esc(url)}" sandbox="allow-scripts" loading="lazy" title="Protótipo: ${esc(sc.title || sc.prototype.screen)}"></iframe>
     </div>
@@ -74,7 +76,17 @@ export function highlightFocusedField(root = document) {
   root?.querySelectorAll?.(".replica-proto-wrap").forEach((wrap) => {
     const frame = /** @type {HTMLIFrameElement | null} */ (wrap.querySelector(".replica-proto-frame"));
     frame?.contentWindow?.postMessage(highlightMessage(selectorsOf(wrap), dls.focusedFieldId), "*");
+    frame?.contentWindow?.postMessage(activeMarkerMessage(dls.focusedFieldId), "*");
   });
+}
+
+/** @param {Element} wrap */
+function markersOf(wrap) {
+  try {
+    return JSON.parse(wrap.getAttribute("data-markers") || "[]");
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -108,7 +120,9 @@ export function mountPrototypeFrames(root = document) {
     const frame = /** @type {HTMLIFrameElement | null} */ (wrap.querySelector(".replica-proto-frame"));
     frame?.addEventListener("load", () => {
       frame.contentWindow?.postMessage({ type: "HARNESS_PROTO_MODE", mode: "play" }, "*");
+      frame.contentWindow?.postMessage(markersMessage(markersOf(wrap), dls.focusedFieldId), "*");
       frame.contentWindow?.postMessage(highlightMessage(selectorsOf(wrap), dls.focusedFieldId), "*");
     });
   });
+  bindFieldClicks();
 }
