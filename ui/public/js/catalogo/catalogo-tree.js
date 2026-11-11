@@ -37,7 +37,7 @@ export function pickDefaultFile(nodes) {
   const files = [];
   const walk = (list) => list.forEach((n) => (n.type === "dir" ? walk(n.children || []) : files.push(n.path)));
   walk(nodes);
-  return files.find((p) => /^skill\.md$/i.test(p)) || files.find((p) => /\.md$/i.test(p)) || files[0] || "";
+  return files.find((p) => /^skill\.md$/i.test(p)) || files.find((p) => /^manifest\/manifest\.ya?ml$/i.test(p)) || files.find((p) => /\.md$/i.test(p)) || files[0] || "";
 }
 
 /** Drops the YAML frontmatter so the rendered view starts at the content; returns the pieces. */

@@ -120,6 +120,8 @@
         "story",
         "jira",
         "discovery",
+        "workflow",
+        "fluxo",
         "okr"
       ]
     },

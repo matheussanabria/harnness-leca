@@ -152,6 +152,45 @@
   color: var(--mute);
 }
 
+.workflow-agent-link {
+  color: #c7d2fe;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-bottom: 1px dashed rgba(199, 210, 254, 0.4);
+  transition: all 0.15s ease;
+}
+
+.workflow-agent-link:hover {
+  color: #818cf8;
+  border-bottom-color: #818cf8;
+}
+
+.workflow-agent-item {
+  color: var(--mute);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.workflow-skill-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  transition: all 0.15s ease;
+}
+
+.workflow-skill-link:hover {
+  color: var(--accent, #38bdf8);
+  border-bottom-color: var(--accent, #38bdf8);
+}
+
+.workflow-skill.is-global i {
+  color: #38bdf8;
+}
+
 .workflow-missing {
   margin: 0;
   font-size: 11.5px;

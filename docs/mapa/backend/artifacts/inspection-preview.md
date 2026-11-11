@@ -19,7 +19,7 @@ updated: 2026-10-30
 | `ui/server/services/prototype-sandbox-renderer.service.js` | Prototype sandbox facade: `metadata.runtime === "dc"` goes to the DC branch, others to `screens/<id>.html`. |
 | `ui/server/services/prototype-sandbox-dc.service.js` | Renders a DC prototype with local runtime, sandbox CSP, `startScreen.default`, data URI assets, stable `data-pid`, React loaded before boot. |
 | `ui/server/services/dc-template-runtime.service.js` | Encodes `sc-for` and `sc-if` as `<template>` nodes before HTML parsing so loops inside tables render mock rows. |
-| `ui/server/services/prototype-exporter-runtime.service.js` | JS embedded in the single-HTML export: screen resolver equal to the ESM one, `a[href]` and `goto:` handling, on-page warning for planned screens, global `showScreen` for the tabs. |
+| `ui/server/services/prototype-exporter-runtime.service.js` | JS embedded in the single-HTML export: screen resolver equal to the ESM one, `a[href]` and `goto:` handling, on-page warning for planned screens, global `showScreen` for the tabs and picker, one history entry per screen (`#screen-id` deep links and Back button), previous/next and scroll to top. |
 | `ui/server/services/prototype-sandbox-common.service.js` | Styles, harness bridge and CSP headers shared by the static and DC sandbox branches. |
 | `ui/public/js/vendor/dc-runtime/` | React 18.3.1, ReactDOM 18.3.1 and Claude Design `support.js` with checked hashes, served to the isolated sandbox. |
 | `ui/server/services/artifact-inventory.service.js` | Deduplicates, merges metadata, filters local access, sorts, summarizes and limits the artifact inventory. |

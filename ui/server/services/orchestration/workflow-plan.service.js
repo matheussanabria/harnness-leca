@@ -33,16 +33,33 @@ function projectSkillKeys(slug) {
   return { byName, keys };
 }
 
-function resolveSkill(name, byName, bound) {
+function getGlobalSkillNames() {
+  try {
+    const { buildCatalog } = require("../catalog/catalog-reader");
+    const catalog = buildCatalog();
+    return new Set(catalog.items.filter((i) => i.kind === "skill").map((i) => i.name));
+  } catch {
+    return new Set();
+  }
+}
+
+function resolveSkill(name, byName, bound, globalSkills) {
   const candidates = byName.get(name) || [];
   const key = bound ? candidates.find((item) => bound.has(item)) : undefined;
   if (key) return { name, key, available: true, bound: true };
   if (bound) {
     if (candidates.length) return { name, key: candidates[0], available: true, bound: false };
-    return { name, key: "", available: false, bound: false };
+    const globalAvail = Boolean(globalSkills && globalSkills.has(name));
+    return globalAvail
+      ? { name, key: "", available: false, bound: false, globalAvailable: true }
+      : { name, key: "", available: false, bound: false };
   }
-  return candidates.length
-    ? { name, key: candidates[0], available: true, bound: true }
+  if (candidates.length) {
+    return { name, key: candidates[0], available: true, bound: true };
+  }
+  const globalAvail = Boolean(globalSkills && globalSkills.has(name));
+  return globalAvail
+    ? { name, key: "", available: false, bound: true, globalAvailable: true }
     : { name, key: "", available: false, bound: true };
 }
 
@@ -58,11 +75,13 @@ function buildWorkflowPlan({ slug, projectDir, workflowId, laneId }) {
   const bound = resolvedLane
     ? new Set(buildBindingReport(projectDir, lanes, keys).items[resolvedLane] || [])
     : null;
+  const globalSkills = getGlobalSkillNames();
 
   const totals = {
     stages: workflow.stages.length,
     skillsRequired: 0,
     skillsAvailable: 0,
+    skillsGlobal: 0,
     skillsMissing: 0,
     skillsUnbound: 0,
     approvalsRequired: 0,
@@ -72,11 +91,12 @@ function buildWorkflowPlan({ slug, projectDir, workflowId, laneId }) {
   const stages = workflow.stages.map((stageRef) => {
     const stage = getStage(stageRef.id);
     const skills = (stage ? stage.skills : []).map((name) => {
-      const item = resolveSkill(name, byName, bound);
+      const item = resolveSkill(name, byName, bound, globalSkills);
       totals.skillsRequired += 1;
       if (!item.available) totals.skillsMissing += 1;
       else if (!item.bound) totals.skillsUnbound += 1;
       if (item.available) totals.skillsAvailable += 1;
+      if (item.globalAvailable) totals.skillsGlobal += 1;
       return item;
     });
     if (stageRef.requiresApproval) totals.approvalsRequired += 1;

@@ -12,18 +12,81 @@ const SKIP = new Set(["node_modules", "__pycache__", ".git"]);
 const TEXT_EXT = new Set([".md", ".markdown", ".txt", ".yaml", ".yml", ".json", ".xml", ".xsd", ".py", ".js", ".ts", ".sh", ".ps1", ".html", ".css", ".csv", ".toml", ".ini", ".sql", ".java", ".feature", ""]);
 const NAME = /^[\w.\- ]{1,120}$/;
 
+function generateWorkflowMarkdown(workflowId) {
+  try {
+    const { getWorkflow } = require("../orchestration/workflow-definitions");
+    const { getStage } = require("../orchestration/agent-stage-catalog");
+    const wf = getWorkflow(workflowId);
+    if (!wf) return "# Workflow\n\nNao encontrado.\n";
+    const lines = [
+      `# ${wf.label}`,
+      "",
+      `> **Identificador:** \`${wf.id}\` · **Etapas:** ${wf.stages.length}`,
+      "",
+      wf.description,
+      "",
+      "## Etapas do Workflow",
+      "",
+      "| # | Etapa | Agente(s) | Skills | Gate | Permissoes |",
+      "|---|---|---|---|---|---|",
+    ];
+    for (const s of wf.stages) {
+      const stage = getStage(s.id);
+      const agents = stage && stage.agents.length
+        ? stage.agents.map((a) => a.label || a.id).join(", ")
+        : (s.id === "start" ? "Sessao" : "—");
+      const skills = stage && stage.skills.length ? stage.skills.map((k) => `\`${k}\``).join(", ") : "—";
+      const gate = s.gate || (stage ? stage.gate : "—");
+      const perms = [];
+      if (s.permissions?.read) perms.push("leitura");
+      if (s.permissions?.write) perms.push("escrita");
+      if (s.permissions?.exec) perms.push("execucao");
+      const permText = perms.join(", ") || "nenhuma";
+      lines.push(`| ${s.order} | **${s.label}** | ${agents} | ${skills} | ${gate} | ${permText} |`);
+    }
+    lines.push("");
+    return lines.join("\n");
+  } catch {
+    return "# Workflow\n";
+  }
+}
+
 /** Finds the on-disk entry of an item. Names come from the URL, so they are validated first. */
 function resolveItem(kind, source, ref, sources = defaultSources()) {
   if (!NAME.test(String(ref || "")) || ref === "." || ref === "..") return null;
-  const list = kind === "agent" ? sources.agents : kind === "skill" ? sources.skills : null;
+  const list = kind === "agent" ? sources.agents : kind === "skill" ? sources.skills : kind === "workflow" ? (sources.workflows || []) : null;
   const src = list && list.find((s) => s.id === source);
-  if (!src) return null;
+  if (!src) {
+    if (kind === "workflow") {
+      const content = generateWorkflowMarkdown(ref);
+      return { kind, root: ref, isDir: false, isVirtual: true, content };
+    }
+    return null;
+  }
   const full = path.join(src.dir, ref);
-  if (!fs.existsSync(full)) return null;
+  if (!fs.existsSync(full)) {
+    if (kind === "workflow") {
+      const content = generateWorkflowMarkdown(ref);
+      return { kind, root: ref, isDir: false, isVirtual: true, content };
+    }
+    return null;
+  }
   const real = fs.realpathSync(full);
   const realRoot = fs.realpathSync(src.dir);
   if (real !== realRoot && !real.startsWith(realRoot + path.sep)) return null;
   return { kind, root: real, isDir: fs.statSync(real).isDirectory() };
+}
+
+const MF = "manifest";
+
+/** Folder holding `<agent>/manifest.yaml` (repos that keep agent manifests under .agents), or "". */
+function agentManifestDir(ref, sources) {
+  const name = String(ref).replace(/\.md$/, "");
+  for (const root of sources.manifestRoots || []) {
+    const dir = path.join(root, name);
+    if (fs.existsSync(path.join(dir, "manifest.yaml"))) return fs.realpathSync(dir);
+  }
+  return "";
 }
 
 /** Sorts folders first, then names; hides dot-entries. */
@@ -47,7 +110,16 @@ function listDir(dir, rel, depth, budget) {
 function listTree(kind, source, ref, sources) {
   const item = resolveItem(kind, source, ref, sources);
   if (!item) return null;
-  if (!item.isDir) return { truncated: false, tree: [{ type: "file", name: path.basename(item.root), path: path.basename(item.root), size: fs.statSync(item.root).size }] };
+  if (item.isVirtual) {
+    return { truncated: false, tree: [{ type: "file", name: "WORKFLOW.md", path: "WORKFLOW.md", size: Buffer.byteLength(item.content, "utf8") }] };
+  }
+  if (!item.isDir) {
+    const own = { type: "file", name: path.basename(item.root), path: path.basename(item.root), size: fs.statSync(item.root).size };
+    const mdir = agentManifestDir(ref, sources || defaultSources());
+    if (!mdir) return { truncated: false, tree: [own] };
+    const b = { left: MAX_ENTRIES };
+    return { truncated: false, tree: [{ type: "dir", name: MF, path: MF, children: listDir(mdir, MF, 2, b) }, own] };
+  }
   const budget = { left: MAX_ENTRIES };
   const tree = listDir(item.root, "", 1, budget);
   return { truncated: budget.left <= 0, tree };
@@ -59,6 +131,16 @@ function resolveFile(kind, source, ref, rel, sources) {
   if (!item) return { status: 404, error: "Item not found." };
   const parts = String(rel || "").split("/").filter(Boolean);
   if (parts.some((p) => p === ".." || p === "." || p.includes("\\") || p.startsWith("."))) return { status: 400, error: "Invalid path." };
+  if (!item.isDir && parts[0] === MF && parts.length > 1) {
+    const mdir = agentManifestDir(ref, sources || defaultSources());
+    if (!mdir) return { status: 404, error: "File not found." };
+    const t = path.join(mdir, ...parts.slice(1));
+    if (!fs.existsSync(t)) return { status: 404, error: "File not found." };
+    const r = fs.realpathSync(t);
+    if (!r.startsWith(mdir + path.sep)) return { status: 400, error: "Invalid path." };
+    const st = fs.statSync(r);
+    return st.isFile() ? { real: r, stat: st } : { status: 400, error: "Not a file." };
+  }
   const target = item.isDir ? path.join(item.root, ...parts) : item.root;
   if (!item.isDir && parts.join("/") !== path.basename(item.root)) return { status: 404, error: "File not found." };
   if (!fs.existsSync(target)) return { status: 404, error: "File not found." };
@@ -74,6 +156,13 @@ const revisionOf = (buf) => crypto.createHash("sha1").update(buf).digest("hex");
 
 /** Text content of one file inside the item. Returns { error } when it cannot be shown. */
 function readItemFile(kind, source, ref, rel, sources) {
+  const item = resolveItem(kind, source, ref, sources);
+  if (!item) return { status: 404, error: "Item not found." };
+  if (item.isVirtual) {
+    const content = item.content || "";
+    const buf = Buffer.from(content, "utf8");
+    return { status: 200, name: "WORKFLOW.md", size: buf.length, binary: false, truncated: false, revision: revisionOf(buf), content };
+  }
   const found = resolveFile(kind, source, ref, rel, sources);
   if (!found.real) return found;
   const { real, stat } = found;
