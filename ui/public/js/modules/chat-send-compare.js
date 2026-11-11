@@ -9,6 +9,7 @@ import { setChatStreaming, setChatAbortController } from "./chat-execution-store
 import { getEngineSession, setEngineSession } from "./chat-session-store.js";
 import { applyHiaDone } from "./chat-hia-feedback.js";
 import { newComparisonTraceId } from "./chat-trace-id.js";
+import { engineText } from "./chat-user-turn.js";
 
 /** Comparison mode: fires every selected engine in parallel against /api/chat. */
 export async function runComparison(P, chatId, promptText, input) {
@@ -60,7 +61,7 @@ export async function runComparison(P, chatId, promptText, input) {
           history: state.chatTurns
             .filter((t) => t.role === "user" || (t.role === "assistant" && t.engine === eng))
             .slice(0, -1)
-            .map((t) => ({ role: t.role, text: t.text })),
+            .map((t) => ({ role: t.role, text: engineText(t) })),
           model: cs.engineSettings[eng]?.model,
           effort: cs.engineSettings[eng]?.effort,
           daiAgent: cs.activeDaiAgent || undefined,
