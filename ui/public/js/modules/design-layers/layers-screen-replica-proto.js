@@ -1,6 +1,7 @@
 // @ts-check
-// Tela do Mapa em Camadas com protótipo ligado: mostra so a secao da tela do protótipo (somente leitura)
+// Tela do Mapa em Camadas com protótipo ligado: mostra so a secao da tela do protótipo, interativa (modo play),
 // na largura do modo escolhido em Desktop/Tablet/Mobile, reduzida para caber no painel.
+// O campo escolhido na lista destaca no protótipo o trecho ligado a ele pelo seletor do _prototipos.json.
 import { esc } from "../../shared/dom.js";
 import { state } from "../../shared/state.js";
 import { dls } from "../design-layers-store.js";
@@ -37,16 +38,47 @@ export function renderPrototypeFrame(sc) {
   const mode = frameMode();
   const width = FRAME_WIDTHS[mode];
   const url = prototypeFrameUrl(slug, sc.prototype, "content");
-  return `<div class="replica-proto-wrap" data-frame-width="${width}" data-frame-height="${FRAME_HEIGHT}">
+  const selectors = JSON.stringify(sc.prototype.selectors || {});
+  return `<div class="replica-proto-wrap" data-frame-width="${width}" data-frame-height="${FRAME_HEIGHT}" data-selectors="${esc(selectors)}">
     <div class="replica-proto-stage">
       <iframe class="replica-proto-frame" style="width:${width}px;height:${FRAME_HEIGHT}px" src="${esc(url)}" sandbox="allow-scripts" loading="lazy" title="Protótipo: ${esc(sc.title || sc.prototype.screen)}"></iframe>
     </div>
-    <p class="replica-proto-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> ${MODE_LABELS[mode]} (${width} px), secao da tela <code>${esc(sc.prototype.screen)}</code> do protótipo <code>${esc(sc.prototype.id)}</code>, somente leitura. Os campos desta tela estao na lista ao lado.</p>
+    <p class="replica-proto-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> ${MODE_LABELS[mode]} (${width} px), secao da tela <code>${esc(sc.prototype.screen)}</code> do protótipo <code>${esc(sc.prototype.id)}</code>. Interativo; o campo escolhido ao lado fica destacado.</p>
   </div>`;
 }
 
 /**
- * Reduz cada quadro de protótipo para caber na largura do painel (nunca amplia) e ajusta a altura.
+ * Ordem enviada ao protótipo: destacar o trecho do campo, ou limpar quando o campo nao tem seletor.
+ * @param {Record<string, string>} selectors seletor CSS por id de campo
+ * @param {string | null | undefined} fieldId
+ */
+export function highlightMessage(selectors, fieldId) {
+  const selector = fieldId ? selectors?.[fieldId] : "";
+  return selector ? { type: "HARNESS_PROTO_HIGHLIGHT_SELECTOR", selector } : { type: "HARNESS_PROTO_CLEAR_HIGHLIGHT" };
+}
+
+/** @param {Element} wrap */
+function selectorsOf(wrap) {
+  try {
+    return JSON.parse(wrap.getAttribute("data-selectors") || "{}");
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Aplica o campo em foco a todos os quadros de protótipo abertos, sem recarregar nada.
+ * @param {ParentNode} root
+ */
+export function highlightFocusedField(root = document) {
+  root?.querySelectorAll?.(".replica-proto-wrap").forEach((wrap) => {
+    const frame = /** @type {HTMLIFrameElement | null} */ (wrap.querySelector(".replica-proto-frame"));
+    frame?.contentWindow?.postMessage(highlightMessage(selectorsOf(wrap), dls.focusedFieldId), "*");
+  });
+}
+
+/**
+ * Reduz cada quadro para caber na largura do painel (nunca amplia) e ajusta a altura.
  * @param {ParentNode} root
  */
 export function fitPrototypeFrames(root = document) {
@@ -63,5 +95,20 @@ export function fitPrototypeFrames(root = document) {
     };
     apply();
     if (typeof ResizeObserver !== "undefined") new ResizeObserver(apply).observe(stage);
+  });
+}
+
+/**
+ * Prepara os quadros recem desenhados: escala, modo play (o protótipo funciona de verdade) e destaque do campo em foco.
+ * @param {ParentNode} root
+ */
+export function mountPrototypeFrames(root = document) {
+  fitPrototypeFrames(root);
+  root?.querySelectorAll?.(".replica-proto-wrap").forEach((wrap) => {
+    const frame = /** @type {HTMLIFrameElement | null} */ (wrap.querySelector(".replica-proto-frame"));
+    frame?.addEventListener("load", () => {
+      frame.contentWindow?.postMessage({ type: "HARNESS_PROTO_MODE", mode: "play" }, "*");
+      frame.contentWindow?.postMessage(highlightMessage(selectorsOf(wrap), dls.focusedFieldId), "*");
+    });
   });
 }

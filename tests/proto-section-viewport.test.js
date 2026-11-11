@@ -82,3 +82,22 @@ test("real: secao de todas as telas do protótipo dis-paciente, quando existir",
     assert.ok(!out.includes('data-component="dis.header"'), file);
   }
 });
+
+test("o recorte mantem os scripts da tela, que ficam fora do main", () => {
+  const html = `<header>TOPO</header><main class="dis-shell__content"><button id="b">x</button></main><script>window.x = 1;</script>`;
+  const out = extractContentSection(html);
+  assert.match(out, /<script>window\.x = 1;<\/script>/);
+  assert.ok(!out.includes("TOPO"));
+  const seguinte = extractContentSection('<script>a()</script><main class="dis-shell__content">c</main>');
+  assert.match(seguinte, /<script>a\(\)<\/script>/);
+});
+
+test("real: toda tela do protótipo dis-paciente com script mantem o script no recorte", { skip: !fs.existsSync("C:/Users/matheuss.rodrigues/git/harness-leca/projects/saude-dispensacao/design/prototypes/dis-paciente/screens") }, () => {
+  const dir = "C:/Users/matheuss.rodrigues/git/harness-leca/projects/saude-dispensacao/design/prototypes/dis-paciente/screens";
+  for (const file of fs.readdirSync(dir).filter((f) => f.endsWith(".html"))) {
+    const html = fs.readFileSync(path.join(dir, file), "utf8");
+    const scripts = (html.match(/<script\b/gi) || []).length;
+    const out = extractContentSection(html);
+    assert.equal((out.match(/<script\b/gi) || []).length >= Math.min(scripts, 1), true, file);
+  }
+});
