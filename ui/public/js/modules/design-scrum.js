@@ -5,6 +5,7 @@ export { renderScrumWorkspace } from "./design-scrum-view.js";
 
 import { registerScrumActions } from "./design-scrum-actions.js";
 import { registerJiraSync } from "./design-scrum-jira-sync.js";
+import { registerReviewPackage } from "./design-scrum-review-package.js";
 import { registerStoryModal } from "./design-scrum-story-modal.js";
 import { registerSprintEpicModals } from "./design-scrum-sprint-epic-modals.js";
 import { registerStoryDrawer } from "./design-scrum-story-drawer.js";
@@ -17,6 +18,7 @@ import { registerStoryTransitions } from "./design-scrum-story-transition.js";
 if (typeof window !== "undefined") {
   registerScrumActions();
   registerJiraSync();
+  registerReviewPackage();
   registerStoryModal();
   registerSprintEpicModals();
   registerStoryDrawer();

@@ -4,7 +4,7 @@
  * pacote-revisao: gera o pacote autonomo de revisao (quadro de historias + mapa em camadas, em HTML unico)
  * para quem nao tem o Harness, e confere se ele e os ajustes manuais ainda sao verdadeiros.
  *
- *   node tools/pacote-revisao.js build --project <slug> [--out <pasta>] [--zip] [--config <arquivo>]
+ *   node tools/pacote-revisao.js build --project <slug> [--out <pasta>] [--zip] [--json] [--config <arquivo>]
  *   node tools/pacote-revisao.js check --project <slug> [--out <pasta>] [--com-deriva] [--json]
  *
  * build: so escreve quadro-historias.html, mapa-camadas.html e .pacote-revisao.json na pasta; nao apaga nem copia doc/.
@@ -13,12 +13,12 @@
 const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
-const { loadConfig, projectsDir, repoDirOf, ROOT } = require("./pacote-revisao/config");
+const { context } = require("./pacote-revisao/context");
 const { collectMap } = require("./pacote-revisao/map-data");
 const { collectBoard } = require("./pacote-revisao/board-data");
 const { renderBoardHtml } = require("./pacote-revisao/board-html");
 const { renderMapHtml } = require("./pacote-revisao/map-bundle");
-const { fingerprint, writeManifest, hashFile } = require("./pacote-revisao/manifest");
+const { fingerprint, writeManifest } = require("./pacote-revisao/manifest");
 const { runCheck } = require("./pacote-revisao/check");
 
 const BOARD = "quadro-historias.html";
@@ -38,20 +38,6 @@ function parseArgs(argv) {
     else o[name] = rest[++i];
   }
   return { command, opts: o };
-}
-
-/** @param {Record<string, string|boolean>} opts */
-function context(opts) {
-  const slug = String(opts.project || "");
-  if (!slug) throw new Error("--project e obrigatorio");
-  const projectDir = path.join(projectsDir(), slug);
-  if (!fs.existsSync(projectDir)) throw new Error(`projeto nao encontrado: ${slug}`);
-  const repo = repoDirOf(slug);
-  if (!repo) throw new Error(`o projeto ${slug} nao declara "repo" em mcp.json`);
-  const { file, config } = loadConfig(slug, opts.config ? String(opts.config) : undefined);
-  const out = String(opts.out || config.pasta || "");
-  if (!out) throw new Error("informe --out <pasta> ou \"pasta\" na configuracao");
-  return { slug, projectDir, repo, configFile: file, config, outDir: path.resolve(out) };
 }
 
 /** Dados que o quadro e o mapa usam; o `check` reaproveita sem escrever nada. */
@@ -79,15 +65,23 @@ async function build(opts) {
   const ctx = context(opts);
   fs.mkdirSync(ctx.outDir, { recursive: true });
   const { map, board, snapshotEm } = collectAll(ctx);
-  fs.writeFileSync(path.join(ctx.outDir, BOARD), renderBoardHtml({ board, config: ctx.config, snapshotEm }));
-  fs.writeFileSync(path.join(ctx.outDir, MAP), await renderMapHtml(map, { slug: ctx.slug, boardFile: BOARD }));
+  const quadro = path.join(ctx.outDir, BOARD);
+  const mapa = path.join(ctx.outDir, MAP);
+  fs.writeFileSync(quadro, renderBoardHtml({ board, config: ctx.config, snapshotEm }));
+  fs.writeFileSync(mapa, await renderMapHtml(map, { slug: ctx.slug, boardFile: BOARD }));
   const fontes = fingerprint({ ...ctx, historias: ctx.config.historias });
   writeManifest(ctx.outDir, { geradoEm: new Date().toISOString(), projeto: ctx.slug, historias: ctx.config.historias, fontes });
-  console.log(`quadro: ${path.join(ctx.outDir, BOARD)} (${board.stories.length} historias)`);
-  console.log(`mapa:   ${path.join(ctx.outDir, MAP)} (${map.screensData.screens.length} telas, ${Object.keys(map.protos).length} prototipos)`);
-  if (opts.zip) console.log(`zip:    ${zipFolder(ctx.outDir)}`);
-  const found = runCheck({ ctx, map, board, comDrift: false }).filter((f) => f.level !== "info" && f.code !== "PACOTE_DEFASADO");
-  if (found.length) console.log(`\nAtencao (${found.length}); rode "check" para os detalhes.`);
+  const zip = opts.zip ? zipFolder(ctx.outDir) : null;
+  const avisos = runCheck({ ctx, map, board, comDrift: false }).filter((f) => f.level !== "info" && f.code !== "PACOTE_DEFASADO");
+  const resumo = { pasta: ctx.outDir, quadro, mapa, zip, historias: board.stories.length, telas: map.screensData.screens.length, prototipos: Object.keys(map.protos).length, avisos };
+  if (opts.json) {
+    console.log(JSON.stringify(resumo));
+    return 0;
+  }
+  console.log("quadro: " + quadro + " (" + resumo.historias + " historias)");
+  console.log("mapa:   " + mapa + " (" + resumo.telas + " telas, " + resumo.prototipos + " prototipos)");
+  if (zip) console.log("zip:    " + zip);
+  if (avisos.length) console.log("\nAtencao (" + avisos.length + "); rode \"check\" para os detalhes.");
   return 0;
 }
 
@@ -119,4 +113,4 @@ if (require.main === module) {
   main().then((code) => { process.exitCode = code; }, (e) => { console.error(`pacote-revisao: ${e.message}`); process.exitCode = 1; });
 }
 
-module.exports = { parseArgs, context, collectAll, BOARD, MAP, hashFile };
+module.exports = { parseArgs, collectAll, BOARD, MAP };

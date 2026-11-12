@@ -1,0 +1,6 @@
+/* Botao "Gerar pacote de revisao" da aba Scrum: o ponto indica pacote nunca gerado ou defasado */
+.scrum-review-package { position: relative; }
+.scrum-review-package[hidden] { display: none; }
+.scrum-review-package:disabled { opacity: .7; cursor: progress; }
+.review-package-dot { display: none; width: 8px; height: 8px; margin-left: 6px; border-radius: 50%; background: #f59e0b; }
+.scrum-review-package.is-stale .review-package-dot { display: inline-block; }

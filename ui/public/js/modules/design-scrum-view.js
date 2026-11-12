@@ -10,6 +10,7 @@ import { renderProductBacklog, renderEpicsWorkspace } from "./design-scrum-backl
 import { renderScrumFilterBar } from "./design-scrum-filter-bar.js";
 import { computeStoryMetrics, renderScrumMetricsBar } from "./design-scrum-metrics.js";
 import { jiraSyncButtonHtml } from "./design-scrum-jira-sync.js";
+import { reviewPackageButtonHtml, hydrateReviewPackageButton } from "./design-scrum-review-package.js";
 import { visibleStories } from "./design-scrum-filters.js";
 import { hydrateScrumState, isScrumStateHydrated } from "./design-scrum-state.js";
 
@@ -28,7 +29,7 @@ export function renderScrumWorkspace(container, projectSlug, scrumData) {
         <button type="button" class="scrum-nav-tab ${ds.currentScrumTab === "epics" ? "active" : ""}" onclick="switchScrumTab('epics')"><i class="fa-solid fa-layer-group"></i> Epicos & Metas (${scrumData.summary?.totalEpicsCount || 0})</button>
         <button type="button" class="scrum-nav-tab ${ds.currentScrumTab === "coordination" ? "active" : ""}" onclick="switchScrumTab('coordination')"><i class="fa-solid fa-people-arrows"></i> Coordenacao</button>
       </div>
-      <div class="scrum-nav-summary">${jiraSyncButtonHtml(scrumData)} Sprint: <b>${scrumData.summary?.sprintPointsTotal || 0} pts</b> · Backlog: <b>${scrumData.summary?.backlogPointsTotal || 0} pts</b></div>
+      <div class="scrum-nav-summary">${jiraSyncButtonHtml(scrumData)} ${reviewPackageButtonHtml()} Sprint: <b>${scrumData.summary?.sprintPointsTotal || 0} pts</b> · Backlog: <b>${scrumData.summary?.backlogPointsTotal || 0} pts</b></div>
     </nav>
     <div id="scrumFiltersBar" class="scrum-filters-host">${renderScrumFilterBar(scrumData)}</div>
     <div id="scrumMetricsBar" class="scrum-metrics-host"></div>
@@ -36,6 +37,7 @@ export function renderScrumWorkspace(container, projectSlug, scrumData) {
     <aside id="scrumStoryDrawer" class="scrum-story-drawer" role="dialog" aria-modal="false" aria-labelledby="storyDrawerTitle" hidden></aside>
   </div>`;
   renderCurrentScrumView();
+  void hydrateReviewPackageButton(projectSlug);
 
   if (isScrumStateHydrated()) {
     restoreSelectedStory();

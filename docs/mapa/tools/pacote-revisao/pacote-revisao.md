@@ -3,14 +3,15 @@ domain: tools
 module: pacote-revisao
 feature: pacote-revisao
 summary: Builds the stand-alone review package (story board and layers map) and checks it for staleness.
-paths: [tools/pacote-revisao.js, tools/pacote-revisao/**, tests/pacote-revisao.test.js, docs/features/pacote-revisao/**]
-keywords: [pacote, revisao, review package, quadro, kanban, mapa em camadas, snapshot, defasagem, drift, check, build, zip, vite, prototipo, gates]
+paths: [tools/pacote-revisao.js, tools/pacote-revisao/**, tests/pacote-revisao.test.js, tests/pacote-revisao-botao.test.js, docs/features/pacote-revisao/**, docs/features/pacote-revisao-botao/**, ui/server/controllers/pacote-revisao.controller.js, ui/public/js/modules/design-scrum-review-package.js, ui/public/css/design/39-scrum-review-package.css]
+keywords: [pacote, revisao, review package, quadro, kanban, mapa em camadas, snapshot, defasagem, drift, check, build, zip, vite, prototipo, gates, botao, scrum, endpoint]
 updated: 2026-11-12
 ---
 # pacote-revisao
 
 `node tools/pacote-revisao.js build --project <slug> [--out <dir>] [--zip]` writes `quadro-historias.html`, `mapa-camadas.html`
 and `.pacote-revisao.json` into the package folder (it never copies or deletes `doc/`; the folder content is curated by hand).
+The Scrum tab has a "Gerar pacote de revisão" button next to "Sincronizar Jira" (only for projects with the config; an amber dot means never generated or stale).
 `check --project <slug> [--com-deriva] [--json] [--estrito]` writes nothing and says what is stale.
 Config: `projects/<slug>/pacote-revisao.json` (stories, columns, epics and the dated manual adjustments). Needs `HARNESS_PROJECTS_DIR` in a worktree.
 
@@ -33,3 +34,10 @@ Manual facts live in the config, each with `desde` and `motivo`: `statusForcado`
 | `tools/pacote-revisao/check.js` | The staleness findings and the selector matcher (id, class, attribute, `:has`, alternatives). |
 | `tests/pacote-revisao.test.js` | CP-01..11: config, corrections, check findings, selector matcher, safe board HTML, CLI usage. |
 | `docs/features/pacote-revisao/02-bdd.feature` | BDD scenarios CP-01..12 (CP-12 is manual: real build opens without the Harness). |
+| `tools/pacote-revisao/context.js` | Project, repo, config and output folder resolution shared by the CLI and the server; `hasConfig`. |
+| `tools/pacote-revisao/status.js` | Cheap package state (generated at, stale source groups) without Vite or Jira. |
+| `ui/server/controllers/pacote-revisao.controller.js` | `GET` state and `POST` build of `/api/project/:slug/pacote-revisao`; runs the CLI in a child process, one at a time (409 if busy). |
+| `ui/public/js/modules/design-scrum-review-package.js` | The Scrum tab button: hidden without config, tooltip with the state, toast with folder and zip after the build. |
+| `ui/public/css/design/39-scrum-review-package.css` | Button styles and the amber stale dot. |
+| `tests/pacote-revisao-botao.test.js` | CP-01..06: endpoint state, busy and failure answers, button texts. |
+| `docs/features/pacote-revisao-botao/02-bdd.feature` | BDD scenarios CP-01..07 (CP-07 is manual: click in the browser). |

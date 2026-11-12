@@ -13,6 +13,7 @@ const {
   apiProjectScrumLanesOrder,
 } = require("../controllers/scrum.controller");
 const { apiProjectScrumJiraSync } = require("../controllers/scrum-jira-sync.controller");
+const { apiProjectPacoteRevisaoStatus, apiProjectPacoteRevisaoBuild } = require("../controllers/pacote-revisao.controller");
 const { apiProjectScrumStoryCapture, apiProjectScrumDuplicates } = require("../controllers/scrum-capture.controller");
 const { apiProjectScrumStoryTransition } = require("../controllers/scrum-transition.controller");
 const { apiProjectScrumStoryCommits, apiProjectScrumStoryDor } = require("../controllers/scrum-trace.controller");
@@ -22,6 +23,8 @@ const { apiProjectScrumPanel } = require("../controllers/scrum-panel.controller"
 const scrumRoutes = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/scrum$/, handler: apiProjectScrumGet },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/jira-sync$/, handler: apiProjectScrumJiraSync },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/pacote-revisao$/, handler: apiProjectPacoteRevisaoStatus },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/pacote-revisao$/, handler: apiProjectPacoteRevisaoBuild },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story$/, handler: apiProjectScrumStorySave },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/scrum\/story\/capture$/, handler: apiProjectScrumStoryCapture },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/scrum\/duplicates$/, handler: apiProjectScrumDuplicates },
