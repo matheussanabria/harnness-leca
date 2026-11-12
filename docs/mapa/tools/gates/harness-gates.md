@@ -24,7 +24,7 @@ The traceability engine it wraps is mapped in `docs/mapa/tools/rastreio/gate.md`
 | `tests/harness-gates-pack.test.js` | CP-S1-01..12: pack layout, packed CLI equal to the Harness CLI, tamper detection, CRLF, sync, behind-version check, refusals, usage errors. |
 | `tools/gates/fidelidade/cli.mjs` | G10 and G11 runner (ADR-016, slice 2): reads the config `fidelidade` block and each feature `pareamento.json`, prints findings by level, `--registrar-revisao` stores hashes. Also reachable as `cli.mjs fidelidade` in the packed copy. |
 | `tools/gates/fidelidade/html-parse.mjs` | Tolerant HTML parser shared by both adapters: quoted attributes, void tags, Angular `@if/@for` blocks (`cond`), interpolation removed. |
-| `tools/gates/fidelidade/adapter-prototipo.mjs` | Inventory of a prototype screen from the DIS HTML (label[for] or ds-info__label, ds-input-wrap, ds-field__row); selectors `#id`, `texto:`, `legend:`. |
+| `tools/gates/fidelidade/adapter-prototipo.mjs` | Inventory of a prototype screen from the DIS HTML (label[for] or ds-info__label, ds-input-wrap, ds-field__row); selectors `#id`, `texto:`, `legend:`, `rotulo:` (read-only info cells). |
 | `tools/gates/fidelidade/adapter-angular.mjs` | Inventory from Angular templates: DIS components, raw inputs and buttons, icons resolved from the sibling .ts, widths from the sibling .css. |
 | `tools/gates/fidelidade/compara.mjs` | G10 decision: differences between two items against the declared ones (declared, not declared, stale, mismatch, dynamic, presence). |
 | `tools/gates/fidelidade/g11.mjs` | G11: hash of cited code files against the stored review; records a new review. |

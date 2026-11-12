@@ -59,11 +59,14 @@ project config and one `pareamento.json` per feature. Run with
 ```
 
 ### Selectors
+A code template entry may be a component `.ts` whose template is inline (a `template:` literal in the decorator), e.g. the DS `dispensation-item`.
+
 | Side | Form | Meaning |
 |---|---|---|
 | prototype | `#id` | element with that `id` (input, select, textarea, button) |
 | prototype and code | `texto:<text>` | button, label, link or span with exactly that text |
 | prototype and code | `legend:<text>` | radio group legend |
+| prototype and code | `rotulo:<text>` | read-only label cell of the DS info grid (`ds-info__label`), a `ds-subhead` or a `dis-item__title`; compares the label only, the value is run-time data. A label whose value cell holds an input is a field label and is not a cell |
 | code | `titulo:<text>` | heading h1 to h4 with that text |
 | code | `<key>` | element whose `formControlName`, `idExterno`, `id` or `name` is the key |
 | code | `{ "chave", "n" }` | the nth match (1-based), for a field that appears in two `@if` branches |

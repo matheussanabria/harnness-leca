@@ -124,6 +124,23 @@ export function rotuloDeInfo(el) {
   return (valor?.pai?.filhos || []).find((n) => n.t === "el" && classes(n).includes("ds-info__label")) || null;
 }
 
+// Read-only label cells of the DS info grid: <div class="ds-info__label">Estoque</div><div class="ds-info__value">..</div>.
+// A label whose value cell holds an input is the label of that field, not a cell of its own.
+const CELULAS = ['ds-info__label', 'ds-subhead', 'dis-item__title'];
+export const ehCelula = (n) => n.t === 'el' && classes(n).some((c) => CELULAS.includes(c)) && !rotuloDeCampo(n);
+function rotuloDeCampo(n) {
+  if (!classes(n).includes('ds-info__label')) return false;
+  const irmaos = n.pai?.filhos || [];
+  const valor = irmaos.find((f) => f.t === 'el' && classes(f).includes('ds-info__value'));
+  let tem = false;
+  if (valor) desce(valor, (f) => { if (f.tag === 'input' || f.tag === 'select' || f.tag === 'textarea') tem = true; });
+  return tem;
+}
+export function porCelula(todos, texto) {
+  const alvo = String(texto).replace(/\s+/g, ' ').trim();
+  return todos.find((n) => ehCelula(n) && textoDe(n).replace(/\*/g, '').replace(/\s+/g, ' ').trim() === alvo) || null;
+}
+
 export function ancestral(el, pred) {
   for (let n = el?.pai; n && n.tag !== '#raiz'; n = n.pai) if (pred(n)) return n;
   return null;

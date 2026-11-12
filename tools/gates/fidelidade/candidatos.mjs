@@ -1,7 +1,7 @@
 // fidelidade/candidatos: lists what can be paired on each side, as { sel, tipo, chave }. `sel` is a selector the
 // adapters already understand ("#id", "texto:...", "legend:..." on the prototype; key, "texto:..." in the code).
 // tipo is "campo" or "botao"; fields and buttons are never matched against each other.
-import { ancestral, classes, textoDe } from './html-parse.mjs';
+import { ancestral, classes, ehCelula, textoDe } from './html-parse.mjs';
 import { normTexto } from './util.mjs';
 
 const CAMPOS = new Set(['input', 'select', 'textarea']);
@@ -32,6 +32,9 @@ export function candidatosPrototipo(todos) {
     } else if (TITULOS.has(n.tag)) {
       const texto = normTexto(textoDe(n));
       if (texto) add({ sel: `texto:${texto}`, tipo: 'titulo', chave: texto });
+    } else if (ehCelula(n)) {
+      const texto = normTexto(textoDe(n));
+      if (texto) add({ sel: `rotulo:${texto}`, tipo: 'info', chave: texto });
     }
   }
   return out;
@@ -48,6 +51,9 @@ export function candidatosCodigo(todos) {
       const texto = normTexto(textoDe(n));
       if (n.attrs.id && !chaves.has(n.attrs.id)) { chaves.add(n.attrs.id); out.push({ sel: n.attrs.id, tipo: 'botao', chave: n.attrs.id }); }
       else if (texto && !textos.has(texto)) { textos.add(texto); out.push({ sel: `texto:${texto}`, tipo: 'botao', chave: texto }); }
+    } else if (ehCelula(n)) {
+      const texto = normTexto(textoDe(n));
+      if (texto && !textos.has(`c:${texto}`)) { textos.add(`c:${texto}`); out.push({ sel: `rotulo:${texto}`, tipo: 'info', chave: texto }); }
     } else if (TITULOS.has(n.tag)) {
       const texto = normTexto(textoDe(n));
       if (texto && !textos.has(`t:${texto}`)) { textos.add(`t:${texto}`); out.push({ sel: `titulo:${texto}`, tipo: 'titulo', chave: texto }); }
