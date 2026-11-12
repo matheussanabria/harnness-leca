@@ -230,3 +230,15 @@ test('CP-14: an icon bound to a property of an icon object in the component .ts 
   fs.writeFileSync(path.join(dir, 'x.component.ts'), 'export class X { readonly icones = { voltar: faChevronLeft, dispensar: faCheck }; }');
   assert.equal(carregaAngular([path.join(dir, 'x.component.html')]).item('voltar').icone, 'chevron-left');
 });
+
+test('CP-15: a check icon on a prototype button counts as the button icon (but not inside a checkbox)', async () => {
+  const { pathToFileURL } = require('node:url');
+  const { carregaPrototipo } = await import(pathToFileURL(path.join(ROOT, 'tools', 'gates', 'fidelidade', 'adapter-prototipo.mjs')).href);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gates-chk-'));
+  fs.mkdirSync(path.join(dir, 'screens'));
+  fs.writeFileSync(path.join(dir, 'proto.json'), JSON.stringify({ screens: [{ id: 't', file: 'screens/t.html' }] }));
+  fs.writeFileSync(path.join(dir, 'screens', 't.html'), '<button type="button" class="btn" id="ok"><i class="fa-solid fa-check"></i> Dispensar</button><div class="ds-input-wrap"><input id="a"><i class="fa-solid fa-check"></i></div>');
+  const p = carregaPrototipo(dir, 't');
+  assert.equal(p.item('#ok').icone, 'check');
+  assert.equal(p.item('#a').icone, null);
+});

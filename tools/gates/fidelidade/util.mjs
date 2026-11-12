@@ -11,11 +11,12 @@ export function nomeIcone(bruto) {
 }
 
 // "fa-solid fa-magnifying-glass ds-icon" -> "magnifying-glass" (first icon class that is not a style or size class).
-export function iconeDeClasses(classesDoEl) {
+// `permite` lists icons normally skipped as decoration (the check inside a checkbox) that count in this context.
+export function iconeDeClasses(classesDoEl, permite = []) {
   for (const c of classesDoEl) {
     if (!c.startsWith('fa-')) continue;
     const n = c.slice(3);
-    if (!NAO_ICONE.has(n)) return nomeIcone(n);
+    if (!NAO_ICONE.has(n) || permite.includes(n)) return nomeIcone(n);
   }
   return null;
 }
