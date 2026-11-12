@@ -5,7 +5,7 @@ feature: story-map-features
 summary: Scrum story drawer lists the features a story owns or relates to, with View on map links into the Layers map.
 paths: [ui/server/services/story-features.service.js, ui/server/services/project-screens-features.js, ui/server/services/feature-screen-adapter.js, ui/server/controllers/design-story-features.controller.js, ui/public/js/modules/design-scrum-story-features.js, ui/public/css/design/36-story-features.css, tests/story-features.test.js, docs/features/story-map-features/02-bdd.feature]
 keywords: [historia, funcionalidade, mapa em camadas, ver no mapa, _status.md, mapa-camadas.json, scrum, drawer, DIS]
-updated: 2026-11-11
+updated: 2026-11-12
 ---
 # Story drawer: features on the map
 
@@ -16,7 +16,7 @@ The Layers map now also lists the screens of every `mapa-camadas.json`, appended
 | File | Responsibility |
 |---|---|
 | `ui/server/services/story-features.service.js` | Reads `_status.md` of each feature, groups by story (owner/related), resolves map screens. |
-| `ui/server/services/project-screens-features.js` | Reads the `mapa-camadas.json` screens; merges them after the canvas screens without repeating routes. |
+| `ui/server/services/project-screens-features.js` | Reads the `mapa-camadas.json` screens. A canvas screen with the same route and title takes the JSON content (canvas id and position kept), so the JSON is the live source; other feature screens are appended without repeating routes. |
 | `ui/server/services/feature-screen-adapter.js` | Converts a JSON screen (Portuguese keys, long statuses) to the Layers map screen shape. |
 | `ui/server/controllers/design-story-features.controller.js` | Route handler. |
 | `ui/public/js/modules/design-scrum-story-features.js` | Drawer section: loader, markup, click to open the map. |

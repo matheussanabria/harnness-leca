@@ -124,3 +124,16 @@ test("real: telas e historia de dispensacao, quando o repositorio existe", { ski
   assert.ok(screens.length >= 10);
   assert.ok(screens.every((s) => s.id && s.title && Array.isArray(s.fields)));
 });
+
+test("CP-12: tela do canvas com mesma rota e titulo e atualizada pelo mapa-camadas.json, mantendo id e posicao", () => {
+  const root = repoWith({
+    alfa: { historias: ["DIS-1 principal"], telas: [tela("s1", "pacientes/:cns/x", { titulo: "Etapa 1", resumo: "novo" })] },
+    beta: { historias: ["DIS-2 principal"], telas: [tela("s1", "pacientes/:cns/x", { titulo: "Outra tela" })] },
+  });
+  const canvas = [{ id: "s1", route: "pacientes/:cns/x", title: "Etapa 1", resumo: "velho", evLegend: "L" }, { id: "s2", route: "y", title: "Y" }];
+  const merged = mergeScreens(canvas, readFeatureScreens(root));
+  assert.deepEqual(merged.map((s) => s.id), ["s1", "s2"]);
+  assert.equal(merged[0].resumo, "novo");
+  assert.equal(merged[0].evLegend, "L");
+  assert.equal(merged[0].feature, "alfa");
+});
