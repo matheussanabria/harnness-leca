@@ -10,6 +10,7 @@ import { isInspectorOn, singleScreenMode } from "./prototype-inspector-toggle.js
 import { persistAtelierNode, persistAtelierScreen } from "./prototype-atelier-adoption.js";
 import { resolveScreenTarget } from "./prototype-nav-resolve.js";
 import { ctx, host } from "./prototype-atelier-ctx.js";
+import { applyEdit } from "./prototype-edit-api.js";
 import { onMultiClick, setMulti, paintSelectionBar, runBatch, runGroupAction } from "./prototype-atelier-multi.js";
 
 let listenerInstalled = false;
@@ -44,6 +45,11 @@ function handleBridgeMessage(event) {
     onMultiClick(data.pid, { ctrl: Boolean(data.ctrl), shift: Boolean(data.shift) });
   } else if (data.type === "HARNESS_PROTO_REORDER") {
     void host.move(data.pid, data.targetPid, data.position);
+  } else if (data.type === "HARNESS_PROTO_FLAG") {
+    // Ocultar/bloquear pelo olho e pelo cadeado: grava data-hidden / data-locked na tela.
+    if (!data.pid || !["data-hidden", "data-locked"].includes(data.name)) return;
+    void applyEdit({ slug: ctx.slug, protoId: ctx.protoId, screenId: ctx.screen, pid: data.pid, op: { type: "setAttr", name: data.name, value: data.value } })
+      .then((res) => { if (!res.ok) showToast(`Não foi possível salvar: ${res.error}`); });
   } else if (data.type === "HARNESS_PROTO_TREE") {
     ctx.tree = data.tree || [];
     host.tree(ctx.tree);

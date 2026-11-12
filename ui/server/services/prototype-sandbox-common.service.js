@@ -1,6 +1,8 @@
 // @ts-check
 // Peças compartilhadas pelo sandbox de protótipos: estilos, ponte do harness e cabeçalhos de segurança.
 
+const HIDDEN_RULE = '[data-hidden="true"] { display: none !important; }';
+
 /**
  * Carrega estilos auxiliares e de tokens para o sandbox.
  * @param {string} projectDir
@@ -41,11 +43,15 @@ function loadSandboxAssets(projectDir, protoDir, deps) {
     try { headHtml = deps.fs.readFileSync(headFile, "utf8"); } catch {}
   }
 
+  // Estado de ocultar do Inspetor (olho da árvore de camadas): vale no preview, no Play e na exportação.
+  protoCss += `
+${HIDDEN_RULE}
+`;
   return { tokensCss, themeCss, componentsCss, protoCss, headHtml };
 }
 
 /** Scripts da ponte, na ordem de execução: medidas/prévia, ponte principal, arrastar para reordenar e seleção múltipla. */
-const BRIDGE_FILES = ["prototype-bridge-props.js", "prototype-bridge.js", "prototype-bridge-drag.js", "prototype-bridge-multi.js", "prototype-bridge-links.js", "prototype-bridge-highlight.js", "prototype-bridge-markers.js"];
+const BRIDGE_FILES = ["prototype-bridge-props.js", "prototype-bridge.js", "prototype-bridge-drag.js", "prototype-bridge-flags.js", "prototype-bridge-multi.js", "prototype-bridge-links.js", "prototype-bridge-highlight.js", "prototype-bridge-markers.js"];
 
 /**
  * Lê os scripts da ponte de comunicação do harness e os junta em um único bloco.
