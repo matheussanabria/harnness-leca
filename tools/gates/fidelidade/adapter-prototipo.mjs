@@ -76,6 +76,7 @@ export function carregaPrototipo(protoDir, telaId) {
   const { todos } = parse(readFileSync(arquivo, 'utf8'));
   return {
     arquivo,
+    todos,
     item: (seletor) => item(todos, seletor),
     ids: () => todos.filter((n) => n.attrs.id && (CAMPOS.has(n.tag) || n.tag === 'button')).map((n) => n.attrs.id),
   };

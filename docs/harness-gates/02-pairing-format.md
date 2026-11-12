@@ -90,6 +90,9 @@ A difference between prototype and code is allowed only when `declaradas` lists 
 Prototype elements that are neither paired nor in `ignorarPrototipo` come out as one warning, so a new prototype
 field cannot go unnoticed.
 
+### Drafting a pairing (`propor`)
+Instead of writing selectors by hand: `node tools/harness-gates/cli.mjs propor --prototipo <id> --tela <prototype screen> --templates <a.html,b.html> [--id s1] [--saida rascunho.json] [--comparar pareamento.json]`. It matches by label and placeholder (confidence alta), label or placeholder alone (media) and similar key (baixa); a field never pairs with a button; a field whose code label is bound at run time is listed as dynamic and never guessed. Measured on Nova prescricao against the hand-made pairing: 88% of the pairs reproduced on both screens, none swapped; what is left is a product decision (a different label on each side) or an element that exists on one side only. The draft is for review: copy the pairs you accept into `pareamento.json` (drop `confianca`, `motivo` and `chaves`).
+
 ### G12: derived status
 Each pairing field may carry `"mapa": "<map field id>"` (default: the same id) to say which `campos[]` item of
 `mapa-camadas.json` it feeds. G10 gives the status of a map field: `implementado` when every linked field

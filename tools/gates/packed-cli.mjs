@@ -4,6 +4,7 @@
 //
 // Usage: node tools/harness-gates/cli.mjs [fidelidade] [--config <file>] [--root <dir>] [--features a,b] [--json] [--versao]
 //   fidelidade runs the prototype x code gates (G10, G11) instead of the traceability gates.
+//   propor drafts a pareamento.json screen from the prototype and the templates (see engine/fidelidade/propose.mjs).
 //   --root    defaults to the repository root (two levels above this folder).
 //   --config  defaults to <root>/harness-gates.json, else <root>/rastreio.config.json.
 // Exit: 0 ok, 1 gate errors, 2 invalid config, 3 packed copy edited or incomplete.
@@ -39,7 +40,9 @@ const args = [...argv];
 if (!opt('--root')) args.push('--root', root);
 if (!opt('--config')) args.push('--config', config);
 
-const fidelidade = argv[0] === 'fidelidade';
-const motor = fidelidade ? ['engine', 'fidelidade', 'cli.mjs'] : ['engine', 'rastreio', 'cli.mjs'];
+const sub = ['fidelidade', 'propor'].includes(argv[0]) ? argv[0] : null;
+const motor = sub === 'fidelidade' ? ['engine', 'fidelidade', 'cli.mjs']
+  : sub === 'propor' ? ['engine', 'fidelidade', 'propose.mjs']
+  : ['engine', 'rastreio', 'cli.mjs'];
 const { roda } = await import(pathToFileURL(join(aqui, ...motor)).href);
-process.exit(roda(fidelidade ? args.slice(1) : args));
+process.exit(roda(sub ? args.slice(1) : args));
