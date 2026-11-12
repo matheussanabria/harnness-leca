@@ -221,3 +221,12 @@ test('CP-13: rotulo: pairs read-only label cells, and a component .ts with an in
   assert.equal(carregaPrototipo(dir, 't').item('rotulo:Estoque').rotulo, 'Estoque');
   assert.equal(carregaPrototipo(dir, 't').item('rotulo:Inexistente'), null);
 });
+
+test('CP-14: an icon bound to a property of an icon object in the component .ts is resolved by name', async () => {
+  const { pathToFileURL } = require('node:url');
+  const { carregaAngular } = await import(pathToFileURL(path.join(ROOT, 'tools', 'gates', 'fidelidade', 'adapter-angular.mjs')).href);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gates-ico-'));
+  fs.writeFileSync(path.join(dir, 'x.component.html'), '<button type="button" class="btn" id="voltar"><fa-icon [icon]="icones.voltar" /> Anterior</button>');
+  fs.writeFileSync(path.join(dir, 'x.component.ts'), 'export class X { readonly icones = { voltar: faChevronLeft, dispensar: faCheck }; }');
+  assert.equal(carregaAngular([path.join(dir, 'x.component.html')]).item('voltar').icone, 'chevron-left');
+});

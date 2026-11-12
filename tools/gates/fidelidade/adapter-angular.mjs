@@ -23,6 +23,10 @@ function lerTemplate(arquivo) {
 function iconesDoTs(ts) {
   const out = {};
   for (const m of ts.matchAll(/(?:readonly\s+|public\s+|protected\s+)?(\w+)\s*=\s*(fa[A-Z]\w*)\s*[;,]/g)) out[m[1]] = iconeDeSimbolo(m[2]);
+  // readonly icones = { voltar: faChevronLeft, ... }  ->  { 'icones.voltar': 'chevron-left' }
+  for (const o of ts.matchAll(/(\w+)\s*=\s*\{([^}]*)\}/g)) {
+    for (const p of o[2].matchAll(/(\w+)\s*:\s*(fa[A-Z]\w*)/g)) out[`${o[1]}.${p[1]}`] = iconeDeSimbolo(p[2]);
+  }
   return out;
 }
 
