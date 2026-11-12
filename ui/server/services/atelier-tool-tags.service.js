@@ -9,6 +9,8 @@
 
 const TAG = /<\s*(?:tool|ferramenta)\s+(?:name|nome)\s*=\s*["']([^"']+)["']([^>]*)>([\s\S]*?)<\/\s*(?:tool|ferramenta)\s*>/gi;
 
+const OPEN_TAG = /<\s*(?:tool|ferramenta)\s+(?:name|nome)\s*=\s*["']([^"']+)["'][^>]*>/i;
+
 /** Ferramentas cujo corpo pode ser o conteúdo cru; os atributos da tag trazem o resto. */
 const RAW_BODY = {
   atelier_write_screen: (/** @type {Record<string,string>} */ a, /** @type {string} */ body) => ({ screenId: a.screenid || a.screen || a.id || "home", htmlContent: body }),
@@ -80,7 +82,15 @@ function parseToolTags(rawText) {
     }
     return "";
   });
-  return { text: found ? text.trim() : rawText, toolCalls, errors };
+  // Abertura sem fechamento: a resposta foi cortada no meio da tag. Sem isto a chamada some em silêncio.
+  const open = OPEN_TAG.exec(text);
+  let visible = text;
+  if (open) {
+    found = true;
+    errors.push({ tool: open[1].trim(), reason: "a tag não foi fechada com </tool> (a resposta foi cortada antes do fim)" });
+    visible = text.slice(0, open.index);
+  }
+  return { text: found ? visible.trim() : rawText, toolCalls, errors };
 }
 
 module.exports = { parseToolTags, escapeControlCharsInStrings };
