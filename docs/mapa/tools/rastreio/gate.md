@@ -3,9 +3,9 @@ domain: tools
 module: rastreio
 feature: gate
 summary: Traceability gate G1-G9 (rastreio.yml vs code, tests, Postman, regras.md, layer map), extracted into modular ESM files.
-paths: [.agents/skills/rastreio-adocao/**, .agents/skills/rastreio-migrar-feature/**, tools/lib/audit-layers-rastreio.js, tools/audit-layers-drift.js, tests/audit-layers-rastreio.test.js, tools/rastreio/**, tests/rastreio-gate.test.js, tests/rastreio-config.test.js, tests/helpers/rastreio-fixture.js, tests/fixtures/rastreio/**, docs/rastreio-gate/**]
+paths: [.agents/skills/rastreio-adocao/**, .agents/skills/rastreio-migrar-feature/**, tools/lib/audit-layers-rastreio.js, tools/audit-layers-drift.js, tests/audit-layers-rastreio.test.js, tools/rastreio/**, tests/rastreio-gate.test.js, tests/rastreio-config.test.js, tests/helpers/rastreio-fixture.js, tests/fixtures/rastreio/**, docs/rastreio-gate/**, docs/harness-gates/**, docs/harness-evolution/03-decisions/ADR-016-harness-gates-prototype-code-fidelity.md]
 keywords: [skill, gate-local, adocao, audit-layers-drift, rastreio, config, pytest, adapter, gate, G1, G2, G3, G4, G5, G6, G7, G8, G9, rastreabilidade, baseline, junit, karma, postman, regras.md]
-updated: 2026-11-10
+updated: 2026-11-12
 ---
 # Traceability gate (rastreio)
 
@@ -45,3 +45,5 @@ Files are `.mjs` (ESM) on purpose: the source and the vendored `js-yaml` are ESM
 | `tests/helpers/rastreio-fixture.js` | Builds a throwaway project and runs the selected gate. |
 | `tests/fixtures/rastreio/saude-dispensacao-baseline.json` | Frozen `--json` output of the real project. |
 | `docs/rastreio-gate/` | Executive summary, execution plan and `02-diagramas.md` (four Mermaid diagrams ready for the canvas board). |
+| `docs/harness-gates/01-execution-plan.md` | Plan for harness-gates (ADR-016): five slices (standalone package, inventory contract and static pilot, derived status, second project, rendered geometry), BDD for G10 and G11, risks. Priority saude-dispensacao, then 57multimarcas. |
+| `docs/harness-evolution/03-decisions/ADR-016-harness-gates-prototype-code-fidelity.md` | Decision: Harness owns engine, inventory contract and gate catalog (G10 onward); projects own config; delivery as a lock-pinned copy runnable without the Harness. |
