@@ -193,3 +193,15 @@ test('CP-11: a prototype field labelled by .ds-info__label (calculation grid) ge
   assert.equal(it.obrigatorio, true);
   assert.equal(it.largura, 96);
 });
+
+test('CP-12: a raw Angular input reads aria-required, inline width and the ds-info__label of its grid cell', async () => {
+  const { pathToFileURL } = require('node:url');
+  const { carregaAngular } = await import(pathToFileURL(path.join(ROOT, 'tools', 'gates', 'fidelidade', 'adapter-angular.mjs')).href);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gates-ang-'));
+  const html = path.join(dir, 'x.component.html');
+  fs.writeFileSync(html, '<div dsEntregaAtual><div class="ds-info__label">Entrega atual<span class="ds-req">*</span></div><div class="ds-info__value"><input id="entregaAtual" style="width: 96px;" aria-required="true" formControlName="entregaAtual" /></div></div>');
+  const it = carregaAngular([html]).item('entregaAtual');
+  assert.equal(it.rotulo, 'Entrega atual');
+  assert.equal(it.obrigatorio, true);
+  assert.equal(it.largura, 96);
+});

@@ -118,6 +118,12 @@ export function desce(el, fn) {
   for (const f of el.filhos || []) if (f.t === 'el') { fn(f); desce(f, fn); }
 }
 
+// Label of a calculation-grid field: <div class="ds-info__label">Text</div><div class="ds-info__value">..input..</div>
+export function rotuloDeInfo(el) {
+  const valor = ancestral(el, (n) => classes(n).includes("ds-info__value"));
+  return (valor?.pai?.filhos || []).find((n) => n.t === "el" && classes(n).includes("ds-info__label")) || null;
+}
+
 export function ancestral(el, pred) {
   for (let n = el?.pai; n && n.tag !== '#raiz'; n = n.pai) if (pred(n)) return n;
   return null;
