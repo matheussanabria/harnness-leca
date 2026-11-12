@@ -4,7 +4,7 @@
 // Selectors: "<key>" or { chave, n } (key = formControlName | idExterno | id | name; n = nth match, 1-based),
 // "texto:<exact text>", "legend:<text>" and "titulo:<text>".
 import { existsSync, readFileSync } from 'node:fs';
-import { ancestral, classes, desce, parse, textoDe } from './html-parse.mjs';
+import { ancestral, classes, desce, parse, rotuloDeInfo, textoDe } from './html-parse.mjs';
 import { booleano, iconeDeClasses, iconeDeSimbolo, larguraPx, nomeIcone, normTexto, textoEstatico } from './util.mjs';
 
 const lerSe = (f) => (existsSync(f) ? readFileSync(f, 'utf8') : '');
@@ -72,20 +72,21 @@ export function carregaAngular(templates, estilos = [], componentes = {}) {
 
   function inputCru(el) {
     const id = el.attrs.id;
-    const label = id ? todos.find((n) => n.tag === 'label' && n.attrs.for === id) : null;
+    const label = (id ? todos.find((n) => n.tag === 'label' && n.attrs.for === id) : null) || rotuloDeInfo(el);
     const wrap = ancestral(el, (n) => classes(n).includes('ds-input-wrap')) || el.pai;
     const estado = (n) => classes(n).includes('is-disabled');
     return {
       rotulo: label ? normTexto(textoDe(label)) : null,
       placeholder: el.attrs.placeholder ?? null,
-      obrigatorio: booleano(el.attrs, 'required'),
+      obrigatorio: booleano(el.attrs, 'required') || el.attrs['aria-required'] === 'true' || (label ? comMarca(label) : false),
       desabilitado: 'disabled' in el.attrs || 'readonly' in el.attrs || estado(wrap) || (label ? estado(label) : false),
       icone: iconeDe(wrap),
-      largura: larguraDeClasses(el),
+      largura: larguraPx(el.attrs.style) ?? larguraDeClasses(el),
       acao: null,
     };
   }
 
+  const comMarca = (n) => { let m = false; desce(n, (f) => { if (classes(f).includes('ds-req')) m = true; }); return m; };
   const porChave = (chave, n = 1) => todos
     .filter((e) => [e.attrs.formControlName, e.attrs.idExterno, e.attrs.id, e.attrs.name].includes(chave))
     .filter((e) => e.tag !== 'label')[n - 1] || null;

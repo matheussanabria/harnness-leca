@@ -3,7 +3,7 @@
 // Selectors: "#id" | "texto:<exact text>" | "legend:<text>". The source HTML is never changed.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ancestral, classes, desce, parse, textoDe } from './html-parse.mjs';
+import { ancestral, classes, desce, parse, rotuloDeInfo, textoDe } from './html-parse.mjs';
 import { iconeDeClasses, larguraPx, normTexto } from './util.mjs';
 
 const CAMPOS = new Set(['input', 'select', 'textarea']);
@@ -13,13 +13,6 @@ function primeiroIcone(el) {
   let achado = null;
   desce(el, (n) => { if (!achado && n.tag === 'i') achado = iconeDeClasses(classes(n)); });
   return achado;
-}
-
-// Label of a calculation-grid field: <div class="ds-info__label">Text</div><div class="ds-info__value">...input...</div>
-function rotuloDeInfo(el) {
-  const valor = ancestral(el, (n) => classes(n).includes('ds-info__value'));
-  const irmaos = valor?.pai?.filhos || [];
-  return irmaos.find((n) => n.t === 'el' && classes(n).includes('ds-info__label')) || null;
 }
 
 function campo(el, todos) {
