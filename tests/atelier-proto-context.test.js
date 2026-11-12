@@ -32,6 +32,19 @@ test("contexto traz telas, CSS, chaves de storage e telas não registradas", () 
   assert.match(out, /CONTINUAÇÃO/);
 });
 
+test("tela citada no pedido vai inteira e primeiro, mesmo grande e depois de outras no alfabeto", () => {
+  const projectDir = makeProto();
+  const dir = path.join(projectDir, "design", "prototypes", "p1", "screens");
+  for (const n of ["a1", "a2", "a3", "a4", "a5", "a6", "a7"]) fs.writeFileSync(path.join(dir, `${n}.html`), "x".repeat(7000));
+  const big = `<main>${"y".repeat(35000)}</main><!--FIM-->`;
+  fs.writeFileSync(path.join(dir, "nova-prescricao.html"), big);
+  const plain = buildProtoContext({ projectDir, protoId: "p1" });
+  assert.doesNotMatch(plain, /FIM-->/);
+  const out = buildProtoContext({ projectDir, protoId: "p1", prompt: '<contexto-elemento arquivo="screens/nova-prescricao.html">' });
+  assert.match(out, /FIM-->/);
+  assert.ok(out.indexOf("screens/nova-prescricao.html") < out.indexOf("screens/a1.html"));
+});
+
 test("o loop envia o contexto ao modelo mas o evento mostra só o pedido", async () => {
   const seen = [];
   const events = [];

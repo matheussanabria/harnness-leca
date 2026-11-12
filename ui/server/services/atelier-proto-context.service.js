@@ -12,6 +12,14 @@ const { buildProtoMap } = require("./atelier-proto-map.service");
 const MAX_SCREEN_CHARS = 7000;
 const MAX_CSS_CHARS = 9000;
 const MAX_TOTAL_CHARS = 45000;
+const MAX_FOCUSED_SCREEN_CHARS = 60000;
+
+/** Ids das telas citadas no pedido (ex.: <contexto-elemento arquivo="screens/nova-prescricao.html">): o agente vai editá-las. */
+function focusedScreenIds(/** @type {string} */ prompt) {
+  const ids = new Set();
+  for (const m of String(prompt || "").matchAll(/screens\/([\w.-]+?)\.html/g)) ids.add(m[1]);
+  return ids;
+}
 
 function readText(/** @type {string} */ file) {
   try {
@@ -36,10 +44,10 @@ function storageKeys(/** @type {string[]} */ htmls) {
 }
 
 /**
- * @param {{ projectDir: string, protoId: string }} ctx
+ * @param {{ projectDir: string, protoId: string, prompt?: string }} ctx
  * @returns {string} bloco de texto para anteceder o pedido; vazio se o protótipo ainda não tem nada
  */
-function buildProtoContext({ projectDir, protoId }) {
+function buildProtoContext({ projectDir, protoId, prompt = "" }) {
   const protoDir = path.join(projectDir, "design", "prototypes", protoId);
   const screensDir = path.join(protoDir, "screens");
   let files = [];
@@ -72,16 +80,27 @@ function buildProtoContext({ projectDir, protoId }) {
   let budget = MAX_TOTAL_CHARS;
   const c = clip(css, MAX_CSS_CHARS);
   if (c.text.trim()) {
-    parts.push(`### styles/proto.css (este é o Design System vivo: classes, variáveis, componentes)\n\`\`\`css\n${c.text}\n\`\`\``);
+    parts.push(`### styles/proto.css (este é o Design System vivo: classes, variáveis, componentes)
+\`\`\`css
+${c.text}
+\`\`\``);
     budget -= c.text.length;
   }
-  for (const s of screens) {
-    if (budget <= 0) {
-      parts.push(`### screens/${s.id}.html\n(omitida por tamanho; ${s.html.length} caracteres)`);
+  // Telas citadas no pedido vão primeiro e inteiras (só elas serão reescritas); as demais dividem o que sobrar.
+  const focus = focusedScreenIds(prompt);
+  const ordered = [...screens.filter((s) => focus.has(s.id)), ...screens.filter((s) => !focus.has(s.id))];
+  for (const s of ordered) {
+    const focused = focus.has(s.id);
+    if (!focused && budget <= 0) {
+      parts.push(`### screens/${s.id}.html
+(omitida por tamanho; ${s.html.length} caracteres)`);
       continue;
     }
-    const h = clip(s.html, Math.min(MAX_SCREEN_CHARS, budget));
-    parts.push(`### screens/${s.id}.html\n\`\`\`html\n${h.text}\n\`\`\``);
+    const h = clip(s.html, focused ? MAX_FOCUSED_SCREEN_CHARS : Math.min(MAX_SCREEN_CHARS, budget));
+    parts.push(`### screens/${s.id}.html${focused ? " (tela em edição: conteúdo COMPLETO)" : ""}
+\`\`\`html
+${h.text}
+\`\`\``);
     budget -= h.text.length;
   }
 
@@ -100,4 +119,4 @@ function buildProtoContext({ projectDir, protoId }) {
   return parts.join("\n\n");
 }
 
-module.exports = { buildProtoContext, storageKeys };
+module.exports = { buildProtoContext, storageKeys, focusedScreenIds };
