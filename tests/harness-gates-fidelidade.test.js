@@ -180,3 +180,16 @@ test('CP-10: missing fidelidade block or config exits 2', () => {
   assert.equal(roda(root).status, 2);
   assert.equal(spawnSync(process.execPath, [CLI], { encoding: 'utf8' }).status, 2);
 });
+
+test('CP-11: a prototype field labelled by .ds-info__label (calculation grid) gets its label and required mark', async () => {
+  const { pathToFileURL } = require('node:url');
+  const { carregaPrototipo } = await import(pathToFileURL(path.join(ROOT, 'tools', 'gates', 'fidelidade', 'adapter-prototipo.mjs')).href);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gates-info-'));
+  fs.mkdirSync(path.join(dir, 'screens'));
+  fs.writeFileSync(path.join(dir, 'proto.json'), JSON.stringify({ screens: [{ id: 't', file: 'screens/t.html' }] }));
+  fs.writeFileSync(path.join(dir, 'screens', 't.html'), '<div><div class="ds-info__label">Tratamento/validade<span class="ds-req">*</span></div><div class="ds-info__value"><div><input id="dias" class="ds-input" style="width: 96px"></div></div></div>');
+  const it = carregaPrototipo(dir, 't').item('#dias');
+  assert.equal(it.rotulo, 'Tratamento/validade');
+  assert.equal(it.obrigatorio, true);
+  assert.equal(it.largura, 96);
+});
