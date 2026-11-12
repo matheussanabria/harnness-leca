@@ -81,37 +81,51 @@ function sanitizeHtmlFragment(html) {
 function injectDataPidAttributes(html) {
   if (!html || typeof html !== "string") return "";
 
+  // Ids que a tela já traz (mantidos): os novos pulam esses números e um id repetido ganha outro, senão duas camadas
+  // dividem o mesmo data-pid e a árvore de camadas as seleciona juntas.
+  const taken = new Set(Array.from(html.matchAll(/\sdata-pid="(p-\d+)"/g), (m) => m[1]));
+  const seen = new Set();
   let counter = 0;
+  const next = () => {
+    do counter += 1;
+    while (taken.has(`p-${counter}`));
+    taken.add(`p-${counter}`);
+    return counter;
+  };
   // Corpo de <script>/<style> e codigo, nao marcacao: nunca recebe data-pid (e perde os que ja vazaram).
   const parts = html.split(/(<(script|style)\b[^>]*>[\s\S]*?<\/\2[^>]*>)/gi);
   const out = [];
   for (let i = 0; i < parts.length; i += 3) {
-    out.push(injectInMarkup(parts[i], () => ++counter));
+    out.push(injectInMarkup(parts[i], next, seen));
     if (parts[i + 1]) {
       const block = parts[i + 1];
       const open = /^<[^>]*>/.exec(block)[0];
       const rest = block.slice(open.length).replace(/\sdata-pid="p-\d+"/g, "");
-      out.push(injectInMarkup(open, () => ++counter) + rest);
+      out.push(injectInMarkup(open, next, seen) + rest);
     }
   }
   return out.join("");
 }
 
-function injectInMarkup(html, next) {
+function injectInMarkup(html, next, seen) {
   // Expressão regular tolerante que localiza tags de abertura HTML
   return html.replace(/<([a-zA-Z0-9_-]+)([^>]*?)>/g, (match, tag, attrs) => {
-    const trimmed = attrs.trim();
-    // Auto-fechamento em qualquer tag (br, img, mas também <line/>, <rect/> de SVG): a barra fica depois do data-pid.
-    const selfClosing = /(^|["'\s])\/$/.test(trimmed);
-    const body = selfClosing ? trimmed.slice(0, -1).trim() : trimmed;
-
-    if (/data-pid\s*=/i.test(attrs)) {
+    let trimmed = attrs.trim();
+    const existing = /data-pid\s*=\s*"([^"]*)"/i.exec(attrs);
+    if (/data-pid\s*=/i.test(attrs) && !(existing && seen.has(existing[1]))) {
+      if (existing) seen.add(existing[1]);
       // Repara a saída antiga, que punha o data-pid depois da barra (class="a"/ data-pid="p-1">).
       const misplaced = /^(.*?["'])\s*\/\s+(data-pid\s*=\s*"[^"]*")\s*$/s.exec(trimmed);
       return misplaced ? `<${tag} ${misplaced[1]} ${misplaced[2]} />` : match;
     }
+    // data-pid repetido: descarta o antigo e emite um novo abaixo.
+    if (existing) trimmed = trimmed.replace(/\s*data-pid\s*=\s*"[^"]*"/i, "").trim();
 
+    // Auto-fechamento em qualquer tag (br, img, mas também <line/>, <rect/> de SVG): a barra fica depois do data-pid.
+    const selfClosing = /(^|["'\s])\/$/.test(trimmed);
+    const body = selfClosing ? trimmed.slice(0, -1).trim() : trimmed;
     const n = next();
+    seen.add(`p-${n}`);
     return `<${tag}${body ? " " + body : ""} data-pid="p-${n}"${selfClosing ? " /" : ""}>`;
   });
 }

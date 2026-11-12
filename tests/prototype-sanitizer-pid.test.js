@@ -25,3 +25,14 @@ test("running it twice changes nothing", () => {
   const once = injectDataPidAttributes('<div><svg><line class="a"/></svg><br/></div>');
   assert.equal(injectDataPidAttributes(once), once);
 });
+
+test("new elements skip ids the screen already has, so two layers never share a data-pid", () => {
+  const out = injectDataPidAttributes('<div data-pid="p-1"><span data-pid="p-2"></span><button id="b"></button><i></i></div>');
+  assert.equal(out, '<div data-pid="p-1"><span data-pid="p-2"></span><button id="b" data-pid="p-3"></button><i data-pid="p-4"></i></div>');
+});
+
+test("a repeated data-pid gets a fresh id and the first one keeps its own", () => {
+  const out = injectDataPidAttributes('<main data-pid="p-1"><button data-pid="p-1" id="b">x</button><br data-pid="p-1"/></main>');
+  assert.equal(out, '<main data-pid="p-1"><button id="b" data-pid="p-2">x</button><br data-pid="p-3" /></main>');
+  assert.equal(injectDataPidAttributes(out), out);
+});
