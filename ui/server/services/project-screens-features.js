@@ -42,8 +42,9 @@ function readFeatureScreens(repoRoot) {
     try {
       const data = JSON.parse(fs.readFileSync(path.join(dir, "mapa-camadas.json"), "utf8"));
       const title = featureTitle(dir, entry.name);
+      const derived = readDerived(dir);
       for (const tela of Array.isArray(data.telas) ? data.telas : []) {
-        screens.push(adaptFeatureScreen(tela, { slug: entry.name, featureTitle: title }));
+        screens.push(adaptFeatureScreen(applyDerived(tela, derived), { slug: entry.name, featureTitle: title }));
       }
     } catch {
       // funcionalidade sem mapa ou JSON invalido: nao entra
@@ -53,23 +54,27 @@ function readFeatureScreens(repoRoot) {
 }
 
 /**
- * Acrescenta as telas das funcionalidades as telas ja existentes, sem repetir rota.
- * @param {any[]} base telas do canvas
- * @param {any[]} extra telas das funcionalidades
+ * Aplica o status derivado pelo gate G12 (status-derivado.json, gerado por `fidelidade --derivar`):
+ * onde o gate tem evidencia, ele vence o status digitado no mapa.
+ * @param {any} tela
+ * @param {any} derived  { <telaId>: { <campoId>: "implementado"|"diverge" } }
  */
-function mergeScreens(base, extra) {
-  const seen = new Set(base.map((s) => routeKey(s.route)).filter(Boolean));
-  const merged = [...base];
-  for (const screen of extra) {
-    const key = routeKey(screen.route);
-    if (key && seen.has(key)) continue;
-    if (key) seen.add(key);
-    merged.push(screen);
-  }
-  return merged;
+function applyDerived(tela, derived) {
+  const byField = derived?.[tela?.id];
+  if (!byField || !Array.isArray(tela.campos)) return tela;
+  const campos = tela.campos.map((c) => (byField[c.id] ? { ...c, ui: { ...c.ui, st: byField[c.id] } } : c));
+  return { ...tela, campos };
 }
 
-module.exports = { readFeatureScreens, mergeScreens, routeKey };/** @param {string} title */
+function readDerived(dir) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(dir, "status-derivado.json"), "utf8")).telas || null;
+  } catch {
+    return null;
+  }
+}
+
+/** @param {string} title */
 function titleKey(title) {
   return String(title || "").trim().toLowerCase();
 }

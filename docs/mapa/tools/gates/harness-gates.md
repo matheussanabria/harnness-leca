@@ -3,7 +3,7 @@ domain: tools
 module: gates
 feature: harness-gates
 summary: harness-gates (ADR-016): lock-pinned gate engine for any project, plus prototype x code gates G10 and G11.
-paths: [tools/gates/**, tests/harness-gates-pack.test.js, tests/harness-gates-fidelidade.test.js, docs/harness-gates/**, docs/harness-evolution/03-decisions/ADR-016-harness-gates-prototype-code-fidelity.md]
+paths: [tools/gates/**, tests/harness-gates-pack.test.js, tests/harness-gates-fidelidade.test.js, tests/harness-gates-g12.test.js, docs/harness-gates/**, docs/harness-evolution/03-decisions/ADR-016-harness-gates-prototype-code-fidelity.md]
 keywords: [harness-gates, gates, pack, sync, check, lock, packed, fidelidade, G10, G11, pareamento, inventario, prototipo, angular, rastreio, ADR-016]
 updated: 2026-11-12
 ---
@@ -26,6 +26,8 @@ The traceability engine it wraps is mapped in `docs/mapa/tools/rastreio/gate.md`
 | `tools/gates/fidelidade/adapter-angular.mjs` | Inventory from Angular templates: DIS components, raw inputs and buttons, icons resolved from the sibling .ts, widths from the sibling .css. |
 | `tools/gates/fidelidade/compara.mjs` | G10 decision: differences between two items against the declared ones (declared, not declared, stale, mismatch, dynamic, presence). |
 | `tools/gates/fidelidade/g11.mjs` | G11: hash of cited code files against the stored review; records a new review. |
+| `tools/gates/fidelidade/g12.mjs` | G12 (slice 3): derives the status of each map field from G10 and checks the typed `ui.st`; manual statuses need `motivo` and `revalidar_em`. `--derivar` writes `status-derivado.json` for the panel. |
+| `tests/harness-gates-g12.test.js` | CP-S3-01..06: contradiction, agreement, stale `diverge`, missing motivo/date, expired date, `--derivar` plus panel overlay. |
 | `tools/gates/fidelidade/util.mjs` | Icon, text, width and Angular boolean normalization. |
 | `tests/harness-gates-fidelidade.test.js` | CP-01..10: undeclared, declared, stale and mismatched differences, presence, icon by .ts, G11 and CRLF, unpaired elements, parser, packed subcommand, bad config. |
 | `docs/harness-gates/02-pairing-format.md` | Format of the `fidelidade` config block and of `pareamento.json`, selectors, compared attributes, decision table. |

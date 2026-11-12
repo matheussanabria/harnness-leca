@@ -16,6 +16,7 @@ import { pathToFileURL } from 'node:url';
 import { carregaAngular } from './adapter-angular.mjs';
 import { carregaPrototipo } from './adapter-prototipo.mjs';
 import { decideCampo } from './compara.mjs';
+import { derivaStatus, conferirG12 } from './g12.mjs';
 import { conferePorHash, registraRevisao } from './g11.mjs';
 
 const json = (f) => JSON.parse(readFileSync(f, 'utf8').replace(/^﻿/, ''));
@@ -32,8 +33,10 @@ function conferirTela(root, cfg, tela) {
   const codigo = carregaAngular((tela.codigo?.templates || []).map((t) => resolve(root, t)), (tela.codigo?.estilos || []).map((t) => resolve(root, t)), cfg.componentes || {});
   const declaradas = tela.declaradas || [];
   let nDeclaradas = 0;
+  const diverge = {};
   for (const campo of tela.campos || []) {
     const resultado = decideCampo(campo, proto.item(campo.proto), codigo.item(campo.codigo), declaradas);
+    diverge[campo.id] = resultado.some((r) => r.tipo !== 'indeterminada');
     for (const r of resultado) {
       if (r.tipo === 'declarada') { nDeclaradas++; continue; }
       const duro = r.tipo === 'pareamento' || r.tipo === 'nao-confere';
@@ -43,7 +46,7 @@ function conferirTela(root, cfg, tela) {
   const pareados = new Set((tela.campos || []).map((c) => String(c.proto || '').replace(/^#/, '')));
   const soltos = proto.ids().filter((id) => !pareados.has(id) && !(tela.ignorarPrototipo || []).includes(id));
   if (soltos.length) achados.push({ g: 'G10', nivel: 'aviso', m: `elementos do protótipo sem pareamento: ${soltos.join(', ')}` });
-  return { achados, campos: (tela.campos || []).length, declaradas: nDeclaradas };
+  return { achados, campos: (tela.campos || []).length, declaradas: nDeclaradas, derivado: derivaStatus(tela.campos || [], diverge) };
 }
 
 export function roda(argv, cwd = process.cwd()) {
@@ -71,12 +74,19 @@ export function roda(argv, cwd = process.cwd()) {
       writeFileSync(arq, JSON.stringify(par, null, 2) + '\n');
     }
     const agg = { slug, achados: [], campos: 0, declaradas: 0 };
+    const arqMapa = join(dirFeatures, slug, 'mapa-camadas.json');
+    const mapa = existsSync(arqMapa) ? json(arqMapa) : null;
+    const derivadoFeature = {};
     for (const tela of par.telas || []) {
       const r = conferirTela(root, cfg, tela);
+      derivadoFeature[tela.id] = r.derivado;
+      const telaMapa = (mapa?.telas || []).find((t) => t.id === tela.id);
+      if (telaMapa) agg.achados.push(...conferirG12(telaMapa, r.derivado, opt('--hoje') || new Date().toISOString().slice(0, 10)).map((a) => ({ ...a, nivel: nivelDe(cfg, 'G12') })));
       agg.achados.push(...r.achados.map((a) => ({ ...a, m: `${tela.id}: ${a.m}` })));
       agg.campos += r.campos;
       agg.declaradas += r.declaradas;
     }
+    if (flag('--derivar')) writeFileSync(join(dirFeatures, slug, 'status-derivado.json'), JSON.stringify({ schema: 1, telas: derivadoFeature }, null, 2) + '\n');
     for (const h of conferePorHash(root, par.telas || [], par.revisao)) agg.achados.push({ g: 'G11', nivel: nivelDe(cfg, 'G11'), m: h.m });
     resultados.push(agg);
   }

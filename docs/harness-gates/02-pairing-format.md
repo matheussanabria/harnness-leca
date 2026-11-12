@@ -87,6 +87,20 @@ A difference between prototype and code is allowed only when `declaradas` lists 
 Prototype elements that are neither paired nor in `ignorarPrototipo` come out as one warning, so a new prototype
 field cannot go unnoticed.
 
+### G12: derived status
+Each pairing field may carry `"mapa": "<map field id>"` (default: the same id) to say which `campos[]` item of
+`mapa-camadas.json` it feeds. G10 gives the status of a map field: `implementado` when every linked field
+matches, `diverge` when any difference exists (declared or not). G12 then checks `ui.st`:
+
+| Typed `ui.st` | G10 evidence | Result |
+|---|---|---|
+| implementado or diverge | derived status equals it | nothing |
+| implementado or diverge | derived status differs | G12 finding, level from `severidade.G12` |
+| any other (a-confirmar, so-no-prototipo, ...) or no paired field | none | manual: needs `ui.motivo` and `ui.revalidar_em`; a date before today is reported |
+
+`--derivar` writes `<features>/<slug>/status-derivado.json` (`{ telas: { <tela>: { <campo>: status } } }`); the
+Harness panel reads it and shows the derived status over the typed one. `--hoje AAAA-MM-DD` fixes the date (tests).
+
 ### G11
 `revisao` holds the SHA-256 of each template and of the `.ts` and `.css` next to it (line endings normalized).
 When a file changes, G11 asks for another review of the map items that cite it. After reviewing, record the new
