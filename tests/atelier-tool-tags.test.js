@@ -83,3 +83,18 @@ test("atelier_parse_error devolve ao modelo o que fazer", async (t) => {
   assert.match(r.error, /atelier_write_screen/);
   assert.match(r.error, /CRU/);
 });
+
+test("tag sem </tool> (resposta cortada) vira erro explícito em vez de sumir", () => {
+  const r = parseToolTags('Vou gravar.\n<tool name="atelier_write_screen" screenId="x"><div class="lp-app">metade');
+  assert.equal(r.toolCalls.length, 0);
+  assert.equal(r.errors.length, 1);
+  assert.equal(r.errors[0].tool, "atelier_write_screen");
+  assert.match(r.errors[0].reason, /fechada/);
+  assert.equal(r.text, "Vou gravar.");
+});
+
+test("tag fechada seguida de outra aberta: executa a primeira e acusa a segunda", () => {
+  const r = parseToolTags('<tool name="atelier_plan">{"steps":[]}</tool><tool name="atelier_write_screen" screenId="y"><div>');
+  assert.equal(r.toolCalls.length, 1);
+  assert.equal(r.errors.length, 1);
+});
