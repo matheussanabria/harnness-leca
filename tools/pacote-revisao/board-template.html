@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITULO__</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* Layout: cabecalho, quadro com colunas por raia do Jira (rolagem so no quadro) e painel lateral da historia. */
+:root{
+  --bg:#0f1420; --panel:#171e2e; --raise:#1e2740; --line:#2c3853; --fg:#e7ecf6; --mut:#9aa7c2;
+  --accent:#7db0ff; --accent-bg:#1d2f55; --warn:#f0c35a; --warn-bg:#3a2f12; --ok:#5fd68c; --lane:#6366f1;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:ui-monospace,"Cascadia Code",Consolas,monospace;
+  --jcol:#1d2125; --jcard:#22272b;
+}
+@media (prefers-color-scheme: light){:root{
+  --bg:#eef1f7; --panel:#ffffff; --raise:#f3f6fb; --line:#d3dbe9; --fg:#1b2333; --mut:#56627a;
+  --accent:#1f56c4; --accent-bg:#dbe7ff; --warn:#8a5a00; --warn-bg:#fdf0c9; --ok:#14803a;
+  --jcol:#f1f2f4; --jcard:#ffffff;
+}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 var(--font);display:flex;flex-direction:column;min-width:0}
+header{padding:14px max(16px,env(safe-area-inset-left)) 10px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end;justify-content:space-between}
+h1{margin:0;font-size:19px;letter-spacing:.01em}
+.sub{margin:2px 0 0;color:var(--mut);font-size:12.5px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.search{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;min-width:220px}
+.search input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--fg);font:inherit}
+.search:focus-within{border-color:var(--accent)}
+.legend{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--mut)}
+.pill{border:1px solid var(--line);border-radius:999px;padding:1px 9px;background:var(--panel)}
+main{flex:1;min-height:0;display:flex}
+.board{flex:1;min-width:0;display:flex;gap:12px;overflow-x:auto;padding:14px max(16px,env(safe-area-inset-left)) 16px;align-items:flex-start}
+.lane{flex:0 0 232px;max-width:232px;background:var(--jcol);border-radius:3px;display:flex;flex-direction:column;max-height:100%}
+.lane-head{padding:10px 12px 8px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600;font-size:12px;letter-spacing:.02em;text-transform:uppercase;color:var(--mut)}
+.count{font-weight:400;font-size:12px;color:var(--mut)}
+.cards{padding:2px 6px 8px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;min-height:0}
+.lane.vazia{min-height:120px}
+.card{background:var(--jcard);border:1px solid transparent;box-shadow:0 1px 1px rgba(9,30,66,.25),0 0 1px rgba(9,30,66,.31);border-radius:3px;padding:8px 10px 10px;text-align:left;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:7px;width:100%;position:relative}
+.card .key{background:none;color:var(--mut);font-family:var(--font);font-weight:400;font-size:12px;padding:0;border-radius:0}
+.card .ttl{font-weight:400;font-size:13px;line-height:1.35;padding-right:30px}
+.avatar{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#0c66e4;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.epic{align-self:flex-start;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:700;padding:1px 6px;border-radius:3px;background:var(--ebg);color:var(--efg)}
+.links{font-size:12.5px;color:var(--fg)}
+.links.none{font-style:italic;color:var(--mut)}
+.badges{display:flex;flex-wrap:wrap;gap:4px 8px;font-size:11px;color:var(--mut);align-items:center}
+.badges i{margin-right:3px}
+.tipo{color:#1f845a;font-size:13px}
+.card:hover{border-color:var(--accent)}
+.card:focus-visible,.close:focus-visible,.file:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.key{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent-bg);border-radius:5px;padding:1px 7px;align-self:flex-start}
+.ttl{font-weight:600;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:5px 8px;font-size:11.5px;color:var(--mut)}
+.meta i{margin-right:4px}
+.nosnap{color:var(--warn);background:var(--warn-bg);border-radius:5px;padding:0 7px;font-size:11px;align-self:flex-start}
+aside{flex:0 0 min(520px,46vw);border-left:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:16px max(16px,env(safe-area-inset-right)) 28px}
+aside[hidden]{display:none}
+.close{float:right;background:none;border:1px solid var(--line);color:var(--fg);border-radius:6px;padding:4px 9px;cursor:pointer}
+aside h2{margin:6px 0 8px;font-size:17px;overflow-wrap:anywhere}
+aside h3{margin:18px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);display:flex;align-items:center;gap:6px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px}
+.kv dt{color:var(--mut)} .kv dd{margin:0;overflow-wrap:anywhere}
+.desc{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13px;max-height:260px;overflow:auto}
+ul.plain{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+ul.plain li{background:var(--raise);border:1px solid var(--line);border-radius:7px;padding:6px 9px;font-size:13px;overflow-wrap:anywhere}
+ul.plain small{color:var(--mut);display:block}
+.file{color:var(--accent);text-decoration:none;display:block;padding:3px 0;font-size:12.5px;overflow-wrap:anywhere}
+.file:hover{text-decoration:underline}
+details.group{border:1px solid var(--line);border-radius:7px;padding:6px 10px;margin-bottom:6px;background:var(--raise)}
+details.group summary{cursor:pointer;font-size:13px}
+.empty{color:var(--mut);font-size:13px;margin:0}
+.note{margin:0 max(16px,env(safe-area-inset-left)) 12px;color:var(--mut);font-size:12px}
+@media (max-width:820px){
+  main{flex-direction:column}
+  aside{flex:0 0 auto;max-height:60vh;border-left:0;border-top:1px solid var(--line)}
+  .lane{flex-basis:78vw;max-width:78vw}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1><i class="fa-solid fa-table-columns" aria-hidden="true"></i> __TITULO__</h1>
+    <p class="sub" id="sub"></p>
+  </div>
+  <div class="tools">
+    <a class="search" href="mapa-camadas.html" style="text-decoration:none;color:inherit"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Mapa em camadas</a>
+    <label class="search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="q" type="search" placeholder="Buscar por chave ou título" aria-label="Buscar história"></label>
+  </div>
+</header>
+<main>
+  <div class="board" id="board" aria-label="Quadro de histórias"></div>
+  <aside id="panel" hidden aria-live="polite"></aside>
+</main>
+<script id="dados" type="application/json">__DATA__</script>
+<script>
+(function () {
+  "use strict";
+  var DATA = JSON.parse(document.getElementById("dados").textContent);
+  var STORIES = DATA.stories;
+  // Raias do Jira usadas pelo Harness, na ordem do fluxo. Cada uma tem uma cor.
+  // Colunas, mapa de status e epicos vem da configuracao do pacote (projects/<slug>/pacote-revisao.json).
+  var CFG = DATA.config;
+  var LANES = CFG.colunas.map(function (c) { return [c.id, c.nome]; }).concat([["__fora__", "Fora do quadro (épicos)"]]);
+  var STATUS_COL = CFG.statusParaColuna;
+  var EPICS = {};
+  Object.keys(CFG.epicos).forEach(function (k) { var e = CFG.epicos[k]; EPICS[k] = [e.nome, e.fundo, e.texto]; });
+  var board = document.getElementById("board"), panel = document.getElementById("panel"), q = document.getElementById("q");
+  var selected = null;
+
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function icon(name) { var i = el("i", "fa-solid fa-" + name); i.setAttribute("aria-hidden", "true"); return i; }
+  function laneOf(s) { return (s.status && STATUS_COL[s.status.toLowerCase()]) || "__fora__"; }
+  function initials(name) { return String(name || "").split(/\s+/).filter(Boolean).slice(0, 2).map(function (p) { return p[0].toUpperCase(); }).join(""); }
+  function href(path) { return path.split("/").map(encodeURIComponent).join("/"); }
+  function clean(text) { return String(text || "").replace(/\r\n/g, "\n").replace(/^h[1-6]\.\s*/gm, "").replace(/\n{3,}/g, "\n\n").trim(); }
+
+  document.getElementById("sub").textContent = STORIES.length + " histórias citadas no índice e no checklist da revisão. Dados do Jira de " + new Date(DATA.snapshotEm || DATA.geradoEm).toLocaleDateString("pt-BR") + ".";
+
+  function card(s) {
+    var b = el("button", "card" + (selected === s.key ? " sel" : ""));
+    b.type = "button";
+    b.dataset.key = s.key;
+    b.appendChild(el("span", "key", s.key));
+    b.appendChild(el("span", "ttl", s.title));
+    if (s.assignee) { var av = el("span", "avatar", initials(s.assignee)); av.title = s.assignee; b.appendChild(av); }
+    var ep = s.epic && EPICS[s.epic];
+    if (ep) { var chip = el("span", "epic", ep[0]); chip.title = "Épico " + s.epic + " - " + ep[0]; chip.style.setProperty("--ebg", ep[1]); chip.style.setProperty("--efg", ep[2]); b.appendChild(chip); }
+    var linked = s.relationships.map(function (r) { return r.key; }).filter(Boolean);
+    b.appendChild(el("span", "links" + (linked.length ? "" : " none"), linked.length ? linked.join(", ") : "Nenhuma"));
+    var badges = el("span", "badges");
+    var tp = icon("bookmark"); tp.className += " tipo"; badges.appendChild(tp);
+    var fl = el("span"); fl.appendChild(icon("file-lines")); fl.appendChild(document.createTextNode(s.files.length)); fl.title = s.files.length + " arquivo(s) do pacote"; badges.appendChild(fl);
+    var nf = s.fields.dona.length + s.fields.relacionada.length;
+    if (nf) { var fd = el("span"); fd.appendChild(icon("sitemap")); fd.appendChild(document.createTextNode(nf)); fd.title = s.fields.dona.length + " campo(s) da história, " + s.fields.relacionada.length + " relacionado(s) no mapa"; badges.appendChild(fd); }
+    if (s.sprint) badges.appendChild(el("span", "", s.sprint));
+    b.appendChild(badges);
+    b.addEventListener("click", function () { open(s.key); });
+    return b;
+  }
+
+  function draw() {
+    var term = q.value.trim().toLowerCase();
+    board.textContent = "";
+    var shown = 0;
+    LANES.forEach(function (lane) {
+      var items = STORIES.filter(function (s) { return laneOf(s) === lane[0] && (!term || (s.key + " " + s.title).toLowerCase().indexOf(term) >= 0); });
+      if (!items.length && (lane[0] === "__fora__" || term)) return;
+      shown += items.length;
+      var col = el("section", "lane" + (items.length ? "" : " vazia"));
+      col.setAttribute("aria-label", "Raia " + lane[1]);
+      var head = el("div", "lane-head");
+      head.appendChild(el("span", "", lane[1]));
+      head.appendChild(el("span", "count", String(items.length)));
+      col.appendChild(head);
+      var list = el("div", "cards");
+      items.forEach(function (s) { list.appendChild(card(s)); });
+      col.appendChild(list);
+      board.appendChild(col);
+    });
+    if (!shown) board.appendChild(el("p", "empty", "Nenhuma história encontrada para a busca."));
+  }
+
+  function section(title, iconName) { var h = el("h3"); h.appendChild(icon(iconName)); h.appendChild(document.createTextNode(title)); return h; }
+  function list(items, build) { var ul = el("ul", "plain"); items.forEach(function (it) { var li = el("li"); build(li, it); ul.appendChild(li); }); return ul; }
+
+  function groupFiles(files) {
+    var groups = [["Documentos", /\.md$/i], ["Diagramas", /\.excalidraw$/i], ["Imagens e protótipos", /\.(png|jpe?g|gif|webp)$/i], ["Outros", /.*/]];
+    var rest = files.slice();
+    return groups.map(function (g) {
+      var mine = rest.filter(function (f) { return g[1].test(f); });
+      rest = rest.filter(function (f) { return mine.indexOf(f) < 0; });
+      return { label: g[0], files: mine };
+    }).filter(function (g) { return g.files.length; });
+  }
+
+  function open(key) {
+    var s = STORIES.filter(function (x) { return x.key === key; })[0];
+    if (!s) return;
+    selected = key;
+    draw();
+    panel.hidden = false;
+    panel.textContent = "";
+    var close = el("button", "close", "Fechar");
+    close.type = "button";
+    close.addEventListener("click", closePanel);
+    panel.appendChild(close);
+    panel.appendChild(el("span", "key", s.key));
+    panel.appendChild(el("h2", "", s.title));
+
+    var lane = LANES.filter(function (l) { return l[0] === laneOf(s); })[0];
+    var kv = el("dl", "kv");
+    [["Coluna no quadro", lane ? lane[1] : "-"], ["Sprint", s.sprint], ["Status no Jira", s.status && s.statusDoSnapshot !== s.status ? s.status + " (ajustado; snapshot: " + (s.statusDoSnapshot || "sem") + ")" : s.status], ["Tipo", s.type], ["Épico", s.epic ? s.epic + (EPICS[s.epic] ? " - " + EPICS[s.epic][0] : "") : null], ["Prioridade", s.priority], ["Pontos", s.points], ["Responsável", s.assignee]].forEach(function (p) {
+      if (p[1] == null || p[1] === "") return;
+      kv.appendChild(el("dt", "", p[0])); kv.appendChild(el("dd", "", String(p[1])));
+    });
+    panel.appendChild(kv);
+    if (!s.inSnapshot) panel.appendChild(el("p", "nosnap", "Esta história não está no snapshot do Jira. O título vem do user-story.md do pacote."));
+
+    if (s.description) { panel.appendChild(section("Descrição no Jira", "align-left")); panel.appendChild(el("div", "desc", clean(s.description))); }
+
+    if (s.relationships.length) {
+      panel.appendChild(section("Relacionamentos", "link"));
+      panel.appendChild(list(s.relationships, function (li, r) { li.textContent = (r.direction === "inward" ? "é " + r.relation + " por " : r.relation + " ") + (r.key || ""); if (r.title) li.appendChild(el("small", "", r.title + (r.status ? " · " + r.status : ""))); }));
+    }
+
+    var feats = s.features.dona.map(function (f) { return { f: f, role: "dona" }; }).concat(s.features.relacionada.map(function (f) { return { f: f, role: f.papel || "relacionada" }; }));
+    if (feats.length) {
+      panel.appendChild(section("Funcionalidades documentadas", "sitemap"));
+      panel.appendChild(list(feats, function (li, x) { li.textContent = x.f.title; li.appendChild(el("small", "", x.f.slug + " · " + x.role)); }));
+    }
+
+    var fields = s.fields.dona.map(function (f) { return { f: f, role: "dona" }; }).concat(s.fields.relacionada.map(function (f) { return { f: f, role: "relacionada" }; }));
+    if (fields.length) {
+      panel.appendChild(section("Telas e campos do mapa em camadas (" + fields.length + ")", "map-location-dot"));
+      panel.appendChild(list(fields, function (li, x) {
+        var detail = (x.f.grupo ? x.f.grupo + " · " : "") + x.role;
+        if (x.f.screenId) {
+          var link = el("a", "file", x.f.rotulo);
+          link.href = "mapa-camadas.html#" + encodeURIComponent(x.f.screenId) + (x.f.fieldId ? "/" + encodeURIComponent(x.f.fieldId) : "");
+          link.title = "Abrir no mapa em camadas";
+          li.appendChild(link);
+          li.appendChild(el("small", "", detail + " · ver no mapa"));
+        } else {
+          li.textContent = x.f.rotulo;
+          li.appendChild(el("small", "", detail + " · sem tela no mapa"));
+        }
+      }));
+    }
+
+    panel.appendChild(section("Arquivos no pacote (" + s.files.length + ")", "folder-open"));
+    if (!s.files.length) panel.appendChild(el("p", "empty", "Nenhum arquivo desta história no pacote."));
+    groupFiles(s.files).forEach(function (g, index) {
+      var d = el("details", "group");
+      if (index === 0 || g.files.length <= 6) d.open = true;
+      d.appendChild(el("summary", "", g.label + " (" + g.files.length + ")"));
+      g.files.forEach(function (path) {
+        var a = el("a", "file", path.replace(/^doc\/scrum\//, ""));
+        a.href = href(path);
+        a.target = "_blank";
+        a.rel = "noopener";
+        d.appendChild(a);
+      });
+      panel.appendChild(d);
+    });
+    panel.scrollTop = 0;
+    close.focus();
+  }
+
+  function closePanel() { selected = null; panel.hidden = true; draw(); }
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !panel.hidden) closePanel(); });
+  q.addEventListener("input", draw);
+  draw();
+})();
+</script>
+</body>
+</html>
