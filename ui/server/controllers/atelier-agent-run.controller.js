@@ -82,7 +82,7 @@ async function apiPrototypesAgentRun({ req, res, params: [slug, protoId] }) {
       author,
       maxTurns,
       modelTurn,
-      getContext: () => buildProtoContext({ projectDir, protoId }),
+      getContext: () => buildProtoContext({ projectDir, protoId, prompt }),
     });
 
     const result = await loop.run(prompt, {
