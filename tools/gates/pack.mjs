@@ -23,7 +23,10 @@ export const DESTINO = ['tools', 'harness-gates'];
 export function montaPacote(dir, agora = new Date()) {
   mkdirSync(dir, { recursive: true });
   cpSync(ENGINE, join(dir, 'engine', 'rastreio'), { recursive: true });
+  cpSync(join(aqui, 'fidelidade'), join(dir, 'engine', 'fidelidade'), { recursive: true });
   copyFileSync(join(aqui, 'hash.mjs'), join(dir, 'hash.mjs'));
+  // fidelidade imports ../hash.mjs, which is engine/hash.mjs once packed.
+  copyFileSync(join(aqui, 'hash.mjs'), join(dir, 'engine', 'hash.mjs'));
   copyFileSync(join(aqui, 'integridade.mjs'), join(dir, 'integridade.mjs'));
   copyFileSync(join(aqui, 'packed-cli.mjs'), join(dir, 'cli.mjs'));
   const versao = versaoDe(hashDir(dir));

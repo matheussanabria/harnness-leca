@@ -11,7 +11,7 @@ export function sha256(buf) {
 }
 
 // Text files get CRLF -> LF; anything else is hashed as is.
-const TEXTO = /\.(mjs|js|json|md|yml|yaml|txt|license)$|^VERSION$|LICENSE$/i;
+const TEXTO = /\.(mjs|cjs|js|jsx|ts|tsx|json|md|yml|yaml|txt|html|htm|css|scss|xml|properties|java)$|^VERSION$|LICENSE$/i;
 export function hashArquivo(arquivo) {
   const buf = readFileSync(arquivo);
   if (!TEXTO.test(arquivo.split(/[\\/]/).pop())) return sha256(buf);
