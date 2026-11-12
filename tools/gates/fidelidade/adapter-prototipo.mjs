@@ -15,9 +15,16 @@ function primeiroIcone(el) {
   return achado;
 }
 
+// Label of a calculation-grid field: <div class="ds-info__label">Text</div><div class="ds-info__value">...input...</div>
+function rotuloDeInfo(el) {
+  const valor = ancestral(el, (n) => classes(n).includes('ds-info__value'));
+  const irmaos = valor?.pai?.filhos || [];
+  return irmaos.find((n) => n.t === 'el' && classes(n).includes('ds-info__label')) || null;
+}
+
 function campo(el, todos) {
   const id = el.attrs.id;
-  const label = id ? todos.find((n) => n.tag === 'label' && n.attrs.for === id) : null;
+  const label = (id ? todos.find((n) => n.tag === 'label' && n.attrs.for === id) : null) || rotuloDeInfo(el);
   let marcaObrigatorio = false;
   if (label) desce(label, (n) => { if (classes(n).includes('ds-req')) marcaObrigatorio = true; });
   const wrap = ancestral(el, (n) => classes(n).includes('ds-input-wrap'));
