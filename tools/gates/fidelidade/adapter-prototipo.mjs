@@ -3,7 +3,7 @@
 // Selectors: "#id" | "texto:<exact text>" | "legend:<text>". The source HTML is never changed.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ancestral, classes, desce, parse, rotuloDeInfo, textoDe } from './html-parse.mjs';
+import { ancestral, classes, desce, parse, porCelula, rotuloDeInfo, textoDe } from './html-parse.mjs';
 import { iconeDeClasses, larguraPx, normTexto } from './util.mjs';
 
 const CAMPOS = new Set(['input', 'select', 'textarea']);
@@ -50,6 +50,7 @@ function porTexto(todos, texto) {
 
 function item(todos, seletor) {
   let el = null;
+  if (seletor.startsWith('rotulo:')) { const c = porCelula(todos, seletor.slice(7)); return c ? { rotulo: normTexto(textoDe(c)) } : null; }
   if (seletor.startsWith('#')) el = todos.find((n) => n.attrs.id === seletor.slice(1));
   else if (seletor.startsWith('legend:')) el = todos.find((n) => n.tag === 'legend' && normTexto(textoDe(n)) === normTexto(seletor.slice(7)));
   else if (seletor.startsWith('texto:')) el = porTexto(todos, seletor.slice(6));

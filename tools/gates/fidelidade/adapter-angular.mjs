@@ -4,10 +4,20 @@
 // Selectors: "<key>" or { chave, n } (key = formControlName | idExterno | id | name; n = nth match, 1-based),
 // "texto:<exact text>", "legend:<text>" and "titulo:<text>".
 import { existsSync, readFileSync } from 'node:fs';
-import { ancestral, classes, desce, parse, rotuloDeInfo, textoDe } from './html-parse.mjs';
+import { ancestral, classes, desce, parse, porCelula, rotuloDeInfo, textoDe } from './html-parse.mjs';
 import { booleano, iconeDeClasses, iconeDeSimbolo, larguraPx, nomeIcone, normTexto, textoEstatico } from './util.mjs';
 
 const lerSe = (f) => (existsSync(f) ? readFileSync(f, 'utf8') : '');
+
+// A template entry may be a component .ts whose template is inline: template: `...`
+function lerTemplate(arquivo) {
+  const src = lerSe(arquivo);
+  if (!arquivo.endsWith('.ts')) return src;
+  const i = src.indexOf('template: `');
+  if (i < 0) return '';
+  const ini = i + 'template: `'.length;
+  return src.slice(ini, src.indexOf('`', ini));
+}
 
 // readonly iconeClipe = faPaperclip;  ->  { iconeClipe: 'paperclip' }
 function iconesDoTs(ts) {
@@ -32,7 +42,7 @@ export function carregaAngular(templates, estilos = [], componentes = {}) {
   const icones = {};
   const larguras = {};
   for (const t of templates) {
-    todos.push(...parse(lerSe(t)).todos);
+    todos.push(...parse(lerTemplate(t)).todos);
     Object.assign(icones, iconesDoTs(lerSe(t.replace(/\.html$/, '.ts'))));
     Object.assign(larguras, largurasDoCss(lerSe(t.replace(/\.html$/, '.css'))));
   }
@@ -95,6 +105,7 @@ export function carregaAngular(templates, estilos = [], componentes = {}) {
   function item(seletor) {
     const { chave, n } = typeof seletor === 'object' ? seletor : { chave: seletor, n: 1 };
     let el = null;
+    if (chave.startsWith('rotulo:')) { const c = porCelula(todos, chave.slice(7)); return c ? { rotulo: normTexto(textoDe(c)) } : null; }
     if (chave.startsWith('texto:')) el = porTexto(chave.slice(6), ['button', 'label', 'a', 'span']);
     else if (chave.startsWith('titulo:')) el = porTexto(chave.slice(7), ['h1', 'h2', 'h3', 'h4']);
     else if (chave.startsWith('legend:')) el = porTexto(chave.slice(7), ['legend']);

@@ -205,3 +205,19 @@ test('CP-12: a raw Angular input reads aria-required, inline width and the ds-in
   assert.equal(it.obrigatorio, true);
   assert.equal(it.largura, 96);
 });
+
+test('CP-13: rotulo: pairs read-only label cells, and a component .ts with an inline template can be a code template', async () => {
+  const { pathToFileURL } = require('node:url');
+  const { carregaAngular } = await import(pathToFileURL(path.join(ROOT, 'tools', 'gates', 'fidelidade', 'adapter-angular.mjs')).href);
+  const { carregaPrototipo } = await import(pathToFileURL(path.join(ROOT, 'tools', 'gates', 'fidelidade', 'adapter-prototipo.mjs')).href);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gates-cel-'));
+  fs.writeFileSync(path.join(dir, 'x.component.ts'), "@Component({ selector: 'x', template: `\n<dl class=\"ds-info\"><div><dt class=\"ds-info__label\">Estoque</dt><dd class=\"ds-info__value\">{{ v() }}</dd></div>\n<div><div class=\"ds-info__label\">Tratamento</div><div class=\"ds-info__value\"><input id=\"t\"></div></div></dl>\n` })\nexport class X {}");
+  const codigo = carregaAngular([path.join(dir, 'x.component.ts')]);
+  assert.equal(codigo.item('rotulo:Estoque').rotulo, 'Estoque');
+  assert.equal(codigo.item('rotulo:Tratamento'), null); // label of an input field is not a cell of its own
+  fs.mkdirSync(path.join(dir, 'screens'));
+  fs.writeFileSync(path.join(dir, 'proto.json'), JSON.stringify({ screens: [{ id: 't', file: 'screens/t.html' }] }));
+  fs.writeFileSync(path.join(dir, 'screens', 't.html'), '<div class="ds-info"><div><div class="ds-info__label">Estoque</div><div class="ds-info__value">4020</div></div></div>');
+  assert.equal(carregaPrototipo(dir, 't').item('rotulo:Estoque').rotulo, 'Estoque');
+  assert.equal(carregaPrototipo(dir, 't').item('rotulo:Inexistente'), null);
+});
