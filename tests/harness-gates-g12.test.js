@@ -74,4 +74,14 @@ test('CP-S3-06: --derivar writes status-derivado.json and the panel overlay uses
   const campos = readFeatureScreens(root)[0].fields;
   assert.equal(campos.find((c) => c.id === 'b').ui.st, 'div');
   assert.equal(campos.find((c) => c.id === 'a').ui.st, 'ok');
+  assert.equal(campos.find((c) => c.id === 'c').ui.st, 'conf'); // manual status is never overridden
+});
+
+test('CP-S3-07: a derived status never overrides a manual status such as so-no-prototipo', () => {
+  const root = repo({ st: { a: 'so-no-prototipo' }, extra: DADOS });
+  roda(root, '--derivar');
+  fs.mkdirSync(path.join(root, 'doc', 'sistema'), { recursive: true });
+  fs.renameSync(path.join(root, 'doc', 'features'), path.join(root, 'doc', 'sistema', 'features'));
+  const { readFeatureScreens } = require('../ui/server/services/project-screens-features.js');
+  assert.equal(readFeatureScreens(root)[0].fields.find((c) => c.id === 'a').ui.st, 'proto');
 });

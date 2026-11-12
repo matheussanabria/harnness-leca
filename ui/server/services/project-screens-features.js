@@ -62,7 +62,7 @@ function readFeatureScreens(repoRoot) {
 function applyDerived(tela, derived) {
   const byField = derived?.[tela?.id];
   if (!byField || !Array.isArray(tela.campos)) return tela;
-  const campos = tela.campos.map((c) => (byField[c.id] ? { ...c, ui: { ...c.ui, st: byField[c.id] } } : c));
+  const campos = tela.campos.map((c) => (byField[c.id] && ["implementado", "diverge"].includes(c.ui?.st) ? { ...c, ui: { ...c.ui, st: byField[c.id] } } : c));
   return { ...tela, campos };
 }
 
