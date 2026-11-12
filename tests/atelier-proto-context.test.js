@@ -45,6 +45,12 @@ test("tela citada no pedido vai inteira e primeiro, mesmo grande e depois de out
   assert.ok(out.indexOf("screens/nova-prescricao.html") < out.indexOf("screens/a1.html"));
 });
 
+test("regras proíbem esconder elementos de forma fixa sem pedido do usuário", () => {
+  const out = buildProtoContext({ projectDir: makeProto(), protoId: "p1" });
+  assert.match(out, /NÃO esconda elementos de forma fixa/);
+  assert.match(out, /botão do olho/);
+});
+
 test("o loop envia o contexto ao modelo mas o evento mostra só o pedido", async () => {
   const seen = [];
   const events = [];

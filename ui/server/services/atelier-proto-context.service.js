@@ -113,6 +113,7 @@ ${h.text}
       ...nav,
       "- Só use atelier_patch_styles para ACRESCENTAR o que falta; não redefina classes que já existem.",
       "- Para alterar uma tela existente, reescreva-a por inteiro partindo do conteúdo acima, preservando o que não foi pedido para mudar.",
+      "- NÃO esconda elementos de forma fixa (atributo hidden, display:none, is-hidden) a menos que o usuário peça explicitamente; ocultar é estado do Inspetor (botão do olho na árvore de camadas), gravado como data-hidden=\"true\" (e data-locked=\"true\" para o cadeado). Preserve esses atributos ao reescrever uma tela e nunca os crie por conta própria. Atributo hidden só entra quando um script da própria tela o alterna (modal, aviso, aba).",
       "- Se o conteúdo acima divergir do que você lembra da conversa, vale o que está acima (o usuário pode ter restaurado versões ou editado).",
     ].join("\n"),
   );

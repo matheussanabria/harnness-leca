@@ -131,3 +131,21 @@ test("setHtml preserva os pids que o HTML novo já traz e recusa mais de um elem
   assert.throws(() => mutateHtmlByPid(html, "p-2", { type: "setHtml", html: "<section>a</section><div>b</div>" }), /tags desbalanceadas/);
   assert.throws(() => mutateHtmlByPid(html, "p-2", { type: "setHtml", html: "texto solto" }), /começar por um elemento/);
 });
+
+test("CP-hide: setAttr grava data-hidden/data-locked, valor vazio remove e os dois sobrevivem a novas edições", () => {
+  const html = `<main data-pid="p-1"><button id="b" class="x" data-pid="p-2">Ir</button><br data-pid="p-3" /></main>`;
+  const hidden = mutateHtmlByPid(html, "p-2", { type: "setAttr", name: "data-hidden", value: "true" });
+  assert.match(hidden, /<button id="b" class="x" data-pid="p-2" data-hidden="true">Ir<\/button>/);
+  const both = mutateHtmlByPid(hidden, "p-2", { type: "setAttr", name: "data-locked", value: "true" });
+  assert.match(both, /data-hidden="true"/);
+  assert.match(both, /data-locked="true"/);
+  const shown = mutateHtmlByPid(both, "p-2", { type: "setAttr", name: "data-hidden", value: "" });
+  assert.doesNotMatch(shown, /data-hidden/);
+  assert.match(shown, /data-locked="true"/);
+  // elemento sem o atributo + valor vazio: não cria nada
+  assert.equal(mutateHtmlByPid(html, "p-2", { type: "setAttr", name: "data-hidden", value: "" }), html);
+  // tag auto-fechada
+  assert.match(mutateHtmlByPid(html, "p-3", { type: "setAttr", name: "data-hidden", value: "true" }), /<br data-pid="p-3" data-hidden="true" \/>/);
+  // atributos fora da lista continuam barrados
+  assert.throws(() => mutateHtmlByPid(html, "p-2", { type: "setAttr", name: "onclick", value: "x" }), /não permitido/);
+});

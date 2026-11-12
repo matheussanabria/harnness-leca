@@ -57,7 +57,7 @@
     }
     const pid = el.getAttribute("data-pid") || nodeId;
     const classes = Array.from(el.classList).filter((c) => c !== "harness-highlight");
-    const isHidden = el.style.display === "none" || el.classList.contains("is-hidden");
+    const isHidden = el.getAttribute("data-hidden") === "true" || el.style.display === "none" || el.classList.contains("is-hidden");
     const isLocked = el.getAttribute("data-locked") === "true";
     const category = el.hasAttribute("data-group") ? "group" : el.hasAttribute("data-component") ? "component" : getCategoryForTag(tag, classes);
     const displayName = computeDisplayName(el, tag, classes);
@@ -200,20 +200,6 @@
         selectElement(el);
         el.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
-    } else if (data.type === "HARNESS_PROTO_TOGGLE_VISIBILITY") {
-      const el = findElementById(targetId);
-      if (el) {
-        // @ts-ignore
-        el.style.display = el.style.display === "none" ? "" : "none";
-        sendFullTree();
-      }
-    } else if (data.type === "HARNESS_PROTO_TOGGLE_LOCK") {
-      const el = findElementById(targetId);
-      if (el) {
-        const isLocked = el.getAttribute("data-locked") === "true";
-        el.setAttribute("data-locked", isLocked ? "false" : "true");
-        sendFullTree();
-      }
     } else if (data.type === "HARNESS_PROTO_REQUEST_TREE") {
       sendFullTree();
     } else if (data.type === "HARNESS_PROTO_CLEAR_HIGHLIGHT") {
@@ -228,7 +214,7 @@
   }
 
   // Interface para scripts irmãos (arrastar para reordenar, seleção múltipla)
-  window.__harnessBridge = { send: sendToParent, mode: () => mode, select: selectElement, find: findElementById };
+  window.__harnessBridge = { send: sendToParent, mode: () => mode, select: selectElement, find: findElementById, sendTree: sendFullTree };
 
   // Notifica que a ponte está ativa e envia a árvore de elementos
   sendToParent("HARNESS_PROTO_READY", {

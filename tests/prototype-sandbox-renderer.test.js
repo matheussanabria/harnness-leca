@@ -47,3 +47,11 @@ test("EP-12.21: Engine de Renderização em Sandbox Iframe Segura", async (t) =>
     assert.ok(res.html.includes("[data-node-id], [data-pid]"));
   });
 });
+
+test("CP-hide: o sandbox sempre carrega a regra que oculta data-hidden (preview, Play e exportação)", async () => {
+  const { loadSandboxAssets } = await import("../ui/server/services/prototype-sandbox-common.service.js");
+  const fs = (await import("node:fs")).default;
+  const empty = fs.mkdtempSync(path.join(fixture.dir, "hide-"));
+  const { protoCss } = loadSandboxAssets(SAUDE_DIR, empty, { fs, path });
+  assert.match(protoCss, /\[data-hidden="true"\]\s*\{\s*display:\s*none\s*!important/);
+});

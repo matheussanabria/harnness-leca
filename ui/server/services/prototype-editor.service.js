@@ -154,15 +154,19 @@ function mutateHtmlByPid(html, pid, op) {
 
   if (op.type === "setAttr") {
     const attrName = (op.name || "").toLowerCase().trim();
-    const ALLOWED_ATTRS = new Set(["title", "aria-label", "placeholder", "type", "data-action"]);
+    const ALLOWED_ATTRS = new Set(["title", "aria-label", "placeholder", "type", "data-action", "data-hidden", "data-locked"]);
     if (!ALLOWED_ATTRS.has(attrName)) throw new Error(`Atributo '${attrName}' não permitido.`);
     const cleanVal = (op.value || "").replace(/"/g, "&quot;");
     let updatedTag = openTag;
     const attrRegex = new RegExp(`${attrName}=["'][^"']*["']`, "i");
-    if (attrRegex.test(openTag)) {
+    if ((attrName === "data-hidden" || attrName === "data-locked") && cleanVal !== "true") {
+      // Estado desligado: tira o atributo em vez de gravar "false" (o HTML fica limpo).
+      updatedTag = openTag.replace(new RegExp(`\\s+${attrName}=["'][^"']*["']`, "i"), "");
+    } else if (attrRegex.test(openTag)) {
       updatedTag = openTag.replace(attrRegex, `${attrName}="${cleanVal}"`);
     } else {
-      updatedTag = openTag.replace(/>$/, ` ${attrName}="${cleanVal}">`).replace(/\/?>$/, ` ${attrName}="${cleanVal}" />`);
+      // Acrescenta antes do fim da tag e só mantém a barra de auto-fechamento se ela já existia.
+      updatedTag = openTag.replace(/\s*(\/?)>$/, (_m, slash) => ` ${attrName}="${cleanVal}"${slash ? " /" : ""}>`);
     }
     const replaced = isSelfClosing ? updatedTag : `${updatedTag}${innerContent}${closeTag}`;
     return html.slice(0, startIndex) + replaced + html.slice(endIndex);
