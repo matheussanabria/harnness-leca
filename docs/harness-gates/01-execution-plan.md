@@ -120,3 +120,11 @@ Feature: G10 prototype x code inventory
 - Pixel or screenshot comparison.
 - Auto-fixing the code or the prototype from a gate result.
 - Panel payload splitting (listed separately; ignored for now by decision of the user).
+
+## Status
+
+| Slice | State |
+|---|---|
+| 1 | Done and merged (2026-11-12). Installed in `saude/dispensacao/tools/harness-gates`. |
+| 2 | Done on branch `feat/harness-gates-inventory`: contract, adapters `html-prototipo` and `angular-template`, G10, G11, pilot on step 1 of `nova-prescricao`. Format in `02-pairing-format.md`. Field order is not compared yet. |
+| 3 to 5 | Not started. |
