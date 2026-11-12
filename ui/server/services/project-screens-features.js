@@ -69,4 +69,38 @@ function mergeScreens(base, extra) {
   return merged;
 }
 
+module.exports = { readFeatureScreens, mergeScreens, routeKey };/** @param {string} title */
+function titleKey(title) {
+  return String(title || "").trim().toLowerCase();
+}
+
+/**
+ * Junta as telas do canvas com as das funcionalidades. O mapa-camadas.json e a fonte viva: quando uma
+ * tela do canvas tem a mesma rota e o mesmo titulo de uma tela de funcionalidade, a da funcionalidade
+ * substitui o conteudo (o id e a posicao do canvas ficam). As demais telas de funcionalidade entram
+ * sem repetir rota.
+ * @param {any[]} base telas do canvas
+ * @param {any[]} extra telas das funcionalidades
+ */
+function mergeScreens(base, extra) {
+  const used = new Set();
+  const merged = base.map((canvas) => {
+    const live = extra.find(
+      (f) => !used.has(f) && routeKey(f.route) === routeKey(canvas.route) && titleKey(f.title) === titleKey(canvas.title),
+    );
+    if (!live) return canvas;
+    used.add(live);
+    return { ...canvas, ...live, id: canvas.id };
+  });
+  const seen = new Set(base.map((s) => routeKey(s.route)).filter(Boolean));
+  for (const screen of extra) {
+    if (used.has(screen)) continue;
+    const key = routeKey(screen.route);
+    if (key && seen.has(key)) continue;
+    if (key) seen.add(key);
+    merged.push(screen);
+  }
+  return merged;
+}
+
 module.exports = { readFeatureScreens, mergeScreens, routeKey };
