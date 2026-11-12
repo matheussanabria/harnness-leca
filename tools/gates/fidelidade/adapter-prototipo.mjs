@@ -9,9 +9,9 @@ import { iconeDeClasses, larguraPx, normTexto } from './util.mjs';
 const CAMPOS = new Set(['input', 'select', 'textarea']);
 const TEXTUAIS = new Set(['label', 'button', 'a', 'h1', 'h2', 'h3', 'h4', 'legend', 'span']);
 
-function primeiroIcone(el) {
+function primeiroIcone(el, permite = []) {
   let achado = null;
-  desce(el, (n) => { if (!achado && n.tag === 'i') achado = iconeDeClasses(classes(n)); });
+  desce(el, (n) => { if (!achado && n.tag === 'i') achado = iconeDeClasses(classes(n), permite); });
   return achado;
 }
 
@@ -25,7 +25,7 @@ function campo(el, todos) {
   let acao = null;
   if (linha) {
     const btn = linha.filhos.find((n) => n.t === 'el' && n.tag === 'button');
-    if (btn) acao = { rotulo: normTexto(textoDe(btn)), icone: primeiroIcone(btn) };
+    if (btn) acao = { rotulo: normTexto(textoDe(btn)), icone: primeiroIcone(btn, ['check']) };
   }
   return {
     rotulo: label ? normTexto(textoDe(label)) : null,
@@ -40,7 +40,7 @@ function campo(el, todos) {
 }
 
 function botao(el) {
-  return { rotulo: normTexto(textoDe(el)), icone: primeiroIcone(el), desabilitado: 'disabled' in el.attrs };
+  return { rotulo: normTexto(textoDe(el)), icone: primeiroIcone(el, ['check']), desabilitado: 'disabled' in el.attrs };
 }
 
 function porTexto(todos, texto) {
