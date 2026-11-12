@@ -3,7 +3,7 @@ domain: tools
 module: gates
 feature: harness-gates
 summary: harness-gates (ADR-016): lock-pinned gate engine for any project, plus prototype x code gates G10 and G11.
-paths: [tools/gates/**, tests/harness-gates-pack.test.js, tests/harness-gates-fidelidade.test.js, tests/harness-gates-g12.test.js, tests/harness-gates-prototipo.test.js, docs/harness-gates/**, docs/harness-evolution/03-decisions/ADR-016-harness-gates-prototype-code-fidelity.md]
+paths: [tools/gates/**, tests/harness-gates-pack.test.js, tests/harness-gates-fidelidade.test.js, tests/harness-gates-g12.test.js, tests/harness-gates-prototipo.test.js, tests/harness-gates-propose.test.js, docs/harness-gates/**, docs/harness-evolution/03-decisions/ADR-016-harness-gates-prototype-code-fidelity.md]
 keywords: [harness-gates, gates, pack, sync, check, lock, packed, fidelidade, G10, G11, pareamento, inventario, prototipo, angular, rastreio, ADR-016]
 updated: 2026-11-12
 ---
@@ -30,6 +30,10 @@ The traceability engine it wraps is mapped in `docs/mapa/tools/rastreio/gate.md`
 | `tools/gates/fidelidade/g11.mjs` | G11: hash of cited code files against the stored review; records a new review. |
 | `tools/gates/fidelidade/g12.mjs` | G12 (slice 3): derives the status of each map field from G10 and checks the typed `ui.st`; manual statuses need `motivo` and `revalidar_em`. `--derivar` writes `status-derivado.json` for the panel. |
 | `tests/harness-gates-g12.test.js` | CP-S3-01..06: contradiction, agreement, stale `diverge`, missing motivo/date, expired date, `--derivar` plus panel overlay. |
+| `tools/gates/fidelidade/propose.mjs` | `propor`: drafts a pairing screen by matching prototype and code inventories (label+placeholder, label, placeholder, key); lists unmatched and run-time-labelled fields; `--comparar` scores the draft against a hand-made pairing. Also `cli.mjs propor` in the packed copy. |
+| `tools/gates/fidelidade/candidatos.mjs` | Lists pairable items on each side (fields, buttons, legends, checkbox labels, headings); prototype chrome is skipped. |
+| `tools/gates/fidelidade/propose-score.mjs` | Scores a draft against an existing pairing (right, swapped, missed, extra). |
+| `tests/harness-gates-propose.test.js` | CP-P1..6: matching, selectors for titles and checkboxes, no button x field pairs, scoring, packed subcommand, usage errors. |
 | `tools/gates/fidelidade/util.mjs` | Icon, text, width and Angular boolean normalization. |
 | `tests/harness-gates-fidelidade.test.js` | CP-01..10: undeclared, declared, stale and mismatched differences, presence, icon by .ts, G11 and CRLF, unpaired elements, parser, packed subcommand, bad config. |
 | `docs/harness-gates/02-pairing-format.md` | Format of the `fidelidade` config block and of `pareamento.json`, selectors, compared attributes, decision table. |

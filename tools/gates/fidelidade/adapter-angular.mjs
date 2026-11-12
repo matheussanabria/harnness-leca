@@ -108,5 +108,5 @@ export function carregaAngular(templates, estilos = [], componentes = {}) {
     return componente(el);
   }
 
-  return { item, total: todos.length };
+  return { item, todos, total: todos.length };
 }
