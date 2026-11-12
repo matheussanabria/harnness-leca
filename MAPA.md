@@ -38,7 +38,7 @@ tests/                           node:test suites
 | `planning` | epics, product, projects | 8 | 16.3 KB |
 | `process` | delivery | 1 | 1.0 KB |
 | `telemetry` | program, usage | 9 | 30.3 KB |
-| `tools` | canvas, engines, gates, mapa, rastreio, setup, testing, vault | 17 | 44.8 KB |
+| `tools` | canvas, engines, mapa, rastreio, setup, testing, vault | 16 | 40.5 KB |
 <!-- mapa:index:end -->
 
 ## Map file format

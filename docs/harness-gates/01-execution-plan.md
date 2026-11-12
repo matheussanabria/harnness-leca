@@ -128,4 +128,5 @@ Feature: G10 prototype x code inventory
 | 1 | Done and merged (2026-11-12). Installed in `saude/dispensacao/tools/harness-gates`. |
 | 2 | Done on branch `feat/harness-gates-inventory`: contract, adapters `html-prototipo` and `angular-template`, G10, G11, pilot on step 1 of `nova-prescricao`. Format in `02-pairing-format.md`. Field order is not compared yet. |
 | 3 | Done on branch `feat/harness-gates-derived-status`: G12, `revalidar_em`, `--derivar` and the panel overlay. Format in `02-pairing-format.md`. |
-| 4 and 5 | Not started. |
+| 4 (DIS only, by decision of the user) | In progress: prototype snapshot into the repo (`tools/gates/prototipo.mjs`) done. `react-jsx` and 57multimarcas are out of scope for now. |
+| 5 | Not started. |
