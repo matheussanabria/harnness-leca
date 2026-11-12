@@ -1,9 +1,9 @@
----
+﻿---
 domain: tools
 module: gates
 feature: harness-gates
 summary: harness-gates (ADR-016): lock-pinned gate engine for any project, plus prototype x code gates G10 and G11.
-paths: [tools/gates/**, tests/harness-gates-pack.test.js, tests/harness-gates-fidelidade.test.js, tests/harness-gates-g12.test.js, docs/harness-gates/**, docs/harness-evolution/03-decisions/ADR-016-harness-gates-prototype-code-fidelity.md]
+paths: [tools/gates/**, tests/harness-gates-pack.test.js, tests/harness-gates-fidelidade.test.js, tests/harness-gates-g12.test.js, tests/harness-gates-prototipo.test.js, docs/harness-gates/**, docs/harness-evolution/03-decisions/ADR-016-harness-gates-prototype-code-fidelity.md]
 keywords: [harness-gates, gates, pack, sync, check, lock, packed, fidelidade, G10, G11, pareamento, inventario, prototipo, angular, rastreio, ADR-016]
 updated: 2026-11-12
 ---
@@ -17,6 +17,8 @@ The traceability engine it wraps is mapped in `docs/mapa/tools/rastreio/gate.md`
 |---|---|
 | `tools/gates/pack.mjs` | harness-gates installer (ADR-016, slice 1): `pack`, `sync` and `check --repo <dir>` ship the engine into <repo>/tools/harness-gates as a lock-pinned copy; `--config` copies a config once. |
 | `tools/gates/packed-cli.mjs` | Entry point of the packed copy (becomes `cli.mjs`): checks integrity (exit 3 if edited), finds `harness-gates.json` or `rastreio.config.json`, runs the engine without the Harness. |
+| `tools/gates/prototipo.mjs` | `snapshot` copies a Harness prototype (proto.json and screen HTML, no assets) into the repo with a hash file and registers its relative path in `harness-gates.json`; `check` reports a changed source or an edited copy. Lets the team run G10 without the Harness. |
+| `tests/harness-gates-prototipo.test.js` | CP-S4-01..04: copy contents, check on change and on edit, G10 from the repo alone, usage errors. |
 | `tools/gates/hash.mjs` | SHA-256 of the packed files with CRLF normalized, lock name and version id; shipped inside the copy. |
 | `tools/gates/integridade.mjs` | Compares a packed folder with its lock and lists edited, missing and extra files; shipped inside the copy. |
 | `tests/harness-gates-pack.test.js` | CP-S1-01..12: pack layout, packed CLI equal to the Harness CLI, tamper detection, CRLF, sync, behind-version check, refusals, usage errors. |

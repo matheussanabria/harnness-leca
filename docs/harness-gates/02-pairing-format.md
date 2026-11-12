@@ -27,7 +27,10 @@ project config and one `pareamento.json` per feature. Run with
 ```
 
 - `prototipos`: id to folder. Relative paths resolve against `--root`; absolute paths work too. A project that runs
-  the gates without the Harness needs the prototype folder inside its own repo.
+  the gates without the Harness needs the prototype folder inside its own repo: in the Harness run
+  `node tools/gates/prototipo.mjs snapshot --repo <repo> --id <id> --from <proto dir> [--config-from <cfg>]`
+  (copies proto.json and the screen HTML to `design/prototipos/<id>` and registers the relative path), and
+  `... check` later to learn whether the Harness prototype moved on.
 - `severidade`: `aviso` (default) or `erro`. Only `erro` makes the exit code 1. A broken pairing and a declaration
   that no longer matches the code always fail.
 - `componentes`: what a project component shows by itself (default icon or placeholder), because the template
