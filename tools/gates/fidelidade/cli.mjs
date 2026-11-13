@@ -36,7 +36,7 @@ function conferirTela(root, cfg, tela) {
   const diverge = {};
   for (const campo of tela.campos || []) {
     const resultado = decideCampo(campo, proto.item(campo.proto), codigo.item(campo.codigo), declaradas, tela.confirmadas || []);
-    diverge[campo.id] = resultado.some((r) => r.tipo !== 'indeterminada');
+    diverge[campo.id] = resultado.some((r) => r.tipo !== 'indeterminada' && r.tipo !== 'confirmada');
     for (const r of resultado) {
       if (r.tipo === 'confirmada') continue;
       if (r.tipo === 'declarada') { nDeclaradas++; continue; }
