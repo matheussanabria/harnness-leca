@@ -35,9 +35,10 @@ function conferirTela(root, cfg, tela) {
   let nDeclaradas = 0;
   const diverge = {};
   for (const campo of tela.campos || []) {
-    const resultado = decideCampo(campo, proto.item(campo.proto), codigo.item(campo.codigo), declaradas);
+    const resultado = decideCampo(campo, proto.item(campo.proto), codigo.item(campo.codigo), declaradas, tela.confirmadas || []);
     diverge[campo.id] = resultado.some((r) => r.tipo !== 'indeterminada');
     for (const r of resultado) {
+      if (r.tipo === 'confirmada') continue;
       if (r.tipo === 'declarada') { nDeclaradas++; continue; }
       const duro = r.tipo === 'pareamento' || r.tipo === 'nao-confere';
       achados.push({ g: 'G10', nivel: duro ? 'erro' : r.tipo === 'indeterminada' ? 'aviso' : nivelDe(cfg, 'G10'), m: r.m });
