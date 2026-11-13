@@ -85,3 +85,17 @@ test('CP-S3-07: a derived status never overrides a manual status such as so-no-p
   const { readFeatureScreens } = require('../ui/server/services/project-screens-features.js');
   assert.equal(readFeatureScreens(root)[0].fields.find((c) => c.id === 'a').ui.st, 'proto');
 });
+
+test('CP-S3-08: a value confirmed on the screen does not make the field diverge', () => {
+  const root = repo({ extra: DADOS });
+  const par = path.join(root, 'doc', 'features', 'f1', 'pareamento.json');
+  const j = JSON.parse(fs.readFileSync(par, 'utf8'));
+  j.telas[0].confirmadas = [{ campo: 'a', atributo: 'rotulo', valor: 'Nome', verificado_em: '2026-11-13' }];
+  fs.writeFileSync(par, JSON.stringify(j));
+  // the code label of "a" is bound at run time: it is dynamic until a confirmation exists
+  const html = path.join(root, 'src', 'x.component.html');
+  fs.writeFileSync(html, fs.readFileSync(html, 'utf8').replace('label="Nome"', '[label]="rotulo()"'));
+  const r = roda(root, '--derivar');
+  assert.doesNotMatch(r.stdout, /a\.ui\.st: o mapa diz "implementado", o G10 deriva "diverge"/);
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, 'doc', 'features', 'f1', 'status-derivado.json'), 'utf8')).telas.s1.a, 'implementado');
+});
