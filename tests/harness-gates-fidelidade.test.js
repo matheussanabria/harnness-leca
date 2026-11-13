@@ -242,3 +242,18 @@ test('CP-15: a check icon on a prototype button counts as the button icon (but n
   assert.equal(p.item('#ok').icone, 'check');
   assert.equal(p.item('#a').icone, null);
 });
+
+test('CP-16: a value confirmed on the rendered screen settles a run-time label, and a different spelling is still reported', async () => {
+  const { pathToFileURL } = require('node:url');
+  const { decideCampo } = await import(pathToFileURL(path.join(ROOT, 'tools', 'gates', 'fidelidade', 'compara.mjs')).href);
+  const campo = { id: 'embalagem' };
+  const proto = { rotulo: 'Comprimidos por blister' };
+  const codigo = { rotulo: undefined };
+  const igual = decideCampo(campo, proto, codigo, [], [{ campo: 'embalagem', atributo: 'rotulo', valor: 'Comprimidos por blister', verificado_em: '2026-11-13' }]);
+  assert.deepEqual(igual.map((r) => r.tipo), ['confirmada']);
+  const acento = decideCampo(campo, proto, codigo, [], [{ campo: 'embalagem', atributo: 'rotulo', valor: 'Comprimidos por blíster', verificado_em: '2026-11-13' }]);
+  assert.deepEqual(acento.map((r) => r.tipo), ['nao-declarada']);
+  assert.match(acento[0].m, /protótipo "Comprimidos por blister", tela renderizada "Comprimidos por blíster"/);
+  const sem = decideCampo(campo, proto, codigo, [], []);
+  assert.deepEqual(sem.map((r) => r.tipo), ['indeterminada']);
+});

@@ -26,7 +26,7 @@ The traceability engine it wraps is mapped in `docs/mapa/tools/rastreio/gate.md`
 | `tools/gates/fidelidade/html-parse.mjs` | Tolerant HTML parser shared by both adapters: quoted attributes, void tags, Angular `@if/@for` blocks (`cond`), interpolation removed. |
 | `tools/gates/fidelidade/adapter-prototipo.mjs` | Inventory of a prototype screen from the DIS HTML (label[for] or ds-info__label, ds-input-wrap, ds-field__row); selectors `#id`, `texto:`, `legend:`, `rotulo:` (read-only info cells). |
 | `tools/gates/fidelidade/adapter-angular.mjs` | Inventory from Angular templates: DIS components, raw inputs and buttons, icons resolved from the sibling .ts, widths from the sibling .css. |
-| `tools/gates/fidelidade/compara.mjs` | G10 decision: differences between two items against the declared ones (declared, not declared, stale, mismatch, dynamic, presence). |
+| `tools/gates/fidelidade/compara.mjs` | G10 decision: differences between two items against the declared ones (declared, not declared, stale, mismatch, dynamic, presence, confirmed on screen). |
 | `tools/gates/fidelidade/g11.mjs` | G11: hash of cited code files against the stored review; records a new review. |
 | `tools/gates/fidelidade/g12.mjs` | G12 (slice 3): derives the status of each map field from G10 and checks the typed `ui.st`; manual statuses need `motivo` and `revalidar_em`. `--derivar` writes `status-derivado.json` for the panel. |
 | `tests/harness-gates-g12.test.js` | CP-S3-01..06: contradiction, agreement, stale `diverge`, missing motivo/date, expired date, `--derivar` plus panel overlay. |

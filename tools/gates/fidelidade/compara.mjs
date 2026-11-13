@@ -30,7 +30,9 @@ export function diferencas(proto, codigo) {
 
 // Decides one field. Returns [{ tipo, m }] with tipo in nao-declarada | declarada | defasada | nao-confere |
 // indeterminada | presenca | pareamento.
-export function decideCampo(campo, proto, codigo, declaradas) {
+// `confirmadas` holds values read once from the rendered screen for attributes the template binds at run time:
+// [{ campo, atributo, valor, verificado_em }]. The value is compared strictly (accents and case count).
+export function decideCampo(campo, proto, codigo, declaradas, confirmadas = []) {
   const minhas = declaradas.filter((d) => d.campo === campo.id);
   if (!proto && !codigo) return [{ tipo: 'pareamento', m: `${campo.id}: não encontrado no protótipo (${campo.proto}) nem no código (${JSON.stringify(campo.codigo)})` }];
   if (!proto || !codigo) {
@@ -44,7 +46,15 @@ export function decideCampo(campo, proto, codigo, declaradas) {
     const d = minhas.find((x) => x.atributo === dif.atributo);
     const rotulo = `${campo.id}.${dif.atributo}`;
     if (d) vistos.add(d);
-    if (dif.indeterminado) {
+    const conf = dif.indeterminado ? confirmadas.find((x) => x.campo === campo.id && x.atributo === dif.atributo) : null;
+    if (conf) {
+      const igual = String(conf.valor).trim() === String(dif.proto ?? '').trim();
+      out.push(igual
+        ? { tipo: 'confirmada', m: `${rotulo}: confirmado na tela em ${conf.verificado_em || 'data não informada'}` }
+        : d
+          ? { tipo: 'declarada', m: `${rotulo}: ${d.motivo || 'diferença declarada'}` }
+          : { tipo: 'nao-declarada', m: `${rotulo}: protótipo ${mostra(dif.proto)}, tela renderizada ${mostra(conf.valor)} (diferença não declarada)` });
+    } else if (dif.indeterminado) {
       out.push({ tipo: d ? 'declarada' : 'indeterminada', m: `${rotulo}: valor dinâmico no código; confira na tela` });
     } else if (!d) {
       out.push({ tipo: 'nao-declarada', m: `${rotulo}: protótipo ${mostra(dif.proto)}, código ${mostra(dif.codigo)} (diferença não declarada)` });

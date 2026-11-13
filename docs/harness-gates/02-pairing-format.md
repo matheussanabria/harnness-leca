@@ -93,6 +93,13 @@ A difference between prototype and code is allowed only when `declaradas` lists 
 Prototype elements that are neither paired nor in `ignorarPrototipo` come out as one warning, so a new prototype
 field cannot go unnoticed.
 
+### Values confirmed on the rendered screen
+A label, placeholder or icon bound at run time (`[label]="x()"`) is reported as dynamic by G10. Read it once from the
+rendered screen and record it on the screen entry of `pareamento.json`:
+`"confirmadas": [{ "campo": "embalagem", "atributo": "rotulo", "valor": "Comprimidos por blíster", "verificado_em": "2026-11-13" }]`.
+G10 then compares the recorded value with the prototype, strictly (accents and case count): equal passes silently,
+different is reported like any undeclared difference. It does not re-read the screen; the date says how old it is.
+
 ### Drafting a pairing (`propor`)
 Instead of writing selectors by hand: `node tools/harness-gates/cli.mjs propor --prototipo <id> --tela <prototype screen> --templates <a.html,b.html> [--id s1] [--saida rascunho.json] [--comparar pareamento.json]`. It matches by label and placeholder (confidence alta), label or placeholder alone (media) and similar key (baixa); a field never pairs with a button; a field whose code label is bound at run time is listed as dynamic and never guessed. Measured on Nova prescricao against the hand-made pairing: 88% of the pairs reproduced on both screens, none swapped; what is left is a product decision (a different label on each side) or an element that exists on one side only. The draft is for review: copy the pairs you accept into `pareamento.json` (drop `confianca`, `motivo` and `chaves`).
 
