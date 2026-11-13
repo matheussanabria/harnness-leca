@@ -59,5 +59,5 @@ export function formularioEsperado(m) {
   const avisos = [];
   if (semIntervalo) avisos.push('não tem intervalo entre retiradas cadastrado');
   if (longa) avisos.push('Medicamento de longa permanência');
-  return { longa, semCalculo, exigeEmbalagem, exigePosologia, semIntervalo, presentes, ausentes, avisos, calculaPrevia: !semIntervalo };
+  return { longa, semCalculo, exigeEmbalagem, exigePosologia, mostraTratamento: !longa, semIntervalo, presentes, ausentes, avisos, calculaPrevia: !semIntervalo };
 }

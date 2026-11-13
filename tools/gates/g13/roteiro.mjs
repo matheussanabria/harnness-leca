@@ -11,10 +11,10 @@
 //              { "id": "cancelar", "proto": "#cancelar", "texto": "Cancelar" } ],
 //   "viewports": [1024, 768, 375]
 // }
-// `quando` names a flag of the oracle (exigeEmbalagem, exigePosologia, calculaPrevia): the item is compared only if true.
+// `quando` names a flag of the oracle (exigeEmbalagem, exigePosologia, mostraTratamento, calculaPrevia): the item is compared only if true.
 import { readFileSync } from 'node:fs';
 
-const FLAGS = new Set(['exigeEmbalagem', 'exigePosologia', 'calculaPrevia']);
+const FLAGS = new Set(['exigeEmbalagem', 'exigePosologia', 'mostraTratamento', 'calculaPrevia']);
 
 export function leRoteiro(arquivo) {
   const j = JSON.parse(readFileSync(arquivo, 'utf8').replace(/^﻿/, ''));

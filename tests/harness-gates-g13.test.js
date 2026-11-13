@@ -37,6 +37,8 @@ test('CP-G13-02: the calculation fields change with the medicamento: packaging, 
   const longa = formularioEsperado({ ...DIPIRONA, longaPermanencia: true });
   assert.deepEqual(longa.presentes, []);
   assert.ok(longa.ausentes.includes('Tratamento/validade') && longa.avisos.includes('Medicamento de longa permanência'));
+  assert.equal(longa.mostraTratamento, false);
+  assert.equal(comp.mostraTratamento, true);
   const sem = formularioEsperado({ ...DIPIRONA, intervaloEntreRetiradasDias: undefined });
   assert.equal(sem.calculaPrevia, false);
   assert.deepEqual(sem.avisos, ['não tem intervalo entre retiradas cadastrado']);
