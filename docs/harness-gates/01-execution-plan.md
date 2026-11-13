@@ -130,4 +130,4 @@ Feature: G10 prototype x code inventory
 | 3 | Done on branch `feat/harness-gates-derived-status`: G12, `revalidar_em`, `--derivar` and the panel overlay. Format in `02-pairing-format.md`. |
 | 4 (DIS only, by decision of the user) | In progress: prototype snapshot into the repo (`tools/gates/prototipo.mjs`) done. `react-jsx` and 57multimarcas are out of scope for now. |
 | 4b | `propor` (pairing draft) done: 88% of the hand-made Nova prescricao pairs reproduced, none swapped. |
-| 5 | Not started. |
+| 5 | First cut done: `tela` (G13 screen check for one medicamento: registry cells, dynamic fields, layout against the prototype), run on demand against a running app. Nightly runs and automated navigation to etapa 2 are not built. See `03-screen-check.md`. |

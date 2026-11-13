@@ -4,6 +4,7 @@
 //
 //   node tools/gates/prototipo.mjs snapshot --repo <dir> --id <proto id> --from <proto dir>
 //        [--dest design/prototipos] [--config-from <harness config with a fidelidade block>]
+//        [--exportar <Harness project dir>]   also writes prototipo.html, the offline render used by the screen check ("tela")
 //   node tools/gates/prototipo.mjs check    --repo <dir> --id <proto id> --from <proto dir> [--dest design/prototipos]
 //
 // `snapshot` also registers fidelidade.prototipos.<id> (relative path) in <repo>/harness-gates.json; with
@@ -11,6 +12,7 @@
 // `check` says whether the Harness prototype changed after the snapshot (exit 1) and whether the copy was edited.
 // Exit: 0 ok, 1 stale or edited (check), 2 bad usage.
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hashArquivo } from './hash.mjs';
@@ -26,15 +28,23 @@ export function arquivosDoPrototipo(dir) {
 
 const hashes = (dir, rels) => Object.fromEntries(rels.map((r) => [r, existsSync(join(dir, r)) ? hashArquivo(join(dir, r)) : null]));
 
-export function snapshot({ repo, id, origem, dest = 'design/prototipos', configDe = null, agora = new Date() }) {
+// The offline export (one HTML with styles and fonts) is what the screen check renders. Only the Harness can build it.
+function exporta({ projeto, repoDoProjeto, id, alvo }) {
+  const req = createRequire(import.meta.url);
+  const { compileSingleHtmlPrototype } = req('../../ui/server/services/prototype-exporter.service.js');
+  writeFileSync(join(alvo, 'prototipo.html'), compileSingleHtmlPrototype(projeto, repoDoProjeto, id, {}));
+}
+
+export function snapshot({ repo, id, origem, dest = 'design/prototipos', configDe = null, agora = new Date(), exportar = null }) {
   const rels = arquivosDoPrototipo(origem);
   const alvo = join(repo, dest, id);
   for (const r of rels) {
     mkdirSync(dirname(join(alvo, r)), { recursive: true });
     copyFileSync(join(origem, r), join(alvo, r));
   }
+  if (exportar) exporta({ projeto: exportar, repoDoProjeto: repo, id, alvo });
   const versao = json(join(origem, 'proto.json')).version ?? null;
-  writeFileSync(join(alvo, MARCA), JSON.stringify({ id, origem_versao: versao, gerado_em: agora.toISOString().slice(0, 10), arquivos: hashes(alvo, rels) }, null, 2) + '\n');
+  writeFileSync(join(alvo, MARCA), JSON.stringify({ id, origem_versao: versao, gerado_em: agora.toISOString().slice(0, 10), arquivos: hashes(alvo, rels), ...(exportar ? { exportacao: 'prototipo.html' } : {}) }, null, 2) + '\n');
 
   const arqCfg = join(repo, 'harness-gates.json');
   const cfg = existsSync(arqCfg) ? json(arqCfg) : {};
@@ -71,7 +81,7 @@ export function roda(argv) {
   const origem = resolve(opt('--from'));
   if (!existsSync(repo) || !existsSync(join(origem, 'proto.json'))) { console.error('[gates] repositório ou pasta do protótipo (com proto.json) inexistente'); return 2; }
   const base = { repo, id: opt('--id'), origem, dest: opt('--dest') || undefined };
-  const r = cmd === 'check' ? confere(base) : snapshot({ ...base, configDe: opt('--config-from') ? resolve(opt('--config-from')) : null });
+  const r = cmd === 'check' ? confere(base) : snapshot({ ...base, configDe: opt('--config-from') ? resolve(opt('--config-from')) : null, exportar: opt('--exportar') ? resolve(opt('--exportar')) : null });
   (r.codigo ? console.error : console.log)(`[gates] ${r.msg}`);
   return r.codigo;
 }
