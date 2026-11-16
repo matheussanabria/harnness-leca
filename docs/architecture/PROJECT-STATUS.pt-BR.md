@@ -47,6 +47,8 @@ Fontes: [lacunas históricas](../harness-evolution/05-progress/epic-gaps.md), [a
 
 ## Sequência recomendada, ainda sem compromisso de datas
 
+Revisão pontual em 2026-11-16: a antiga alegação de ausência de interface para workspaces não descreve o código atual. `ui/public/office.html` contém `workspaceMenu`; `ui/public/js/office-app.js` chama `bootOfficeWindowManager`, que monta `office/workspace-menu.js`. Esse menu conecta ações de salvar, carregar e excluir a `windowManager.workspaces`, com confirmação de exclusão e proteção de alterações pendentes. Os 16 testes de `workspace-menu`, `wm-bootstrap`, `workspace-session` e `workspace-persistence` passaram. Isso comprova conexão no código e testes automatizados, não aceite visual ou persistência após recarga no navegador. Próxima verificação: salvar e carregar um layout, recarregar, trocar de projeto e conferir isolamento; não recriar um menu já existente. O status aceito do EP-04 permanece inalterado.
+
 | Ordem | Trabalho | Critério de saída |
 |---|---|---|
 | 1 | Conciliar índice, progresso e histórias | Cada história com status, evidência e mesma contagem nos índices; distinguir contrato de fluxo utilizável. |
