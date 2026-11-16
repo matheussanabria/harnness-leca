@@ -27,10 +27,15 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-13 | 9/9 | **concluído** | 13.01 a 13.09 concluídas; memória declarativa atômica com frontmatter, índice gerado com teto, deduplicação trigram/hash, ferramenta save com recusa de segredos, revisão e colheita nativa, carregamento em duas fases e faxina periódica com lint | Portão satisfeito |
 | EP-14 | 12/12 | **concluído** | 14.01 a 14.12 concluídas; endpoints de estado e histórico das 13 telas, concorrência por `rev`, limite de 64 KB, migração de localStorage e cobertura total de testes | Portão satisfeito |
 | EP-17 | 0/13 | **planejado** | Épico, 13 histórias, ADR-012 e ADR-013 e inventário de persistência criados em 2026-11-01; nada implementado | Executar 17.01; depois 17.02 (corrige a perda de contexto no F5), 17.03 e 17.05 em paralelo |
+| EP-19 | 9/9 | **concluído conforme histórias / complete per story records** | [19.01–19.09](../02-epics/EP-19-canvas/README.md): nove histórias com status concluida e referências de testes / nine completed stories with test references | Registro reconciliado; sem novo aceite / record reconciled; no new acceptance |
 | EP-20 | 0/1 | **em revisão** | Edição de código pelo celular implementada; aguarda validação visual dos breakpoints móveis | Validar em 320px, 375px e 768px e registrar aceite |
 | EP-21 | 2/13 | **em andamento** | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA; 13 histórias criadas, ADR-014 aceito (21.01 e 21.02 concluidas). |
 
 **Total: 141/166**
+
+Reconciliação documental em 2026-11-16: adicionada a linha EP-19, já contabilizada no índice mestre e nas nove histórias concluídas. A tabela agora soma 141/166 em 19 épicos. Não representa percentual de usabilidade ou novo aceite.
+
+Document reconciliation on 2026-11-16: added the missing EP-19 row, already counted in the master index and its nine completed stories. The table now totals 141/166 across 19 epics. This is not a usability percentage or new acceptance.
 
 ## Registro
 

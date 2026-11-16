@@ -36,9 +36,9 @@ tests/                           node:test suites
 | `intelligence` | hia, runtime | 7 | 17.4 KB |
 | `office` | hq | 5 | 13.3 KB |
 | `planning` | epics, product, projects | 8 | 17.8 KB |
-| `process` | architecture, delivery | 2 | 3.0 KB |
+| `process` | architecture, delivery | 2 | 3.3 KB |
 | `telemetry` | program, usage | 9 | 30.3 KB |
-| `tools` | canvas, coverage, engines, gates, mapa, pacote-revisao, rastreio, setup, testing, vault | 34 | 79.0 KB |
+| `tools` | canvas, coverage, engines, gates, mapa, pacote-revisao, rastreio, setup, testing, vault | 34 | 79.7 KB |
 <!-- mapa:index:end -->
 
 ## Map file format
