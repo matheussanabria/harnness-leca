@@ -47,6 +47,8 @@ Sources: [historical gaps](../harness-evolution/05-progress/epic-gaps.md), [arch
 
 ## Recommended sequence, without date commitments
 
+Focused review on 2026-11-16: the historical claim of missing workspace UI no longer describes the current code. `ui/public/office.html` contains `workspaceMenu`; `ui/public/js/office-app.js` calls `bootOfficeWindowManager`, which mounts `office/workspace-menu.js`. This menu connects save, load and delete actions to `windowManager.workspaces`, with deletion confirmation and an unsaved-changes guard. All 16 tests in `workspace-menu`, `wm-bootstrap`, `workspace-session` and `workspace-persistence` passed. This establishes source wiring and automated coverage, not visual acceptance or browser reload persistence. Next verification: save/load a layout, reload, switch projects and check isolation; do not recreate an existing menu. EP-04 accepted status remains unchanged.
+
 | Order | Work | Exit criterion |
 |---|---|---|
 | 1 | Reconcile index, progress and stories | Every story has status and evidence; index counts agree; distinguish contracts from usable flows. |
