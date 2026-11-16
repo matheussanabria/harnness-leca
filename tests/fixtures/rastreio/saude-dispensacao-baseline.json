@@ -37,7 +37,7 @@
   "erros": [],
   "avisos": [],
   "resumo": {
-   "entradas": 7,
+   "entradas": 8,
    "regras": 7,
    "semProva": 2,
    "testesSemElo": 0
@@ -48,7 +48,7 @@
   "erros": [],
   "avisos": [],
   "resumo": {
-   "entradas": 4,
+   "entradas": 5,
    "regras": 3,
    "semProva": 1,
    "testesSemElo": 0

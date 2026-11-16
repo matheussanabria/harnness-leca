@@ -72,6 +72,16 @@ canvas HTML and `mapa-camadas.json`) with the stale one winning. Gates must chec
 9. **Pairing key.** Code side: `formControlName` or `idExterno`. Prototype side: a `data-campo` attribute taken
    from the numbered pins that the prototype already has.
 
+10. **File map as a packed gate (added 2026-11-16).** `tools/gates/mapa/` ships in the pack (`engine/mapa`) and the
+    packed CLI gets a `mapa` subcommand: `find`, `check [--estrito]`, `orfaos`, `build [--write]`. It answers
+    "which feature owns this file": every covered file has one owner, the most specific `paths` glob wins (CODEOWNERS
+    style) and a tie is an error. Project specifics (aliases, repositories, what must be covered, where the entries
+    live, size limits) come from a `mapa` block in `harness-gates.json`; the engine knows no project. When the block
+    has `fontesStatus`, `check` also compares, file by file, the owner given by the map with the owner given by the
+    `fontes_*` globs of each `_status.md`, using the same glob as G6 (`rastreio/util.mjs`), so the map and the
+    traceability gates cannot drift apart. Origin: `saude-dispensacao/tools/mapa`, which this replaces.
+    Rollout: a warning in the doc-gate first, `--estrito` once the project is clean (it was 533/533 on 2026-11-13).
+
 ## Alternatives considered
 
 | Alternative | Pros | Contras |

@@ -25,6 +25,7 @@ export function montaPacote(dir, agora = new Date()) {
   cpSync(ENGINE, join(dir, 'engine', 'rastreio'), { recursive: true });
   cpSync(join(aqui, 'fidelidade'), join(dir, 'engine', 'fidelidade'), { recursive: true });
   cpSync(join(aqui, 'g13'), join(dir, 'engine', 'g13'), { recursive: true });
+  cpSync(join(aqui, 'mapa'), join(dir, 'engine', 'mapa'), { recursive: true });
   copyFileSync(join(aqui, 'hash.mjs'), join(dir, 'hash.mjs'));
   // fidelidade imports ../hash.mjs, which is engine/hash.mjs once packed.
   copyFileSync(join(aqui, 'hash.mjs'), join(dir, 'engine', 'hash.mjs'));
