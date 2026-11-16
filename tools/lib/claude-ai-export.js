@@ -1,12 +1,13 @@
 // @ts-check
 // Locates the readable parts of a claude.ai data export: conversations.json files and design_chats/ folders.
 // Accepts the extracted folder, the folder with the raw zips (conversations-000.zip, design_chats-000.zip)
-// or one of those zips. Raw zips are extracted once into a cache under the OS temp dir, keyed by name, size and mtime.
+// one of those zips, or the export manifest (see claude-ai-manifest.js). Raw zips are extracted once into a cache under the OS temp dir, keyed by name, size and mtime.
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const crypto = require("crypto");
 const { extractZip } = require("./zip-read");
+const { isManifest, manifestDir } = require("./claude-ai-manifest");
 
 const ZIP_RE = /^(conversations|design_chats)-\d+\.zip$/i;
 const CACHE_ROOT = path.join(os.tmpdir(), "harness-claude-ai-export");
@@ -50,14 +51,19 @@ function extractZips(dir, zips) {
 }
 
 /**
- * @param {string} input folder (extracted or with the raw zips) or one export zip
+ * @param {string} input folder (extracted or with the raw zips), one export zip, or the export manifest
+ *   (json or its zip); a manifest resolves to the folder where downloadManifest() saved its zips.
  * @returns {{ base: string, convFiles: string[], designDirs: string[], fromZips: string[] }}
  */
 function locateExport(input) {
   let dir = path.resolve(String(input || "").trim().replace(/^"(.*)"$/, "$1"));
-  if (!fs.existsSync(dir)) throw new Error(`Folder not found: ${dir}`);
-  if (fs.statSync(dir).isFile()) {
-    if (!ZIP_RE.test(path.basename(dir))) throw new Error("Pick the export folder or one of its conversations-NNN.zip / design_chats-NNN.zip files.");
+  if (!fs.existsSync(dir)) throw new Error(`Caminho não encontrado: ${dir}`);
+  if (isManifest(dir)) {
+    const cached = manifestDir(dir);
+    if (!cached) throw new Error("Os zips deste manifest ainda não foram baixados.");
+    dir = cached;
+  } else if (fs.statSync(dir).isFile()) {
+    if (!ZIP_RE.test(path.basename(dir))) throw new Error("Informe o manifest-*.json do export, a pasta com os zips ou um dos arquivos conversations-NNN.zip / design_chats-NNN.zip.");
     dir = path.dirname(dir);
   }
   const found = scan(dir, 3, { convFiles: [], designDirs: [] });
@@ -69,7 +75,7 @@ function locateExport(input) {
     if (cached.designDirs.length) found.designDirs = cached.designDirs;
   }
   if (!found.convFiles.length && !found.designDirs.length) {
-    throw new Error("No conversations.json, design_chats/ or export zips (conversations-NNN.zip) in that folder.");
+    throw new Error("Nenhum conversations.json, design_chats/ ou zip do export (conversations-NNN.zip) nessa pasta.");
   }
   return { base: dir, ...found, fromZips: zips };
 }

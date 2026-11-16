@@ -4,7 +4,6 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const zlib = require("zlib");
 const { Readable } = require("stream");
 
 // Temp root BEFORE loading tools/ (root.js reads HARNESS_ROOT once).
@@ -14,36 +13,13 @@ for (const p of ["_template/chats", "demo/chats", "outro/chats"]) fs.mkdirSync(p
 test.after(() => fs.rmSync(TMP_ROOT, { recursive: true, force: true }));
 
 const { IMPORTERS } = require("./helpers/fixtures");
+const { makeZip } = require("./helpers/zip");
 const { listZip, extractZip } = require("../tools/lib/zip-read");
 const { locateExport } = require("../tools/lib/claude-ai-export");
 const ctrl = require("../ui/server/controllers/claude-ai-import.controller");
 
 const CONV_ID = "aaaaaaaa-1111-4222-8333-444444444444";
 const DESIGN_ID = "bbbbbbbb-1111-4222-8333-444444444444";
-
-/** Builds a zip (deflate) from { name: string|Buffer }. */
-function makeZip(file, entries) {
-  const locals = [], cds = [];
-  let offset = 0;
-  for (const [name, content] of Object.entries(entries)) {
-    const raw = Buffer.from(content), comp = zlib.deflateRawSync(raw), nm = Buffer.from(name);
-    const crc = zlib.crc32(raw);
-    const loc = Buffer.alloc(30);
-    loc.writeUInt32LE(0x04034b50, 0); loc.writeUInt16LE(20, 4); loc.writeUInt16LE(8, 8);
-    loc.writeUInt32LE(crc, 14); loc.writeUInt32LE(comp.length, 18); loc.writeUInt32LE(raw.length, 22); loc.writeUInt16LE(nm.length, 26);
-    const cd = Buffer.alloc(46);
-    cd.writeUInt32LE(0x02014b50, 0); cd.writeUInt16LE(20, 4); cd.writeUInt16LE(20, 6); cd.writeUInt16LE(8, 10);
-    cd.writeUInt32LE(crc, 16); cd.writeUInt32LE(comp.length, 20); cd.writeUInt32LE(raw.length, 24); cd.writeUInt16LE(nm.length, 28);
-    cd.writeUInt32LE(offset, 42);
-    locals.push(loc, nm, comp); cds.push(cd, nm);
-    offset += 30 + nm.length + comp.length;
-  }
-  const cdBuf = Buffer.concat(cds), eocd = Buffer.alloc(22);
-  eocd.writeUInt32LE(0x06054b50, 0); eocd.writeUInt16LE(cds.length / 2, 8); eocd.writeUInt16LE(cds.length / 2, 10);
-  eocd.writeUInt32LE(cdBuf.length, 12); eocd.writeUInt32LE(offset, 16);
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, Buffer.concat([...locals, cdBuf, eocd]));
-}
 
 /** Writes the fixture export as raw zips (what claude.ai hands out) into a fresh folder. */
 function zippedExport(t) {
@@ -88,7 +64,7 @@ test("CP-02: the locator accepts the folder with raw zips, one of the zips or th
     assert.equal(found.designDirs.length, 1, input);
   }
   assert.equal(locateExport(src).convFiles.length, 1);
-  assert.throws(() => locateExport(path.join(dir, "memories-000.zip")), /export folder/);
+  assert.throws(() => locateExport(path.join(dir, "memories-000.zip")), /Informe o manifest/);
 });
 
 test("CP-03: list returns the export chats and marks the ones already imported", async (t) => {

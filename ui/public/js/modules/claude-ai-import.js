@@ -70,7 +70,7 @@ async function listExport() {
   const exportPath = el("caiPath").value.trim();
   if (!exportPath || ui.busy) return;
   ui.busy = true;
-  status(`<i class="fa-solid fa-spinner fa-spin"></i> Lendo o export (zips são extraídos na primeira vez)...`);
+  status(`<i class="fa-solid fa-spinner fa-spin"></i> ${/manifest-[^\\/]*\.(json|zip)"?$/i.test(exportPath) ? "Baixando os zips do manifest e lendo o export (pode levar um tempo na primeira vez)..." : "Lendo o export (zips são extraídos na primeira vez)..."}`);
   try {
     const data = await post("/api/claude-ai-import/list", { exportPath });
     remember(exportPath);
@@ -115,11 +115,11 @@ export function openClaudeAiImport() {
   ui.selected.clear();
   ui.filter = "";
   const html = `<div class="cai">
-    <p class="cai-help">Baixe os zips do export do claude.ai (Configurações &gt; Privacidade &gt; Exportar dados) e informe a pasta onde eles estão.
-      Serve a pasta com <code>conversations-000.zip</code> / <code>design_chats-000.zip</code> ou a pasta já extraída.
-      Nada é importado sem você marcar.</p>
+    <p class="cai-help">Informe o caminho do <code>manifest-*.json</code> (ou <code>manifest-*.zip</code>) do export do claude.ai:
+      o servidor baixa só os zips de conversas e de Design (os links valem 24 h). Também serve a pasta com
+      <code>conversations-000.zip</code> / <code>design_chats-000.zip</code> ou a pasta já extraída. Nada é importado sem você marcar.</p>
     <div class="cai-bar">
-      <input id="caiPath" class="cai-input" type="text" placeholder="C:\\Users\\voce\\Downloads\\claude-export" value="${esc(remembered())}">
+      <input id="caiPath" class="cai-input" type="text" placeholder="C:\\Users\\voce\\Downloads\\manifest-....json" value="${esc(remembered())}">
       <button type="button" class="btn-chat-action" data-act="list"><i class="fa-solid fa-folder-open"></i> Ler export</button>
     </div>
     <div id="caiStatus" class="cai-status"></div>
