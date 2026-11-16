@@ -1,5 +1,27 @@
 # Harness
 
+Comece aqui: [Resumo do projeto — Português](docs/PROJECT-BRIEF.pt-BR.md) — propósito, capacidades, arquitetura, limitações e caminhos de leitura.
+
+Start here: [Project brief — English](docs/PROJECT-BRIEF.md) — purpose, capabilities, architecture, limitations and reading paths for contributors and LLM reviewers.
+
+Validação / Validation: [resultados e limites — results and limitations (2026-11-16)](docs/setup/VALIDATION-2026-11-16.md).
+
+| Percurso / Reading path | Português | English |
+|---|---|---|
+| Visão geral / Overview | [Ler](docs/setup/01-overview.pt-BR.md) | [Read](docs/setup/01-overview.md) |
+| Instalação / Installation | [Ler](docs/setup/02-installation.pt-BR.md) | [Read](docs/setup/02-installation.md) |
+| Motores / Engines | [Ler](docs/setup/03-engines-and-credentials.pt-BR.md) | [Read](docs/setup/03-engines-and-credentials.md) |
+| Sincronização / Sync | [Ler](docs/setup/04-first-sync.pt-BR.md) | [Read](docs/setup/04-first-sync.md) |
+| Adoção / Adoption | [Ler](docs/setup/05-adopt-existing-projects.pt-BR.md) | [Read](docs/setup/05-adopt-existing-projects.md) |
+| Roteiro para agentes / Agent bootstrap | [Ler](docs/agents/BOOTSTRAP.pt-BR.md) | [Read](docs/agents/BOOTSTRAP.md) |
+| Adoção por agentes / Agent adoption | [Ler](docs/agents/ADOPTION.pt-BR.md) | [Read](docs/agents/ADOPTION.md) |
+| Guia completo / Full setup guide | [Ler](SETUP.md) | [Read](SETUP.en.md) |
+| Comandos / Commands | [Ler](docs/setup/COMANDOS.md) | [Read](docs/setup/COMANDOS.en.md) |
+| Importadores / Importers | [Ler](docs/setup/importadores.md) | [Read](docs/setup/importadores.en.md) |
+| Rotinas / Routines | [Ler](docs/setup/rotinas-e-sync.md) | [Read](docs/setup/rotinas-e-sync.en.md) |
+| Desenvolvimento / Development | [Ler](docs/setup/interface-e-desenvolvimento.md) | [Read](docs/setup/interface-e-desenvolvimento.en.md) |
+| Diagnóstico e plano inicial / Initial assessment and plan | [Ler](docs/harness-evolution/README.md) | [Read](docs/harness-evolution/README.en.md) |
+
 Replica a experiência e a arquitetura de **Projetos** do Claude Chat (instruções, memória, contexto, chats e tarefas programadas) para **Claude Code**, **Gemini/Antigravity** e **opencode**.
 
 Tudo roda localmente na sua máquina, com preservação total de privacidade. The backend and CLIs have no runtime dependencies; new UI screens are React islands built with Vite (see [ADR-011](docs/harness-evolution/03-decisions/ADR-011-frontend-react-typescript-vite.md)).
@@ -30,14 +52,14 @@ Tudo roda localmente na sua máquina, com preservação total de privacidade. Th
 
 ## 📚 Documentação
 
-- 📋 **[docs/setup/COMANDOS.md](file:///c:/Users/matheuss.rodrigues/git/harness-leca/docs/setup/COMANDOS.md):** Catálogo detalhado com a descrição e parâmetros de todos os scripts do `package.json`.
+- 📋 **[docs/setup/COMANDOS.md](docs/setup/COMANDOS.md):** Catálogo detalhado com a descrição e parâmetros de todos os scripts do `package.json`.
 - **Getting started (English):** [overview](docs/setup/01-overview.md), [installation](docs/setup/02-installation.md), [engines and credentials](docs/setup/03-engines-and-credentials.md), [first import, sync and export](docs/setup/04-first-sync.md), [adopting existing projects](docs/setup/05-adopt-existing-projects.md).
 - **For AI agents:** [docs/agents/BOOTSTRAP.md](docs/agents/BOOTSTRAP.md) (setup and first sync) and [docs/agents/ADOPTION.md](docs/agents/ADOPTION.md) (adopting a project).
-- 📐 **[docs/sdlc/README.md](file:///c:/Users/matheuss.rodrigues/git/harness-leca/docs/sdlc/README.md):** Especificação oficial de requisitos de software (SDLC), domínios de negócio (DDD), regras de negócio, RFs e RNFs.
-- 🗺️ **[MAPA.md](file:///c:/Users/matheuss.rodrigues/git/harness-leca/MAPA.md):** Mapa arquitetural detalhado do código e das responsabilidades de cada arquivo.
-- 📖 **[SETUP.md](file:///c:/Users/matheuss.rodrigues/git/harness-leca/SETUP.md):** Guia completo de instalação, arquitetura, importadores, rotinas programadas e restauração de contexto.
-- 🤖 **[AGENTS.md](file:///c:/Users/matheuss.rodrigues/git/harness-leca/AGENTS.md):** Instruções de operação para agentes autônomos (Antigravity/Gemini e similares).
-- 🧠 **[CLAUDE.md](file:///c:/Users/matheuss.rodrigues/git/harness-leca/CLAUDE.md):** Regras de memória, contexto e comportamento para o Claude Code.
+- 📐 **[docs/sdlc/README.md](docs/sdlc/README.md):** Especificação oficial de requisitos de software (SDLC), domínios de negócio (DDD), regras de negócio, RFs e RNFs.
+- 🗺️ **[MAPA.md](MAPA.md):** Mapa arquitetural detalhado do código e das responsabilidades de cada arquivo.
+- 📖 **[SETUP.md](SETUP.md):** Guia completo de instalação, arquitetura, importadores, rotinas programadas e restauração de contexto.
+- 🤖 **[AGENTS.md](AGENTS.md):** Instruções de operação para agentes autônomos (Antigravity/Gemini e similares).
+- 🧠 **[CLAUDE.md](CLAUDE.md):** Regras de memória, contexto e comportamento para o Claude Code.
 
 ---
 

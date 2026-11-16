@@ -2,6 +2,8 @@
 
 Part of the [setup series](01-overview.md). Windows 10/11 only for now.
 
+Leia em português: [02 Instalação](02-installation.pt-BR.md).
+
 ## Prerequisites
 
 | Item | Why | Check |
@@ -11,7 +13,7 @@ Part of the [setup series](01-overview.md). Windows 10/11 only for now.
 | [Node.js 22.13+](https://nodejs.org) | UI, importers, sync (opencode import uses built-in `node:sqlite`) | `node -v` |
 | At least one engine CLI | Produces the conversations you will import | see [03](03-engines-and-credentials.md) |
 
-There are no `npm install` dependencies: the project uses only Node built-ins.
+The Node backend and tools have no runtime dependencies and use Node built-ins. The optional React UI islands do have npm dependencies: run `npm install` before building them with `npm run build:web`, as described in [SETUP.md](../../SETUP.md#react-islands-adr-011).
 
 ## 1. Clone
 
@@ -58,6 +60,8 @@ npm run setup:hooks
 ```
 
 ## 6. Verify
+
+For a reproducible installation of the React interface, run `npm ci` from the repository root and wait for it to finish before tests or builds. Then run `npm run build:web`. Do not run dependency installation and tests concurrently: prototype lint tests use installed tooling. See the [validation record](VALIDATION-2026-11-16.md) for tested scope and remaining limitations.
 
 ```powershell
 node -v                 # 22.13 or newer

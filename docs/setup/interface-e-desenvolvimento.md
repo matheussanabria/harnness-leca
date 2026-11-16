@@ -2,6 +2,8 @@
 
 Parte do [guia de instalação](../../SETUP.md) do Harness.
 
+Read in English: [Context export, web interface, and development](interface-e-desenvolvimento.en.md).
+
 ## Exportar contexto e reidratar histórico nos agentes (Claude Code & Gemini)
 
 Se você precisou restaurar o PC, trocou de máquina ou quer injetar as memórias e conversas do Harness diretamente nos agentes instalados:

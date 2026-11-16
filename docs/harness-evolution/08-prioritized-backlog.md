@@ -1,5 +1,9 @@
 # Backlog priorizado
 
+Versão em inglês: [Prioritized backlog](08-prioritized-backlog.en.md).
+
+> Nota: as afirmações históricas e de planejamento deste documento não foram revalidadas durante a tradução.
+
 IDs provisórios; complexidade S/M/L/XL. Cada item resume problema/objetivo, escopo, dependência, aceite, teste e risco.
 
 ## P0

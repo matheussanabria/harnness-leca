@@ -1,5 +1,9 @@
 # Roadmap, riscos e aceite
 
+Versão em inglês: [Roadmap, risks and acceptance](07-roadmap-risks-acceptance.en.md).
+
+> Nota: as afirmações históricas e de planejamento deste documento não foram revalidadas durante a tradução.
+
 | Fase | Saída | Dependência | Complexidade / incerteza |
 |---|---|---|---|
 | 0 | Auditoria e plano | nenhuma | M / capturas ausentes |

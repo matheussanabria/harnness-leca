@@ -1,6 +1,8 @@
 # 01. Overview: what Harness does
 
-Harness brings the **Projects** model of Claude Chat (instructions, memory, context files, chat history, scheduled tasks) to the AI coding tools you already use: **Claude Code**, **Codex**, **Gemini / Antigravity** and **opencode**. Everything runs on your machine. Nothing is sent anywhere by the harness itself.
+Harness brings the **Projects** model of Claude Chat (instructions, memory, context files, chat history, scheduled tasks) to the AI coding tools you already use: **Claude Code**, **Codex**, **Gemini / Antigravity** and **opencode**. Storage and orchestration run locally. Configured cloud engines may receive project context.
+
+Guias em português: [01 Visão geral](01-overview.pt-BR.md) | [02 Instalação](02-installation.pt-BR.md) | [03 Mecanismos e credenciais](03-engines-and-credentials.pt-BR.md) | [04 Primeira importação](04-first-sync.pt-BR.md) | [05 Adotar projetos existentes](05-adopt-existing-projects.pt-BR.md).
 
 Guides in this series: [02 Install](02-installation.md) | [03 Engines and credentials](03-engines-and-credentials.md) | [04 First sync](04-first-sync.md) | [05 Adopt existing projects](05-adopt-existing-projects.md). Agents should start at [docs/agents/BOOTSTRAP.md](../agents/BOOTSTRAP.md).
 
