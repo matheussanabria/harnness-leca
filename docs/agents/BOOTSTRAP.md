@@ -12,7 +12,7 @@ Follow the phases in order. Each phase has a **check** and a **stop** rule. Repo
 4. Do not run anything through the `claude` engine (extraction, consolidation) unless the user asked for it in this session. Prefer scripts, free opencode models (`opencode/...-free`) or the local model.
 5. Destructive actions (deleting files or folders, `--force`, `--prune --yes`) need explicit user confirmation in chat first.
 6. Always run the `--dry-run` form first when a command offers one.
-7. Work in English. Keep any new code file under 300 lines and update `MAPA.md` when creating, moving or deleting files.
+7. Maintain documentation in both Portuguese and English. Keep any new code file under 300 lines and update `MAPA.md` when creating, moving or deleting files.
 
 ## Phase 0: locate the root
 
@@ -41,6 +41,8 @@ if (-not (Test-Path global/memory.md))       { Copy-Item global/memory.example.m
 Check: both global files exist.
 
 ## Phase 3: verify the install
+
+The Node backend and tools need no npm dependencies. If the setup task includes building the optional React islands, install their dependencies and build them as described in [SETUP.en.md](../../SETUP.en.md#react-islands-adr-011).
 
 ```powershell
 npm test

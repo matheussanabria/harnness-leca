@@ -1,5 +1,7 @@
 # Guia de instalação: Harness
 
+[Read this guide in English](SETUP.en.md).
+
 Replica a arquitetura de **Projetos** do Claude Chat (instruções, memória, contexto, chats e tarefas programadas) dentro do Claude Code. A cada mensagem, o Claude recebe automaticamente as instruções e memórias do projeto ativo. Há também uma interface web local para ver tudo e um importador para trazer conversas antigas do Claude Code.
 
 > O repositório contém só o **processo** (hook, interface, importador, template). Seus projetos, memórias e conversas ficam apenas na sua máquina e nunca sobem ao GitHub.
@@ -115,7 +117,7 @@ browser. Before committing island code: `npm run types:web`, `npm run lint:web` 
 
 - **Trocar de projeto:** edite `projects/.active` com o nome da pasta.
 - **Instruções:** escreva em `instructions.md` (do projeto ou em `global/`). Valem a partir da próxima mensagem, sem reiniciar.
-- **Memória:** o Claude acrescenta fatos duráveis em `memory.md` (`- [AAAA-MM-DD] fato`). Você também pode editar à mão.
+- **Memória:** registre fatos duráveis com `node tools/memory.js save` (veja `node tools/memory.js --help`). Os índices `memory.md` são gerados; não os edite manualmente.
 - **Contexto:** coloque arquivos em `projects/<projeto>/context/`. O Claude recebe só a lista de nomes e abre o arquivo quando precisar.
 - **Chats:** peça "salve um resumo desta conversa" e o Claude grava em `chats/`.
 
@@ -143,7 +145,7 @@ Requisitos e ajustes:
 
 ## Guias complementares
 
-- Getting-started series in English: [01 overview](docs/setup/01-overview.md), [02 installation](docs/setup/02-installation.md), [03 engines and credentials](docs/setup/03-engines-and-credentials.md), [04 first sync](docs/setup/04-first-sync.md), [05 adopt existing projects](docs/setup/05-adopt-existing-projects.md). Agents: [docs/agents/BOOTSTRAP.md](docs/agents/BOOTSTRAP.md).
+- Série de primeiros passos: [01 visão geral](docs/setup/01-overview.pt-BR.md), [02 instalação](docs/setup/02-installation.pt-BR.md), [03 motores e credenciais](docs/setup/03-engines-and-credentials.pt-BR.md), [04 primeira sincronização](docs/setup/04-first-sync.pt-BR.md), [05 adotar projetos existentes](docs/setup/05-adopt-existing-projects.pt-BR.md). Agentes: [docs/agents/BOOTSTRAP.pt-BR.md](docs/agents/BOOTSTRAP.pt-BR.md).
 - [Importadores e extração de conversas](docs/setup/importadores.md): Claude Code, Antigravity/Gemini e extração de regras, memórias e documentos.
 - [Rotinas, revisão de memória e sincronização](docs/setup/rotinas-e-sync.md): tarefas recorrentes, sugestões de memória, `sync` dos 3 motores e uso com outros agentes.
 - [Exportar contexto, interface web e desenvolvimento](docs/setup/interface-e-desenvolvimento.md): exportação para os agentes, interface web, testes, privacidade e problemas comuns.

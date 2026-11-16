@@ -3,7 +3,7 @@ domain: planning
 module: product
 feature: evolution
 summary: Harness evolution program core docs, phase plans, master index and architecture folder.
-paths: [docs/harness-evolution/README.md, docs/harness-evolution/00-index.md, docs/harness-evolution/01-architecture/**, docs/PLAN-*.md]
+paths: [docs/harness-evolution/README.md, docs/harness-evolution/*.en.md, docs/harness-evolution/00-index.md, docs/harness-evolution/01-architecture/**, docs/PLAN-*.md]
 keywords: [evolution, roadmap, backlog, plan, epics, HAR]
 updated: 2026-10-30
 ---
@@ -28,3 +28,12 @@ updated: 2026-10-30
 | `docs/harness-evolution/01-architecture/` | Current state (office focus), target architecture of the shared presentation and dependency map. |
 | `docs/harness-evolution/_templates/` | Templates for stories, ADRs and test plans. |
 | `docs/handoff-pendencias-geral.md` | Consolidated pending-work handoff for other engines: epic backlog, UI gaps, telemetry program. |
+| `docs/harness-evolution/README.en.md` | English translation of the historical Phase 0 README document; preserves planning status. |
+| `docs/harness-evolution/01-current-state-audit.en.md` | English translation of the historical Phase 0 01-current-state-audit document; preserves planning status. |
+| `docs/harness-evolution/02-requirements-and-gaps.en.md` | English translation of the historical Phase 0 02-requirements-and-gaps document; preserves planning status. |
+| `docs/harness-evolution/03-target-architecture.en.md` | English translation of the historical Phase 0 03-target-architecture document; preserves planning status. |
+| `docs/harness-evolution/04-chat-studio-design-system.en.md` | English translation of the historical Phase 0 04-chat-studio-design-system document; preserves planning status. |
+| `docs/harness-evolution/05-product-domains.en.md` | English translation of the historical Phase 0 05-product-domains document; preserves planning status. |
+| `docs/harness-evolution/06-data-security-tests.en.md` | English translation of the historical Phase 0 06-data-security-tests document; preserves planning status. |
+| `docs/harness-evolution/07-roadmap-risks-acceptance.en.md` | English translation of the historical Phase 0 07-roadmap-risks-acceptance document; preserves planning status. |
+| `docs/harness-evolution/08-prioritized-backlog.en.md` | English translation of the historical Phase 0 08-prioritized-backlog document; preserves planning status. |

@@ -2,6 +2,8 @@
 
 Parte do [guia de instalação](../../SETUP.md) do Harness.
 
+Read in English: [Routines, memory review and sync](rotinas-e-sync.en.md).
+
 ## Rotinas (tarefas recorrentes)
 
 Cada rotina é um arquivo em `projects/<projeto>/scheduled/*.md`, com um cabeçalho simples (veja `projects/_template/scheduled/exemplo-extrair-pendentes.md`):

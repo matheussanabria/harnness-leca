@@ -1,5 +1,9 @@
 # Evolução do Harness — Fase 0
 
+[Read in English](README.en.md).
+
+> Nota histórica e de planejamento: esta documentação descreve o diagnóstico e o plano registrados na data indicada pela fonte. A tradução preserva esse estado e essas datas; não constitui nova verificação da implementação.
+
 > O programa de implementação por épicos (EP-00 a EP-11) está no [índice mestre](00-index.md). Este README e os documentos `01` a `08` são o diagnóstico que serve de fonte para ele.
 
 Este pacote registra o diagnóstico e o plano revisável solicitado em 2026-10-19. Nenhuma alteração funcional, migration ou configuração de produção faz parte desta entrega.

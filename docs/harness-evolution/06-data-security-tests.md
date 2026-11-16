@@ -1,5 +1,9 @@
 # Dados, migração, segurança e testes
 
+English: [Data, Migration, Security, and Tests](06-data-security-tests.en.md).
+
+> Esta tradução preserva as afirmações históricas e planejadas deste documento; elas não foram revalidadas.
+
 ## Migração proposta
 
 1. Backup versionado de `scrum.json`.

@@ -2,9 +2,11 @@
 
 Part of the [setup series](01-overview.md). Install only the engines you use; the harness skips the ones it cannot find.
 
+Leia em português: [03 Mecanismos, sessões e credenciais](03-engines-and-credentials.pt-BR.md).
+
 ## The rule about credentials
 
-**The harness does not store, copy or read your subscription logins or API keys.** Each CLI keeps its own login in your user profile and the harness just starts that CLI. The only secret that can live in the harness is an optional `GEMINI_API_KEY` in `global/.env` (git-ignored).
+**Subscription logins are managed by the engine CLIs.** Each CLI keeps its login in the user profile. Integrations configured with API keys may read values from the environment or `global/.env` (git-ignored), including `GEMINI_API_KEY` and `ANTHROPIC_API_KEY`.
 
 Consequences:
 - Log in once per engine, in a terminal, with that engine's own command.
