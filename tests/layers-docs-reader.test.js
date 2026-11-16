@@ -10,6 +10,7 @@ import { refTarget } from "../ui/public/js/modules/design-layers/docs/docs-panel
 import { screenDocs, idsInText, docChip, renderScreenDocsBar, renderRuleDocChips, openFromChip } from "../ui/public/js/modules/design-layers/layers-docs-refs.js";
 import { dls } from "../ui/public/js/modules/design-layers-store.js";
 import { clampWidth, MIN_WIDTH } from "../ui/public/js/modules/design-layers/docs/docs-panel-size.js";
+import { storyIdOf, storyLinks, renderStoryLinks } from "../ui/public/js/modules/design-layers/docs/docs-story-links.js";
 
 const require = createRequire(import.meta.url);
 const server = require("../ui/server/services/project-docs/refs-parsers.js");
@@ -170,4 +171,31 @@ test("chips: a reference that does not resolve is marked, and ids in the source 
   assert.match(chips, /data-doc-id="RN-calculo-001"/);
   assert.match(chips, /data-doc-id="DIS-505"/);
   dls.docsRefs = null;
+});
+
+test("story links: features it owns or touches, where it is on the map, the trace items that name it", () => {
+  const refs = {
+    ...REFS,
+    stories: { ...REFS.stories, "DIS-NOVA-PRESCRICAO": { path: "scrum/DIS-NOVA-PRESCRICAO/user-story.md", title: "Rascunho", criteria: {} } },
+    trace: { "CA-443-6": [{ path: "a.yml", line: 4, feature: "calculo", title: "campos", story: "DIS-443" }], "PS-31": [{ path: "p.yml", line: 9, feature: "p", title: "x", story: "DIS-500" }] },
+  };
+  const screens = [
+    { id: "s2", short: "Etapa 2", feature: "tela", fields: [{ id: "embalagem", label: "Embalagem" }] },
+    { id: "c-s1", title: "Cálculo", feature: "calculo", fields: [] },
+  ];
+  assert.equal(storyIdOf("scrum/DIS-443/user-story.md", refs), "DIS-443");
+  assert.equal(storyIdOf("outro.md", refs), null);
+  const l = storyLinks("DIS-443", refs, screens);
+  assert.deepEqual(l.related.map((f) => f.slug), ["tela"]);
+  assert.deepEqual(l.places, [{ screenId: "s2", title: "Etapa 2", fieldId: "embalagem", fieldLabel: "Embalagem", role: "principal" }]);
+  assert.deepEqual(l.trace.map((t) => t.id), ["CA-443-6"]);
+  const draft = storyLinks("DIS-NOVA-PRESCRICAO", refs, screens);
+  assert.deepEqual(draft.owner.map((f) => f.slug), ["tela"], "a draft finds what its number owns");
+  assert.deepEqual(draft.places.map((p) => [p.screenId, p.role]), [["s2", "tela"]]);
+  const html = renderStoryLinks("DIS-443", refs, screens);
+  assert.match(html, /data-map-screen="s2" data-map-field="embalagem"/);
+  assert.match(html, /data-doc-feature="tela"/);
+  assert.match(html, /data-doc-path="a\.yml" data-doc-anchor="L4"/);
+  assert.ok(!/onclick=/.test(html));
+  assert.equal(renderStoryLinks("DIS-999", refs, screens), "", "nothing to show for an unlinked story");
 });

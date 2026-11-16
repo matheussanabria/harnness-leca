@@ -31,6 +31,7 @@ Every parser splits on `/\r?\n/` (see f171fba).
 | `tests/project-docs-route.test.js` | HTTP answers of the four routes. |
 | `ui/public/js/modules/design-layers/layers-docs-refs.js` | "Documentação oficial" strip (feature, stories, features of the cited rules, unresolved count) and RN/story chips; one capture listener opens them. |
 | `ui/public/js/modules/design-layers/docs/docs-panel.js` | Side drawer on `document.body`: back stack, link clicks, filter, refresh, `refTarget` (reference to document and anchor). |
+| `ui/public/js/modules/design-layers/docs/docs-story-links.js` | The way back from a story: on a user-story.md, the features it owns or touches, its screens and fields on the map (click closes the panel and focuses the field) and the rastreio items that name it. |
 | `ui/public/js/modules/design-layers/docs/docs-panel-size.js` | Panel size: left-edge resize handle (drag, arrow keys, double click resets), full screen toggle, both remembered in localStorage. |
 | `ui/public/js/modules/design-layers/docs/docs-panel-views.js` | Pure HTML of the panel: sections and tree, feature dossier, choice between places, not found. |
 | `ui/public/js/modules/design-layers/docs/docs-render.js` | Markdown (marked) and YAML/JSON to safe HTML: raw HTML as text, no unsafe links or images, Mermaid as the shared diagram card (`renderMermaidCard`, drawn by the panel through `shared/mermaid-renderer.js`), anchors. |
@@ -40,7 +41,7 @@ Every parser splits on `/\r?\n/` (see f171fba).
 | `ui/public/js/vendor/marked-16.4.2/marked.esm.js` | marked 16.4.2 (MIT), byte-identical to the npm build; `LICENSE.md` alongside. |
 | `ui/public/css/design/40-layers-docs.css` | Strip, chips and drawer styles (mobile stacks the index above the reader). |
 | `tests/layers-docs-reader.test.js` | Safe rendering, anchors equal to the server's, paths, link format, `refTarget`, strip and chips. |
-| `ui/server/services/screen-links.js` | Phase 2: `linkScreens` after `mergeScreens`; resolves `navega.para` by id or `featureScreenId` and adds the reverse side (vaiPara/vemDe, chama/chamadaPor). |
+| `ui/server/services/screen-links.js` | Phase 2: `linkScreens` after `mergeScreens`; resolves `navega.para` by id or `featureScreenId` and adds the reverse side (vaiPara/vemDe, chama/chamadaPor). A feature screen the merge absorbed (same route as a canvas screen) is reached through that screen, keeping its title (`absorbedScreens`). |
 | `ui/public/js/modules/design-layers/layers-screen-links.js` | "Telas ligadas" strip; a click opens the linked screen (and focuses the source field on "Vem de"). |
 | `tests/screen-links.test.js` | Adapter of `navega` (missing `tipo` = navegacao), both directions across the canvas merge, self links, the strip. |
 

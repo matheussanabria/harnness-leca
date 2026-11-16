@@ -84,7 +84,7 @@ test("DIS-NNN and Critério N: title, criteria anchors, lower-case folders and d
 
 test("trace ids: inline and block titles, RN keys left to regras.md, a repeated id keeps every place", () => {
   const { index } = indexOf(makeRepo());
-  assert.deepEqual(index.trace["CD-01"], [{ path: "sistema/features/calculo/rastreio.yml", line: 3, title: "intervalo em dias corridos", feature: "calculo" }]);
+  assert.deepEqual(index.trace["CD-01"], [{ path: "sistema/features/calculo/rastreio.yml", line: 3, title: "intervalo em dias corridos", feature: "calculo", story: "DIS-439" }]);
   assert.deepEqual(index.trace["CA-443-6"].map((t) => t.feature), ["calculo", "tela"]);
   assert.equal(index.trace["RN-calculo-001"], undefined);
 });
@@ -127,7 +127,8 @@ test("parsers: LF and CRLF read the same", () => {
   const story = ["# T", "1. **Critério 3.** texto"];
   assert.deepEqual(parseStory(story.join("\n")), parseStory(story.join("\r\n")));
   const trace = ["  PS-31:", '    titulo: "laudos"'];
-  assert.deepEqual(parseTrace(trace.join("\r\n")), [{ id: "PS-31", line: 1, title: "laudos" }]);
+  assert.deepEqual(parseTrace(trace.join("\r\n")), [{ id: "PS-31", line: 1, title: "laudos", story: "" }]);
+  assert.equal(parseTrace(['  CA-443-6:', '    titulo: "x"', '    historia: DIS-443'].join('\r\n'))[0].story, "DIS-443", "story on its own line");
   assert.deepEqual(parseAliases(["## Apelidos", "| `DIS-NOVA-X` | DIS-1 |"].join("\r\n")), { "DIS-NOVA-X": "DIS-1" });
 });
 

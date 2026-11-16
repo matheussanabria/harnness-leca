@@ -70,9 +70,9 @@ function parseStory(text) {
 }
 
 /**
- * Trace entries of a rastreio.yml: id, line and title (inline "titulo:" or on the next lines).
+ * Trace entries of a rastreio.yml: id, line, title and story ("titulo:" / "historia:", inline or on the next lines).
  * @param {string} text
- * @returns {{ id: string, line: number, title: string }[]}
+ * @returns {{ id: string, line: number, title: string, story: string }[]}
  */
 function parseTrace(text) {
   const all = lines(text);
@@ -80,14 +80,15 @@ function parseTrace(text) {
   all.forEach((line, i) => {
     const m = line.match(TRACE_KEY);
     if (!m || /^RN-/i.test(m[1])) return;
-    let title = "";
-    const inline = line.match(/titulo:\s*"([^"]*)"/);
-    if (inline) title = inline[1];
-    for (let j = i + 1; !title && j < all.length && /^ {4}/.test(all[j]); j += 1) {
+    let title = (line.match(/titulo:\s*"([^"]*)"/) || [])[1] || "";
+    let story = (line.match(/historia:\s*"?([A-Z]+-[A-Z0-9-]+)/) || [])[1] || "";
+    for (let j = i + 1; j < all.length && /^ {4}/.test(all[j]) && (!title || !story); j += 1) {
       const t = all[j].match(/^ {4}titulo:\s*"?([^"\r\n]*)"?\s*$/);
-      if (t) title = t[1];
+      if (t && !title) title = t[1];
+      const h = all[j].match(/^ {4}historia:\s*"?([A-Z]+-[A-Z0-9-]+)/);
+      if (h && !story) story = h[1];
     }
-    out.push({ id: m[1], line: i + 1, title: clip(plain(title)) });
+    out.push({ id: m[1], line: i + 1, title: clip(plain(title)), story });
   });
   return out;
 }

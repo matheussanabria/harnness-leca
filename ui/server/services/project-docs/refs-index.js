@@ -86,7 +86,7 @@ function buildRefsIndex(access, files) {
     }
     if (docs.rastreio) {
       for (const t of parseTrace(read(docs.rastreio))) {
-        (trace[t.id] ||= []).push({ path: docs.rastreio, line: t.line, title: t.title, feature: slug });
+        (trace[t.id] ||= []).push({ path: docs.rastreio, line: t.line, title: t.title, feature: slug, story: t.story });
       }
     }
   }

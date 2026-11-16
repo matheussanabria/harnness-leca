@@ -130,13 +130,14 @@ function getProjectScreens(slug, repoRoot, projectDir) {
     if (fs.existsSync(candidate)) {
       const parsedScreens = parseScreensFromCanvasHtml(candidate);
       if (parsedScreens && parsedScreens.length > 0) {
+        const featureScreens = readFeatureScreens(repoRoot);
         return {
           ok: true,
           slug,
           hasNativeCanvas: true,
           nativeCanvasUrl: `/api/project/${encodeURIComponent(slug)}/design/prototype/dis-mapa-camadas/`,
           canvasFile: path.relative(repoRoot, candidate).replace(/\\/g, "/"),
-          screens: linkScreens(attachPrototypes(mergeScreens(parsedScreens, readFeatureScreens(repoRoot)), repoRoot)),
+          screens: linkScreens(attachPrototypes(mergeScreens(parsedScreens, featureScreens), repoRoot), featureScreens),
         };
       }
     }

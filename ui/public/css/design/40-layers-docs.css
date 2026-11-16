@@ -8,6 +8,14 @@
 .docs-strip-open { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; font: inherit; color: #e2e8f0; background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; cursor: pointer; }
 .docs-strip-open:hover { background: #334155; }
 
+/* A story's links back to the map and the documentation (top of a user-story.md in the reader) */
+.docs-story-links { max-width: 820px; margin: 0 0 18px; padding: 12px 14px; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; font-size: 12.5px; }
+.docs-panel.full .docs-story-links { max-width: 1200px; }
+.docs-story-row { display: grid; grid-template-columns: 120px 1fr; gap: 6px 10px; align-items: start; margin-top: 8px; }
+.docs-story-row .doc-chip-row { margin-top: 0; }
+.docs-story-trace > summary { cursor: pointer; padding: 2px 0; color: #cbd5e1; display: flex; gap: 6px; align-items: center; }
+@media (max-width: 760px) { .docs-story-row { grid-template-columns: 1fr; } }
+
 /* Telas ligadas (reuses the strip and chip styles) */
 .screen-links-strip { margin-top: -4px; }
 .screen-link { font-family: inherit; font-weight: 600; color: #ddd6fe; background: rgba(139, 92, 246, 0.12); border-color: rgba(196, 181, 253, 0.35); }

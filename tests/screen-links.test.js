@@ -52,6 +52,23 @@ test("links: both directions, across the canvas merge (nova-s2 lives under the c
   assert.deepEqual(s2.links.vaiPara.filter((l) => l.broken).map((l) => l.para), ["sumiu-s1"]);
 });
 
+test("links: a feature screen absorbed by a canvas screen of the same route is reached through that screen", () => {
+  const canvas = [{ id: "s1", title: "Etapa 1", route: "/a" }, { id: "s4", title: "Visão geral", route: "/v" }];
+  const features = [
+    adaptFeatureScreen(tela("s1", "Etapa 1", "/a", [{ tipo: "chamada", para: "apoio-s1", via: "http", como: "Busca a origem" }]), feature("nova")),
+    adaptFeatureScreen(tela("s1", "Consultas de apoio", "/a", [{ tipo: "chamada", para: "nova-s4", via: "http", como: "Vai à visão" }]), feature("apoio")),
+    adaptFeatureScreen(tela("s4", "Visão geral", "/v"), feature("nova")),
+  ];
+  const merged = mergeScreens(canvas, features);
+  assert.ok(!merged.some((s) => s.featureScreenId === "apoio-s1"), "the merge leaves the absorbed screen out");
+  const screens = linkScreens(merged, features);
+  const s1 = screens.find((s) => s.id === "s1");
+  const s4 = screens.find((s) => s.id === "s4");
+  assert.deepEqual(s1.links.chama.map((l) => [l.id, l.title, Boolean(l.broken)]), [["s1", "Consultas de apoio", false], ["s4", "Visão geral", false]]);
+  assert.deepEqual(s1.links.chamadaPor.map((l) => [l.id, l.title]), [["s1", "Etapa 1"]]);
+  assert.deepEqual(s4.links.chamadaPor.map((l) => [l.id, l.title]), [["s1", "Consultas de apoio"]], "links declared by the absorbed screen leave from its host");
+});
+
 test("links: a screen that points to itself shows on both sides; repeated runs do not pile up", () => {
   const screens = [{ id: "c-s1", title: "Casca", navega: [{ tipo: "navegacao", para: "c-s1", campo: "voltar", como: "Menu" }] }];
   linkScreens(screens);

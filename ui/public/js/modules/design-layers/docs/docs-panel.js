@@ -9,6 +9,7 @@ import { renderDocsNav, renderFeatureView, renderChooser, renderMissing, renderM
 import { lineAnchor, criterionAnchor } from "./docs-paths.js";
 import { renderMermaidInContainer } from "../../../shared/mermaid-renderer.js";
 import { initPanelSize, toggleFullscreen } from "./docs-panel-size.js";
+import { storyIdOf, renderStoryLinks } from "./docs-story-links.js";
 
 /** @typedef {{ type: "doc", path: string, anchor?: string } | { type: "feature", slug: string } | { type: "choose", title: string, items: any[] } | { type: "missing", kind: string, id: string } | { type: "missing-list", screen: string } | { type: "home" }} DocsView */
 
@@ -121,7 +122,9 @@ async function renderView(view) {
       setTitle(outside ? "Fora do pacote de revisão" : "Documento indisponível", view.path);
     } else {
       const { html, title } = renderDocument(file.text, { path: view.path, paths: state.paths, hrefFor: docHref, isAvailable: source?.isIncluded });
-      content.innerHTML = `<article class="docs-view docs-md">${html}</article>`;
+      const storyId = storyIdOf(view.path, dls.docsRefs);
+      const back = storyId ? renderStoryLinks(storyId, dls.docsRefs, dls.currentScreensData?.screens || []) : "";
+      content.innerHTML = `${back}<article class="docs-view docs-md">${html}</article>`;
       setTitle(title, view.path);
       scrollToAnchor(content, view.anchor || "");
       // Diagrams change the height of the page: once they are drawn, the anchor is brought back into view.
@@ -185,7 +188,7 @@ export function openDocFromLocation() {
 
 /** @param {MouseEvent} e */
 function onClick(e) {
-  const t = /** @type {HTMLElement} */ (e.target).closest("[data-doc-path],[data-doc-ref],[data-doc-feature],[data-docs-action]");
+  const t = /** @type {HTMLElement} */ (e.target).closest("[data-doc-path],[data-doc-ref],[data-doc-feature],[data-docs-action],[data-map-screen]");
   if (!t) return;
   const el = /** @type {HTMLElement} */ (t);
   if (el.dataset.docPath !== undefined) {
@@ -197,6 +200,11 @@ function onClick(e) {
       return;
     }
     void openDocsPanel({ type: "doc", path: el.dataset.docPath || "", anchor: el.dataset.docAnchor || "" });
+  } else if (el.dataset.mapScreen) {
+    // From a story to the map: the panel closes (its history stays) and the map opens on the screen and field.
+    closeDocsPanel();
+    // @ts-ignore global of design-layers-workspace.js
+    if (typeof window.openLayersTarget === "function") window.openLayersTarget(el.dataset.mapScreen, el.dataset.mapField || null);
   } else if (el.dataset.docRef) void openDocRef(el.dataset.docRef, el.dataset.docId || "");
   else if (el.dataset.docFeature) void openDocsPanel({ type: "feature", slug: el.dataset.docFeature });
   else if (el.dataset.docsAction === "close") closeDocsPanel();
