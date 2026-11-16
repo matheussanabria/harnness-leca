@@ -1,6 +1,7 @@
 // @ts-check
 import { esc } from "../../shared/dom.js";
 import { dls } from "../design-layers-store.js";
+import { renderRuleDocChips, renderFieldStoryChips } from "./layers-docs-refs.js";
 import { STATUS_MAP } from "./layers-state.js";
 
 /**
@@ -51,6 +52,7 @@ export function renderDetailUiLayer(sc) {
               <i class="fa-solid fa-code"></i> <code>&lt;${esc(f.ui.c)}&gt;</code>
             </div>
           ` : ""}
+          ${renderFieldStoryChips(sc, f)}
         </div>
       </div>
     `;
@@ -187,6 +189,7 @@ export function renderDetailRulesLayer(sc) {
               </button>
             `).join("")}
           </div>
+          ${renderRuleDocChips(r)}
           ${r.src ? `<span class="card-source-ref" title="${esc(r.src)}"><i class="fa-regular fa-file-lines"></i> <code>${esc(r.src)}</code></span>` : ""}
         </div>
       </div>

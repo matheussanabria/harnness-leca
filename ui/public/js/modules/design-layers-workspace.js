@@ -12,7 +12,11 @@ import { renderLayersRightColumn } from "./design-layers/layers-right-content.js
 import { mountPrototypeFrames } from "./design-layers/layers-screen-replica-proto.js";
 import { refreshFocusInPlace } from "./design-layers-focus.js";
 import { renderStoryFilesPanel } from "./design-layers/layers-story-files.js";
+import { renderScreenDocsBar } from "./design-layers/layers-docs-refs.js";
+import { openDocFromLocation } from "./design-layers/docs/docs-panel.js";
 import { hydrateLayersState, persistLayersState, isLayersStateHydrated } from "./design-layers-state.js";
+
+let docLocationChecked = false;
 
 /**
  * Retorna a tela atualmente selecionada.
@@ -61,6 +65,8 @@ export function renderLayersWorkspace(container, projectSlug, screensData) {
       <!-- 3. Barra de Navegação pelas 6 Camadas -->
       ${renderLayersTabsNav(cur)}
 
+      ${renderScreenDocsBar(cur)}
+
       <!-- 4. Layout Principal: Duas Colunas (Esquerda 46% | Direita 54%) -->
       <div class="layers-two-columns-layout">
         <!-- Coluna Esquerda (~46%): Réplica Visual e Interativa da Tela -->
@@ -79,11 +85,23 @@ export function renderLayersWorkspace(container, projectSlug, screensData) {
     </div>
   `;
   mountPrototypeFrames(container);
+  if (!docLocationChecked) {
+    docLocationChecked = true;
+    openDocFromLocation();
+  }
 
   if (!isLayersStateHydrated()) {
     hydrateLayersState().then((changed) => {
       if (changed) renderLayersWorkspace(container, projectSlug, screensData);
     });
+  }
+}
+
+/** Redraws the map in place when it is on screen (used after late data such as the docs index). */
+export function refreshLayersWorkspace() {
+  const container = typeof document !== "undefined" ? $("designViewContainer") : null;
+  if (container && dls.currentScreensData && container.querySelector(".layers-workspace-canvas")) {
+    renderLayersWorkspace(container, "", dls.currentScreensData);
   }
 }
 
