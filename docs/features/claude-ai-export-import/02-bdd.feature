@@ -40,25 +40,26 @@ Funcionalidade: Importar conversas do export do claude.ai pela interface
     Entao a lista de atividade do projeto recarrega com as conversas novas
 
   @auto
-  Cenario: CP-07 O manifest baixa so os zips de conversas e de Design, uma vez
-    Dado um manifest do export com memories, conversations e design_chats
-    Quando o servidor prepara o export duas vezes
-    Entao so conversations-000.zip e design_chats-000.zip sao baixados e nenhum link e usado de novo
+  Cenario: CP-07 Manifest sem os zips devolve so os dois links de chat e nao acessa a rede
+    Dado um manifest com memories, design_chats e conversations e nenhum zip salvo
+    Quando o usuario le o export
+    Entao o dialogo recebe os links de conversations-000.zip e design_chats-000.zip para baixar no navegador
+    E importar antes de baixar e recusado com mensagem
 
   @auto
-  Cenario: CP-08 O dialogo aceita o caminho do manifest
-    Dado o caminho do manifest-*.json, com ou sem aspas
-    Quando o usuario le o export e importa uma conversa
-    Entao a lista mostra as conversas do export e a importacao grava a conversa no projeto
+  Cenario: CP-08 Zips salvos pelo navegador sao encontrados e os antigos ignorados
+    Dado um conversations-000.zip antigo e os zips novos salvos depois da geracao do manifest, um deles como "conversations-000 (1).zip"
+    Quando o usuario le o export de novo
+    Entao a lista usa os zips novos e a importacao grava a conversa no projeto
 
   @auto
   Cenario: CP-09 O zip que embrulha o manifest tambem e aceito
     Dado o manifest-*.zip que contem o manifest-*.json
-    Quando o servidor prepara o export
-    Entao os zips de conversas e de Design sao baixados
+    Quando o export e lido
+    Entao os links de conversas e de Design sao listados
 
   @auto
-  Cenario: CP-10 Link recusado, expirado, que nao e zip ou fora do claude.ai falha com mensagem
-    Dado um link que responde 403, uma pagina HTML, um conteudo que nao e zip ou um host fora do claude.ai
-    Quando o servidor tenta baixar
-    Entao o erro explica o motivo, sugere gerar um export novo quando passou de 24 h e nenhum arquivo parcial fica no cache
+  Cenario: CP-10 Link fora do claude.ai e recusado
+    Dado um manifest com link de outro host
+    Quando o usuario le o export
+    Entao o servidor responde 400 explicando que o link esta fora do claude.ai

@@ -1,20 +1,20 @@
 // @ts-check
-// claude.ai export manifest (manifest-<...>.json, or the manifest-<...>.zip that wraps it): reads it and downloads
-// only the chat zips (categories "conversations" and "design_chats") into a cache folder. Export links may stop
-// working once used, so a file that was downloaded completely is never fetched again.
+// claude.ai export manifest (manifest-<...>.json, or the manifest-<...>.zip that wraps it).
+// The export links only work inside the user's logged-in browser (the server gets HTTP 403), so the server never
+// downloads them: the UI opens each link in the browser, the browser saves the zip (usually to Downloads), and
+// collectManifest() then finds those zips - next to the manifest or in ~/Downloads, saved after the manifest was
+// generated (older exports with the same name are ignored; "conversations-000 (1).zip" also counts).
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const crypto = require("crypto");
-const { Readable, Transform } = require("stream");
-const { pipeline } = require("stream/promises");
 const { readZipEntry } = require("./zip-read");
 
 const CACHE_ROOT = path.join(os.tmpdir(), "harness-claude-ai-export");
 const WANTED = new Set(["conversations", "design_chats"]);
-const MAX_BYTES = 2 * 1024 * 1024 * 1024;
 const NAME_RE = /^manifest-.+\.(json|zip)$/i;
 const FILE_RE = /^(conversations|design_chats)-\d+\.zip$/i;
+const SKEW_MS = 10 * 60 * 1000; // clock tolerance between the manifest timestamp and the file mtime
 
 const clean = (input) => String(input || "").trim().replace(/^"(.*)"$/, "$1");
 
@@ -38,62 +38,69 @@ function readManifest(input) {
     const url = new URL(String(f.export_url || ""));
     if (url.protocol !== "https:" || url.hostname !== "claude.ai") throw new Error(`Link fora do claude.ai recusado: ${url.hostname}`);
     if (!FILE_RE.test(String(f.filename))) throw new Error(`Nome de arquivo inesperado no manifest: ${f.filename}`);
-    return { url: url.href, filename: String(f.filename), category: f.category };
+    return { url: url.href, filename: String(f.filename), category: String(f.category) };
   });
   if (!files.length) throw new Error("O manifest não lista conversations nem design_chats.");
+  const createdMs = Date.parse(m.created_at);
   const key = crypto.createHash("sha1").update(`${m.created_at}|${files.map((f) => f.url).join("|")}`).digest("hex").slice(0, 16);
-  return { createdAt: String(m.created_at || ""), files, dir: path.join(CACHE_ROOT, `manifest-${key}`) };
+  return {
+    createdAt: String(m.created_at || ""),
+    createdMs: Number.isFinite(createdMs) ? createdMs : 0,
+    files,
+    folder: path.dirname(p),
+    dir: path.join(CACHE_ROOT, `manifest-${key}`),
+  };
 }
 
-/** Folder that holds the manifest's downloaded zips, or null when they are not all there yet. */
+/** Newest zip for `filename` saved after `sinceMs` in any of `folders` (browser renames: "name (1).zip"). */
+function findSaved(filename, folders, sinceMs) {
+  const stem = filename.replace(/\.zip$/i, "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`^${stem}( \\(\\d+\\))?\\.zip$`, "i");
+  let best = null;
+  for (const folder of folders) {
+    let names = [];
+    try { names = fs.readdirSync(folder); } catch { continue; }
+    for (const n of names) {
+      if (!re.test(n)) continue;
+      const full = path.join(folder, n);
+      const st = fs.statSync(full);
+      if (!st.isFile() || st.mtimeMs < sinceMs - SKEW_MS) continue;
+      if (!best || st.mtimeMs > best.mtimeMs) best = { path: full, mtimeMs: st.mtimeMs };
+    }
+  }
+  return best && best.path;
+}
+
+/**
+ * Finds the manifest's chat zips saved by the browser and copies them into the cache under their canonical names.
+ * @param {string} input
+ * @param {{ folders?: string[] }} [opts] where to look (default: next to the manifest and ~/Downloads)
+ * @returns {{ ready: boolean, dir: string, found: string[], missing: { filename: string, url: string }[] }}
+ */
+function collectManifest(input, { folders } = {}) {
+  const m = readManifest(input);
+  const where = folders || [...new Set([m.folder, path.join(os.homedir(), "Downloads")])];
+  const found = [], missing = [];
+  for (const f of m.files) {
+    const target = path.join(m.dir, f.filename);
+    const src = findSaved(f.filename, where, m.createdMs);
+    if (src) {
+      fs.mkdirSync(m.dir, { recursive: true });
+      const s = fs.statSync(src);
+      const t = fs.existsSync(target) ? fs.statSync(target) : null;
+      if (!t || t.size !== s.size || t.mtimeMs < s.mtimeMs) fs.copyFileSync(src, target);
+      found.push(src);
+    } else if (!fs.existsSync(target)) {
+      missing.push({ filename: f.filename, url: f.url });
+    }
+  }
+  return { ready: !missing.length, dir: m.dir, found, missing };
+}
+
+/** Cache folder with all the manifest's zips, or null when some are still missing. */
 function manifestDir(input) {
   const { files, dir } = readManifest(input);
   return files.every((f) => fs.existsSync(path.join(dir, f.filename))) ? dir : null;
 }
 
-function httpError(status, createdAt) {
-  const age = createdAt ? (Date.now() - Date.parse(createdAt)) / 3600000 : 0;
-  const late = age > 24 ? ` O manifest foi gerado há ${Math.floor(age)} h e os links valem 24 h: gere um export novo.` : "";
-  if (status === 401 || status === 403) return `O claude.ai recusou o download (HTTP ${status}).${late || " O link pode exigir login ou já ter sido usado: abra-o no navegador e aponte para a pasta com os zips."}`;
-  if (status === 404 || status === 410) return `Link expirado ou já usado (HTTP ${status}).${late}`;
-  return `Falha no download (HTTP ${status}).${late}`;
-}
-
-/**
- * Downloads the chat zips listed in the manifest (skipping the ones already cached) and returns the cache folder.
- * @param {string} input
- * @param {{ fetchImpl?: typeof fetch, log?: (line: string) => void }} [opts]
- */
-async function downloadManifest(input, { fetchImpl = fetch, log = () => {} } = {}) {
-  const { files, dir, createdAt } = readManifest(input);
-  fs.mkdirSync(dir, { recursive: true });
-  for (const f of files) {
-    const out = path.join(dir, f.filename);
-    if (fs.existsSync(out)) { log(`já baixado: ${f.filename}`); continue; }
-    const res = await fetchImpl(f.url, { redirect: "follow" });
-    if (!res.ok || !res.body) throw new Error(`${f.filename}: ${httpError(res.status, createdAt)}`);
-    const type = String(res.headers.get("content-type") || "");
-    if (type.includes("text/html")) throw new Error(`${f.filename}: o claude.ai devolveu uma página em vez do zip (login ou link expirado). Abra o link no navegador e aponte para a pasta com os zips.`);
-    const part = `${out}.part`;
-    let bytes = 0;
-    const counter = new Transform({
-      transform(chunk, _enc, cb) { bytes += chunk.length; cb(bytes > MAX_BYTES ? new Error("arquivo acima de 2 GB") : null, chunk); },
-    });
-    try {
-      await pipeline(Readable.fromWeb(/** @type {any} */ (res.body)), counter, fs.createWriteStream(part));
-      const head = Buffer.alloc(2);
-      const fd = fs.openSync(part, "r");
-      fs.readSync(fd, head, 0, 2, 0);
-      fs.closeSync(fd);
-      if (head.toString("latin1") !== "PK") throw new Error(`${f.filename}: o conteúdo baixado não é um zip.`);
-      fs.renameSync(part, out);
-    } catch (err) {
-      fs.rmSync(part, { force: true });
-      throw err;
-    }
-    log(`baixado: ${f.filename} (${(bytes / 1048576).toFixed(1)} MB)`);
-  }
-  return dir;
-}
-
-module.exports = { isManifest, readManifest, manifestDir, downloadManifest };
+module.exports = { isManifest, readManifest, collectManifest, manifestDir };

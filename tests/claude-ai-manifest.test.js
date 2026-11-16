@@ -1,4 +1,5 @@
-// claude.ai export manifest: download of the chat zips (fake fetch, no network) and import from the manifest path.
+// claude.ai export manifest: the server never downloads the links (they need the user's browser session); it lists
+// the missing ones and then picks up the zips the browser saved, ignoring older exports with the same name.
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
@@ -8,96 +9,94 @@ const { Readable } = require("stream");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-caim-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+// Fake home, so ~/Downloads of the machine running the tests is never scanned.
+const FAKE_HOME = path.join(TMP_ROOT, "home");
+fs.mkdirSync(path.join(FAKE_HOME, "Downloads"), { recursive: true });
+process.env.USERPROFILE = FAKE_HOME;
+process.env.HOME = FAKE_HOME;
 for (const p of ["_template/chats", "demo/chats"]) fs.mkdirSync(path.join(TMP_ROOT, "projects", p), { recursive: true });
-test.after(() => fs.rmSync(TMP_ROOT, { recursive: true, force: true }));
+const realFetch = global.fetch;
+global.fetch = () => { throw new Error("the server must not fetch export links"); };
+test.after(() => { global.fetch = realFetch; fs.rmSync(TMP_ROOT, { recursive: true, force: true }); });
 
 const { IMPORTERS } = require("./helpers/fixtures");
 const { makeZip } = require("./helpers/zip");
 const manifest = require("../tools/lib/claude-ai-manifest");
 const ctrl = require("../ui/server/controllers/claude-ai-import.controller");
 
-const URL_BASE = "https://claude.ai/export/x/download/";
-
-/** Fixture export zipped in memory plus a manifest pointing at fake claude.ai links. */
-function setup(t, { createdAt = new Date().toISOString(), host = "claude.ai" } = {}) {
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), "caim-home-"));
-  IMPORTERS["claude-ai"].make(home, "Conversa via manifest");
-  const src = path.join(home, "export");
-  const designName = fs.readdirSync(path.join(src, "design_chats"))[0];
-  makeZip(path.join(home, "z", "c.zip"), { "conversations.json": fs.readFileSync(path.join(src, "conversations.json")) });
-  makeZip(path.join(home, "z", "d.zip"), { [designName]: fs.readFileSync(path.join(src, "design_chats", designName)) });
-  const zips = { conv: fs.readFileSync(path.join(home, "z", "c.zip")), design: fs.readFileSync(path.join(home, "z", "d.zip")) };
+/** A manifest folder with the fixture export ready to be "downloaded" by the test. */
+function setup(t, { host = "claude.ai" } = {}) {
+  const folder = fs.mkdtempSync(path.join(TMP_ROOT, "dl-"));
+  const src = path.join(folder, "_src");
+  IMPORTERS["claude-ai"].make(src, "Conversa via manifest");
+  const designName = fs.readdirSync(path.join(src, "export", "design_chats"))[0];
   const file = (category, id, filename) => ({ category, part: 0, filename, export_url: `https://${host}/export/x/download/${id}` });
-  const m = { created_at: createdAt, version: "1.0", data_files: [
-    file("memories", "mem", "memories-000.zip"), file("conversations", "conv", "conversations-000.zip"), file("design_chats", "design", "design_chats-000.zip"),
+  const m = { created_at: new Date(Date.now() - 60000).toISOString(), version: "1.0", data_files: [
+    file("memories", "mem", "memories-000.zip"), file("design_chats", "design", "design_chats-000.zip"), file("conversations", "conv", "conversations-000.zip"),
   ] };
-  const mpath = path.join(home, `manifest-test-${Date.now()}-${Math.random().toString(16).slice(2)}.json`);
+  const mpath = path.join(folder, `manifest-${path.basename(folder)}.json`);
   fs.writeFileSync(mpath, JSON.stringify(m));
-  t.after(() => {
-    try { fs.rmSync(manifest.readManifest(mpath).dir, { recursive: true, force: true }); } catch { /* invalid manifest */ }
-    fs.rmSync(home, { recursive: true, force: true });
-  });
-  const calls = [];
-  const fetchImpl = async (url) => {
-    calls.push(url);
-    const id = url.slice(URL_BASE.length);
-    return new Response(Readable.toWeb(Readable.from([zips[id]])), { status: 200, headers: { "content-type": "application/zip" } });
+  const save = (name, kind) => {
+    const out = path.join(folder, name);
+    if (kind === "conv") makeZip(out, { "conversations.json": fs.readFileSync(path.join(src, "export", "conversations.json")) });
+    else makeZip(out, { [designName]: fs.readFileSync(path.join(src, "export", "design_chats", designName)) });
+    return out;
   };
-  return { home, mpath, calls, fetchImpl };
+  t.after(() => { try { fs.rmSync(manifest.readManifest(mpath).dir, { recursive: true, force: true }); } catch { /* foreign host */ } });
+  return { folder, mpath, save };
 }
 
-test("CP-07: the manifest downloads only the conversations and design zips, once", async (t) => {
-  const { mpath, calls, fetchImpl } = setup(t);
-  assert.equal(manifest.isManifest(mpath), true);
-  assert.equal(manifest.manifestDir(mpath), null);
-  const dir = await manifest.downloadManifest(mpath, { fetchImpl });
-  assert.deepEqual(calls.map((u) => u.slice(URL_BASE.length)).sort(), ["conv", "design"]);
-  assert.deepEqual(fs.readdirSync(dir).sort(), ["conversations-000.zip", "design_chats-000.zip"]);
-  await manifest.downloadManifest(mpath, { fetchImpl });
-  assert.equal(calls.length, 2, "a cached file is never fetched again (links may be single-use)");
+async function call(handler, body, params = []) {
+  const res = { code: 0, body: null, headersSent: false, writableEnded: false,
+    writeHead(c) { this.code = c; }, end(b) { this.body = JSON.parse(String(b)); } };
+  await handler({ req: Readable.from([JSON.stringify(body)]), res, params });
+  return res;
+}
+
+test("CP-07: a manifest without the zips returns only the two chat links and fetches nothing", async (t) => {
+  const { mpath } = setup(t);
+  const r = await call(ctrl.apiClaudeAiList, { exportPath: mpath });
+  assert.equal(r.code, 200);
+  assert.equal(r.body.needsDownload, true);
+  assert.deepEqual(r.body.missing.map((m) => m.filename).sort(), ["conversations-000.zip", "design_chats-000.zip"]);
+  assert.ok(r.body.missing.every((m) => m.url.startsWith("https://claude.ai/")));
+  const imp = await call(ctrl.apiClaudeAiImport, { exportPath: mpath, ids: ["aaaaaaaa"] }, ["demo"]);
+  assert.equal(imp.code, 400);
+  assert.match(imp.body.error, /navegador/);
 });
 
-test("CP-08: the dialog accepts the manifest path (also quoted) and imports from it", async (t) => {
-  const { mpath, fetchImpl } = setup(t);
-  ctrl.deps.fetch = fetchImpl;
-  t.after(() => { ctrl.deps.fetch = (...a) => fetch(...a); });
-  const call = async (handler, body, params = []) => {
-    const res = { code: 0, body: null, headersSent: false, writableEnded: false,
-      writeHead(c) { this.code = c; }, end(b) { this.body = JSON.parse(String(b)); } };
-    await handler({ req: Readable.from([JSON.stringify(body)]), res, params });
-    return res;
-  };
-  const list = await call(ctrl.apiClaudeAiList, { exportPath: `"${mpath}"` });
-  assert.equal(list.code, 200, JSON.stringify(list.body));
-  assert.equal(list.body.total, 2);
-  const id = list.body.items.find((i) => i.kind === "chat").id;
+test("CP-08: zips saved by the browser (also renamed with (1)) are found; older ones are ignored", async (t) => {
+  const { mpath, save } = setup(t);
+  const old = save("conversations-000.zip", "conv");
+  const past = new Date(Date.now() - 30 * 24 * 3600000);
+  fs.utimesSync(old, past, past);
+  save("design_chats-000.zip", "design");
+  let r = await call(ctrl.apiClaudeAiList, { exportPath: mpath });
+  assert.deepEqual(r.body.missing.map((m) => m.filename), ["conversations-000.zip"], "old export zip does not count");
+
+  save("conversations-000 (1).zip", "conv");
+  r = await call(ctrl.apiClaudeAiList, { exportPath: `"${mpath}"` });
+  assert.equal(r.code, 200, JSON.stringify(r.body));
+  assert.equal(r.body.needsDownload, undefined);
+  assert.equal(r.body.total, 2);
+  const id = r.body.items.find((i) => i.kind === "chat").id;
   const imp = await call(ctrl.apiClaudeAiImport, { exportPath: mpath, ids: [id] }, ["demo"]);
   assert.equal(imp.code, 200, JSON.stringify(imp.body));
   assert.equal(imp.body.nova, 1);
 });
 
-test("CP-09: the manifest zip wrapper is accepted", async (t) => {
-  const { home, mpath, fetchImpl } = setup(t);
-  const wrapped = path.join(home, path.basename(mpath).replace(/\.json$/, ".zip"));
+test("CP-09: the manifest zip wrapper is accepted", (t) => {
+  const { folder, mpath } = setup(t);
+  const wrapped = path.join(folder, path.basename(mpath).replace(/\.json$/, ".zip"));
   makeZip(wrapped, { [path.basename(mpath)]: fs.readFileSync(mpath) });
   assert.equal(manifest.isManifest(wrapped), true);
-  const dir = await manifest.downloadManifest(wrapped, { fetchImpl });
-  assert.equal(fs.readdirSync(dir).length, 2);
+  assert.equal(manifest.collectManifest(wrapped).missing.length, 2);
 });
 
-test("CP-10: refused, expired, non-zip or foreign links fail with a readable message and leave no file", async (t) => {
-  const old = setup(t, { createdAt: new Date(Date.now() - 48 * 3600000).toISOString() });
-  const deny = async () => new Response("no", { status: 403 });
-  await assert.rejects(manifest.downloadManifest(old.mpath, { fetchImpl: deny }), /HTTP 403.*gere um export novo/);
-  assert.equal(manifest.manifestDir(old.mpath), null);
-
-  const html = setup(t);
-  const page = async () => new Response("<html></html>", { status: 200, headers: { "content-type": "text/html" } });
-  await assert.rejects(manifest.downloadManifest(html.mpath, { fetchImpl: page }), /página em vez do zip/);
-  const junk = async () => new Response("not a zip", { status: 200, headers: { "content-type": "application/octet-stream" } });
-  await assert.rejects(manifest.downloadManifest(html.mpath, { fetchImpl: junk }), /não é um zip/);
-  assert.deepEqual(fs.readdirSync(manifest.readManifest(html.mpath).dir), []);
-
-  const foreign = setup(t, { host: "evil.example" });
-  assert.throws(() => manifest.readManifest(foreign.mpath), /fora do claude.ai/);
+test("CP-10: links outside claude.ai are refused with a readable message", async (t) => {
+  const { mpath } = setup(t, { host: "evil.example" });
+  assert.throws(() => manifest.readManifest(mpath), /fora do claude.ai/);
+  const r = await call(ctrl.apiClaudeAiList, { exportPath: mpath });
+  assert.equal(r.code, 400);
+  assert.match(r.body.error, /fora do claude.ai/);
 });

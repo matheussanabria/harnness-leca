@@ -53,3 +53,5 @@
 @media (max-width: 560px) {
   .cai-meta { display: none; }
 }
+.cai-dls { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.cai-dl { text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
