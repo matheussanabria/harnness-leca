@@ -27,6 +27,7 @@ const { renderChat } = require("./lib/chat-format");
 const { writeChat } = require("./lib/chat-store");
 const { flag, opt, CliError, runAsScript } = require("./lib/cli");
 const { MAX_FILE } = require("./lib/limits");
+const { locateExport } = require("./lib/claude-ai-export");
 
 const oneLine = (s, n = 120) => String(s || "").replace(/\s+/g, " ").slice(0, n);
 const strip = (t) => String(t || "")
@@ -36,15 +37,6 @@ const resultText = (c) =>
 const hint = (i) => oneLine((i && (i.file_path || i.path || i.title || i.command || i.pattern || i.query || i.url || i.prompt || i.description || i.id)) || "");
 
 // ---------- leitura do export ----------
-function findIn(base, rel, depth = 3) {
-  const direct = path.join(base, rel);
-  if (fs.existsSync(direct)) return direct;
-  if (depth <= 0) return null;
-  let entries = [];
-  try { entries = fs.readdirSync(base, { withFileTypes: true }).filter((d) => d.isDirectory()); } catch { return null; }
-  for (const d of entries) { const r = findIn(path.join(base, d.name), rel, depth - 1); if (r) return r; }
-  return null;
-}
 function readJson(f, io) {
   const st = fs.lstatSync(f);
   if (!st.isFile() || st.size > MAX_FILE) { io.log(`ignorado (symlink ou > 200 MB): ${f}`); return null; }
@@ -119,6 +111,20 @@ function fromDesign(d) {
   return { id: d.uuid, kind: "design", title: d.title || "", project: (d.project && d.project.name) || "", created: d.created_at, updated: d.updated_at, summary: "", turns };
 }
 
+// Lê o export (pasta extraída, pasta com os zips ou um dos zips) e devolve os itens normalizados, sem duplicar ids
+// quando o mesmo export aparece em mais de uma parte.
+function loadItems(exportArg, io = console) {
+  let found;
+  try { found = locateExport(exportArg); } catch (e) { throw new CliError(e.message); }
+  const byId = new Map();
+  const add = (it) => { const prev = byId.get(it.id); if (!prev || String(it.updated) > String(prev.updated)) byId.set(it.id, it); };
+  for (const f of found.convFiles) { const j = readJson(f, io); if (Array.isArray(j)) for (const c of j) if (c && c.uuid) add(fromConversation(c)); }
+  for (const dir of found.designDirs) {
+    for (const f of fs.readdirSync(dir).filter((n) => n.endsWith(".json"))) { const j = readJson(path.join(dir, f), io); if (j && j.uuid) add(fromDesign(j)); }
+  }
+  return [...byId.values()];
+}
+
 const label = (it) => (it.title && it.title !== "Chat" ? it.title : "") || (it.turns.find((t) => t.who === "user" && t.parts.some((p) => p.kind === "text"))?.parts.find((p) => p.kind === "text").text.replace(/\s+/g, " ").slice(0, 70) || "Sem título");
 
 // ---------- render ----------
@@ -147,15 +153,7 @@ function run(argv, io = console) {
   // ---------- leitura do export ----------
   const exportArg = get("export");
   if (!exportArg) throw new CliError("Informe --export <pasta> (a pasta extraída do export do claude.ai). Veja o cabeçalho do arquivo.");
-  const base = path.resolve(exportArg);
-  if (!fs.existsSync(base)) throw new CliError(`Pasta não encontrada: ${base}`);
-  const convFile = findIn(base, "conversations.json");
-  const designDir = findIn(base, "design_chats");
-  if (!convFile && !designDir) throw new CliError("Não achei conversations.json nem design_chats/ dentro da pasta informada.");
-
-  const items = [];
-  if (convFile) { const j = readJson(convFile, io); if (Array.isArray(j)) for (const c of j) items.push(fromConversation(c)); }
-  if (designDir) for (const f of fs.readdirSync(designDir).filter((n) => n.endsWith(".json"))) { const j = readJson(path.join(designDir, f), io); if (j) items.push(fromDesign(j)); }
+  const items = loadItems(exportArg, io);
 
   // ---------- --list ----------
   if (has("list")) {
@@ -211,5 +209,5 @@ function run(argv, io = console) {
   return result;
 }
 
-module.exports = { run };
+module.exports = { run, loadItems, label };
 if (require.main === module) runAsScript(run);
