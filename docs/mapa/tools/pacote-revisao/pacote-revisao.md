@@ -29,10 +29,10 @@ Manual facts live in the config, each with `desde` and `motivo`: `statusForcado`
 | `tools/pacote-revisao/board-html.js` | Renders the board HTML from the template with safe embedded JSON. |
 | `tools/pacote-revisao/board-template.html` | Jira-style board: columns by status, cards with epic chip and assignee, side panel with files and field links. |
 | `tools/pacote-revisao/map-data.js` | Screens and prototype HTML as the Harness serves them, applies `correcoes` and `esconderNoPrototipo`. |
-| `tools/pacote-revisao/map-bundle.js` | Vite bundle of the Harness layers module into one HTML file with the back-to-board bar. |
+| `tools/pacote-revisao/map-bundle.js` | Vite bundle of the Harness layers module into one HTML file with the back-to-board bar; inlines `mermaid.min.js` (pinned version) when an embedded document has a diagram (`mermaidScript`). |
 | `tools/pacote-revisao/map-entry.template.js` | Browser entry of the bundle: embedded data, hash links `#screen/field` and `#doc/<path>#<anchor>`, no network. |
 | `tools/pacote-revisao/docs-data.js` | Documentation reader in the package: embeds `<pasta>/doc` (confined, no secrets per the project `.gitignore`, no Postman), indexes the whole project doc/, aligns path case, lists cited documents left out (`DOC_FORA_DO_PACOTE`). |
-| `tests/pacote-revisao-docs.test.js` | CP-D1..6: what is embedded, case alignment, documents left out, the check warning, "não incluído no pacote" in the reader and chips, manifest groups. |
+| `tests/pacote-revisao-docs.test.js` | CP-D1..7 (D7: Mermaid inline only with diagrams, no raw `</script>`): what is embedded, case alignment, documents left out, the check warning, "não incluído no pacote" in the reader and chips, manifest groups. |
 | `tools/pacote-revisao/manifest.js` | Source fingerprints written at build time and compared by `check`. |
 | `tools/pacote-revisao/check.js` | The staleness findings and the selector matcher (id, class, attribute, `:has`, alternatives). |
 | `tests/pacote-revisao.test.js` | CP-01..11: config, corrections, check findings, selector matcher, safe board HTML, CLI usage. |

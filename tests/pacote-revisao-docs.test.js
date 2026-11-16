@@ -15,6 +15,7 @@ const require = createRequire(import.meta.url);
 const { collectDocs, alignPaths } = require("../tools/pacote-revisao/docs-data.js");
 const { runCheck } = require("../tools/pacote-revisao/check.js");
 const { fingerprint } = require("../tools/pacote-revisao/manifest.js");
+const { mermaidScript } = require("../tools/pacote-revisao/map-bundle.js");
 
 function write(root, rel, text) {
   const file = path.join(root, rel);
@@ -98,4 +99,14 @@ test("CP-D6: the manifest notices a change in the embedded documentation", () =>
   const after = fingerprint(args);
   assert.notEqual(after["documentacao embutida no pacote"], before["documentacao embutida no pacote"]);
   assert.equal(after["documentacao do projeto (indice de referencias)"], before["documentacao do projeto (indice de referencias)"]);
+});
+
+test("CP-D7: Mermaid goes inline only when an embedded document has a diagram, with no raw </script>", () => {
+  assert.equal(mermaidScript(null), "");
+  assert.equal(mermaidScript({ files: { "a.md": "# Sem diagrama\n```js\nx\n```\n" } }), "");
+  const tag = mermaidScript({ files: { "a.md": "# Fluxo\r\n```mermaid\r\ngraph TD; A-->B\r\n```\r\n" } });
+  assert.ok(tag.startsWith("<script>") && tag.endsWith("</script>"));
+  assert.ok(tag.length > 1024 * 1024, "the whole library, not a link to a CDN");
+  assert.equal((tag.match(/<\/script/gi) || []).length, 1, "only the closing tag");
+  assert.ok(!/src=["']https?:/i.test(tag));
 });

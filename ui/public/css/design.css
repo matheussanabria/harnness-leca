@@ -43,3 +43,6 @@
 @import "./design/38-layers-proto-frame.css";
 @import "./design/39-scrum-review-package.css";
 @import "./design/40-layers-docs.css";
+/* Cards de diagrama Mermaid do leitor de documentacao (mesmos do chat e do catalogo) */
+@import "./chat/05-chat-code-cards.css";
+@import "./shared/mermaid.css";

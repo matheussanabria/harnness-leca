@@ -50,11 +50,13 @@ test("render: wikilinks resolve by folder and by path suffix; unknown ones stay 
   assert.match(html, /foto\.png \(anexo não exibido\)/);
 });
 
-test("render: images are not loaded and Mermaid stays as code", () => {
-  const html = render("![diagrama](img/x.png)\n\n```mermaid\ngraph TD; A-->B\n```");
+test("render: images are not loaded; Mermaid becomes the diagram card with the escaped source", () => {
+  const html = render("![diagrama](img/x.png)\n\n```mermaid\ngraph TD; A-->B[\"<script>alert(1)</script>\"]\n```");
   assert.ok(!html.includes("<img"));
-  assert.match(html, /Diagrama Mermaid/);
-  assert.match(html, /data-lang="mermaid"><code>graph TD; A--&gt;B/);
+  assert.match(html, /class="code-block-card mermaid-card"/);
+  assert.match(html, /<pre class="mermaid" data-source="graph TD; A--&gt;B/);
+  assert.match(html, /mermaid-raw-source[^>]*><code>graph TD; A--&gt;B/, "the source stays one click away");
+  assert.ok(!html.includes("<script>"), "diagram text is escaped before Mermaid sees it");
 });
 
 test("render: heading ids keep accents and repeat with a suffix; frontmatter becomes properties", () => {

@@ -1,49 +1,57 @@
 // @ts-check
 // Mermaid Dynamic Renderer with Dark Theme and Safe Strict Execution (ADR-014)
+import { esc } from "./dom.js";
 
 let mermaidLoadingPromise = null;
+let mermaidInitialized = false;
+
+/** Same settings wherever the library comes from (loaded on demand, or embedded in a static page). */
+function initializeMermaid(mermaid) {
+  if (mermaidInitialized) return;
+  mermaidInitialized = true;
+  try {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      fontFamily: "system-ui, -apple-system, sans-serif",
+      themeVariables: {
+        darkMode: true,
+        background: "#14171f",
+        primaryColor: "#1e293b",
+        primaryTextColor: "#f1f5f9",
+        primaryBorderColor: "#3b82f6",
+        lineColor: "#64748b",
+        secondaryColor: "#0f172a",
+        tertiaryColor: "#1e1e2e",
+      },
+    });
+  } catch {
+    // ignore already initialized
+  }
+}
 
 /**
  * Garante que a biblioteca Mermaid esteja carregada no navegador.
- * Carrega dinamicamente /js/vendor/mermaid.min.js sob demanda.
+ * Carrega dinamicamente /js/vendor/mermaid.min.js sob demanda. A static page (the review package, file://) may
+ * embed the library itself: then window.mermaid already exists and only the settings are applied.
  * @returns {Promise<any>}
  */
 export function ensureMermaid() {
   if (typeof window === "undefined") return Promise.resolve(null);
-  if (window.mermaid) return Promise.resolve(window.mermaid);
+  if (window.mermaid) {
+    initializeMermaid(window.mermaid);
+    return Promise.resolve(window.mermaid);
+  }
   if (mermaidLoadingPromise) return mermaidLoadingPromise;
 
   mermaidLoadingPromise = new Promise((resolve, reject) => {
-    const existing = document.querySelector('script[src*="mermaid"]');
-    if (existing && window.mermaid) {
-      resolve(window.mermaid);
-      return;
-    }
     const script = document.createElement("script");
     script.src = "/js/vendor/mermaid.min.js";
     script.async = true;
     script.onload = () => {
       if (window.mermaid) {
-        try {
-          window.mermaid.initialize({
-            startOnLoad: false,
-            theme: "dark",
-            securityLevel: "strict",
-            fontFamily: "system-ui, -apple-system, sans-serif",
-            themeVariables: {
-              darkMode: true,
-              background: "#14171f",
-              primaryColor: "#1e293b",
-              primaryTextColor: "#f1f5f9",
-              primaryBorderColor: "#3b82f6",
-              lineColor: "#64748b",
-              secondaryColor: "#0f172a",
-              tertiaryColor: "#1e1e2e",
-            },
-          });
-        } catch {
-          // ignore already initialized
-        }
+        initializeMermaid(window.mermaid);
         resolve(window.mermaid);
       } else {
         reject(new Error("Mermaid library failed to initialize"));
@@ -87,8 +95,8 @@ export async function renderMermaidInContainer(root) {
       } catch (err) {
         el.innerHTML =
           `<div class="mermaid-error"><i class="fa-solid fa-triangle-exclamation"></i> ` +
-          `<span>Erro ao renderizar diagrama: ${(err && err.message) || "Sintaxe invalida"}</span></div>` +
-          `<pre class="code-block-content"><code>${rawText}</code></pre>`;
+          `<span>Erro ao renderizar diagrama: ${esc((err && err.message) || "Sintaxe invalida")}</span></div>` +
+          `<pre class="code-block-content"><code>${esc(rawText)}</code></pre>`;
       }
     }
     return processedCount;

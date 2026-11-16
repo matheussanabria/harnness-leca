@@ -21,6 +21,19 @@ const srcdocPlugin = {
   },
 };
 
+/**
+ * Mermaid for the diagrams of the embedded documentation. The package opens from file:// with no server, so the
+ * library (the exact version pinned in package.json) goes inline; only when some embedded document has a diagram.
+ * @param {any} docs embedded documentation (docs-data.js) or null
+ * @returns {string} a <script> tag, or ""
+ */
+function mermaidScript(docs) {
+  const files = (docs && docs.files) || {};
+  if (!Object.values(files).some((text) => /^\s*```\s*mermaid\b/im.test(String(text)))) return "";
+  const lib = require.resolve("mermaid/dist/mermaid.min.js", { paths: [ROOT] });
+  return `<script>${fs.readFileSync(lib, "utf8").replace(/<\/script/gi, "<\\/script")}</script>`;
+}
+
 const BAR_CSS = [
   "html,body{height:auto;overflow:auto}body{margin:0;background:var(--bg,#0f1420)}#designViewContainer{padding:12px 16px 40px}",
   ".retrato-bar{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#171e2e;border-bottom:1px solid #2c3853;padding:8px 16px;font:13px system-ui,sans-serif;color:#9aa7c2}",
@@ -60,6 +73,7 @@ async function renderMapHtml(map, { slug, boardFile }) {
       "<body>",
       `<nav class="retrato-bar" aria-label="Navegação do pacote"><a class="voltar" href="${boardFile}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar ao quadro de histórias</a><span><i class="fa-solid fa-camera" aria-hidden="true"></i> Retrato de ${dia}, sem o Harness</span></nav>`,
       '<div id="designViewContainer"></div>',
+      mermaidScript(docs),
       `<script>${js}</script>`,
       "</body></html>",
     ].join("\n");
@@ -68,4 +82,4 @@ async function renderMapHtml(map, { slug, boardFile }) {
   }
 }
 
-module.exports = { renderMapHtml };
+module.exports = { renderMapHtml, mermaidScript };

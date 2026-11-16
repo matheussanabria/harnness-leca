@@ -1,10 +1,11 @@
 // @ts-check
 // Renders one document of doc/ to safe HTML (pure, no DOM): Markdown with marked (vendored, exact version),
 // YAML and JSON as a numbered code view. Raw HTML is shown as text, javascript:/data: links are dropped,
-// images are not loaded, Mermaid stays as code. Anchors match the server index: headings, rn-<id> on rule
+// images are not loaded, Mermaid becomes a diagram card (rendered by docs-panel.js with securityLevel strict). Anchors match the server index: headings, rn-<id> on rule
 // rows, criterio-<n> on acceptance criteria and L<n> on code lines.
 import { Marked } from "../../../vendor/marked-16.4.2/marked.esm.js";
 import { esc } from "../../../shared/dom.js";
+import { renderMermaidCard } from "../../../shared/markdown-code.js";
 import { joinRelative, resolveWikilink, slugify, rnAnchor, criterionAnchor, lineAnchor } from "./docs-paths.js";
 
 const FRONTMATTER = /^﻿?---\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
@@ -83,8 +84,9 @@ function buildMarked(ctx, seen) {
       },
       code({ text, lang }) {
         const kind = String(lang || "").trim().toLowerCase();
-        const note = kind === "mermaid" ? '<div class="doc-code-note"><i class="fa-solid fa-diagram-project"></i> Diagrama Mermaid, exibido como código</div>' : "";
-        return `${note}<pre class="doc-code-block" data-lang="${esc(kind)}"><code>${esc(text)}</code></pre>\n`;
+        // Mermaid: the Harness diagram card (escaped source; docs-panel.js renders it, "Código" shows the text).
+        if (kind === "mermaid") return `${renderMermaidCard({ content: text })}\n`;
+        return `<pre class="doc-code-block" data-lang="${esc(kind)}"><code>${esc(text)}</code></pre>\n`;
       },
       link({ href, title, tokens }) {
         // @ts-ignore marked binds `this` to the renderer

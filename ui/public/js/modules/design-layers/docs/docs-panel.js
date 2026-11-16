@@ -7,6 +7,7 @@ import { renderDocument } from "./docs-render.js";
 import { docHref, writeDocLocation, parseDocLocation } from "./docs-location.js";
 import { renderDocsNav, renderFeatureView, renderChooser, renderMissing, renderMissingList } from "./docs-panel-views.js";
 import { lineAnchor, criterionAnchor } from "./docs-paths.js";
+import { renderMermaidInContainer } from "../../../shared/mermaid-renderer.js";
 
 /** @typedef {{ type: "doc", path: string, anchor?: string } | { type: "feature", slug: string } | { type: "choose", title: string, items: any[] } | { type: "missing", kind: string, id: string } | { type: "missing-list", screen: string } | { type: "home" }} DocsView */
 
@@ -120,6 +121,10 @@ async function renderView(view) {
       content.innerHTML = `<article class="docs-view docs-md">${html}</article>`;
       setTitle(title, view.path);
       scrollToAnchor(content, view.anchor || "");
+      // Diagrams change the height of the page: once they are drawn, the anchor is brought back into view.
+      if (content.querySelector(".mermaid")) {
+        void renderMermaidInContainer(content).then((n) => { if (n && view.anchor) scrollToAnchor(content, view.anchor); });
+      }
     }
     writeDocLocation(view.path, view.anchor || "");
     return;
