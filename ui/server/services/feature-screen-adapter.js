@@ -41,6 +41,28 @@ function adaptField(field, index) {
   };
 }
 
+const LINK_TYPES = ["navegacao", "chamada"];
+const LINK_VIAS = ["http", "servico"];
+
+/**
+ * Declared links to other screens (`navega`). Items with an unknown type or no target are dropped here; the
+ * gate (tools/rastreio/gates/navega.mjs) is what reports them. A missing `tipo` means navigation (the first
+ * format had no type); `via` only means something on a call.
+ * @param {any} item
+ */
+function adaptLink(item) {
+  const tipo = String(item?.tipo || "navegacao");
+  if (!LINK_TYPES.includes(tipo) || !item?.para) return null;
+  return {
+    tipo,
+    para: String(item.para),
+    campo: item.campo ? String(item.campo) : "",
+    via: tipo === "chamada" && LINK_VIAS.includes(item.via) ? item.via : "",
+    como: String(item.como || ""),
+    evidencia: String(item.evidencia || ""),
+  };
+}
+
 /**
  * @param {any} tela tela do mapa-camadas.json
  * @param {{ slug: string, featureTitle: string }} feature
@@ -60,6 +82,7 @@ function adaptFeatureScreen(tela, feature) {
     resumo: tela.resumo || "",
     fields: list(tela.campos).map(adaptField),
     flow: list(tela.fluxo),
+    navega: list(tela.navega).map(adaptLink).filter(Boolean),
     states: list(tela.estados),
     diffs: list(tela.diferencas).map((d) => ({
       item: d.item, tipo: d.tipo, viewport: d.viewport, proto: d.prototipo, code: d.codigo, st: status(d.st),

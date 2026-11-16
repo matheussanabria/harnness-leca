@@ -7,6 +7,7 @@ const { scanLogicDocsScreens } = require("./project-screens-logic");
 const { scanSistemaFeaturesScreens } = require("./project-screens-sistema");
 const { readFeatureScreens, mergeScreens } = require("./project-screens-features");
 const { attachPrototypes } = require("./project-screens-prototypes");
+const { linkScreens } = require("./screen-links");
 
 /**
  * Cria telas sintéticas a partir de regras.md e memory.md do projeto.
@@ -135,7 +136,7 @@ function getProjectScreens(slug, repoRoot, projectDir) {
           hasNativeCanvas: true,
           nativeCanvasUrl: `/api/project/${encodeURIComponent(slug)}/design/prototype/dis-mapa-camadas/`,
           canvasFile: path.relative(repoRoot, candidate).replace(/\\/g, "/"),
-          screens: attachPrototypes(mergeScreens(parsedScreens, readFeatureScreens(repoRoot)), repoRoot),
+          screens: linkScreens(attachPrototypes(mergeScreens(parsedScreens, readFeatureScreens(repoRoot)), repoRoot)),
         };
       }
     }

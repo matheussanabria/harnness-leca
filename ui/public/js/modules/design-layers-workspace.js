@@ -13,6 +13,7 @@ import { mountPrototypeFrames } from "./design-layers/layers-screen-replica-prot
 import { refreshFocusInPlace } from "./design-layers-focus.js";
 import { renderStoryFilesPanel } from "./design-layers/layers-story-files.js";
 import { renderScreenDocsBar } from "./design-layers/layers-docs-refs.js";
+import { renderScreenLinks } from "./design-layers/layers-screen-links.js";
 import { openDocFromLocation } from "./design-layers/docs/docs-panel.js";
 import { hydrateLayersState, persistLayersState, isLayersStateHydrated } from "./design-layers-state.js";
 
@@ -66,6 +67,7 @@ export function renderLayersWorkspace(container, projectSlug, screensData) {
       ${renderLayersTabsNav(cur)}
 
       ${renderScreenDocsBar(cur)}
+      ${renderScreenLinks(cur)}
 
       <!-- 4. Layout Principal: Duas Colunas (Esquerda 46% | Direita 54%) -->
       <div class="layers-two-columns-layout">

@@ -3,8 +3,8 @@ domain: tools
 module: rastreio
 feature: gate
 summary: Traceability gate G1-G9 (rastreio.yml vs code, tests, Postman, regras.md, layer map), extracted into modular ESM files.
-paths: [.agents/skills/rastreio-adocao/**, .agents/skills/rastreio-migrar-feature/**, tools/lib/audit-layers-rastreio.js, tools/audit-layers-drift.js, tests/audit-layers-rastreio.test.js, tools/rastreio/**, tests/rastreio-gate.test.js, tests/rastreio-config.test.js, tests/helpers/rastreio-fixture.js, tests/fixtures/rastreio/**, docs/rastreio-gate/**]
-keywords: [skill, gate-local, adocao, audit-layers-drift, rastreio, config, pytest, adapter, gate, G1, G2, G3, G4, G5, G6, G7, G8, G9, rastreabilidade, baseline, junit, karma, postman, regras.md]
+paths: [.agents/skills/rastreio-adocao/**, .agents/skills/rastreio-migrar-feature/**, tools/lib/audit-layers-rastreio.js, tools/audit-layers-drift.js, tests/audit-layers-rastreio.test.js, tools/rastreio/**, tests/rastreio-gate.test.js, tests/rastreio-navega.test.js, tests/rastreio-config.test.js, tests/helpers/rastreio-fixture.js, tests/fixtures/rastreio/**, docs/rastreio-gate/**]
+keywords: [skill, gate-local, adocao, navega, telas ligadas, audit-layers-drift, rastreio, config, pytest, adapter, gate, G1, G2, G3, G4, G5, G6, G7, G8, G9, rastreabilidade, baseline, junit, karma, postman, regras.md]
 updated: 2026-11-12
 ---
 # Traceability gate (rastreio)
@@ -32,6 +32,8 @@ Files are `.mjs` (ESM) on purpose: the source and the vendored `js-yaml` are ESM
 | `tools/rastreio/gates/g7.mjs` | G7 reused id (discontinued, wrong prefix, duplicated across features). |
 | `tools/rastreio/gates/status.mjs` | G8 (warning) stale count and G5 placeholder id in `_status.md`. |
 | `tools/rastreio/gates/g9.mjs` | G9 mapa-camadas.json vs rastreio (`rn`, `sem_mapa`, `sem_rn`). |
+| `tools/rastreio/gates/navega.mjs` | G9 links between screens (`telas[].navega`): error for an unknown `tipo`, missing `como` or a `para` that is no screen of any map; warning for an unknown `campo` or a misplaced/missing `via`. Silent without `navega`. |
+| `tests/rastreio-navega.test.js` | The navega checks on the fixture project: valid links (also without `tipo`), each error and each warning. |
 | `tools/rastreio/adapters/index.mjs` | Adapter registry (`junit`, `karma`, `pytest`), per-stack indexes and code-reference resolution by prefix. A new stack is one file plus one registry line. |
 | `tools/rastreio/adapters/junit.mjs` | Java test index and `Class#method` / `method_*` check (entry fields `junit`, `it`). |
 | `tools/rastreio/adapters/pytest.mjs` | Python test index and `file.py#test_name` / `test_*` check (entry field `pytest`). |

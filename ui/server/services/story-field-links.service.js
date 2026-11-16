@@ -23,9 +23,16 @@ function readRows(repoRoot) {
   }
 }
 
-/** Resolve tela e campo no mapa. Sem tela (ou tela fora do mapa) o vinculo fica sem screenId. */
+/**
+ * Resolve tela e campo no mapa. Sem tela (ou tela fora do mapa) o vinculo fica sem screenId.
+ * With `funcionalidade` the screen is "<funcionalidade>-<tela>" (by id or by featureScreenId after the canvas
+ * merge) and there is no fallback: "s2" exists in several features. Rows without it keep the old lookup by id.
+ */
 function resolveTarget(row, screens) {
-  const screen = screens.find((s) => s.id === row.tela);
+  const featureId = row.funcionalidade && row.tela ? `${row.funcionalidade}-${row.tela}` : "";
+  const screen = featureId
+    ? screens.find((s) => s.featureScreenId === featureId || s.id === featureId)
+    : screens.find((s) => s.id === row.tela);
   if (!screen) return { screenId: null, screenTitle: "", fieldId: null, fieldLabel: "" };
   const field = (screen.fields || []).find((f) => f.id === row.campo);
   return {

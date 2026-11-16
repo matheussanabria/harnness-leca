@@ -8,6 +8,12 @@
 .docs-strip-open { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; font: inherit; color: #e2e8f0; background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; cursor: pointer; }
 .docs-strip-open:hover { background: #334155; }
 
+/* Telas ligadas (reuses the strip and chip styles) */
+.screen-links-strip { margin-top: -4px; }
+.screen-link { font-family: inherit; font-weight: 600; color: #ddd6fe; background: rgba(139, 92, 246, 0.12); border-color: rgba(196, 181, 253, 0.35); }
+.screen-link:hover, .screen-link:focus-visible { background: rgba(139, 92, 246, 0.25); }
+.screen-link-via { padding: 0 5px; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 4px; }
+
 /* Chips */
 .doc-chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .doc-chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; font: 600 11.5px/1.6 ui-monospace, monospace; color: #bfdbfe; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(147, 197, 253, 0.35); border-radius: 999px; cursor: pointer; }

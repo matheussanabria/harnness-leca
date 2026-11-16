@@ -44,6 +44,22 @@ test("CP-02: historia relacionada aparece como relacionada", () => {
   assert.deepEqual(stories["DIS-461"].campos.dona.map((i) => i.k), ["hist"]);
 });
 
+test("CP-02b: com funcionalidade, a tela e '<funcionalidade>-<tela>' mesmo depois da juncao com o canvas", () => {
+  const screens = [
+    { id: "s2", featureScreenId: "nova-prescricao-s2", title: "Etapa 2", fields: [{ id: "embalagem", label: "Embalagem" }] },
+    { id: "programas-saude-s2", featureScreenId: "programas-saude-s2", title: "Programas", fields: [{ id: "embalagem", label: "Outra" }] },
+  ];
+  const rows = [
+    { k: "a", tela: "s2", campo: "embalagem", funcionalidade: "nova-prescricao", principal: "DIS-443", relacionadas: [] },
+    { k: "b", tela: "s2", campo: "embalagem", funcionalidade: "programas-saude", principal: "DIS-500", relacionadas: [] },
+    { k: "c", tela: "s2", campo: "embalagem", funcionalidade: "nao-existe", principal: "DIS-501", relacionadas: [] },
+  ];
+  const { stories } = readStoryFeatures(repoWith({ rows }), screens);
+  assert.equal(stories["DIS-443"].campos.dona[0].screenId, "s2");
+  assert.equal(stories["DIS-500"].campos.dona[0].screenId, "programas-saude-s2");
+  assert.equal(stories["DIS-501"].campos.dona[0].screenId, null, "no fallback to the canvas s2");
+});
+
 test("CP-03: vinculo sem tela vem sem screenId", () => {
   const { stories } = readStoryFeatures(repoWith({ rows: ROWS }), SCREENS);
   assert.equal(stories["DIS-461"].campos.dona[0].screenId, null);

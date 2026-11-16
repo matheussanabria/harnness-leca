@@ -7,6 +7,7 @@ import { gateRegras } from './gates/regras.mjs';
 import { gateG7 } from './gates/g7.mjs';
 import { gateG8, gateG5, lerCabecalho } from './gates/status.mjs';
 import { gateG9 } from './gates/g9.mjs';
+import { gateNavega } from './gates/navega.mjs';
 import { gateG6 } from './gates/g6.mjs';
 
 export function verifica(ctx, slug, arquivoYml) {
@@ -25,6 +26,7 @@ export function verifica(ctx, slug, arquivoYml) {
   gateG7(ctx, f);
   gateG8(ctx, f);
   gateG9(ctx, f);
+  gateNavega(ctx, f);
   const h = lerCabecalho(ctx, dir);
   gateG5(ctx, f, h);
   const testesSemElo = gateG6(ctx, f, h);
