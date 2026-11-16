@@ -136,6 +136,7 @@ const EXCLUSOES = Object.freeze([
   Object.freeze({ chave: "hia_tokens_saved", motivo: "Contador local de telemetria HIA; não é estado de tela." }),
   Object.freeze({ chave: "harness.claudeAiExportPath", motivo: "Conveniência do diálogo Importar claude.ai (última pasta do export neste navegador); não é estado de tela." }),
   Object.freeze({ chave: "harness_owned", motivo: "Valor do campo trust dos eventos da Central, não uma chave de localStorage; o scanner o casa por engano." }),
+  Object.freeze({ chave: "harness.docsPanel.*", motivo: "Largura e tela cheia do painel de documentação do Mapa em Camadas, preferência deste navegador; o mesmo painel roda no pacote estático, sem servidor." }),
 ]);
 
 for (const entry of SCREENS) {
