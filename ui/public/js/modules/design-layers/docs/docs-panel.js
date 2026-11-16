@@ -8,6 +8,7 @@ import { docHref, writeDocLocation, parseDocLocation } from "./docs-location.js"
 import { renderDocsNav, renderFeatureView, renderChooser, renderMissing, renderMissingList } from "./docs-panel-views.js";
 import { lineAnchor, criterionAnchor } from "./docs-paths.js";
 import { renderMermaidInContainer } from "../../../shared/mermaid-renderer.js";
+import { initPanelSize, toggleFullscreen } from "./docs-panel-size.js";
 
 /** @typedef {{ type: "doc", path: string, anchor?: string } | { type: "feature", slug: string } | { type: "choose", title: string, items: any[] } | { type: "missing", kind: string, id: string } | { type: "missing-list", screen: string } | { type: "home" }} DocsView */
 
@@ -62,9 +63,11 @@ function ensureRoot() {
       <button type="button" class="docs-btn" data-docs-action="nav" title="Mostrar ou ocultar o índice"><i class="fa-solid fa-sitemap"></i></button>
       <div class="docs-panel-title"><b data-docs-title>Documentação</b><small data-docs-path></small></div>
       <button type="button" class="docs-btn" data-docs-action="refresh" title="Atualizar (reler os arquivos)"><i class="fa-solid fa-rotate"></i></button>
+      <button type="button" class="docs-btn" data-docs-action="full" title="Tela cheia" aria-pressed="false"><i class="fa-solid fa-expand"></i></button>
       <button type="button" class="docs-btn" data-docs-action="close" title="Fechar"><i class="fa-solid fa-xmark"></i></button>
     </header>
     <div class="docs-panel-body"><nav class="docs-panel-nav" data-docs-nav></nav><section class="docs-panel-content" data-docs-content tabindex="-1"></section></div>`;
+  initPanelSize(root);
   root.addEventListener("click", onClick);
   root.addEventListener("input", onFilter);
   document.body.appendChild(root);
@@ -197,6 +200,7 @@ function onClick(e) {
   } else if (el.dataset.docRef) void openDocRef(el.dataset.docRef, el.dataset.docId || "");
   else if (el.dataset.docFeature) void openDocsPanel({ type: "feature", slug: el.dataset.docFeature });
   else if (el.dataset.docsAction === "close") closeDocsPanel();
+  else if (el.dataset.docsAction === "full") toggleFullscreen(ensureRoot());
   else if (el.dataset.docsAction === "nav") ensureRoot().classList.toggle("nav-hidden", (state.navHidden = !state.navHidden));
   else if (el.dataset.docsAction === "back" && state.stack.length > 1) {
     state.stack.pop();

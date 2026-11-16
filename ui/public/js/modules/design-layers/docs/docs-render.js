@@ -77,7 +77,8 @@ function buildMarked(ctx, seen) {
         return `<h${depth} id="${esc(slugify(plain(text), seen))}">${inner}</h${depth}>\n`;
       },
       html({ text }) {
-        return esc(text);
+        // Raw HTML stays text; a bare line break (<br>, used inside table cells) is the one exception.
+        return /^<br\s*\/?>$/i.test(String(text).trim()) ? "<br>" : esc(text);
       },
       image({ text }) {
         return `<span class="doc-embed-missing"><i class="fa-regular fa-image"></i> ${esc(text || "imagem")} (imagem não exibida)</span>`;

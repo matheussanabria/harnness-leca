@@ -9,6 +9,7 @@ import { parseDocLocation, docHref, setDocsLinkMode } from "../ui/public/js/modu
 import { refTarget } from "../ui/public/js/modules/design-layers/docs/docs-panel.js";
 import { screenDocs, idsInText, docChip, renderScreenDocsBar, renderRuleDocChips, openFromChip } from "../ui/public/js/modules/design-layers/layers-docs-refs.js";
 import { dls } from "../ui/public/js/modules/design-layers-store.js";
+import { clampWidth, MIN_WIDTH } from "../ui/public/js/modules/design-layers/docs/docs-panel-size.js";
 
 const require = createRequire(import.meta.url);
 const server = require("../ui/server/services/project-docs/refs-parsers.js");
@@ -26,6 +27,21 @@ test("render: raw HTML is shown as text, never as markup", () => {
   const html = render('<script>alert(1)</script>\n\nTexto <img src=x onerror="alert(2)"> fim');
   assert.ok(!/<script|<img/i.test(html), html);
   assert.ok(html.includes("&lt;script&gt;"));
+});
+
+test("render: a bare <br> inside a table cell is a line break; any other tag stays text", () => {
+  const html = render("| a | b |\n|---|---|\n| x<br>y | p<br/>q<BR /> |\n\nfim <br onclick=\"alert(1)\"> <b>negrito</b>");
+  assert.match(html, /<td>x<br>y<\/td>/);
+  assert.match(html, /<td>p<br>q<br><\/td>/);
+  assert.match(html, /&lt;br onclick=&quot;alert\(1\)&quot;&gt;/);
+  assert.match(html, /&lt;b&gt;negrito&lt;\/b&gt;/);
+});
+
+test("panel size: the width stays between the minimum and the window minus a strip of the map", () => {
+  assert.equal(clampWidth(100, 1600), MIN_WIDTH);
+  assert.equal(clampWidth(900.4, 1600), 900);
+  assert.equal(clampWidth(5000, 1600), 1552);
+  assert.equal(clampWidth(500, 300), MIN_WIDTH, "a tiny window still keeps the minimum");
 });
 
 test("render: javascript: and data: links lose the link, external ones open apart", () => {

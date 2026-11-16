@@ -31,6 +31,7 @@ Every parser splits on `/\r?\n/` (see f171fba).
 | `tests/project-docs-route.test.js` | HTTP answers of the four routes. |
 | `ui/public/js/modules/design-layers/layers-docs-refs.js` | "Documentação oficial" strip (feature, stories, features of the cited rules, unresolved count) and RN/story chips; one capture listener opens them. |
 | `ui/public/js/modules/design-layers/docs/docs-panel.js` | Side drawer on `document.body`: back stack, link clicks, filter, refresh, `refTarget` (reference to document and anchor). |
+| `ui/public/js/modules/design-layers/docs/docs-panel-size.js` | Panel size: left-edge resize handle (drag, arrow keys, double click resets), full screen toggle, both remembered in localStorage. |
 | `ui/public/js/modules/design-layers/docs/docs-panel-views.js` | Pure HTML of the panel: sections and tree, feature dossier, choice between places, not found. |
 | `ui/public/js/modules/design-layers/docs/docs-render.js` | Markdown (marked) and YAML/JSON to safe HTML: raw HTML as text, no unsafe links or images, Mermaid as the shared diagram card (`renderMermaidCard`, drawn by the panel through `shared/mermaid-renderer.js`), anchors. |
 | `ui/public/js/modules/design-layers/docs/docs-paths.js` | Relative links, wikilink resolution, heading slugs and the anchor conventions shared with the server. |
