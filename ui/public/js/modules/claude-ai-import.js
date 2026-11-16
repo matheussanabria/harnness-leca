@@ -66,17 +66,28 @@ async function post(url, payload) {
   return data;
 }
 
+/** Links of the zips still missing: the browser downloads them with the user's claude.ai session. */
+function downloadHtml(missing) {
+  const links = missing.map((m) => `<a class="btn-chat-action cai-dl" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">
+    <i class="fa-solid fa-download"></i> ${esc(m.filename)}</a>`).join("");
+  return `<i class="fa-solid fa-circle-info"></i> Baixe pelo navegador (usa seu login do claude.ai; cada link pode valer uma vez só):
+    <div class="cai-dls">${links}</div>
+    Quando terminar, clique em <b>Ler export</b> de novo. Os zips são procurados ao lado do manifest e em Downloads,
+    salvos depois da geração do export (arquivos antigos com o mesmo nome são ignorados).`;
+}
+
 async function listExport() {
   const exportPath = el("caiPath").value.trim();
   if (!exportPath || ui.busy) return;
   ui.busy = true;
-  status(`<i class="fa-solid fa-spinner fa-spin"></i> ${/manifest-[^\\/]*\.(json|zip)"?$/i.test(exportPath) ? "Baixando os zips do manifest e lendo o export (pode levar um tempo na primeira vez)..." : "Lendo o export (zips são extraídos na primeira vez)..."}`);
+  status(`<i class="fa-solid fa-spinner fa-spin"></i> Lendo o export (zips são extraídos na primeira vez)...`);
   try {
     const data = await post("/api/claude-ai-import/list", { exportPath });
     remember(exportPath);
     ui.items = data.items;
     ui.selected.clear();
-    status(`<i class="fa-solid fa-circle-check"></i> Export lido.`, "success");
+    if (data.needsDownload) status(downloadHtml(data.missing), "info");
+    else status(`<i class="fa-solid fa-circle-check"></i> Export lido.`, "success");
   } catch (err) {
     ui.items = [];
     status(`<i class="fa-solid fa-triangle-exclamation"></i> ${esc(err.message)}`, "error");
@@ -116,7 +127,8 @@ export function openClaudeAiImport() {
   ui.filter = "";
   const html = `<div class="cai">
     <p class="cai-help">Informe o caminho do <code>manifest-*.json</code> (ou <code>manifest-*.zip</code>) do export do claude.ai:
-      o servidor baixa só os zips de conversas e de Design (os links valem 24 h). Também serve a pasta com
+      o diálogo mostra os links dos zips de conversas e de Design para você baixar no navegador (eles exigem seu login
+      e valem 24 h) e depois os encontra ao lado do manifest ou em Downloads. Também serve a pasta com
       <code>conversations-000.zip</code> / <code>design_chats-000.zip</code> ou a pasta já extraída. Nada é importado sem você marcar.</p>
     <div class="cai-bar">
       <input id="caiPath" class="cai-input" type="text" placeholder="C:\\Users\\voce\\Downloads\\manifest-....json" value="${esc(remembered())}">

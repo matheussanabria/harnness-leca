@@ -8,9 +8,6 @@ const importer = require("../../../tools/import-claude-ai-chats");
 const { CliError } = require("../../../tools/lib/cli");
 const manifest = require("../../../tools/lib/claude-ai-manifest");
 
-/** Injectable for tests: the HTTP client used to download manifest files. */
-const deps = { fetch: (...args) => fetch(...args) };
-
 const ID_RE = /^[0-9a-f-]{8,36}$/i;
 const QUIET = { log() {} };
 let running = false;
@@ -34,9 +31,12 @@ function importedIndex() {
   return idx;
 }
 
-/** Downloads the chat zips first when the input is an export manifest (no-op once they are cached). */
-async function prepare(exportPath) {
-  if (manifest.isManifest(exportPath)) await manifest.downloadManifest(exportPath, { fetchImpl: deps.fetch });
+/**
+ * For a manifest, gathers the zips the browser already saved and returns the links still missing (empty = ready).
+ * The server never fetches the links itself: they only work with the user's claude.ai session (HTTP 403 otherwise).
+ */
+function missingDownloads(exportPath) {
+  return manifest.isManifest(exportPath) ? manifest.collectManifest(exportPath).missing : [];
 }
 
 async function body(req, res) {
@@ -56,7 +56,8 @@ async function apiClaudeAiList({ req, res }) {
   if (!exportPath) return send(res, 400, { error: "Informe a pasta do export do claude.ai." });
   let items;
   try {
-    await prepare(exportPath);
+    const missing = missingDownloads(exportPath);
+    if (missing.length) return send(res, 200, { needsDownload: true, missing, total: 0, items: [] });
     items = importer.loadItems(exportPath, QUIET);
   } catch (err) {
     return send(res, 400, { error: (err && err.message) || String(err) });
@@ -91,7 +92,7 @@ async function apiClaudeAiImport({ req, res, params: [slug] }) {
   running = true;
   const lines = [];
   try {
-    await prepare(exportPath);
+    if (missingDownloads(exportPath).length) return send(res, 400, { error: "Baixe primeiro os zips do manifest pelo navegador e leia o export de novo." });
     const argv =["--export", exportPath, "--project", slug, "--id", ids.join(",")];
     if (b.withTools === false) argv.push("--no-tools");
     const r = importer.run(argv, { log: (l) => lines.push(String(l)) });
@@ -100,7 +101,6 @@ async function apiClaudeAiImport({ req, res, params: [slug] }) {
     return send(res, 200, { ...r, mensagem, log: lines.slice(-60) });
   } catch (err) {
     if (err instanceof CliError) return send(res, 400, { error: err.message });
-    if (manifest.isManifest(exportPath)) return send(res, 502, { error: (err && /** @type {any} */ (err).message) || String(err) });
     console.error("[claude-ai-import]", (err && /** @type {any} */ (err).stack) || err);
     return send(res, 500, { error: "Falha ao importar. O detalhe está no terminal do servidor." });
   } finally {
@@ -108,4 +108,4 @@ async function apiClaudeAiImport({ req, res, params: [slug] }) {
   }
 }
 
-module.exports = { apiClaudeAiList, apiClaudeAiImport, importedIndex, deps };
+module.exports = { apiClaudeAiList, apiClaudeAiImport, importedIndex };
