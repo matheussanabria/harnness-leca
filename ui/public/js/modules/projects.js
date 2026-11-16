@@ -4,3 +4,4 @@ export { setChatEngineFilter, setChatGroupFilter, setChatSubgroupFilter, onChatS
 export { renderProjectChats } from "./projects-chat-render.js";
 export { load, showMappingTable } from "./projects-load.js";
 export { syncProjectChats, showIns, showMem, openFile } from "./projects-sync.js";
+export { openClaudeAiImport } from "./claude-ai-import.js";
