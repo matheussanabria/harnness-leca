@@ -10,9 +10,10 @@ const KEY_RE = /^[A-Z]+-\d+$/;
 
 /** Linhas de "historias:" do frontmatter: "DIS-443 principal" -> { key, papel }. */
 function parseStories(text) {
-  const block = text.match(/^historias:\s*\n((?:[ \t]+- .*\n?)+)/m);
+  // `[^\r\n]*` e nao `.*`: em JS o `.` nao casa com `\r`, e com CRLF so a primeira linha era lida.
+  const block = text.match(/^historias:[ \t]*\r?\n((?:[ \t]+- [^\r\n]*(?:\r?\n|$))+)/m);
   if (!block) return [];
-  return block[1].split("\n").map((line) => line.replace(/^\s*- /, "").trim()).filter(Boolean).map((line) => {
+  return block[1].split(/\r?\n/).map((line) => line.replace(/^\s*- /, "").trim()).filter(Boolean).map((line) => {
     const [key, ...rest] = line.split(/\s+/);
     return { key, papel: rest.join(" ") || "relacionada" };
   }).filter((item) => KEY_RE.test(item.key));

@@ -100,5 +100,9 @@ test("a URL do protótipo e escapada", () => {
 test("real: vinculos e protótipos de dispensacao, quando o repositorio existe", { skip: !fs.existsSync("C:/Users/matheuss.rodrigues/git/saude/dispensacao/doc/sistema/features/_historias-funcionalidades.json") }, () => {
   const root = "C:/Users/matheuss.rodrigues/git/saude/dispensacao";
   const { stories } = readStoryFeatures(root, []);
-  assert.ok(stories["DIS-443"].campos.dona.length >= 10);
+  // Smoke test sobre dados reais: não fixa quantos campos cada história tem, porque a classificação muda
+  // (em 16/11/2026 a DIS-443 caiu de 21 para 7 campos). Confere só que os vínculos são lidos.
+  const total = Object.values(stories).reduce((n, s) => n + s.campos.dona.length, 0);
+  assert.ok(total >= 10, `esperava ao menos 10 campos com história dona, veio ${total}`);
+  assert.ok(stories["DIS-443"].campos.dona.length >= 1);
 });

@@ -40,6 +40,16 @@ test("CP-02: historia secundaria ou guarda-chuva aparece como relacionada com o 
   assert.equal(stories["DIS-443"].relacionada[0].papel, "guarda-chuva");
 });
 
+test("CP-02b: _status.md com fim de linha CRLF le todas as historias, nao so a primeira", () => {
+  const root = repoWith({ alfa: { historias: ["DIS-497 principal", "DIS-441 secundaria", "DIS-443 secundaria"] } });
+  const file = path.join(root, "doc", "sistema", "features", "alfa", "_status.md");
+  fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace(/\n/g, "\r\n"));
+  const { stories } = readStoryFeatures(root, []);
+  assert.deepEqual(stories["DIS-497"].dona.map((f) => f.slug), ["alfa"]);
+  assert.equal(stories["DIS-441"].relacionada[0].papel, "secundaria");
+  assert.equal(stories["DIS-443"].relacionada[0].papel, "secundaria");
+});
+
 test("CP-03: funcionalidade informa as outras historias que a tocam", () => {
   const root = repoWith({ alfa: { historias: ["DIS-443 principal", "DIS-454 secundaria"] } });
   const { stories } = readStoryFeatures(root, []);
