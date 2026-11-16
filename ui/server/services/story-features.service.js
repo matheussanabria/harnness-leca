@@ -96,4 +96,4 @@ function readStoryFeatures(repoRoot, screens) {
   return { found: base.found || Object.keys(fieldLinks).length > 0, stories };
 }
 
-module.exports = { readStoryFeatures, parseStories };
+module.exports = { readStoryFeatures, parseStories, parseTitle };

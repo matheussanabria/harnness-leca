@@ -49,6 +49,8 @@ function adaptFeatureScreen(tela, feature) {
   const tests = tela.testes || {};
   return {
     id: `${feature.slug}-${tela.id}`,
+    // Kept through mergeScreens, which swaps `id` for the canvas id: references written as "<slug>-<tela>" resolve by it.
+    featureScreenId: `${feature.slug}-${tela.id}`,
     feature: feature.slug,
     featureTitle: feature.featureTitle,
     short: tela.titulo || tela.id,
@@ -62,7 +64,9 @@ function adaptFeatureScreen(tela, feature) {
     diffs: list(tela.diferencas).map((d) => ({
       item: d.item, tipo: d.tipo, viewport: d.viewport, proto: d.prototipo, code: d.codigo, st: status(d.st),
     })),
-    rules: list(tela.regras).map((r) => ({ refs: list(r.campos), st: status(r.st), title: r.titulo, t: r.t, src: r.fonte })),
+    rules: list(tela.regras).map((r) => ({
+      refs: list(r.campos), st: status(r.st), title: r.titulo, t: r.t, src: r.fonte, rn: list(r.rn).map(String),
+    })),
     front: list(tela.front).map((f) => ({ refs: list(f.campos), svc: f.servico, call: f.chamada, note: f.nota })),
     endpoints: list(tela.endpoints).map((e) => ({
       refs: list(e.campos), m: e.metodo, r: e.rota, p: e.entrada, resp: e.saida, svc: e.servico, st: status(e.st),
