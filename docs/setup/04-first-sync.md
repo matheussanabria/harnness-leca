@@ -2,6 +2,8 @@
 
 Part of the [setup series](01-overview.md). Prerequisite: [installation](02-installation.md) done and at least one project under `projects/` (create or [adopt](05-adopt-existing-projects.md) one first, because `sync` never creates projects).
 
+Leia em português: [04 Primeira importação, sincronização e exportação](04-first-sync.pt-BR.md).
+
 ## How conversations find their project
 
 An imported conversation belongs to a project when the project **slug** (or an **alias** from `projects/.sources.json`) appears as whole segments of the conversation's working-folder path. Example: a session started in `C:\Users\you\git\57multimarcas` goes to project `57multimarcas`. For a different folder name add an alias:
@@ -59,7 +61,7 @@ It lists chats that are new, analyzed or changed since analysis. Open `npm run u
 
 ## Step 5: turn chats into memory (optional)
 
-Extraction proposes memories, rules, decisions and terms into `projects/<slug>/context/`. **Nothing enters `memory.md` until you approve it** in the UI card "Memory" (promote, edit or discard). Run extraction only with a free or local model unless you decide otherwise: see [rotinas-e-sync.md](rotinas-e-sync.md) (Portuguese) for the routine settings.
+Extraction proposes memories, rules, decisions and terms into `projects/<slug>/context/`. **Nothing enters `memory.md` until you approve it** in the UI card "Memory" (promote, edit or discard). Run extraction only with a free or local model unless you decide otherwise: see [rotinas-e-sync.en.md](rotinas-e-sync.en.md) for the routine settings.
 
 ## Step 6: export the curated memory back to the engines
 

@@ -1,5 +1,9 @@
 # Auditoria do estado atual
 
+[Read in English](01-current-state-audit.en.md).
+
+> Nota histórica e de planejamento: esta documentação descreve o diagnóstico registrado na fonte. A tradução preserva o estado e as datas da fonte; não constitui nova verificação da implementação.
+
 ## Inventário
 
 | Área | Implementação observada | Evidência |

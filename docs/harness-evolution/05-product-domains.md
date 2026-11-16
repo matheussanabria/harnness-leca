@@ -1,5 +1,9 @@
 # Kanban, Mapa, Componentes e Auditoria
 
+English: [Kanban, Map, Components, and Audit](05-product-domains.en.md).
+
+> Esta tradução preserva as afirmações históricas e planejadas deste documento; elas não foram revalidadas.
+
 ## Kanban SDLC
 
 Criar board default com doze raias e IDs estáveis separados de rótulos. Posição é `order`; ocultar não apaga; desativar impede transições. Impedimento é transversal; a raia é projeção opcional.

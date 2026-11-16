@@ -1,5 +1,7 @@
 # Catálogo de Comandos e Scripts (package.json)
 
+[Read in English](COMANDOS.en.md).
+
 Guia de referência detalhado de todos os scripts definidos no `package.json` do Harness, agrupados por área de responsabilidade.
 
 ---

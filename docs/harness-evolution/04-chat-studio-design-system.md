@@ -1,5 +1,9 @@
 # Chat, Studio e Design System
 
+English: [Chat, Studio, and Design System](04-chat-studio-design-system.en.md).
+
+> Esta tradução preserva as afirmações históricas e planejadas deste documento; elas não foram revalidadas.
+
 ## Chat universal
 
 Preservar `chat.js` como fachada. Extrair de `chat-ui-interaction.js` um controlador configurado por `ChatPresentation`; manter wrappers antigos até a migração completa.

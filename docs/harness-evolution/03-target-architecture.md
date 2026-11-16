@@ -1,5 +1,9 @@
 # Arquitetura-alvo e contratos
 
+[Read in English](03-target-architecture.en.md).
+
+> Nota histórica e de planejamento: esta documentação descreve a arquitetura proposta na fonte. A tradução preserva o estado e as datas da fonte; não constitui nova verificação da implementação.
+
 ## Princípios
 
 - Evoluir fachadas existentes e manter compatibilidade por vertical.

@@ -1,5 +1,7 @@
 # Importadores e extração de conversas
 
+[Read in English](importadores.en.md).
+
 Parte do [guia de instalação](../../SETUP.md) do Harness.
 
 ## Importar conversas de outros projetos do Claude Code
@@ -80,5 +82,5 @@ node tools/extract-artifacts.js --project meu-projeto --llm --limit 5
   - Cada conversa é gravada e marcada como analisada **assim que termina**; se a execução cair no meio, o que já foi feito fica. Em falha do serviço (ex.: limite de uso), tenta uma segunda vez e, se falhar de novo, a conversa continua pendente.
   - Cerca de 15 a 20 s por conversa. O conteúdo vai para o modelo do OpenCode (serviço externo), já com segredos e dados pessoais redigidos.
 - O modo `--llm` envia um resumo de cada conversa (com segredos já redigidos) ao modelo via `claude -p`, **sem ferramentas habilitadas**, e é opcional por isso. Evite em projetos com dados de terceiros, como saúde, sem necessidade.
-- Para promover algo à memória, copie manualmente a linha revisada para `memory.md`.
+- Para promover algo à memória, registre o fato revisado com `node tools/memory.js save`; o índice `memory.md` é gerado.
 

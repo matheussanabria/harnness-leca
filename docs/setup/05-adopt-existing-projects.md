@@ -2,6 +2,8 @@
 
 Part of the [setup series](01-overview.md). Use this when a codebase already exists on your machine and you want it to follow the harness structure (instructions, memory, context, chats), with its past conversations from every engine.
 
+Leia em português: [05 Adotar projetos existentes](05-adopt-existing-projects.pt-BR.md).
+
 ## What "adopted" means
 
 A project is adopted when it has `projects/<slug>/` with `instructions.md`, `memory.md`, `chats/`, `context/`, `scheduled/`, and its folder name is routed to that slug. **Your code is never moved or modified.** The harness only reads manifest files in the source folder.

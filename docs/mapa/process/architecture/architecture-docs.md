@@ -3,13 +3,15 @@ domain: process
 module: architecture
 feature: architecture-docs
 summary: Harness architecture docs - chat context per surface, hybrid project config, delivery pipeline, validation.
-paths: [docs/architecture/*.md, docs/architecture/pt-BR/*.md]
+paths: [docs/architecture/*.md, docs/architecture/pt-BR/*.md, docs/PROJECT-BRIEF.md, docs/PROJECT-BRIEF.pt-BR.md]
 keywords: [architecture, chat, context, surface, project, config, repo, hybrid, delivery, pipeline, validation, gates, mind map, layers map]
 updated: 2026-11-13
 ---
 
 | File | Responsibility |
 |---|---|
+| `docs/PROJECT-BRIEF.md` | Portable product and architecture brief for contributors and LLM reviewers, with current capabilities, boundaries and future white-paper scope. |
+| `docs/PROJECT-BRIEF.pt-BR.md` | Portuguese version of the project brief, maintained together with the English version. |
 | `docs/architecture/README.md` | Index of the architecture docs and the list of main gaps with their ids. |
 | `docs/architecture/01-chat-context-by-surface.md` | What context the chat loads per surface, artifact recognition, chat persistence, gaps and the provider proposal. |
 | `docs/architecture/02-project-config-hybrid.md` | Where each feature finds per-project config (harness vs repo), resolver duplication and the pointer-not-copy standard. |

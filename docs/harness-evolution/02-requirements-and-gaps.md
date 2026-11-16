@@ -1,5 +1,9 @@
 # Requisitos e matriz de lacunas
 
+[Read in English](02-requirements-and-gaps.en.md).
+
+> Nota histórica e de planejamento: esta documentação descreve os requisitos e lacunas registrados na fonte. A tradução preserva o estado e as datas da fonte; não constitui nova verificação da implementação.
+
 | Área | Estado | Problema → evidência → causa | Solução | Impacto / risco | Validação |
 |---|---|---|---|---|---|
 | Chat core | Parcial | Core é comum, mas `chat-ui-interaction.js` tem handlers `toggle*` e `toggleStudio*`; contrato orientado a IDs | Adapter de layout e comandos únicos | Alto / menus | Mesmos testes em 3 layouts |

@@ -8,6 +8,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { spawnSync } = require('node:child_process');
+const { cleanGitEnv, sandboxGit } = require('./helpers/git-sandbox');
 
 const ROOT = path.join(__dirname, '..');
 const PACK = path.join(ROOT, 'tools', 'gates', 'pack.mjs');
@@ -122,8 +123,8 @@ test('carregaConfig exige o bloco mapa e os campos obrigatórios', async () => {
 
 // ---------- ponta a ponta: o motor empacotado roda sem o Harness ----------
 
-const run = (args, cwd) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8', env: { ...process.env, HARNESS_DIR: '' } });
-const git = (cwd, ...a) => spawnSync('git', a, { cwd, encoding: 'utf8' });
+const run = (args, cwd) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8', env: cleanGitEnv({ HARNESS_DIR: '' }) });
+const git = (cwd, ...a) => sandboxGit(cwd, a);
 
 function projetoSintetico() {
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'mapa-repo-'));
