@@ -73,6 +73,9 @@
 .doc-properties { margin-bottom: 14px; font-size: 12.5px; color: #94a3b8; }
 .doc-properties pre { margin: 6px 0 0; padding: 8px 10px; background: #111a2e; border-radius: 8px; overflow: auto; }
 .doc-link-missing { color: #94a3b8; border-bottom: 1px dashed #64748b; cursor: help; }
+.doc-link-outside { color: #94a3b8; cursor: help; }
+.doc-link-outside small { font-size: 11px; color: #64748b; }
+.doc-chip-outside { color: #94a3b8; background: transparent; border-style: dashed; border-color: rgba(148, 163, 184, 0.45); }
 .doc-embed-missing { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px; font-size: 12px; color: #94a3b8; background: #111a2e; border-radius: 6px; }
 .doc-code-view { font: 12.5px/1.55 ui-monospace, monospace; background: #111a2e; border-radius: 8px; padding: 8px 0; overflow: auto; }
 .doc-line { display: flex; white-space: pre; }

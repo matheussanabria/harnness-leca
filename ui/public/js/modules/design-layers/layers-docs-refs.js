@@ -33,17 +33,37 @@ function chipTitle(refs, kind, id) {
   return "";
 }
 
+/** @type {WeakMap<object, Set<string>>} */
+const includedSets = new WeakMap();
+
 /**
- * One chip that opens a reference; amber and struck through when the index cannot resolve it.
+ * False only in the static package, for a reference whose document was left out of it (`refs.included`).
+ * @param {any} refs @param {string} kind @param {string} id
+ */
+function inPackage(refs, kind, id) {
+  if (!Array.isArray(refs.included)) return true;
+  if (!includedSets.has(refs)) includedSets.set(refs, new Set(refs.included));
+  const set = /** @type {Set<string>} */ (includedSets.get(refs));
+  const p = kind === "rn" ? refs.rn?.[id]?.path : kind === "story" ? (refs.stories?.[id] || refs.stories?.[refs.aliases?.[id]])?.path : null;
+  return !p || set.has(p);
+}
+
+/**
+ * One chip that opens a reference; amber and struck through when the index cannot resolve it, dashed when the
+ * document exists but was not included in the static package.
  * @param {string} kind "rn" | "story" | "trace" | "feature" @param {string} id @param {string} [label] @param {string} [extra]
  */
 export function docChip(kind, id, label = id, extra = "") {
   const refs = dls.docsRefs;
   if (!refs || !SAFE_ID.test(id)) return "";
   const ok = resolves(refs, kind, id);
+  const inside = ok && inPackage(refs, kind, id);
   const icon = kind === "rn" ? "fa-scale-balanced" : kind === "story" ? "fa-book-bookmark" : kind === "feature" ? "fa-cubes" : "fa-link";
-  const title = ok ? chipTitle(refs, kind, id) || `Abrir ${id} na documentação` : `${id} não foi encontrada na documentação (doc/)`;
-  return `<button type="button" class="doc-chip ${ok ? "" : "doc-chip-missing"}" title="${esc(title)}" data-doc-ref="${kind}" data-doc-id="${esc(id)}"><i class="fa-solid ${icon}"></i> ${esc(label)}${extra}</button>`;
+  const title = !ok ? `${id} não foi encontrada na documentação (doc/)`
+    : !inside ? `${id}: existe no projeto, mas não foi incluído no pacote`
+      : chipTitle(refs, kind, id) || `Abrir ${id} na documentação`;
+  const cls = !ok ? "doc-chip-missing" : !inside ? "doc-chip-outside" : "";
+  return `<button type="button" class="doc-chip ${cls}" title="${esc(title)}" data-doc-ref="${kind}" data-doc-id="${esc(id)}"><i class="fa-solid ${icon}"></i> ${esc(label)}${extra}</button>`;
 }
 
 /** Ids of rules and stories written inside a free-text source ("fonte"). @param {string} text */

@@ -34,7 +34,7 @@ Every parser splits on `/\r?\n/` (see f171fba).
 | `ui/public/js/modules/design-layers/docs/docs-panel-views.js` | Pure HTML of the panel: sections and tree, feature dossier, choice between places, not found. |
 | `ui/public/js/modules/design-layers/docs/docs-render.js` | Markdown (marked) and YAML/JSON to safe HTML: raw HTML as text, no unsafe links or images, Mermaid as code, anchors. |
 | `ui/public/js/modules/design-layers/docs/docs-paths.js` | Relative links, wikilink resolution, heading slugs and the anchor conventions shared with the server. |
-| `ui/public/js/modules/design-layers/docs/docs-source.js` | Data source: the HTTP API in the Harness; `setDocsSource` lets the package embed data; `loadDocsRefs`. |
+| `ui/public/js/modules/design-layers/docs/docs-source.js` | Data source: the HTTP API in the Harness, `embeddedDocsSource` in the static package (with `paths` and `isIncluded`); `loadDocsRefs`. |
 | `ui/public/js/modules/design-layers/docs/docs-location.js` | Direct links: `?doc=&docAnchor=` in the Harness (the router owns the hash), `#doc/<path>#<anchor>` in the package. |
 | `ui/public/js/vendor/marked-16.4.2/marked.esm.js` | marked 16.4.2 (MIT), byte-identical to the npm build; `LICENSE.md` alongside. |
 | `ui/public/css/design/40-layers-docs.css` | Strip, chips and drawer styles (mobile stacks the index above the reader). |

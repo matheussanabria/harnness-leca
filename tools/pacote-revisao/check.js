@@ -99,7 +99,14 @@ function runCheck({ ctx, map, board, comDrift }) {
     }
   }
 
-  // 6. Opcional: deriva do mapa contra o codigo (ferramenta existente).
+  // 6. Documentos que o mapa cita (regras, historias, dossie da tela) e que nao estao na pasta doc/ do pacote:
+  // no leitor eles aparecem como "nao incluido no pacote". Copie o arquivo para <pasta>/doc/<caminho> ou aceite a lacuna.
+  for (const d of (map.docs && map.docs.foraDoPacote) || []) {
+    const quem = d.refs.slice(0, 5).join(", ") + (d.refs.length > 5 ? ` e mais ${d.refs.length - 5}` : "");
+    add("aviso", "DOC_FORA_DO_PACOTE", `doc/${d.path} e citado pelo mapa (${quem}), mas nao esta no pacote; copie para ${path.join(outDir, "doc", d.path)}.`);
+  }
+
+  // 7. Opcional: deriva do mapa contra o codigo (ferramenta existente).
   if (comDrift) {
     try {
       const raw = execFileSync("node", [path.join(ROOT, "tools", "audit-layers-drift.js"), "--repo", ctx.repo, "--json"], {

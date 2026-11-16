@@ -79,8 +79,8 @@ const q = (sel) => /** @type {HTMLElement} */ (ensureRoot().querySelector(sel));
 async function loadNav(force = false) {
   const source = getDocsSource();
   if (!source || (state.navLoaded && !force)) return;
-  const [catalog, tree] = await Promise.all([source.catalog(), source.tree()]);
-  state.paths = flatten(tree?.tree);
+  const [catalog, tree, all] = await Promise.all([source.catalog(), source.tree(), source.paths ? source.paths() : null]);
+  state.paths = all || flatten(tree?.tree);
   state.navLoaded = true;
   q("[data-docs-nav]").innerHTML = renderDocsNav(catalog, tree);
 }
@@ -110,11 +110,13 @@ async function renderView(view) {
     content.innerHTML = '<div class="docs-loading"><i class="fa-solid fa-spinner fa-spin"></i> Carregando…</div>';
     const [file] = await Promise.all([source ? source.file(view.path) : null, loadNav()]);
     if (!file || "error" in file) {
-      const why = file?.status === 404 ? "O arquivo não existe na pasta doc/." : file?.status === 403 ? "Este arquivo não é servido pelo leitor (tipo não permitido ou contém segredo)." : `Não foi possível abrir: ${file?.error || "sem fonte de dados"}.`;
-      content.innerHTML = renderMissing("doc", view.path, why);
-      setTitle("Documento indisponível", view.path);
+      const outside = Boolean(file && "notInPackage" in file && file.notInPackage);
+      const why = outside ? "Este documento existe no projeto, mas não foi incluído no pacote de revisão."
+        : file?.status === 404 ? "O arquivo não existe na pasta doc/." : file?.status === 403 ? "Este arquivo não é servido pelo leitor (tipo não permitido ou contém segredo)." : `Não foi possível abrir: ${file?.error || "sem fonte de dados"}.`;
+      content.innerHTML = renderMissing("doc", view.path, why, outside ? "Não incluído no pacote" : undefined);
+      setTitle(outside ? "Fora do pacote de revisão" : "Documento indisponível", view.path);
     } else {
-      const { html, title } = renderDocument(file.text, { path: view.path, paths: state.paths, hrefFor: docHref });
+      const { html, title } = renderDocument(file.text, { path: view.path, paths: state.paths, hrefFor: docHref, isAvailable: source?.isIncluded });
       content.innerHTML = `<article class="docs-view docs-md">${html}</article>`;
       setTitle(title, view.path);
       scrollToAnchor(content, view.anchor || "");

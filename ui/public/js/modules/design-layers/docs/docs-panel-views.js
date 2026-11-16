@@ -96,9 +96,9 @@ export function renderChooser(title, items) {
 
 const KIND_LABELS = { rn: "Regra", story: "História", trace: "Item do rastreio", feature: "Funcionalidade", doc: "Documento" };
 
-/** @param {string} kind @param {string} id @param {string} [detail] */
-export function renderMissing(kind, id, detail = "") {
-  return `<article class="docs-view"><p class="docs-kicker docs-warn"><i class="fa-solid fa-triangle-exclamation"></i> Não encontrada</p>
+/** @param {string} kind @param {string} id @param {string} [detail] @param {string} [kicker] */
+export function renderMissing(kind, id, detail = "", kicker = "Não encontrada") {
+  return `<article class="docs-view"><p class="docs-kicker docs-warn"><i class="fa-solid fa-triangle-exclamation"></i> ${esc(kicker)}</p>
     <h1>${esc(KIND_LABELS[kind] || kind)} ${esc(id)}</h1>
     <p>${esc(detail || "A referência é citada no mapa, mas não existe na documentação do projeto (doc/). Confira o id no mapa-camadas.json ou crie o documento.")}</p></article>`;
 }

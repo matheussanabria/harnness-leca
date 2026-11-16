@@ -52,6 +52,12 @@ function fingerprint({ repo, projectDir, configFile, outDir, historias }) {
     "snapshot do Jira": hashFile(path.join(repo, "doc", "scrum", "_jira-dis.json")),
     "quadro local (scrum.json)": hashFile(path.join(projectDir, "scrum.json")),
     "arquivos das historias no pacote": hashGroup(historias.flatMap((k) => filesIn(path.join(outDir, "doc", "scrum", k)))),
+    // The reader embeds <pasta>/doc and indexes the project's dossiers and stories (docs-data.js).
+    "documentacao embutida no pacote": hashGroup(filesIn(path.join(outDir, "doc")).filter((f) => /\.(md|ya?ml|json)$/i.test(f))),
+    "documentacao do projeto (indice de referencias)": hashGroup([
+      ...filesIn(feat).filter((f) => /\.(md|ya?ml)$/i.test(f)),
+      ...filesIn(path.join(repo, "doc", "scrum")).filter((f) => /user-story\.md$/i.test(f)),
+    ]),
   };
 }
 

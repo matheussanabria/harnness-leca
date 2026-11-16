@@ -36,7 +36,8 @@ const BAR_CSS = [
 async function renderMapHtml(map, { slug, boardFile }) {
   const work = fs.mkdtempSync(path.join(os.tmpdir(), "pacote-mapa-"));
   try {
-    fs.writeFileSync(path.join(work, "static-data.json"), JSON.stringify({ slug, geradoEm: map.geradoEm, screensData: map.screensData, protos: map.protos }));
+    const docs = map.docs ? map.docs.data : null;
+    fs.writeFileSync(path.join(work, "static-data.json"), JSON.stringify({ slug, geradoEm: map.geradoEm, screensData: map.screensData, protos: map.protos, docs }));
     const entry = fs.readFileSync(path.join(__dirname, "map-entry.template.js"), "utf8").replace(/__PUB__/g, () => PUB);
     fs.writeFileSync(path.join(work, "entry.js"), entry);
     const { build } = await import("vite");

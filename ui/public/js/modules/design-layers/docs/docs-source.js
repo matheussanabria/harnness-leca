@@ -8,10 +8,35 @@ import { dls } from "../../design-layers-store.js";
  *   refs: () => Promise<any>,
  *   catalog: () => Promise<any>,
  *   tree: () => Promise<any>,
- *   file: (path: string) => Promise<{ path: string, ext: string, text: string } | { error: string, status: number }>,
+ *   file: (path: string) => Promise<{ path: string, ext: string, text: string } | { error: string, status: number, notInPackage?: boolean }>,
  *   reset?: () => void,
+ *   paths?: () => Promise<string[]>,
+ *   isIncluded?: (path: string) => boolean,
  * }} DocsSource
+ * `paths` lists every document of the project (links resolve against it); `isIncluded` says whether one can be
+ * opened here. Both exist only in the static package, where part of doc/ is left out on purpose.
  */
+
+/**
+ * Data embedded in the static review package (tools/pacote-revisao/docs-data.js): no network at all.
+ * @param {{ refs?: any, catalog?: any, tree?: any, paths?: string[], files?: Record<string, string> } | null} data
+ * @returns {DocsSource}
+ */
+export function embeddedDocsSource(data) {
+  const files = data?.files || {};
+  const included = new Set(Object.keys(files));
+  const ok = (value) => Promise.resolve(value);
+  return {
+    refs: () => ok(data?.refs || { found: false }),
+    catalog: () => ok(data?.catalog || { found: false }),
+    tree: () => ok(data?.tree || { found: false }),
+    paths: () => ok(data?.paths || [...included]),
+    isIncluded: (path) => included.has(path),
+    file: (path) => ok(included.has(path)
+      ? { path, ext: (path.split(".").pop() || "").toLowerCase(), text: files[path] }
+      : { error: "não incluído no pacote", status: 404, notInPackage: true }),
+  };
+}
 
 /** @type {DocsSource | null} */
 let source = null;

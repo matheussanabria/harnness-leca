@@ -12,7 +12,8 @@ const UNSAFE_SCHEME = /^\s*(javascript|data|vbscript|file):/i;
 const DOC_EXT = /\.(md|ya?ml|json)$/i;
 
 /**
- * @typedef {{ path: string, paths: string[], hrefFor?: (path: string, anchor: string) => string }} RenderContext
+ * @typedef {{ path: string, paths: string[], hrefFor?: (path: string, anchor: string) => string, isAvailable?: (path: string) => boolean }} RenderContext
+ * `isAvailable` exists only in the static package: a document of the project left out of it is not a broken link.
  */
 
 /** Text of a Markdown fragment without emphasis, code ticks or links. @param {string} md */
@@ -27,6 +28,9 @@ function plain(md) {
 
 /** @param {RenderContext} ctx @param {string} path @param {string} anchor @param {string} inner @param {string} [title] */
 function docLink(ctx, path, anchor, inner, title = "") {
+  if (ctx.isAvailable && !ctx.isAvailable(path)) {
+    return `<span class="doc-link-outside" title="${esc(`${path}: existe no projeto, mas não foi incluído no pacote`)}">${inner} <small>(não incluído no pacote)</small></span>`;
+  }
   const href = ctx.hrefFor ? ctx.hrefFor(path, anchor) : "#";
   const t = title ? ` title="${esc(title)}"` : "";
   return `<a class="doc-link" href="${esc(href)}" data-doc-path="${esc(path)}" data-doc-anchor="${esc(anchor)}"${t}>${inner}</a>`;

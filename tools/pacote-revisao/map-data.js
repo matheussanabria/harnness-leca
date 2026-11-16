@@ -6,6 +6,7 @@ const { ROOT } = require("./config");
 const services = path.join(ROOT, "ui", "server", "services");
 const { getProjectScreens } = require(path.join(services, "project-screens.service.js"));
 const { renderPrototypeScreen } = require(path.join(services, "prototype-renderer.service.js"));
+const { collectDocs } = require("./docs-data");
 
 /**
  * Aplica as correcoes da configuracao. Devolve as que ja estavam na fonte (ajuste velho) para o `check`.
@@ -42,9 +43,9 @@ function hideStyle(selectors) {
 }
 
 /**
- * @param {{ slug: string, repo: string, projectDir: string, config: any }} p
+ * @param {{ slug: string, repo: string, projectDir: string, config: any, outDir: string }} p
  */
-function collectMap({ slug, repo, projectDir, config }) {
+function collectMap({ slug, repo, projectDir, config, outDir }) {
   const screensData = getProjectScreens(slug, repo, projectDir);
   const fixes = applyCorrections(screensData.screens, config.correcoes);
   /** @type {Record<string, string>} */
@@ -58,7 +59,8 @@ function collectMap({ slug, repo, projectDir, config }) {
   for (const h of config.esconderNoPrototipo) {
     if (protos[h.tela]) protos[h.tela] = hideStyle(h.seletores) + protos[h.tela];
   }
-  return { geradoEm: new Date().toISOString(), screensData, protos, fixes };
+  const docs = collectDocs({ repo, outDir, screens: screensData.screens });
+  return { geradoEm: new Date().toISOString(), screensData, protos, fixes, docs };
 }
 
 module.exports = { collectMap, applyCorrections, hideStyle };
