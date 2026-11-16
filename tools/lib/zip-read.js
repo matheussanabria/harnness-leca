@@ -96,4 +96,20 @@ function extractZip(file, destDir, { filter = () => true, maxSize = Infinity } =
   return written;
 }
 
-module.exports = { listZip, extractZip };
+/**
+ * Reads one entry (matched by its base name) into memory, or returns null when absent.
+ * @param {string} file
+ * @param {(name: string) => boolean} match
+ */
+function readZipEntry(file, match) {
+  const e = listZip(file).find((x) => !x.name.endsWith("/") && match(x.name));
+  if (!e) return null;
+  const fd = fs.openSync(file, "r");
+  try {
+    return readEntry(fd, e);
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+
+module.exports = { listZip, extractZip, readZipEntry };

@@ -38,3 +38,27 @@ Funcionalidade: Importar conversas do export do claude.ai pela interface
     Dado o projeto ativo aberto no navegador
     Quando o usuario clica em "Importar claude.ai", informa a pasta dos zips e importa conversas marcadas
     Entao a lista de atividade do projeto recarrega com as conversas novas
+
+  @auto
+  Cenario: CP-07 O manifest baixa so os zips de conversas e de Design, uma vez
+    Dado um manifest do export com memories, conversations e design_chats
+    Quando o servidor prepara o export duas vezes
+    Entao so conversations-000.zip e design_chats-000.zip sao baixados e nenhum link e usado de novo
+
+  @auto
+  Cenario: CP-08 O dialogo aceita o caminho do manifest
+    Dado o caminho do manifest-*.json, com ou sem aspas
+    Quando o usuario le o export e importa uma conversa
+    Entao a lista mostra as conversas do export e a importacao grava a conversa no projeto
+
+  @auto
+  Cenario: CP-09 O zip que embrulha o manifest tambem e aceito
+    Dado o manifest-*.zip que contem o manifest-*.json
+    Quando o servidor prepara o export
+    Entao os zips de conversas e de Design sao baixados
+
+  @auto
+  Cenario: CP-10 Link recusado, expirado, que nao e zip ou fora do claude.ai falha com mensagem
+    Dado um link que responde 403, uma pagina HTML, um conteudo que nao e zip ou um host fora do claude.ai
+    Quando o servidor tenta baixar
+    Entao o erro explica o motivo, sugere gerar um export novo quando passou de 24 h e nenhum arquivo parcial fica no cache
