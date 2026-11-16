@@ -10,6 +10,8 @@ updated: 2026-11-13
 
 | File | Responsibility |
 |---|---|
+| `docs/architecture/PROJECT-STATUS.md` | Evidence-qualified architecture and planning brief; status discrepancies and proposed priorities. |
+| `docs/architecture/PROJECT-STATUS.pt-BR.md` | Portuguese counterpart of the architecture and planning decision brief. |
 | `docs/PROJECT-BRIEF.md` | Portable product and architecture brief for contributors and LLM reviewers, with current capabilities, boundaries and future white-paper scope. |
 | `docs/PROJECT-BRIEF.pt-BR.md` | Portuguese version of the project brief, maintained together with the English version. |
 | `docs/architecture/README.md` | Index of the architecture docs and the list of main gaps with their ids. |

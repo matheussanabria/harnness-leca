@@ -8,6 +8,7 @@ Validação / Validation: [resultados e limites — results and limitations (202
 
 | Percurso / Reading path | Português | English |
 |---|---|---|
+| Arquitetura e prioridades / Architecture and priorities | [Ler](docs/architecture/PROJECT-STATUS.pt-BR.md) | [Read](docs/architecture/PROJECT-STATUS.md) |
 | Visão geral / Overview | [Ler](docs/setup/01-overview.pt-BR.md) | [Read](docs/setup/01-overview.md) |
 | Instalação / Installation | [Ler](docs/setup/02-installation.pt-BR.md) | [Read](docs/setup/02-installation.md) |
 | Motores / Engines | [Ler](docs/setup/03-engines-and-credentials.pt-BR.md) | [Read](docs/setup/03-engines-and-credentials.md) |
