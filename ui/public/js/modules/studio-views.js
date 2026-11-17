@@ -6,6 +6,7 @@ import { requestUnsavedResolution } from "../shared/unsaved-dialog.js";
 import { sts } from "./studio-store.js";
 import { updateCompanionDetails } from "./studio-companion.js";
 import { isStudioSourceColumnOpen, setStudioSourceColumn, getStoredSourceColumnOpen } from "./studio-source-column.js";
+import { isStudioStoriesColumnOpen, setStudioStoriesColumn } from "./studio-stories-column.js";
 import { detachStudioSidebarFromAtelier } from "./prototype-atelier-sidebar.js";
 import { resetAtelierPromptState, setAtelierChatContext } from "./prototype-chat-bridge.js";
 import { readAtelierState } from "./prototype-atelier-state.js";
@@ -16,6 +17,7 @@ export const STUDIO_VIEW_MODES = {
   COMPANION: "companion",
   DESIGN: "design",
   CODE: "source",
+  STORIES: "stories",
 };
 
 export const STUDIO_VIEW_STORAGE_PREFIX = "harness_studio_active_view";
@@ -30,6 +32,7 @@ export function normalizeStudioViewMode(mode) {
   const m = String(mode).toLowerCase().trim();
   if (m === "preview" || m === "iframe") return STUDIO_VIEW_MODES.PREVIEW;
   if (m === "code" || m === "source" || m === "codigo") return STUDIO_VIEW_MODES.CODE;
+  if (m === "stories" || m === "historias") return STUDIO_VIEW_MODES.STORIES;
   if (m === "design" || m === "atelie" || m === "atelier") return STUDIO_VIEW_MODES.DESIGN;
   if (m === "companion" || m === "2telas") return STUDIO_VIEW_MODES.COMPANION;
   return m;
@@ -147,6 +150,12 @@ export async function switchStudioView(targetMode, options = {}) {
     const open = !isStudioSourceColumnOpen();
     if (!open && !options.force && hasUnsavedSource() && !(await confirmDiscardSource())) return false;
     setStudioSourceColumn(open);
+    return true;
+  }
+
+  // Histórias também é coluna própria: alterna sem trocar o modo do preview.
+  if (mode === STUDIO_VIEW_MODES.STORIES) {
+    setStudioStoriesColumn(!isStudioStoriesColumnOpen());
     return true;
   }
 

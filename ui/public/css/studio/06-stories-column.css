@@ -1,0 +1,44 @@
+/* Studio stories column: chat | preview | stories. Hosts the shared Scrum board (see office/21-scrum-board.css). */
+.studio-stories-col {
+  display: none;
+  width: 460px;
+  flex: 0 0 460px;
+  flex-direction: column;
+  min-width: 0;
+  border-left: 1px solid var(--line);
+  background: #0b1220;
+  color: #e2e8f0;
+}
+
+body.studio-stories-open #studioWorkspace .studio-stories-col { display: flex; }
+body.studio-stories-open #studioWorkspace .studio-canvas { min-width: 280px; }
+
+.studio-stories-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+}
+.studio-stories-subtitle { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #94a3b8; }
+.studio-stories-body { flex: 1; min-height: 0; overflow: auto; }
+
+/* Narrow column: stack lanes and detail instead of side by side. */
+.studio-stories-body .sb-main { flex-direction: column; }
+.studio-stories-body .sb-main > * { min-width: 0; width: 100%; }
+.studio-stories-body .sb-lanes { flex-direction: column; overflow-x: visible; }
+.studio-stories-body .sb-lane { flex: 0 0 auto; width: 100%; }
+
+#studioWorkspace.mode-2telas .studio-stories-col { display: none !important; }
+
+@media (max-width: 768px) {
+  body.studio-stories-open #studioWorkspace .studio-stories-col {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    width: 100dvw;
+    height: 100dvh;
+    border: 0;
+  }
+}

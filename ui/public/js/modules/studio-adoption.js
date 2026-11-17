@@ -5,6 +5,7 @@ import { state } from "../shared/state.js";
 import { applySidebarWidth } from "./studio-layout.js";
 import { setStudioViewport } from "./studio-companion.js";
 import { setStudioSourceColumn, setStudioSourceColumnWidth } from "./studio-source-column.js";
+import { syncStudioStoriesProject } from "./studio-stories-column.js";
 import { switchStudioView } from "./studio-views.js";
 import { restoreStudioState } from "./studio-state.js";
 
@@ -33,6 +34,7 @@ export function initStudioAdoption(options = {}) {
   if (initializedProject === project && !options.client) return Promise.resolve({});
   if (running) return running;
   initializedProject = project;
+  syncStudioStoriesProject();
   running = restoreStudioState({
     client: options.client,
     apply: {
