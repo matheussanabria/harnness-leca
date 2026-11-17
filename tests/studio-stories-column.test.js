@@ -23,3 +23,13 @@ test("the column reuses the office Scrum board and loads its styles in the Studi
   assert.match(read("ui/public/css/studio.css"), /office\/21-scrum-board\.css/);
   assert.match(read("ui/public/css/studio.css"), /06-stories-column\.css/);
 });
+
+test("the column offers a keyboard and pointer resizer and the chat/edit shortcuts", () => {
+  const column = read("ui/public/js/modules/studio-stories-column.js");
+  assert.match(column, /ensureStoriesResizer\(\)/);
+  assert.match(column, /onSendToChat/);
+  assert.match(column, /onEdit/);
+  const resizer = read("ui/public/js/modules/studio-stories-resizer.js");
+  assert.match(resizer, /role", "separator"/);
+  assert.match(resizer, /ArrowLeft/);
+});

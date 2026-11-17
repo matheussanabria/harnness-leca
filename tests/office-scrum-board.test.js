@@ -77,6 +77,20 @@ test('views: escaped, FontAwesome only, buttons only toward allowed lanes', asyn
   for (const html of [board, bar, confirm, detail]) assert.doesNotMatch(html, /\p{Extended_Pictographic}/u);
 });
 
+test('detail: criteria objects render as cards (no [object Object]) and shortcuts appear only when provided', async () => {
+  const { detailHtml } = await load('scrum-board-sprint-view.js');
+  const rich = scrum({ stories: [story('a', 'backlog', { description: '**negrito**', acceptanceCriteria: [{ label: 'Criterio 1', content: 'Texto **forte**' }, 'simples'] })] });
+  const plain = detailHtml(rich, rich.stories[0], null, false, false);
+  assert.ok(!plain.includes('[object Object]'));
+  assert.match(plain, /<strong>Criterio 1<\/strong>/);
+  assert.match(plain, /<b>forte<\/b>/);
+  assert.doesNotMatch(plain, /data-story-chat|data-story-edit/);
+  const withActions = detailHtml(rich, rich.stories[0], null, false, false, { edit: true, chat: true });
+  assert.match(withActions, /data-story-chat/);
+  assert.match(withActions, /data-story-edit/);
+  assert.doesNotMatch(withActions, /\p{Extended_Pictographic}/u);
+});
+
 test('api: wraps routes, sends the office actor, never throws', async () => {
   const { createScrumApi, OFFICE_ACTOR } = await load('scrum-board-api.js');
   const calls = [];

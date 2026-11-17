@@ -4,6 +4,8 @@
 import { $ } from "../shared/dom.js";
 import { state } from "../shared/state.js";
 import { mountScrumBoard } from "../office/scrum-board/scrum-board.js";
+import { ds } from "./design-scrum-store.js";
+import { ensureStoriesResizer } from "./studio-stories-resizer.js";
 
 const COLUMN_ID = "studioStoriesWorkspace";
 const BODY_CLASS = "studio-stories-open";
@@ -58,6 +60,11 @@ export async function renderStudioStories() {
       state.scrumData = scrum;
       window.dispatchEvent(new CustomEvent("dai:scrumChanged", { detail: { slug, scrum } }));
     },
+    onSendToChat: (story) => /** @type {any} */ (window).sendStoryToChat?.(story),
+    onEdit: (story) => {
+      ds.currentScrumData = state.scrumData || ds.currentScrumData;
+      /** @type {any} */ (window).openEditStoryModal?.(story);
+    },
     onSubtitle: (text) => {
       const subtitle = $("studioStoriesSubtitle");
       if (subtitle) subtitle.textContent = text;
@@ -72,6 +79,7 @@ export function setStudioStoriesColumn(open) {
   $("btnViewStories")?.setAttribute("aria-pressed", String(open));
   if (!open) return;
   if (!ensureColumn()) return;
+  ensureStoriesResizer();
   void renderStudioStories();
 }
 

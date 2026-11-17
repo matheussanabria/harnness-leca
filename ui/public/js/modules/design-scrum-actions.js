@@ -128,7 +128,9 @@ export function registerScrumActions() {
   window.sendStoryToChat = (story) => {
     const criteria = (story.acceptanceCriteria || []).map((item) => typeof item === "string" ? item : `${item.label}: ${item.content}`);
     const text = `<historia-usuario>\nchave: ${story.key}\ntitulo: ${story.title}\npontos: ${story.points ?? "nao informado"}\nprioridade: ${story.priority ?? "nao informada"}\nstatus: ${story.status}\ndescricao: ${story.description || "nao informada"}\ncriterios_aceite:\n${criteria.map((item) => `- ${item}`).join("\n")}\n</historia-usuario>\n\nImplemente esta historia de usuario atendendo a todos os criterios de aceite.`;
-    const input = /** @type {HTMLTextAreaElement} */ ($("chatInput") || $("studioChatInput"));
+    // Prefer the chat input that is on screen: in the Studio the project chat input exists but is hidden.
+    const visible = (/** @type {HTMLElement | null} */ el) => Boolean(el && el.offsetParent !== null);
+    const input = /** @type {HTMLTextAreaElement} */ ([$("studioChatInput"), $("chatInput")].find(visible) || $("chatInput") || $("studioChatInput"));
     if (!input) return;
     input.value = input.value.trim() ? `${text}\n\n${input.value.trim()}` : `${text}\n\n`;
     autoGrow(input);

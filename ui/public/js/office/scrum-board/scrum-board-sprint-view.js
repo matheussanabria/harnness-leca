@@ -1,6 +1,7 @@
 // @ts-check
 // Markup of the sprint bar (selector, progress, start and close) and of the story detail. Pure and escaped.
 import { esc } from "../../shared/dom.js";
+import { md } from "../../shared/markdown.js";
 import { traceBodyHtml, traceErrorHtml, traceLoadingHtml } from "../../modules/design-scrum-story-trace-view.js";
 import { ALL, SPRINT_STATUS_LABEL, closePreview, daysLeft, sprintActions, sprintProgress } from "./scrum-board-model.js";
 
@@ -60,13 +61,28 @@ function closeConfirmHtml(scrum, sprint, actions, busy) {
   </div>`;
 }
 
-/** @param {any} scrum @param {any} story @param {any} trace @param {boolean} form @param {boolean} busy */
-export function detailHtml(scrum, story, trace, form, busy) {
+/** @param {any} item @param {number} index */
+function criterionHtml(item, index) {
+  const label = typeof item === "string" ? `Criterio ${index + 1}` : item.label || `Criterio ${index + 1}`;
+  const content = typeof item === "string" ? item : item.content || "";
+  return `<article class="sb-criterion"><strong>${esc(label)}</strong><div class="sb-md">${md(content)}</div></article>`;
+}
+
+/** Optional shortcuts that exist only where the host provides them (Studio column). */
+function actionsHtml(actions) {
+  if (!actions) return "";
+  const edit = actions.edit ? `<button type="button" class="sb-btn" data-story-edit="1"><i class="fa-solid fa-pen" aria-hidden="true"></i> Editar</button>` : "";
+  const chat = actions.chat ? `<button type="button" class="sb-btn" data-story-chat="1"><i class="fa-solid fa-message" aria-hidden="true"></i> Enviar ao chat</button>` : "";
+  return `<div class="sb-actions">${edit}${chat}</div>`;
+}
+
+/** @param {any} scrum @param {any} story @param {any} trace @param {boolean} form @param {boolean} busy @param {{ edit?: boolean, chat?: boolean }} [actions] */
+export function detailHtml(scrum, story, trace, form, busy, actions) {
   if (!story) return `<aside class="sb-detail"><p class="sb-empty">Selecione uma historia para ver os detalhes.</p></aside>`;
   const lane = (scrum.lanes || []).find((item) => item.id === story.laneId);
   const sprint = (scrum.sprints || []).find((item) => item.id === story.sprintId);
   const epic = (scrum.epics || []).find((item) => item.id === story.epicId);
-  const criteria = (story.acceptanceCriteria || []).map((item) => `<li>${esc(item)}</li>`).join("");
+  const criteria = (story.acceptanceCriteria || []).map(criterionHtml).join("");
   const blocked = Boolean(story.impediment?.active);
   const row = (/** @type {string} */ label, /** @type {string} */ value) => `<dt>${label}</dt><dd>${esc(value)}</dd>`;
   const traceBody = !trace ? traceLoadingHtml() : trace.ok ? traceBodyHtml(trace.data) : traceErrorHtml(trace.error || "Falha ao carregar.");
@@ -74,8 +90,10 @@ export function detailHtml(scrum, story, trace, form, busy) {
     <header><span class="sb-key">${esc(story.key || story.id)}</span><h3>${esc(story.title)}</h3>
       <button type="button" class="sb-btn" data-story-close="1" aria-label="Fechar detalhes"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>
     <dl>${row("Raia", lane?.name || story.laneId)}${row("Sprint", sprint?.name || "Backlog")}${row("Epico", epic?.title || "Sem epico")}${row("Pontos", story.points != null ? String(story.points) : "-")}${row("Prioridade", story.priority || "-")}</dl>
-    ${story.description ? `<h4>Descricao</h4><p>${esc(story.description)}</p>` : ""}
-    ${criteria ? `<h4>Criterios de aceite</h4><ul>${criteria}</ul>` : ""}
+    ${actionsHtml(actions)}
+    ${story.description ? `<h4>Descricao</h4><div class="sb-md">${md(story.description)}</div>` : ""}
+    ${story.userStory ? `<h4>Historia de usuario</h4><div class="sb-md">${md(story.userStory)}</div>` : ""}
+    ${criteria ? `<h4>Criterios de aceite</h4>${criteria}` : ""}
     <div class="sb-impediment">${blocked
       ? `<p class="sb-note is-danger"><i class="fa-solid fa-ban" aria-hidden="true"></i> Impedida: ${esc(story.impediment.reason)}</p><button type="button" class="sb-btn" data-impediment-resolve="1"${busy ? " disabled" : ""}><i class="fa-solid fa-check" aria-hidden="true"></i> Resolver impedimento</button>`
       : form

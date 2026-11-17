@@ -13,7 +13,7 @@ let detachExternal = null;
 /**
  * @param {HTMLElement} el
  * @param {string} slug
- * @param {{ publish?: (scrum: any) => void, onSubtitle?: (text: string) => void, fetchImpl?: typeof fetch }} [hooks]
+ * @param {{ publish?: (scrum: any) => void, onEdit?: (story: any) => void, onSendToChat?: (story: any) => void, onSubtitle?: (text: string) => void, fetchImpl?: typeof fetch }} [hooks]
  * @returns {Promise<ReturnType<typeof createBoardController>>}
  */
 export async function mountScrumBoard(el, slug, hooks = {}) {
@@ -35,7 +35,7 @@ export async function mountScrumBoard(el, slug, hooks = {}) {
     const story = state.selectedId ? scrum.stories.find((item) => item.id === state.selectedId) : null;
     const message = state.message ? `<p class="sb-message is-${state.message.kind}" role="status">${esc(state.message.text)}</p>` : "";
     el.innerHTML = `<div class="sb-root">${sprintBarHtml({ scrum, viewId: state.viewId, busy: state.busy, confirmClose: state.confirmClose })}${message}
-      <div class="sb-main">${boardHtml({ scrum, viewId: state.viewId, selectedId: state.selectedId, busy: state.busy })}${story ? detailHtml(scrum, story, state.trace, state.impedimentForm, state.busy) : ""}</div></div>`;
+      <div class="sb-main">${boardHtml({ scrum, viewId: state.viewId, selectedId: state.selectedId, busy: state.busy })}${story ? detailHtml(scrum, story, state.trace, state.impedimentForm, state.busy, { edit: Boolean(hooks.onEdit), chat: Boolean(hooks.onSendToChat) }) : ""}</div></div>`;
     const sprint = scrum.sprints.find((item) => item.id === state.viewId);
     hooks.onSubtitle?.(sprint ? `${sprint.name} - ${sprint.status}` : "Todas as historias");
   }
@@ -58,6 +58,9 @@ export async function mountScrumBoard(el, slug, hooks = {}) {
       void controller.closeSprint(/** @type {string} */ (attr(close, "data-sprint-close")), value === "backlog" ? "backlog" : "next", value);
       return;
     }
+    const selected = () => state.scrum?.stories.find((item) => item.id === state.selectedId);
+    if (closest("[data-story-chat]")) { const story = selected(); if (story) hooks.onSendToChat?.(story); return; }
+    if (closest("[data-story-edit]")) { const story = selected(); if (story) hooks.onEdit?.(story); return; }
     if (closest("[data-story-close]")) { void controller.selectStory(null); return; }
     if (closest("[data-impediment-toggle]")) { controller.toggleImpedimentForm(); return; }
     if (closest("[data-impediment-resolve]")) { void controller.setImpediment(false, ""); return; }

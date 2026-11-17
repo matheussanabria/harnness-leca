@@ -3,7 +3,7 @@ domain: frontend
 module: studio
 feature: studio-review-skills
 summary: Vibecoding Studio layout, views, state and code editor, plus memory review and skills manager modules.
-paths: [ui/public/js/modules/studio*.js, ui/public/js/modules/design-view-state.js, ui/public/js/modules/review.js, ui/public/js/modules/skills*.js, ui/public/css/studio/05-source-editor.css, tests/studio-wiring.test.js, tests/source-editor-mobile.test.js, ui/public/js/modules/studio-stories-column.js, ui/public/css/studio/06-stories-column.css, tests/studio-stories-column.test.js]
+paths: [ui/public/js/modules/studio*.js, ui/public/js/modules/design-view-state.js, ui/public/js/modules/review.js, ui/public/js/modules/skills*.js, ui/public/css/studio/05-source-editor.css, tests/studio-wiring.test.js, tests/source-editor-mobile.test.js, ui/public/js/modules/studio-stories-column.js, ui/public/js/modules/studio-stories-resizer.js, ui/public/css/studio/06-stories-column.css, tests/studio-stories-column.test.js]
 keywords: [studio, stories, scrum-column, preview, splitter, source-editor, design-view, review, memory, skills]
 updated: 2026-10-30
 ---
@@ -25,7 +25,8 @@ updated: 2026-10-30
 | `ui/public/js/modules/studio-state.js` | Normalizes and persists the `studio` screen (view, sidebar, code, viewport, Design view) and logs actions (EP-14.08, EP-14.12). |
 | `ui/public/js/modules/design-view-state.js` | Reads `studio.designView/designOpen`, restores the Design tab at boot and saves view/open changes (EP-14.12). |
 | `ui/public/js/modules/studio-adoption.js` | Reapplies saved Studio state to the DOM when opening the mode, idempotent per project (EP-14.08). |
-| `ui/public/js/modules/studio-stories-column.js` | Stories column (Histórias button): mounts the office Scrum board beside the preview, remounts on project change. |
+| `ui/public/js/modules/studio-stories-column.js` | Stories column (Histórias button): mounts the office Scrum board beside the preview, remounts on project change; wires "Enviar ao chat" and "Editar" into the board detail. |
+| `ui/public/js/modules/studio-stories-resizer.js` | Pointer and keyboard resizer for the stories column (in-memory width, double click restores). |
 | `ui/public/css/studio/06-stories-column.css` | Styles of the stories column; the board itself reuses `office/21-scrum-board.css`, imported by `studio.css`. |
 | `tests/studio-stories-column.test.js` | Contract of the Histórias button, stories mode toggle and board reuse. |
 | `ui/public/js/modules/studio-source-column.js` | Third column (chat, preview, code): toggle by Code button, drag resize, per-project width and state. |
