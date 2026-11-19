@@ -30,8 +30,10 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-19 | 9/9 | **concluído conforme histórias / complete per story records** | [19.01–19.09](../02-epics/EP-19-canvas/README.md): nove histórias com status concluida e referências de testes / nine completed stories with test references | Registro reconciliado; sem novo aceite / record reconciled; no new acceptance |
 | EP-20 | 0/1 | **em revisão** | Edição de código pelo celular implementada; aguarda validação visual dos breakpoints móveis | Validar em 320px, 375px e 768px e registrar aceite |
 | EP-21 | 2/13 | **em andamento** | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA; 13 histórias criadas, ADR-014 aceito (21.01 e 21.02 concluidas). |
+| EP-22 | 0/6 | **planejado** | Navegação de projetos: spec do BA/UX e histórias 22.01 a 22.06 criadas em 2026-11-16 | Definir a frente e abrir 22.01 e 22.03 em paralelo |
+| EP-23 | 0/6 | **planejado** | Host de execução persistente: histórias 23.01 a 23.06 criadas em 2026-11-19; ADR-012 aceito com a emenda da disciplina de escrita | 23.01 e 17.01 implementadas em branches, aguardando merge |
 
-**Total: 141/166**
+**Total: 141/178**
 
 Reconciliação documental em 2026-11-16: adicionada a linha EP-19, já contabilizada no índice mestre e nas nove histórias concluídas. A tabela agora soma 141/166 em 19 épicos. Não representa percentual de usabilidade ou novo aceite.
 

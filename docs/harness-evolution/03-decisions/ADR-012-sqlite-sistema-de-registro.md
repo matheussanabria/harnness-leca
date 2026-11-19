@@ -1,7 +1,7 @@
 ---
 id: ADR-012
 titulo: SQLite as the system of record for application state
-status: proposta
+status: aceita
 data: 2026-11-01
 historias: [17.01, 17.02, 17.03, 17.07, 17.08, 17.09, 17.10, 17.11, 17.12, 17.13]
 tags: [harness-evolution, adr, sqlite, persistencia]
@@ -20,7 +20,7 @@ Two new requirements need transactional storage: role-based access control (ADR-
 ## Decision
 
 1. One global database file, `data/harness.sqlite` (path overridable by `HARNESS_DB_PATH`), WAL mode, `busy_timeout`, `foreign_keys=ON`, forward-only migrations recorded by name in a `schema_migrations` table (`user_version` mirrors the highest), so migrations authored in parallel worktrees can merge in any order. Data is scoped by a `project_id` column, not by a file per project.
-2. A single `ui/server/db/` module owns the connection. Services never open the file themselves; they receive repositories. This keeps transactions short and gives one place for the single-writer discipline.
+2. A single `ui/server/db/` module owns the connection code. Services never open the file themselves; they receive repositories. Amended 2026-11-19 (EP-23): each process (web server, engine host, CLIs) opens its own connection through this module, and every table has one owner process declared in `ui/server/db/owners.js`; only the owner writes. Any process may apply migrations inside `BEGIN IMMEDIATE`. Detail in story 17.01, section 5.
 3. Migrate by vertical slices, each behind the existing HTTP contract, with a one-time idempotent importer from the old files and a rollback flag. Order: chat sessions and messages first (it fixes the F5 incident), then screen state, then domain stores, then telemetry and events.
 4. Stay on disk, on purpose: curated memory (`memory/**`, ADR-009), `instructions.md`, `context/`, Atelier source files (`screens/*.html`, `styles/*.css`), `docs/`, and the multi-agent ledger (ADR-007) until story 17.13 re-evaluates it. These are agent-readable, diffable in git, and edited by CLIs outside the server.
 5. Markdown transcripts become an export generated from the database (17.11), not a source of truth. The importer and `redact` pipeline keep working on the export.
@@ -48,4 +48,6 @@ Migration: every story ships an importer and a rollback flag. Nothing is deleted
 
 ## Review
 
-Revisit if the harness becomes multi-host or multi-user over a network (then reconsider Postgres), or if `node:sqlite` changes its API.
+Revisit if several hosts or users must write to the same database over a network (then reconsider Postgres), or if `node:sqlite` changes its API. Several hosts that each own their own database (EP-23.06) do not trigger this review.
+
+Accepted on 2026-11-19 by the user, with the write-discipline amendment in item 2.
