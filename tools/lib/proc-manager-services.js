@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const { PROJECTS, runningServices } = require("./proc-manager-store");
 const { getProjectRepoDir, extractAppConfigFromDocs } = require("./proc-manager-config");
+const { ensureAdopted, pruneAdoptedDead } = require("./proc-manager-persist");
 
 /**
  * Retorna os serviços configurados ou detectados para um projeto
@@ -102,7 +103,9 @@ function listProjectServices(slug) {
     });
   }
 
-  // Adiciona o status atual em tempo de execução
+  // Adiciona o status atual em tempo de execução (readota serviços que sobreviveram a um reinício)
+  ensureAdopted();
+  pruneAdoptedDead();
   return services.map((s) => {
     const key = `${slug}:${s.id}`;
     const running = runningServices.get(key);

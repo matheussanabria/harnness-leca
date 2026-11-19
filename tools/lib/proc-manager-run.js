@@ -7,6 +7,7 @@ const { PROJECTS, runningServices } = require("./proc-manager-store");
 const { killTree } = require("./proc-manager-core");
 const { getProjectRepoDir } = require("./proc-manager-config");
 const { listProjectServices } = require("./proc-manager-services");
+const { recordStart, recordStop, ensureAdopted } = require("./proc-manager-persist");
 
 /**
  * Inicia a execução de um serviço de desenvolvimento para um projeto
@@ -72,6 +73,7 @@ async function startService(slug, serviceId = "default") {
     listeners: new Set(),
   };
   runningServices.set(key, info);
+  recordStart(key, { slug, serviceId: srv.id, name: srv.name, command: srv.command, cwd: targetCwd, url: srv.url, pid: info.pid, startedAt: info.startedAt });
 
   addLog(`🚀 Iniciando: ${srv.command} em ${targetCwd}`);
 
@@ -92,6 +94,7 @@ async function startService(slug, serviceId = "default") {
   child.on("close", (code) => {
     info.exitCode = code;
     info.status = code === 0 ? "stopped" : "failed";
+    if (runningServices.get(key) === info) recordStop(key);
     addLog(`⏹ Processo finalizado com código ${code}`);
     for (const listener of info.listeners) {
       try { listener({ type: "status", text: `STATUS: ${info.status}` }); } catch {}
@@ -107,6 +110,7 @@ async function startService(slug, serviceId = "default") {
  * @param {string} [serviceId]
  */
 function stopService(slug, serviceId) {
+  ensureAdopted();
   let stoppedAny = false;
   for (const [key, info] of runningServices.entries()) {
     if (info.slug === slug && (!serviceId || info.serviceId === serviceId)) {
@@ -116,6 +120,7 @@ function stopService(slug, serviceId) {
         stoppedAny = true;
       }
       runningServices.delete(key);
+      recordStop(key);
     }
   }
   return { ok: true, stopped: stoppedAny };
@@ -128,6 +133,7 @@ function stopService(slug, serviceId) {
  * @returns {{ logs: string[], status: string, pid?: number }}
  */
 function getServiceLogs(slug, serviceId = "default") {
+  ensureAdopted();
   const key = `${slug}:${serviceId}`;
   const info = runningServices.get(key);
   if (info) {
