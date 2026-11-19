@@ -4,22 +4,19 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { execFileSync } = require("child_process");
 const { isWatchMode, isMainCheckout, warnIfWatchOnMain } = require("../tools/lib/ui-dev-guard");
+const { cleanGitEnv, sandboxGit, initSandboxRepo } = require("./helpers/git-sandbox");
 
-// The pre-commit hook exports GIT_* vars; fixtures must not inherit them.
-const env = { ...process.env };
-for (const k of Object.keys(env)) if (k.startsWith("GIT_")) delete env[k];
-
-const git = (/** @type {string[]} */ args, /** @type {string} */ cwd) => execFileSync("git", args, { cwd, env, stdio: "ignore" });
+// The pre-commit hook exports GIT_* vars; fixtures must not inherit them (tests/helpers/git-sandbox.js).
+const env = cleanGitEnv();
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "ui-dev-guard-"));
 const main = path.join(root, "main");
 const wt = path.join(root, "wt");
 fs.mkdirSync(main);
-git(["init", "-q"], main);
-git(["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "init"], main);
-git(["worktree", "add", "-q", "-b", "feat-x", wt], main);
+initSandboxRepo(main);
+sandboxGit(main, ["commit", "-q", "--allow-empty", "-m", "init"]);
+sandboxGit(main, ["worktree", "add", "-q", "-b", "feat-x", wt]);
 test.after(() => fs.rmSync(root, { recursive: true, force: true }));
 
 /** @param {string[]} execArgv @param {string} cwd */
