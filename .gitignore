@@ -40,3 +40,6 @@ ui/public/dist/
 # Agent worktrees and personal scratch folder: never committed
 .claude/worktrees/
 temp/
+
+# SQLite system of record (EP-17): local database, never committed
+/data/

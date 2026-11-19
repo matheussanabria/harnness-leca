@@ -30,6 +30,7 @@ const { permissionsRoutes } = require("./permissions.routes");
 const { deployRoutes } = require("./deploy.routes");
 const { hiaRoutes } = require("./hia.routes");
 const { projectDocsRoutes } = require("./project-docs.routes");
+const { dbRoutes } = require("./db.routes");
 
 // method + path (exact text or RegExp). HEAD uses the GET route.
 const ROUTES = [
@@ -60,6 +61,7 @@ const ROUTES = [
   ...deployRoutes,
   ...hiaRoutes,
   ...projectDocsRoutes,
+  ...dbRoutes,
 ];
 
 module.exports = { ROUTES };
