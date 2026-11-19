@@ -3,7 +3,7 @@ domain: tools
 module: engines
 feature: extractors
 summary: Network and process libs, managed export writers, declarative memory libs (item, harvest, lint) and the memory hook.
-paths: [tools/lib/network.js, tools/lib/proc-manager.js, tools/lib/export/*.js, tools/lib/memory/**, .claude/hooks/load-project.ps1, tests/export-*.test.js, tests/memory-*.test.js, tests/remote*.test.js, tools/lib/network-*.js, tools/lib/proc-manager-*.js, tools/lib/qrcode*.js, tools/lib/skills.js, tools/lib/skills/*.js, tools/import-gemini-chats.js, tools/lib/gemini-import/*.js]
+paths: [tools/lib/network.js, tools/lib/ui-dev-guard.js, tests/ui-dev-guard.test.js, tools/lib/proc-manager.js, tools/lib/export/*.js, tools/lib/memory/**, .claude/hooks/load-project.ps1, tests/export-*.test.js, tests/memory-*.test.js, tests/remote*.test.js, tools/lib/network-*.js, tools/lib/proc-manager-*.js, tools/lib/qrcode*.js, tools/lib/skills.js, tools/lib/skills/*.js, tools/import-gemini-chats.js, tools/lib/gemini-import/*.js]
 keywords: [export, memory, harvest, lint, network, qr, proc-manager, envelope, hook, skills, qrcode, gemini-import]
 updated: 2026-10-30
 ---
@@ -17,6 +17,8 @@ updated: 2026-10-30
 | `tools/lib/network-session.js` | Signed `harness_session` cookie (HttpOnly, SameSite=Strict, per-process key bound to the PIN) replacing the raw PIN cookie. |
 | `tools/lib/network-throttle.js` | Per-client and global PIN attempt limiter with temporary lockout. |
 | `tests/remote.test.js`, `tests/remote-hardening.test.js` | Remote access, PIN, QR and the tunnel/proxy hardening regression tests. |
+| `tools/lib/ui-dev-guard.js` | EP-23.01 guard: warns at startup when `--watch` runs in the main checkout (git dir equals common dir); never throws. |
+| `tests/ui-dev-guard.test.js` | Guard tests with a temp git repo and worktree (GIT_* env stripped). |
 | `tools/lib/proc-manager.js` | Per-project background process orchestrator. Split into `proc-manager-*.js` (`proc-manager-store.js` keeps shared state). |
 | `tools/lib/export/managed-file.js` | Non-destructive export writes (EP-13.01): `harness:begin`/`harness:end` block, `harness:generated` rewrite, path validation. |
 | `tools/lib/export/claude.js`, `gemini.js`, `local.js` | Plan what export writes per target (Claude `MEMORY.md` pointer, two-phase Gemini Knowledge Item). |

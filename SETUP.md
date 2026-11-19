@@ -111,7 +111,8 @@ npm run build:web      # builds ui/web into ui/public/dist (gitignored)
 ```
 
 Development loop: run `npm run dev:web` (rebuilds on save) in one terminal and `npm run ui:dev` in another, then reload the
-browser. Before committing island code: `npm run types:web`, `npm run lint:web` and `npm run e2e:web` (headless Edge).
+browser. Use `npm run ui:dev` only inside a development worktree. In the main checkout (where you chat through the UI) run
+`npm run ui` for daily use, because auto restart drops live chat answers; the server prints a warning if you start `ui:dev` there. Before committing island code: `npm run types:web`, `npm run lint:web` and `npm run e2e:web` (headless Edge).
 
 ## Uso no dia a dia
 

@@ -47,6 +47,7 @@ if (require.main === module) {
   // Uma rejeição solta num motor não pode derrubar o processo e cortar todos os streams SSE abertos ("network error").
   process.on("unhandledRejection", (err) => console.error("[unhandledRejection]", (err && err.stack) || err));
   process.on("uncaughtException", (err) => console.error("[uncaughtException]", (err && err.stack) || err));
+  require("../tools/lib/ui-dev-guard").warnIfWatchOnMain();
   const srv = createServer();
   // Quem encerra o processo (reinício do --watch, Ctrl+C, queda) e quantas conexões abertas ele corta: sem isso, um
   // "network error" no navegador não diz se o servidor reiniciou. O --watch encerra o filho com SIGTERM.
