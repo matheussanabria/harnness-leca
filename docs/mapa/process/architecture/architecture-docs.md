@@ -3,9 +3,9 @@ domain: process
 module: architecture
 feature: architecture-docs
 summary: Harness architecture docs - chat context per surface, hybrid project config, delivery pipeline, validation.
-paths: [docs/architecture/*.md, docs/architecture/pt-BR/*.md, docs/PROJECT-BRIEF.md, docs/PROJECT-BRIEF.pt-BR.md]
-keywords: [architecture, chat, context, surface, project, config, repo, hybrid, delivery, pipeline, validation, gates, mind map, layers map]
-updated: 2026-11-13
+paths: [docs/architecture/*.md, docs/architecture/pt-BR/*.md, docs/PROJECT-BRIEF.md, docs/PROJECT-BRIEF.pt-BR.md, docs/harness-evolution/03-decisions/ADR-017-*.md]
+keywords: [architecture, adr-017, pointer, chat, context, surface, project, config, repo, hybrid, delivery, pipeline, validation, gates, mind map, layers map]
+updated: 2026-11-16
 ---
 
 | File | Responsibility |
@@ -24,3 +24,4 @@ updated: 2026-11-13
 | `docs/architecture/pt-BR/02-configuracao-hibrida-do-projeto.md` | Portuguese variant of 02, hybrid project config. |
 | `docs/architecture/pt-BR/03-pipeline-de-entrega.md` | Portuguese variant of 03, delivery pipeline. |
 | `docs/architecture/pt-BR/04-validacao-e-gates.md` | Portuguese variant of 04, validation and gates. |
+| `docs/harness-evolution/03-decisions/ADR-017-project-config-pointer-not-copy.md` | ADR-017: product artifacts live in the project repo, the harness keeps a pointer and one resolver. |

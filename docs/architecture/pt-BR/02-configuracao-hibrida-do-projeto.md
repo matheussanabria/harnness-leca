@@ -55,7 +55,11 @@ Esta página descreve como funciona hoje e propõe um padrão único para os doi
 6. **Os motores discordam do diretório de trabalho:** o Claude roda no repositório, o Codex roda na pasta do projeto no
    harness.
 
-## Padrão proposto: ponteiro, não cópia
+## Padrão: ponteiro, não cópia
+
+**Decidido em 2026-11-16:** aceito no
+[ADR-017](../../harness-evolution/03-decisions/ADR-017-project-config-pointer-not-copy.md). A migração abaixo ainda não
+começou.
 
 **Regra de decisão.** Quem é dono do artefato decide onde ele mora.
 

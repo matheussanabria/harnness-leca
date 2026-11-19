@@ -49,7 +49,11 @@ one standard for both cases. Status as of 2026-11-13.
    - `pacote-revisao.json`.
 6. **Engines disagree on cwd.** Claude runs in the repo; Codex runs in the harness project folder.
 
-## Proposed standard: pointer, not copy
+## Standard: pointer, not copy
+
+**Decided 2026-11-16:** accepted in
+[ADR-017](../harness-evolution/03-decisions/ADR-017-project-config-pointer-not-copy.md). The migration below has not
+started yet.
 
 **Decision rule.** The owner of an artifact decides where it lives.
 

@@ -57,7 +57,15 @@ flowchart TB
 | G8 | contagem desatualizada (aviso) |
 | G9 | mapa em camadas fora de sincronia com o rastreio |
 
-### Validação pelo mapa mental: [ausente], proposta
+### Validação pelo mapa mental: [ausente], decidida como visão somente leitura
+
+**Decidido em 2026-11-16 (opção A):** o mapa mental da funcionalidade é uma visão **somente leitura**, regerada a partir
+dos arquivos.
+- Editar o mapa nunca altera os entregáveis.
+- As mudanças passam pelo chat ou pelos arquivos, e o mapa é sincronizado de novo em seguida.
+
+A edição de mão dupla foi avaliada e descartada: duas fontes da verdade, conflitos de sincronização e nós sem
+entregável real por trás.
 
 Hoje nenhum fluxo valida uma funcionalidade por um mapa mental. O que existe:
 - `tools/epic-canvas.js` projeta a pasta de um **épico** num quadro `mindmap@1`, em mão única: as histórias são a fonte.
