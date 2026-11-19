@@ -11,6 +11,8 @@ updated: 2026-11-01
 
 | File | Responsibility |
 |---|---|
+| `docs/features/scrum-story-parser/05-dev-notas.md` | Scope, acceptance and validation of the story parser and legacy story body repair. |
+| `docs/features/scrum-story-parser/02-bdd.feature` | Executable acceptance scenarios for story document format compatibility. |
 | `ui/server/controllers/overview.controller.js` | Paginated activity summary (`GET /api/overview`). |
 | `ui/server/controllers/project.controller.js` | State (`/api/state`), details (`/api/project/:slug`), groups and safe file reading. |
 | `ui/server/services/project.service.js` | Reads metadata, counts chats and caches conversation statistics. |

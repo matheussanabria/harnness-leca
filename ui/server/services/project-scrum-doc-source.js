@@ -11,7 +11,9 @@ function sectionsOf(markdown) {
   const sections = [];
   let current = { title: "", lines: [] };
   for (const line of String(markdown || "").split(/\r?\n/)) {
-    const heading = line.match(/^##\s+(.+)\s*$/);
+    const heading = line.match(/^##\s+(.+)\s*$/)
+      || line.match(/^###\s+(Contexto(?:\s.*)?)\s*$/i)
+      || line.match(/^\*\*([^*]+):\*\*\s*$/);
     if (heading) {
       sections.push(current);
       current = { title: heading[1].trim(), lines: [] };
@@ -28,14 +30,26 @@ function trimBlock(lines) {
   return copy.join("\n");
 }
 
+function introductoryDescription(lines) {
+  // Exported documents put issue metadata before the first horizontal rule.
+  const separator = lines.findIndex((line) => /^-{3,}\s*$/.test(line));
+  const body = separator >= 0 ? lines.slice(separator + 1) : lines.filter((line) => !/^#\s/.test(line));
+  return trimBlock(body.filter((line) => !/^-{3,}\s*$/.test(line))) || null;
+}
+
 function parseCriteria(lines) {
   const criteria = [];
   let current = null;
   for (const line of lines) {
-    const match = line.match(/^-\s+\*\*(Crit[^*]+)\*\*:\s*(.*)$/i);
-    if (match) {
+    const match = line.match(/^[-*]\s+\*\*(Crit[^*:]+)(?::\*\*|\*\*:)\s*(.*)$/i);
+    const numbered = line.match(/^\d+[.)]\s+(.*)$/);
+    if (match || numbered) {
       if (current) criteria.push(current);
-      current = { id: `criterion-${criteria.length + 1}`, label: match[1].trim(), lines: [match[2]] };
+      current = {
+        id: `criterion-${criteria.length + 1}`,
+        label: match ? match[1].trim() : `Critério ${criteria.length + 1}`,
+        lines: [match ? match[2] : numbered[1]],
+      };
     } else if (current) current.lines.push(line);
   }
   if (current) criteria.push(current);
@@ -46,11 +60,12 @@ function parseScenarios(lines) {
   const scenarios = [];
   let current = null;
   for (const line of lines) {
-    const match = line.match(/^###\s+(.+)\s*$/);
+    const match = line.match(/^###\s+(.+)\s*$/)
+      || line.match(/^\*{3}(Cen[aá]rio[^*]+)\*{3}\s*$/i);
     if (match) {
       if (current) scenarios.push(current);
       current = { id: `scenario-${scenarios.length + 1}`, title: match[1].trim(), lines: [] };
-    } else if (current) current.lines.push(line);
+    } else if (current && !/^-{3,}\s*$/.test(line)) current.lines.push(line);
   }
   if (current) scenarios.push(current);
   return scenarios.map(({ lines: contentLines, ...scenario }) => ({ ...scenario, content: trimBlock(contentLines) }));
@@ -73,7 +88,7 @@ function parseStoryDocument(markdown, meta = {}) {
   return {
     key: meta.key || null,
     context: context ? trimBlock(context.lines) : null,
-    description: description ? trimBlock(description.lines) : null,
+    description: description ? trimBlock(description.lines) : introductoryDescription(sections[0].lines),
     userStory: userStory ? trimBlock(userStory.lines) : null,
     acceptanceCriteria: criteria ? parseCriteria(criteria.lines) : [],
     scenarios: scenarios ? parseScenarios(scenarios.lines) : [],

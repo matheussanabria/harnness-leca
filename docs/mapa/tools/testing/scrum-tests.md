@@ -11,6 +11,7 @@ updated: 2026-11-01
 
 | File | Responsibility |
 |---|---|
+| `tests/project-scrum-document-formats.test.js` | Regression coverage for exported criteria, numbered lists, emphasized scenarios, nested context and unstructured descriptions. |
 | `tests/project-scrum-sources.test.js` | Faithful Jira normalization, ordered document parsing, reconciliation without fake defaults, legacy mapping compatibility. |
 | `tests/project-scrum-migration.test.js` | Covers schema v2, idempotence, unknown status, backup, atomic write, rollback and lane coherence. |
 | `tests/project-scrum-lanes.test.js` | Covers lane catalog, configuration, permutation, persistence and optimistic revision in temp dirs. |
