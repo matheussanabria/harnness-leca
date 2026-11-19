@@ -21,3 +21,4 @@ Uma decisão vira ADR quando afeta mais de uma história ou é difícil de rever
 | [ADR-012](ADR-012-sqlite-sistema-de-registro.md) | SQLite as the system of record for application state | proposta | EP-17 |
 | [ADR-013](ADR-013-identidade-rbac-auditoria.md) | Local identity, RBAC and a tamper-evident audit trail | proposta | 17.04 to 17.06, 17.10 |
 | [ADR-016](ADR-016-harness-gates-prototype-code-fidelity.md) | harness-gates: prototype x code fidelity gates owned by the Harness, runnable without it | proposta | transversal |
+| [ADR-017](ADR-017-project-config-pointer-not-copy.md) | Project configuration: the harness points at the project repo, never copies product artifacts | aceita | transversal |

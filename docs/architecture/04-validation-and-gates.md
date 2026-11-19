@@ -52,7 +52,14 @@ flowchart TB
 | G8 | stale count (warning) |
 | G9 | layers map out of step with rastreio |
 
-### Mind map validation: [missing], proposal
+### Mind map validation: [missing], decided as a read-only view
+
+**Decided 2026-11-16 (option A):** the feature mind map is a **read-only** view, regenerated from the files.
+- Editing the map never changes deliverables.
+- Changes go through the chat or the files, and the map is synced again afterwards.
+
+Two-way editing was considered and rejected: two sources of truth, sync conflicts, and nodes with no real deliverable
+behind them.
 
 No flow today validates a feature through a mind map. What exists:
 - `tools/epic-canvas.js` projects an **epic** folder into a `mindmap@1` board, one way (stories are the source).
