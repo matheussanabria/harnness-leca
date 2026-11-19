@@ -42,3 +42,6 @@ ui/public/dist/
 .codex/worktrees/
 .worktrees/
 temp/
+
+# SQLite system of record (EP-17): local database, never committed
+/data/
