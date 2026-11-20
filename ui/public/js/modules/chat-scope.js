@@ -3,7 +3,8 @@
 // screen in localStorage and restores the one that belongs to the new target, instead of keeping the old turns.
 import { state, saveActiveChatState, restoreActiveChatState, getActiveChatStorageKey } from "../shared/state.js";
 import { cs } from "./chat-store.js";
-import { activateEngineSessions } from "./chat-session-store.js";
+import { activateEngineSessions, reconcileEngineSessions, migrateLocalSessionsOnce } from "./chat-session-store.js";
+import { listConversations } from "./chat-conversation-api.js";
 import { chatPresence } from "./chat-tabs.js";
 import { isChatStreamingFor, subscribeAllChatExecutions } from "./chat-execution-store.js";
 
@@ -33,6 +34,8 @@ export function adoptStoredChat(slug) {
   cs.currentChatTitle = restored ? state.currentChatTitle : null;
   activateEngineSessions(slug, cs.currentChatFile);
   announceChat(slug);
+  void migrateLocalSessionsOnce(slug);
+  if (restored && cs.currentChatFile) void reconcileEngineSessions(slug, cs.currentChatFile);
   if (!restored) void restoreLastSavedChat(slug);
   if (typeof document === "undefined") return;
   for (const id of ["btnSaveChat", "btnSaveStudioChat"]) {
@@ -60,12 +63,21 @@ export function latestSavedChat(project) {
  */
 async function restoreLastSavedChat(slug) {
   if (state.chatScope !== "") return;
-  const name = latestSavedChat(state.P);
+  // EP-17.02: the server knows which conversation had the latest activity (a reply or a new engine session), which
+  // the newest file name does not; the file name stays as the fallback when the server store is off.
+  const name = (await lastActiveConversationFile(slug)) || latestSavedChat(state.P);
   if (!name) return;
   const { resumeExistingChat } = await import("./chat-persist.js");
   // The user may have switched project or typed in the meantime: only fill an empty chat of the same project.
   if (state.P?.slug !== slug || state.chatScope !== "" || state.chatTurns.length > 0) return;
   await resumeExistingChat(name, false, { silent: true });
+}
+
+/** File of the project's conversation with the latest activity on the server, if it is still a saved chat. @param {string} slug */
+async function lastActiveConversationFile(slug) {
+  const list = await listConversations(slug);
+  const files = new Set((state.P?.chats || []).map((chat) => chat.name));
+  return list?.find((c) => c.sourceFile && files.has(c.sourceFile))?.sourceFile || null;
 }
 
 /** True while the conversation on screen is receiving an answer: it must not be swapped out underneath the stream. */

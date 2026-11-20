@@ -25,4 +25,4 @@ Files `migrations/NNN-name.js` export `up(db)` and never open their own transact
 | `migrate.js` | Forward-only runner, `schema_migrations`, `user_version` |
 | `repo-base.js` | `transaction`, prepared statement cache, JSON helpers |
 | `owners.js` | Table to owner process map |
-| `migrations/` | Numbered schema changes |
+| `migrations/` | Numbered schema changes (`001` meta, `002` chat conversations, `011` chat runs) |
