@@ -6,6 +6,7 @@ const perms = require("../../../tools/lib/permissions");
 const { handleChatWithHia } = require("../services/hia-chat-dispatcher.service");
 const { createChatRunTracker, recordCapacityRejected } = require("../services/chat-run-telemetry.service");
 const { registerRun, getRun } = require("../services/chat-run-registry.service");
+const { readStoredRun } = require("../services/chat-run-journal.service");
 const crypto = require("crypto");
 
 let runningChats = 0;
@@ -82,6 +83,7 @@ async function apiChat({ req, res }) {
   // T2.2: ciclo de vida da execucao no event log (runId = chatId); so metadados, nunca bloqueia o chat.
   const tracker = createChatRunTracker({ slug, engine, runId: chatId, traceId: body.traceId, model, effort: eff, sessionId });
   const run = registerRun(chatId, {
+    meta: { project: slug, engine, chatId },
     abort: () => ac.abort(),
     onEnd: (completed) => {
       runningChats--;
@@ -130,10 +132,14 @@ async function apiChat({ req, res }) {
 }
 
 /** GET /api/chat/attach?runId=&from=N: reattaches to a run whose stream was dropped (screen lock, app switch). */
+// EP-23.02: a run no longer in memory (ended long ago, or the server restarted) is replayed from the journal;
+// 404 only when the run never existed.
 async function apiChatAttach({ res, url }) {
-  const run = getRun(url.searchParams.get("runId") || "");
-  if (!run) return send(res, 404, { error: "execução não encontrada ou já expirada" });
+  const runId = url.searchParams.get("runId") || "";
   const from = Math.max(0, Number(url.searchParams.get("from")) || 0);
+  const run = getRun(runId);
+  const stored = run ? null : readStoredRun(runId, from);
+  if (!run && !stored) return send(res, 404, { error: "execução não encontrada" });
   res.writeHead(200, {
     "Content-Type": "text/event-stream; charset=utf-8",
     "Cache-Control": "no-cache",
@@ -142,7 +148,11 @@ async function apiChatAttach({ res, url }) {
     ...HEADERS,
   });
   res.flushHeaders?.();
-  run.attach(res, from);
+  if (run) return run.attach(res, from);
+  for (const event of stored?.events || []) res.write(`data: ${JSON.stringify(event)}
+
+`);
+  res.end();
 }
 
 /** POST /api/chat/stop {runId}: the user pressed stop; aborts the engine (a dropped connection no longer does). */

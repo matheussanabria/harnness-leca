@@ -3,23 +3,40 @@
 // SSE stream; the run keeps going, its events are buffered with a sequence number, and the client
 // reattaches (GET /api/chat/attach) to replay what it missed. A run with nobody attached for
 // RUN_GRACE_MS is aborted so an abandoned tab cannot keep an engine busy forever.
+// EP-23.02: events are written to the run journal (SQLite) BEFORE subscribers see them. Events pushed in the
+// same tick are flushed together in one short transaction; the memory buffer is only the live cache.
+const { getJournal, scrubEvent } = require("./chat-run-journal.service");
+
 const RUN_GRACE_MS = Number(process.env.HARNESS_CHAT_GRACE_MS) || 10 * 60 * 1000;
 const KEEP_AFTER_END_MS = 2 * 60 * 1000;
 const MAX_BUFFER = 5000;
 const SSE_HEARTBEAT_MS = 15000;
 
 /** @typedef {{ seq: number, [key: string]: any }} RunEvent */
+/** @typedef {{ project?: string|null, engine?: string|null, chatId?: string|null }} RunMeta */
+/** @typedef {{ abort: () => void, onEnd?: (completed: boolean) => void, meta?: RunMeta }} RunHooks */
 
 /** @type {Map<string, ReturnType<typeof createRun>>} */
 const runs = new Map();
 
+/** @param {string} where @param {unknown} error */
+const journalWarn = (where, error) => console.warn(`[chat-run-registry] journal ${where}:`, (error && /** @type {any} */ (error).message) || error);
+
 /**
  * @param {string} id
- * @param {{ abort: () => void, onEnd?: (completed: boolean) => void }} hooks
+ * @param {RunHooks} hooks
  */
-function createRun(id, { abort, onEnd }) {
+function createRun(id, { abort, onEnd, meta = {} }) {
+  const journal = getJournal();
+  if (journal) {
+    try { journal.startRun({ runId: id, project: meta.project ?? null, chatId: meta.chatId ?? id, engine: meta.engine ?? null }); }
+    catch (error) { journalWarn("start", error); }
+  }
   /** @type {RunEvent[]} */
   const events = [];
+  /** @type {RunEvent[]} pushed but not yet journaled nor published */
+  let pending = [];
+  let flushScheduled = false;
   /** @type {Set<(event: RunEvent) => void>} */
   const subscribers = new Set();
   /** @type {Set<() => void>} */
@@ -38,12 +55,34 @@ function createRun(id, { abort, onEnd }) {
     graceTimer.unref?.();
   };
 
+  /** Write the pending batch to the journal, then publish it to the memory buffer and the subscribers. */
+  function flush() {
+    flushScheduled = false;
+    if (!pending.length) return;
+    const batch = pending;
+    pending = [];
+    if (journal) {
+      try { journal.appendEvents(id, batch.map((event) => scrubEvent(event))); }
+      catch (error) { journalWarn("append", error); }
+    }
+    for (const event of batch) {
+      events.push(event);
+      if (events.length > MAX_BUFFER) events.shift();
+      for (const sub of subscribers) sub(event);
+    }
+  }
+
   /** @param {boolean} ok */
   function end(ok) {
     if (finished) return;
+    flush();
     finished = true;
     completed = ok;
     clearGrace();
+    if (journal) {
+      try { journal.endRun(id, ok ? "completed" : "stopped"); }
+      catch (error) { journalWarn("end", error); }
+    }
     if (!ok) { try { abort(); } catch {} }
     for (const close of [...closers]) close();
     try { onEnd?.(ok); } catch {}
@@ -58,10 +97,11 @@ function createRun(id, { abort, onEnd }) {
     /** @param {Record<string, any>} data */
     push(data) {
       if (finished) return;
-      const event = { ...data, seq: seq++ };
-      events.push(event);
-      if (events.length > MAX_BUFFER) events.shift();
-      for (const sub of subscribers) sub(event);
+      pending.push({ ...data, seq: seq++ });
+      if (!flushScheduled) {
+        flushScheduled = true;
+        setImmediate(flush);
+      }
     },
     /** The run produced its final event (done or error): close the streams and keep the buffer for late reattach. */
     finish: () => end(true),
@@ -96,7 +136,7 @@ function createRun(id, { abort, onEnd }) {
 const getRun = (id) => runs.get(id) || null;
 
 /**
- * @param {string} id @param {{ abort: () => void, onEnd?: (completed: boolean) => void }} hooks
+ * @param {string} id @param {RunHooks} hooks
  */
 function registerRun(id, hooks) {
   const run = createRun(id, hooks);
@@ -104,4 +144,7 @@ function registerRun(id, hooks) {
   return run;
 }
 
-module.exports = { registerRun, getRun, RUN_GRACE_MS };
+/** Tests only: forget every run held in memory, as a restarted process would. */
+const resetRunsForTests = () => runs.clear();
+
+module.exports = { registerRun, getRun, resetRunsForTests, RUN_GRACE_MS };

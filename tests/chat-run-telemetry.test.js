@@ -26,6 +26,7 @@ const telemetry = require("../ui/server/services/chat-run-telemetry.service");
 
 test.after(() => {
   require("../ui/server/services/events/event-store").closeStore(SLUG);
+  require("../ui/server/db/connection").closeDb(); // the run journal (EP-23.02) opened data/harness.sqlite under the temp root
   fs.rmSync(TMP_ROOT, { recursive: true, force: true });
 });
 

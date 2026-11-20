@@ -99,7 +99,7 @@ Sem owner definido em `EPIC_OWNERS` (`tools/lib/coordination/config.js`): defini
 | ID | Título | Status |
 |---|---|---|
 | [23.01](23.01-main-sem-auto-restart.md) | Main sem auto restart | Planejada |
-| [23.02](23.02-diario-execucoes-sqlite.md) | Diário de execuções do chat em SQLite | Planejada |
+| [23.02](23.02-diario-execucoes-sqlite.md) | Diário de execuções do chat em SQLite | Implementada (branch `feat/ep-23.02-run-journal`) |
 | [23.03](23.03-host-motores-separado.md) | Host de motores em processo separado | Planejada |
 | [23.04](23.04-interrompida-retomar.md) | Execução interrompida visível e retomável | Planejada |
 | [23.05](23.05-reinicio-seguro.md) | Reinício seguro e aviso de reconexão | Planejada |

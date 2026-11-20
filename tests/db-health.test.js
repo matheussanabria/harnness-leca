@@ -10,6 +10,7 @@ process.env.HARNESS_DB_PATH = path.join(TMP, "health.sqlite");
 
 const { createServer } = require("../ui/server");
 const { closeDb } = require("../ui/server/db/connection");
+const { listMigrations } = require("../ui/server/db/migrate");
 
 let server, base;
 test.before(async () => {
@@ -29,8 +30,9 @@ test("GET /api/db/health reports schema version, size and WAL status", async () 
   assert.equal(res.status, 200);
   const body = await res.json();
   assert.equal(body.ok, true);
-  assert.equal(body.schemaVersion, 1);
-  assert.deepEqual(body.migrations, ["001-init"]);
+  const known = listMigrations();
+  assert.equal(body.schemaVersion, known[known.length - 1].number);
+  assert.deepEqual(body.migrations, known.map((m) => m.name));
   assert.ok(body.sizeBytes > 0);
   assert.equal(body.wal.journalMode, "wal");
   assert.equal(typeof body.wal.walBytes, "number");

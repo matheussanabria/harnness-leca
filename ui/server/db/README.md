@@ -10,7 +10,8 @@ Several processes may open the database: the web server, the engine host and CLI
 2. One owner per table, declared in `owners.js`. Only the owner writes; other processes read or ask the owner's API. `tests/db-owners.test.js` checks that every table created by a migration has an owner.
 3. Short transactions with `BEGIN IMMEDIATE` (`repo-base.js` `transaction(fn)`). No network, model or CLI call inside a transaction. `busy_timeout` is 5000 ms.
 4. Any process may apply migrations. The runner works inside `BEGIN IMMEDIATE`: the first opener migrates, the others wait, then see the migrated schema and apply nothing. A database holding a migration this code does not know is refused.
-5. Keep the database on a local disk. Never place it in a synced or network folder (OneDrive, Dropbox, SMB share): WAL locking is unreliable there and can corrupt data.
+5. `synchronous = NORMAL` (the usual WAL setting): a process crash loses nothing; a power loss may drop the last commits but never corrupts the file. FULL cost ~13 ms per small commit (EP-23.02).
+6. Keep the database on a local disk. Never place it in a synced or network folder (OneDrive, Dropbox, SMB share): WAL locking is unreliable there and can corrupt data.
 
 ## Migrations
 
