@@ -11,6 +11,9 @@ const OWNERS = {
   schema_migrations: ["web", "host", "cli"],
   // 001-init
   meta: "web",
+  // 011-chat-runs (EP-23.02): the web server until the engine host takes over in EP-23.03.
+  chat_runs: "web",
+  chat_run_events: "web",
 };
 
 /**

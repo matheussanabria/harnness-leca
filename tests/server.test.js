@@ -24,6 +24,8 @@ fs.writeFileSync(path.join(TMP_ROOT, "global", "instructions.md"), "global");
 test.after(() => {
   // O chat publica o ciclo de vida no event log (SQLite); no Windows o handle aberto bloqueia a remocao.
   require("../ui/server/services/events/event-store").closeStore("demo");
+  // The chat run journal (EP-23.02) opens data/harness.sqlite under the temp root.
+  require("../ui/server/db/connection").closeDb();
 });
 
 const E = require("../tools/lib/engines");

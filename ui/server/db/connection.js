@@ -38,6 +38,9 @@ function restrictPermissions(file, mode) {
 function applyPragmas(db) {
   db.exec(`PRAGMA busy_timeout = ${BUSY_TIMEOUT_MS}`);
   db.exec("PRAGMA journal_mode = WAL");
+  // NORMAL is the usual WAL setting: no fsync per commit (FULL measured ~13 ms p95 per small commit, EP-23.02).
+  // Survives a process crash; only a power loss or OS crash may drop the last commits, never corrupt the file.
+  db.exec("PRAGMA synchronous = NORMAL");
   db.exec("PRAGMA foreign_keys = ON");
 }
 

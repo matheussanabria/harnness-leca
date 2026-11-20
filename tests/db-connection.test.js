@@ -16,11 +16,12 @@ const { openDatabase, resolveDbPath, createTestDatabase } = require("../ui/serve
 
 const pragma = (db, name) => Object.values(db.prepare(`PRAGMA ${name}`).get())[0];
 
-test("pragmas: WAL, busy_timeout 5000, foreign_keys ON", () => {
+test("pragmas: WAL, synchronous NORMAL, busy_timeout 5000, foreign_keys ON", () => {
   const file = path.join(TMP, "nested", "a.sqlite");
   const db = openDatabase({ path: file });
   try {
     assert.equal(pragma(db, "journal_mode"), "wal");
+    assert.equal(pragma(db, "synchronous"), 1, "NORMAL");
     assert.equal(pragma(db, "busy_timeout"), 5000);
     assert.equal(pragma(db, "foreign_keys"), 1);
     assert.ok(fs.existsSync(file), "creates the missing directory and the file");

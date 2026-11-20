@@ -22,15 +22,17 @@ function migrationsDir(name, files) {
   return dir;
 }
 
-test("fresh database reaches schema version 1 and re-running changes nothing", () => {
+test("fresh database reaches the highest known version and re-running changes nothing", () => {
+  const known = listMigrations();
+  const latest = known[known.length - 1].number;
   const db = openDatabase({ path: path.join(TMP, "fresh.sqlite") });
   try {
-    assert.equal(schemaVersion(db), 1);
-    assert.deepEqual(appliedMigrations(db).map((m) => m.name), ["001-init"]);
+    assert.equal(schemaVersion(db), latest);
+    assert.deepEqual(appliedMigrations(db).map((m) => m.name), known.map((m) => m.name));
     const again = migrate(db);
     assert.deepEqual(again.applied, []);
-    assert.equal(schemaVersion(db), 1);
-    assert.equal(db.prepare("SELECT count(*) AS n FROM schema_migrations").get().n, 1);
+    assert.equal(schemaVersion(db), latest);
+    assert.equal(db.prepare("SELECT count(*) AS n FROM schema_migrations").get().n, known.length);
   } finally {
     db.close();
   }
