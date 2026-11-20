@@ -9,6 +9,7 @@ projects/*
 # (os arquivos de exemplo ficam em global/*.example.md)
 global/instructions.md
 global/memory.md
+global/memory/
 global/.env
 global/routines.log
 global/deploy*.json
