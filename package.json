@@ -15,6 +15,8 @@
     "coordination": "node tools/coordination.js",
     "hia": "node tools/hia.js",
     "ui": "node ui/server.js",
+    "host": "node ui/engine-host.js",
+    "host:stop": "node ui/engine-host.js --stop",
     "ui:dev": "node --watch-path=ui/server --watch-path=ui/server.js --watch-path=tools/lib --watch-path=tools/ds-docs --watch-preserve-output ui/server.js",
     "ui:dev:remote": "node --watch-path=ui/server --watch-path=ui/server.js --watch-path=tools/lib --watch-path=tools/ds-docs --watch-preserve-output ui/server.js --remote",
     "build:web": "vite build --config ui/web/vite.config.ts",

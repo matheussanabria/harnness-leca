@@ -58,7 +58,7 @@ Desenho que inspira o épico, lido na documentação pública do projeto em 2026
 
 | Tabela | Processo dono (escreve) | Quem lê |
 |---|---|---|
-| `chat_runs`, `chat_run_events` | Host de motores (depois da 23.03; antes dela, o servidor web) | Servidor web, só pela API do host |
+| `chat_runs`, `chat_run_events` | Host de motores (desde a 23.03; no modo antigo `HARNESS_ENGINE_HOST=0`, o servidor web) | Servidor web, só pela API do host |
 | `chat_conversations`, `chat_engine_sessions`, `chat_messages` (17.02) | Servidor web | Host, pela leitura do repositório |
 | Demais tabelas do EP-17 | Servidor web | Host não acessa |
 
@@ -99,8 +99,8 @@ Sem owner definido em `EPIC_OWNERS` (`tools/lib/coordination/config.js`): defini
 | ID | Título | Status |
 |---|---|---|
 | [23.01](23.01-main-sem-auto-restart.md) | Main sem auto restart | Planejada |
-| [23.02](23.02-diario-execucoes-sqlite.md) | Diário de execuções do chat em SQLite | Implementada (branch `feat/ep-23.02-run-journal`) |
-| [23.03](23.03-host-motores-separado.md) | Host de motores em processo separado | Planejada |
+| [23.02](23.02-diario-execucoes-sqlite.md) | Diário de execuções do chat em SQLite | Concluída (merge 4bfa4fd) |
+| [23.03](23.03-host-motores-separado.md) | Host de motores em processo separado | Implementada (branch `feat/ep-23.03-engine-host`) |
 | [23.04](23.04-interrompida-retomar.md) | Execução interrompida visível e retomável | Planejada |
 | [23.05](23.05-reinicio-seguro.md) | Reinício seguro e aviso de reconexão | Planejada |
 | [23.06](23.06-seletor-host.md) | Seletor de host: local e VPS | Planejada |

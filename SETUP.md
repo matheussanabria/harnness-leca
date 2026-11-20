@@ -114,6 +114,21 @@ Development loop: run `npm run dev:web` (rebuilds on save) in one terminal and `
 browser. Use `npm run ui:dev` only inside a development worktree. In the main checkout (where you chat through the UI) run
 `npm run ui` for daily use, because auto restart drops live chat answers; the server prints a warning if you start `ui:dev` there. Before committing island code: `npm run types:web`, `npm run lint:web` and `npm run e2e:web` (headless Edge).
 
+## Engine host (EP-23.03)
+
+The engine CLIs (claude, codex, opencode, gemini) run in a separate long-lived process, `ui/engine-host.js`, so restarting
+the web server (`ui:dev` auto restart, a crash, a manual restart) no longer cuts an answer in progress: the browser
+reattaches and gets the rest.
+
+- `npm run ui` and `npm run ui:dev` start the host detached when it is not running (log in `logs/engine-host.log`).
+- `npm run host` starts it in the foreground; `npm run host:stop` stops it. The host never runs under `--watch`:
+  after changing `tools/lib/engines`, `tools/lib/permissions.js` or `ui/server/services/engine-host/`, run
+  `npm run host:stop` so the next chat starts a fresh host with the new code.
+- It listens on `127.0.0.1:4322` only (`HARNESS_ENGINE_HOST_PORT`), with a token created on the first start in
+  `data/engine-host.token` (git-ignored).
+- `HARNESS_ENGINE_HOST=0` brings back the old in-process mode (rollback); `HARNESS_ENGINE_HOST_AUTOSTART=0` turns off
+  the automatic start (the chat then answers 503 until `npm run host`).
+
 ## Uso no dia a dia
 
 - **Trocar de projeto:** edite `projects/.active` com o nome da pasta.

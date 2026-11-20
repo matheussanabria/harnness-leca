@@ -16,6 +16,6 @@ Every event of a chat run is written to `chat_runs` / `chat_run_events` in `data
 | `ui/server/services/chat-run-registry.service.js` | Live runs: numbered events flushed per tick to the journal then to subscribers, reattach, stop and a grace period before an abandoned run is aborted. |
 | `ui/server/services/chat-run-journal.service.js` | Opens the journal lazily, marks runs of a previous process interrupted, prunes runs older than 30 days, scrubs secrets, rebuilds a stored run for attach. |
 | `ui/server/db/repos/chat-runs.repo.js` | `startRun`, idempotent `appendEvents` (run_id + seq), `endRun`, `readFrom`, `hasTerminalEvent`, `markInterruptedOnBoot`, `prune`. |
-| `ui/server/db/migrations/011-chat-runs.js` | Creates `chat_runs` and `chat_run_events` (owner: web until EP-23.03). |
+| `ui/server/db/migrations/011-chat-runs.js` | Creates `chat_runs` and `chat_run_events` (owner: the engine host, EP-23.03). |
 | `tests/chat-runs-repo.test.js` | Read from a seq, idempotence, final status, boot interruption, retention. |
 | `tests/chat-run-registry.test.js` | Write before publish, attach one hour later, restart in a second process, secret scrubbing, journal off. |

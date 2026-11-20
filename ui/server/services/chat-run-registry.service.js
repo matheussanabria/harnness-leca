@@ -144,7 +144,10 @@ function registerRun(id, hooks) {
   return run;
 }
 
+/** Ids of the runs still in progress in this process (engine host: GET /runs). */
+const listActiveRuns = () => [...runs.values()].filter((run) => !run.finished).map((run) => run.id);
+
 /** Tests only: forget every run held in memory, as a restarted process would. */
 const resetRunsForTests = () => runs.clear();
 
-module.exports = { registerRun, getRun, resetRunsForTests, RUN_GRACE_MS };
+module.exports = { registerRun, getRun, listActiveRuns, resetRunsForTests, RUN_GRACE_MS };

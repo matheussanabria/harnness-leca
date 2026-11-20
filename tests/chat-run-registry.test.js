@@ -7,6 +7,7 @@ const os = require("os");
 const path = require("path");
 const { execFileSync } = require("child_process");
 
+process.env.HARNESS_ENGINE_HOST = "0"; // the attach test calls the in-process route (EP-23.03 legacy mode)
 const { createTestDatabase, closeDb } = require("../ui/server/db/connection");
 const { createChatRunsRepo } = require("../ui/server/db/repos/chat-runs.repo");
 const journal = require("../ui/server/services/chat-run-journal.service");

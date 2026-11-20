@@ -8,6 +8,7 @@ const path = require("path");
 // Raiz temporária: os testes nunca tocam em projects/ nem em global/ de verdade. Tem de vir antes dos require abaixo.
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-root-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+process.env.HARNESS_ENGINE_HOST = "0"; // engines and permission cards in this process: legacy in-process mode (EP-23.03)
 fs.mkdirSync(path.join(TMP_ROOT, "projects", "dai"), { recursive: true }); // projeto que o teste do servidor usa
 test.after(() => fs.rmSync(TMP_ROOT, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }));
 

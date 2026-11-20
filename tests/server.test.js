@@ -8,6 +8,7 @@ const { removeDir } = require("./helpers/temp-dir");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-srv-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+process.env.HARNESS_ENGINE_HOST = "0"; // fake engines live in this process: legacy in-process mode (EP-23.03)
 process.env.HARNESS_CHAT_GRACE_MS = "400"; // a run with nobody attached is aborted after this long
 const proj = path.join(TMP_ROOT, "projects", "demo");
 fs.mkdirSync(path.join(proj, "chats"), { recursive: true });

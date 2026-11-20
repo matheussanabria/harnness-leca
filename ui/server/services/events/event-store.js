@@ -66,6 +66,8 @@ function openStore(slug) {
   const file = dbPath(slug);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const db = new DatabaseSync(file);
+  // EP-23.03: the web server and the engine host both append here; wait for the other writer instead of SQLITE_BUSY.
+  db.exec("PRAGMA busy_timeout = 5000");
   db.exec("PRAGMA journal_mode = WAL");
   migrate(db);
   connections.set(slug, db);

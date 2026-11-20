@@ -1,36 +1,18 @@
 // @ts-check
-const { slugs, send, readJsonBody, HEADERS, MAX_CHATS } = require("../config");
+// Chat routes. EP-23.03: the engines run in the engine host (ui/engine-host.js); POST /api/chat, the attach and
+// the stop are relayed to it with the same browser contract. HARNESS_ENGINE_HOST=0 keeps the legacy in-process
+// mode (the rollback), where this process starts the engines itself.
+const { slugs, send, readJsonBody, HEADERS } = require("../config");
 const E = require("../../../tools/lib/engines");
 const DAI = require("../../../tools/lib/dai");
-const perms = require("../../../tools/lib/permissions");
-const { handleChatWithHia } = require("../services/hia-chat-dispatcher.service");
-const { createChatRunTracker, recordCapacityRejected } = require("../services/chat-run-telemetry.service");
-const { registerRun, getRun } = require("../services/chat-run-registry.service");
-const { readStoredRun } = require("../services/chat-run-journal.service");
-const crypto = require("crypto");
+const { getRun } = require("../services/chat-run-registry.service");
+const { startChatRun } = require("../services/engine-host/run-starter");
+const { openSse, attachRun } = require("../services/engine-host/sse");
+const { isHostMode } = require("../services/engine-host/protocol");
+const host = require("../services/engine-host-client");
 
-let runningChats = 0;
-
-const effortFromTemperature = (t) => (Number(t) <= 0.35 ? "low" : Number(t) >= 0.75 ? "high" : "medium");
-
-function sseWriter(run, engineId) {
-  return {
-    onChunk: (data) => run.push(data),
-    onDone: (data) => {
-      run.push({ type: "done", ...data });
-      run.finish();
-    },
-    onError: (err) => {
-      if (run.finished) return;
-      // Erros que reconhecemos (limite, login, rede...) vão traduzidos; o que não reconhecemos vai com um trecho limpo
-      // de segredos e caminhos, e só esses ficam inteiros no terminal do servidor.
-      const info = E.describeError(err, { engine: engineId });
-      if (!info.expected) console.error("[chat]", engineId, (err && err.stack) || err);
-      run.push(E.errorEvent(info));
-      run.finish();
-    },
-  };
-}
+/** Run ids are UUIDs; anything else never reaches the host URL. */
+const RUN_ID = /^[\w-]{1,80}$/;
 
 const apiEngines = async ({ res }) => send(res, 200, await E.getEnginesStatus());
 
@@ -58,6 +40,31 @@ async function apiAppPing({ res, url }) {
   }
 }
 
+/**
+ * Makes sure the engine host is up; answers 503 with a clear message when it is not.
+ * @param {import("http").ServerResponse} res @returns {Promise<boolean>}
+ */
+async function hostReady(res) {
+  try {
+    await host.ensureHost();
+    return true;
+  } catch (error) {
+    const message = error instanceof host.HostUnavailableError ? error.message : "O host de motores não respondeu.";
+    send(res, 503, { error: message });
+    return false;
+  }
+}
+
+/** Relays one request to the host and its answer (SSE or JSON) back to the browser. */
+async function relayToHost(res, method, pathname, body) {
+  if (!(await hostReady(res))) return;
+  try {
+    host.relay(await host.hostRequest(method, pathname, body === undefined ? {} : { body }), res, HEADERS);
+  } catch {
+    if (!res.headersSent) send(res, 503, { error: "O host de motores não respondeu." });
+  }
+}
+
 async function apiChat({ req, res }) {
   let body;
   try {
@@ -65,94 +72,23 @@ async function apiChat({ req, res }) {
   } catch {
     return send(res, 400, { error: "JSON inválido" });
   }
-  const { engine, prompt, slug, sessionId, history, model, effort, temperature, daiAgent } = body;
-  const eff = E.safeEffort(effort || (temperature != null ? effortFromTemperature(temperature) : "medium"));
-  if (typeof prompt !== "string" || !prompt || !slug) return send(res, 400, { error: "prompt e slug são obrigatórios" });
-  if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
-  if (MAX_CHATS > 0 && runningChats >= MAX_CHATS) {
-    recordCapacityRejected({ slug, engine, running: runningChats, limit: MAX_CHATS, runId: crypto.randomUUID(), traceId: body.traceId });
-    return send(res, 429, { error: `Já há ${MAX_CHATS} respostas em andamento. Aguarde uma terminar.` });
-  }
-
-  // The run outlives this connection (a phone that locks the screen drops the stream): the engine is aborted
-  // only on an explicit stop, or when nobody reattaches within the grace period (chat-run-registry.service).
-  runningChats++;
-  const ac = new AbortController();
-  // Pedidos de permissão do motor viram cartões no chat: cada conversa ganha um id que a ferramenta MCP usa para achar este stream.
-  const chatId = crypto.randomUUID();
-  // T2.2: ciclo de vida da execucao no event log (runId = chatId); so metadados, nunca bloqueia o chat.
-  const tracker = createChatRunTracker({ slug, engine, runId: chatId, traceId: body.traceId, model, effort: eff, sessionId });
-  const run = registerRun(chatId, {
-    meta: { project: slug, engine, chatId },
-    abort: () => ac.abort(),
-    onEnd: (completed) => {
-      runningChats--;
-      perms.detachChat(chatId);
-      tracker.onClose(completed);
-    },
-  });
-
-  res.writeHead(200, {
-    "Content-Type": "text/event-stream; charset=utf-8",
-    "Cache-Control": "no-cache",
-    "Connection": "keep-alive",
-    "X-Content-Type-Options": "nosniff",
-    ...HEADERS,
-  });
-  res.flushHeaders?.();
-  const sink = sseWriter(run, engine);
-  perms.attachChat(chatId, slug, sink.onChunk);
-  const permissionUrl = `http://127.0.0.1:${req.socket.localPort}`;
-  const tracked = tracker.wrapSink(sink, ac.signal);
-  tracker.start();
-  run.push({ type: "run", runId: chatId });
-  run.attach(res, 0);
-
-  // `override` lets the HIA dispatcher run the turn on another model (a suggested 9Router combo) and observe the
-  // result. The observers are best-effort: one that throws must never stop the chat stream or the run tracker.
-  const fallbackStream = (override = {}) => {
-    const impl = E.engines.get(engine);
-    const observe = (fn, data) => { try { fn?.(data); } catch {} };
-    const onDone = override.onDone ? (data) => { observe(override.onDone, data); tracked.onDone(data); } : tracked.onDone;
-    const onError = override.onError ? (err) => { observe(override.onError, err); tracked.onError(err); } : tracked.onError;
-    const onChunk = override.onChunk ? (data) => { observe(override.onChunk, data); tracked.onChunk(data); } : tracked.onChunk;
-    if (impl) impl.stream({ prompt, slug, sessionId, history, model: override.model || model, effort: eff, daiAgent, chatId, permissionUrl, signal: ac.signal, ...tracked, onDone, onChunk, onError });
-    else tracked.onError(new E.PublicError(`Motor "${engine}" não suportado.`));
-  };
-
-  // Modo Shadow do Local AI Runtime: classifica em background sem alterar o motor real nem atrasar a resposta
-  try {
-    const { interceptShadowRequest } = require("../../../tools/lib/runtime/shadow");
-    interceptShadowRequest({ prompt, slug, actualEngine: engine, correlationId: chatId });
-  } catch {}
-
-  // HIA Script-First / Local-First: intercepta automações determinísticas antes de gastar cota
-  Promise.resolve(handleChatWithHia({ engine, model, prompt, slug, sessionId, history, signal: ac.signal, sink: tracked, fallbackStream }))
-    .catch((err) => tracked.onError(err));
+  if (isHostMode()) return relayToHost(res, "POST", "/runs", body);
+  const started = startChatRun(body, { permissionUrl: `http://127.0.0.1:${req.socket.localPort}` });
+  if ("error" in started) return send(res, started.status, { error: started.error });
+  openSse(res, HEADERS);
+  started.run.attach(res, 0);
 }
 
-/** GET /api/chat/attach?runId=&from=N: reattaches to a run whose stream was dropped (screen lock, app switch). */
-// EP-23.02: a run no longer in memory (ended long ago, or the server restarted) is replayed from the journal;
-// 404 only when the run never existed.
+/** GET /api/chat/attach?runId=&from=N: reattaches to a run whose stream was dropped (screen lock, app switch, web restart). */
+// EP-23.02: a run no longer in memory is replayed from the journal; 404 only when the run never existed.
 async function apiChatAttach({ res, url }) {
   const runId = url.searchParams.get("runId") || "";
   const from = Math.max(0, Number(url.searchParams.get("from")) || 0);
-  const run = getRun(runId);
-  const stored = run ? null : readStoredRun(runId, from);
-  if (!run && !stored) return send(res, 404, { error: "execução não encontrada" });
-  res.writeHead(200, {
-    "Content-Type": "text/event-stream; charset=utf-8",
-    "Cache-Control": "no-cache",
-    "Connection": "keep-alive",
-    "X-Content-Type-Options": "nosniff",
-    ...HEADERS,
-  });
-  res.flushHeaders?.();
-  if (run) return run.attach(res, from);
-  for (const event of stored?.events || []) res.write(`data: ${JSON.stringify(event)}
-
-`);
-  res.end();
+  if (isHostMode()) {
+    if (!RUN_ID.test(runId)) return send(res, 404, { error: "execução não encontrada" });
+    return relayToHost(res, "GET", `/runs/${runId}/attach?from=${from}`);
+  }
+  if (!attachRun(res, runId, from, HEADERS)) return send(res, 404, { error: "execução não encontrada" });
 }
 
 /** POST /api/chat/stop {runId}: the user pressed stop; aborts the engine (a dropped connection no longer does). */
@@ -163,7 +99,12 @@ async function apiChatStop({ req, res }) {
   } catch {
     return send(res, 400, { error: "JSON inválido" });
   }
-  const run = getRun(String(body.runId || ""));
+  const runId = String(body.runId || "");
+  if (isHostMode()) {
+    if (!RUN_ID.test(runId)) return send(res, 200, { ok: true, stopped: false });
+    return relayToHost(res, "POST", `/runs/${runId}/stop`, {});
+  }
+  const run = getRun(runId);
   if (run) run.stop();
   return send(res, 200, { ok: true, stopped: Boolean(run) });
 }
@@ -199,4 +140,5 @@ module.exports = {
   apiChat,
   chatStreamRoutes,
   apiChatSave,
+  relayToHost,
 };

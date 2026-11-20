@@ -4,6 +4,8 @@ const { slugs, send, readJsonBody } = require("../config");
 const perms = require("../../../tools/lib/permissions");
 
 const netLib = require("../../../tools/lib/network");
+const { isHostMode } = require("../services/engine-host/protocol");
+const { relayToHost } = require("./chat.controller");
 
 // Quem pede é a ferramenta MCP que o próprio Claude chama, na mesma máquina: só aceita pedido local direto, sem
 // proxy ou túnel (o túnel também conecta do loopback). A resposta (quem decide) passa pelo PIN do acesso remoto como
@@ -21,6 +23,8 @@ async function apiPermissionAnswer({ req, res }) {
   let body;
   try { body = await readJsonBody(req); } catch { return send(res, 400, { error: "JSON inválido" }); }
   if (typeof body.id !== "string") return send(res, 400, { error: "id é obrigatório" });
+  // EP-23.03: the pending request lives in the engine host, next to the engine that asked.
+  if (isHostMode()) return relayToHost(res, "POST", "/permissions/answer", { id: body.id, decision: body.decision, scope: body.scope });
   const r = perms.answer(body.id, { decision: body.decision, scope: body.scope });
   return send(res, r.ok ? 200 : 404, r);
 }
