@@ -8,6 +8,7 @@ const assert = require("node:assert/strict");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "leca-chat-run-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+process.env.HARNESS_ENGINE_HOST = "0"; // fake engines live in this process: legacy in-process mode (EP-23.03)
 process.env.HIA_ROUTING_ENABLED = "false";
 process.env.HARNESS_MAX_CHATS = "3";
 process.env.HARNESS_CHAT_GRACE_MS = "150";

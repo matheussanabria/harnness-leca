@@ -9,6 +9,7 @@ const cp = require("child_process");
 
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-perm-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
+process.env.HARNESS_ENGINE_HOST = "0"; // engines and permission cards in this process: legacy in-process mode (EP-23.03)
 process.env.HARNESS_PERM_TIMEOUT_MS = "300"; // os testes de tempo esgotado não podem esperar 10 minutos
 const proj = path.join(TMP_ROOT, "projects", "demo");
 fs.mkdirSync(path.join(proj, "chats"), { recursive: true });

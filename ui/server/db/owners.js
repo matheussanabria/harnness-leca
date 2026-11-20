@@ -11,9 +11,10 @@ const OWNERS = {
   schema_migrations: ["web", "host", "cli"],
   // 001-init
   meta: "web",
-  // 011-chat-runs (EP-23.02): the web server until the engine host takes over in EP-23.03.
-  chat_runs: "web",
-  chat_run_events: "web",
+  // 011-chat-runs (EP-23.02): written by the engine host (EP-23.03). The web server writes them only in the legacy
+  // in-process mode (HARNESS_ENGINE_HOST=0), when no host runs, so there is still a single writer at a time.
+  chat_runs: "host",
+  chat_run_events: "host",
 };
 
 /**

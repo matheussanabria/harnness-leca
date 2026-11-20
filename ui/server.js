@@ -68,6 +68,14 @@ if (require.main === module) {
       console.log(`Harness UI: http://localhost:${PORT}`);
       console.log(`(Para habilitar acesso pelo celular no Wi-Fi/4G, inicie com: npm run remote)`);
     }
+    // EP-23.03: the engine host runs the engine CLIs outside this (restartable) process; start it if it is down.
+    try {
+      if (require("./server/services/engine-host/protocol").isHostMode()) {
+        require("./server/services/engine-host-client").ensureHost().catch((err) => console.log("[engine-host]", err.message));
+      }
+    } catch {
+      /* the first chat request retries */
+    }
     // 9router e opencode: sobe em segundo plano os que estiverem desligados (HARNESS_AUTOSTART=0 desliga).
     try {
       require("../tools/lib/engine-autostart").ensureEngineServices().catch((err) => console.log("[autostart]", err.message));

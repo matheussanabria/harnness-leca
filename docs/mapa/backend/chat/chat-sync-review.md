@@ -11,7 +11,7 @@ updated: 2026-11-20
 
 | File | Responsibility |
 |---|---|
-| `ui/server/controllers/chat.controller.js` | SSE streaming (`/api/chat`), reattach (`/api/chat/attach`, falls back to the run journal), persistence (`/api/chat/save`), DAI catalog and engines. |
+| `ui/server/controllers/chat.controller.js` | Chat routes: relays `/api/chat`, the attach and the stop to the engine host (legacy in-process mode with `HARNESS_ENGINE_HOST=0`), persistence (`/api/chat/save`), DAI catalog and engines. |
 | `ui/server/controllers/sync.controller.js` | Triggers `tools/sync.js` and streams its logs (`POST /api/sync`); shares a mutual-exclusion lock with the auto sync. |
 | `ui/server/services/auto-sync.service.js` | Background sync: watches the Claude/Gemini/opencode folders, debounces 20 s, 60 s minimum gap, 5 min fallback interval, runs `tools/sync.js` in a child process, one run at a time. `HARNESS_AUTOSYNC=0` disables it. |
 | `tools/lib/sync-fingerprint.js` | Per-session source fingerprint cache (`logs/sync-fingerprints.json`) so importers skip unchanged sessions; bump `IMPORTER_VERSION` when the output format changes. |
