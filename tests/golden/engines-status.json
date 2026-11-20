@@ -250,44 +250,19 @@
       ],
       "models": [
         {
-          "id": "gpt-6.1-sol",
-          "name": "GPT-6.1-Sol",
-          "desc": "Latest workhorse model for coding and everyday work."
-        },
-        {
-          "id": "gpt-6-astra",
-          "name": "GPT-6-Astra",
-          "desc": "Frontier intelligence for the most demanding work."
-        },
-        {
-          "id": "gpt-6.1-terra",
-          "name": "GPT-6.1 Terra",
-          "desc": "GPT-6.1 Terra Codex model."
-        },
-        {
-          "id": "gpt-6-sol",
-          "name": "GPT-6-Sol",
-          "desc": "Previous generation workhorse model."
-        },
-        {
-          "id": "gpt-6-luna",
-          "name": "GPT-6-Luna",
-          "desc": "Fast and affordable model for easier tasks."
-        },
-        {
-          "id": "gpt-5.6-sol",
-          "name": "GPT-5.6-Sol",
-          "desc": "Older generation workhorse model."
-        },
-        {
           "id": "gpt-5.6-terra",
-          "name": "GPT-5.6-Terra",
-          "desc": "Older balanced model for straightforward work."
+          "name": "GPT-5.6 Terra",
+          "desc": "Modelo equilibrado para trabalho geral"
         },
         {
           "id": "gpt-5.6-luna",
-          "name": "GPT-5.6-Luna",
-          "desc": "Older fast and efficient model."
+          "name": "GPT-5.6 Luna",
+          "desc": "Modelo rápido e versátil"
+        },
+        {
+          "id": "gpt-5.6-sol",
+          "name": "GPT-5.6 Sol",
+          "desc": "Modelo de maior intensidade"
         }
       ],
       "available": true
@@ -557,44 +532,19 @@
       ],
       "models": [
         {
-          "id": "gpt-6.1-sol",
-          "name": "GPT-6.1-Sol",
-          "desc": "Latest workhorse model for coding and everyday work."
-        },
-        {
-          "id": "gpt-6-astra",
-          "name": "GPT-6-Astra",
-          "desc": "Frontier intelligence for the most demanding work."
-        },
-        {
-          "id": "gpt-6.1-terra",
-          "name": "GPT-6.1 Terra",
-          "desc": "GPT-6.1 Terra Codex model."
-        },
-        {
-          "id": "gpt-6-sol",
-          "name": "GPT-6-Sol",
-          "desc": "Previous generation workhorse model."
-        },
-        {
-          "id": "gpt-6-luna",
-          "name": "GPT-6-Luna",
-          "desc": "Fast and affordable model for easier tasks."
-        },
-        {
-          "id": "gpt-5.6-sol",
-          "name": "GPT-5.6-Sol",
-          "desc": "Older generation workhorse model."
-        },
-        {
           "id": "gpt-5.6-terra",
-          "name": "GPT-5.6-Terra",
-          "desc": "Older balanced model for straightforward work."
+          "name": "GPT-5.6 Terra",
+          "desc": "Modelo equilibrado para trabalho geral"
         },
         {
           "id": "gpt-5.6-luna",
-          "name": "GPT-5.6-Luna",
-          "desc": "Older fast and efficient model."
+          "name": "GPT-5.6 Luna",
+          "desc": "Modelo rápido e versátil"
+        },
+        {
+          "id": "gpt-5.6-sol",
+          "name": "GPT-5.6 Sol",
+          "desc": "Modelo de maior intensidade"
         }
       ],
       "available": true
