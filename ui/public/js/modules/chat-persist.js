@@ -8,7 +8,7 @@ import { switchEngine } from "./chat-engines.js";
 import { openInteractiveChat, setChatStatus, setStreamingUI } from "./chat-stream-ui.js";
 import { warnIfLocalInferenceUnsafe } from "./chat-hia-panel.js";
 import { renderChatHistory } from "./chat-render.js";
-import { getEngineSession, setEngineSession, activateEngineSessions, moveEngineSessions } from "./chat-session-store.js";
+import { getEngineSession, setEngineSession, activateEngineSessions, moveEngineSessions, reconcileEngineSessions } from "./chat-session-store.js";
 import { isAtelierChatActive } from "./prototype-chat-bridge.js";
 import { isCanvasChatActive } from "./canvas-chat-bridge.js";
 
@@ -162,12 +162,15 @@ export async function resumeExistingChat(chatName, preferStudio = false, { silen
 
     const targetEngine = ASSISTANT_ENGINES.has(meta.agente) ? meta.agente : "claude";
 
-    switchEngine(targetEngine);
-    if (targetEngine === "ollama") warnIfLocalInferenceUnsafe();
-
-    if (meta.sessao) {
+    // EP-17.02: the server's sessions come first (it may hold a newer one, or one per engine); the file's `sessao`
+    // only fills an engine the server does not know yet.
+    const synced = await reconcileEngineSessions(P.slug, chatName);
+    if (meta.sessao && !synced[targetEngine]) {
       setEngineSession(P.slug, chatName, targetEngine, meta.sessao);
     }
+
+    switchEngine(targetEngine);
+    if (targetEngine === "ollama") warnIfLocalInferenceUnsafe();
 
     renderChatHistory();
     setStreamingUI(false);

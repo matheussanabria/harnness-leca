@@ -226,7 +226,11 @@ test("Sessões dos motores são isoladas por projeto e conversa", () => {
 test("Store de sessões não vaza IDs e migra draft para o arquivo salvo", async () => {
   const executableSource = sessionsJs
     .replace('import { cs } from "./chat-store.js";', "const cs = { engineSessions: {} };")
-    .replace('import { state } from "../shared/state.js";', 'const state = { chatScope: "" };');
+    .replace('import { state } from "../shared/state.js";', 'const state = { chatScope: "" };')
+    .replace(
+      'import { fetchConversationByFile, putEngineSession, importLocalSessions } from "./chat-conversation-api.js";',
+      "const fetchConversationByFile = async () => null, putEngineSession = async () => false, importLocalSessions = async () => null;",
+    );
   const moduleUrl = `data:text/javascript;base64,${Buffer.from(executableSource).toString("base64")}`;
   const store = await import(moduleUrl);
 

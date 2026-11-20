@@ -10,6 +10,7 @@ const { startChatRun } = require("../services/engine-host/run-starter");
 const { openSse, attachRun } = require("../services/engine-host/sse");
 const { isHostMode } = require("../services/engine-host/protocol");
 const host = require("../services/engine-host-client");
+const { recordSave } = require("../services/chat/conversation.service");
 
 /** Run ids are UUIDs; anything else never reaches the host URL. */
 const RUN_ID = /^[\w-]{1,80}$/;
@@ -120,7 +121,10 @@ async function apiChatSave({ req, res }) {
   if (!slug || !Array.isArray(turns)) return send(res, 400, { error: "slug e turnos são obrigatórios" });
   if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
   try {
-    return send(res, 200, { ok: true, ...E.saveChatToProject({ slug, engine, title, turns, sessionId }) });
+    const saved = E.saveChatToProject({ slug, engine, title, turns, sessionId });
+    // EP-17.02: the same save is mirrored into the database (fails open: the .md file is already written).
+    const conversationId = recordSave({ slug, fileName: saved.fileName, title, engine, sessionId, turns });
+    return send(res, 200, { ok: true, ...saved, conversationId });
   } catch (err) {
     console.error("[chat/save]", (err && err.stack) || err);
     return send(res, 500, { error: "Não foi possível salvar a conversa. O detalhe está no terminal do servidor." });
