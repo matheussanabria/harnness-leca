@@ -11,6 +11,7 @@ const path = require("path");
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "harness-status-"));
 process.env.HARNESS_ROOT = TMP_ROOT;
 process.env.CLAUDE_BIN = process.execPath;
+process.env.CODEX_HOME = TMP_ROOT; // no models_cache.json here: Codex falls back to the catalog, not this machine's cache
 delete process.env.GEMINI_API_KEY;
 delete process.env.GOOGLE_API_KEY;
 delete process.env.OPENCODE_URL;

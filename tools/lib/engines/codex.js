@@ -63,7 +63,9 @@ function stream({ prompt, slug, sessionId, model, effort, daiAgent, readOnly, si
 
 function localModels() {
   try {
-    const models = require(path.join(require("os").homedir(), ".codex", "models_cache.json")).models || [];
+    // CODEX_HOME is the Codex CLI's own override for ~/.codex; tests point it at a temp folder.
+    const codexHome = process.env.CODEX_HOME || path.join(require("os").homedir(), ".codex");
+    const models = require(path.join(codexHome, "models_cache.json")).models || [];
     return models.filter((model) => model.visibility !== "hide").map((model) => ({ id: model.slug, name: model.display_name || model.slug, desc: model.description || "" }));
   } catch { return null; }
 }
