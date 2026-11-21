@@ -91,7 +91,7 @@
     apply(Math.min(state.time, state.doc.duration));
     const keyTimes = [...new Set(state.doc.tracks.flatMap((/** @type {any} */ t) => (Array.isArray(t?.keys) ? t.keys.map((/** @type {any} */ k) => k.t) : [])))]
       .filter((t) => typeof t === "number").sort((a, b) => a - b).slice(0, 200);
-    send("HARNESS_MOTION_READY", { duration: state.doc.duration, fps: state.doc.fps, tracks: state.anims.length, loop: Boolean(state.doc.loop), keyTimes });
+    send("HARNESS_MOTION_READY", { duration: state.doc.duration, fps: state.doc.fps, tracks: state.anims.length, loop: Boolean(state.doc.loop), keyTimes, size: state.doc.size || null });
   }
 
   function stop() {

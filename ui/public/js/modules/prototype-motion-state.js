@@ -4,12 +4,12 @@
 
 /**
  * @typedef {{ has: boolean, open: boolean, duration: number, fps: number, tracks: number, keyTimes: number[],
- *   time: number, playing: boolean, loop: boolean }} MotionState
+ *   time: number, playing: boolean, loop: boolean, size: { w: number, h: number } | null }} MotionState
  */
 
 /** @returns {MotionState} */
 export function createMotionState() {
-  return { has: false, open: false, duration: 0, fps: 30, tracks: 0, keyTimes: [], time: 0, playing: false, loop: false };
+  return { has: false, open: false, duration: 0, fps: 30, tracks: 0, keyTimes: [], time: 0, playing: false, loop: false, size: null };
 }
 
 /** @param {MotionState} s @param {number} ms */
@@ -22,13 +22,14 @@ export function clampTime(s, ms) {
  * The iframe runtime announced a timeline (first load or a new one from the chat).
  * The current time is kept when it still fits; otherwise it moves to the new end (CP-10).
  * @param {MotionState} s
- * @param {{ duration?: number, fps?: number, tracks?: number, keyTimes?: number[], loop?: boolean }} info
+ * @param {{ duration?: number, fps?: number, tracks?: number, keyTimes?: number[], loop?: boolean, size?: { w: number, h: number } | null }} info
  * @returns {MotionState}
  */
 export function onReady(s, info) {
   const duration = Math.max(0, Number(info.duration) || 0);
   const keyTimes = Array.isArray(info.keyTimes) ? info.keyTimes.filter((t) => Number.isFinite(t) && t >= 0 && t <= duration) : [];
-  const next = { ...s, has: duration > 0, duration, fps: Number(info.fps) || 30, tracks: Number(info.tracks) || 0, keyTimes, playing: false };
+  const size = info.size && Number(info.size.w) > 0 && Number(info.size.h) > 0 ? { w: Number(info.size.w), h: Number(info.size.h) } : null;
+  const next = { ...s, has: duration > 0, duration, fps: Number(info.fps) || 30, tracks: Number(info.tracks) || 0, keyTimes, size, playing: false };
   if (typeof info.loop === "boolean" && !s.has) next.loop = info.loop;
   next.time = clampTime(next, s.time);
   return next;

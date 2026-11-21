@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Motion Export Prototype</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<!-- EP-24.05 prototype: export dialog opened from the motion player bar (approved player: ../motion-player/03-prototype.html).
+     Progress is simulated. Not production code. -->
+<style>
+  :root { --bg:#0f172a; --panel:#111827; --btn:#1e293b; --line:#334155; --mute:#94a3b8; --text:#e2e8f0; --accent:#818cf8; --ok:#34d399; --err:#f87171; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); }
+  .note { max-width:1100px; margin:12px auto; padding:0 16px; color:var(--mute); font-size:12px; }
+  .note b { color:var(--text); }
+  .note button { margin-left:6px; }
+  .atelier { max-width:1100px; margin:0 auto 24px; border:1px solid var(--line); border-radius:8px; background:var(--panel); position:relative; }
+  .stage { padding:18px; background:#0b1220; display:flex; justify-content:center; min-height:340px; align-items:flex-start; }
+  .frame { width:640px; max-width:100%; background:#f8fafc; color:#0f172a; border-radius:6px; padding:24px; min-height:200px; }
+  .frame h1 { margin:0 0 16px; font-size:22px; }
+  .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .card { background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:18px 12px; text-align:center; font-weight:600; }
+  .btn-proto-vp { padding:4px 8px; font-size:11px; background:var(--btn); border:1px solid var(--line); color:var(--mute); border-radius:4px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; }
+  .btn-proto-vp:hover { color:var(--text); border-color:#475569; }
+  .btn-proto-vp.active { background:#334155; color:#fff; border-color:var(--accent); font-weight:600; }
+  .btn-proto-vp.primary { background:var(--accent); border-color:var(--accent); color:#0b1020; font-weight:600; }
+  .btn-proto-vp:focus-visible, select:focus-visible, .seg input:focus-visible + span { outline:2px solid var(--accent); outline-offset:2px; }
+  .transport { display:flex; align-items:center; gap:8px; padding:8px 10px; border-top:1px solid var(--line); background:#0f172a; border-radius:0 0 8px 8px; }
+  .time { font:12px/1 ui-monospace, Consolas, monospace; min-width:132px; text-align:center; }
+  .scrub { flex:1; accent-color:var(--accent); }
+  .meta { color:var(--mute); font-size:11px; white-space:nowrap; }
+  .sep { width:1px; height:18px; background:var(--line); }
+  /* Export dialog (new): popover above the Export button */
+  .export { position:absolute; right:10px; bottom:48px; width:340px; max-width:calc(100% - 20px); background:#0f172a; border:1px solid var(--line); border-radius:8px; box-shadow:0 12px 32px rgba(0,0,0,.45); }
+  .export[hidden] { display:none; }
+  .export header { display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid var(--line); font-weight:600; }
+  .export header button { margin-left:auto; }
+  .export .body { padding:12px; display:grid; gap:12px; }
+  .field > span { display:block; color:var(--mute); font-size:11px; margin-bottom:4px; }
+  .seg { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .seg label { cursor:pointer; }
+  .seg input { position:absolute; opacity:0; pointer-events:none; }
+  .seg span { display:block; padding:7px 6px; text-align:center; border:1px solid var(--line); border-radius:6px; background:var(--btn); color:var(--mute); font-size:12px; }
+  .seg small { display:block; font-size:10px; color:var(--mute); }
+  .seg input:checked + span { border-color:var(--accent); color:#fff; background:#334155; }
+  .seg input:disabled + span { opacity:.4; cursor:not-allowed; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  select { width:100%; background:var(--btn); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:6px; font-size:12px; }
+  .summary { color:var(--mute); font-size:11px; }
+  .actions { display:flex; justify-content:flex-end; gap:8px; padding:10px 12px; border-top:1px solid var(--line); }
+  .progress { height:8px; background:var(--btn); border-radius:4px; overflow:hidden; }
+  .progress i { display:block; height:100%; width:0; background:var(--accent); transition:width .1s linear; }
+  .status { font-size:12px; }
+  .status.ok { color:var(--ok); }
+  .status.err { color:var(--err); }
+  [data-view] { display:grid; gap:10px; }
+  [data-view][hidden] { display:none; }
+</style>
+</head>
+<body>
+<div class="note">
+  <b>Protótipo EP-24.05: diálogo de exportação.</b> Clique em Exportar na barra do player. Estados:
+  <button class="btn-proto-vp" data-demo="form">Opções</button><button class="btn-proto-vp" data-demo="run">Exportando</button><button class="btn-proto-vp" data-demo="done">Pronto</button><button class="btn-proto-vp" data-demo="error">Erro</button>
+</div>
+
+<div class="atelier">
+  <div class="stage"><div class="frame"><h1>Ofertas da semana</h1><div class="cards"><div class="card">Sedan</div><div class="card">Hatch</div><div class="card">SUV</div></div></div></div>
+  <div class="transport">
+    <button class="btn-proto-vp" aria-label="Voltar ao início"><i class="fa-solid fa-backward-step"></i></button>
+    <button class="btn-proto-vp" aria-label="Tocar"><i class="fa-solid fa-play"></i></button>
+    <button class="btn-proto-vp" aria-label="Repetir"><i class="fa-solid fa-repeat"></i></button>
+    <span class="time">00:00.000 / 00:10.000</span>
+    <input class="scrub" type="range" aria-label="Posição da animação" />
+    <span class="sep"></span><span class="meta">30 fps · 5 faixas</span><span class="sep"></span>
+    <button class="btn-proto-vp" id="btnExport" aria-haspopup="dialog" aria-expanded="false" aria-controls="exportDialog"><i class="fa-solid fa-file-video"></i> Exportar</button>
+  </div>
+
+  <section class="export" id="exportDialog" role="dialog" aria-modal="false" aria-labelledby="exportTitle" hidden>
+    <header><i class="fa-solid fa-file-video"></i> <span id="exportTitle">Exportar animação</span>
+      <button class="btn-proto-vp" id="btnClose" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button></header>
+    <div class="body">
+      <div data-view="form">
+        <div class="field"><span id="fmtLabel">Formato</span>
+          <div class="seg" role="radiogroup" aria-labelledby="fmtLabel">
+            <label><input type="radio" name="fmt" value="webm" checked><span>WebM<small>menor arquivo</small></span></label>
+            <label><input type="radio" name="fmt" value="mp4"><span>MP4<small>mais compatível</small></span></label>
+            <label><input type="radio" name="fmt" value="gif"><span>GIF<small>sem som, leve</small></span></label>
+          </div>
+        </div>
+        <div class="row">
+          <label class="field"><span>Quadros por segundo</span><select id="fps"></select></label>
+          <label class="field"><span>Tamanho</span><select id="scale"></select></label>
+        </div>
+        <div class="summary" id="summary"></div>
+      </div>
+      <div data-view="run" hidden>
+        <div class="status" id="runText" aria-live="polite">Quadro 0 de 300</div>
+        <div class="progress" role="progressbar" aria-label="Progresso da exportação" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="bar"></i></div>
+        <div class="summary">Pode continuar usando o Atelier; o vídeo fica pronto aqui.</div>
+      </div>
+      <div data-view="done" hidden>
+        <div class="status ok"><i class="fa-solid fa-circle-check"></i> Pronto: <b id="fileName">ofertas-home.webm</b> (0,45 MB)</div>
+        <div class="summary">O arquivo fica disponível por 24 horas.</div>
+      </div>
+      <div data-view="error" hidden>
+        <div class="status err"><i class="fa-solid fa-triangle-exclamation"></i> Não foi possível exportar: nenhum Chrome ou Edge encontrado. Defina HARNESS_CHROME_PATH.</div>
+      </div>
+    </div>
+    <div class="actions" id="actions"></div>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const dialog = $("exportDialog");
+const DURATION = 10, SIZE = { w: 1920, h: 1080 };
+const FPS = { webm: [24, 30, 60], mp4: [24, 30, 60], gif: [12, 15, 24, 30] };
+const SCALES = { webm: [1, 0.5, 2], mp4: [1, 0.5, 2], gif: [0.5, 0.25, 1] };
+const DEFAULT_FPS = { webm: 30, mp4: 30, gif: 15 };
+let timer = 0;
+const fmt = () => document.querySelector('input[name="fmt"]:checked').value;
+
+function fillOptions() {
+  const f = fmt();
+  $("fps").innerHTML = FPS[f].map((v) => `<option value="${v}" ${v === DEFAULT_FPS[f] ? "selected" : ""}>${v} fps</option>`).join("");
+  $("scale").innerHTML = SCALES[f].map((s) => `<option value="${s}">${Math.round(s * 100)}% · ${Math.round(SIZE.w * s)}×${Math.round(SIZE.h * s)}</option>`).join("");
+  summary();
+}
+function summary() {
+  const frames = DURATION * Number($("fps").value);
+  $("summary").textContent = `${frames} quadros · cerca de ${Math.max(5, Math.round(frames * 0.155 * Number($("scale").value)))} s para gerar`;
+}
+function show(view) {
+  clearInterval(timer);
+  dialog.querySelectorAll("[data-view]").forEach((v) => { v.hidden = v.dataset.view !== view; });
+  const actions = {
+    form: '<button class="btn-proto-vp" data-act="close">Cancelar</button><button class="btn-proto-vp primary" data-act="start"><i class="fa-solid fa-download"></i> Exportar</button>',
+    run: '<button class="btn-proto-vp" data-act="cancel"><i class="fa-solid fa-stop"></i> Cancelar exportação</button>',
+    done: '<button class="btn-proto-vp" data-act="form">Exportar outro</button><button class="btn-proto-vp primary" data-act="close"><i class="fa-solid fa-download"></i> Baixar</button>',
+    error: '<button class="btn-proto-vp" data-act="close">Fechar</button><button class="btn-proto-vp primary" data-act="form">Tentar de novo</button>',
+  };
+  $("actions").innerHTML = actions[view];
+  if (view === "run") run();
+  if (view === "done") $("fileName").textContent = `ofertas-home.${fmt()}`;
+}
+function run() {
+  const total = DURATION * Number($("fps").value);
+  let frame = 0;
+  timer = setInterval(() => {
+    frame = Math.min(total, frame + Math.ceil(total / 60));
+    $("runText").textContent = `Quadro ${frame} de ${total}`;
+    $("bar").style.width = `${(frame / total) * 100}%`;
+    dialog.querySelector('[role="progressbar"]').setAttribute("aria-valuenow", String(Math.round((frame / total) * 100)));
+    if (frame >= total) show("done");
+  }, 80);
+}
+function open(on) {
+  dialog.hidden = !on;
+  $("btnExport").setAttribute("aria-expanded", String(on));
+  $("btnExport").classList.toggle("active", on);
+  if (on) { show("form"); dialog.querySelector('input[name="fmt"]:checked').focus(); } else { clearInterval(timer); $("btnExport").focus(); }
+}
+$("btnExport").onclick = () => open(dialog.hidden);
+$("btnClose").onclick = () => open(false);
+$("actions").onclick = (e) => {
+  const act = e.target.closest("[data-act]")?.dataset.act;
+  if (act === "close") open(false);
+  else if (act === "start") show("run");
+  else if (act === "cancel") show("form");
+  else if (act === "form") show("form");
+};
+dialog.addEventListener("keydown", (e) => { if (e.key === "Escape") open(false); });
+document.querySelectorAll('input[name="fmt"]').forEach((r) => { r.onchange = fillOptions; });
+$("fps").onchange = summary; $("scale").onchange = summary;
+document.querySelectorAll("[data-demo]").forEach((b) => { b.onclick = () => { if (dialog.hidden) open(true); show(b.dataset.demo); }; });
+fillOptions();
+</script>
+</body>
+</html>

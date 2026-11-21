@@ -51,6 +51,7 @@ const {
 } = require("../controllers/atelier-scratchpad.controller");
 const { apiPrototypesAgentRun } = require("../controllers/atelier-agent-run.controller");
 const { apiMotionGet, apiMotionPut } = require("../controllers/motion.controller");
+const { apiMotionExportCreate, apiMotionExportStatus, apiMotionExportCancel, apiMotionExportFile, apiMotionExportFormats } = require("../controllers/motion-export.controller");
 const { apiHandoffExport } = require("../controllers/handoff-export.controller");
 const { apiProjectDesignStoryFiles } = require("../controllers/design-story-files.controller");
 const { apiProjectDesignStoryFeatures } = require("../controllers/design-story-features.controller");
@@ -102,6 +103,11 @@ const designRoutes = [
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/agent-run$/, handler: apiPrototypesAgentRun },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/motion\/([\w-]+)$/, handler: apiMotionGet },
   { method: "PUT", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/motion\/([\w-]+)$/, handler: apiMotionPut },
+  { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/motion\/([\w-]+)\/export$/, handler: apiMotionExportCreate },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/motion\/export-formats$/, handler: apiMotionExportFormats },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/motion\/export\/([0-9a-f]{12})$/, handler: apiMotionExportStatus },
+  { method: "DELETE", path: /^\/api\/project\/([\w-]+)\/design\/motion\/export\/([0-9a-f]{12})$/, handler: apiMotionExportCancel },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/motion\/export\/([0-9a-f]{12})\/file$/, handler: apiMotionExportFile },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototype(?:\/([\w-]+)(?:\/(.*))?)?$/, handler: apiProjectDesignPrototype },
 ];
 

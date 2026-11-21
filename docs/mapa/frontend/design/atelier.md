@@ -42,3 +42,5 @@ updated: 2026-11-21
 | `ui/public/js/modules/prototype-motion-player.js` | Motion button and transport bar under the preview: shown only after the iframe runtime sends READY, HARNESS_MOTION_* messages, keyboard, persisted `motionOpen`. |
 | `ui/public/css/design/41-prototype-motion.css` | Styles of the motion transport bar (same slate tokens as the Atelier buttons). |
 | `tests/prototype-motion-player.test.js` | State rules (CP-09, CP-10) and the real modules in Chrome (CP-08, keyboard, ARIA). |
+| `ui/public/js/modules/prototype-motion-export.js` | Export dialog of the motion player (EP-24.05): format, fps and size options, progress by frame over the export API, download link, cancel; a running job survives closing it. |
+| `tests/prototype-motion-export.test.js` | Dialog option helpers and the dialog in Chrome over a stubbed API (unavailable MP4, progress, download link, cancel). |
