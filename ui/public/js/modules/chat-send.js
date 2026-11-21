@@ -19,10 +19,11 @@ import { runComparison } from "./chat-send-compare.js";
 import { isWorkflowCommandText, runChatWorkflowCommand } from "./chat-workflow-command.js";
 import { consumeChatStream } from "./chat-stream-resume.js";
 import { buildUserTurn, engineText } from "./chat-user-turn.js";
+import { isInterruption, markInterrupted } from "./chat-interrupted.js";
 
 /**
  * @param {string} [presentation]
- * @param {{ displayText?: string }} [options] displayText: short text for the bubble while the engine gets the full prompt
+ * @param {{ displayText?: string, resumedFrom?: string }} [options] displayText: short text for the bubble while the engine gets the full prompt; resumedFrom: run continued by "Retomar" (EP-23.04)
  */
 export async function sendChatMessage(presentation = "main", options = {}) {
   const P = state.P;
@@ -135,6 +136,7 @@ export async function sendChatMessage(presentation = "main", options = {}) {
         model: cs.engineSettings[cs.currentEngine]?.model,
         effort: cs.engineSettings[cs.currentEngine]?.effort,
         daiAgent: cs.activeDaiAgent || undefined,
+        resumedFrom: options.resumedFrom || undefined,
       }),
     });
 
@@ -143,9 +145,11 @@ export async function sendChatMessage(presentation = "main", options = {}) {
       throw Object.assign(new Error(errJson.error || `HTTP ${res.status}`), { http: res.status });
     }
 
+    let runId = "";
     await consumeChatStream({
       response: res,
       signal: ac.signal,
+      onRun: (id) => { runId = id; },
       onReattach: () => setChatStatus("Reconectando à resposta em andamento..."),
       onEvent: (data) => {
         try {
@@ -166,6 +170,10 @@ export async function sendChatMessage(presentation = "main", options = {}) {
           } else if (data.type === "permission" || data.type === "permission_resolved") {
             applyPermissionEvent(assistantTurn, data);
             renderChatHistory(true);
+          } else if (isInterruption(data)) {
+            markInterrupted(assistantTurn, data, { runId, prompt: promptText });
+            setChatStatus("Resposta interrompida: retome ou reenvie.");
+            renderChatHistory();
           } else if (data.type === "error") {
             assistantTurn.errorInfo = errorInfoFrom(data);
             renderChatHistory();

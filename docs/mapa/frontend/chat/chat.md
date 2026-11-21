@@ -27,7 +27,7 @@ updated: 2026-11-11
 | `ui/public/css/chat/04-mini-chat-dock.css` | Styles for the mini chat dock. |
 | `ui/public/js/modules/chat-models.js` | Pure `ChatMessage`, `ChatSession` and `ChatExecutionState` entities with automatic code block extraction. |
 | `ui/public/js/types/chat-models.d.ts` | Type declarations for the canonical chat models. |
-| `ui/public/js/modules/chat-session-store.js` | Isolates engine sessions per project and conversation (4 canonical engines), mirrored in `localStorage` key `harness:engine-sessions:v1` (60 chats max). For saved chats it is a cache of the server (EP-17.02): `reconcileEngineSessions` lets the server win, new sessions are sent up, `migrateLocalSessionsOnce` imports the old map once per project. |
+| `ui/public/js/modules/chat-session-store.js` | Engine sessions per project and conversation, cached in `localStorage` (`harness:engine-sessions:v1`, 60 chats). Saved chats: cache of the server (EP-17.02), `reconcileEngineSessions` (server wins), `migrateLocalSessionsOnce`. |
 | `tests/chat-session-persistence.test.js` | Tests that the engine session survives F5 and that "New chat" resets it. |
 | `ui/public/js/modules/chat-scope.js` | Chat per project and scope (general chat, each design tab): `parkActiveChat`, `adoptStoredChat`, `switchChatScope`, `isActiveChatStreaming`/deferred switch while an answer streams, `latestSavedChat` (quiet restore when the browser has no chat: the server's conversation with the latest activity first, the newest file name as fallback), `setChatArtifact` (scope per artifact: `design:<view>:<mapId|protoId>`). Called by `projects-load.js` on project switch and by `persistDesignView`. Storage key `harness_active_chat_<slug>[::design:<view>]`; unsaved engine sessions are also scoped. |
 | `ui/public/js/modules/chat-tabs.js` | Multi-tab presence over BroadcastChannel: tabs never block each other; a warning shows only when two tabs hold the same chat key (`chatPresence`, `createChatPresence`). Chat send warns without blocking. |
@@ -39,6 +39,8 @@ updated: 2026-11-11
 | `ui/public/js/modules/chat-send.js` | Sends messages in single or compare mode with isolated AbortController and canonical sessions. |
 | `ui/public/js/modules/chat-send-compare.js` | Compare mode: fires the selected engines in parallel and fills the comparison turn. |
 | `ui/public/js/modules/chat-stream-resume.js` | Reads the chat SSE stream and reattaches by `seq` after a screen lock or app switch; the stop button also stops the run on the server. |
+| `ui/public/js/modules/chat-interrupted.js` | EP-23.04: "Interrompida" card (reason, `Retomar`/`Reenviar`) and what each action sends; no DOM. |
+| `ui/public/js/modules/chat-interrupted-actions.js` | EP-23.04: `resumeInterruptedTurn`/`resendInterruptedTurn` handlers (window, via `chat.js`). |
 | `ui/public/js/modules/chat-stream-ui.js` | Reactive send/cancel button sync in the 3 presentations and stream cancellation. |
 | `ui/public/js/modules/chat-hia-feedback.js` | Local execution status, Script-First route metadata and tokens-saved counter per session. |
 | `ui/public/js/modules/chat-hia-panel.js` | Consumes `GET /api/hia/metrics` and renders telemetry, hardware and routing state in the settings popover. |

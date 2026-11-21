@@ -92,13 +92,25 @@ function scrubEvent(event, envValues = secretEnvValues()) {
   return walk(event);
 }
 
-const ENDED_WITHOUT_ANSWER = {
-  interrupted: {
-    title: "Resposta interrompida",
-    error: "A resposta foi interrompida porque o servidor reiniciou antes do fim. O trecho acima foi salvo; envie a mensagem de novo para continuar.",
-  },
-  stopped: { title: "Resposta parada", error: "A resposta foi parada antes do fim." },
+// EP-23.04: why a run ended without an answer. The browser shows the partial answer as "Interrompida" with the
+// reason and offers to resume it in the same engine session or to send the message again.
+const STOP_REASONS = {
+  restart: { code: "interrupted", title: "Resposta interrompida", error: "O servidor reiniciou antes do fim da resposta. O trecho acima foi salvo." },
+  user: { code: "stopped", title: "Resposta parada", error: "A resposta foi parada antes do fim." },
+  idle: { code: "stopped", title: "Resposta interrompida", error: "A resposta foi encerrada porque ficou tempo demais sem ninguém acompanhando." },
 };
+
+/**
+ * Final event of a run that ended without an answer (EP-23.04).
+ * @param {"restart"|"user"|"idle"} reason
+ */
+function stoppedEvent(reason) {
+  const info = STOP_REASONS[reason] || STOP_REASONS.restart;
+  return { type: "error", code: info.code, reason, title: info.title, error: info.error, retryable: true, interrupted: true };
+}
+
+/** Status in chat_runs to the reason shown for a run without a final event. */
+const ENDED_WITHOUT_ANSWER = { interrupted: "restart", stopped: "user" };
 
 /**
  * A run that is no longer in memory, rebuilt from the journal. Interrupted or stopped runs without a final
@@ -113,15 +125,13 @@ function readStoredRun(runId, from) {
     const run = repo.getRun(runId);
     if (!run) return null;
     const events = repo.readFrom(runId, from);
-    const ended = /** @type {Record<string, any>} */ (ENDED_WITHOUT_ANSWER)[run.status];
-    if (ended && !repo.hasTerminalEvent(runId)) {
-      events.push({ type: "error", code: run.status, title: ended.title, error: ended.error, retryable: true, seq: run.lastSeq + 1 });
-    }
-    return { status: run.status, events };
+    const reason = /** @type {Record<string, any>} */ (ENDED_WITHOUT_ANSWER)[run.status];
+    if (reason && !repo.hasTerminalEvent(runId)) events.push({ ...stoppedEvent(reason), seq: run.lastSeq + 1 });
+    return { status: run.status, events, resumedFrom: run.resumedFrom };
   } catch (error) {
     warn("read", error);
     return null;
   }
 }
 
-module.exports = { getJournal, setJournal, scrubEvent, readStoredRun, RETENTION_MS };
+module.exports = { getJournal, setJournal, scrubEvent, readStoredRun, stoppedEvent, RETENTION_MS };

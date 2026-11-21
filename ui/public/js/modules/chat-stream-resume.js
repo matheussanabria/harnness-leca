@@ -36,9 +36,11 @@ async function waitUntilActive(signal) {
  *   signal: AbortSignal,
  *   onEvent: (data: any) => void,
  *   onReattach?: (attempt: number) => void,
- * }} p  `response` is the first POST /api/chat response (already ok).
+ *   onRun?: (runId: string) => void,
+ * }} p  `response` is the first POST /api/chat response (already ok). onRun receives the server run id, which
+ *   "Retomar" links to the new run (EP-23.04).
  */
-export async function consumeChatStream({ response, signal, onEvent, onReattach }) {
+export async function consumeChatStream({ response, signal, onEvent, onReattach, onRun }) {
   let runId = "";
   let nextSeq = 0;
   let terminal = false;
@@ -74,7 +76,7 @@ export async function consumeChatStream({ response, signal, onEvent, onReattach 
           if (data.seq < nextSeq) continue;
           nextSeq = data.seq + 1;
         }
-        if (data.type === "run" && data.runId) { runId = data.runId; continue; }
+        if (data.type === "run" && data.runId) { runId = data.runId; onRun?.(runId); continue; }
         if (data.type === "done" || data.type === "error") terminal = true;
         onEvent(data);
       }

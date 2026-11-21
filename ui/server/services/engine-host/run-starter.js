@@ -35,6 +35,8 @@ function sseWriter(run, engineId) {
   };
 }
 
+const RESUMED_FROM = /^[\w-]{1,80}$/;
+
 /**
  * @param {Record<string, any>} body the POST /api/chat body
  * @param {{ permissionUrl: string }} options where the Claude permission tool posts its requests
@@ -59,7 +61,8 @@ function startChatRun(body, { permissionUrl }) {
   // T2.2: ciclo de vida da execucao no event log (runId = chatId); so metadados, nunca bloqueia o chat.
   const tracker = createChatRunTracker({ slug, engine, runId: chatId, traceId: body.traceId, model, effort: eff, sessionId });
   const run = registerRun(chatId, {
-    meta: { project: slug, engine, chatId },
+    // EP-23.04: "Retomar" starts a new run linked to the interrupted one (chat_runs.resumed_from).
+    meta: { project: slug, engine, chatId, resumedFrom: typeof body.resumedFrom === "string" && RESUMED_FROM.test(body.resumedFrom) ? body.resumedFrom : null },
     abort: () => ac.abort(),
     onEnd: (completed) => {
       runningChats--;

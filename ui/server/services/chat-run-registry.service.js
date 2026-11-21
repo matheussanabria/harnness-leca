@@ -5,7 +5,7 @@
 // RUN_GRACE_MS is aborted so an abandoned tab cannot keep an engine busy forever.
 // EP-23.02: events are written to the run journal (SQLite) BEFORE subscribers see them. Events pushed in the
 // same tick are flushed together in one short transaction; the memory buffer is only the live cache.
-const { getJournal, scrubEvent } = require("./chat-run-journal.service");
+const { getJournal, scrubEvent, stoppedEvent } = require("./chat-run-journal.service");
 
 const RUN_GRACE_MS = Number(process.env.HARNESS_CHAT_GRACE_MS) || 10 * 60 * 1000;
 const KEEP_AFTER_END_MS = 2 * 60 * 1000;
@@ -13,7 +13,7 @@ const MAX_BUFFER = 5000;
 const SSE_HEARTBEAT_MS = 15000;
 
 /** @typedef {{ seq: number, [key: string]: any }} RunEvent */
-/** @typedef {{ project?: string|null, engine?: string|null, chatId?: string|null }} RunMeta */
+/** @typedef {{ project?: string|null, engine?: string|null, chatId?: string|null, resumedFrom?: string|null }} RunMeta */
 /** @typedef {{ abort: () => void, onEnd?: (completed: boolean) => void, meta?: RunMeta }} RunHooks */
 
 /** @type {Map<string, ReturnType<typeof createRun>>} */
@@ -29,7 +29,7 @@ const journalWarn = (where, error) => console.warn(`[chat-run-registry] journal 
 function createRun(id, { abort, onEnd, meta = {} }) {
   const journal = getJournal();
   if (journal) {
-    try { journal.startRun({ runId: id, project: meta.project ?? null, chatId: meta.chatId ?? id, engine: meta.engine ?? null }); }
+    try { journal.startRun({ runId: id, project: meta.project ?? null, chatId: meta.chatId ?? id, engine: meta.engine ?? null, resumedFrom: meta.resumedFrom ?? null }); }
     catch (error) { journalWarn("start", error); }
   }
   /** @type {RunEvent[]} */
@@ -44,6 +44,7 @@ function createRun(id, { abort, onEnd, meta = {} }) {
   let seq = 0;
   let finished = false;
   let completed = false;
+  let sawTerminal = false;
   /** @type {NodeJS.Timeout | null} */
   let graceTimer = null;
 
@@ -51,7 +52,7 @@ function createRun(id, { abort, onEnd, meta = {} }) {
   const armGrace = () => {
     clearGrace();
     if (finished || subscribers.size > 0) return;
-    graceTimer = setTimeout(() => end(false), RUN_GRACE_MS);
+    graceTimer = setTimeout(() => end(false, "idle"), RUN_GRACE_MS);
     graceTimer.unref?.();
   };
 
@@ -72,9 +73,15 @@ function createRun(id, { abort, onEnd, meta = {} }) {
     }
   }
 
-  /** @param {boolean} ok */
-  function end(ok) {
+  /**
+   * @param {boolean} ok
+   * @param {"user"|"idle"} [reason] why a run ended without an answer (EP-23.04)
+   */
+  function end(ok, reason = "user") {
     if (finished) return;
+    // EP-23.04: a run cut short without a final event gets one, so a late attach (or the journal replay) shows it
+    // as interrupted with its partial answer instead of reattaching until it gives up.
+    if (!ok && !sawTerminal) pending.push({ ...stoppedEvent(reason), seq: seq++ });
     flush();
     finished = true;
     completed = ok;
@@ -97,6 +104,7 @@ function createRun(id, { abort, onEnd, meta = {} }) {
     /** @param {Record<string, any>} data */
     push(data) {
       if (finished) return;
+      if (data && (data.type === "done" || data.type === "error")) sawTerminal = true;
       pending.push({ ...data, seq: seq++ });
       if (!flushScheduled) {
         flushScheduled = true;

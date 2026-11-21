@@ -9,6 +9,8 @@ import { scheduleDebouncedChatSave } from "./chat-mini.js";
 import { cancelEngineStream } from "./chat-stream-ui.js";
 import { errorHtml, permissionsHtml } from "./chat-errors-permissions.js";
 import { isChatStreamingFor } from "./chat-execution-store.js";
+import { interruptedHtml } from "./chat-interrupted.js";
+import { getEngineSession } from "./chat-session-store.js";
 import { handleChatHistoryScroll } from "./chat-ui-interaction.js";
 import { thinkingHtml, captureThinkState, restoreThinkState, installThinkHandlers } from "./chat-render-thinking.js";
 import { renderAtelierTurnDecorations, bindAtelierAgentDom, stripToolTags } from "./prototype-atelier-agent-dispatcher.js";
@@ -196,6 +198,11 @@ export function renderChatHistory(keepScroll = false) {
         bodyHtml = hasAtelierContent ? "" : '<p class="empty">Sem resposta</p>';
       }
 
+      // EP-23.04: an answer cut short keeps its partial text and offers "Retomar" / "Reenviar".
+      if (t.interrupted) {
+        const canResume = Boolean(getEngineSession(state.P?.slug, cs.currentChatFile, t.engine || cs.currentEngine));
+        bodyHtml += interruptedHtml(t, idx, { canResume, busy: activeChatStreaming });
+      }
       const finalBody = t.hiaRoute ? hiaScriptCard(t, bodyHtml) : bodyHtml;
       const cursorHtml = isLastStreaming ? '<span class="stream-cursor">▌</span>' : "";
       const modelLabel = t.model ? ` · <span style="opacity:0.75;font-weight:normal">${esc(t.model)}</span>` : "";
