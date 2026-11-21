@@ -129,6 +129,18 @@ reattaches and gets the rest.
 - `HARNESS_ENGINE_HOST=0` brings back the old in-process mode (rollback); `HARNESS_ENGINE_HOST_AUTOSTART=0` turns off
   the automatic start (the chat then answers 503 until `npm run host`).
 
+## Motion export (EP-24.05)
+
+The Atelier exports a screen's animation (`screens/<id>.motion.json`) as WebM, MP4 or GIF with no extra install.
+
+- It uses the installed Chrome (or Edge) in headless mode through `playwright-core`, the same launcher as the Atelier
+  pilot tools; set `HARNESS_CHROME_PATH` when Chrome is not in the default folder.
+- Encoding runs in that browser with WebCodecs plus `mediabunny` (MP4, WebM) and `gifenc` (GIF), pinned versions in
+  `package.json`. ffmpeg is not needed. MP4 is offered only when the browser can encode H.264
+  (`GET /api/project/<slug>/design/motion/export-formats`).
+- One export runs at a time per project; files go to `projects/<slug>/design/exports/` and are deleted after 24 h.
+- Reference machine: 10 s at 30 fps in 1080p takes about 46 s (MP4) and 48 s (WebM).
+
 ## Uso no dia a dia
 
 - **Trocar de projeto:** edite `projects/.active` com o nome da pasta.

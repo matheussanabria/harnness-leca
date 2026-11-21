@@ -47,3 +47,10 @@ The Atelier already renders prototype screens (HTML/CSS/SVG) in a sandboxed ifra
 - `size` sides are integers from 16 to 3840.
 - `rev` is the first 12 hex characters of the sha256 of the stored file. Writing over an existing file requires its current `rev`; a new file accepts only `rev: null`.
 - Routes: `GET` and `PUT /api/project/:slug/design/prototypes/:protoId/motion/:screenId`, errors `{ error, code, ... }` with 400, 404, 409, 413 and 422.
+
+## Export spike (24.05, 2026-11-21)
+- Headless Chrome on the reference machine (Windows) reports `VideoEncoder` support for VP9, VP8, H.264 (avc1.640028 and avc1.42001f) and AV1 at 1080p, on a `localhost` origin (WebCodecs needs a secure context).
+- Muxer: `mediabunny` pinned at **1.65.2** (MPL-2.0, released 2026-11-04). It is the maintained successor of `webm-muxer` and `mp4-muxer` (the latter is marked deprecated in favor of it) and writes both MP4 and WebM. GIF: `gifenc` pinned at **1.0.3** (MIT).
+- The encoder page is served only to the job's headless page through `page.route` on a localhost origin; it is not on the public static server. Frames go one at a time as PNG, so memory stays flat.
+- ffmpeg is not used. Decision 5 allowed it as an option; with H.264 available in WebCodecs it adds nothing, so it was left out (MP4 is simply not offered when the encoder lacks H.264).
+- Measured: 10 s, 30 fps, 1920x1080, 300 frames: 46 s to MP4 (0.67 MB), 48 s to WebM (0.45 MB); target was under 2 minutes.
