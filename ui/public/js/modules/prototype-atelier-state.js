@@ -43,6 +43,7 @@ export function normalizeAtelierState(raw) {
   if (selectedNode !== undefined) state.selectedNode = selectedNode;
 
   if (typeof data.inspector === "boolean") state.inspector = data.inspector;
+  if (typeof data.motionOpen === "boolean") state.motionOpen = data.motionOpen; // EP-24.03 player bar
 
   const layout = normalizeWorkspaceLayout(data.workspaceLayout);
   if (layout) state.workspaceLayout = layout;

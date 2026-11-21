@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Motion Player Prototype</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<!-- EP-24.03 prototype: Atelier header with the Motion button and the transport bar under the preview.
+     Styles copy the Atelier tokens (ui/public/css/design/06-workspace-prototypes.css). Not production code. -->
+<style>
+  :root { --bg:#0f172a; --panel:#111827; --btn:#1e293b; --line:#334155; --mute:#94a3b8; --text:#e2e8f0; --accent:#818cf8; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); }
+  .note { max-width:1100px; margin:12px auto; padding:0 16px; color:var(--mute); font-size:12px; }
+  .note b { color:var(--text); }
+  .note label { margin-right:14px; cursor:pointer; }
+  .atelier { max-width:1100px; margin:0 auto 24px; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--panel); }
+  .toolbar { display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:8px 10px; border-bottom:1px solid var(--line); }
+  .toolbar .title { font-weight:600; margin-right:auto; display:flex; gap:8px; align-items:center; }
+  .toolbar select { background:var(--btn); color:var(--text); border:1px solid var(--line); border-radius:4px; font-size:11px; padding:3px 6px; }
+  .btn-proto-vp { padding:4px 8px; font-size:11px; background:var(--btn); border:1px solid var(--line); color:var(--mute); border-radius:4px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; }
+  .btn-proto-vp:hover { color:var(--text); border-color:#475569; }
+  .btn-proto-vp.active { background:#334155; color:#fff; border-color:var(--accent); font-weight:600; }
+  .btn-proto-vp:disabled { opacity:.45; cursor:not-allowed; }
+  .btn-proto-vp:focus-visible, .scrub:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .stage { padding:18px; background:#0b1220; display:flex; justify-content:center; }
+  .frame { width:640px; max-width:100%; background:#f8fafc; color:#0f172a; border-radius:6px; padding:24px; min-height:250px; }
+  .frame h1 { margin:0 0 16px; font-size:22px; }
+  .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .card { background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:18px 12px; text-align:center; font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+  .cta { margin-top:18px; background:#d97757; color:#fff; border:0; border-radius:6px; padding:10px 16px; font-weight:600; }
+  /* Transport bar (new) */
+  .transport { display:flex; align-items:center; gap:8px; padding:8px 10px; border-top:1px solid var(--line); background:#0f172a; }
+  .transport[hidden] { display:none; }
+  .time { font:12px/1 ui-monospace, "Cascadia Mono", Consolas, monospace; color:var(--text); min-width:132px; text-align:center; }
+  .scrub-wrap { position:relative; flex:1; display:flex; align-items:center; }
+  .scrub { width:100%; accent-color:var(--accent); cursor:pointer; }
+  .ticks { position:absolute; left:8px; right:8px; top:-6px; height:4px; pointer-events:none; }
+  .ticks i { position:absolute; width:2px; height:6px; background:var(--accent); border-radius:1px; transform:translateX(-1px); opacity:.8; }
+  .meta { color:var(--mute); font-size:11px; white-space:nowrap; }
+  .sep { width:1px; height:18px; background:var(--line); }
+  .hint { padding:6px 10px 10px; color:var(--mute); font-size:11px; background:#0f172a; }
+  .hint kbd { background:var(--btn); border:1px solid var(--line); border-radius:3px; padding:0 4px; font-size:10px; color:var(--text); }
+  .empty { padding:8px 10px; font-size:11px; color:var(--mute); border-top:1px solid var(--line); }
+  @media (max-width:640px) { .meta, .sep.opt { display:none; } .time { min-width:110px; } .cards { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="note">
+  <b>Protótipo EP-24.03: player de motion no Atelier.</b> Interativo: toque, arraste o cursor e use o teclado.
+  Estados para revisar:
+  <label><input type="radio" name="state" value="motion" checked> tela com timeline</label>
+  <label><input type="radio" name="state" value="none"> tela sem timeline (botão some)</label>
+</div>
+
+<div class="atelier">
+  <div class="toolbar" role="toolbar" aria-label="Ferramentas do Atelier">
+    <span class="title"><i class="fa-solid fa-swatchbook"></i> Ofertas
+      <select aria-label="Tela"><option>home</option></select></span>
+    <button type="button" class="btn-proto-vp" title="Desktop"><i class="fa-solid fa-desktop"></i></button>
+    <button type="button" class="btn-proto-vp" title="Desfazer" disabled><i class="fa-solid fa-rotate-left"></i></button>
+    <button type="button" class="btn-proto-vp active" aria-pressed="true"><i class="fa-solid fa-crosshairs"></i> Inspetor</button>
+    <button type="button" class="btn-proto-vp"><i class="fa-solid fa-object-group"></i> Canvas</button>
+    <button type="button" class="btn-proto-vp"><i class="fa-solid fa-play"></i> Iniciar</button>
+    <button type="button" id="btnMotion" class="btn-proto-vp" aria-pressed="false" aria-controls="transport" title="Mostrar o player da animação desta tela"><i class="fa-solid fa-film"></i> Motion</button>
+    <button type="button" class="btn-proto-vp" title="Recarregar tela"><i class="fa-solid fa-rotate"></i></button>
+  </div>
+
+  <div class="stage">
+    <div class="frame" id="frame">
+      <h1 data-pid="p-2">Ofertas da semana</h1>
+      <div class="cards">
+        <div class="card" data-pid="p-4">Sedan</div>
+        <div class="card" data-pid="p-5">Hatch</div>
+        <div class="card" data-pid="p-6">SUV</div>
+      </div>
+      <button class="cta" data-pid="p-7">Ver estoque</button>
+    </div>
+  </div>
+
+  <div class="transport" id="transport" role="group" aria-label="Player de motion" hidden>
+    <button type="button" class="btn-proto-vp" id="btnStart" title="Voltar ao início (Home)" aria-label="Voltar ao início"><i class="fa-solid fa-backward-step"></i></button>
+    <button type="button" class="btn-proto-vp" id="btnPlay" title="Tocar (Espaço)" aria-label="Tocar"><i class="fa-solid fa-play"></i></button>
+    <button type="button" class="btn-proto-vp" id="btnLoop" title="Repetir" aria-label="Repetir" aria-pressed="false"><i class="fa-solid fa-repeat"></i></button>
+    <span class="time" id="time" aria-live="off">00:00.000 / 00:01.800</span>
+    <div class="scrub-wrap">
+      <div class="ticks" id="ticks" aria-hidden="true"></div>
+      <input type="range" class="scrub" id="scrub" min="0" max="1800" step="1" value="0" aria-label="Posição da animação" aria-valuetext="0,000 segundo de 1,800">
+    </div>
+    <span class="sep opt"></span>
+    <span class="meta">30 fps · 4 faixas</span>
+    <span class="sep opt"></span>
+    <button type="button" class="btn-proto-vp" disabled title="Exportar vídeo (chega na 24.05)"><i class="fa-solid fa-file-video"></i> Exportar</button>
+  </div>
+  <div class="hint" id="hint" hidden>
+    <kbd>Espaço</kbd> toca ou pausa · <kbd>Home</kbd> volta ao início · <kbd>&larr;</kbd> <kbd>&rarr;</kbd> um quadro · as marcas acima da barra são os keyframes
+  </div>
+  <div class="empty" id="empty" hidden><i class="fa-solid fa-circle-info"></i> Esta tela não tem animação. Peça no chat, por exemplo: "entrada em cascata dos cards".</div>
+</div>
+
+<script>
+// Same technique as the runtime (prototype-bridge-motion.js): paused Web Animations driven by currentTime.
+const DOC = { duration: 1800, fps: 30, tracks: [
+  { target: "p-2", keys: [{ t: 0, props: { opacity: 0, transform: "translateY(16px)" } }, { t: 500, props: { opacity: 1, transform: "translateY(0)" }, ease: "ease-out" }] },
+  ...["p-4", "p-5", "p-6"].map((target, i) => ({ target, keys: [{ t: 300 + i * 250, props: { opacity: 0, transform: "translateY(24px) scale(.96)" } }, { t: 900 + i * 250, props: { opacity: 1, transform: "translateY(0) scale(1)" }, ease: "ease-out" }] })),
+] };
+const $ = (id) => document.getElementById(id);
+const anims = DOC.tracks.map((tr) => {
+  const el = document.querySelector(`[data-pid="${tr.target}"]`);
+  const frames = tr.keys.map((k, i) => ({ offset: k.t / DOC.duration, ...k.props, ...(tr.keys[i + 1]?.ease ? { easing: tr.keys[i + 1].ease } : {}) }));
+  if (frames[0].offset > 0) frames.unshift({ ...frames[0], offset: 0, easing: "linear" });
+  if (frames.at(-1).offset < 1) frames.push({ ...frames.at(-1), offset: 1, easing: undefined });
+  const a = el.animate(frames.map(({ easing, ...f }) => (easing ? { ...f, easing } : f)), { duration: DOC.duration, fill: "both" });
+  a.pause();
+  return a;
+});
+const state = { t: 0, playing: false, loop: false, base: 0, raf: 0 };
+const frameMs = 1000 / DOC.fps;
+const fmt = (ms) => { const s = ms / 1000; const m = Math.floor(s / 60); return `${String(m).padStart(2, "0")}:${(s - m * 60).toFixed(3).padStart(6, "0")}`; };
+
+function apply(ms) {
+  state.t = Math.max(0, Math.min(DOC.duration, ms));
+  anims.forEach((a) => { a.currentTime = state.t; });
+  $("scrub").value = String(Math.round(state.t));
+  $("time").textContent = `${fmt(state.t)} / ${fmt(DOC.duration)}`;
+  $("scrub").setAttribute("aria-valuetext", `${(state.t / 1000).toFixed(3).replace(".", ",")} segundo de ${(DOC.duration / 1000).toFixed(3).replace(".", ",")}`);
+}
+function setPlaying(on) {
+  state.playing = on;
+  $("btnPlay").innerHTML = on ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+  $("btnPlay").setAttribute("aria-label", on ? "Pausar" : "Tocar");
+  $("btnPlay").title = on ? "Pausar (Espaço)" : "Tocar (Espaço)";
+}
+function tick(now) {
+  if (!state.playing) return;
+  let t = now - state.base;
+  if (t >= DOC.duration) {
+    if (state.loop) { t %= DOC.duration; state.base = now - t; } else { apply(DOC.duration); setPlaying(false); return; }
+  }
+  apply(t);
+  state.raf = requestAnimationFrame(tick);
+}
+function play() { if (state.t >= DOC.duration) apply(0); setPlaying(true); state.base = performance.now() - state.t; state.raf = requestAnimationFrame(tick); }
+function pause() { setPlaying(false); cancelAnimationFrame(state.raf); }
+const toggle = () => (state.playing ? pause() : play());
+const step = (dir) => { pause(); apply(Math.round((Math.round(state.t / frameMs) + dir) * frameMs)); };
+
+$("btnPlay").onclick = toggle;
+$("btnStart").onclick = () => { pause(); apply(0); };
+$("btnLoop").onclick = () => { state.loop = !state.loop; $("btnLoop").classList.toggle("active", state.loop); $("btnLoop").setAttribute("aria-pressed", String(state.loop)); };
+let pending = 0;
+$("scrub").oninput = (e) => { pause(); cancelAnimationFrame(pending); pending = requestAnimationFrame(() => apply(Number(e.target.value))); };
+$("btnMotion").onclick = () => {
+  const open = $("transport").hidden;
+  $("transport").hidden = !open; $("hint").hidden = !open;
+  $("btnMotion").classList.toggle("active", open); $("btnMotion").setAttribute("aria-pressed", String(open));
+  if (!open) pause();
+};
+document.addEventListener("keydown", (e) => {
+  if ($("transport").hidden || /input|select|textarea/i.test(e.target.tagName) && e.target.id !== "scrub") return;
+  if (e.key === " ") { e.preventDefault(); toggle(); }
+  else if (e.key === "Home") { e.preventDefault(); pause(); apply(0); }
+  else if (e.key === "ArrowRight" && e.target.id !== "scrub") { e.preventDefault(); step(1); }
+  else if (e.key === "ArrowLeft" && e.target.id !== "scrub") { e.preventDefault(); step(-1); }
+});
+// Keyframe ticks over the scrub
+const times = [...new Set(DOC.tracks.flatMap((tr) => tr.keys.map((k) => k.t)))];
+$("ticks").innerHTML = times.map((t) => `<i style="left:${(t / DOC.duration) * 100}%"></i>`).join("");
+document.querySelectorAll('input[name="state"]').forEach((r) => r.onchange = () => {
+  const has = r.value === "motion" && r.checked;
+  $("btnMotion").hidden = !has; $("empty").hidden = has;
+  if (!has) { $("transport").hidden = true; $("hint").hidden = true; $("btnMotion").classList.remove("active"); pause(); apply(DOC.duration); }
+});
+apply(0);
+</script>
+</body>
+</html>

@@ -58,7 +58,7 @@ const SCREENS = [
   tela("prototypes", "Ateliê de Protótipos", "projeto", "/?p=<slug>#/prototypes/<protoId>/<screen>", "fa-object-group", {
     activePrototype: texto(120), activeScreen: texto(120), selectedNode: texto(120),
     inspector: booleano(), workspaceLayout: objeto(8192), canvas: objeto(32768),
-    viewport: texto(16),
+    viewport: texto(16), motionOpen: booleano(),
   }, [
     "harness.atelier.inspector", "harness_proto_workspace_layout", "harness.canvas.v1*",
   ]),
