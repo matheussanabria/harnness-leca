@@ -2,6 +2,7 @@
 // Instrução de ferramentas do Ateliê para motores sem tool-use nativo (OpenCode e motores de CLI): o modelo emite
 // tags <tool ...> no texto e o backend as intercepta e grava nos arquivos do protótipo.
 const { NAV_RULES } = require("./atelier-nav-contract.service");
+const { MOTION_RULES } = require("./motion-tools.service");
 
 const TOOL_INSTRUCTION = `Você é o gerador de código e design do Ateliê.
 Sua única responsabilidade é emitir tags estruturadas que o backend do Ateliê intercepta e grava nos arquivos do protótipo:
@@ -11,6 +12,7 @@ Sua única responsabilidade é emitir tags estruturadas que o backend do Ateliê
 - Para fazer perguntas necessárias: <tool name="atelier_ask_user">{"question":"...","options":["A","B"]}</tool>
 - Para finalizar: <tool name="atelier_complete">{"summary":"..."}</tool>
 ${NAV_RULES}
+${MOTION_RULES}
 IMPORTANTE: Não tente usar bash, grep ou ferramentas do terminal. Não se preocupe com modo somente leitura: apenas emita as tags acima no texto da sua resposta e o sistema gravará o código. Prossiga imediatamente com a implementação.`;
 
 module.exports = { TOOL_INSTRUCTION };

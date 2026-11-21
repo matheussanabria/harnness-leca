@@ -7,11 +7,12 @@ const { sanitizeHtmlFragment, injectDataPidAttributes } = require("./prototype-s
 const { validateScreenHtml } = require("./atelier-screen-guards.service");
 const { writeScratchFile } = require("./atelier-scratchpad.service");
 const { createVersionSnapshot } = require("./prototype-version.service");
+const { MOTION_TOOL_DEFINITIONS, executeMotionTool, isMotionTool } = require("./motion-tools.service");
 
 /**
- * Schemas canônicos das ferramentas do Ateliê.
+ * Schemas canônicos das ferramentas do Ateliê (as de motion, EP-24.04, vêm de motion-tools.service).
  */
-const ATELIER_TOOL_DEFINITIONS = [
+const BASE_TOOL_DEFINITIONS = [
   {
     name: "atelier_plan",
     description: "Registra ou atualiza o plano em etapas do protótipo e suposições de design antes ou durante a implementação.",
@@ -99,6 +100,7 @@ const ATELIER_TOOL_DEFINITIONS = [
     },
   },
 ];
+const ATELIER_TOOL_DEFINITIONS = [...BASE_TOOL_DEFINITIONS, ...MOTION_TOOL_DEFINITIONS];
 
 /**
  * Converte schemas para o formato FunctionDeclarations da API Gemini do Google AI Studio.
@@ -240,6 +242,7 @@ async function executeAtelierTool(toolName, args, ctx, deps = { fs, path }) {
       }
 
       default:
+        if (isMotionTool(toolName)) return executeMotionTool(toolName, args, { projectDir, protoId });
         return { ok: false, error: `Ferramenta desconhecida: "${toolName}".` };
     }
   } catch (err) {

@@ -8,6 +8,7 @@ const fs = require("fs");
 const path = require("path");
 const { NAV_RULES, navScreenLine } = require("./atelier-nav-contract.service");
 const { buildProtoMap } = require("./atelier-proto-map.service");
+const { buildMotionContext } = require("./motion-context.service");
 
 const MAX_SCREEN_CHARS = 7000;
 const MAX_CSS_CHARS = 9000;
@@ -73,6 +74,8 @@ function buildProtoContext({ projectDir, protoId, prompt = "" }) {
   const parts = [];
   const keys = storageKeys(screens.map((s) => s.html));
   parts.push(buildProtoMap({ protoId, screens, css, registered, storage: keys, components }).text);
+  const motion = buildMotionContext(protoDir); // EP-24.04: timelines in ~200 tokens
+  if (motion) parts.push(motion);
   parts.push(`## Estado ATUAL do protótipo "${protoId}" (lido do disco agora)`);
   parts.push(`Telas em disco: ${screens.map((s) => `${s.id} (${s.html.length} caracteres${registered.includes(s.id) ? "" : ", NÃO registrada no proto.json"})`).join(", ") || "nenhuma"}.`);
   if (keys.length) parts.push(`Chaves de storage já usadas pelas telas (REUSE exatamente estas, com o mesmo formato de dado): ${keys.join(", ")}.`);

@@ -1,6 +1,6 @@
 # ADR-018: Motion design is declarative data on top of Atelier screens
 
-- Status: proposed (EP-24, story 24.01)
+- Status: accepted (EP-24, story 24.01, 2026-11-21)
 - Date: 2026-11-21
 - Related: ADR-010 (Atelier agent loop), ADR-014 (native formats), EP-12 (prototype engine), EP-15 (Atelier agent runtime)
 
@@ -16,11 +16,11 @@ The Atelier already renders prototype screens (HTML/CSS/SVG) in a sandboxed ifra
    { "schema": "motion@1", "duration": 4000, "fps": 30, "loop": false,
      "size": { "w": 1920, "h": 1080 },
      "tracks": [
-       { "target": "p12", "keys": [
+       { "target": "p-12", "keys": [
          { "t": 0,   "props": { "opacity": 0, "transform": "translateY(24px)" } },
          { "t": 600, "props": { "opacity": 1, "transform": "translateY(0)" }, "ease": "ease-out" } ] } ] }
    ```
-   - `target` is a `data-pid`. Selectors and free scripts are not accepted.
+   - `target` is a `data-pid` (e.g. `p-12`). Selectors and free scripts are not accepted. Each track has a unique target and 1 to 100 keys.
    - `t` in milliseconds, `0 <= t <= duration`, strictly increasing per track.
    - Allowed props (whitelist): `opacity`, `transform`, `color`, `background-color`, `filter`, `clip-path`, `stroke-dashoffset`, `width`, `height`, `border-radius`. Unknown props are rejected, not dropped.
    - `ease`: CSS keywords or `cubic-bezier(...)`, applied to the segment that ends at that key.
@@ -41,3 +41,9 @@ The Atelier already renders prototype screens (HTML/CSS/SVG) in a sandboxed ifra
 - **CSS `@keyframes` written into the screen:** no extra file, but the timeline is scattered across CSS, there is no frame-exact seeking, and patches are fragile.
 - **Playwright `recordVideo`:** simple, but records in real time with dropped frames and no exact frame control.
 - **Requiring ffmpeg:** the best encoder, but an extra install on every machine and on the VPS image.
+
+## Implementation notes (24.01)
+- Prop values are numbers or CSS strings up to 200 characters; `<`, `>`, `{`, `}`, `;`, `\`, `url(`, `expression(` and `@import` are rejected, so a timeline can never load an external resource.
+- `size` sides are integers from 16 to 3840.
+- `rev` is the first 12 hex characters of the sha256 of the stored file. Writing over an existing file requires its current `rev`; a new file accepts only `rev: null`.
+- Routes: `GET` and `PUT /api/project/:slug/design/prototypes/:protoId/motion/:screenId`, errors `{ error, code, ... }` with 400, 404, 409, 413 and 422.

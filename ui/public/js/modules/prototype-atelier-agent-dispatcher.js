@@ -123,6 +123,7 @@ export async function runAtelierAgentStream({
         } else if (evt.type === "tool_exec_start") {
           setStatus(`Executando ferramenta ${evt.name}...`);
           if (evt.name === "atelier_write_screen" && evt.args?.screenId) onFocusScreen?.(evt.args.screenId);
+          if (/^motion_/.test(evt.name) && evt.args?.screen) onFocusScreen?.(evt.args.screen);
           assistantTurn.atelierTools.push({ name: evt.name, status: "executing" });
           onRender();
         } else if (evt.type === "tool_exec_end") {
@@ -131,7 +132,8 @@ export async function runAtelierAgentStream({
 
           if (evt.name === "atelier_plan" && evt.ok && evt.result?.plan) {
             assistantTurn.atelierPlan = evt.result.plan;
-          } else if (evt.name === "atelier_write_screen" || evt.name === "atelier_patch_styles") {
+          } else if (evt.name === "atelier_write_screen" || evt.name === "atelier_patch_styles" || /^motion_/.test(evt.name)) {
+            // A new timeline needs a fresh render: the runtime is only injected into screens that have one (EP-24.02).
             if (evt.ok) onReloadProto();
           }
           onRender();

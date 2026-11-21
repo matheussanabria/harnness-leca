@@ -32,7 +32,7 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-21 | 2/13 | **em andamento** | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA; 13 histórias criadas, ADR-014 aceito (21.01 e 21.02 concluidas). |
 | EP-22 | 0/6 | **planejado** | Navegação de projetos: spec do BA/UX e histórias 22.01 a 22.06 criadas em 2026-11-16 | Definir a frente e abrir 22.01 e 22.03 em paralelo |
 | EP-23 | 0/6 | **planejado** | Host de execução persistente: histórias 23.01 a 23.06 criadas em 2026-11-19; ADR-012 aceito com a emenda da disciplina de escrita | 23.01 e 17.01 implementadas em branches, aguardando merge |
-| EP-24 | 0/6 | **em andamento** | Motion design no Atelier: épico, 6 histórias e ADR-018 criados em 2026-11-21; 24.01 (formato, validador e store) implementada em branch, em revisão | Revisar e fazer merge da 24.01; depois 24.02 |
+| EP-24 | 0/6 | **em andamento** | Motion design no Atelier: épico, 6 histórias e ADR-018 criados em 2026-11-21; 24.01, 24.02 e 24.04 (tools do agente; sonda com 3 modelos reais: 11/12 na primeira tentativa, 12/12 após uma correção) na main em 2026-11-21, aguardando aceite | Aprovar o protótipo da 24.03 (player) |
 
 **Total: 141/184**
 

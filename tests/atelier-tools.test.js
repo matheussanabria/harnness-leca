@@ -12,17 +12,17 @@ const {
   executeAtelierTool,
 } = require("../ui/server/services/atelier-tools.service");
 
-test("atelier-tools: schemas exportados corretamente para Gemini e OpenCode", () => {
-  assert.equal(ATELIER_TOOL_DEFINITIONS.length, 5);
+test("atelier-tools: schemas exportados corretamente para Gemini e OpenCode (5 do Ateliê + 3 de motion, EP-24.04)", () => {
+  assert.equal(ATELIER_TOOL_DEFINITIONS.length, 8);
 
   const geminiDecls = getGeminiFunctionDeclarations();
-  assert.equal(geminiDecls.length, 5);
+  assert.equal(geminiDecls.length, 8);
   assert.ok(geminiDecls.some((d) => d.name === "atelier_write_screen"));
   assert.ok(geminiDecls.some((d) => d.name === "atelier_plan"));
   assert.ok(geminiDecls.some((d) => d.name === "atelier_ask_user"));
 
   const openCodeTools = getOpenCodeTools();
-  assert.equal(openCodeTools.length, 5);
+  assert.equal(openCodeTools.length, 8);
   assert.equal(openCodeTools[0].type, "function");
   assert.ok(openCodeTools[0].function.name);
 });
