@@ -66,6 +66,7 @@ export function renderAtelierHtml(model) {
             <button type="button" id="btnAtelierInspector" class="btn-proto-vp active" title="Ligar ou desligar o inspetor" aria-pressed="true"><i class="fa-solid fa-crosshairs"></i> <span>Inspetor</span></button>
             <button type="button" id="btnAtelierModeCanvas" class="btn-proto-vp" title="Alternar entre tela única e canvas"><i class="fa-solid fa-object-group"></i> Canvas</button>
             <button type="button" id="btnAtelierPlay" class="btn-proto-vp" title="Iniciar a navegação (cada tela vira um quadro do canvas)"><i class="fa-solid fa-play"></i> Iniciar</button>
+            <button type="button" id="btnAtelierMotion" class="btn-proto-vp" title="Mostrar o player da animação desta tela" aria-pressed="false" aria-controls="atelierMotionBar" hidden><i class="fa-solid fa-film"></i> Motion</button>
             ${renderExportMenu()}
             <button type="button" id="btnReloadProtoFrame" class="btn-proto-vp" title="Recarregar tela"><i class="fa-solid fa-rotate"></i></button>
           </div>
@@ -89,6 +90,7 @@ export function renderAtelierHtml(model) {
             <iframe id="atelierIframe" src="/api/project/${encodeURIComponent(model.slug)}/design/prototypes/${encodeURIComponent(model.prototypeId)}/render/${encodeURIComponent(model.activeScreen)}" sandbox="allow-scripts"></iframe>
           </div>
         </div>
+        <div id="atelierMotionBar" class="proto-motion" hidden></div>
         <div id="atelierCanvasHost" class="proto-canvas-host" hidden></div>
         <div class="proto-versions-bar">
           <span><i class="fa-solid fa-clock-rotate-left"></i> Versões:</span>

@@ -1,0 +1,24 @@
+/* --- 41-prototype-motion.css: Atelier motion player (EP-24.03), transport bar under the preview --- */
+/* Same slate tokens as .btn-proto-vp in 06-workspace-prototypes.css; approved prototype: docs/features/motion-player/03-prototype.html */
+.proto-motion { border-top: 1px solid #334155; background: #0f172a; color: #e2e8f0; font-size: 12px; }
+.proto-motion[hidden] { display: none; }
+.proto-motion__transport { display: flex; align-items: center; gap: 8px; padding: 8px 10px; }
+.proto-motion.is-empty .proto-motion__transport, .proto-motion.is-empty .proto-motion__hint { display: none; }
+.proto-motion__time { font: 12px/1 ui-monospace, "Cascadia Mono", Consolas, monospace; min-width: 132px; text-align: center; }
+.proto-motion__scrub-wrap { position: relative; flex: 1; display: flex; align-items: center; min-width: 80px; }
+.proto-motion__scrub { width: 100%; accent-color: #818cf8; cursor: pointer; }
+.proto-motion__ticks { position: absolute; left: 8px; right: 8px; top: -6px; height: 4px; pointer-events: none; }
+.proto-motion__ticks i { position: absolute; width: 2px; height: 6px; background: #818cf8; border-radius: 1px; transform: translateX(-1px); opacity: 0.8; }
+.proto-motion__meta { color: #94a3b8; font-size: 11px; white-space: nowrap; }
+.proto-motion__sep { width: 1px; height: 18px; background: #334155; }
+.proto-motion__hint { padding: 0 10px 8px; color: #94a3b8; font-size: 11px; }
+.proto-motion__hint kbd { background: #1e293b; border: 1px solid #334155; border-radius: 3px; padding: 0 4px; font-size: 10px; color: #e2e8f0; }
+.proto-motion__empty { padding: 8px 10px; color: #94a3b8; font-size: 11px; }
+.proto-motion__empty[hidden] { display: none; }
+.proto-motion .btn-proto-vp:focus-visible, .proto-motion__scrub:focus-visible, #btnAtelierMotion:focus-visible { outline: 2px solid #818cf8; outline-offset: 2px; }
+#btnAtelierMotion[hidden] { display: none; }
+@media (max-width: 640px) {
+  .proto-motion__meta, .proto-motion__sep { display: none; }
+  .proto-motion__time { min-width: 110px; }
+  .proto-motion__hint { display: none; }
+}

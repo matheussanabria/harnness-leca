@@ -89,7 +89,9 @@
       } catch { /* a value the browser cannot animate skips that track only */ }
     }
     apply(Math.min(state.time, state.doc.duration));
-    send("HARNESS_MOTION_READY", { duration: state.doc.duration, fps: state.doc.fps, tracks: state.anims.length });
+    const keyTimes = [...new Set(state.doc.tracks.flatMap((/** @type {any} */ t) => (Array.isArray(t?.keys) ? t.keys.map((/** @type {any} */ k) => k.t) : [])))]
+      .filter((t) => typeof t === "number").sort((a, b) => a - b).slice(0, 200);
+    send("HARNESS_MOTION_READY", { duration: state.doc.duration, fps: state.doc.fps, tracks: state.anims.length, loop: Boolean(state.doc.loop), keyTimes });
   }
 
   function stop() {
@@ -167,5 +169,6 @@
     else if (data.type === "HARNESS_MOTION_PLAY") play();
     else if (data.type === "HARNESS_MOTION_PAUSE") pause();
     else if (data.type === "HARNESS_MOTION_LOAD") load(data.doc);
+    else if (data.type === "HARNESS_MOTION_LOOP" && state.doc) state.doc.loop = Boolean(data.loop); // player toggle, not saved
   });
 })();

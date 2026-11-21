@@ -3,9 +3,9 @@ domain: frontend
 module: design
 feature: atelier
 summary: Atelier prototype UI: view, state, context, messages, multi-select, navigation, canvas, layers, layout, catalog.
-paths: [ui/public/js/modules/prototype-atelier*.js, ui/public/js/modules/prototype-canvas-mode.js, ui/public/js/modules/prototype-layer-tree.js, ui/public/js/modules/prototype-workspace-layout.js, ui/public/js/modules/prototype-catalog.js, ui/public/js/modules/prototype-multiselect-model.js, ui/public/js/modules/prototype-nav-resolve.js, ui/public/js/modules/prototype-bridge-links.js, ui/public/js/modules/prototype-bridge-flags.js, tests/prototype-bridge-flags.test.js, tests/prototype-nav-wiring.test.js, ui/public/js/modules/prototype-inspector-toggle.js, tests/prototype-atelier-*.test.js, tests/prototype-nav-resolve.test.js, tests/studio-state.test.js, tests/chat-engine-settings.test.js]
-keywords: [atelier, prototype, canvas, layers, multiselect, navigation, screens, resolver, iframe, state, adoption, sidebar, catalog]
-updated: 2026-11-12
+paths: [ui/public/js/modules/prototype-atelier*.js, ui/public/js/modules/prototype-motion-*.js, ui/public/css/design/41-prototype-motion.css, tests/prototype-motion-player.test.js, ui/public/js/modules/prototype-canvas-mode.js, ui/public/js/modules/prototype-layer-tree.js, ui/public/js/modules/prototype-workspace-layout.js, ui/public/js/modules/prototype-catalog.js, ui/public/js/modules/prototype-multiselect-model.js, ui/public/js/modules/prototype-nav-resolve.js, ui/public/js/modules/prototype-bridge-links.js, ui/public/js/modules/prototype-bridge-flags.js, tests/prototype-bridge-flags.test.js, tests/prototype-nav-wiring.test.js, ui/public/js/modules/prototype-inspector-toggle.js, tests/prototype-atelier-*.test.js, tests/prototype-nav-resolve.test.js, tests/studio-state.test.js, tests/chat-engine-settings.test.js]
+keywords: [atelier, motion, player, timeline, prototype, canvas, layers, multiselect, navigation, screens, resolver, iframe, state, adoption, sidebar, catalog]
+updated: 2026-11-21
 ---
 # Atelier Prototype UI
 
@@ -38,3 +38,7 @@ updated: 2026-11-12
 | `tests/prototype-atelier-state.test.js` | Covers Atelier state, prototype reopening and field limits in the registry (EP-14.08). |
 | `tests/prototype-atelier-chat.test.js` | Covers chat return and reattach even after the node leaves the document. |
 | `tests/chat-engine-settings.test.js` | Covers persistence of engine, model and effort in the `chats` screen state. |
+| `ui/public/js/modules/prototype-motion-state.js` | Pure motion player state (EP-24.03): ready/time/ended, frame step, time format, screen-reader text, keep-time rule on reload. |
+| `ui/public/js/modules/prototype-motion-player.js` | Motion button and transport bar under the preview: shown only after the iframe runtime sends READY, HARNESS_MOTION_* messages, keyboard, persisted `motionOpen`. |
+| `ui/public/css/design/41-prototype-motion.css` | Styles of the motion transport bar (same slate tokens as the Atelier buttons). |
+| `tests/prototype-motion-player.test.js` | State rules (CP-09, CP-10) and the real modules in Chrome (CP-08, keyboard, ARIA). |

@@ -12,10 +12,12 @@ import { resolveScreenTarget } from "./prototype-nav-resolve.js";
 import { ctx, host } from "./prototype-atelier-ctx.js";
 import { applyEdit } from "./prototype-edit-api.js";
 import { onMultiClick, setMulti, paintSelectionBar, runBatch, runGroupAction } from "./prototype-atelier-multi.js";
+import { setupMotionPlayer } from "./prototype-motion-player.js";
 
 let listenerInstalled = false;
 
 export function setupBridgeListener() {
+  setupMotionPlayer(); // EP-24.03: paints the Motion button and bar on every render; installs its own listeners once
   if (listenerInstalled) return;
   listenerInstalled = true;
   window.addEventListener("message", handleBridgeMessage);
