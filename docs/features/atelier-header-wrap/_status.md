@@ -18,4 +18,4 @@ Found while checking EP-24.03 (evidence of that story). Short route: one CSS fil
 | Development (dev) | done | | `ui/public/css/design/08-prototype-catalog.css` | |
 | Tests (tests) | done | | `tests/atelier-header-overflow.test.js` | failed before the fix (5 clipped buttons), passes after; real Atelier at 1500 px: `evidence/` |
 | Review (review) | done | | | self-review of the diff |
-| Commit and PR (commit-pr) | open | | | awaits user approval to merge |
+| Commit and PR (commit-pr) | done | | | merged into main; epic accepted by the user on 2026-11-21 |

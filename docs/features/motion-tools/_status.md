@@ -16,4 +16,4 @@ updated: 2026-11-21
 | Development (dev) | done | | `ui/server/services/motion-tools.service.js` | |
 | Tests (tests) | done | | `tests/motion-tools.test.js`, `tests/motion-context.test.js` | probe: `../../harness-evolution/05-progress/motion-probe-2026-11-21.md` |
 | Review (review) | done | | | self-review of the diff |
-| Commit and PR (commit-pr) | open | | | awaits user approval |
+| Commit and PR (commit-pr) | done | | | merged into main; epic accepted by the user on 2026-11-21 |

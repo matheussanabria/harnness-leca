@@ -2,7 +2,7 @@
 id: EP-24
 titulo: "Motion design no Atelier: timeline declarativa, player, tools do agente e exportação de vídeo"
 prioridade: P1
-status: planejado
+status: concluido
 depende: [EP-12, EP-15, EP-16]
 tags: [harness-evolution, epico, atelier, motion, animacao, video, exportacao]
 ---

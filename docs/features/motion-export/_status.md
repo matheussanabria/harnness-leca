@@ -16,4 +16,4 @@ updated: 2026-11-21
 | Development (dev) | done | | `ui/server/services/motion-export-run.service.js`, `ui/public/js/modules/prototype-motion-export.js` | |
 | Tests (tests) | done | | `tests/motion-export-queue.test.js`, `tests/motion-export-capture.test.js`, `tests/prototype-motion-export.test.js` | CP-20 checked in the real Atelier (GIF exported and downloaded): `evidence/` |
 | Review (review) | done | | | self-review; fixed job starting before its run spec and the timeout timer holding the process |
-| Commit and PR (commit-pr) | open | | | awaits user approval to merge |
+| Commit and PR (commit-pr) | done | | | merged into main; epic accepted by the user on 2026-11-21 |

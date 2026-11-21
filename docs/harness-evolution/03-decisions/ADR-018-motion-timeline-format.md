@@ -1,6 +1,6 @@
 # ADR-018: Motion design is declarative data on top of Atelier screens
 
-- Status: accepted (EP-24, story 24.01, 2026-11-21)
+- Status: accepted (EP-24, story 24.01, 2026-11-21); delivered with EP-24 (6/6, 2026-11-21)
 - Date: 2026-11-21
 - Related: ADR-010 (Atelier agent loop), ADR-014 (native formats), EP-12 (prototype engine), EP-15 (Atelier agent runtime)
 
