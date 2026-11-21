@@ -16,4 +16,4 @@ updated: 2026-11-21
 | Development (dev) | done | | `ui/public/js/modules/prototype-motion-player.js` | |
 | Tests (tests) | done | | `tests/prototype-motion-player.test.js` | CP-11 checked in the real Atelier (port 4399, demo project): `evidence/` |
 | Review (review) | done | | | self-review; fixed Space toggling twice on focused buttons |
-| Commit and PR (commit-pr) | open | | | awaits user approval to merge |
+| Commit and PR (commit-pr) | done | | | merged into main; epic accepted by the user on 2026-11-21 |

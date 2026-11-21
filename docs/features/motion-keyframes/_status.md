@@ -16,4 +16,4 @@ updated: 2026-11-21
 | Development (dev) | done | | `ui/public/js/modules/motion-timeline-panel.js` | |
 | Tests (tests) | done | | `tests/motion-timeline-state.test.js`, `tests/motion-timeline-history.test.js`, `tests/motion-timeline-ui.test.js` | CP-24 and 50-track drag (59.9 fps) in the real Atelier: `evidence/` |
 | Review (review) | done | | | found and fixed the HTTP method gate blocking motion PUT/DELETE (24.01, 24.05), a read-only Event write, and per-frame repaints |
-| Commit and PR (commit-pr) | open | | | awaits user approval to merge |
+| Commit and PR (commit-pr) | done | | | merged into main; epic accepted by the user on 2026-11-21 |

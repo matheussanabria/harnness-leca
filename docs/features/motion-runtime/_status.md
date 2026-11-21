@@ -16,4 +16,4 @@ updated: 2026-11-21
 | Development (dev) | done | | `ui/public/js/modules/prototype-bridge-motion.js` | |
 | Tests (tests) | done | | `tests/prototype-bridge-motion.test.js` | real browser test included |
 | Review (review) | done | | | self-review of the diff |
-| Commit and PR (commit-pr) | open | | | awaits user approval |
+| Commit and PR (commit-pr) | done | | | merged into main; epic accepted by the user on 2026-11-21 |

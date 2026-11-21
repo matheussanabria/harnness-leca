@@ -32,9 +32,9 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-21 | 2/13 | **em andamento** | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA; 13 histórias criadas, ADR-014 aceito (21.01 e 21.02 concluidas). |
 | EP-22 | 0/6 | **planejado** | Navegação de projetos: spec do BA/UX e histórias 22.01 a 22.06 criadas em 2026-11-16 | Definir a frente e abrir 22.01 e 22.03 em paralelo |
 | EP-23 | 0/6 | **planejado** | Host de execução persistente: histórias 23.01 a 23.06 criadas em 2026-11-19; ADR-012 aceito com a emenda da disciplina de escrita | 23.01 e 17.01 implementadas em branches, aguardando merge |
-| EP-24 | 0/6 | **em andamento** | Motion design no Atelier: épico, 6 histórias e ADR-018 criados em 2026-11-21; 24.01, 24.02 e 24.04 (tools do agente; sonda com 3 modelos reais: 11/12 na primeira tentativa, 12/12 após uma correção) na main em 2026-11-21, aguardando aceite; 24.03 e 24.05 na main; 24.06 (painel de keyframes) implementada em branch, com a correção do portão HTTP que bloqueava PUT/DELETE de motion | Merge da 24.06 e aceite do épico |
+| EP-24 | 6/6 | **concluído** | Motion design no Atelier: formato motion@1 e store (24.01), runtime no iframe (24.02), player (24.03), tools do agente com sonda em 3 modelos reais (24.04), exportação WebM/MP4/GIF sem ffmpeg (24.05) e painel de keyframes (24.06); aceito pelo usuário em 2026-11-21 após teste no Atelier | Encerrado |
 
-**Total: 141/184**
+**Total: 147/184**
 
 Reconciliação documental em 2026-11-16: adicionada a linha EP-19, já contabilizada no índice mestre e nas nove histórias concluídas. A tabela agora soma 141/166 em 19 épicos. Não representa percentual de usabilidade ou novo aceite.
 
