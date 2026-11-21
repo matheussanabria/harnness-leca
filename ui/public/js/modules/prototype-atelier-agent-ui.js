@@ -124,6 +124,9 @@ export function renderAtelierToolCallBadge(toolName, status = "executing") {
     atelier_patch_styles: "Aplicando estilos",
     atelier_ask_user: "Aguardando resposta",
     atelier_complete: "Finalizando protótipo",
+    motion_write_timeline: "Animando tela",
+    motion_set_keys: "Ajustando animação",
+    motion_remove_track: "Removendo animação",
   };
 
   const label = toolLabels[toolName] || toolName;
