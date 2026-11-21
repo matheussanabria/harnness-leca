@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { getProjects, send, postOk, readJsonBody } = require("../config");
 const { readMotion, writeMotion, MotionError, MAX_BYTES } = require("../services/motion-store.service");
+const History = require("../services/prototype-history.service");
 
 /** @param {string} slug */
 function projectDirOf(slug) {
@@ -46,7 +47,11 @@ async function apiMotionPut({ req, res, params: [slug, protoId, screenId] }) {
     }
     const { doc, rev } = /** @type {{ doc?: unknown, rev?: string | null }} */ (body || {});
     if (doc === undefined) throw new MotionError(400, "doc_required", "Body must contain doc.");
-    return send(res, 200, { ok: true, ...writeMotion(projectDir, protoId, screenId, doc, { rev }) });
+    // EP-24.06: edits from the keyframe panel enter the Atelier history, so its Ctrl+Z / Ctrl+Y undo and redo them.
+    const label = typeof (/** @type {any} */ (body)).label === "string" ? String(/** @type {any} */ (body).label).slice(0, 80) : "Animação editada";
+    const saved = History.withHistory(projectDir, protoId, { label, kind: "motion", detail: `screens/${screenId}.motion.json` },
+      () => writeMotion(projectDir, protoId, screenId, doc, { rev }));
+    return send(res, 200, { ok: true, ...saved });
   } catch (err) {
     return fail(res, err);
   }

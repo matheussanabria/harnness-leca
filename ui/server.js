@@ -5,11 +5,21 @@ const { PORT, HOST, IS_REMOTE, PIN, send, hostOk, postOk, getActiveAppUrl, MAX_C
 const { handle } = require("./server/router");
 const netLib = require("../tools/lib/network");
 
+/** Motion writes allowed past the method gate (EP-24): PUT of a screen timeline, DELETE of an export job. */
+function isMotionWrite(/** @type {string} */ method, /** @type {string} */ url) {
+  const p = url.split("?")[0];
+  if (method === "PUT") return /^\/api\/project\/[\w-]+\/design\/prototypes\/[\w-]+\/motion\/[\w-]+$/.test(p);
+  if (method === "DELETE") return /^\/api\/project\/[\w-]+\/design\/motion\/export\/[0-9a-f]{12}$/.test(p);
+  return false;
+}
+
 function createServer() {
   const server = http.createServer(async (req, res) => {
     try {
-      // PUT e DELETE existem só para a API do Canvas (/api/canvas/*, EP-16): rev em PUT, remoção de board em DELETE.
-      const canvasWrite = (req.method === "PUT" || req.method === "DELETE") && /^\/api\/canvas\//.test(req.url || "");
+      // PUT e DELETE existem só para a API do Canvas (/api/canvas/*, EP-16) e para a de motion (EP-24): a timeline de
+      // uma tela (PUT, com rev) e o cancelamento de uma exportação (DELETE). Todo o resto continua 405.
+      const canvasWrite = ((req.method === "PUT" || req.method === "DELETE") && /^\/api\/canvas\//.test(req.url || ""))
+        || isMotionWrite(req.method || "", req.url || "");
       if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "POST" && req.method !== "PATCH" && !canvasWrite) {
         return send(res, 405, { error: "método não permitido" });
       }

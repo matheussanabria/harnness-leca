@@ -1,0 +1,40 @@
+/* --- 42-motion-timeline.css: Atelier keyframe panel (EP-24.06), under the motion player bar --- */
+/* Approved prototype: docs/features/motion-keyframes/03-prototype.html; same slate tokens as the Atelier buttons. */
+.motion-tl { border-top: 1px solid #334155; background: #0b1120; color: #e2e8f0; font-size: 12px; display: grid; grid-template-columns: 190px minmax(0, 1fr) 250px; max-height: 260px; overflow: auto; }
+.motion-tl[hidden] { display: none; }
+.motion-tl__labels { border-right: 1px solid #334155; min-width: 0; }
+.motion-tl__hdr, .motion-tl__ruler { height: 26px; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 6px; padding: 0 8px; color: #94a3b8; font-size: 11px; }
+.motion-tl__label { height: 30px; display: flex; align-items: center; gap: 6px; padding: 0 8px; border-bottom: 1px solid #1e293b; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.motion-tl__label span { overflow: hidden; text-overflow: ellipsis; }
+.motion-tl__label small { color: #94a3b8; }
+.motion-tl__label.is-sel { background: #1e293b; color: #fff; box-shadow: inset 3px 0 0 #818cf8; }
+.motion-tl__lanes { position: relative; min-width: 0; }
+.motion-tl__ruler { position: relative; padding: 0; cursor: pointer; }
+.motion-tl__tick { position: absolute; bottom: 0; width: 1px; height: 6px; background: #475569; }
+.motion-tl__tick.is-major { height: 8px; }
+.motion-tl__tick-label { position: absolute; top: 6px; font-size: 10px; color: #94a3b8; transform: translateX(-50%); }
+.motion-tl__lane { height: 30px; position: relative; border-bottom: 1px solid #1e293b; }
+.motion-tl__lane.is-sel { background: rgba(129, 140, 248, 0.07); }
+.motion-tl__seg { position: absolute; top: 13px; height: 4px; background: #334155; border-radius: 2px; }
+.motion-tl__lane.is-sel .motion-tl__seg { background: #4f46e5; }
+.motion-tl__key { position: absolute; top: 6px; width: 18px; height: 18px; margin-left: -9px; display: flex; align-items: center; justify-content: center; color: #a5b4fc; cursor: grab; background: none; border: 0; padding: 0; font-size: 12px; touch-action: none; }
+.motion-tl__key.is-sel { color: #fff; filter: drop-shadow(0 0 4px #818cf8); }
+.motion-tl__key:active { cursor: grabbing; }
+.motion-tl__playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: #f97316; pointer-events: none; }
+.motion-tl__playhead::before { content: ""; position: absolute; top: 0; left: -5px; border: 6px solid transparent; border-top-color: #f97316; }
+.motion-tl__tip { position: absolute; transform: translate(-50%, -100%); background: #020617; border: 1px solid #334155; border-radius: 4px; padding: 2px 6px; font: 11px ui-monospace, Consolas, monospace; pointer-events: none; white-space: nowrap; z-index: 2; }
+.motion-tl__inspector { border-left: 1px solid #334155; padding: 10px; display: grid; gap: 10px; align-content: start; }
+.motion-tl__inspector h3 { margin: 0; font-size: 12px; display: flex; gap: 6px; align-items: center; }
+.motion-tl__empty { color: #94a3b8; }
+.motion-tl__field span { display: block; color: #94a3b8; font-size: 11px; margin-bottom: 3px; }
+.motion-tl__field input, .motion-tl__field select, .motion-tl__bezier input { width: 100%; background: #1e293b; color: #e2e8f0; border: 1px solid #334155; border-radius: 5px; padding: 5px 6px; font-size: 12px; }
+.motion-tl__bezier { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.motion-tl__bezier[hidden] { display: none; }
+.motion-tl__row { display: flex; gap: 6px; flex-wrap: wrap; }
+.motion-tl__hint { grid-column: 1 / -1; padding: 6px 10px; color: #94a3b8; font-size: 11px; border-top: 1px solid #334155; }
+.motion-tl__hint kbd { background: #1e293b; border: 1px solid #334155; border-radius: 3px; padding: 0 4px; font-size: 10px; color: #e2e8f0; }
+.motion-tl .btn-proto-vp:focus-visible, .motion-tl__key:focus-visible, .motion-tl__label:focus-visible { outline: 2px solid #818cf8; outline-offset: 2px; }
+@media (max-width: 900px) {
+  .motion-tl { grid-template-columns: 130px minmax(0, 1fr); }
+  .motion-tl__inspector { grid-column: 1 / -1; border-left: 0; border-top: 1px solid #334155; }
+}
