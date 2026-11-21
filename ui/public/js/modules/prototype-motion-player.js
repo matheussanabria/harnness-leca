@@ -6,6 +6,7 @@ import {
   createMotionState, onReady, onTime, onEnded, stepTime, clampTime, formatTime, timeValueText,
 } from "./prototype-motion-state.js";
 import { readAtelierState, saveAtelierState } from "./prototype-atelier-state.js";
+import { exportDialogHtml, bindExportDialog, toggleExportDialog } from "./prototype-motion-export.js";
 
 const IFRAME_ID = "atelierIframe";
 const BUTTON_ID = "btnAtelierMotion";
@@ -38,8 +39,9 @@ function barTemplate() {
       <span class="proto-motion__sep"></span>
       <span class="proto-motion__meta" data-motion="meta"></span>
       <span class="proto-motion__sep"></span>
-      <button type="button" class="btn-proto-vp" disabled title="Exportar vídeo (em breve)"><i class="fa-solid fa-file-video"></i> Exportar</button>
+      <button type="button" class="btn-proto-vp" data-motion="export" title="Exportar vídeo" aria-haspopup="dialog" aria-expanded="false" aria-controls="atelierMotionExport"><i class="fa-solid fa-file-video"></i> Exportar</button>
     </div>
+    ${exportDialogHtml()}
     <div class="proto-motion__hint"><kbd>Espaço</kbd> toca ou pausa · <kbd>Home</kbd> volta ao início · <kbd>&larr;</kbd> <kbd>&rarr;</kbd> um quadro · as marcas acima da barra são os keyframes</div>
     <div class="proto-motion__empty" data-motion="empty"><i class="fa-solid fa-circle-info"></i> Esta tela não tem animação. Peça no chat, por exemplo: "entrada em cascata dos cards".</div>`;
 }
@@ -121,6 +123,11 @@ function runAction(action) {
   if (action === "toggle") setOpen(!s.open);
   else if (action === "play") (s.playing ? pause() : play());
   else if (action === "start") seek(0);
+  else if (action === "export") {
+    if (s.playing) pause();
+    const open = document.getElementById("atelierMotionExport")?.hidden !== false;
+    void toggleExportDialog(open, { duration: s.duration, fps: s.fps, size: s.size || undefined });
+  }
   else if (action === "loop") {
     update({ loop: !s.loop });
     post({ type: "HARNESS_MOTION_LOOP", loop: s.loop });
@@ -161,6 +168,7 @@ function onKey(e) {
   if (!s.open || !s.has || !frame || !frame.isConnected || frame.offsetParent === null) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const target = /** @type {HTMLElement} */ (e.target);
+  if (target?.closest?.("#atelierMotionExport")) return; // the export dialog keeps its own keys
   const onScrub = target?.dataset?.motion === "scrub";
   if (!onScrub && (target?.isContentEditable || /^(input|textarea|select)$/i.test(target?.tagName || ""))) return;
   // A focused button already activates on Space; handling it here too would toggle twice.
@@ -181,6 +189,7 @@ export function setupMotionPlayer() {
   window.addEventListener("message", (e) => { handleMotionMessage(e); });
   document.addEventListener("load", (e) => { if (/** @type {HTMLElement} */ (e.target)?.id === IFRAME_ID) onFrameLoad(); }, true);
   document.addEventListener("keydown", onKey);
+  bindExportDialog();
   document.addEventListener("click", (e) => {
     const el = /** @type {HTMLElement} */ (e.target)?.closest?.(`#${BUTTON_ID}, #${BAR_ID} [data-motion]`);
     if (!el) return;

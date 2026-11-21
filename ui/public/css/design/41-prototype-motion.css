@@ -1,6 +1,6 @@
 /* --- 41-prototype-motion.css: Atelier motion player (EP-24.03), transport bar under the preview --- */
 /* Same slate tokens as .btn-proto-vp in 06-workspace-prototypes.css; approved prototype: docs/features/motion-player/03-prototype.html */
-.proto-motion { border-top: 1px solid #334155; background: #0f172a; color: #e2e8f0; font-size: 12px; }
+.proto-motion { position: relative; border-top: 1px solid #334155; background: #0f172a; color: #e2e8f0; font-size: 12px; }
 .proto-motion[hidden] { display: none; }
 .proto-motion__transport { display: flex; align-items: center; gap: 8px; padding: 8px 10px; }
 .proto-motion.is-empty .proto-motion__transport, .proto-motion.is-empty .proto-motion__hint { display: none; }
@@ -22,3 +22,30 @@
   .proto-motion__time { min-width: 110px; }
   .proto-motion__hint { display: none; }
 }
+
+/* Export dialog (EP-24.05, approved prototype docs/features/motion-export/03-prototype.html): popover above the Export button */
+.proto-motion-export { position: absolute; right: 10px; bottom: calc(100% + 6px); z-index: 20; width: 340px; max-width: calc(100% - 20px); background: #0f172a; border: 1px solid #334155; border-radius: 8px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); }
+.proto-motion-export[hidden] { display: none; }
+.proto-motion-export header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #334155; font-weight: 600; }
+.proto-motion-export header .btn-proto-vp { margin-left: auto; }
+.proto-motion-export__body { padding: 12px; display: grid; gap: 12px; }
+.proto-motion-export__field > span { display: block; color: #94a3b8; font-size: 11px; margin-bottom: 4px; }
+.proto-motion-export__seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.proto-motion-export__seg label { cursor: pointer; position: relative; }
+.proto-motion-export__seg input { position: absolute; opacity: 0; pointer-events: none; }
+.proto-motion-export__seg span { display: block; padding: 7px 6px; text-align: center; border: 1px solid #334155; border-radius: 6px; background: #1e293b; color: #94a3b8; font-size: 12px; }
+.proto-motion-export__seg small { display: block; font-size: 10px; color: #94a3b8; }
+.proto-motion-export__seg input:checked + span { border-color: #818cf8; color: #fff; background: #334155; }
+.proto-motion-export__seg input:disabled + span { opacity: 0.4; cursor: not-allowed; }
+.proto-motion-export__seg input:focus-visible + span { outline: 2px solid #818cf8; outline-offset: 2px; }
+.proto-motion-export__row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.proto-motion-export select { width: 100%; background: #1e293b; color: #e2e8f0; border: 1px solid #334155; border-radius: 6px; padding: 6px; font-size: 12px; }
+.proto-motion-export__summary { color: #94a3b8; font-size: 11px; }
+.proto-motion-export__actions { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 12px; border-top: 1px solid #334155; }
+.proto-motion-export__actions a.btn-proto-vp { text-decoration: none; }
+.proto-motion-export .btn-proto-vp.is-primary { background: #818cf8; border-color: #818cf8; color: #0b1020; font-weight: 600; }
+.proto-motion-export__progress { height: 8px; background: #1e293b; border-radius: 4px; overflow: hidden; }
+.proto-motion-export__progress i { display: block; height: 100%; width: 0; background: #818cf8; transition: width 0.2s linear; }
+.proto-motion-export__status { font-size: 12px; }
+.proto-motion-export__status.is-ok { color: #34d399; }
+.proto-motion-export__status.is-err { color: #f87171; }
