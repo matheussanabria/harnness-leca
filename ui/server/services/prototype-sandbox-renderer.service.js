@@ -6,6 +6,7 @@ const { getPrototypesBaseDir } = require("./prototype-storage.service");
 const { loadSandboxAssets, loadBridgeScript, buildSandboxHeaders } = require("./prototype-sandbox-common.service");
 const { renderDcScreen } = require("./prototype-sandbox-dc.service");
 const { extractContentSection, SECTION_CSS } = require("./prototype-section-extract");
+const { buildMotionBlock } = require("./motion-render.service");
 
 /**
  * Renderiza uma tela de protótipo em sandbox iframe isolada e segura.
@@ -53,6 +54,8 @@ function renderSandboxScreen(projectDir, repoRoot, protoId, screenId, options = 
   const bridgeScript = loadBridgeScript(deps);
 
   const nonce = crypto.randomBytes(16).toString("hex");
+  // Timeline runtime (EP-24.02) only when the screen has a valid .motion.json; the content-only part never animates.
+  const motionBlock = sectionOnly ? "" : buildMotionBlock(screenFile, nonce, deps);
 
   // Garante que tags <script> tenham o nonce correto
   const applyNonce = (html) => html.replace(/<script\b(?![^>]*\bnonce\s*=)([^>]*)>/gi, `<script nonce="${nonce}"$1>`);
@@ -80,6 +83,7 @@ function renderSandboxScreen(projectDir, repoRoot, protoId, screenId, options = 
 <body data-proto="${protoId}" data-screen="${targetScreen}" data-version="${protoManifest?.version || "1.0.0"}">
 ${safeScreenHtml}
   <script nonce="${nonce}">${bridgeScript}</script>
+  ${motionBlock}
 </body>
 </html>`;
 
