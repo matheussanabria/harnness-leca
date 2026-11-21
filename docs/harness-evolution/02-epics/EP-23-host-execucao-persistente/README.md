@@ -101,6 +101,6 @@ Sem owner definido em `EPIC_OWNERS` (`tools/lib/coordination/config.js`): defini
 | [23.01](23.01-main-sem-auto-restart.md) | Main sem auto restart | Planejada |
 | [23.02](23.02-diario-execucoes-sqlite.md) | Diário de execuções do chat em SQLite | Concluída (merge 4bfa4fd) |
 | [23.03](23.03-host-motores-separado.md) | Host de motores em processo separado | Implementada (branch `feat/ep-23.03-engine-host`) |
-| [23.04](23.04-interrompida-retomar.md) | Execução interrompida visível e retomável | Planejada |
+| [23.04](23.04-interrompida-retomar.md) | Execução interrompida visível e retomável | Implementada (branch `feat/ep-23.04-interrupted`) |
 | [23.05](23.05-reinicio-seguro.md) | Reinício seguro e aviso de reconexão | Planejada |
 | [23.06](23.06-seletor-host.md) | Seletor de host: local e VPS | Planejada |

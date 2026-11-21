@@ -70,7 +70,7 @@ flowchart LR
 4. **Wave 4:** 17.13 evaluates what is left, including whether the coordination ledger should move.
 
 ## Reserved migration numbers
-`001` 17.01, `002` 17.02, `003` 17.03, `004` 17.04, `005` 17.05, `006` 17.06, `007` 17.10, `008` 17.07, `009` 17.08, `010` 17.09, `011` EP-23.02 (chat runs). A story may add more files only with a number after its own, reserved here first. Every story declares `owns:` globs in its frontmatter, so `node tools/coordination.js` can refuse overlapping claims.
+`001` 17.01, `002` 17.02, `003` 17.03, `004` 17.04, `005` 17.05, `006` 17.06, `007` 17.10, `008` 17.07, `009` 17.08, `010` 17.09, `011` EP-23.02 (chat runs), `012` EP-23.04 (`chat_runs.resumed_from`). A story may add more files only with a number after its own, reserved here first. Every story declares `owns:` globs in its frontmatter, so `node tools/coordination.js` can refuse overlapping claims.
 
 ## How an agent starts
 1. Read this README, then only the story you claim and the ADRs it cites (ADR-012, ADR-013) and the [inventory](../../01-architecture/sqlite-migration-inventory.md).

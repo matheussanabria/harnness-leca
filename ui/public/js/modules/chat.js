@@ -53,6 +53,7 @@ export {
 export { answerPermission, openPermissionsDialog, removePermissionRule } from "./chat-errors-permissions.js";
 export { renderChatHistory } from "./chat-render.js";
 export { sendChatMessage } from "./chat-send.js";
+export { resumeInterruptedTurn, resendInterruptedTurn } from "./chat-interrupted-actions.js";
 export { saveCurrentChat, resumeExistingChat } from "./chat-persist.js";
 export {
   openContinueChatModal,
