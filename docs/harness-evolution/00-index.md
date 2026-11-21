@@ -63,7 +63,7 @@ flowchart TD
     MOD --> OPS["EP-09 a EP-12 Operação, qualidade e protótipos"]
 ```
 
-## 3. Backlog (141/178)
+## 3. Backlog (141/184)
 
 Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a criação e o aceite do documento da história. EP-12 detalha as 32 histórias do motor multiframework. `HAR-xxx` indica o item equivalente do [backlog da Fase 0](08-prioritized-backlog.md).
 
@@ -302,7 +302,7 @@ Os três chats usam o motor OpenCode; o que os distingue é a **frente**, e é e
 1. **opencode/qualidade:** 09.02 (event log, projeções e recuperação SSE) em andamento; 09.04 e 09.05 detalhadas em documentação; 11.05 (regressão automatizada) e a dívida de tipos. Destrava o restante do EP-09.
 2. **opencode/deploy:** EP-10 encerrado (5/5): pipelines, saude por ambiente, linha do tempo com logs, acoes autorizadas e paridade com o escritorio; proxima frente: EP-11 (11.04 e 11.05) ou apoio ao EP-09.
 3. **opencode/jira:** integração com o Jira (snapshot, consulta e sincronização com o quadro).
-4. EP-03, EP-06, EP-08, EP-09, EP-13 e EP-14 encerrados (9/9, 5/5, 8/8, 6/6, 9/9 e 12/12); EP-11 encerrado (5/5); 141/178 global (EP-17, EP-20, EP-22 e EP-23 planejados; EP-21 em andamento, 21.01 e 21.02 aceitas). Cada chat commita apenas os arquivos da própria frente, por caminho.
+4. EP-03, EP-06, EP-08, EP-09, EP-13 e EP-14 encerrados (9/9, 5/5, 8/8, 6/6, 9/9 e 12/12); EP-11 encerrado (5/5); 141/184 global (EP-17, EP-20, EP-22, EP-23 e EP-24 planejados; EP-21 em andamento, 21.01 e 21.02 aceitas). Cada chat commita apenas os arquivos da própria frente, por caminho.
 5. A próxima história de EP-09/EP-10/EP-11 deve ser criada e aceita a partir do template antes da implementação.
 6. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
 7. A divisão completa e os handoffs obrigatórios estão no [painel de coordenação](05-progress/multi-agent-sync.md).
