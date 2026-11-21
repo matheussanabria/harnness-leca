@@ -50,6 +50,7 @@ const {
   apiPrototypesScratchClean,
 } = require("../controllers/atelier-scratchpad.controller");
 const { apiPrototypesAgentRun } = require("../controllers/atelier-agent-run.controller");
+const { apiMotionGet, apiMotionPut } = require("../controllers/motion.controller");
 const { apiHandoffExport } = require("../controllers/handoff-export.controller");
 const { apiProjectDesignStoryFiles } = require("../controllers/design-story-files.controller");
 const { apiProjectDesignStoryFeatures } = require("../controllers/design-story-features.controller");
@@ -99,6 +100,8 @@ const designRoutes = [
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/scratch\/([\w.-]+)$/, handler: apiPrototypesScratchGet },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/scratch\/clean$/, handler: apiPrototypesScratchClean },
   { method: "POST", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/agent-run$/, handler: apiPrototypesAgentRun },
+  { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/motion\/([\w-]+)$/, handler: apiMotionGet },
+  { method: "PUT", path: /^\/api\/project\/([\w-]+)\/design\/prototypes\/([\w-]+)\/motion\/([\w-]+)$/, handler: apiMotionPut },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/design\/prototype(?:\/([\w-]+)(?:\/(.*))?)?$/, handler: apiProjectDesignPrototype },
 ];
 
