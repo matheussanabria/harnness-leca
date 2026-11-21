@@ -7,7 +7,7 @@ atualizado: 2026-10-21
 
 Documento mestre do programa de evolução. Cada entrega aceita tem um documento próprio em `02-epics/`, para que um agente receba só a história que vai implementar e as dependências dela.
 
-> Snapshot verificado em 2026-11-19: 141/178 entregas concluídas; as 13 do EP-17, a 20.01 do EP-20, as 11 restantes do EP-21, as 6 do EP-22 (acrescentado em 2026-11-16) e as 6 do EP-23 (acrescentado em 2026-11-19) estão planejadas. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
+> Snapshot verificado em 2026-11-19: 141/184 entregas concluídas; as 13 do EP-17, a 20.01 do EP-20, as 11 restantes do EP-21, as 6 do EP-22 (acrescentado em 2026-11-16), as 6 do EP-23 (acrescentado em 2026-11-19) e as 6 do EP-24 (acrescentado em 2026-11-21) estão planejadas. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
 
 > Revisão de 2026-10-24: "concluído" significa contrato aceito (API, módulo e testes). Vários épicos têm entregas sem tela ou sem fiação no cliente; o detalhe verificado está em [epic-gaps](05-progress/epic-gaps.md). Os épicos abaixo marcados com "UI pendente" não devem ser tratados como utilizáveis pelo usuário.
 
@@ -47,6 +47,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-21](02-epics/EP-21-diagramas-estruturados/README.md) | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA | P1 | Em andamento; 21.01 e 21.02 concluidas, 21.03 a 21.13 planejadas | 2/13 |
 | [EP-22](02-epics/EP-22-navegacao-projetos/README.md) | Navegação de projetos: seletor pesquisável, aba Projetos, categorias e tags | P1 | Planejado; protótipo e spec prontos, histórias 22.01 a 22.06 detalhadas | 0/6 |
 | [EP-23](02-epics/EP-23-host-execucao-persistente/README.md) | Host de execução persistente: motores em processo separado, diário em SQLite, retomar e seletor de host | P0 | Planejado; histórias 23.01 a 23.06 detalhadas | 0/6 |
+| [EP-24](02-epics/EP-24-motion-design/README.md) | Motion design no Atelier: timeline declarativa, player, tools do agente e exportação de vídeo (ADR-018) | P1 | Planejado; histórias 24.01 a 24.06 detalhadas | 0/6 |
 
 ## 2. Dependências
 
@@ -285,6 +286,14 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [ ] [23.04](02-epics/EP-23-host-execucao-persistente/23.04-interrompida-retomar.md) Execução interrompida visível e retomável
 - [ ] [23.05](02-epics/EP-23-host-execucao-persistente/23.05-reinicio-seguro.md) Reinício seguro e aviso de reconexão
 - [ ] [23.06](02-epics/EP-23-host-execucao-persistente/23.06-seletor-host.md) Seletor de host: local e VPS
+
+### EP-24 Motion design no Atelier (0/6)
+- [ ] [24.01](02-epics/EP-24-motion-design/24.01-formato-motion-validador.md) Formato motion@1, validador e armazenamento
+- [ ] [24.02](02-epics/EP-24-motion-design/24.02-runtime-timeline-iframe.md) Runtime da timeline no iframe (seek, play, pause)
+- [ ] [24.03](02-epics/EP-24-motion-design/24.03-player-atelier.md) Player no Atelier: transporte, scrub e modo Motion
+- [ ] [24.04](02-epics/EP-24-motion-design/24.04-tools-agente-motion.md) Tools do agente para criar e ajustar a timeline
+- [ ] [24.05](02-epics/EP-24-motion-design/24.05-exportacao-video.md) Exportação de vídeo (WebM, MP4, GIF) em job assíncrono
+- [ ] [24.06](02-epics/EP-24-motion-design/24.06-painel-timeline-keyframes.md) Painel de timeline com faixas e keyframes editáveis
 
 ## Trabalho disponível agora
 
