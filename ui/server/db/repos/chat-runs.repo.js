@@ -4,7 +4,7 @@
 const { createRepoBase } = require("../repo-base");
 
 /** @typedef {"running" | "completed" | "stopped" | "interrupted"} RunStatus */
-/** @typedef {{ runId: string, project: string|null, chatId: string|null, engine: string|null, status: RunStatus, startedAt: string, endedAt: string|null, lastSeq: number }} StoredRun */
+/** @typedef {{ runId: string, project: string|null, chatId: string|null, engine: string|null, status: RunStatus, startedAt: string, endedAt: string|null, lastSeq: number, resumedFrom: string|null }} StoredRun */
 /** @typedef {{ seq: number, type?: string, [key: string]: any }} JournalEvent */
 
 const TERMINAL_TYPES = ["done", "error"];
@@ -19,6 +19,7 @@ const toRun = (row) => ({
   startedAt: String(row.started_at),
   endedAt: row.ended_at ?? null,
   lastSeq: Number(row.last_seq),
+  resumedFrom: row.resumed_from ?? null,
 });
 
 /** @param {import("node:sqlite").DatabaseSync} db */
@@ -28,11 +29,11 @@ function createChatRunsRepo(db) {
 
   /**
    * Records a new run as running. A second call for the same id is ignored.
-   * @param {{ runId: string, project?: string|null, chatId?: string|null, engine?: string|null, startedAt?: string }} run
+   * @param {{ runId: string, project?: string|null, chatId?: string|null, engine?: string|null, startedAt?: string, resumedFrom?: string|null }} run
    */
-  function startRun({ runId, project = null, chatId = null, engine = null, startedAt = new Date().toISOString() }) {
-    prepare(`INSERT OR IGNORE INTO chat_runs (run_id, project, chat_id, engine, status, started_at)
-      VALUES (?, ?, ?, ?, 'running', ?)`).run(runId, project, chatId, engine, startedAt);
+  function startRun({ runId, project = null, chatId = null, engine = null, startedAt = new Date().toISOString(), resumedFrom = null }) {
+    prepare(`INSERT OR IGNORE INTO chat_runs (run_id, project, chat_id, engine, status, started_at, resumed_from)
+      VALUES (?, ?, ?, ?, 'running', ?, ?)`).run(runId, project, chatId, engine, startedAt, resumedFrom);
   }
 
   /**
