@@ -7,6 +7,7 @@ import {
 } from "./prototype-motion-state.js";
 import { readAtelierState, saveAtelierState } from "./prototype-atelier-state.js";
 import { exportDialogHtml, bindExportDialog, toggleExportDialog } from "./prototype-motion-export.js";
+import { setupTimelinePanel, setTimelineAvailable, toggleTimeline } from "./motion-timeline-panel.js";
 
 const IFRAME_ID = "atelierIframe";
 const BUTTON_ID = "btnAtelierMotion";
@@ -36,6 +37,7 @@ function barTemplate() {
         <div class="proto-motion__ticks" data-motion="ticks" aria-hidden="true"></div>
         <input type="range" class="proto-motion__scrub" data-motion="scrub" min="0" step="1" aria-label="Posição da animação" />
       </div>
+      <button type="button" class="btn-proto-vp" data-motion="timeline" title="Mostrar o painel de keyframes" aria-pressed="false" aria-controls="atelierMotionTimeline"><i class="fa-solid fa-timeline"></i> Timeline</button>
       <span class="proto-motion__sep"></span>
       <span class="proto-motion__meta" data-motion="meta"></span>
       <span class="proto-motion__sep"></span>
@@ -58,6 +60,7 @@ export function paintMotion() {
     button.setAttribute("aria-pressed", String(s.open && s.has));
   }
   const bar = byId(BAR_ID);
+  setTimelineAvailable(Boolean(bar) && s.open && s.has);
   if (!bar) return;
   bar.hidden = !s.open;
   if (!s.open) return;
@@ -123,6 +126,7 @@ function runAction(action) {
   if (action === "toggle") setOpen(!s.open);
   else if (action === "play") (s.playing ? pause() : play());
   else if (action === "start") seek(0);
+  else if (action === "timeline") toggleTimeline();
   else if (action === "export") {
     if (s.playing) pause();
     const open = document.getElementById("atelierMotionExport")?.hidden !== false;
@@ -168,7 +172,7 @@ function onKey(e) {
   if (!s.open || !s.has || !frame || !frame.isConnected || frame.offsetParent === null) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const target = /** @type {HTMLElement} */ (e.target);
-  if (target?.closest?.("#atelierMotionExport")) return; // the export dialog keeps its own keys
+  if (target?.closest?.("#atelierMotionExport, #atelierMotionTimeline")) return; // the dialog and the keyframe panel keep their own keys
   const onScrub = target?.dataset?.motion === "scrub";
   if (!onScrub && (target?.isContentEditable || /^(input|textarea|select)$/i.test(target?.tagName || ""))) return;
   // A focused button already activates on Space; handling it here too would toggle twice.
@@ -184,6 +188,7 @@ function onKey(e) {
 /** Installs the listeners once; restores the saved open state. Safe to call on every Atelier render. */
 export function setupMotionPlayer() {
   paintMotion();
+  setupTimelinePanel(); // EP-24.06 keyframe panel: repaints every render, installs once
   if (installed) return;
   installed = true;
   window.addEventListener("message", (e) => { handleMotionMessage(e); });

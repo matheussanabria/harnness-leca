@@ -3,14 +3,12 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
-const http = require("node:http");
 const path = require("node:path");
 const { createProjectFixture } = require("./helpers/project-fixture");
 const { runExport, framePlan, outputSize, availableFormats } = require("../ui/server/services/motion-export-run.service");
 
 const fixture = createProjectFixture();
 fixture.activate();
-const { handle } = require("../ui/server/router");
 
 const PROTO = "export-demo";
 const protoDir = path.join(fixture.dir, "design", "prototypes", PROTO);
@@ -22,14 +20,15 @@ fs.writeFileSync(path.join(protoDir, "screens", "home.motion.json"), JSON.string
 const outDir = path.join(fixture.dir, "design", "exports");
 fs.mkdirSync(outDir, { recursive: true });
 
-/** @type {http.Server} */ let server;
+/** @type {import("node:http").Server} */ let server;
 let port = 0;
 test.before(async () => {
-  server = http.createServer((req, res) => { void handle(req, res); });
+  server = require("../ui/server").createServer(); // the real HTTP gate (methods, host, origin), not only the router
   await new Promise((resolve) => server.listen(0, "127.0.0.1", () => resolve(undefined)));
   port = /** @type {any} */ (server.address()).port;
 });
 test.after(async () => {
+  server.closeAllConnections?.();
   await new Promise((resolve) => server.close(() => resolve(undefined)));
   fixture.cleanup();
 });

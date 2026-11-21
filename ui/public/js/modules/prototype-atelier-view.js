@@ -91,6 +91,7 @@ export function renderAtelierHtml(model) {
           </div>
         </div>
         <div id="atelierMotionBar" class="proto-motion" hidden></div>
+        <section id="atelierMotionTimeline" class="motion-tl" aria-label="Timeline de keyframes" hidden></section>
         <div id="atelierCanvasHost" class="proto-canvas-host" hidden></div>
         <div class="proto-versions-bar">
           <span><i class="fa-solid fa-clock-rotate-left"></i> Versões:</span>

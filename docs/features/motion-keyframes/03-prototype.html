@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Keyframe Panel Prototype</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<!-- EP-24.06 prototype: Timeline panel under the motion player (approved player: ../motion-player/03-prototype.html).
+     Drag keyframes (snap to frames and to other keys, Shift = free), edit values and ease, add/remove, Ctrl+Z. Not production code. -->
+<style>
+  :root { --bg:#0f172a; --panel:#111827; --btn:#1e293b; --line:#334155; --mute:#94a3b8; --text:#e2e8f0; --accent:#818cf8; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); }
+  .note { max-width:1180px; margin:12px auto; padding:0 16px; color:var(--mute); font-size:12px; }
+  .note b { color:var(--text); }
+  .atelier { max-width:1180px; margin:0 auto 24px; border:1px solid var(--line); border-radius:8px; background:var(--panel); overflow:hidden; }
+  .stage { padding:16px; background:#0b1220; display:flex; justify-content:center; }
+  .frame { width:600px; max-width:100%; background:#f8fafc; color:#0f172a; border-radius:6px; padding:22px; min-height:190px; }
+  .frame h1 { margin:0 0 14px; font-size:22px; }
+  .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .card { background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:16px 12px; text-align:center; font-weight:600; }
+  .sel-outline { outline:2px solid #2563eb; outline-offset:2px; }
+  .btn-proto-vp { padding:4px 8px; font-size:11px; background:var(--btn); border:1px solid var(--line); color:var(--mute); border-radius:4px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; }
+  .btn-proto-vp:hover { color:var(--text); border-color:#475569; }
+  .btn-proto-vp.active { background:#334155; color:#fff; border-color:var(--accent); font-weight:600; }
+  .btn-proto-vp:disabled { opacity:.45; cursor:not-allowed; }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .transport { display:flex; align-items:center; gap:8px; padding:8px 10px; border-top:1px solid var(--line); background:#0f172a; }
+  .time { font:12px/1 ui-monospace, Consolas, monospace; min-width:132px; text-align:center; }
+  .meta { color:var(--mute); font-size:11px; margin-left:auto; }
+  /* Timeline panel (new) */
+  .tl { border-top:1px solid var(--line); background:#0b1120; display:grid; grid-template-columns:190px 1fr 250px; min-height:190px; }
+  .tl-head { display:contents; }
+  .tl-labels { border-right:1px solid var(--line); }
+  .tl-labels .hdr, .tl-lanes .ruler { height:26px; border-bottom:1px solid var(--line); display:flex; align-items:center; padding:0 8px; color:var(--mute); font-size:11px; gap:6px; }
+  .lab { height:30px; display:flex; align-items:center; gap:6px; padding:0 8px; border-bottom:1px solid #1e293b; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:12px; }
+  .lab.sel { background:#1e293b; color:#fff; box-shadow:inset 3px 0 0 var(--accent); }
+  .lab small { color:var(--mute); }
+  .tl-lanes { position:relative; overflow:hidden; }
+  .ruler { position:relative; padding:0 !important; cursor:pointer; }
+  .ruler span { position:absolute; top:6px; font-size:10px; color:var(--mute); transform:translateX(-50%); }
+  .ruler i { position:absolute; bottom:0; width:1px; height:6px; background:#475569; }
+  .lane { height:30px; position:relative; border-bottom:1px solid #1e293b; }
+  .lane.sel { background:rgba(129,140,248,.07); }
+  .seg { position:absolute; top:13px; height:4px; background:#334155; border-radius:2px; }
+  .lane.sel .seg { background:#4f46e5; }
+  .kf { position:absolute; top:6px; width:18px; height:18px; margin-left:-9px; display:flex; align-items:center; justify-content:center; color:#a5b4fc; cursor:grab; background:none; border:0; padding:0; font-size:12px; }
+  .kf.sel { color:#fff; filter:drop-shadow(0 0 4px #818cf8); }
+  .kf:active { cursor:grabbing; }
+  .playhead { position:absolute; top:0; bottom:0; width:2px; background:#f97316; pointer-events:none; }
+  .playhead::before { content:""; position:absolute; top:0; left:-5px; border:6px solid transparent; border-top-color:#f97316; }
+  .tip { position:absolute; top:-2px; transform:translate(-50%,-100%); background:#020617; border:1px solid var(--line); border-radius:4px; padding:2px 6px; font:11px ui-monospace, Consolas, monospace; pointer-events:none; white-space:nowrap; }
+  .insp { border-left:1px solid var(--line); padding:10px; display:grid; gap:10px; align-content:start; }
+  .insp h3 { margin:0; font-size:12px; display:flex; gap:6px; align-items:center; }
+  .insp .empty { color:var(--mute); font-size:12px; }
+  .fld span { display:block; color:var(--mute); font-size:11px; margin-bottom:3px; }
+  .fld input, .fld select { width:100%; background:var(--btn); color:var(--text); border:1px solid var(--line); border-radius:5px; padding:5px 6px; font-size:12px; }
+  .bez { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
+  .bez[hidden] { display:none; }
+  .row { display:flex; gap:6px; flex-wrap:wrap; }
+  .hint { padding:6px 10px; color:var(--mute); font-size:11px; border-top:1px solid var(--line); }
+  .hint kbd { background:var(--btn); border:1px solid var(--line); border-radius:3px; padding:0 4px; font-size:10px; color:var(--text); }
+  @media (max-width:900px) { .tl { grid-template-columns:130px 1fr; } .insp { grid-column:1 / -1; border-left:0; border-top:1px solid var(--line); } }
+</style>
+</head>
+<body>
+<div class="note"><b>Protótipo EP-24.06: painel de timeline e keyframes.</b> Arraste os losangos (encaixa no quadro e nos outros keyframes; <kbd>Shift</kbd> solta o encaixe), clique para editar, use o teclado. A animação acima é refeita a cada mudança.</div>
+<div class="atelier">
+  <div class="stage"><div class="frame">
+    <h1 data-pid="p-2">Ofertas da semana</h1>
+    <div class="cards"><div class="card" data-pid="p-4">Sedan</div><div class="card" data-pid="p-5">Hatch</div><div class="card" data-pid="p-6">SUV</div></div>
+  </div></div>
+  <div class="transport">
+    <button class="btn-proto-vp" id="btnPlay" aria-label="Tocar"><i class="fa-solid fa-play"></i></button>
+    <span class="time" id="time"></span>
+    <button class="btn-proto-vp active" id="btnTl" aria-pressed="true" aria-controls="tl"><i class="fa-solid fa-timeline"></i> Timeline</button>
+    <button class="btn-proto-vp" id="btnUndo" title="Desfazer (Ctrl+Z)" aria-label="Desfazer" disabled><i class="fa-solid fa-rotate-left"></i></button>
+    <span class="meta">30 fps · 4 faixas</span>
+  </div>
+  <section class="tl" id="tl" aria-label="Timeline de keyframes">
+    <div class="tl-labels"><div class="hdr"><i class="fa-solid fa-layer-group"></i> Camadas</div><div id="labels"></div></div>
+    <div class="tl-lanes" id="lanes"><div class="ruler" id="ruler" title="Clique para mover o cursor"></div><div id="rows"></div><div class="playhead" id="playhead"></div></div>
+    <aside class="insp" id="insp" aria-live="polite"></aside>
+  </section>
+  <div class="hint"><kbd>Tab</kbd> entre faixas · <kbd>&larr;</kbd> <kbd>&rarr;</kbd> move o keyframe um quadro · <kbd>Enter</kbd> edita · <kbd>Delete</kbd> remove · <kbd>Ctrl</kbd>+<kbd>Z</kbd> desfaz · clique na régua para mover o cursor</div>
+</div>
+<script>
+const FPS = 30, FRAME = 1000 / FPS;
+const doc = { duration: 1800, tracks: [
+  { target: "p-2", name: "h1 · Ofertas da semana", keys: [{ t: 0, props: { opacity: 0, transform: "translateY(16px)" } }, { t: 500, props: { opacity: 1, transform: "translateY(0px)" }, ease: "ease-out" }] },
+  ...["p-4", "p-5", "p-6"].map((target, i) => ({ target, name: `article.card · ${["Sedan", "Hatch", "SUV"][i]}`, keys: [{ t: 300 + i * 250, props: { opacity: 0, transform: "translateY(24px)" } }, { t: 900 + i * 250, props: { opacity: 1, transform: "translateY(0px)" }, ease: "ease-out" }] })),
+] };
+const $ = (id) => document.getElementById(id);
+const sel = { track: 1, key: 1 };
+const undo = [];
+let time = 0, anims = [], playing = false, base = 0;
+const pct = (t) => `${(t / doc.duration) * 100}%`;
+const fmt = (ms) => `00:${(ms / 1000).toFixed(3).padStart(6, "0")}`;
+
+function rebuild() {
+  anims.forEach((a) => a.cancel());
+  anims = doc.tracks.map((tr) => {
+    const keys = [...tr.keys].sort((a, b) => a.t - b.t);
+    const frames = keys.map((k, i) => ({ offset: k.t / doc.duration, ...k.props, ...(keys[i + 1]?.ease ? { easing: keys[i + 1].ease } : {}) }));
+    if (frames[0].offset > 0) frames.unshift({ ...frames[0], offset: 0, easing: "linear" });
+    if (frames.at(-1).offset < 1) { const { easing, ...last } = frames.at(-1); frames.push({ ...last, offset: 1 }); }
+    const a = document.querySelector(`[data-pid="${tr.target}"]`).animate(frames, { duration: doc.duration, fill: "both" });
+    a.pause(); a.currentTime = time; return a;
+  });
+}
+function seek(ms) { time = Math.max(0, Math.min(doc.duration, ms)); anims.forEach((a) => { a.currentTime = time; }); $("time").textContent = `${fmt(time)} / ${fmt(doc.duration)}`; $("playhead").style.left = pct(time); }
+function snapshot() { undo.push(JSON.stringify(doc.tracks)); $("btnUndo").disabled = false; }
+function restore() { if (!undo.length) return; doc.tracks = JSON.parse(undo.pop()); $("btnUndo").disabled = !undo.length; render(); }
+
+// Snap: nearest frame, then to another key of any track within 4 px; clamp strictly between the neighbors of the same track.
+function snapTime(raw, track, keyIndex, free, pxPerMs) {
+  let t = free ? Math.round(raw) : Math.round(Math.round(raw / FRAME) * FRAME);
+  if (!free) {
+    const others = doc.tracks.flatMap((tr, ti) => tr.keys.filter((_, ki) => !(ti === track && ki === keyIndex)).map((k) => k.t));
+    const near = others.find((o) => Math.abs(o - raw) * pxPerMs < 4);
+    if (near !== undefined) t = near;
+  }
+  const keys = doc.tracks[track].keys;
+  const prev = keys[keyIndex - 1], next = keys[keyIndex + 1];
+  const min = prev ? prev.t + (free ? 1 : Math.ceil(FRAME)) : 0;
+  const max = next ? next.t - (free ? 1 : Math.ceil(FRAME)) : doc.duration;
+  return Math.max(min, Math.min(max, t));
+}
+
+function render() {
+  const ticks = []; for (let t = 0; t <= doc.duration; t += 100) ticks.push(t % 500 === 0 ? `<i style="left:${pct(t)};height:8px"></i><span style="left:${pct(t)}">${(t / 1000).toFixed(1)}s</span>` : `<i style="left:${pct(t)}"></i>`);
+  $("ruler").innerHTML = ticks.join("");
+  $("labels").innerHTML = doc.tracks.map((tr, i) => `<div class="lab ${i === sel.track ? "sel" : ""}" data-track="${i}" tabindex="0" role="button" aria-pressed="${i === sel.track}"><i class="fa-solid fa-cube"></i> ${tr.name} <small>${tr.target}</small></div>`).join("");
+  $("rows").innerHTML = doc.tracks.map((tr, i) => {
+    const ts = tr.keys.map((k) => k.t);
+    const seg = ts.length > 1 ? `<div class="seg" style="left:${pct(ts[0])};width:${pct(ts.at(-1) - ts[0])}"></div>` : "";
+    const kfs = tr.keys.map((k, ki) => `<button class="kf ${i === sel.track && ki === sel.key ? "sel" : ""}" style="left:${pct(k.t)}" data-track="${i}" data-key="${ki}" aria-label="Keyframe em ${k.t} ms de ${tr.name}"><i class="fa-solid fa-diamond"></i></button>`).join("");
+    return `<div class="lane ${i === sel.track ? "sel" : ""}" data-track="${i}">${seg}${kfs}</div>`;
+  }).join("");
+  document.querySelectorAll(".frame [data-pid]").forEach((el) => el.classList.toggle("sel-outline", el.dataset.pid === doc.tracks[sel.track]?.target));
+  renderInspector(); rebuild(); seek(time);
+}
+
+function renderInspector() {
+  const tr = doc.tracks[sel.track], k = tr?.keys[sel.key];
+  if (!k) { $("insp").innerHTML = `<h3><i class="fa-solid fa-sliders"></i> Keyframe</h3><div class="empty">Selecione um losango, ou adicione um keyframe no cursor.</div><div class="row"><button class="btn-proto-vp" data-act="add"><i class="fa-solid fa-plus"></i> Adicionar keyframe aqui</button></div>`; return; }
+  const ease = k.ease || "linear"; const bez = /cubic-bezier\(([^)]*)\)/.exec(ease)?.[1].split(",").map((v) => v.trim()) || ["0.25", "0.1", "0.25", "1"];
+  const easeKey = ease.startsWith("cubic-bezier") ? "custom" : ease;
+  $("insp").innerHTML = `<h3><i class="fa-solid fa-diamond"></i> ${tr.name.split(" · ")[1] || tr.target} · ${k.t} ms</h3>
+    ${Object.entries(k.props).map(([p, v]) => `<label class="fld"><span>${p}</span><input data-prop="${p}" value="${v}"></label>`).join("")}
+    <label class="fld"><span>Easing até este keyframe</span><select data-ease>${["linear", "ease", "ease-in", "ease-out", "ease-in-out", "custom"].map((e) => `<option value="${e}" ${e === easeKey ? "selected" : ""}>${e === "custom" ? "cubic-bezier (personalizado)" : e}</option>`).join("")}</select></label>
+    <div class="bez" ${easeKey === "custom" ? "" : "hidden"}>${bez.map((v, i) => `<input aria-label="${["x1", "y1", "x2", "y2"][i]}" data-bez="${i}" value="${v}" style="width:100%;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:5px;padding:4px;font-size:11px">`).join("")}</div>
+    <div class="row"><button class="btn-proto-vp" data-act="add"><i class="fa-solid fa-plus"></i> Adicionar keyframe aqui</button><button class="btn-proto-vp" data-act="del"><i class="fa-solid fa-trash"></i> Remover</button></div>`;
+}
+
+$("rows").addEventListener("pointerdown", (e) => {
+  const kf = e.target.closest(".kf"); if (!kf) return;
+  const ti = Number(kf.dataset.track), ki = Number(kf.dataset.key);
+  Object.assign(sel, { track: ti, key: ki }); snapshot(); render();
+  const lanes = $("rows").getBoundingClientRect(), pxPerMs = lanes.width / doc.duration;
+  const tip = document.createElement("div"); tip.className = "tip"; $("lanes").appendChild(tip);
+  const move = (ev) => {
+    const t = snapTime((ev.clientX - lanes.left) / pxPerMs, ti, ki, ev.shiftKey, pxPerMs);
+    doc.tracks[ti].keys[ki].t = t;
+    const el = document.querySelector(`.kf[data-track="${ti}"][data-key="${ki}"]`); el.style.left = pct(t);
+    tip.style.left = pct(t); tip.style.top = `${26 + ti * 30}px`; tip.textContent = `${t} ms`; rebuild(); seek(t);
+  };
+  const up = () => { window.removeEventListener("pointermove", move); tip.remove(); render(); };
+  window.addEventListener("pointermove", move); window.addEventListener("pointerup", up, { once: true });
+});
+$("labels").onclick = (e) => { const l = e.target.closest(".lab"); if (l) { sel.track = Number(l.dataset.track); sel.key = 0; render(); } };
+$("ruler").onclick = (e) => { const r = $("ruler").getBoundingClientRect(); seek(Math.round(((e.clientX - r.left) / r.width) * doc.duration / FRAME) * FRAME); };
+$("insp").addEventListener("change", (e) => {
+  const k = doc.tracks[sel.track].keys[sel.key]; if (!k) return; snapshot();
+  if (e.target.dataset.prop) { const v = e.target.value; k.props[e.target.dataset.prop] = isNaN(Number(v)) ? v : Number(v); }
+  if (e.target.matches("[data-ease]")) k.ease = e.target.value === "custom" ? "cubic-bezier(0.25, 0.1, 0.25, 1)" : e.target.value;
+  if (e.target.dataset.bez !== undefined) { const v = [...document.querySelectorAll("[data-bez]")].map((i) => i.value); k.ease = `cubic-bezier(${v.join(", ")})`; }
+  render();
+});
+$("insp").addEventListener("click", (e) => {
+  const act = e.target.closest("[data-act]")?.dataset.act; const tr = doc.tracks[sel.track]; if (!act || !tr) return;
+  snapshot();
+  if (act === "del" && tr.keys.length > 1) { tr.keys.splice(sel.key, 1); sel.key = Math.max(0, sel.key - 1); }
+  if (act === "add" && !tr.keys.some((k) => k.t === Math.round(time))) {
+    const a = anims[sel.track], cs = getComputedStyle(document.querySelector(`[data-pid="${tr.target}"]`));
+    const props = Object.fromEntries(Object.keys(tr.keys[0].props).map((p) => [p, p === "opacity" ? Number(Number(cs.opacity).toFixed(2)) : (cs[p] === "none" ? "none" : cs[p])]));
+    tr.keys.push({ t: Math.round(time), props, ease: "linear" }); tr.keys.sort((x, y) => x.t - y.t); sel.key = tr.keys.findIndex((k) => k.t === Math.round(time)); void a;
+  }
+  render();
+});
+document.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); restore(); return; }
+  if (/input|select/i.test(e.target.tagName)) return;
+  const tr = doc.tracks[sel.track], k = tr?.keys[sel.key];
+  if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && k) { e.preventDefault(); snapshot(); k.t = snapTime(k.t + (e.key === "ArrowRight" ? FRAME : -FRAME), sel.track, sel.key, false, $("rows").getBoundingClientRect().width / doc.duration); render(); document.querySelector(".kf.sel")?.focus(); }
+  else if (e.key === "Delete" && k && tr.keys.length > 1) { snapshot(); tr.keys.splice(sel.key, 1); sel.key = 0; render(); }
+  else if (e.key === "Enter" && k) { e.preventDefault(); document.querySelector("#insp input, #insp select")?.focus(); }
+  else if (e.key === "Tab" && e.target.closest?.(".lab")) { setTimeout(() => { const l = document.activeElement.closest?.(".lab"); if (l) { sel.track = Number(l.dataset.track); sel.key = 0; render(); document.querySelector(`.lab[data-track="${sel.track}"]`)?.focus(); } }); }
+});
+$("btnUndo").onclick = restore;
+$("btnPlay").onclick = () => { playing = !playing; $("btnPlay").innerHTML = `<i class="fa-solid fa-${playing ? "pause" : "play"}"></i>`; if (playing) { if (time >= doc.duration) seek(0); base = performance.now() - time; requestAnimationFrame(function tick(now) { if (!playing) return; const t = now - base; if (t >= doc.duration) { seek(doc.duration); playing = false; $("btnPlay").innerHTML = '<i class="fa-solid fa-play"></i>'; return; } seek(t); requestAnimationFrame(tick); }); } };
+$("btnTl").onclick = () => { const on = $("tl").hidden; $("tl").hidden = !on; $("btnTl").classList.toggle("active", on); $("btnTl").setAttribute("aria-pressed", String(on)); };
+render(); seek(700);
+</script>
+</body>
+</html>

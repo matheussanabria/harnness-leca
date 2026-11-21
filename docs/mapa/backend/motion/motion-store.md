@@ -3,7 +3,7 @@ domain: backend
 module: motion
 feature: motion-store
 summary: motion@1 validator, store, routes, iframe WAAPI runtime, agent tools and probe (EP-24.01, 24.02, 24.04).
-paths: [ui/server/services/motion-schema.service.js, ui/server/services/motion-store.service.js, ui/server/services/motion-render.service.js, ui/server/services/motion-tools.service.js, ui/server/services/motion-context.service.js, ui/server/controllers/motion.controller.js, ui/public/js/modules/prototype-bridge-motion.js, tests/motion-schema.test.js, tests/motion-store.test.js, tests/motion-tools.test.js, tests/motion-context.test.js, tests/prototype-bridge-motion.test.js, tools/motion-probe.js]
+paths: [ui/server/services/motion-schema.service.js, ui/server/services/motion-store.service.js, ui/server/services/motion-render.service.js, ui/server/services/motion-tools.service.js, ui/server/services/motion-context.service.js, ui/server/controllers/motion.controller.js, ui/public/js/modules/prototype-bridge-motion.js, tests/motion-schema.test.js, tests/motion-store.test.js, tests/motion-tools.test.js, tests/motion-context.test.js, tests/motion-timeline-history.test.js, tests/prototype-bridge-motion.test.js, tools/motion-probe.js]
 keywords: [motion, agent, tools, probe, timeline, runtime, waapi, seek, bridge, keyframes, animation, atelier, motion@1, rev, adr-018]
 updated: 2026-11-21
 ---
@@ -26,3 +26,4 @@ Format and rules: `docs/harness-evolution/03-decisions/ADR-018-motion-timeline-f
 | `tools/motion-probe.js` | Real-model probe: real prompt, motion tags applied with the app tools, one retry with the errors; markdown report. |
 | `tests/motion-tools.test.js` | Tools through `executeAtelierTool` and the tag parser: CP-12, CP-13, track replace/remove, orphan warnings, catalog and instruction. |
 | `tests/motion-context.test.js` | Summary format, CP-14 budget, hash, and the proto context block. |
+| `tests/motion-timeline-history.test.js` | CP-23: timeline PUTs enter the Atelier history; undo and redo restore the file; invalid saves leave no entry. |

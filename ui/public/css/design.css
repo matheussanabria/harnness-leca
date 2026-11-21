@@ -44,6 +44,7 @@
 @import "./design/39-scrum-review-package.css";
 @import "./design/40-layers-docs.css";
 @import "./design/41-prototype-motion.css";
+@import "./design/42-motion-timeline.css";
 /* Cards de diagrama Mermaid do leitor de documentacao (mesmos do chat e do catalogo) */
 @import "./chat/05-chat-code-cards.css";
 @import "./shared/mermaid.css";

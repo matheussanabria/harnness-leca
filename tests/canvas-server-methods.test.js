@@ -53,3 +53,17 @@ test("PUT and DELETE stay blocked outside the canvas API", async () => {
   assert.equal(await call("PUT", "/api/state", { "Content-Type": "application/json" }, "{}"), 405);
   assert.equal(await call("DELETE", "/api/state"), 405);
 });
+
+test("motion writes pass the gate: timeline PUT and export DELETE reach the handlers (EP-24)", async () => {
+  const json = { "Content-Type": "application/json" };
+  assert.equal(await call("PUT", "/api/project/demo/design/prototypes/p1/motion/home", json, JSON.stringify({ doc: {}, rev: null })), 404, "unknown prototype is 404, not 405");
+  assert.equal(await call("DELETE", "/api/project/demo/design/motion/export/abcdef123456", json), 404, "unknown job is 404, not 405");
+});
+
+test("motion writes keep the same-origin rule and other motion paths stay blocked", async () => {
+  const json = { "Content-Type": "application/json" };
+  assert.equal(await call("PUT", "/api/project/demo/design/prototypes/p1/motion/home", { ...json, Origin: "http://evil.test" }, "{}"), 403);
+  assert.equal(await call("DELETE", "/api/project/demo/design/motion/export/abcdef123456", { ...json, Origin: "http://evil.test" }), 403);
+  assert.equal(await call("PUT", "/api/project/demo/design/motion/export/abcdef123456", json, "{}"), 405);
+  assert.equal(await call("DELETE", "/api/project/demo/design/prototypes/p1/motion/home", json), 405);
+});

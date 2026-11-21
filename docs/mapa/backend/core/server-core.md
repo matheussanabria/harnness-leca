@@ -11,7 +11,7 @@ updated: 2026-10-30
 
 | File | Responsibility |
 |---|---|
-| `ui/server.js` | Creates the HTTP server (`createServer`), validates host/origin and enables the HMR proxy. |
+| `ui/server.js` | Creates the HTTP server (`createServer`), validates host/origin, gates methods (PUT/DELETE only for the Canvas API and the motion timeline PUT / export DELETE, `isMotionWrite`) and enables the HMR proxy. |
 | `ui/server/config.js` | Ports, remote PIN, response helper (`send`) and JSON body reader (`readJsonBody`). |
 | `ui/server/router.js` | Request handling: PIN gate, preview proxy, route matching against `ROUTES` (built in `ui/server/routes/index.js`, see route-registry) and static fallback. |
 | `ui/server/controllers/remote.controller.js` | QR Code info, mobile PIN validation and local network details. |

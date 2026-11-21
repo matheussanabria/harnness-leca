@@ -3,7 +3,7 @@ domain: frontend
 module: design
 feature: atelier
 summary: Atelier prototype UI: view, state, context, messages, multi-select, navigation, canvas, layers, layout, catalog.
-paths: [ui/public/js/modules/prototype-atelier*.js, ui/public/js/modules/prototype-motion-*.js, ui/public/css/design/41-prototype-motion.css, tests/prototype-motion-player.test.js, ui/public/js/modules/prototype-canvas-mode.js, ui/public/js/modules/prototype-layer-tree.js, ui/public/js/modules/prototype-workspace-layout.js, ui/public/js/modules/prototype-catalog.js, ui/public/js/modules/prototype-multiselect-model.js, ui/public/js/modules/prototype-nav-resolve.js, ui/public/js/modules/prototype-bridge-links.js, ui/public/js/modules/prototype-bridge-flags.js, tests/prototype-bridge-flags.test.js, tests/prototype-nav-wiring.test.js, ui/public/js/modules/prototype-inspector-toggle.js, tests/prototype-atelier-*.test.js, tests/prototype-nav-resolve.test.js, tests/studio-state.test.js, tests/chat-engine-settings.test.js]
+paths: [ui/public/js/modules/prototype-atelier*.js, ui/public/js/modules/prototype-motion-*.js, ui/public/js/modules/motion-timeline-*.js, ui/public/css/design/42-motion-timeline.css, tests/motion-timeline-state.test.js, tests/motion-timeline-ui.test.js, ui/public/css/design/41-prototype-motion.css, tests/prototype-motion-player.test.js, ui/public/js/modules/prototype-canvas-mode.js, ui/public/js/modules/prototype-layer-tree.js, ui/public/js/modules/prototype-workspace-layout.js, ui/public/js/modules/prototype-catalog.js, ui/public/js/modules/prototype-multiselect-model.js, ui/public/js/modules/prototype-nav-resolve.js, ui/public/js/modules/prototype-bridge-links.js, ui/public/js/modules/prototype-bridge-flags.js, tests/prototype-bridge-flags.test.js, tests/prototype-nav-wiring.test.js, ui/public/js/modules/prototype-inspector-toggle.js, tests/prototype-atelier-*.test.js, tests/prototype-nav-resolve.test.js, tests/studio-state.test.js, tests/chat-engine-settings.test.js]
 keywords: [atelier, motion, player, timeline, prototype, canvas, layers, multiselect, navigation, screens, resolver, iframe, state, adoption, sidebar, catalog]
 updated: 2026-11-21
 ---
@@ -44,3 +44,11 @@ updated: 2026-11-21
 | `tests/prototype-motion-player.test.js` | State rules (CP-09, CP-10) and the real modules in Chrome (CP-08, keyboard, ARIA). |
 | `ui/public/js/modules/prototype-motion-export.js` | Export dialog of the motion player (EP-24.05): format, fps and size options, progress by frame over the export API, download link, cancel; a running job survives closing it. |
 | `tests/prototype-motion-export.test.js` | Dialog option helpers and the dialog in Chrome over a stubbed API (unavailable MP4, progress, download link, cancel). |
+| `ui/public/js/modules/motion-timeline-state.js` | Pure keyframe rules (EP-24.06): frame and key snapping, neighbor clamp, move, add with carried values, remove, values, ease parts, track labels. |
+| `ui/public/js/modules/motion-timeline-view.js` | Keyframe panel HTML builders: ruler, layer labels, lanes with keys, inspector, shell. |
+| `ui/public/js/modules/motion-timeline-drag.js` | Pointer drag of a key: snap (Shift free), time tip, one preview per frame, single save on release. |
+| `ui/public/js/modules/motion-timeline-api.js` | Load and save the screen timeline (PUT with rev and history label). |
+| `ui/public/js/modules/motion-timeline-panel.js` | Keyframe panel controller: live preview via HARNESS_MOTION_LOAD, saves, two-way layer selection, keyboard, reload on iframe load. |
+| `ui/public/css/design/42-motion-timeline.css` | Styles of the keyframe panel. |
+| `tests/motion-timeline-state.test.js` | Keyframe rules: CP-21, CP-22, key snapping, add/remove, values, ease, labels. |
+| `tests/motion-timeline-ui.test.js` | The panel in Chrome against the real server: drag snap and save, arrows, Delete, ease, layer selection. |
