@@ -6,9 +6,16 @@ const path = require("path");
 const WARNING =
   "Auto restart (--watch) in the main checkout drops live chat answers. Use `npm run ui` here; keep `npm run ui:dev` for worktrees.";
 
-/** @param {string[]} [execArgv] */
-function isWatchMode(execArgv = process.execArgv) {
-  return (execArgv || []).some((a) => a === "--watch" || a.startsWith("--watch=") || a.startsWith("--watch-path"));
+/**
+ * In watch mode Node runs the script in a CHILD process whose execArgv no longer has --watch or --watch-path (only
+ * --watch-preserve-output survives) and which has WATCH_REPORT_DEPENDENCIES set. The first version of this guard looked
+ * only at --watch and --watch-path, so the warning never appeared in a real `npm run ui:dev` (found while checking
+ * the EP-23.01 acceptance criteria); both signals are read now.
+ * @param {string[]} [execArgv] @param {NodeJS.ProcessEnv} [env]
+ */
+function isWatchMode(execArgv = process.execArgv, env = process.env) {
+  const flags = (execArgv || []).some((a) => a === "--watch" || a.startsWith("--watch=") || a.startsWith("--watch-path") || a === "--watch-preserve-output");
+  return flags || Boolean(env && env.WATCH_REPORT_DEPENDENCIES);
 }
 
 /**
@@ -35,7 +42,7 @@ function isMainCheckout(cwd = process.cwd(), env = process.env) {
  */
 function warnIfWatchOnMain({ execArgv = process.execArgv, cwd = process.cwd(), env = process.env, log = console.warn } = {}) {
   try {
-    if (!isWatchMode(execArgv) || !isMainCheckout(cwd, env)) return false;
+    if (!isWatchMode(execArgv, env) || !isMainCheckout(cwd, env)) return false;
     log(`[ui-dev-guard] ${WARNING}`);
     return true;
   } catch {
