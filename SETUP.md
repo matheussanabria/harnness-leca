@@ -124,8 +124,15 @@ reattaches and gets the rest.
 - `npm run host` starts it in the foreground; `npm run host:stop` stops it (cutting answers in progress); `npm run host:restart` waits for them to finish, asks before forcing past 10 minutes, and starts a fresh host. The host never runs under `--watch`:
   after changing `tools/lib/engines`, `tools/lib/permissions.js` or `ui/server/services/engine-host/`, run
   `npm run host:stop` so the next chat starts a fresh host with the new code.
-- It listens on `127.0.0.1:4322` only (`HARNESS_ENGINE_HOST_PORT`), with a token created on the first start in
-  `data/engine-host.token` (git-ignored).
+- It listens on `127.0.0.1` only, with a token created on the first start in `data/engine-host.token` (git-ignored).
+  **One host per checkout (EP-23.07):** the main checkout uses port `4322`; any other checkout (a git worktree) uses
+  a port of its own in `4400-4499`, derived from its folder, so a test server started from a worktree no longer takes
+  the port of the main checkout's host (hosts of different checkouts have different tokens). `HARNESS_ENGINE_HOST_PORT`
+  overrides it (`0` picks a free port); setting it to `4322` brings back the single fixed port (rollback).
+- If a host of another checkout holds your port, the chat and `host:stop` / `host:restart` say whose it is, for example
+  `Já existe um host de motores da pasta "harness-leca" (pid 1234) nesta porta`. Stop it from that folder
+  (`npm run host:stop`) or end the process with that pid. `GET /identity` on the host (no token) returns only the
+  folder name, pid and start time.
 - `HARNESS_ENGINE_HOST=0` brings back the old in-process mode (rollback); `HARNESS_ENGINE_HOST_AUTOSTART=0` turns off
   the automatic start (the chat then answers 503 until `npm run host`).
 

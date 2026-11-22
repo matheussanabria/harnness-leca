@@ -9,16 +9,30 @@ const { safeEqual } = require("../../../../tools/lib/network-auth");
 
 /** Bump when a route or event shape changes in a way an older peer cannot handle. */
 const PROTOCOL_VERSION = 1;
-const DEFAULT_PORT = 4322;
 const TOKEN_HEADER = "x-harness-host-token";
+const { DEFAULT_PORT, resolveHostPort, checkoutKind } = require("./checkout-port");
 
 /** Engines run in the host unless HARNESS_ENGINE_HOST=0 (legacy in-process mode, the rollback). */
 const isHostMode = () => process.env.HARNESS_ENGINE_HOST !== "0";
 
-/** @returns {number} port the host binds (HARNESS_ENGINE_HOST_PORT; 0 picks a free port, used by tests) */
+/** @type {"main" | "linked" | "unknown" | null} */
+let kindCache = null;
+
+/**
+ * Port the host binds and the web server calls (EP-23.07): HARNESS_ENGINE_HOST_PORT when set (0 picks a free port,
+ * used by tests), else 4322 for the main checkout and a port of its own in 4400-4499 for any other checkout.
+ * The git answer is cached: this runs on every request to the host.
+ * @returns {number}
+ */
 function hostPort() {
-  const raw = process.env.HARNESS_ENGINE_HOST_PORT;
-  return raw !== undefined && raw !== "" && Number.isInteger(Number(raw)) ? Number(raw) : DEFAULT_PORT;
+  return resolveHostPort({
+    env: process.env,
+    root: ROOT,
+    kind: () => {
+      if (kindCache === null) kindCache = checkoutKind(ROOT);
+      return kindCache;
+    },
+  });
 }
 
 /** @returns {string} base URL the web server calls (HARNESS_ENGINE_HOST_URL overrides; loopback only) */

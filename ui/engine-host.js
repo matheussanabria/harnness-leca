@@ -14,6 +14,7 @@ const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
 const { createDrain } = require("./server/services/engine-host/drain");
+const { foreignHostMessage } = require("./server/services/engine-host-client");
 const { restartRunningHost } = require("./server/services/engine-host/restart-cli");
 const { ROOT } = require("../tools/lib/root");
 
@@ -80,6 +81,17 @@ async function stopRunningHost() {
   if (!token) return console.log("[engine-host] no token file: the host never started here");
   try {
     const res = await fetch(`${hostUrl()}/shutdown`, { method: "POST", headers: { [TOKEN_HEADER]: token } });
+    // EP-23.07: a host of another checkout refuses our token. Say so and fail; never claim a stop that did not happen.
+    if (res.status === 401) {
+      console.error(`[engine-host] ${await foreignHostMessage()}`);
+      process.exitCode = 1;
+      return;
+    }
+    if (!res.ok) {
+      console.error(`[engine-host] the host answered ${res.status}; it was not stopped`);
+      process.exitCode = 1;
+      return;
+    }
     const data = await res.json();
     console.log(`[engine-host] stop requested; runs cut: ${data.active ?? "?"}`);
   } catch {
@@ -93,7 +105,7 @@ if (require.main === module) {
   if (process.argv.includes("--stop")) {
     stopRunningHost();
   } else if (process.argv.includes("--restart")) {
-    restartRunningHost(process.argv.slice(2));
+    restartRunningHost(process.argv.slice(2)).then((result) => { if (result && result.foreign) process.exitCode = 1; });
   } else {
     // A rejection inside one engine must not take down every run of the host.
     process.on("unhandledRejection", (err) => console.error("[engine-host unhandledRejection]", (err && /** @type {any} */ (err).stack) || err));
