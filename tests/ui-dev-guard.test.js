@@ -64,3 +64,40 @@ test("git failure does not throw and does not warn", () => {
     fs.rmSync(notRepo, { recursive: true, force: true });
   }
 });
+
+// ---- the real thing: Node's watch mode runs the script in a child with different execArgv ----
+
+test("isWatchMode reads what survives in the watch-mode child: --watch-preserve-output and WATCH_REPORT_DEPENDENCIES", () => {
+  assert.equal(isWatchMode(["--watch-preserve-output"], {}), true);
+  assert.equal(isWatchMode([], { WATCH_REPORT_DEPENDENCIES: "1" }), true);
+  assert.equal(isWatchMode([], {}), false);
+  assert.equal(isWatchMode(["--max-old-space-size=100"], { PATH: "x" }), false);
+});
+
+/**
+ * Runs the guard inside a REAL `node --watch-path` child, the way `npm run ui:dev` does, and returns what it printed.
+ * @param {string} cwd
+ */
+function realWatchRun(cwd) {
+  const { spawn } = require("child_process");
+  const script = path.join(root, "probe.js");
+  fs.writeFileSync(script, `const g = require(${JSON.stringify(path.join(__dirname, "..", "tools", "lib", "ui-dev-guard"))});\nconst warned = g.warnIfWatchOnMain({ log: (m) => console.log("WARN:" + m) });\nconsole.log("RESULT:" + warned);\n`);
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, ["--watch-path=" + root, "--watch-preserve-output", script], { cwd, env });
+    let out = "";
+    const timer = setTimeout(() => { child.kill(); reject(new Error(`no result in 10 s: ${out}`)); }, 10000);
+    child.stdout.on("data", (chunk) => {
+      out += chunk;
+      if (out.includes("RESULT:")) { clearTimeout(timer); child.kill(); resolve(out); }
+    });
+  });
+}
+
+test("EP-23.01 in real watch mode: the warning appears in the main checkout and not in a worktree", async () => {
+  const inMain = await realWatchRun(main);
+  assert.match(inMain, /WARN:\[ui-dev-guard\] Auto restart \(--watch\) in the main checkout/);
+  assert.match(inMain, /RESULT:true/);
+  const inWorktree = await realWatchRun(wt);
+  assert.doesNotMatch(inWorktree, /WARN:/);
+  assert.match(inWorktree, /RESULT:false/);
+});
