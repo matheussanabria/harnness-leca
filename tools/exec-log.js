@@ -2,19 +2,26 @@
 // @ts-check
 "use strict";
 // Executive log: a short, evidence-backed record of what was done, decided, found and left open, plus the fact sheet
-// a report is written from. See docs/executive/README.md.
+// the executive report (tools/exec-report.js) reads. See docs/executive/README.md.
 //   node tools/exec-log.js add --kind delivery --title "..." --summary "..." [--epic EP-24] [--story 24.06]
 //        [--evidence a,b] [--metrics tests_pass=2889,tests_fail=0] [--resolves L-0003] [--key k] [--by claude] [--date AAAA-MM-DD]
 //   node tools/exec-log.js list [--kind k] [--epic EP-24] [--from AAAA-MM-DD] [--to AAAA-MM-DD]
 //   node tools/exec-log.js verify                      evidence that does not exist, duplicate ids
-//   node tools/exec-log.js report --from D --to D [--epic EP-24] [--out file]
+//   node tools/exec-log.js report [--since D] [--until D] [--out file.md]    same as npm run report (tools/exec-report.js)
 const fs = require("fs");
 const path = require("path");
+const { execFileSync } = require("child_process");
 const { flag, opt, CliError, runAsScript } = require("./lib/cli");
 const { ROOT } = require("./lib/root");
 const store = require("./lib/exec-log/store");
-const { collectFacts, defaultGit } = require("./lib/exec-log/facts");
-const { renderFactSheet } = require("./lib/exec-log/render");
+const { buildReport, options: reportOptions } = require("./exec-report");
+
+/** git without the variables a hook exports, so a call made from a hook still reaches the right repository. @param {string} root */
+const defaultGit = (root) => (/** @type {string[]} */ args) => {
+  const env = { ...process.env };
+  for (const name of ["GIT_DIR", "GIT_INDEX_FILE", "GIT_WORK_TREE", "GIT_PREFIX"]) delete env[name];
+  return execFileSync("git", args, { cwd: root, encoding: "utf8", env });
+};
 
 const USAGE = "Usage: node tools/exec-log.js add|list|verify|report (see the header of this file or docs/executive/README.md)";
 
@@ -79,12 +86,15 @@ function main(argv, io = console, env = {}) {
   }
 
   if (command === "report") {
-    const from = opt("from", argv); const to = opt("to", argv) || store.today();
-    if (!from || !/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) throw new CliError("report needs --from AAAA-MM-DD (and optionally --to AAAA-MM-DD)");
-    const facts = collectFacts(root, { from, to }, env.git);
-    const sheet = renderFactSheet(facts, store.readEntries(file), { epic: opt("epic", argv) });
-    const out = opt("out", argv);
-    if (out) { fs.mkdirSync(path.dirname(path.resolve(root, out)), { recursive: true }); fs.writeFileSync(path.resolve(root, out), sheet, "utf8"); io.log(`fact sheet written to ${out}`); } else io.log(sheet);
+    // One report generator: tools/exec-report.js reads git, the stories, the dossiers and this log.
+    let opts;
+    try { opts = reportOptions(argv.slice(1)); } catch (error) { throw new CliError(/** @type {Error} */ (error).message); }
+    const report = buildReport(root, opts);
+    if (opts.out) {
+      fs.mkdirSync(path.dirname(path.resolve(root, opts.out)), { recursive: true });
+      fs.writeFileSync(path.resolve(root, opts.out), report, "utf8");
+      io.log(`report written to ${opts.out}`);
+    } else io.log(report);
     return;
   }
 

@@ -39,9 +39,13 @@ async function tryBrowser() {
   try { return (await require("../tools/atelier-pilot/lib/browser").launchBrowser()).browser; } catch { return null; }
 }
 
-/** Waits until the file on disk satisfies `check` (saves are async). @param {(d: any) => boolean} check */
+/**
+ * Waits until the file on disk satisfies `check` (saves are async). Up to 10 s: under the full suite the debounced
+ * save can take more than the 3 s this used to allow, which made the test fail only when the machine was busy.
+ * @param {(d: any) => boolean} check
+ */
 async function waitDisk(check) {
-  for (let i = 0; i < 60; i += 1) {
+  for (let i = 0; i < 200; i += 1) {
     try { if (check(disk())) return disk(); } catch { /* mid-write */ }
     await new Promise((r) => setTimeout(r, 50));
   }
