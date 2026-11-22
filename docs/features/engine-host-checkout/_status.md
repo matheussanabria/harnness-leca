@@ -16,4 +16,4 @@ updated: 2026-11-22
 | Development (dev) | done | | `ui/server/services/engine-host/checkout-port.js` | |
 | Tests (tests) | done | | `tests/engine-host-checkout.test.js` | CP-01, CP-02 and CP-04 fail on the old code, pass on the new |
 | Review (review) | done | | | self-review of the diff |
-| Commit and PR (commit-pr) | open | | | awaits the merge |
+| Commit and PR (commit-pr) | done | | | merged into main on 2026-11-22 |
