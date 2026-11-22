@@ -133,3 +133,25 @@ header.dai-topbar.app-header {
   .dai-topbar .app-nav-item span { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
   .dai-topbar .app-nav-item { padding: 6px 9px; }
 }
+
+/* Seletor de host (EP-23.06): host em uso e os outros hosts salvos, cada um com o próprio estado */
+.host-selector { position: relative; }
+.btn-host-selector { display: inline-flex; align-items: center; gap: 6px; }
+.host-panel { position: fixed; z-index: 1000; max-height: calc(100vh - 90px); overflow: auto; width: min(380px, calc(100vw - 32px)); background: var(--panel, #111827); color: var(--text, #e5e7eb); border: 1px solid var(--line, #334155); border-radius: 10px; padding: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); font-size: 12.5px; }
+.host-panel[hidden] { display: none; }
+.host-current { margin-bottom: 8px; }
+.host-list { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 8px; }
+.host-row { border: 1px solid var(--line, #334155); border-radius: 8px; padding: 8px; display: grid; gap: 4px; }
+.host-url { color: var(--mute, #94a3b8); word-break: break-all; }
+.host-state { color: var(--mute, #94a3b8); }
+.host-online { color: #22c55e; }
+.host-offline, .host-locked { color: #f59e0b; }
+.host-incompatible { color: #ef4444; }
+.host-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.host-actions a, .host-actions button, .host-form button { background: var(--panel2, #1f2937); color: inherit; border: 1px solid var(--line, #334155); border-radius: 6px; padding: 4px 9px; font-size: 12px; cursor: pointer; text-decoration: none; }
+.host-actions a:focus-visible, .host-actions button:focus-visible, .host-form button:focus-visible, .btn-host-selector:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+.host-form { display: grid; gap: 6px; border-top: 1px solid var(--line, #334155); padding-top: 8px; }
+.host-form label { display: grid; gap: 2px; }
+.host-form input { background: var(--bg, #0b1120); color: inherit; border: 1px solid var(--line, #334155); border-radius: 6px; padding: 5px 7px; }
+.host-hint { color: var(--mute, #94a3b8); margin: 0; }
+.host-error { color: #ef4444; margin: 0; }
