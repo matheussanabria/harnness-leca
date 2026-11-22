@@ -99,10 +99,10 @@ Sem owner definido em `EPIC_OWNERS` (`tools/lib/coordination/config.js`): defini
 
 | ID | Título | Status |
 |---|---|---|
-| [23.01](23.01-main-sem-auto-restart.md) | Main sem auto restart | Implementada (merge 2114fcb) |
-| [23.02](23.02-diario-execucoes-sqlite.md) | Diário de execuções do chat em SQLite | Concluída (merge 4bfa4fd) |
-| [23.03](23.03-host-motores-separado.md) | Host de motores em processo separado | Implementada (branch `feat/ep-23.03-engine-host`) |
-| [23.04](23.04-interrompida-retomar.md) | Execução interrompida visível e retomável | Implementada (branch `feat/ep-23.04-interrupted`) |
+| [23.01](23.01-main-sem-auto-restart.md) | Main sem auto restart | Concluída |
+| [23.02](23.02-diario-execucoes-sqlite.md) | Diário de execuções do chat em SQLite | Concluída |
+| [23.03](23.03-host-motores-separado.md) | Host de motores em processo separado | Concluída |
+| [23.04](23.04-interrompida-retomar.md) | Execução interrompida visível e retomável | Concluída |
 | [23.05](23.05-reinicio-seguro.md) | Reinício seguro e aviso de reconexão | Implementada (branch `feat/ep-23.05-safe-restart`) |
 | [23.06](23.06-seletor-host.md) | Seletor de host: local e VPS | Implementada (branch `feat/ep-23.06-host-selector`) |
 | [23.07](23.07-host-por-checkout.md) | Host de motores por checkout: porta própria, identidade e parada que diz a verdade | Implementada (branch `feat/ep-23.07-host-per-checkout`) |
