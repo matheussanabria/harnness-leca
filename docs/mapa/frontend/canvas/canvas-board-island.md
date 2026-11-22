@@ -18,7 +18,7 @@ Server gate: `ui/server.js` allows PUT and DELETE only under `/api/canvas/`, and
 | File | Responsibility |
 |---|---|
 | `ui/web/src/features/board/types.ts` | Board, summary, asset, manifest and scene types (no Excalidraw imports). |
-| `ui/web/src/features/board/api.ts` | Typed fetch client: list, create, get, update (rev), remove, uploadAsset, assetUrl; `BoardApiError` with `isConflict` for 409. |
+| `ui/web/src/features/board/api.ts` | Typed fetch client: list, create, get, update (rev), remove, uploadAsset, assetUrl; re-exports `BoardApiError` (409 `isConflict`) from the shared `features/canvas/apiBase.ts`. |
 | `ui/web/src/features/board/sanitize.ts` | appState allowlist; volatile keys (collaborators, selection, scroll) never persisted. |
 | `ui/web/src/features/board/assetRefs.ts` | Upload planning, data URL decoding, manifest pruning and ref validation. |
 | `ui/web/src/features/board/serialize.ts` | `serializeScene`, `deserializeScene`, 4 MB guard (`assertWithinLimit`), foreign schema refusal. |
