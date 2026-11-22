@@ -37,10 +37,11 @@ async function waitUntilActive(signal) {
  *   onEvent: (data: any) => void,
  *   onReattach?: (attempt: number) => void,
  *   onRun?: (runId: string) => void,
+ *   onReconnected?: () => void,
  * }} p  `response` is the first POST /api/chat response (already ok). onRun receives the server run id, which
  *   "Retomar" links to the new run (EP-23.04).
  */
-export async function consumeChatStream({ response, signal, onEvent, onReattach, onRun }) {
+export async function consumeChatStream({ response, signal, onEvent, onReattach, onRun, onReconnected }) {
   let runId = "";
   let nextSeq = 0;
   let terminal = false;
@@ -109,6 +110,7 @@ export async function consumeChatStream({ response, signal, onEvent, onReattach,
         if (res.status === 404) throw Object.assign(new Error("A execução expirou no servidor. Envie a mensagem de novo."), { fatal: true });
         if (!res.ok || !res.body) { current = null; continue; }
         current = res;
+        onReconnected?.(); // EP-23.05: the "Reconectando" banner goes away
       } catch (err) {
         current = null;
         if (/** @type {any} */ (err)?.fatal) throw err;

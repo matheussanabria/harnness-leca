@@ -121,7 +121,7 @@ the web server (`ui:dev` auto restart, a crash, a manual restart) no longer cuts
 reattaches and gets the rest.
 
 - `npm run ui` and `npm run ui:dev` start the host detached when it is not running (log in `logs/engine-host.log`).
-- `npm run host` starts it in the foreground; `npm run host:stop` stops it. The host never runs under `--watch`:
+- `npm run host` starts it in the foreground; `npm run host:stop` stops it (cutting answers in progress); `npm run host:restart` waits for them to finish, asks before forcing past 10 minutes, and starts a fresh host. The host never runs under `--watch`:
   after changing `tools/lib/engines`, `tools/lib/permissions.js` or `ui/server/services/engine-host/`, run
   `npm run host:stop` so the next chat starts a fresh host with the new code.
 - It listens on `127.0.0.1:4322` only (`HARNESS_ENGINE_HOST_PORT`), with a token created on the first start in
