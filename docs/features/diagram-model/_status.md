@@ -16,4 +16,4 @@ updated: 2026-11-22
 | Development (dev) | done | | `ui/web/src/features/diagram/` | |
 | Tests (tests) | done | | `tests/diagram-*.test.js` | real Mermaid in Chrome: `tests/diagram-browser.test.js` |
 | Review (review) | done | | | self-review of the diff |
-| Commit and PR (commit-pr) | open | | | awaits user approval to merge |
+| Commit and PR (commit-pr) | done | | | merged into main (d76b255) on 2026-11-22 with the user's approval |

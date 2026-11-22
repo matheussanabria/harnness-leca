@@ -11,6 +11,8 @@ const fs = require("fs");
 const path = require("path");
 const { gitMerges, gitTotals, findStory } = require("./lib/exec-report/collect");
 const { renderReport } = require("./lib/exec-report/render");
+const { readEntries, openItems, logFile } = require("./lib/exec-log/store");
+const { collectDossiers } = require("./lib/exec-log/dossiers");
 
 const ROOT = path.join(__dirname, "..");
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -35,7 +37,14 @@ function buildReport(root, opts) {
   /** @type {Map<string, import("./lib/exec-report/collect").Story | null>} */
   const stories = new Map();
   for (const id of merges.flatMap((m) => m.stories)) if (!stories.has(id)) stories.set(id, findStory(root, id));
-  return renderReport({ since: opts.since, until: opts.until, merges, stories, totals: gitTotals(root, opts.since, opts.until, opts.branch) });
+  // Executive log (docs/executive/log.jsonl): what happened in conversation. Entries of the period, plus every item
+  // still open at the end of it, whatever its date.
+  const all = readEntries(logFile(root));
+  const log = all.length
+    ? { entries: all.filter((e) => e.date >= opts.since && e.date <= opts.until), open: openItems(all).filter((e) => e.date <= opts.until) }
+    : null;
+  const dossiers = collectDossiers(root, [...new Set(merges.flatMap((m) => m.stories))]);
+  return renderReport({ since: opts.since, until: opts.until, merges, stories, totals: gitTotals(root, opts.since, opts.until, opts.branch), log, dossiers });
 }
 
 if (require.main === module) {

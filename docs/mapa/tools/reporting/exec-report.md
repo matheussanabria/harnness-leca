@@ -17,3 +17,5 @@ updated: 2026-11-22
 | `tools/lib/exec-report/collect.js` | Merge subjects to story ids, story frontmatter, evidence bullets, open criteria, git totals. |
 | `tools/lib/exec-report/render.js` | Markdown: summary, deliveries per epic (one row per story), pending, warnings, plan changes. |
 | `tests/exec-report.test.js` | Subject parsing, pending only from its label, one row per story, planned stories skipped, warnings. |
+
+Since the executive log (`docs/executive/log.jsonl`, `tools/exec-log.js`) it also reads that log and the feature dossiers of the delivered stories, and adds the sections Decisões, Achados e correções, Aprovações, Qualidade and the open log items under Pendências. Without a log the output is unchanged.
