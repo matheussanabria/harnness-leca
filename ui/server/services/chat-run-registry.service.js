@@ -75,7 +75,7 @@ function createRun(id, { abort, onEnd, meta = {} }) {
 
   /**
    * @param {boolean} ok
-   * @param {"user"|"idle"} [reason] why a run ended without an answer (EP-23.04)
+   * @param {"user"|"idle"|"restart"} [reason] why a run ended without an answer (EP-23.04); "restart" is a forced host restart (EP-23.05)
    */
   function end(ok, reason = "user") {
     if (finished) return;
@@ -87,7 +87,7 @@ function createRun(id, { abort, onEnd, meta = {} }) {
     completed = ok;
     clearGrace();
     if (journal) {
-      try { journal.endRun(id, ok ? "completed" : "stopped"); }
+      try { journal.endRun(id, ok ? "completed" : reason === "restart" ? "interrupted" : "stopped"); }
       catch (error) { journalWarn("end", error); }
     }
     if (!ok) { try { abort(); } catch {} }
@@ -115,6 +115,8 @@ function createRun(id, { abort, onEnd, meta = {} }) {
     finish: () => end(true),
     /** Explicit stop (user pressed stop): abort the engine now. */
     stop: () => end(false),
+    /** Forced host restart (EP-23.05): the run ends as interrupted, with its partial answer kept. */
+    interrupt: () => end(false, "restart"),
     /**
      * Attach a response: replay events with seq >= from, then follow live until the run ends or the response closes.
      * @param {import("http").ServerResponse} res @param {number} from

@@ -45,6 +45,10 @@
 .interrupted-actions button:focus-visible { outline: 2px solid rgba(245, 158, 11, 0.9); outline-offset: 2px; }
 .interrupted-actions button[disabled] { opacity: 0.5; cursor: not-allowed; }
 .interrupted-hint { margin-top: 5px; color: var(--mute); }
+
+/* Faixa "Reconectando ao servidor" (EP-23.05): não bloqueia a tela nem recebe foco */
+.chat-reconnect-banner { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: var(--panel2); color: var(--text); border: 1px solid rgba(245, 158, 11, 0.55); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); font-size: 12.5px; pointer-events: none; max-width: calc(100vw - 32px); }
+.chat-reconnect-banner[hidden] { display: none; }
 .err-detail pre { margin: 4px 0 0; padding: 6px 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; white-space: pre-wrap; word-break: break-word; font-size: 11px; }
 
 /* Anexos e gravação de áudio no chat */

@@ -20,6 +20,7 @@ import { isWorkflowCommandText, runChatWorkflowCommand } from "./chat-workflow-c
 import { consumeChatStream } from "./chat-stream-resume.js";
 import { buildUserTurn, engineText } from "./chat-user-turn.js";
 import { isInterruption, markInterrupted } from "./chat-interrupted.js";
+import { showReconnecting, hideReconnecting, returnToComposer } from "./chat-connection-banner.js";
 
 /**
  * @param {string} [presentation]
@@ -142,7 +143,7 @@ export async function sendChatMessage(presentation = "main", options = {}) {
 
     if (!res.ok) {
       const errJson = await res.json().catch(() => ({}));
-      throw Object.assign(new Error(errJson.error || `HTTP ${res.status}`), { http: res.status });
+      throw Object.assign(new Error(errJson.error || `HTTP ${res.status}`), { http: res.status, code: errJson.code });
     }
 
     let runId = "";
@@ -150,7 +151,11 @@ export async function sendChatMessage(presentation = "main", options = {}) {
       response: res,
       signal: ac.signal,
       onRun: (id) => { runId = id; },
-      onReattach: () => setChatStatus("Reconectando à resposta em andamento..."),
+      onReattach: (attempt) => {
+        setChatStatus("Reconectando à resposta em andamento...");
+        showReconnecting(attempt);
+      },
+      onReconnected: () => hideReconnecting(),
       onEvent: (data) => {
         try {
           if (data.sessionId && !data.hiaRoute) {
@@ -194,10 +199,15 @@ export async function sendChatMessage(presentation = "main", options = {}) {
   } catch (err) {
     if (err.name === "AbortError") {
       assistantTurn.text += `\n\n> *Resposta interrompida pelo usuário.*`;
+    } else if (err.code === "host-restarting") {
+      // EP-23.05: the engine host is draining for a restart. The message goes back to the composer, untouched.
+      returnToComposer(state.chatTurns, assistantTurn, typed, input);
+      showToast("O servidor está reiniciando; envie em instantes.", 6000);
     } else {
       assistantTurn.errorInfo = clientErrorInfo(err);
     }
   } finally {
+    hideReconnecting();
     setChatAbortController(P.slug, chatId, cs.currentEngine, null);
     setChatStreaming(P.slug, chatId, false);
     setStreamingUI(false);

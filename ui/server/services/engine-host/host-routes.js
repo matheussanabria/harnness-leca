@@ -28,7 +28,7 @@ async function body(req) {
 }
 
 /**
- * @param {{ token: string, version: string, startedAt: string, onShutdown: () => void }} ctx
+ * @param {{ token: string, version: string, startedAt: string, onShutdown: () => void, drain?: ReturnType<typeof import("./drain").createDrain> }} ctx
  * @returns {(req: import("http").IncomingMessage, res: import("http").ServerResponse) => Promise<void>}
  */
 function createHostHandler(ctx) {
@@ -48,10 +48,12 @@ function createHostHandler(ctx) {
     if (!tokenOk(req, ctx.token)) return json(res, 401, { error: "missing or invalid engine host token" });
 
     if (method === "GET" && url.pathname === "/health") {
-      return json(res, 200, { ok: true, protocol: PROTOCOL_VERSION, version: ctx.version, pid: process.pid, startedAt: ctx.startedAt, active: activeRunCount() });
+      return json(res, 200, { ok: true, protocol: PROTOCOL_VERSION, version: ctx.version, pid: process.pid, startedAt: ctx.startedAt, active: activeRunCount(), drain: ctx.drain?.status().state || "idle" });
     }
     if (method === "GET" && url.pathname === "/runs") return json(res, 200, { runs: listActiveRuns() });
     if (method === "POST" && url.pathname === "/runs") {
+      // EP-23.05: while the host drains for a restart, new runs are refused and the browser keeps the text.
+      if (ctx.drain?.refusing()) return json(res, 503, { error: "O servidor está reiniciando; envie em instantes.", code: "host-restarting" });
       const data = await body(req);
       if (!data) return json(res, 400, { error: "JSON inválido" });
       const port = /** @type {import("net").AddressInfo} */ (req.socket.address()).port;
@@ -66,6 +68,14 @@ function createHostHandler(ctx) {
       if (!data || typeof data.id !== "string") return json(res, 400, { error: "id é obrigatório" });
       const result = perms.answer(data.id, { decision: data.decision, scope: data.scope });
       return json(res, result.ok ? 200 : 404, result);
+    }
+    // EP-23.05: safe restart. POST {} starts draining, {force:true} interrupts the active runs, {cancel:true} gives up.
+    if (url.pathname === "/admin/restart" && ctx.drain) {
+      if (method === "GET") return json(res, 200, ctx.drain.status());
+      if (method === "POST") {
+        const data = (await body(req)) || {};
+        return json(res, 202, data.cancel ? ctx.drain.cancel() : data.force ? ctx.drain.force() : ctx.drain.begin());
+      }
     }
     if (method === "POST" && url.pathname === "/shutdown") {
       json(res, 200, { ok: true, active: activeRunCount() });

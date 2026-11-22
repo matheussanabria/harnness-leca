@@ -4,25 +4,54 @@
 // ui/server (which restarts the --watch web server) no longer cuts an answer in progress.
 // Never run this under --watch: it restarts only by explicit command (npm run host:stop, then npm run host).
 //   node ui/engine-host.js          start (loopback only, port HARNESS_ENGINE_HOST_PORT, default 4322)
-//   node ui/engine-host.js --stop   ask the running host to exit
+//   node ui/engine-host.js --stop   ask the running host to exit (cuts active runs)
+//   node ui/engine-host.js --restart [--force|--cancel]   safe restart: waits for active runs (EP-23.05)
 const http = require("http");
 const { createHostHandler } = require("./server/services/engine-host/host-routes");
 const { hostPort, hostUrl, loadOrCreateToken, readToken, TOKEN_HEADER } = require("./server/services/engine-host/protocol");
 const { version } = require("../package.json");
+const fs = require("fs");
+const path = require("path");
+const { spawn } = require("child_process");
+const { createDrain } = require("./server/services/engine-host/drain");
+const { restartRunningHost } = require("./server/services/engine-host/restart-cli");
+const { ROOT } = require("../tools/lib/root");
 
 const BIND = "127.0.0.1";
 
+/** Starts a fresh detached host once this one has released the port (EP-23.05 restart). */
+function respawnDetached() {
+  fs.mkdirSync(path.join(ROOT, "logs"), { recursive: true });
+  const log = fs.openSync(path.join(ROOT, "logs", "engine-host.log"), "a");
+  const child = spawn(process.execPath, [__filename], { detached: true, stdio: ["ignore", log, log], env: process.env, windowsHide: true });
+  child.unref();
+}
+
 /**
- * @param {{ port?: number }} [options]
+ * @param {{ port?: number, onRestart?: () => void, drainLimitMs?: number }} [options] onRestart replaces the real
+ *   restart (tests): it is called once the drain ends.
  * @returns {Promise<http.Server>}
  */
 function startEngineHost(options = {}) {
   const token = loadOrCreateToken();
   /** @type {http.Server} */
   let server;
+  const drain = createDrain({
+    limitMs: options.drainLimitMs,
+    onIdle: () => {
+      if (options.onRestart) return options.onRestart();
+      console.log(`[engine-host] drained, restarting (pid ${process.pid})`);
+      server.close(() => {
+        respawnDetached();
+        process.exit(0);
+      });
+      server.closeAllConnections?.();
+    },
+  });
   const handler = createHostHandler({
     token,
     version,
+    drain,
     startedAt: new Date().toISOString(),
     onShutdown: () => {
       console.log(`[engine-host] shutdown requested (pid ${process.pid})`);
@@ -63,6 +92,8 @@ module.exports = { startEngineHost };
 if (require.main === module) {
   if (process.argv.includes("--stop")) {
     stopRunningHost();
+  } else if (process.argv.includes("--restart")) {
+    restartRunningHost(process.argv.slice(2));
   } else {
     // A rejection inside one engine must not take down every run of the host.
     process.on("unhandledRejection", (err) => console.error("[engine-host unhandledRejection]", (err && /** @type {any} */ (err).stack) || err));
