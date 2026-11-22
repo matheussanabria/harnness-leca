@@ -30,14 +30,49 @@ function restrictPermissions(file, mode) {
   }
 }
 
+/** True for the errors SQLite raises when another connection holds a lock (SQLITE_BUSY 5, SQLITE_LOCKED 6). @param {unknown} error */
+const isBusy = (error) => {
+  const e = /** @type {{ message?: unknown, errcode?: unknown } | null} */ (error);
+  return e?.errcode === 5 || e?.errcode === 6 || /database is locked|SQLITE_BUSY/i.test(String(e?.message ?? ""));
+};
+
+/** Blocks the thread for `ms` without spinning (the connection setup is synchronous). @param {number} ms */
+const sleepSync = (ms) => {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+};
+
 /**
- * Applies the connection pragmas. busy_timeout goes first so the journal_mode switch and every later
- * statement wait for a concurrent opener instead of failing with SQLITE_BUSY.
+ * Runs a statement and retries while the database is busy, for up to `timeoutMs`. Needed for the switch to WAL: when
+ * several connections race to change the journal mode of a new file, SQLite refuses the loser at once, without calling
+ * the busy handler (to avoid a deadlock), so `busy_timeout` does not cover it. Seen about once in 40 runs of three
+ * processes opening one new file under CPU load (tests/db-migrate.test.js).
+ * @param {{ exec: (sql: string) => unknown }} db
+ * @param {string} sql
+ * @param {{ timeoutMs?: number, sleep?: (ms: number) => void, now?: () => number }} [options] injectable for tests
+ */
+function execRetryingBusy(db, sql, { timeoutMs = BUSY_TIMEOUT_MS, sleep = sleepSync, now = Date.now } = {}) {
+  const deadline = now() + timeoutMs;
+  let delay = 5;
+  for (;;) {
+    try {
+      db.exec(sql);
+      return;
+    } catch (error) {
+      if (!isBusy(error) || now() >= deadline) throw error;
+      sleep(delay);
+      delay = Math.min(delay * 2, 100);
+    }
+  }
+}
+
+/**
+ * Applies the connection pragmas. busy_timeout goes first so every later statement waits for a concurrent opener
+ * instead of failing with SQLITE_BUSY; the journal_mode switch is retried by hand because busy_timeout does not cover it.
  * @param {DatabaseSync} db
  */
 function applyPragmas(db) {
   db.exec(`PRAGMA busy_timeout = ${BUSY_TIMEOUT_MS}`);
-  db.exec("PRAGMA journal_mode = WAL");
+  execRetryingBusy(db, "PRAGMA journal_mode = WAL");
   // NORMAL is the usual WAL setting: no fsync per commit (FULL measured ~13 ms p95 per small commit, EP-23.02).
   // Survives a process crash; only a power loss or OS crash may drop the last commits, never corrupt the file.
   db.exec("PRAGMA synchronous = NORMAL");
@@ -87,4 +122,4 @@ function createTestDatabase() {
   return openDatabase({ path: ":memory:" });
 }
 
-module.exports = { BUSY_TIMEOUT_MS, resolveDbPath, applyPragmas, openDatabase, getDb, closeDb, createTestDatabase };
+module.exports = { BUSY_TIMEOUT_MS, execRetryingBusy, isBusy, resolveDbPath, applyPragmas, openDatabase, getDb, closeDb, createTestDatabase };
