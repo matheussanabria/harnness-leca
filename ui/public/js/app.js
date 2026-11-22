@@ -23,6 +23,7 @@ import { createRouteApplier } from "./modules/route-apply.js";
 import { getIslandLoader } from "./shared/island-loader.js";
 import { persistAtelierActive } from "./modules/prototype-atelier-adoption.js";
 import * as mobileChatMod from "./modules/mobile-chat.js";
+import { mountHostSelector } from "./shared/host-selector.js";
 import * as chatAttachMod from "./modules/chat-attachments.js";
 import * as chatCodeActionsMod from "./modules/chat-code-actions.js";
 
@@ -79,6 +80,7 @@ Object.assign(window, {
   const urlParams = new URLSearchParams(location.search);
   // Versões antigas guardavam o PIN em texto puro aqui; a sessão agora é um cookie HttpOnly.
   try { localStorage.removeItem("harness_pin"); } catch { /* armazenamento indisponível */ }
+  mountHostSelector(); // EP-23.06: host in use and the other hosts (local, VPS)
 
   await chatMod.initEngines();
   await chatMod.initDai();
