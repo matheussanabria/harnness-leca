@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Diagram Editor Prototype</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<!-- EP-21.04 prototype: the "Diagramas" tab of the Design workspace (ADR-014). Real Mermaid for the live preview; saving,
+     conflict and export are simulated. Not production code. -->
+<style>
+  :root { --bg:#0f172a; --panel:#111827; --panel2:#1e293b; --line:#334155; --mute:#94a3b8; --text:#e2e8f0; --accent:#818cf8; --ok:#34d399; --warn:#fbbf24; --err:#f87171; --paper:#0b1220; }
+  :root[data-theme="light"] { --bg:#f1f5f9; --panel:#ffffff; --panel2:#e2e8f0; --line:#cbd5e1; --mute:#64748b; --text:#0f172a; --accent:#4f46e5; --ok:#059669; --warn:#b45309; --err:#dc2626; --paper:#ffffff; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); }
+  .note { max-width:1240px; margin:10px auto; padding:0 16px; color:var(--mute); font-size:12px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .note b { color:var(--text); }
+  .btn { padding:5px 9px; font-size:12px; background:var(--panel2); border:1px solid var(--line); color:var(--text); border-radius:5px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover { border-color:var(--accent); }
+  .btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  .btn.active { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .app { max-width:1240px; margin:0 auto 24px; border:1px solid var(--line); border-radius:8px; background:var(--panel); overflow:hidden; position:relative; }
+  .tabs { display:flex; gap:2px; padding:6px 8px 0; background:var(--panel2); border-bottom:1px solid var(--line); }
+  .tab { padding:7px 12px; border-radius:6px 6px 0 0; color:var(--mute); font-size:12px; display:flex; gap:6px; align-items:center; }
+  .tab.on { background:var(--panel); color:var(--text); font-weight:600; box-shadow:inset 0 2px 0 var(--accent); }
+  .body { display:grid; grid-template-columns:230px 1fr; min-height:560px; }
+  .side { border-right:1px solid var(--line); padding:10px; display:flex; flex-direction:column; gap:8px; }
+  .side h2 { margin:0; font-size:12px; color:var(--mute); text-transform:uppercase; letter-spacing:.04em; display:flex; justify-content:space-between; align-items:center; }
+  .item { padding:8px; border:1px solid var(--line); border-radius:6px; cursor:pointer; display:grid; gap:2px; }
+  .item.on { border-color:var(--accent); background:var(--panel2); }
+  .item small { color:var(--mute); }
+  .menu { position:absolute; z-index:10; background:var(--panel); border:1px solid var(--line); border-radius:8px; box-shadow:0 12px 32px rgba(0,0,0,.4); padding:6px; width:250px; }
+  .menu[hidden] { display:none; }
+  .menu button { display:flex; width:100%; gap:8px; align-items:center; text-align:left; padding:7px 8px; background:none; border:0; color:var(--text); border-radius:5px; cursor:pointer; font-size:12px; }
+  .menu button:hover, .menu button:focus-visible { background:var(--panel2); }
+  .menu small { color:var(--mute); margin-left:auto; }
+  .main { display:flex; flex-direction:column; min-width:0; }
+  .bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:8px 10px; border-bottom:1px solid var(--line); }
+  .bar input.title { background:transparent; border:1px solid transparent; color:var(--text); font-size:14px; font-weight:600; padding:4px 6px; border-radius:5px; min-width:180px; }
+  .bar input.title:hover, .bar input.title:focus { border-color:var(--line); }
+  .pill { font-size:11px; padding:2px 8px; border-radius:99px; background:var(--panel2); color:var(--mute); border:1px solid var(--line); }
+  .state { font-size:12px; display:flex; gap:6px; align-items:center; margin-left:auto; }
+  .state.ok { color:var(--ok); } .state.saving { color:var(--warn); } .state.err { color:var(--err); }
+  .split { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); flex:1; min-height:0; }
+  .src { display:flex; flex-direction:column; border-right:1px solid var(--line); min-width:0; }
+  .editor { display:flex; flex:1; min-height:300px; font:12.5px/1.6 ui-monospace, "Cascadia Mono", Consolas, monospace; }
+  .gutter { padding:8px 6px 8px 10px; text-align:right; color:var(--mute); background:var(--panel2); user-select:none; min-width:38px; white-space:pre; }
+  .gutter .bad { color:#fff; background:var(--err); border-radius:3px; padding:0 3px; }
+  textarea { flex:1; resize:none; border:0; outline:0; background:var(--paper); color:var(--text); padding:8px 10px; font:inherit; white-space:pre; overflow:auto; tab-size:2; }
+  .errbox { border-top:1px solid var(--line); padding:8px 10px; display:flex; gap:8px; align-items:flex-start; min-height:38px; }
+  .errbox.bad { background:rgba(248,113,113,.12); color:var(--err); }
+  .errbox.good { color:var(--mute); }
+  .prev { background:var(--paper); display:flex; flex-direction:column; min-width:0; }
+  .stale { padding:6px 10px; font-size:12px; color:var(--warn); background:rgba(251,191,36,.1); border-bottom:1px solid var(--line); }
+  .canvas { flex:1; padding:14px; overflow:auto; display:flex; justify-content:center; align-items:flex-start; }
+  .canvas.dim svg { opacity:.45; }
+  .conflict { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:8px 10px; background:rgba(251,191,36,.12); color:var(--warn); border-bottom:1px solid var(--line); }
+  .conflict[hidden], .stale[hidden] { display:none; }
+  .empty { padding:30px; display:grid; gap:12px; justify-items:center; text-align:center; color:var(--mute); }
+  .types { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; width:100%; max-width:560px; }
+  .types button { padding:12px 8px; display:grid; gap:4px; justify-items:center; background:var(--panel2); border:1px solid var(--line); color:var(--text); border-radius:8px; cursor:pointer; }
+  .types button:hover { border-color:var(--accent); }
+  @media (max-width:820px) { .body { grid-template-columns:1fr; } .side { border-right:0; border-bottom:1px solid var(--line); } .split { grid-template-columns:1fr; } .src { border-right:0; border-bottom:1px solid var(--line); } }
+</style>
+</head>
+<body>
+<div class="note">
+  <b>Protótipo EP-21.04: aba Diagramas do Design.</b> Edite o texto, o preview acompanha. Estados:
+  <button class="btn" data-demo="normal">Editando</button>
+  <button class="btn" data-demo="error">Erro de sintaxe</button>
+  <button class="btn" data-demo="conflict">Conflito entre abas</button>
+  <button class="btn" data-demo="new">Novo diagrama</button>
+  <button class="btn" data-demo="export">Menu de exportar</button>
+  <button class="btn" id="btnTheme"><i class="fa-solid fa-circle-half-stroke"></i> Tema do shell</button>
+</div>
+
+<div class="app" id="app">
+  <div class="tabs" role="tablist" aria-label="Áreas do Design">
+    <span class="tab"><i class="fa-solid fa-object-group"></i> Protótipos</span>
+    <span class="tab"><i class="fa-solid fa-chalkboard"></i> Quadro</span>
+    <span class="tab"><i class="fa-solid fa-sitemap"></i> Mapa mental</span>
+    <span class="tab on" role="tab" aria-selected="true"><i class="fa-solid fa-diagram-project"></i> Diagramas</span>
+  </div>
+  <div class="body">
+    <aside class="side" aria-label="Diagramas do projeto">
+      <h2>Diagramas <button class="btn primary" id="btnNew" aria-haspopup="menu" aria-expanded="false"><i class="fa-solid fa-plus"></i> Novo</button></h2>
+      <div class="menu" id="menuNew" role="menu" hidden style="left:112px; top:96px"></div>
+      <div id="list" role="list"></div>
+    </aside>
+    <section class="main" aria-label="Editor de diagrama">
+      <div class="conflict" id="conflict" role="alert" hidden>
+        <i class="fa-solid fa-triangle-exclamation"></i> Este diagrama foi alterado em outra aba. Se você salvar agora, vai sobrescrever essa alteração.
+        <button class="btn" id="btnLoadSaved"><i class="fa-solid fa-rotate"></i> Carregar a versão salva</button>
+        <button class="btn" id="btnKeepMine"><i class="fa-solid fa-floppy-disk"></i> Manter a minha</button>
+      </div>
+      <div class="bar">
+        <input class="title" id="title" aria-label="Título do diagrama" value="Fluxo do pedido" />
+        <span class="pill" id="typePill">flowchart</span>
+        <span class="state ok" id="state" aria-live="polite"><i class="fa-solid fa-circle-check"></i> Salvo</span>
+        <button class="btn" id="btnMd" title="Copiar como bloco Markdown"><i class="fa-solid fa-copy"></i> Copiar Markdown</button>
+        <span style="position:relative">
+          <button class="btn" id="btnExport" aria-haspopup="menu" aria-expanded="false"><i class="fa-solid fa-file-export"></i> Exportar <i class="fa-solid fa-caret-down"></i></button>
+          <div class="menu" id="menuExport" role="menu" hidden style="right:0; top:34px; width:210px">
+            <button role="menuitem"><i class="fa-solid fa-vector-square"></i> SVG <small>.svg</small></button>
+            <button role="menuitem"><i class="fa-solid fa-image"></i> PNG <small>.png</small></button>
+            <button role="menuitem"><i class="fa-solid fa-file-code"></i> Texto Mermaid <small>.mmd</small></button>
+          </div>
+        </span>
+      </div>
+      <div class="split" id="split">
+        <div class="src">
+          <div class="editor"><div class="gutter" id="gutter" aria-hidden="true"></div><textarea id="src" spellcheck="false" aria-label="Texto do diagrama (Mermaid)" aria-describedby="errbox"></textarea></div>
+          <div class="errbox good" id="errbox" role="status" aria-live="polite"><i class="fa-solid fa-circle-check"></i> Sintaxe válida</div>
+        </div>
+        <div class="prev">
+          <div class="stale" id="stale" hidden><i class="fa-solid fa-clock-rotate-left"></i> Mostrando a última versão válida; corrija o erro para atualizar.</div>
+          <div class="canvas" id="canvas" aria-label="Pré-visualização"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const TEMPLATES = {
+  flowchart: ["fa-diagram-project", "Fluxograma", "flowchart TD\n  A[Início] --> B{Pedido válido?}\n  B -->|sim| C[Separar estoque]\n  B -->|não| D[Pedir correção]\n  C --> E[Enviar]\n  D --> B"],
+  sequence: ["fa-arrows-left-right", "Sequência", "sequenceDiagram\n  Cliente->>Loja: Faz o pedido\n  Loja->>Estoque: Reserva itens\n  Estoque-->>Loja: Confirmado\n  Loja-->>Cliente: Pedido aceito"],
+  class: ["fa-cubes", "Classes", "classDiagram\n  class Pedido {\n    +int id\n    +total() float\n  }\n  Pedido \"1\" --> \"*\" Item"],
+  state: ["fa-circle-nodes", "Estados", "stateDiagram-v2\n  [*] --> Aberto\n  Aberto --> Pago\n  Pago --> Enviado\n  Enviado --> [*]"],
+  er: ["fa-table", "Entidade-relacionamento", "erDiagram\n  CLIENTE ||--o{ PEDIDO : faz\n  PEDIDO ||--|{ ITEM : contém"],
+  gantt: ["fa-chart-gantt", "Gantt", "gantt\n  title Entrega\n  dateFormat YYYY-MM-DD\n  section Loja\n  Separar :a1, 2025-01-01, 2d\n  Enviar :after a1, 3d"],
+};
+const BAD = "flowchart TD\n  A[Início] --> B{Pedido válido?}\n  B --x-- ?? C[Separar estoque]\n  C --> E[Enviar]";
+const state = { diagrams: [
+  { id: 1, title: "Fluxo do pedido", type: "flowchart", src: TEMPLATES.flowchart[2], when: "agora" },
+  { id: 2, title: "Pedido e cliente", type: "sequence", src: TEMPLATES.sequence[2], when: "há 2 h" },
+  { id: 3, title: "Modelo de dados", type: "er", src: TEMPLATES.er[2], when: "ontem" },
+], current: 1, lastGood: "", timer: 0, n: 0 };
+const cur = () => state.diagrams.find((d) => d.id === state.current);
+const typeOf = (src) => { const h = src.replace(/^---[\s\S]*?---\n/, "").split("\n").map((l) => l.trim()).find((l) => l && !l.startsWith("%%")) || ""; return /^(flowchart|graph)/.test(h) ? "flowchart" : /^sequenceDiagram/.test(h) ? "sequence" : /^classDiagram/.test(h) ? "class" : /^stateDiagram/.test(h) ? "state" : /^erDiagram/.test(h) ? "er" : /^gantt/.test(h) ? "gantt" : "?"; };
+
+function theme() { return document.documentElement.dataset.theme === "light" ? "default" : "dark"; }
+mermaid.initialize({ startOnLoad: false, securityLevel: "strict", htmlLabels: false, flowchart: { htmlLabels: false }, theme: theme(), logLevel: "fatal" });
+let renderId = 0;
+let renderSeq = 0;
+async function render() {
+  const src = $("src").value;
+  const mine = (renderSeq += 1); // a slower, older render must never overwrite a newer one
+  try {
+    await mermaid.parse(src);
+    const { svg } = await mermaid.render("pv" + (renderId += 1), src);
+    if (mine !== renderSeq) return;
+    $("canvas").innerHTML = svg; $("canvas").classList.remove("dim"); $("stale").hidden = true;
+    state.lastGood = svg; setError(null);
+  } catch (e) {
+    if (mine !== renderSeq) return;
+    const msg = String(e.message || e); const m = /line (\d+)/.exec(msg); const line = m ? Number(m[1]) : null;
+    const got = /got '([^']*)'/.exec(msg); const exp = (/Expecting (.+?), got/.exec(msg) || [])[1];
+    setError({ line, text: (line ? "Linha " + line + ": " : "") + "trecho inesperado" + (got ? " (" + got[1] + ")" : "") + (exp ? ". Esperado: " + exp.split(", ").slice(0, 4).join(", ") : ".") });
+    if (state.lastGood) { $("canvas").innerHTML = state.lastGood; $("canvas").classList.add("dim"); $("stale").hidden = false; }
+  }
+}
+function setError(err) {
+  const box = $("errbox");
+  box.className = "errbox " + (err ? "bad" : "good");
+  box.innerHTML = err ? '<i class="fa-solid fa-circle-exclamation"></i><span>' + err.text.replace(/</g, "&lt;") + "</span>" : '<i class="fa-solid fa-circle-check"></i> Sintaxe válida';
+  paintGutter(err && err.line);
+}
+function paintGutter(bad) {
+  const n = $("src").value.split("\n").length;
+  $("gutter").innerHTML = Array.from({ length: n }, (_, i) => (i + 1 === bad ? '<span class="bad">' + (i + 1) + "</span>" : i + 1)).join("\n");
+}
+function setSave(kind) {
+  const el = $("state"); el.className = "state " + (kind === "saving" ? "saving" : kind === "error" ? "err" : "ok");
+  el.innerHTML = kind === "saving" ? '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...' : kind === "dirty" ? '<i class="fa-solid fa-pen"></i> Alterações não salvas' : kind === "error" ? '<i class="fa-solid fa-triangle-exclamation"></i> Não foi possível salvar' : '<i class="fa-solid fa-circle-check"></i> Salvo';
+}
+function paintList() {
+  $("list").innerHTML = state.diagrams.map((d) => '<div class="item ' + (d.id === state.current ? "on" : "") + '" role="listitem" tabindex="0" data-id="' + d.id + '"><b>' + d.title + "</b><small>" + d.type + " · " + d.when + "</small></div>").join("");
+}
+function open(id) {
+  state.current = id; const d = cur(); $("title").value = d.title; $("src").value = d.src; $("typePill").textContent = d.type; state.lastGood = "";
+  $("conflict").hidden = true; paintList(); paintGutter(); setSave("ok");
+  return render();
+}
+$("src").addEventListener("input", () => {
+  const d = cur(); d.src = $("src").value; d.type = typeOf(d.src) === "?" ? d.type : typeOf(d.src); $("typePill").textContent = d.type; paintGutter(); setSave("dirty");
+  clearTimeout(state.timer); state.timer = setTimeout(() => { render(); setSave("saving"); setTimeout(() => setSave("ok"), 600); paintList(); }, 400);
+});
+$("src").addEventListener("scroll", () => { $("gutter").style.transform = "translateY(" + -$("src").scrollTop + "px)"; });
+$("title").addEventListener("input", () => { cur().title = $("title").value; paintList(); });
+$("list").addEventListener("click", (e) => { const it = e.target.closest(".item"); if (it) open(Number(it.dataset.id)); });
+$("list").addEventListener("keydown", (e) => { if (e.key === "Enter") { const it = e.target.closest(".item"); if (it) open(Number(it.dataset.id)); } });
+
+function toggleMenu(menu, btn, on) { menu.hidden = !on; btn.setAttribute("aria-expanded", String(on)); if (on) menu.querySelector("button")?.focus(); }
+$("menuNew").innerHTML = Object.entries(TEMPLATES).map(([k, [icon, label]]) => '<button role="menuitem" data-type="' + k + '"><i class="fa-solid ' + icon + '"></i> ' + label + "</button>").join("");
+$("btnNew").onclick = () => toggleMenu($("menuNew"), $("btnNew"), $("menuNew").hidden);
+$("btnExport").onclick = () => toggleMenu($("menuExport"), $("btnExport"), $("menuExport").hidden);
+$("menuNew").onclick = (e) => {
+  const b = e.target.closest("[data-type]"); if (!b) return;
+  state.n += 1; const t = TEMPLATES[b.dataset.type];
+  state.diagrams.unshift({ id: 100 + state.n, title: "Novo " + t[1].toLowerCase(), type: b.dataset.type, src: t[2], when: "agora" });
+  toggleMenu($("menuNew"), $("btnNew"), false); open(100 + state.n);
+};
+$("btnMd").onclick = () => { const b = $("btnMd"); b.innerHTML = '<i class="fa-solid fa-check"></i> Copiado'; setTimeout(() => { b.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar Markdown'; }, 1400); };
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") { toggleMenu($("menuNew"), $("btnNew"), false); toggleMenu($("menuExport"), $("btnExport"), false); } });
+$("btnTheme").onclick = () => { document.documentElement.dataset.theme = document.documentElement.dataset.theme === "light" ? "dark" : "light"; mermaid.initialize({ startOnLoad: false, securityLevel: "strict", htmlLabels: false, flowchart: { htmlLabels: false }, theme: theme(), logLevel: "fatal" }); render(); };
+$("btnLoadSaved").onclick = () => { $("conflict").hidden = true; setSave("ok"); };
+$("btnKeepMine").onclick = () => { $("conflict").hidden = true; setSave("saving"); setTimeout(() => setSave("ok"), 600); };
+
+document.querySelectorAll("[data-demo]").forEach((b) => b.onclick = () => {
+  const k = b.dataset.demo;
+  toggleMenu($("menuNew"), $("btnNew"), false); toggleMenu($("menuExport"), $("btnExport"), false);
+  if (k === "normal") open(1);
+  if (k === "error") { open(1).then(() => { $("src").value = BAD; cur().src = BAD; paintGutter(); render(); }); }
+  if (k === "conflict") { open(1); $("conflict").hidden = false; setSave("error"); }
+  if (k === "new") toggleMenu($("menuNew"), $("btnNew"), true);
+  if (k === "export") toggleMenu($("menuExport"), $("btnExport"), true);
+});
+open(1);
+</script>
+</body>
+</html>
