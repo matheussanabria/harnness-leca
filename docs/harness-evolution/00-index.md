@@ -7,7 +7,7 @@ atualizado: 2026-10-21
 
 Documento mestre do programa de evolução. Cada entrega aceita tem um documento próprio em `02-epics/`, para que um agente receba só a história que vai implementar e as dependências dela.
 
-> Snapshot verificado em 2026-11-21: 147/184 entregas concluídas (EP-24 aceito em 2026-11-21); as 13 do EP-17, a 20.01 do EP-20, as 11 restantes do EP-21, as 6 do EP-22 (acrescentado em 2026-11-16) e as 6 do EP-23 (acrescentado em 2026-11-19) estão planejadas. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
+> Snapshot verificado em 2026-11-21: 147/185 entregas concluídas (EP-24 aceito em 2026-11-21); as 13 do EP-17, a 20.01 do EP-20, as 11 restantes do EP-21, as 6 do EP-22 (acrescentado em 2026-11-16) e as 7 do EP-23 (acrescentado em 2026-11-19; a 23.07 em 2026-11-22) estão planejadas. Para evitar divergência entre agentes, este arquivo define o backlog, [progress.md](05-progress/progress.md) define o status aceito e [multi-agent-sync.md](05-progress/multi-agent-sync.md) registra a coordenação das frentes.
 
 > Revisão de 2026-10-24: "concluído" significa contrato aceito (API, módulo e testes). Vários épicos têm entregas sem tela ou sem fiação no cliente; o detalhe verificado está em [epic-gaps](05-progress/epic-gaps.md). Os épicos abaixo marcados com "UI pendente" não devem ser tratados como utilizáveis pelo usuário.
 
@@ -46,7 +46,7 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-20](02-epics/EP-20-responsividade-mobile/README.md) | Responsividade e edição móvel | P1 | Planejado; primeiro recorte permite editar código-fonte pelo celular | 0/1 |
 | [EP-21](02-epics/EP-21-diagramas-estruturados/README.md) | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA | P1 | Em andamento; 21.01 e 21.02 concluidas, 21.03 a 21.13 planejadas | 2/13 |
 | [EP-22](02-epics/EP-22-navegacao-projetos/README.md) | Navegação de projetos: seletor pesquisável, aba Projetos, categorias e tags | P1 | Planejado; protótipo e spec prontos, histórias 22.01 a 22.06 detalhadas | 0/6 |
-| [EP-23](02-epics/EP-23-host-execucao-persistente/README.md) | Host de execução persistente: motores em processo separado, diário em SQLite, retomar e seletor de host | P0 | Planejado; histórias 23.01 a 23.06 detalhadas | 0/6 |
+| [EP-23](02-epics/EP-23-host-execucao-persistente/README.md) | Host de execução persistente: motores em processo separado, diário em SQLite, retomar e seletor de host | P0 | Planejado; histórias 23.01 a 23.07 detalhadas | 0/7 |
 | [EP-24](02-epics/EP-24-motion-design/README.md) | Motion design no Atelier: timeline declarativa, player, tools do agente e exportação de vídeo (ADR-018) | P1 | Concluído; 24.01 a 24.06 aceitas em 2026-11-21 (inclui a correção do portão HTTP para PUT/DELETE de motion e do cabeçalho do Atelier) | 6/6 |
 
 ## 2. Dependências
@@ -63,7 +63,7 @@ flowchart TD
     MOD --> OPS["EP-09 a EP-12 Operação, qualidade e protótipos"]
 ```
 
-## 3. Backlog (147/184)
+## 3. Backlog (147/185)
 
 Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a criação e o aceite do documento da história. EP-12 detalha as 32 histórias do motor multiframework. `HAR-xxx` indica o item equivalente do [backlog da Fase 0](08-prioritized-backlog.md).
 
@@ -279,13 +279,14 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [ ] [22.05](02-epics/EP-22-navegacao-projetos/22.05-aba-projetos.md) Aba Projetos: tabela, cards, busca e filtros
 - [ ] [22.06](02-epics/EP-22-navegacao-projetos/22.06-classificar-fechamento.md) Classificar pela tela e fechamento do épico
 
-### EP-23 Host de execução persistente (0/6)
+### EP-23 Host de execução persistente (0/7)
 - [ ] [23.01](02-epics/EP-23-host-execucao-persistente/23.01-main-sem-auto-restart.md) Main sem auto restart
 - [ ] [23.02](02-epics/EP-23-host-execucao-persistente/23.02-diario-execucoes-sqlite.md) Diário de execuções do chat em SQLite
 - [ ] [23.03](02-epics/EP-23-host-execucao-persistente/23.03-host-motores-separado.md) Host de motores em processo separado
 - [ ] [23.04](02-epics/EP-23-host-execucao-persistente/23.04-interrompida-retomar.md) Execução interrompida visível e retomável
 - [ ] [23.05](02-epics/EP-23-host-execucao-persistente/23.05-reinicio-seguro.md) Reinício seguro e aviso de reconexão
 - [ ] [23.06](02-epics/EP-23-host-execucao-persistente/23.06-seletor-host.md) Seletor de host: local e VPS
+- [ ] [23.07](02-epics/EP-23-host-execucao-persistente/23.07-host-por-checkout.md) Host de motores por checkout: porta própria, identidade e parada que diz a verdade
 
 ### EP-24 Motion design no Atelier (6/6)
 - [x] [24.01](02-epics/EP-24-motion-design/24.01-formato-motion-validador.md) Formato motion@1, validador e armazenamento
@@ -302,7 +303,7 @@ Os três chats usam o motor OpenCode; o que os distingue é a **frente**, e é e
 1. **opencode/qualidade:** 09.02 (event log, projeções e recuperação SSE) em andamento; 09.04 e 09.05 detalhadas em documentação; 11.05 (regressão automatizada) e a dívida de tipos. Destrava o restante do EP-09.
 2. **opencode/deploy:** EP-10 encerrado (5/5): pipelines, saude por ambiente, linha do tempo com logs, acoes autorizadas e paridade com o escritorio; proxima frente: EP-11 (11.04 e 11.05) ou apoio ao EP-09.
 3. **opencode/jira:** integração com o Jira (snapshot, consulta e sincronização com o quadro).
-4. EP-03, EP-06, EP-08, EP-09, EP-13 e EP-14 encerrados (9/9, 5/5, 8/8, 6/6, 9/9 e 12/12); EP-11 encerrado (5/5); EP-24 encerrado (6/6); 147/184 global (EP-17, EP-20, EP-22 e EP-23 planejados; EP-21 em andamento, 21.01 e 21.02 aceitas). Cada chat commita apenas os arquivos da própria frente, por caminho.
+4. EP-03, EP-06, EP-08, EP-09, EP-13 e EP-14 encerrados (9/9, 5/5, 8/8, 6/6, 9/9 e 12/12); EP-11 encerrado (5/5); EP-24 encerrado (6/6); 147/185 global (EP-17, EP-20, EP-22 e EP-23 planejados; EP-21 em andamento, 21.01 e 21.02 aceitas). Cada chat commita apenas os arquivos da própria frente, por caminho.
 5. A próxima história de EP-09/EP-10/EP-11 deve ser criada e aceita a partir do template antes da implementação.
 6. Código parcial já existente em EP-02, EP-04, EP-05 e EP-06 deve ser reconciliado com os critérios da respectiva história antes de alterar qualquer contador.
 7. A divisão completa e os handoffs obrigatórios estão no [painel de coordenação](05-progress/multi-agent-sync.md).

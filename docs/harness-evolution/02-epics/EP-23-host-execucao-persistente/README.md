@@ -82,6 +82,7 @@ Desenho que inspira o épico, lido na documentação pública do projeto em 2026
 17.01 fundação do banco ──► 23.02 diário de execuções ──► 23.03 host de motores separado ──► 23.05 reinício seguro
                                                     └──► 23.04 interrompida e retomar
 23.03 ──► 23.06 seletor de host (local e VPS)
+23.03 + 23.05 ──► 23.07 host por checkout (porta própria, identidade, parada que diz a verdade)
 ```
 
 23.01 é independente e entra primeiro. A 17.01 (EP-17) vem antes da 23.02 e pode andar em paralelo com a 23.01. 23.02 já acaba com o 404 de execução terminada; 23.03 acaba com a queda no meio da resposta.
@@ -104,3 +105,4 @@ Sem owner definido em `EPIC_OWNERS` (`tools/lib/coordination/config.js`): defini
 | [23.04](23.04-interrompida-retomar.md) | Execução interrompida visível e retomável | Implementada (branch `feat/ep-23.04-interrupted`) |
 | [23.05](23.05-reinicio-seguro.md) | Reinício seguro e aviso de reconexão | Implementada (branch `feat/ep-23.05-safe-restart`) |
 | [23.06](23.06-seletor-host.md) | Seletor de host: local e VPS | Planejada |
+| [23.07](23.07-host-por-checkout.md) | Host de motores por checkout: porta própria, identidade e parada que diz a verdade | Planejada |
