@@ -129,6 +129,12 @@ reattaches and gets the rest.
 - `HARNESS_ENGINE_HOST=0` brings back the old in-process mode (rollback); `HARNESS_ENGINE_HOST_AUTOSTART=0` turns off
   the automatic start (the chat then answers 503 until `npm run host`).
 
+## Hosts: local and VPS (EP-23.06)
+
+The header's **Host** button shows the host in use and the other Harness installs you saved (name, URL, access PIN), each with its state read from its `/api/host/info`: online, offline, wrong PIN or incompatible version. **Abrir** loads that host's own interface in the tab; every host keeps its own `data/harness.sqlite` and nothing is copied between hosts. The list lives in `data/hosts.json` (git-ignored, mode 0600); the PIN never goes back to the browser (only its last 2 characters, 4 for longer tokens). Set `HARNESS_HOST_NAME` to name a host (default: the machine name).
+
+A remote host is accepted only over HTTPS, or over HTTP on loopback, a private network (10.x, 172.16-31.x, 192.168.x) or Tailscale (100.64.0.0/10, `*.ts.net`). On the VPS, publish the Harness only behind Traefik with HTTPS and the access PIN (`npm run remote`), or only on the Tailscale network; never on a public address without authentication.
+
 ## Motion export (EP-24.05)
 
 The Atelier exports a screen's animation (`screens/<id>.motion.json`) as WebM, MP4 or GIF with no extra install.
