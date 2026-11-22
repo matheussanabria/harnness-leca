@@ -2,6 +2,8 @@
 // HTTP routes of the engine host (EP-23.03). Every route needs the host token, except the permission request
 // posted by the Claude permission tool (tools/permission-mcp.js), which is accepted from a direct loopback
 // connection only, exactly as the web server accepted it before.
+const path = require("path");
+const { ROOT } = require("../../../../tools/lib/root");
 const { readJsonBody } = require("../../config");
 const perms = require("../../../../tools/lib/permissions");
 const { isLocalhostRequest } = require("../../../../tools/lib/network");
@@ -37,6 +39,13 @@ function createHostHandler(ctx) {
     const method = req.method || "GET";
     // The listening socket is loopback-only; this refuses anything relayed by a proxy or tunnel as well.
     if (!isLocalhostRequest(req)) return json(res, 403, { error: "engine host accepts loopback requests only" });
+
+    // EP-23.07: who owns this port, without a token. A client whose token was refused (a host of another checkout)
+    // asks this to tell the user where the host is from. Only the folder name: never the full path, the token or
+    // anything about the runs.
+    if (method === "GET" && url.pathname === "/identity") {
+      return json(res, 200, { app: "harness-engine-host", pid: process.pid, startedAt: ctx.startedAt, checkout: path.basename(ROOT) });
+    }
 
     if (method === "POST" && url.pathname === "/api/permissions/request") {
       const data = await body(req);

@@ -4,6 +4,7 @@
 //   node ui/engine-host.js --restart [--force] [--cancel]
 const readline = require("readline");
 const { hostUrl, readToken, TOKEN_HEADER } = require("./protocol");
+const { foreignHostMessage } = require("../engine-host-client");
 
 const POLL_MS = 1000;
 const sleep = (/** @type {number} */ ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -15,9 +16,13 @@ async function call(token, method, body) {
     headers: { [TOKEN_HEADER]: token, "Content-Type": "application/json" },
     body: method === "POST" ? JSON.stringify(body || {}) : undefined,
   });
+  if (res.status === 401) throw new ForeignHostError(await foreignHostMessage());
   if (!res.ok) throw new Error(`host answered ${res.status}`);
   return res.json();
 }
+
+/** The host on this port refused our token: it belongs to another checkout (EP-23.07). */
+class ForeignHostError extends Error {}
 
 /** @param {string} question @returns {Promise<boolean>} */
 function confirm(question) {
@@ -49,6 +54,10 @@ async function restartRunningHost(argv, { log = console.log, ask = confirm } = {
     }
     log("[engine-host] restarting");
   } catch (error) {
+    if (error instanceof ForeignHostError) {
+      log(`[engine-host] ${error.message}`);
+      return { foreign: true };
+    }
     log(`[engine-host] not running or not reachable (${/** @type {any} */ (error).message})`);
   }
 }

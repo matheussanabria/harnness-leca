@@ -105,4 +105,4 @@ Sem owner definido em `EPIC_OWNERS` (`tools/lib/coordination/config.js`): defini
 | [23.04](23.04-interrompida-retomar.md) | Execução interrompida visível e retomável | Implementada (branch `feat/ep-23.04-interrupted`) |
 | [23.05](23.05-reinicio-seguro.md) | Reinício seguro e aviso de reconexão | Implementada (branch `feat/ep-23.05-safe-restart`) |
 | [23.06](23.06-seletor-host.md) | Seletor de host: local e VPS | Implementada (branch `feat/ep-23.06-host-selector`) |
-| [23.07](23.07-host-por-checkout.md) | Host de motores por checkout: porta própria, identidade e parada que diz a verdade | Planejada |
+| [23.07](23.07-host-por-checkout.md) | Host de motores por checkout: porta própria, identidade e parada que diz a verdade | Implementada (branch `feat/ep-23.07-host-per-checkout`) |

@@ -6,7 +6,7 @@ const http = require("http");
 const path = require("path");
 const { spawn } = require("child_process");
 const { ROOT } = require("../../../tools/lib/root");
-const { PROTOCOL_VERSION, TOKEN_HEADER, hostUrl, readToken } = require("./engine-host/protocol");
+const { PROTOCOL_VERSION, TOKEN_HEADER, hostPort, hostUrl, readToken } = require("./engine-host/protocol");
 
 const HOST_SCRIPT = path.join(__dirname, "..", "..", "engine-host.js");
 const START_WAIT_MS = Number(process.env.HARNESS_ENGINE_HOST_START_MS) || 5000;
@@ -73,6 +73,37 @@ async function health() {
   }
 }
 
+/**
+ * Who owns the port when /health refused this server's token (EP-23.07). GET /identity needs no token; a host that
+ * does not have it yet (an older one) answers 404, which is treated as "unknown owner".
+ * @returns {Promise<{ app: string, pid: number, checkout: string } | null>}
+ */
+async function identity() {
+  try {
+    const res = await hostRequest("GET", "/identity", { token: null, timeoutMs: 1000 });
+    const data = await readJson(res);
+    return res.statusCode === 200 && data && data.app === "harness-engine-host" ? data : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Message for a host that is up but does not accept our token: says whose it is and how to get rid of it, in place
+ * of the old "restart the host", which could not work when the host belongs to another checkout.
+ * @returns {Promise<string>}
+ */
+async function foreignHostMessage() {
+  const owner = await identity();
+  if (!owner) {
+    return `Há um host de motores de dono desconhecido na porta ${hostPort()}. Encerre o processo que usa essa porta ou defina HARNESS_ENGINE_HOST_PORT.`;
+  }
+  if (owner.checkout === path.basename(ROOT)) {
+    return `O host de motores desta pasta (pid ${owner.pid}) não aceitou o token. Reinicie-o: npm run host:stop.`;
+  }
+  return `Já existe um host de motores da pasta "${owner.checkout}" (pid ${owner.pid}) nesta porta. Pare-o dentro dessa pasta (npm run host:stop) ou encerre o processo ${owner.pid}.`;
+}
+
 function spawnHost() {
   const logDir = path.join(ROOT, "logs");
   fs.mkdirSync(logDir, { recursive: true });
@@ -87,7 +118,7 @@ function spawnHost() {
 async function ensureHost() {
   const first = await health();
   if (first?.ok) return checkProtocol(first);
-  if (first && !first.ok) throw new HostUnavailableError("O host de motores recusou o token deste servidor. Reinicie o host (npm run host:stop).");
+  if (first && !first.ok) throw new HostUnavailableError(await foreignHostMessage());
   if (!autostartAllowed()) throw new HostUnavailableError("O host de motores não está no ar. Rode npm run host.");
   if (!starting) {
     starting = (async () => {
@@ -129,4 +160,4 @@ function relay(hostRes, res, sseHeaders) {
   hostRes.pipe(res);
 }
 
-module.exports = { ensureHost, health, hostRequest, readJson, relay, HostUnavailableError };
+module.exports = { ensureHost, health, hostRequest, readJson, relay, identity, foreignHostMessage, HostUnavailableError };
