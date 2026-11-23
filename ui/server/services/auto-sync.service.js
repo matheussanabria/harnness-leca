@@ -1,6 +1,6 @@
 // @ts-check
 // Sincronizacao automatica das conversas: observa as pastas dos motores (Claude Code, Gemini, opencode, Codex) e roda
-// tools/sync.js em processo filho, com debounce, intervalo minimo e uma unica execucao por vez.
+// tools/sync.js (e em seguida tools/export-context.js) em processo filho, com debounce, intervalo minimo e uma unica execucao por vez.
 // HARNESS_AUTOSYNC=0 desliga; HARNESS_AUTOSYNC_INTERVAL_MS ajusta o ciclo de seguranca (padrao 5 min).
 const fs = require("fs");
 const os = require("os");
@@ -32,24 +32,35 @@ function watchRoots(home = os.homedir()) {
   ].filter((p) => fs.existsSync(p));
 }
 
-/** @param {string} root @param {string} trigger */
-function runSync(root, trigger) {
+/** Runs tools/<name> in a child process; resolves with its exit code (-1 when it cannot start). @param {string} root @param {string} name @returns {Promise<number | null>} */
+function runTool(root, name) {
+  return new Promise((resolve) => {
+    let child;
+    try {
+      child = spawn(process.execPath, ["--no-warnings", path.join(root, "tools", name)], { cwd: root, env: process.env, windowsHide: true, stdio: "ignore" });
+    } catch { return resolve(-1); }
+    child.on("error", () => resolve(-1));
+    child.on("close", resolve);
+  });
+}
+
+/**
+ * One cycle: sync the conversations, then refresh the context the engines read (instructions, memory index, Codex
+ * AGENTS.md). The export is non destructive and idempotent; HARNESS_AUTOEXPORT=0 skips it.
+ * @param {string} root @param {string} trigger
+ */
+function runSync(root, trigger, env = process.env) {
   if (isBusy() || Date.now() - stats.lastEnd < MIN_GAP_MS) { stats.skipped++; return false; }
-  const script = path.join(root, "tools", "sync.js");
   stats.running = true; stats.lastStart = Date.now(); stats.lastTrigger = trigger;
-  let child;
-  try {
-    child = spawn(process.execPath, ["--no-warnings", script], { cwd: root, env: process.env, windowsHide: true, stdio: "ignore" });
-  } catch {
-    stats.running = false; stats.lastEnd = Date.now(); stats.lastCode = -1;
-    return false;
-  }
   const done = (/** @type {number | null} */ code) => {
-    if (!stats.running) return;
     stats.running = false; stats.runs++; stats.lastEnd = Date.now(); stats.lastCode = code;
   };
-  child.on("error", () => done(-1));
-  child.on("close", done);
+  runTool(root, "sync.js")
+    .then(async (code) => {
+      if (String(env.HARNESS_AUTOEXPORT || "").trim() !== "0") await runTool(root, "export-context.js");
+      done(code);
+    })
+    .catch(() => done(-1));
   return true;
 }
 
@@ -61,7 +72,7 @@ function startAutoSync({ root, env = process.env, debounceMs = DEBOUNCE_MS }) {
   let pending = null;
   const schedule = (/** @type {string} */ why) => {
     if (pending) return;
-    pending = setTimeout(() => { pending = null; runSync(root, why); }, debounceMs);
+    pending = setTimeout(() => { pending = null; runSync(root, why, env); }, debounceMs);
     pending.unref();
   };
   const watchers = [];
@@ -84,4 +95,4 @@ function startAutoSync({ root, env = process.env, debounceMs = DEBOUNCE_MS }) {
 
 const getAutoSyncStats = () => ({ ...stats, busy: isBusy() });
 
-module.exports = { watchRoots, startAutoSync, getAutoSyncStats, acquireManual, releaseManual, isBusy };
+module.exports = { runSync, runTool, watchRoots, startAutoSync, getAutoSyncStats, acquireManual, releaseManual, isBusy };
