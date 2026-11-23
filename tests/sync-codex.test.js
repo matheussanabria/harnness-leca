@@ -76,3 +76,13 @@ test("import writes agent codex, keeps the conversation date, and a second run c
 test("a project with no Codex sessions reports zeros without error", () => {
   assert.deepEqual(syncCodexFiles("other", []), { ok: true, n: { nova: 0, atualizada: 0, igual: 0 }, err: "" });
 });
+
+test("the UI exposes the Codex sync button, chat filter and overview chip", () => {
+  const read = (p) => fs.readFileSync(path.join(__dirname, "..", "ui", "public", p), "utf8");
+  const index = read("index.html");
+  assert.match(index, /id="btnSyncCodex"[^>]*syncProjectChats\('codex'\)/);
+  assert.match(index, /setChatEngineFilter\('codex'\)/);
+  assert.match(index, /id="countEngCodex"/);
+  assert.match(read("overview.html"), /class="eng" value="codex"/);
+  assert.match(read("js/overview-sync.js"), /ENGINES = \["claude", "gemini", "opencode", "codex"\]/);
+});

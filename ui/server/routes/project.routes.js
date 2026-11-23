@@ -2,6 +2,7 @@
 const { apiEngines } = require("../controllers/chat.controller");
 const { apiOverview } = require("../controllers/overview.controller");
 const { apiSync, apiProjectSync } = require("../controllers/sync.controller");
+const { apiUnmatchedList, apiUnmatchedAssociate } = require("../controllers/unmatched.controller");
 const {
   apiProjectActiveSet,
   apiProject,
@@ -17,6 +18,8 @@ const projectRoutes = [
   { method: "GET", path: "/api/engines", handler: apiEngines },
   { method: "GET", path: "/api/overview", handler: apiOverview },
   { method: "POST", path: "/api/sync", handler: apiSync },
+  { method: "GET", path: "/api/unmatched", handler: apiUnmatchedList },
+  { method: "POST", path: "/api/unmatched/associate", handler: apiUnmatchedAssociate },
   { method: "POST", path: "/api/project/active", handler: apiProjectActiveSet },
   { method: "GET", path: /^\/api\/project\/([\w-]+)$/, handler: apiProject },
   { method: "GET", path: /^\/api\/project\/([\w-]+)\/review$/, handler: apiReviewList },

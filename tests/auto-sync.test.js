@@ -45,3 +45,37 @@ test("envelope: remove o contexto do harness e reconhece titulo contaminado", ()
   assert.equal(isEnvelopeTitle("- <contexto_do_harness> Aviso"), true);
   assert.equal(isEnvelopeTitle("Titulo normal"), false);
 });
+
+test("watchRoots covers the four engines, Codex included, and skips folders that do not exist", () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), "harness-watch-home-"));
+  try {
+    assert.deepEqual(auto.watchRoots(home), []);
+    const dirs = [[".claude", "projects"], [".gemini", "antigravity-ide", "brain"], [".local", "share", "opencode"], [".codex", "sessions"]];
+    for (const d of dirs) fs.mkdirSync(path.join(home, ...d), { recursive: true });
+    assert.deepEqual(auto.watchRoots(home), dirs.map((d) => path.join(home, ...d)));
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test("a cycle syncs first and then refreshes the engine context", async () => {
+  const fake = fs.mkdtempSync(path.join(os.tmpdir(), "harness-cycle-"));
+  try {
+    fs.mkdirSync(path.join(fake, "tools"));
+    const log = path.join(fake, "order.log").split(path.sep).join("/");
+    for (const name of ["sync", "export-context"]) {
+      fs.writeFileSync(path.join(fake, "tools", `${name}.js`), `require("fs").appendFileSync("${log}", "${name}" + String.fromCharCode(10));`);
+    }
+    assert.equal(await auto.runTool(fake, "sync.js"), 0);
+    assert.equal(await auto.runTool(fake, "missing.js"), 1, "a failing tool reports its exit code");
+    fs.rmSync(log);
+
+    assert.equal(auto.runSync(fake, "test"), true);
+    for (let i = 0; i < 100 && auto.getAutoSyncStats().running; i++) await new Promise((r) => setTimeout(r, 50));
+    assert.equal(auto.getAutoSyncStats().running, false);
+    assert.equal(auto.getAutoSyncStats().lastCode, 0);
+    assert.deepEqual(fs.readFileSync(log, "utf8").trim().split("\n"), ["sync", "export-context"]);
+  } finally {
+    fs.rmSync(fake, { recursive: true, force: true });
+  }
+});

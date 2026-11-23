@@ -28,13 +28,13 @@ A estrutura de pastas e as regras de memória e chats estão em `CLAUDE.md`; val
 
 ## Tarefas disponíveis
 - Set up the repository and run the first import/sync/export: follow `docs/agents/BOOTSTRAP.md`. Adopt an existing project folder: `node tools/adopt-project.js --path <folder> --dry-run`, then `docs/agents/ADOPTION.md`.
-- Atualizar as conversas dos 3 motores (Claude Code, Gemini, opencode): `node tools/sync.js` (veja `SETUP.md`).
+- Atualizar as conversas dos 4 motores (Claude Code, Gemini, opencode, Codex): `node tools/sync.js` (veja `SETUP.md`).
 - Mapeamento das conversas e pendências: tabela em `projects/<slug>/context/extraido-conversas.md` ou `node tools/extraction-state.js --project <slug> status`.
 - Extrair regras, memórias e decisões das conversas: skill `.agents/skills/extrair-artefatos/SKILL.md`.
 - Importar conversas do Claude Code: `node tools/import-claude-code-chats.js --list` ou `--project <slug>`.
 - Importar conversas do Antigravity/Gemini: `node tools/import-gemini-chats.js --list` ou `--project <slug>`.
 - Importar conversas do opencode: `node tools/import-opencode-chats.js --list` ou `--from <match> --project <slug>`.
-- Chat interativo na interface (`http://localhost:4321`): botão `Conversar com o Projeto` conecta aos 3 motores sem chave de API paga (Claude Code via CLI/plano, opencode via porta local 63186 e Gemini via AI Studio gratuito ou Bridge), injetando o contexto do projeto e salvando diretamente em `chats/`.
+- Chat interativo na interface (`http://localhost:4321`): botão `Conversar com o Projeto` conecta aos motores sem chave de API paga (Claude Code via CLI/plano, opencode via porta local 63186 e Gemini via AI Studio gratuito ou Bridge), injetando o contexto do projeto e salvando diretamente em `chats/`.
 - Exportar contexto e memória para os agentes (Claude Code e Gemini/Antigravity): `npm run export:context` ou `node tools/export-context.js [--project <slug>]`.
 - Converter e reidratar histórico de chats no Claude Code (`claude --resume`): `npm run export:claude-sessions` ou `node tools/export-claude-sessions.js [--project <slug>]`.
 - Localizar arquivos e responsabilidades sem varrer o repositório: consulte `MAPA.md`.
@@ -43,7 +43,7 @@ A estrutura de pastas e as regras de memória e chats estão em `CLAUDE.md`; val
 - No início, consulte `projects/<ativo>/coordination/inbox/<provedor>.md` ou rode `node tools/coordination.js inbox --provider <provedor>`.
 - Antes de editar uma história, registre a posse com `claim` e depois `start`; use `heartbeat` em trabalhos longos.
 - Ao terminar, use `complete --evidence <arquivo-ou-comando>`. Para transferir, use `handoff --to <provedor> --message <texto>`; para avisar sem transferir, use `notify --to <provedor> --message <texto>`.
-- Gemini e OpenCode estão ativos; Codex (limite de tokens esgotado) e Claude (em outras funções, como design) estão cadastrados, mas inativos (política atualizada pelo usuário em 2026-10-21). `autoDispatch` segue desligado: nenhum processo de IA é iniciado sem autorização.
+- Quais provedores estão ativos muda com a cota de cada motor: não presuma. Leia `providers.<id>.enabled` e `reason` em `projects/<ativo>/coordination/state.json` (ou `node tools/coordination.js inbox --provider <provedor>`). Os quatro motores (Claude, Codex, Gemini, OpenCode) estão cadastrados; só o `enabled: true` recebe trabalho. `autoDispatch` segue desligado: nenhum processo de IA é iniciado sem autorização.
 - Novas skills seguem a arquitetura de skills do DAI (`../dai/skills/00-skill-architecture/`), são criadas com `skill-architect` e sincronizadas com `../dai/skills/<dominio>/<skill-id>/`.
 - `projects/<ativo>/coordination/state.json` é a fonte canônica. `STATUS.md`, `context/coordination.md` e `inbox/*.md` são projeções geradas e não devem ser editadas manualmente.
 - For quota-efficient Codex work, delegate bounded independent tasks to a FREE OpenCode model with `node tools/opencode-delegate.js --dir <workspace> --prompt-file <file>`. It is read-only by default; add `--write` and narrowly scoped repeated `--bash <rule>` options only when the task requires them. This is an external governed delegate, not a native Codex subagent provider.

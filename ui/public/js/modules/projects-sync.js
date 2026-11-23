@@ -17,7 +17,7 @@ export async function syncProjectChats(engine = "all", fromModal = false) {
     b.classList.add("is-syncing");
   });
 
-  const labelMap = { all: "todos os motores", claude: "Claude Code", gemini: "Gemini", opencode: "OpenCode" };
+  const labelMap = { all: "todos os motores", claude: "Claude Code", gemini: "Gemini", opencode: "OpenCode", codex: "Codex" };
   const targetLabel = labelMap[engine] || engine;
 
   if (toast) {
