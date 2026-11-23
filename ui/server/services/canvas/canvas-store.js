@@ -3,6 +3,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { getProjects } = require("../../config");
+const { registerCanvasBoard } = require("../artifacts/artifact-registry.service");
 const {
   CanvasError,
   boardNotFound,
@@ -150,6 +151,7 @@ function createBoard(project, input) {
   if (assertRegularFile(file, BOARD_FILE_MAX_BYTES)) throw storageError();
   atomicWrite(file, serialize(board));
   updateIndexEntry(dir, summaryOf(board));
+  registerCanvasBoard(project, board, file); // EP-25.03: fails open, never blocks the board
   return board;
 }
 

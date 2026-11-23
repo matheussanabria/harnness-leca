@@ -20,6 +20,11 @@ const OWNERS = {
   // in-process mode (HARNESS_ENGINE_HOST=0), when no host runs, so there is still a single writer at a time.
   chat_runs: "host",
   chat_run_events: "host",
+  // 025-artifacts (EP-25.03): the web server registers on create; "cli" is the one-time importer
+  // tools/migrate/artifact-registry-import.js, which only registers artifacts not linked yet.
+  artifacts: ["web", "cli"],
+  artifact_files: ["web", "cli"],
+  artifact_ownership_log: ["web", "cli"],
 };
 
 /**
