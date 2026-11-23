@@ -77,13 +77,13 @@ test("mirrorProjectSkills walks the project targets", () => {
 });
 
 test("AGENTS.md block lists the project skills and tells the engine when to open them", () => {
-  const skills = [{ name: "beta", description: "Does beta things.", file: "C:/repo/.agents/skills/beta/SKILL.md" }];
-  const text = planCodex({ slug: "demo", skills }, { codexProjectsDir: TMP }).writes[0].content;
-  assert.match(text, /## Project skills/);
+  const layers = [{ id: "beta", kind: "skill", layer: "project", description: "Does beta things.", file: "C:/repo/.agents/skills/beta/SKILL.md", overrides: [] }];
+  const text = planCodex({ slug: "demo", layers }, { codexProjectsDir: TMP }).writes[0].content;
+  assert.match(text, /## Skills, agents and workflows/);
   assert.match(text, /\*\*beta\*\*: Does beta things\./);
   assert.match(text, /C:\/repo\/\.agents\/skills\/beta\/SKILL\.md/);
-  const none = planCodex({ slug: "demo", skills: [] }, { codexProjectsDir: TMP }).writes[0].content;
-  assert.match(none, /No project skills found/);
+  const none = planCodex({ slug: "demo", layers: [] }, { codexProjectsDir: TMP }).writes[0].content;
+  assert.match(none, /No skills, agents or workflows found/);
 });
 
 test("discovery skips dot folders: an agent worktree (a full repo copy) is not a skill target", () => {

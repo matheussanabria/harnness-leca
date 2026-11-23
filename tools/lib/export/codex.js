@@ -5,6 +5,7 @@
 // projects/* is git-ignored (local data); only the block between the harness markers is ever rewritten.
 
 const path = require("path");
+const { layersLines } = require("./layers-block");
 
 const MAX_BYTES = 24 * 1024; // Codex truncates project docs above project_doc_max_bytes (default 32 KB)
 const COMMENT = /<!--[\s\S]*?-->/g;
@@ -19,22 +20,8 @@ function capBytes(text, limit) {
   return `${cut}\n\n(truncated: read projects/<slug>/memory.md for the rest)`;
 }
 
-const MAX_SKILLS = 40;
-const MAX_DESC = 160;
-
-/** @param {{ name: string, description?: string, file: string }[]} skills */
-function skillLines(skills) {
-  if (!skills.length) return ["No project skills found."];
-  const lines = skills.slice(0, MAX_SKILLS).map((s) => {
-    const d = String(s.description || "").slice(0, MAX_DESC);
-    return `- **${s.name}**${d ? `: ${d}` : ""} (\`${s.file}\`)`;
-  });
-  if (skills.length > MAX_SKILLS) lines.push(`- ... and ${skills.length - MAX_SKILLS} more (see the skills folder).`);
-  return ["Open a skill's SKILL.md only when its description matches the task.", ...lines];
-}
-
 /**
- * @param {{ slug: string, instructionsMd?: string, memoryMd?: string, skills?: { name: string, description?: string, file: string }[] }} data
+ * @param {{ slug: string, instructionsMd?: string, memoryMd?: string, layers?: import("./layers-block").LayerItem[] }} data
  * @param {{ codexProjectsDir: string }} targets
  */
 function planCodex(data, targets) {
@@ -52,8 +39,8 @@ function planCodex(data, targets) {
     "## Project memory (index)",
     memory || "No curated memory yet.",
     "",
-    "## Project skills",
-    ...skillLines(data.skills || []),
+    "## Skills, agents and workflows",
+    ...layersLines(data.layers || [], data.slug),
     "",
     "## Working rules",
     "- Read `MAPA.md` first; find files with `node tools/mapa.js find <path|keywords>`. No broad scans.",
