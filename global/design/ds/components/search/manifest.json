@@ -1,0 +1,55 @@
+{
+  "id": "cn.search",
+  "version": "1.0.0",
+  "name": "Search",
+  "category": "Design System",
+  "description": "Campo de pesquisa opcional do header. Pode ser um input simples ou um ícone que expande. Sempre com rótulo acessível.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-search"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "search.html",
+      "files": [
+        "search.html",
+        "search.css",
+        "search.js"
+      ],
+      "styles": [
+        "search.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "search.angular.ts",
+      "files": [
+        "search.angular.ts"
+      ],
+      "styles": [
+        "search.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "search.react.jsx",
+      "files": [
+        "search.react.jsx"
+      ],
+      "styles": [
+        "search.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

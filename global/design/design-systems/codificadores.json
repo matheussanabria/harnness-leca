@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "codificadores",
+  "name": "Codificadores de Negócios Design System",
+  "designSystem": {
+    "provider": "fs",
+    "prefix": "cn-",
+    "namespace": "cn",
+    "componentsDir": "global/design/ds/components",
+    "tokensCss": "global/design/ds/tokens.css",
+    "componentsCss": "global/design/ds/components.css",
+    "registry": "global/design/ds/registry.json",
+    "indexMd": "global/design/ds/ds-index.md",
+    "allowedRepoDirs": [
+      "global/design/ds"
+    ]
+  },
+  "framework": {
+    "adapter": "static-html"
+  },
+  "stages": {
+    "actions": {
+      "prototype": "Montar a tela com os componentes do DS global; só desenhar do zero o que não existe.",
+      "extracted": "Isolar o que é novo e definir props, estados e tokens antes de propor ao DS global.",
+      "design_system": "Publicar o componente em global/design/ds/components e registrá-lo no registry global.",
+      "boilerplate": "Gerar o esqueleto no framework do projeto consumindo o componente do DS.",
+      "implemented": "Integrar na aplicação e documentar a feature.",
+      "documented": "Componente e feature integrados e documentados."
+    }
+  }
+}

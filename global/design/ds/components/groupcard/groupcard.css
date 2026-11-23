@@ -1,0 +1,2 @@
+.group__head{display:flex;align-items:center;gap:8px;border:0;background:none;font-weight:800;text-transform:uppercase;color:var(--primary-interactive)}
+.group__head[aria-expanded=false] svg{transform:rotate(180deg)}

@@ -24,7 +24,7 @@ async function syncRow(slug) {
   rowBusy = true;
   setRowButtons(true, slug);
   applyLocks();
-  rowMsg(`Sincronizando ${slug} (Claude, Gemini e OpenCode)…`, "");
+  rowMsg(`Sincronizando ${slug} (Claude, Gemini, OpenCode e Codex)…`, "");
   try {
     const res = await fetch(`/api/project/${encodeURIComponent(slug)}/sync`, {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ engine: "all" }),
@@ -45,8 +45,8 @@ async function syncRow(slug) {
 
 // ---------- ação do sistema: sync geral em streaming (POST /api/sync, SSE) ----------
 let running = false;
-const ENGINES = ["claude", "gemini", "opencode"];
-const ENGINE_NAMES = { claude: "Claude Code", gemini: "Gemini", opencode: "OpenCode" };
+const ENGINES = ["claude", "gemini", "opencode", "codex"];
+const ENGINE_NAMES = { claude: "Claude Code", gemini: "Gemini", opencode: "OpenCode", codex: "Codex" };
 
 function updateEngSummary() {
   const n = document.querySelectorAll(".eng:checked").length;
@@ -135,6 +135,7 @@ async function runSyncAll() {
       logLine(`<span style="color:#ef4444"><i class="fa-solid fa-triangle-exclamation"></i> sincronização terminou com código ${fim.code}</span>`);
     }
     await loadOverview();
+    if (typeof loadUnmatched === "function") loadUnmatched(); // the run just refreshed the "sem projeto" list
   } catch (err) {
     $("syncDetails").open = true;
     setRunState("falhou, tente de novo", "err");

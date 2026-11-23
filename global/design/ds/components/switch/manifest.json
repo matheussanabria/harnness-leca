@@ -1,0 +1,55 @@
+{
+  "id": "cn.switch",
+  "version": "1.0.0",
+  "name": "Switch",
+  "category": "Design System",
+  "description": "Alterna um estado binário, como Ativo e Inativo em tabelas de cadastro. Usa role=\"switch\" e aria-checked.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-switch"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "switch.html",
+      "files": [
+        "switch.html",
+        "switch.css",
+        "switch.js"
+      ],
+      "styles": [
+        "switch.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "switch.angular.ts",
+      "files": [
+        "switch.angular.ts"
+      ],
+      "styles": [
+        "switch.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "switch.react.jsx",
+      "files": [
+        "switch.react.jsx"
+      ],
+      "styles": [
+        "switch.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

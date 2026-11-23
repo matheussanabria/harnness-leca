@@ -42,7 +42,7 @@
       </div>
       <div class="sync-bar">
         <div class="sync-btn-group" title="Sincronizar conversas feitas externamente para este projeto">
-          <button class="btn-sync-action btn-sync-all" id="btnSyncAll" title="Sincronizar conversas de todos os motores (Claude Code, Gemini e OpenCode)" onclick="syncProjectChats('all')">
+          <button class="btn-sync-action btn-sync-all" id="btnSyncAll" title="Sincronizar conversas de todos os motores (Claude Code, Gemini, OpenCode e Codex)" onclick="syncProjectChats('all')">
             <span class="sync-rot"><i class="fa-solid fa-rotate"></i></span> Sincronizar Tudo
           </button>
           <button class="btn-sync-action btn-sync-claude" id="btnSyncClaude" title="Sincronizar conversas do Claude Code (~/.claude/projects)" onclick="syncProjectChats('claude')">
@@ -53,6 +53,9 @@
           </button>
           <button class="btn-sync-action btn-sync-opencode" id="btnSyncOpencode" title="Sincronizar conversas do OpenCode (~/.local/share/opencode)" onclick="syncProjectChats('opencode')">
             <i class="fa-solid fa-code"></i> OpenCode
+          </button>
+          <button class="btn-sync-action btn-sync-codex" id="btnSyncCodex" title="Sincronizar conversas do Codex (~/.codex/sessions)" onclick="syncProjectChats('codex')">
+            <i class="fa-solid fa-terminal"></i> Codex
           </button>
         </div>
         <button class="btn-map" id="btnClaudeAiImport" title="Importar conversas de um export de dados do claude.ai (zips ou pasta extraída)" onclick="openClaudeAiImport()"><i class="fa-solid fa-file-import"></i> Importar claude.ai</button>
@@ -75,6 +78,9 @@
         </button>
         <button type="button" class="eng-badge-filter" data-eng="opencode" onclick="setChatEngineFilter('opencode')">
           <span style="color:#7de2a3"><i class="fa-solid fa-code"></i> OpenCode</span> <span class="filter-count" id="countEngOpencode">0</span>
+        </button>
+        <button type="button" class="eng-badge-filter" data-eng="codex" onclick="setChatEngineFilter('codex')">
+          <span style="color:#b79df0"><i class="fa-solid fa-terminal"></i> Codex</span> <span class="filter-count" id="countEngCodex">0</span>
         </button>
       </div>
 
@@ -104,7 +110,7 @@
             <option value="mtime_asc">Data: Mais antigas</option>
             <option value="title_asc">Título: A → Z</option>
             <option value="title_desc">Título: Z → A</option>
-            <option value="agent_asc">Motor (Claude, Gemini, OpenCode)</option>
+            <option value="agent_asc">Motor (Claude, Gemini, OpenCode, Codex)</option>
             <option value="group_asc">Grupo (A → Z)</option>
             <option value="turns_desc">Mais turnos / mensagens</option>
           </select>
@@ -157,6 +163,9 @@
       </button>
       <button type="button" class="design-nav-tab" data-view="canvas-board" onclick="setDesignView('canvas-board')" title="Free-form boards (Canvas)">
         <i class="fa-solid fa-chalkboard"></i> Quadro livre
+      </button>
+      <button type="button" class="design-nav-tab" data-view="canvas-diagram" onclick="setDesignView('canvas-diagram')" title="Mermaid diagrams (Canvas)">
+        <i class="fa-solid fa-diagram-project"></i> Diagramas
       </button>
     </div>
     <div style="display:flex;align-items:center;gap:8px">

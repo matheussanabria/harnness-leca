@@ -1,0 +1,55 @@
+{
+  "id": "cn.calcitem",
+  "version": "1.0.0",
+  "name": "CalcItem (DispensationItem)",
+  "category": "Design System",
+  "description": "Bloco com resumo do item, campos de cálculo e resultados calculados. Equivale ao DispensationItem da referência; aqui aparece na proposta de venda.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-calcitem"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "calcitem.html",
+      "files": [
+        "calcitem.html",
+        "calcitem.css",
+        "calcitem.js"
+      ],
+      "styles": [
+        "calcitem.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "calcitem.angular.ts",
+      "files": [
+        "calcitem.angular.ts"
+      ],
+      "styles": [
+        "calcitem.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "calcitem.react.jsx",
+      "files": [
+        "calcitem.react.jsx"
+      ],
+      "styles": [
+        "calcitem.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

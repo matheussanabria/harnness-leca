@@ -1,0 +1,2 @@
+.period{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--neutral-light);border-radius:8px;padding:3px}
+.period span{min-width:140px;text-align:center;font-weight:700}

@@ -50,7 +50,7 @@ function readSessions(chatsDir, since) {
       dis: [...new Set(turns.flatMap((t) => t.text.match(/\bDIS-\d+\b/g) || []))],
     });
   }
-  return out.sort((a, b) => a.inicio.localeCompare(b.inicio));
+  return out.sort((a, b) => b.inicio.localeCompare(a.inicio) || a.file.localeCompare(b.file)); // most recent first
 }
 
 // [{ day, sessions: [...] }] do dia mais recente para o mais antigo.

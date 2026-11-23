@@ -1,0 +1,1 @@
+// Presentational component: no JavaScript behavior required.

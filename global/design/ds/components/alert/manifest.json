@@ -1,0 +1,55 @@
+{
+  "id": "cn.alert",
+  "version": "1.0.0",
+  "name": "Alert",
+  "category": "Design System",
+  "description": "Mensagem contextual com botão de fechar. Usa role=\"alert\" e os tokens de fundo, texto e borda de cada status.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-alert"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "alert.html",
+      "files": [
+        "alert.html",
+        "alert.css",
+        "alert.js"
+      ],
+      "styles": [
+        "alert.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "alert.angular.ts",
+      "files": [
+        "alert.angular.ts"
+      ],
+      "styles": [
+        "alert.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "alert.react.jsx",
+      "files": [
+        "alert.react.jsx"
+      ],
+      "styles": [
+        "alert.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

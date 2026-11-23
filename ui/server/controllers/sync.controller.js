@@ -5,7 +5,7 @@ const { getRoot, slugs, send, readJsonBody, HEADERS } = require("../config");
 const syncCore = require("../../../tools/lib/sync-core");
 const autoSync = require("../services/auto-sync.service");
 
-const SYNC_ENGINES = ["claude", "gemini", "opencode"];
+const { SYNC_ENGINES } = syncCore;
 let syncRunning = false;
 
 async function apiSync({ req, res }) {
@@ -106,7 +106,7 @@ async function apiProjectSync({ req, res, params: [slug] }) {
   } catch {}
   const engine = body && body.engine ? body.engine : "all";
   try {
-    const engines = engine === "all" ? ["claude", "gemini", "opencode"] : [engine];
+    const engines = engine === "all" ? SYNC_ENGINES : [engine];
     const result = syncCore.syncProject({ slug, engines });
     return send(res, 200, result);
   } catch (err) {

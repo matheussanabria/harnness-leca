@@ -1,0 +1,1 @@
+<div class="row"><div class="col-8"><router-outlet /></div><aside class="col-4">…</aside></div>

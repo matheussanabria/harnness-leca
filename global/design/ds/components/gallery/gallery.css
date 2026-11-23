@@ -1,0 +1,5 @@
+.coverflow{position:relative;height:200px;overflow:hidden}
+.cf-item{position:absolute;left:50%;width:220px;
+  transform:translateX(calc(-50% + var(--o) * 240px)) scale(calc(1 - .12 * abs(var(--o))));
+  filter:brightness(calc(1 - .2 * min(abs(var(--o)), 1)));
+  transition:transform .45s,filter .45s,opacity .45s}

@@ -8,6 +8,18 @@ const { cleanBOM } = require("./frontmatter");
 const PROJECTS = path.join(ROOT, "projects");
 
 /**
+ * Workspace declared in projects/<slug>/project.json ("workspace": absolute path, or relative to the harness root).
+ * It only widens skill discovery; it never changes where an engine runs (that is mcp.json "repo").
+ * @param {string} projectDir @returns {string|null}
+ */
+function readWorkspace(projectDir) {
+  try {
+    const parsed = JSON.parse(cleanBOM(fs.readFileSync(path.join(projectDir, "project.json"), "utf8")));
+    return parsed && typeof parsed.workspace === "string" && parsed.workspace.trim() ? path.resolve(ROOT, parsed.workspace) : null;
+  } catch { return null; }
+}
+
+/**
  * Encontra todos os alvos de repositório/subprojetos associados a um projeto do harness.
  * @param {string} slug
  * @returns {Array<{ id: string, label: string, path: string, type: string, hasAgents: boolean }>}
@@ -25,6 +37,8 @@ function findProjectTargets(slug) {
       if (parsed && parsed.repo) baseRepo = path.resolve(String(parsed.repo));
     } catch {}
   }
+
+  if (!baseRepo) baseRepo = readWorkspace(projectDir); // mcp.json "repo" wins; project.json only fills the gap
 
   if (baseRepo && fs.existsSync(baseRepo)) {
     const baseName = path.basename(baseRepo);
@@ -44,7 +58,7 @@ function findProjectTargets(slug) {
         const entries = fs.readdirSync(dir, { withFileTypes: true });
         for (const ent of entries) {
           if (!ent.isDirectory()) continue;
-          if (["node_modules", ".git", "dist", "target", ".angular", ".claude", ".vscode", ".idea", "build", "tools", ".tmp_swc"].includes(ent.name) || ent.name.endsWith("-mcp")) continue;
+          if (["node_modules", ".git", "dist", "target", ".angular", ".claude", ".vscode", ".idea", "build", "tools", ".tmp_swc"].includes(ent.name) || ent.name.endsWith("-mcp") || ent.name.startsWith(".")) continue; // dot folders hold tool state and agent worktrees (full repo copies)
           const fullPath = path.join(dir, ent.name);
           const hasAgentsDir = fs.existsSync(path.join(fullPath, ".agents"));
           const hasPackageJson = fs.existsSync(path.join(fullPath, "package.json"));
@@ -97,4 +111,4 @@ function findProjectTargets(slug) {
   return unique;
 }
 
-module.exports = { findProjectTargets, PROJECTS };
+module.exports = { findProjectTargets, readWorkspace, PROJECTS };

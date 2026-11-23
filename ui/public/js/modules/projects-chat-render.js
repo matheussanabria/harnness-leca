@@ -36,7 +36,7 @@ export function renderChatsTable(pageItems, totalFiltered) {
             <th class="col-group" onclick="toggleSort('group')" title="Ordenar por grupo"><span class="th-content">Grupo / Subgrupo ${sortArrow("group")}</span></th>
             <th class="col-status" onclick="toggleSort('status')" title="Ordenar por status"><span class="th-content">Status ${sortArrow("status")}</span></th>
             <th class="col-turns" onclick="toggleSort('turns')" title="Ordenar por quantidade de turnos"><span class="th-content">Turnos ${sortArrow("turns")}</span></th>
-            <th class="col-date" onclick="toggleSort('mtime')" title="Ordenar por data de modificação"><span class="th-content">Data / Modificação ${sortArrow("mtime")}</span></th>
+            <th class="col-date" onclick="toggleSort('mtime')" title="Ordenar pela data da conversa"><span class="th-content">Data da conversa ${sortArrow("mtime")}</span></th>
             <th class="col-actions no-sort" style="text-align:right">Ações</th>
           </tr>
         </thead>
@@ -49,6 +49,8 @@ export function renderChatsTable(pageItems, totalFiltered) {
         ? '<span class="tag" style="color:#7ca5f5;border-color:#7ca5f544;font-weight:600">✦ Gemini</span>'
         : c.agent === "opencode"
         ? '<span class="tag" style="color:#7de2a3;border-color:#7de2a344;font-weight:600">◆ OpenCode</span>'
+        : c.agent === "codex"
+        ? '<span class="tag" style="color:#b79df0;border-color:#b79df044;font-weight:600">▣ Codex</span>'
         : '<span class="tag" style="color:#d97757;border-color:#d9775744;font-weight:600">✱ Claude</span>';
     const stClass = c.status === "ok" ? "status-ok" : c.status === "alterada" ? "status-alterada" : "status-nova";
     const stLabel = c.status === "ok" ? "✓ em dia" : c.status === "alterada" ? "↻ alterada" : "⏳ pendente";
@@ -89,7 +91,7 @@ export function renderChatsTable(pageItems, totalFiltered) {
         <td class="col-group" style="white-space:nowrap">${grpBadge}</td>
         <td class="col-status" style="white-space:nowrap">${stBadge}</td>
         <td class="col-turns" style="white-space:nowrap;font-size:12px;color:var(--mute)">${turnsText}</td>
-        <td class="col-date" style="white-space:nowrap;font-size:11.5px;color:var(--mute)">${fmt(c.mtime)}</td>
+        <td class="col-date" style="white-space:nowrap;font-size:11.5px;color:var(--mute)">${fmt(c.conversationAt || c.mtime)}</td>
         <td class="col-actions" style="text-align:right;white-space:nowrap" onclick="event.stopPropagation()">
           <div style="display:inline-flex;gap:6px;align-items:center">
             <button type="button" class="btn-sync-chat" title="Continuar esta conversa" onclick="resumeExistingChat('${esc(c.name)}', isStudioMode)">💬 Continuar</button>
@@ -112,6 +114,8 @@ export function renderChatsList(pageItems, totalFiltered) {
           ? '<span class="tag" style="margin-right:6px;color:#7ca5f5;border-color:#7ca5f544;font-weight:600">✦ Gemini</span>'
           : c.agent === "opencode"
           ? '<span class="tag" style="margin-right:6px;color:#7de2a3;border-color:#7de2a344;font-weight:600">◆ OpenCode</span>'
+          : c.agent === "codex"
+          ? '<span class="tag" style="margin-right:6px;color:#b79df0;border-color:#b79df044;font-weight:600">▣ Codex</span>'
           : '<span class="tag" style="margin-right:6px;color:#d97757;border-color:#d9775744;font-weight:600">✱ Claude</span>';
       const stClass = c.status === "ok" ? "status-ok" : c.status === "alterada" ? "status-alterada" : "status-nova";
       const stLabel = c.status === "ok" ? "✓ em dia" : c.status === "alterada" ? "↻ alterada" : "⏳ pendente";
@@ -141,7 +145,7 @@ export function renderChatsList(pageItems, totalFiltered) {
           ${ag}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title || c.name.replace(/\.md$/, ""))}</span>${stBadge}${grpBadge}
         </b>
         <div class="row-meta-actions" style="display:flex;align-items:center;gap:8px;margin-left:12px;flex-shrink:0" onclick="event.stopPropagation()">
-          <span style="font-size:11px;color:var(--mute)">${fmt(c.mtime)}</span>
+          <span style="font-size:11px;color:var(--mute)">${fmt(c.conversationAt || c.mtime)}</span>
           <button type="button" class="btn-sync-chat" title="Continuar esta conversa" onclick="resumeExistingChat('${esc(c.name)}', isStudioMode)">💬 Continuar</button>
         </div>
       </div>

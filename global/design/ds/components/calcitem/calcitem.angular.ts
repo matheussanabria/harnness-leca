@@ -1,0 +1,1 @@
+parcela = computed(() => (this.valor() - this.entrada()) / this.parcelas());

@@ -1,0 +1,51 @@
+/* Design tokens — Codificadores de Negócios (Design System global).
+   Base de todos os projetos. Um projeto que precise da própria marca não copia o DS:
+   declara em design/profile.json
+     "designSystem": { "ref": "codificadores", "overrides": { "tokensCss": "projects/<slug>/design/tokens.css" } }
+   e redefine apenas as variáveis de marca. Os componentes continuam vindo do global.
+
+   A identidade: tinta (índigo) é o lado do negócio, sinal (ciano) é o lado da máquina.
+   Índigo é ação e nada mais; verde é sucesso, vermelho é erro, amarelo é atenção.
+   Todos os pares foram medidos — os números estão no Design System. */
+:root {
+  /* Marca — tinta */
+  --primary-interactive: #2b4fcc;  /* ação: botão, link. Branco por cima 6,79:1 */
+  --primary-dark: #2742a8;         /* hover/pressionado */
+  --primary-headings: #14306b;     /* títulos. 12,61:1 sobre branco */
+  --primary-background: #eef2fd;   /* superfície tingida. Corpo por cima 14,70:1 */
+
+  /* Marca — sinal */
+  --brand-signal: #36c5d9;         /* só grafismo sobre tinta ou índigo; no branco dá 2,07:1 */
+  --highlight-focus: #0b7f91;      /* anel de foco e estado ativo. 4,71:1 sobre branco */
+  --highlight-dark: #075f6d;       /* hover do que usa o foco como cor. 7,33:1 */
+
+  /* Neutros */
+  --neutral-body: #091e42;
+  --neutral-dark: #172b4d;
+  --neutral-base: #44546f;
+  --neutral-muted: #8590a2;        /* 3,23:1 no branco: decorativo. Texto real usa --neutral-base */
+  --neutral-light: #dcdee4;
+  --neutral-background: #ffffff;
+
+  /* Estados */
+  --danger-base: #c9372c;
+  --danger-dark: #ae2e24;
+  --danger-background: #ffedeb;
+  --danger-muted: #ffd2cc;
+  --success-base: #22a06b;         /* 3,33:1: elemento gráfico, não texto */
+  --success-dark: #1f845a;
+  --success-background: #dcfff1;
+  --success-muted: #baf3db;
+  --warning-base: #f5cd47;         /* 1,53:1 no branco: nunca isolado, sempre com borda ou superfície */
+  --warning-dark: #946f00;
+  --warning-background: #fff7d6;
+
+  /* Tipografia — --font-display é a face de títulos da INTERFACE.
+     A assinatura da marca usa a mono; ver o Design System. */
+  --font-sans: 'Noto Sans', system-ui, sans-serif;
+  --font-display: 'Noto Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  /* Espaçamento */
+  --spacing-scale-base: 8px;
+}

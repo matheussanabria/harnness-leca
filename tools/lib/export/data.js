@@ -24,6 +24,23 @@ function countChats(chatsDir) {
   }
 }
 
+/** Skills of the project (name, description, SKILL.md path), deduplicated by name; empty when none or unreadable. */
+function collectSkills(slug) {
+  try {
+    const { listProjectSkills } = require("../skills/reader");
+    const seen = new Set();
+    return listProjectSkills(slug).skills
+      .filter((s) => s.hasSkillMd && !seen.has(s.name) && seen.add(s.name))
+      .map((s) => ({
+        name: s.name,
+        description: String(s.description || "").replace(/\s+/g, " ").trim(),
+        file: String(s.skillMdFile).split(path.sep).join("/"),
+      }));
+  } catch {
+    return [];
+  }
+}
+
 /** Só a memória curada (memory.md), itens estruturados (memory/) e as instruções: nada de context/extraido-*.md. */
 function collectProjectData(slug) {
   const projDir = path.join(ROOT, "projects", slug);
@@ -38,14 +55,15 @@ function collectProjectData(slug) {
     memoryMd: readFileSafe(path.join(projDir, "memory.md")),
     instructionsMd: readFileSafe(path.join(projDir, "instructions.md")),
     chatsCount: countChats(path.join(projDir, "chats")),
+    skills: collectSkills(slug),
     items,
   };
 }
 
 /**
  * Diretórios de destino. Precedência: parâmetro, variável de ambiente, padrão.
- * Variáveis: HARNESS_EXPORT_CLAUDE_PROJECTS, HARNESS_EXPORT_GEMINI_HOME.
- * @param {{ claudeProjectsDir?: string, geminiHome?: string }} [o]
+ * Variáveis: HARNESS_EXPORT_CLAUDE_PROJECTS, HARNESS_EXPORT_GEMINI_HOME, HARNESS_EXPORT_CODEX_PROJECTS.
+ * @param {{ claudeProjectsDir?: string, geminiHome?: string, codexProjectsDir?: string }} [o]
  */
 function resolveTargets(o = {}) {
   const env = process.env;
@@ -55,6 +73,7 @@ function resolveTargets(o = {}) {
     claudeProjectsDir: o.claudeProjectsDir || env.HARNESS_EXPORT_CLAUDE_PROJECTS || path.join(home, ".claude", "projects"),
     geminiKnowledgeDir: path.join(geminiHome, "antigravity-ide", "knowledge"),
     geminiRulesDir: path.join(geminiHome, "config", "rules"),
+    codexProjectsDir: o.codexProjectsDir || env.HARNESS_EXPORT_CODEX_PROJECTS || path.join(ROOT, "projects"),
   };
 }
 

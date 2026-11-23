@@ -1,0 +1,3 @@
+.annotations{list-style:none;padding:0}
+.annotations li{border-bottom:1px solid var(--neutral-light)}
+.annotations button{width:100%;display:flex;justify-content:space-between;padding:12px 0;border:0;background:none;font-weight:800;color:var(--primary-headings)}

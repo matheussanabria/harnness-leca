@@ -4,7 +4,8 @@ const path = require("path");
 const { loadRegistry } = require("./design-registry.service");
 
 /**
- * Componentes do registro do Design System do projeto (design/ds/registry.json, publicado por tools/ds-sync.js),
+ * Componentes do Design System visíveis para o projeto: o global (global/design/ds/registry.json)
+ * por baixo, o do projeto (design/ds/registry.json, publicado por tools/ds-sync.js) por cima,
  * no formato do índice do quadro. A chave é o slug sem o namespace ("text-field" para "dis.text-field"),
  * a mesma que o índice usa para as pastas do DS, para que os dois se encontrem.
  * @param {string} projectDir
@@ -25,7 +26,12 @@ function registryComponentsForIndex(projectDir, deps = { fs, path }) {
       name: comp.name || slug,
       category: comp.category || "",
       selector: `app-${slug}`,
-      dsFolder: `projects/${project}/design/ds/components/${slug}`,
+      origin: comp.origin || "projeto",
+      // componente herdado do Design System global mora fora do projeto
+      dsFolder:
+        comp.origin === "global"
+          ? `global/design/ds/components/${slug}`
+          : `projects/${project}/design/ds/components/${slug}`,
       feature: "design-system",
       inDesignSystem: true,
       sync: { version: comp.version || "", updatedAt: comp.updatedAt || "", sourceHash: comp.sourceHash || "" },

@@ -69,6 +69,10 @@
   color: #7de2a3;
 }
 
+.btn-sync-action.btn-sync-codex:hover {
+  color: #b79df0;
+}
+
 .btn-sync-chat {
   background: var(--panel2);
   color: var(--text);

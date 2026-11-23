@@ -1,0 +1,55 @@
+{
+  "id": "cn.cards",
+  "version": "1.0.0",
+  "name": "Card",
+  "category": "Design System",
+  "description": "Contêiner de 14px de raio e borda neutra. Seis variações: indicador, lista de permissões, depoimento, produto (com foto e ação), banner e resumo chave–valor.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-cards"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "cards.html",
+      "files": [
+        "cards.html",
+        "cards.css",
+        "cards.js"
+      ],
+      "styles": [
+        "cards.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "cards.angular.ts",
+      "files": [
+        "cards.angular.ts"
+      ],
+      "styles": [
+        "cards.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "cards.react.jsx",
+      "files": [
+        "cards.react.jsx"
+      ],
+      "styles": [
+        "cards.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

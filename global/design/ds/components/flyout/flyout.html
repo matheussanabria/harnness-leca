@@ -1,0 +1,21 @@
+<div class="user-menu" role="menu" aria-label="Conta">
+  <div class="user-menu__who"><b>Administrador</b><small>Administrador</small></div>
+
+  <div class="um-group">
+    <button class="um-group__head" role="menuitem" aria-haspopup="menu" aria-expanded="false">
+      <svg aria-hidden="true">…</svg> Vendas <svg class="um-chevron" aria-hidden="true">…</svg>
+    </button>
+    <div class="um-flyout" role="menu" aria-label="Vendas">
+      <div class="um-flyout__panel">
+        <span class="um-flyout__title">Vendas</span>
+        <a role="menuitem" href="/admin/dashboard"><svg aria-hidden="true">…</svg> Dashboard</a>
+        <a role="menuitem" href="/admin/veiculos"><svg aria-hidden="true">…</svg> Veículos</a>
+        <a role="menuitem" href="/admin/leads"><svg aria-hidden="true">…</svg> Leads</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- repetir .um-group: Gerenciamento, Financeiro, Minha conta -->
+
+  <button class="um-logout" role="menuitem"><svg aria-hidden="true">…</svg> Sair</button>
+</div>

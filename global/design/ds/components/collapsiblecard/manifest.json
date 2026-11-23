@@ -1,0 +1,55 @@
+{
+  "id": "cn.collapsiblecard",
+  "version": "1.0.0",
+  "name": "CollapsibleCard",
+  "category": "Design System",
+  "description": "Card recolhível para filtros e blocos secundários. O cabeçalho mostra o título e um contador de filtros ativos.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-collapsiblecard"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "collapsiblecard.html",
+      "files": [
+        "collapsiblecard.html",
+        "collapsiblecard.css",
+        "collapsiblecard.js"
+      ],
+      "styles": [
+        "collapsiblecard.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "collapsiblecard.angular.ts",
+      "files": [
+        "collapsiblecard.angular.ts"
+      ],
+      "styles": [
+        "collapsiblecard.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "collapsiblecard.react.jsx",
+      "files": [
+        "collapsiblecard.react.jsx"
+      ],
+      "styles": [
+        "collapsiblecard.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

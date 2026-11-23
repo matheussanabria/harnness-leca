@@ -1,0 +1,83 @@
+# Design System index
+
+Palette: Codificadores de Negocios (global). Each project may override only the brand tokens. Use these components and class names; do not invent equivalents. Colours, spacing and fonts come from the tokens below.
+
+## Tokens (name: role)
+--danger-background: danger status surface
+--danger-base: danger status colour
+--danger-dark: danger status text
+--danger-muted: danger status border
+--font-display: display headings
+--font-mono: labels and code
+--font-sans: body text
+--highlight-dark: environment banner
+--highlight-focus: keyboard focus ring
+--neutral-background: page and card surfaces
+--neutral-base: secondary text and icons
+--neutral-dark: strong text
+--neutral-light: dividers and disabled fills
+--neutral-muted: borders of inputs and controls
+--primary-background: soft brand-tinted surfaces
+--primary-dark: hover and pressed state of primary actions
+--primary-headings: headings and strong brand text
+--primary-interactive: buttons, links and active controls
+--spacing-scale-base: grid gap and spacing unit
+--success-background: success status surface
+--success-base: success status colour
+--success-dark: success status text
+--success-muted: success status border
+--warning-background: warning status surface
+--warning-base: warning status colour
+--warning-dark: warning status text
+
+## Components (id | name | states | classes)
+- button | Button | default · hover · focus · disabled | classes: btn btn--primary btn--secondary btn--danger btn--circle
+- icon | Icon | tamanho · cor | classes: 
+- alert | Alert | info · sucesso · perigo · aviso | classes: alert alert--success alert__close
+- accordion | Accordion | aberto · fechado · hover | classes: acc acc__head acc__body
+- header | Header | desktop · mobile (menu) | classes: header header__brand header__nav btn btn--light
+- footer | Footer | duas partes | classes: footer footer__main footer__legal
+- badge | Badge / Pill | neutro · sucesso · aviso · perigo | classes: pill pill--success pill--warning pill--danger
+- table | Table | ordenável · filtrável · linha em hover | classes: table th-sort num
+- form | Form fields | default · focus · erro · desabilitado | classes: field
+- modal | Modal | aberto · confirmação | classes: overlay modal modal__head modal__body modal__foot btn btn--secondary btn--danger
+- gallery | Carrossel / Galeria | slider · coverflow · card em slot | classes: coverflow cf-item
+- ambiente | Identificação de ambiente | desenvolvimento · homologação | classes: env env--dev header
+- minimos | Padrões mínimos | ambiente · cabeçalho · favicon · rodapé | classes: env header header__brand user footer
+- favicon | Favicon e logo | 16×16 · ampliado | classes: 
+- user | User | logado · deslogado · notificação | classes: user user__avatar user__dot user__info
+- search | Search | campo · ícone | classes: search
+- tabs | Tabs | ativa · hover · foco | classes: tabs
+- breadcrumb | Breadcrumb | link · página atual | classes: breadcrumb
+- sidenav | SideNav | item ativo · hover · recolhido | classes: sidenav sidenav__item
+- textfield | TextField | default · foco · erro · desabilitado | classes: field field__error
+- datefield | DateField | data única · período | classes: field
+- textarea | TextAreaField | default · foco · contador | classes: field field__count
+- choice | Checkbox e RadioGroup | marcado · desmarcado · desabilitado | classes: 
+- statusbadge | StatusBadge e CountBadge | ativo · análise · cancelado · contador | classes: status status--success count
+- collapsiblecard | CollapsibleCard | aberto · fechado | classes: card card__head count card__body
+- pagination | Pagination | atual · hover · desabilitado | classes: pager
+- select | SelectField | default · foco · desabilitado | classes: field
+- infogrid | InfoGrid | rótulo · valor | classes: info-grid
+- entityheader | EntityHeader | compacto · expandido · com trilha | classes: entity entity__kicker entity__name entity__meta link
+- groupcard | GroupedList (ProgramGroup) | aberto · fechado · status | classes: group group__head pill pill--success table
+- noteentry | NoteEntry | normal · com prazo · expirado | classes: note btn btn--tertiary btn--danger
+- annotationlist | AnnotationList | item aberto · fechados | classes: annotations
+- calcitem | CalcItem (DispensationItem) | resumo · cálculo | classes: calc info-grid field
+- grid | Grid | 4 · 8 · 12 colunas | classes: container-fluid row col-8 col-4
+- appshell | AppShell | ambiente · header · sidenav · conteúdo | classes: app env header app__body sidenav footer
+- cards | Card | indicador · permissões · depoimento · produto · banner · resumo | classes: card card__title card__value card__delta
+- dropzone | Área de transferência | vazia · com arquivo · hover | classes: dropzone
+- filters | Filtros | recolhível · aplicado | classes: filters link btn btn--primary
+- stepper | Stepper | concluído · atual · pendente | classes: stepper is-done
+- selectcards | Seleção por cards e tiles | radio · checkbox · marcado | classes: choice
+- switch | Switch | ligado · desligado | classes: switch switch__track switch__knob
+- special | Campos especiais | cor · callout · perfis | classes: color-field
+- empty | Estado vazio | sem dados · com ação | classes: empty btn btn--secondary
+- period | Navegador de período | mês anterior · próximo | classes: period
+- listbar | Barra de listagem | ordenação · página · visualização | classes: listbar
+- linechart | Gráficos | linhas · barras · pizza · rosca · área | classes: 
+- flyout | Menu do usuário com submenu lateral | fechado · grupo ativo · acordeão (mobile) | classes: user-menu user-menu__who um-group um-group__head um-chevron um-flyout um-flyout__panel um-flyout__title
+- menuicons | Ícones do menu | 17 ícones · 16px nos itens · 18px nos grupos | classes: 
+- piechart | Gráfico de pizza | pizza · rosca · fatia selecionada | classes: chart-pie
+- barchart | Gráfico de barras | agrupadas · horizontais | classes: 

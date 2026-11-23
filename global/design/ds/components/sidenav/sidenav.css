@@ -1,0 +1,5 @@
+.sidenav{width:240px;padding:8px;display:grid;gap:2px}
+.sidenav__item{display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:8px;font-weight:700;color:var(--neutral-dark)}
+.sidenav__item:hover{background:var(--neutral-background)}
+.sidenav__item[aria-current]{background:var(--primary-background);color:var(--primary-dark)}
+.sidenav--collapsed{width:64px}

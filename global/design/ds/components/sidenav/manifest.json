@@ -1,0 +1,55 @@
+{
+  "id": "cn.sidenav",
+  "version": "1.0.0",
+  "name": "SideNav",
+  "category": "Design System",
+  "description": "Menu lateral do painel administrativo, recolhível, com ícone e rótulo por item. O item ativo usa o fundo primário suave.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-sidenav"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "sidenav.html",
+      "files": [
+        "sidenav.html",
+        "sidenav.css",
+        "sidenav.js"
+      ],
+      "styles": [
+        "sidenav.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "sidenav.angular.ts",
+      "files": [
+        "sidenav.angular.ts"
+      ],
+      "styles": [
+        "sidenav.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "sidenav.react.jsx",
+      "files": [
+        "sidenav.react.jsx"
+      ],
+      "styles": [
+        "sidenav.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

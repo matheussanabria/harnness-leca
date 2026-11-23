@@ -30,6 +30,7 @@
           <label class="eng-chip claude"><input type="checkbox" class="eng" value="claude" checked> <i class="fa-solid fa-asterisk" aria-hidden="true"></i> Claude Code</label>
           <label class="eng-chip gemini"><input type="checkbox" class="eng" value="gemini" checked> <i class="fa-solid fa-gem" aria-hidden="true"></i> Gemini</label>
           <label class="eng-chip opencode"><input type="checkbox" class="eng" value="opencode" checked> <i class="fa-solid fa-code" aria-hidden="true"></i> OpenCode</label>
+          <label class="eng-chip codex"><input type="checkbox" class="eng" value="codex" checked> <i class="fa-solid fa-terminal" aria-hidden="true"></i> Codex</label>
         </fieldset>
         <label class="chk" title="Só mostra o que mudaria, sem gravar conversas"><input type="checkbox" id="dryRun"> Simulação (dry-run)</label>
         <button type="button" class="btn-run" id="btnRun" onclick="runSyncAll()"><span class="sync-rot"><i class="fa-solid fa-rotate" aria-hidden="true"></i></span> Sincronizar todos os motores e conversas</button>
@@ -45,6 +46,20 @@
         </div>
         <pre class="log" id="log" tabindex="0" aria-label="Log da sincronização"></pre>
       </details>
+    </div>
+  </div>
+
+  <div class="card sync-panel" id="unmatchedCard" hidden>
+    <div class="sec">
+      <h4>Sessões sem projeto <span class="tag" id="unmatchedCount">0</span></h4>
+      <p class="hint">O sync encontrou estas sessões, mas a pasta de trabalho delas não casa com nenhum projeto, então ainda não aparecem em nenhuma lista. Associe cada uma a um projeto e a próxima sincronização importa as conversas.</p>
+      <div class="table-wrap">
+        <table class="table-full">
+          <thead><tr><th scope="col">Motor</th><th scope="col">Pasta de trabalho</th><th scope="col">Projeto</th><th scope="col"><span class="sr-only">Ação</span></th></tr></thead>
+          <tbody id="unmatchedBody"></tbody>
+        </table>
+      </div>
+      <span class="row-msg" id="unmatchedMsg" role="status" aria-live="polite"></span>
     </div>
   </div>
 
@@ -85,6 +100,7 @@
 </main>
 <script src="/js/overview.js"></script>
 <script src="/js/overview-sync.js"></script>
+<script src="/js/overview-unmatched.js"></script>
 <script type="module" src="/js/shared/app-header.js"></script>
 </body>
 </html>

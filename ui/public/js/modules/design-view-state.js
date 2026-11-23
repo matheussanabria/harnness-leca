@@ -4,7 +4,7 @@ import { switchChatScope } from "./chat-scope.js";
 import { readStudioState, saveStudioState } from "./studio-state.js";
 import { getRouter, routeTo, VIEW_SCREENS } from "../shared/router.js";
 
-const DESIGN_VIEWS = new Set(["scrum", "layers", "board", "audit", "prototypes", "artifacts", "routines", "workflows", "canvas-mindmap", "canvas-board"]);
+const DESIGN_VIEWS = new Set(["scrum", "layers", "board", "audit", "prototypes", "artifacts", "routines", "workflows", "canvas-mindmap", "canvas-board", "canvas-diagram"]);
 let savedDesign = null;
 
 /** @param {unknown} value */

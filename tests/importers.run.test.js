@@ -156,7 +156,10 @@ test("sync: importa os 3 motores em memória, só em projetos que já existem, e
   const claudeFile = fs.readdirSync(path.join(root, "projects", "57multimarcas", "chats")).find((file) => file.endsWith("-11111111.md"));
   assert.match(fs.readFileSync(path.join(root, "projects", "57multimarcas", "chats", claudeFile), "utf8"), /^# Conversa$/m);
   assert.match(first, /pasta\(s\) sem projeto correspondente \(ignoradas\): c--git-outro-projeto/);
-  assert.deepEqual(fs.readdirSync(path.join(root, "projects")).sort(), ["57multimarcas", "_template"], "nenhum projeto novo");
+  const projectFolders = fs.readdirSync(path.join(root, "projects"), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort();
+  assert.deepEqual(projectFolders, ["57multimarcas", "_template"], "nenhum projeto novo");
+  const unmatched = JSON.parse(fs.readFileSync(path.join(root, "projects", ".unmatched.json"), "utf8"));
+  assert.ok(unmatched.items.some((i) => i.engine === "claude" && i.name === "c--git-outro-projeto"), "a sessão sem projeto fica registrada para a interface");
 
   const second = sync();
   assert.deepEqual(row(second, "claude"), [0, 0, 1]);

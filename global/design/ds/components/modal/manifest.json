@@ -1,0 +1,55 @@
+{
+  "id": "cn.modal",
+  "version": "1.0.0",
+  "name": "Modal",
+  "category": "Design System",
+  "description": "Diálogo sobre fundo escurecido, com título, conteúdo e ações alinhadas à direita. Usado em formulários de cadastro e confirmações de exclusão.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-modal"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "modal.html",
+      "files": [
+        "modal.html",
+        "modal.css",
+        "modal.js"
+      ],
+      "styles": [
+        "modal.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "modal.angular.ts",
+      "files": [
+        "modal.angular.ts"
+      ],
+      "styles": [
+        "modal.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "modal.react.jsx",
+      "files": [
+        "modal.react.jsx"
+      ],
+      "styles": [
+        "modal.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "cn.grid",
+  "version": "1.0.0",
+  "name": "Grid",
+  "category": "Design System",
+  "description": "Malha de 12 colunas em desktop, 8 em tablet retrato e 4 em smartphone. Containers fixos para sites e fluidos para sistemas.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-grid"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "grid.html",
+      "files": [
+        "grid.html",
+        "grid.css",
+        "grid.js"
+      ],
+      "styles": [
+        "grid.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "grid.angular.ts",
+      "files": [
+        "grid.angular.ts"
+      ],
+      "styles": [
+        "grid.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "grid.react.jsx",
+      "files": [
+        "grid.react.jsx"
+      ],
+      "styles": [
+        "grid.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

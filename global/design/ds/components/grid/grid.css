@@ -1,0 +1,5 @@
+.row{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--spacing-scale-base)}
+.col-8{grid-column:span 8}
+.col-4{grid-column:span 4}
+@media (max-width:991px){.row{grid-template-columns:repeat(8,1fr)}}
+@media (max-width:575px){.row{grid-template-columns:repeat(4,1fr)}[class*=col-]{grid-column:span 4}}

@@ -7,11 +7,12 @@
 //   #/lab[/<a>[/<b>]]                    React island lab (ADR-011), hidden from the navigation
 //   #/canvas-mindmap[/<boardId>]        Canvas mind map, rendered inside Design workspace
 //   #/canvas-board[/<boardId>]           Canvas board (Excalidraw), rendered inside Design workspace
+//   #/canvas-diagram[/<boardId>]         Canvas Mermaid diagram, rendered inside Design workspace
 // The standalone pages keep their own paths (/overview, /office, /deploy, /diario).
 // The query string (?p=<project>) is untouched, so a full address looks like /?p=demo#/scrum.
 
 /** Views rendered inside the Design workspace (includes canvas islands). */
-export const VIEW_SCREENS = Object.freeze(["scrum", "layers", "board", "audit", "prototypes", "artifacts", "routines", "canvas-mindmap", "canvas-board"]);
+export const VIEW_SCREENS = Object.freeze(["scrum", "layers", "board", "audit", "prototypes", "artifacts", "routines", "canvas-mindmap", "canvas-board", "canvas-diagram"]);
 /** Screens rendered by a React island (ui/web/src/islands/<name>) instead of legacy modules. */
 export const ISLAND_SCREENS = Object.freeze(["lab"]);
 export const APP_SCREENS = Object.freeze(["chats", "studio", ...VIEW_SCREENS, ...ISLAND_SCREENS]);

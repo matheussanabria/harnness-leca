@@ -1,0 +1,55 @@
+{
+  "id": "cn.table",
+  "version": "1.0.0",
+  "name": "Table",
+  "category": "Design System",
+  "description": "Tabela padrão com cabeçalho cinza, colunas ordenáveis, valores à direita e status em pill. Filtros ficam recolhíveis acima.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-table"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "table.html",
+      "files": [
+        "table.html",
+        "table.css",
+        "table.js"
+      ],
+      "styles": [
+        "table.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "table.angular.ts",
+      "files": [
+        "table.angular.ts"
+      ],
+      "styles": [
+        "table.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "table.react.jsx",
+      "files": [
+        "table.react.jsx"
+      ],
+      "styles": [
+        "table.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "cn.filters",
+  "version": "1.0.0",
+  "name": "Filtros",
+  "category": "Design System",
+  "description": "Painel de filtros com grupos de checkbox, faixa de preço, select e ação de limpar. Fica recolhível no mobile.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-filters"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "filters.html",
+      "files": [
+        "filters.html",
+        "filters.css",
+        "filters.js"
+      ],
+      "styles": [
+        "filters.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "filters.angular.ts",
+      "files": [
+        "filters.angular.ts"
+      ],
+      "styles": [
+        "filters.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "filters.react.jsx",
+      "files": [
+        "filters.react.jsx"
+      ],
+      "styles": [
+        "filters.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

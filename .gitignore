@@ -40,6 +40,7 @@ ui/public/dist/
 
 # Agent worktrees and personal scratch folder: never committed
 .claude/worktrees/
+.claude/skills/
 .codex/worktrees/
 .worktrees/
 temp/

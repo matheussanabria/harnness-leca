@@ -96,6 +96,9 @@ const SCREENS = [
   tela("canvas-board", "Quadro livre", "projeto", "/?p=<slug>#/canvas-board", "fa-chalkboard", {
     selectedBoard: texto(64),
   }),
+  tela("canvas-diagram", "Diagramas", "projeto", "/?p=<slug>#/canvas-diagram", "fa-diagram-project", {
+    selectedBoard: texto(64),
+  }),
   tela("overview", "Visão Geral", "global", "/overview", "fa-gauge-high", {
     query: texto(200), sortField: texto(32), sortAsc: booleano(),
     page: inteiro(100000), pageSize: inteiro(100),

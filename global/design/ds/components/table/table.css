@@ -1,0 +1,5 @@
+.table{width:100%;border-collapse:collapse;font-size:14px}
+.table th{background:var(--neutral-background);text-align:left;padding:10px 14px}
+.table td{padding:10px 14px;border-top:1px solid var(--neutral-light)}
+.table .num{text-align:right}
+.table tbody tr:hover{background:var(--neutral-background)}

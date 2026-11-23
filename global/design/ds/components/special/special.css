@@ -1,0 +1,2 @@
+.color-field{display:flex;gap:8px}
+.color-field input[type=color]{width:48px;height:40px;padding:2px;border-radius:8px}

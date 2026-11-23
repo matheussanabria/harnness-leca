@@ -1,6 +1,7 @@
 // @ts-check
 // Canvas catalog markup and mounting for the Design workspace (plain ES module, no bundler).
 import { esc } from "../shared/dom.js";
+import { diagramStarter, diagramTemplateMenuHtml, findDiagramTemplate } from "./design-canvas-diagram-templates.js";
 
 /** Labels, icons and copy per canvas kind. */
 const KINDS = {
@@ -14,11 +15,16 @@ const KINDS = {
     icon: "fa-chalkboard", badge: "Quadro", createTitle: "Novo quadro",
     listError: "Falha ao carregar os quadros.",
   },
+  diagram: {
+    section: "Diagramas do projeto", empty: "Nenhum diagrama no projeto.",
+    icon: "fa-diagram-project", badge: "Diagrama", createTitle: "Novo diagrama",
+    listError: "Falha ao carregar os diagramas.",
+  },
 };
 
 /** @param {string} kind */
 function kindInfo(kind) {
-  return kind === "mindmap" ? KINDS.mindmap : KINDS.board;
+  return KINDS[kind] || KINDS.board;
 }
 
 /** Fixed pt-BR date "dd/mm/yyyy HH:MM" in UTC, so a timestamp renders the same in any timezone. @param {string} iso */
@@ -114,8 +120,8 @@ function headerHtml(info) {
 export function mountCanvasCatalog(host, options) {
   const { kind, getSelectedId, onSelect, onChange, api } = options;
   const info = kindInfo(kind);
-  /** @type {{ items: Array<{ id: string, title: string, kind: string, rev: number, updatedAt: string }>, error: string, renamingId: string, confirmingId: string }} */
-  const state = { items: [], error: "", renamingId: "", confirmingId: "" };
+  /** @type {{ items: Array<{ id: string, title: string, kind: string, rev: number, updatedAt: string }>, error: string, renamingId: string, confirmingId: string, menuOpen: boolean }} */
+  const state = { items: [], error: "", renamingId: "", confirmingId: "", menuOpen: false };
 
   host.innerHTML = `${headerHtml(info)}<div class="canvas-catalog-body"></div>`;
   const body = /** @type {HTMLElement} */ (host.querySelector(".canvas-catalog-body"));
@@ -124,7 +130,8 @@ export function mountCanvasCatalog(host, options) {
 
   function renderList() {
     const alert = state.error ? `<div class="canvas-catalog-error" role="alert">${esc(state.error)}</div>` : "";
-    body.innerHTML = alert + canvasCatalogHtml(state.items, {
+    const menu = kind === "diagram" && state.menuOpen ? diagramTemplateMenuHtml() : "";
+    body.innerHTML = alert + menu + canvasCatalogHtml(state.items, {
       kind, selectedId: getSelectedId(), renamingId: state.renamingId, confirmingId: state.confirmingId,
     });
     if (state.renamingId) {
@@ -148,8 +155,13 @@ export function mountCanvasCatalog(host, options) {
     catch (error) { state.error = (error instanceof Error && error.message) || info.listError; renderList(); }
   }
 
-  const createBoard = () => guarded(async () => {
-    const created = await api.create(kind, info.createTitle);
+  /** @param {string} [templateKey] diagram kind only: the type picked in the menu */
+  const createBoard = (templateKey) => guarded(async () => {
+    state.menuOpen = false;
+    const template = kind === "diagram" ? findDiagramTemplate(templateKey) : null;
+    const created = template
+      ? await api.create(kind, template.title, diagramStarter(template))
+      : await api.create(kind, info.createTitle);
     onSelect(created.id);
   });
 
@@ -182,10 +194,15 @@ export function mountCanvasCatalog(host, options) {
   /** @param {Event} event */
   function onClick(event) {
     if (!(event.target instanceof Element)) return;
-    const selector = "[data-canvas-create],[data-canvas-edit],[data-canvas-delete],[data-canvas-rename-save],[data-canvas-rename-cancel],[data-canvas-confirm],[data-canvas-cancel],[data-canvas-id]";
+    const selector = "[data-canvas-template],[data-canvas-create],[data-canvas-edit],[data-canvas-delete],[data-canvas-rename-save],[data-canvas-rename-cancel],[data-canvas-confirm],[data-canvas-cancel],[data-canvas-id]";
     const el = event.target.closest(selector);
     if (!el) return;
-    if (el.hasAttribute("data-canvas-create")) return void createBoard();
+    if (el.hasAttribute("data-canvas-template")) return void createBoard(attr("data-canvas-template", el));
+    if (el.hasAttribute("data-canvas-create")) {
+      if (kind !== "diagram") return void createBoard();
+      state.menuOpen = !state.menuOpen; // diagrams: pick the type first
+      return renderList();
+    }
     if (el.hasAttribute("data-canvas-edit")) return startRename(attr("data-canvas-edit", el));
     if (el.hasAttribute("data-canvas-delete")) { state.confirmingId = attr("data-canvas-delete", el); state.error = ""; return renderList(); }
     if (el.hasAttribute("data-canvas-rename-save")) return void saveRename(attr("data-canvas-rename-save", el));

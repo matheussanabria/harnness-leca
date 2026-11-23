@@ -1,0 +1,55 @@
+{
+  "id": "cn.ambiente",
+  "version": "1.0.0",
+  "name": "Identificação de ambiente",
+  "category": "Design System",
+  "description": "Faixa fixa no topo, em toda a largura, que diferencia desenvolvimento e homologação de produção. Não deve cobrir elementos importantes.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-ambiente"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "ambiente.html",
+      "files": [
+        "ambiente.html",
+        "ambiente.css",
+        "ambiente.js"
+      ],
+      "styles": [
+        "ambiente.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "ambiente.angular.ts",
+      "files": [
+        "ambiente.angular.ts"
+      ],
+      "styles": [
+        "ambiente.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "ambiente.react.jsx",
+      "files": [
+        "ambiente.react.jsx"
+      ],
+      "styles": [
+        "ambiente.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}
