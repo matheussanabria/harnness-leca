@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Launcher Prototype</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<!-- EP-25.05 prototype: the Harness start screen (ADR-019). The feature list mirrors ui/server/features/manifest.js.
+     Opening a feature, loading and failing are simulated with the controls in the dashed bar. Not production code. -->
+<style>
+  :root { --bg:#0f172a; --panel:#111827; --panel2:#1e293b; --line:#334155; --mute:#94a3b8; --text:#e2e8f0; --accent:#818cf8; --ok:#34d399; --warn:#fbbf24; --err:#f87171; }
+  :root[data-theme="light"] { --bg:#f1f5f9; --panel:#ffffff; --panel2:#e2e8f0; --line:#cbd5e1; --mute:#475569; --text:#0f172a; --accent:#4f46e5; --ok:#047857; --warn:#92400e; --err:#b91c1c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  button { font:inherit; color:inherit; cursor:pointer; }
+  .proto { border-bottom:1px dashed var(--line); padding:6px 16px; font-size:12px; color:var(--mute); display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .proto b { color:var(--text); margin-right:4px; }
+  .chip { padding:3px 9px; border:1px solid var(--line); border-radius:99px; background:var(--panel2); font-size:12px; }
+  .chip[aria-pressed="true"] { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+  header.top { display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--panel); border-bottom:1px solid var(--line); }
+  .brand { font-weight:700; display:flex; gap:8px; align-items:center; }
+  .grow { flex:1; }
+  .btn { padding:7px 11px; background:var(--panel2); border:1px solid var(--line); border-radius:7px; display:inline-flex; gap:8px; align-items:center; }
+  .btn:hover { border-color:var(--accent); }
+  .btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  kbd { font:11px ui-monospace, Consolas, monospace; padding:1px 5px; border:1px solid var(--line); border-radius:4px; color:var(--mute); }
+  .selwrap { position:relative; }
+  .pop { position:absolute; right:0; top:calc(100% + 6px); width:340px; max-width:92vw; background:var(--panel); border:1px solid var(--line); border-radius:10px; box-shadow:0 16px 40px rgba(0,0,0,.45); z-index:20; }
+  .pop[hidden] { display:none; }
+  .pop input { width:100%; padding:10px 12px; background:transparent; border:0; border-bottom:1px solid var(--line); color:var(--text); font:inherit; border-radius:10px 10px 0 0; }
+  .pop ul { list-style:none; margin:0; padding:6px; max-height:300px; overflow:auto; }
+  .opt { display:flex; gap:10px; align-items:center; padding:8px 10px; border-radius:7px; cursor:pointer; }
+  .opt[aria-selected="true"] { background:var(--panel2); outline:1px solid var(--accent); }
+  .opt .meta { margin-left:auto; font-size:11px; color:var(--mute); }
+  .opt.current .name { font-weight:700; }
+  .sep { height:1px; background:var(--line); margin:4px 6px; }
+  .none { padding:12px; color:var(--mute); }
+  main { max-width:1100px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .scope-line { color:var(--mute); margin:0 0 20px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .tag { padding:2px 9px; border-radius:99px; background:var(--panel2); border:1px solid var(--line); color:var(--text); font-size:12px; }
+  section.group { margin-top:22px; }
+  section.group h2 { font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--mute); margin:0 0 2px; }
+  section.group p.hint { margin:0 0 10px; color:var(--mute); font-size:12px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:12px; }
+  .card { text-align:left; display:grid; gap:6px; padding:14px; background:var(--panel); border:1px solid var(--line); border-radius:10px; min-height:104px; }
+  .card:hover:not([aria-disabled="true"]) { border-color:var(--accent); transform:translateY(-1px); }
+  .card .ico { width:34px; height:34px; display:grid; place-items:center; border-radius:8px; background:var(--panel2); color:var(--accent); }
+  .card h3 { margin:0; font-size:15px; }
+  .card p { margin:0; color:var(--mute); font-size:12.5px; }
+  .card[aria-disabled="true"] { opacity:.62; cursor:not-allowed; }
+  .card .why { display:flex; gap:6px; align-items:center; color:var(--warn); font-size:12px; }
+  .link { background:none; border:0; color:var(--accent); text-decoration:underline; padding:0; font-size:12px; }
+  .skel { height:104px; border-radius:10px; background:linear-gradient(90deg, var(--panel) 25%, var(--panel2) 50%, var(--panel) 75%); background-size:200% 100%; animation:sh 1.2s infinite; border:1px solid var(--line); }
+  @keyframes sh { to { background-position:-200% 0; } }
+  @media (prefers-reduced-motion: reduce) { .skel { animation:none; } .card { transition:none; transform:none !important; } }
+  .state { margin-top:28px; padding:28px; text-align:center; border:1px dashed var(--line); border-radius:10px; color:var(--mute); }
+  .state i { font-size:26px; margin-bottom:8px; display:block; }
+  .state.err i { color:var(--err); }
+  .toast { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:var(--panel2); border:1px solid var(--accent); padding:10px 14px; border-radius:8px; max-width:92vw; box-shadow:0 10px 30px rgba(0,0,0,.4); }
+  .toast[hidden] { display:none; }
+  @media (max-width:600px) {
+    .pop { position:fixed; left:0; right:0; top:auto; bottom:0; width:auto; max-width:none; border-radius:14px 14px 0 0; }
+    .pop input { border-radius:14px 14px 0 0; }
+    .pop ul { max-height:55vh; }
+    header.top { flex-wrap:wrap; }
+    .btn .lbl { max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  }
+</style>
+</head>
+<body>
+<div class="proto" role="group" aria-label="Controles do protótipo">
+  <b>Protótipo:</b> estado
+  <button class="chip" data-ui="normal" aria-pressed="true">Normal</button>
+  <button class="chip" data-ui="loading" aria-pressed="false">Carregando</button>
+  <button class="chip" data-ui="error" aria-pressed="false">Erro</button>
+  <button class="chip" data-ui="empty" aria-pressed="false">Nenhum projeto criado</button>
+  <span style="margin-left:auto">tema <button class="chip" id="theme" aria-label="Alternar tema"><i class="fa-solid fa-circle-half-stroke"></i></button></span>
+</div>
+
+<header class="top">
+  <div class="brand"><i class="fa-solid fa-cubes" style="color:var(--accent)"></i> Harness</div>
+  <div class="grow"></div>
+  <div class="selwrap">
+    <button class="btn" id="selBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="pop">
+      <i class="fa-solid fa-folder-open" id="selIcon"></i><span class="lbl" id="selLabel">Sem projeto</span>
+      <i class="fa-solid fa-chevron-down" style="font-size:11px"></i><kbd>Ctrl K</kbd>
+    </button>
+    <div class="pop" id="pop" hidden>
+      <input id="q" type="text" role="combobox" aria-expanded="true" aria-controls="list" aria-autocomplete="list" aria-label="Buscar projeto" placeholder="Buscar projeto" autocomplete="off" />
+      <ul id="list" role="listbox" aria-label="Projetos"></ul>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>O que você quer fazer?</h1>
+  <p class="scope-line" id="scopeLine"></p>
+  <div id="content"></div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+  const FEATURES = [
+    { id:"chat", titulo:"Chat universal", escopo:"optional", icone:"fa-comments", desc:"Converse com os agentes, com ou sem projeto." },
+    { id:"diario", titulo:"Diário de atividade", escopo:"optional", icone:"fa-book", desc:"O que aconteceu e quando, por projeto ou geral." },
+    { id:"scrum", titulo:"Scrum e sprints", escopo:"project", icone:"fa-list-check", desc:"Quadro, histórias e sprints do projeto." },
+    { id:"studio", titulo:"Studio e preview", escopo:"project", icone:"fa-pen-ruler", desc:"Código, protótipos e preview do projeto." },
+    { id:"revisao", titulo:"Revisão e qualidade", escopo:"project", icone:"fa-clipboard-check", desc:"Revise entregas e confira a qualidade." },
+    { id:"deploy", titulo:"Deploy de projetos", escopo:"project", icone:"fa-rocket", desc:"Publique e acompanhe os ambientes." },
+    { id:"escritorio", titulo:"Escritório virtual", escopo:"global", icone:"fa-building", desc:"Veja os agentes trabalhando." },
+    { id:"visao-geral", titulo:"Visão geral dos projetos", escopo:"global", icone:"fa-table-columns", desc:"Todos os projetos em uma tela." },
+    { id:"orquestracao", titulo:"Central de orquestração", escopo:"global", icone:"fa-diagram-project", desc:"Sessões e execuções em andamento." },
+    { id:"consumo", titulo:"Consumo", escopo:"global", icone:"fa-gauge-high", desc:"Uso de tokens e custo por motor." },
+    { id:"catalogo", titulo:"Catálogo de skills e agentes", escopo:"global", icone:"fa-book-open", desc:"Skills, agentes e workflows disponíveis." },
+  ];
+  const GROUPS = [
+    { escopo:"optional", titulo:"Para começar", hint:"Funcionam sem projeto e ficam melhores com um." },
+    { escopo:"project", titulo:"Do projeto", hint:"Precisam de um projeto escolhido." },
+    { escopo:"global", titulo:"Geral", hint:"Sempre disponíveis." },
+  ];
+  const PROJECTS = [
+    { slug:"meus-treinos", cat:"Pessoal" }, { slug:"minha-agenda", cat:"Pessoal" }, { slug:"saude-dispensacao", cat:"Saúde" },
+    { slug:"57multimarcas", cat:"Trabalho" }, { slug:"harness-leca", cat:"Ferramentas" }, { slug:"conversor-relatorio-maquininhas", cat:"Trabalho" },
+  ];
+  const S = { project:null, ui:"normal", hi:0, open:false };
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+
+  function renderScope() {
+    $("selLabel").textContent = S.project || "Sem projeto";
+    $("selIcon").className = "fa-solid " + (S.project ? "fa-folder-open" : "fa-user");
+    $("scopeLine").innerHTML = S.project
+      ? `Trabalhando no projeto <span class="tag">${esc(S.project)}</span>`
+      : `Trabalhando <span class="tag"><i class="fa-solid fa-user"></i> Sem projeto</span> seus itens ficam no espaço pessoal.`;
+  }
+
+  function card(f) {
+    const off = f.escopo === "project" && !S.project;
+    const why = off ? `<span class="why" id="why-${f.id}"><i class="fa-solid fa-lock"></i> Escolha um projeto para usar esta funcionalidade. <button class="link" data-pick>Escolher projeto</button></span>` : "";
+    return `<button class="card" data-open="${f.id}" ${off ? 'aria-disabled="true" aria-describedby="why-' + f.id + '"' : ""}>
+      <span class="ico"><i class="fa-solid ${f.icone}"></i></span><h3>${esc(f.titulo)}</h3><p>${esc(f.desc)}</p>${why}</button>`;
+  }
+
+  function renderContent() {
+    const c = $("content");
+    if (S.ui === "loading") { c.innerHTML = `<div class="grid" aria-busy="true" aria-label="Carregando funcionalidades">${'<div class="skel"></div>'.repeat(6)}</div>`; return; }
+    if (S.ui === "error") {
+      c.innerHTML = `<div class="state err" role="alert"><i class="fa-solid fa-triangle-exclamation"></i><p>Não foi possível carregar as funcionalidades.</p>
+        <button class="btn primary" data-ui="normal"><i class="fa-solid fa-rotate-right"></i> Tentar de novo</button></div>`;
+      return;
+    }
+    c.innerHTML = GROUPS.map((g) => `<section class="group" aria-labelledby="g-${g.escopo}"><h2 id="g-${g.escopo}">${g.titulo}</h2><p class="hint">${g.hint}</p>
+      <div class="grid">${FEATURES.filter((f) => f.escopo === g.escopo).map(card).join("")}</div></section>`).join("");
+  }
+
+  function options() {
+    const q = $("q").value.trim().toLowerCase();
+    const list = [];
+    if (!q || "sem projeto pessoal".includes(q)) list.push({ slug:null, name:"Sem projeto", meta:"Espaço pessoal", icon:"fa-user" });
+    for (const p of PROJECTS) if (S.ui !== "empty" && (!q || p.slug.includes(q) || p.cat.toLowerCase().includes(q))) list.push({ slug:p.slug, name:p.slug, meta:p.cat, icon:"fa-folder" });
+    return list;
+  }
+
+  function renderList() {
+    const items = options();
+    S.hi = Math.min(S.hi, Math.max(items.length - 1, 0));
+    const rows = items.map((o, i) => `${o.slug && i > 0 && !items[i - 1].slug ? '<li class="sep" role="presentation"></li>' : ""}
+      <li class="opt${o.slug === S.project ? " current" : ""}" id="opt-${i}" role="option" aria-selected="${i === S.hi}" data-i="${i}"><i class="fa-solid ${o.icon}"></i><span class="name">${esc(o.name)}</span><span class="meta">${esc(o.meta)}</span></li>`).join("");
+    const empty = S.ui === "empty" ? `<li class="none" role="presentation">Nenhum projeto criado ainda. <button class="link" data-new>Criar projeto</button></li>` : "";
+    $("list").innerHTML = rows + (items.length ? "" : `<li class="none" role="presentation">Nada encontrado.</li>`) + empty;
+    $("q").setAttribute("aria-activedescendant", items.length ? "opt-" + S.hi : "");
+    return items;
+  }
+
+  function openPop(open) {
+    S.open = open; $("pop").hidden = !open; $("selBtn").setAttribute("aria-expanded", String(open));
+    if (open) { $("q").value = ""; S.hi = 0; renderList(); $("q").focus(); } else $("selBtn").focus();
+  }
+  function choose(o) { S.project = o.slug; renderScope(); renderContent(); openPop(false); toast(o.slug ? `Escopo: projeto ${o.slug}` : "Escopo: sem projeto (espaço pessoal)"); }
+  let t; function toast(msg) { const el = $("toast"); el.textContent = msg; el.hidden = false; clearTimeout(t); t = setTimeout(() => (el.hidden = true), 2800); }
+
+  document.addEventListener("click", (e) => {
+    const ui = e.target.closest("[data-ui]"); if (ui) { S.ui = ui.dataset.ui; document.querySelectorAll(".chip[data-ui]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.ui === S.ui))); renderContent(); if (S.open) renderList(); return; }
+    if (e.target.closest("[data-pick]")) { e.stopPropagation(); openPop(true); return; }
+    if (e.target.closest("[data-new]")) { toast("Abriria o assistente de novo projeto"); return; }
+    const o = e.target.closest(".opt"); if (o) { choose(options()[Number(o.dataset.i)]); return; }
+    const c = e.target.closest(".card"); if (c) { if (c.getAttribute("aria-disabled") === "true") { toast("Escolha um projeto antes de abrir esta funcionalidade."); return; } const f = FEATURES.find((x) => x.id === c.dataset.open); toast(`Abriria ${f.titulo} em ${S.project ? "projeto " + S.project : "sem projeto (espaço pessoal)"}`); return; }
+    if (e.target.closest("#theme")) { document.documentElement.dataset.theme = document.documentElement.dataset.theme === "light" ? "dark" : "light"; return; }
+    if (e.target.closest("#selBtn")) { openPop(!S.open); return; }
+    if (S.open && !e.target.closest("#pop")) openPop(false);
+  });
+  $("q").addEventListener("input", () => { S.hi = 0; renderList(); });
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openPop(true); return; }
+    if (!S.open) return;
+    const items = options();
+    if (e.key === "Escape") { openPop(false); }
+    else if (e.key === "ArrowDown") { e.preventDefault(); S.hi = (S.hi + 1) % Math.max(items.length, 1); renderList(); $("opt-" + S.hi)?.scrollIntoView({ block:"nearest" }); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); S.hi = (S.hi - 1 + items.length) % Math.max(items.length, 1); renderList(); $("opt-" + S.hi)?.scrollIntoView({ block:"nearest" }); }
+    else if (e.key === "Enter" && items[S.hi]) { e.preventDefault(); choose(items[S.hi]); }
+  });
+  renderScope(); renderContent();
+</script>
+</body>
+</html>
