@@ -102,8 +102,8 @@ function run(argv, io = console, { home = os.homedir(), onlyProjects } = {}) {
     const date = (c.first || "").slice(0, 10) || "sem-data";
     const name = `${date}-${slugify(c.title)}-${c.sessionId.slice(0, 8)}.md`;
     const text = redact(renderChat(c));
-    // Sem mtime: as sessões do Gemini sempre ficaram com a data da importação (a interface ordena por ela).
-    const { state, removed } = writeChat({ chatsDir, name, sessionId: c.sessionId, shortId: c.sessionId.slice(0, 8), text, dryRun: dry });
+    // mtime = última mensagem da sessão (nunca o momento do sync); sem data na origem, o arquivo fica com a data da gravação.
+    const { state, removed } = writeChat({ chatsDir, name, sessionId: c.sessionId, shortId: c.sessionId.slice(0, 8), text, mtime: c.last || undefined, dryRun: dry });
     io.log(`${dry ? "[dry-run] " : ""}[${state}] (${destProject}) ${name} (${c.turns.length} turnos)`);
     for (const old of removed) io.log(`  (renomeada; removido ${old})`);
 

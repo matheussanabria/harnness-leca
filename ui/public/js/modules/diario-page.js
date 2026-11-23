@@ -19,7 +19,11 @@ const dateBR = (iso) => {
 const weekday = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString("pt-BR", { weekday: "long" });
 const hhmm = (iso) => (iso ? new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "?");
 const dayOf = (iso) => new Date(iso).toLocaleDateString("sv-SE");
-const AGENTS = ["claude", "gemini", "opencode"];
+const AGENTS = ["claude", "gemini", "opencode", "codex"];
+// Most recent first, regardless of the order the endpoint returns (days and sessions inside each day).
+const newestFirst = (days) => [...days]
+  .sort((a, b) => b.day.localeCompare(a.day))
+  .map((day) => ({ ...day, sessions: [...day.sessions].sort((a, b) => String(b.inicio).localeCompare(String(a.inicio))) }));
 
 const client = getScreenStateClient();
 const params = new URLSearchParams(location.search);
@@ -123,7 +127,7 @@ async function loadJournal() {
   try {
     const response = await fetch(`/api/project/${encodeURIComponent(slug)}/journal`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    data = (await response.json()).days || [];
+    data = newestFirst((await response.json()).days || []);
   } catch (error) {
     data = [];
     $("days").innerHTML = `<div class="empty">Não foi possível carregar o diário (${esc(error.message)}).</div>`;

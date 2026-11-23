@@ -8,6 +8,19 @@ const MR = require("../../../tools/lib/memory-review");
 const skillsLib = require("../../../tools/lib/skills");
 const procManager = require("../../../tools/lib/proc-manager");
 
+/**
+ * Conversation date: `fim` from the frontmatter, then `inicio`, then the file mtime (legacy files without metadata).
+ * The file mtime is a technical detail: a sync rewrites it and must never move a conversation in the list.
+ */
+function conversationAt(head, mtimeMs) {
+  for (const key of ["fim", "inicio"]) {
+    const m = head.match(new RegExp(`^${key}: (\\S+)`, "m"));
+    const ms = m ? Date.parse(m[1]) : NaN;
+    if (Number.isFinite(ms)) return ms;
+  }
+  return mtimeMs;
+}
+
 function listDir(dir) {
   try {
     return fs.readdirSync(dir, { withFileTypes: true })
@@ -17,9 +30,10 @@ function listDir(dir) {
         const head = read(path.join(dir, f.name)).slice(0, 600);
         const t = head.match(/^titulo: "(.*)"$/m);
         const ag = head.match(/^agente: "(.*)"$/m);
-        return { name: f.name, title: t ? t[1] : "", agent: ag ? ag[1] : "", size: st.size, mtime: st.mtimeMs };
+        const at = conversationAt(head, st.mtimeMs);
+        return { name: f.name, title: t ? t[1] : "", agent: ag ? ag[1] : "", size: st.size, mtime: st.mtimeMs, conversationAt: at };
       })
-      .sort((a, b) => b.mtime - a.mtime);
+      .sort((a, b) => b.conversationAt - a.conversationAt || a.name.localeCompare(b.name));
   } catch {
     return [];
   }
@@ -150,7 +164,10 @@ function activityMs(slug) {
   try {
     const dir = path.join(getProjects(), slug, "chats");
     let max = 0;
-    for (const f of fs.readdirSync(dir)) max = Math.max(max, fs.statSync(path.join(dir, f)).mtimeMs);
+    for (const f of fs.readdirSync(dir)) {
+      const file = path.join(dir, f);
+      max = Math.max(max, conversationAt(read(file).slice(0, 600), fs.statSync(file).mtimeMs));
+    }
     return max;
   } catch {
     return 0;

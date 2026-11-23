@@ -3,7 +3,7 @@ domain: tools
 module: coverage
 feature: chat-import-sync
 summary: Chat import, normalization, synchronization and session export entry points.
-paths: [tools/import-claude-code-chats.js, tools/import-codex-chats.js, tools/import-opencode-chats.js, tools/export-claude-sessions.js, tools/export-codex-sessions.js, tools/sync.js, tools/lib/chat-format.js, tools/lib/chat-save.js, tools/lib/chat-store.js, tools/lib/claude-sync-sources.js, tools/lib/gemini-bridge.js, tools/lib/sync-core.js, tools/lib/sync-codex.js, tests/sync-codex.test.js, tools/lib/state.js, tools/lib/redact.js]
+paths: [tools/import-claude-code-chats.js, tools/import-codex-chats.js, tools/import-opencode-chats.js, tools/export-claude-sessions.js, tools/export-codex-sessions.js, tools/sync.js, tools/lib/chat-format.js, tools/lib/chat-save.js, tools/lib/chat-store.js, tools/lib/claude-sync-sources.js, tools/lib/gemini-bridge.js, tools/lib/sync-core.js, tools/lib/sync-codex.js, tests/sync-codex.test.js, tests/conversation-date.test.js, tools/lib/state.js, tools/lib/redact.js]
 keywords: [chat, import, sync, session, Claude, Codex, Gemini, opencode, redact]
 updated: 2026-11-16
 ---
@@ -25,5 +25,6 @@ updated: 2026-11-16
 | `tools/lib/sync-core.js` | EN: Runs on-demand multi-engine chat synchronization for the UI and routines; exports the SYNC_ENGINES list (claude, gemini, opencode, codex). PT: Executa sincronização sob demanda de conversas para a interface e rotinas. |
 | `tools/lib/sync-codex.js` | EN: Codex leg of the sync: maps session cwd to a project, reports unmatched sessions, imports per project. PT: Etapa do Codex no sync: associa o cwd da sessão ao projeto e importa. |
 | `tests/sync-codex.test.js` | EN: Codex sync tests (cwd mapping, unmatched report, date, idempotency, engine list). PT: Testes do sync do Codex. |
+| `tests/conversation-date.test.js` | EN: Canonical conversation date (fim, inicio, mtime) and most-recent-first order of the journal. PT: Data canônica da conversa e ordem do diário. |
 | `tools/lib/state.js` | EN: Persists per-conversation extraction state and scans project chats. PT: Persiste o estado de extração por conversa e percorre os chats do projeto. |
 | `tools/lib/redact.js` | EN: Heuristically redacts common secrets and personal identifiers from text. PT: Oculta heurísticamente segredos comuns e identificadores pessoais do texto. |
