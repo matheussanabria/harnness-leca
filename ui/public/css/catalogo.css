@@ -96,3 +96,12 @@
 .ly-msg.ok { color: #3cb371; }
 .ly-msg.err { color: #e5534b; }
 @media (max-width: 640px) { .ly-table { display: block; overflow-x: auto; } }
+
+/* Confirmation dialog (js/shared/confirm-dialog.js has no stylesheet of its own). */
+dialog.confirm-dialog { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; max-width: min(420px, calc(100vw - 32px)); }
+dialog.confirm-dialog::backdrop { background: rgba(0, 0, 0, .55); }
+dialog.confirm-dialog h2 { margin: 0 0 8px; font-size: 16px; }
+dialog.confirm-dialog p { margin: 0 0 14px; color: var(--mute); font-size: 13.5px; }
+.unsaved-dialog-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.unsaved-dialog-btn { min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel2); color: var(--text); font: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.unsaved-dialog-btn.is-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }

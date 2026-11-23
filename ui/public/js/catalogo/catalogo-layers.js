@@ -1,5 +1,7 @@
 // "Camadas por projeto": the effective skills, agents and workflows of a project (DAI, global, project) and the
 // creation/removal of items on the project layer. API: /api/project/:slug/layers.
+import { requestConfirmation } from "../shared/confirm-dialog.js";
+
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const KIND = { skill: "Skill", agent: "Agente", workflow: "Workflow" };
@@ -61,7 +63,12 @@ async function create(ev) {
 
 async function remove(btn) {
   const { kind, id } = btn.dataset;
-  if (!window.confirm(`Remover ${KIND[kind]} "${id}" da camada do projeto? Itens do DAI e do global não são afetados.`)) return;
+  const ok = await requestConfirmation({
+    title: "Remover item do projeto",
+    message: `Remover ${KIND[kind]} "${id}" da camada do projeto? Itens do DAI e do global não são afetados.`,
+    confirmLabel: "Remover",
+  });
+  if (!ok) return;
   try {
     await post("/delete", { kind, id, confirm: true });
     msg(`${KIND[kind]} ${id} removido.`, "ok");
