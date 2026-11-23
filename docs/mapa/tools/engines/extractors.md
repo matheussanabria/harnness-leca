@@ -3,7 +3,7 @@ domain: tools
 module: engines
 feature: extractors
 summary: Network and process libs, managed export writers, declarative memory libs (item, harvest, lint) and the memory hook.
-paths: [tools/lib/network.js, tools/lib/ui-dev-guard.js, tests/ui-dev-guard.test.js, tools/lib/proc-manager.js, tools/lib/export/*.js, tools/lib/memory/**, .claude/hooks/load-project.ps1, tests/export-*.test.js, tests/memory-*.test.js, tests/remote*.test.js, tests/proc-manager-*.test.js, tools/lib/network-*.js, tools/lib/proc-manager-*.js, tools/lib/qrcode*.js, tools/lib/skills.js, tools/lib/skills/*.js, tools/import-gemini-chats.js, tools/lib/gemini-import/*.js]
+paths: [tools/lib/network.js, tools/lib/ui-dev-guard.js, tests/ui-dev-guard.test.js, tools/lib/proc-manager.js, tools/lib/export/*.js, tools/lib/skill-mirror.js, tests/skill-mirror.test.js, tools/lib/memory/**, .claude/hooks/load-project.ps1, tests/export-*.test.js, tests/memory-*.test.js, tests/remote*.test.js, tests/proc-manager-*.test.js, tools/lib/network-*.js, tools/lib/proc-manager-*.js, tools/lib/qrcode*.js, tools/lib/skills.js, tools/lib/skills/*.js, tools/import-gemini-chats.js, tools/lib/gemini-import/*.js]
 keywords: [export, memory, harvest, lint, network, qr, proc-manager, envelope, hook, skills, qrcode, gemini-import]
 updated: 2026-11-18
 ---
@@ -25,6 +25,8 @@ updated: 2026-11-18
 | `tools/lib/export/managed-file.js` | Non-destructive export writes (EP-13.01): `harness:begin`/`harness:end` block, `harness:generated` rewrite, path validation. |
 | `tools/lib/export/claude.js`, `gemini.js`, `local.js` | Plan what export writes per target (Claude `MEMORY.md` pointer, two-phase Gemini Knowledge Item). |
 | `tools/lib/export/codex.js` | Codex and OpenCode target: managed block in `projects/<slug>/AGENTS.md` (instructions, memory index, working rules), capped at 24 KB. Codex reads it from the project cwd. |
+| `tools/lib/skill-mirror.js` | Mirrors a project's `.agents/skills` (or `projects/<slug>/skills`) into `.claude/skills` for Claude Code; sidecar `.harness-managed` marks copies, the user's own skills are never touched, orphan copies are removed. |
+| `tests/skill-mirror.test.js` | `project.json` workspace discovery, mirror create/update/skip/remove, dot-folder exclusion and the skills list in the AGENTS.md block. |
 | `tools/lib/export/data.js` | Collects `memory.md`, `memory/` items, `instructions.md`, chat counts and resolves target dirs (env-overridable in tests). |
 | `tools/lib/export/housekeeping.js` | `--report` (bytes and tokens per target) and `--prune` (lists old files; removes only with `--yes`). |
 | `tools/lib/memory/item.js` | Memory item contract (EP-13.02): parse, deterministic serialization, normalization, hash, slug, frontmatter validation. |

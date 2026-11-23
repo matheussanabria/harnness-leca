@@ -24,6 +24,7 @@ const { writeManagedBlock, writeGenerated, isInside } = require("./lib/export/ma
 const { planClaude } = require("./lib/export/claude");
 const { planGeminiProject, planGeminiGlobal } = require("./lib/export/gemini");
 const { planCodex } = require("./lib/export/codex");
+const { mirrorProjectSkills } = require("./lib/skill-mirror");
 const { reportRows, printReport, prune } = require("./lib/export/housekeeping");
 
 /** Mapeia pastas do Claude Code existentes em claudeProjectsDir por slug de projeto. */
@@ -99,6 +100,10 @@ function run(argv, io = console, options = {}) {
     io.log(`   [Claude] ${claude.folders} pasta(s) com bloco gerenciado em MEMORY.md`);
     io.log(`   [Gemini] Knowledge Item: ki-projeto-${slug}`);
     io.log(`   [Codex/OpenCode] projects/${slug}/AGENTS.md (bloco gerenciado)`);
+    const mirror = mirrorProjectSkills(slug, { dryRun });
+    if (mirror.created + mirror.updated + mirror.removed + mirror.skipped) {
+      io.log(`   [Claude] skills em .claude/skills: ${mirror.created} nova(s), ${mirror.updated} atualizada(s), ${mirror.removed} removida(s), ${mirror.skipped} do usuário preservada(s)`);
+    }
     overview.push({ slug, chatsCount: data.chatsCount });
   }
 

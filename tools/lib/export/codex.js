@@ -19,8 +19,22 @@ function capBytes(text, limit) {
   return `${cut}\n\n(truncated: read projects/<slug>/memory.md for the rest)`;
 }
 
+const MAX_SKILLS = 40;
+const MAX_DESC = 160;
+
+/** @param {{ name: string, description?: string, file: string }[]} skills */
+function skillLines(skills) {
+  if (!skills.length) return ["No project skills found."];
+  const lines = skills.slice(0, MAX_SKILLS).map((s) => {
+    const d = String(s.description || "").slice(0, MAX_DESC);
+    return `- **${s.name}**${d ? `: ${d}` : ""} (\`${s.file}\`)`;
+  });
+  if (skills.length > MAX_SKILLS) lines.push(`- ... and ${skills.length - MAX_SKILLS} more (see the skills folder).`);
+  return ["Open a skill's SKILL.md only when its description matches the task.", ...lines];
+}
+
 /**
- * @param {{ slug: string, instructionsMd?: string, memoryMd?: string }} data
+ * @param {{ slug: string, instructionsMd?: string, memoryMd?: string, skills?: { name: string, description?: string, file: string }[] }} data
  * @param {{ codexProjectsDir: string }} targets
  */
 function planCodex(data, targets) {
@@ -37,6 +51,9 @@ function planCodex(data, targets) {
     "",
     "## Project memory (index)",
     memory || "No curated memory yet.",
+    "",
+    "## Project skills",
+    ...skillLines(data.skills || []),
     "",
     "## Working rules",
     "- Read `MAPA.md` first; find files with `node tools/mapa.js find <path|keywords>`. No broad scans.",

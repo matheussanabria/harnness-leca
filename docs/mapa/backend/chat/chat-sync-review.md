@@ -3,7 +3,7 @@ domain: backend
 module: chat
 feature: chat-sync-review
 summary: Interactive chat and engines, conversation sync, memory review and skills management controllers.
-paths: [ui/server/controllers/chat.controller.js, ui/server/controllers/sync.controller.js, ui/server/controllers/review.controller.js, ui/server/controllers/skills.controller.js, ui/server/services/auto-sync.service.js, tools/lib/sync-fingerprint.js, tools/lib/envelope.js, tests/auto-sync.test.js]
+paths: [ui/server/controllers/chat.controller.js, ui/server/controllers/sync.controller.js, ui/server/controllers/unmatched.controller.js, tools/lib/unmatched-store.js, tests/unmatched.test.js, ui/server/controllers/review.controller.js, ui/server/controllers/skills.controller.js, ui/server/services/auto-sync.service.js, tools/lib/sync-fingerprint.js, tools/lib/envelope.js, tests/auto-sync.test.js]
 keywords: [autosync, fingerprint, envelope, chat, sse, engines, sync, review, memory, skills]
 updated: 2026-11-20
 ---
@@ -12,6 +12,9 @@ updated: 2026-11-20
 | File | Responsibility |
 |---|---|
 | `ui/server/controllers/chat.controller.js` | Chat routes: relays `/api/chat`, the attach and the stop to the engine host (legacy in-process mode with `HARNESS_ENGINE_HOST=0`), persistence (`/api/chat/save`, mirrored into the database by EP-17.02), DAI catalog and engines. |
+| `ui/server/controllers/unmatched.controller.js` | `GET /api/unmatched` (sessions without a project) and `POST /api/unmatched/associate` (adds an alias for a recorded entry). |
+| `tools/lib/unmatched-store.js` | `projects/.unmatched.json`: the sync replaces the entries of the engines it scanned; `associate` writes the alias to `projects/.sources.json` and clears the entry. |
+| `tests/unmatched.test.js` | Store, association by alias, HTTP endpoints and the overview panel markup. |
 | `ui/server/controllers/sync.controller.js` | Triggers `tools/sync.js` and streams its logs (`POST /api/sync`); shares a mutual-exclusion lock with the auto sync. |
 | `ui/server/services/auto-sync.service.js` | Background sync: watches the Claude/Gemini/opencode/Codex folders, debounces 20 s, then refreshes the engine context with tools/export-context.js (HARNESS_AUTOEXPORT=0 skips), 60 s minimum gap, 5 min fallback interval, runs `tools/sync.js` in a child process, one run at a time. `HARNESS_AUTOSYNC=0` disables it. |
 | `tools/lib/sync-fingerprint.js` | Per-session source fingerprint cache (`logs/sync-fingerprints.json`) so importers skip unchanged sessions; bump `IMPORTER_VERSION` when the output format changes. |
