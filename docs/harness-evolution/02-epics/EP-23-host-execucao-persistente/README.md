@@ -2,7 +2,7 @@
 id: EP-23
 titulo: Host de execução persistente
 prioridade: P0
-status: planejado
+status: concluido
 depende: [EP-09, EP-17.01]
 tags: [harness-evolution, epico, chat, motores, resiliencia, sqlite, vps]
 ---
@@ -103,6 +103,6 @@ Sem owner definido em `EPIC_OWNERS` (`tools/lib/coordination/config.js`): defini
 | [23.02](23.02-diario-execucoes-sqlite.md) | Diário de execuções do chat em SQLite | Concluída |
 | [23.03](23.03-host-motores-separado.md) | Host de motores em processo separado | Concluída |
 | [23.04](23.04-interrompida-retomar.md) | Execução interrompida visível e retomável | Concluída |
-| [23.05](23.05-reinicio-seguro.md) | Reinício seguro e aviso de reconexão | Implementada (branch `feat/ep-23.05-safe-restart`) |
-| [23.06](23.06-seletor-host.md) | Seletor de host: local e VPS | Implementada (branch `feat/ep-23.06-host-selector`) |
-| [23.07](23.07-host-por-checkout.md) | Host de motores por checkout: porta própria, identidade e parada que diz a verdade | Implementada (branch `feat/ep-23.07-host-per-checkout`) |
+| [23.05](23.05-reinicio-seguro.md) | Reinício seguro e aviso de reconexão | Concluída |
+| [23.06](23.06-seletor-host.md) | Seletor de host: local e VPS | Concluída |
+| [23.07](23.07-host-por-checkout.md) | Host de motores por checkout: porta própria, identidade e parada que diz a verdade | Concluída |
