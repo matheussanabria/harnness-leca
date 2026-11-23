@@ -1,5 +1,5 @@
 // @ts-check
-// Sincronização sob demanda de conversas dos 3 motores (Claude Code, Gemini/Antigravity e OpenCode).
+// Sincronização sob demanda de conversas dos 4 motores (Claude Code, Gemini/Antigravity, OpenCode e Codex).
 // Pode ser acionado pela interface (botões de atalho) ou por outras rotinas.
 const fs = require("fs");
 const os = require("os");
@@ -8,6 +8,11 @@ const { spawnSync } = require("child_process");
 const { matchers, projectFromPath } = require("./projects");
 const { selectClaudeSources } = require("./claude-sync-sources");
 const state = require("./state");
+
+const { syncCodexForProject } = require("./sync-codex");
+
+/** Engines the sync knows. Single source for sync.js, the HTTP controller and syncProject. */
+const SYNC_ENGINES = ["claude", "gemini", "opencode", "codex"];
 
 const QUIET = /** @type {any} */ ({ log() {} });
 
@@ -82,17 +87,18 @@ function syncOpencodeForProject(slug, ms, dryRun = false) {
  * Sincroniza conversas de um projeto específico ou de todos os motores solicitados.
  * @param {{ slug: string, engines?: string[] | string, dryRun?: boolean, noExtract?: boolean }} param0
  */
-function syncProject({ slug, engines = ["claude", "gemini", "opencode"], dryRun = false, noExtract = false }) {
+function syncProject({ slug, engines = SYNC_ENGINES, dryRun = false, noExtract = false }) {
   const ms = matchers();
   const fns = {
     claude: () => syncClaudeForProject(slug, ms, dryRun),
     gemini: () => syncGeminiForProject(slug, ms, dryRun),
     opencode: () => syncOpencodeForProject(slug, ms, dryRun),
+    codex: () => syncCodexForProject(slug, ms, dryRun),
   };
 
   const selectedEngines = Array.isArray(engines) ? engines : [engines];
   const list = selectedEngines.filter((e) => fns[e]);
-  if (!list.length) list.push("claude", "gemini", "opencode");
+  if (!list.length) list.push(...SYNC_ENGINES);
 
   const results = [];
   let totalNova = 0;
@@ -151,6 +157,7 @@ function syncProject({ slug, engines = ["claude", "gemini", "opencode"], dryRun 
 }
 
 module.exports = {
+  SYNC_ENGINES,
   syncProject,
   syncClaudeForProject,
   syncGeminiForProject,
