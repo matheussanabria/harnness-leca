@@ -3,7 +3,7 @@ id: ADR-019
 titulo: Feature scopes, explicit context and artifact ownership
 status: proposta
 data: 2026-11-23
-historias: [25.01, 25.02, 25.03, 25.04, 25.05, 25.06, 25.07]
+historias: [25.01, 25.02, 25.03, 25.04, 25.05, 25.06, 25.07, 25.10]
 tags: [harness-evolution, adr, escopos, artefatos, projetos]
 ---
 

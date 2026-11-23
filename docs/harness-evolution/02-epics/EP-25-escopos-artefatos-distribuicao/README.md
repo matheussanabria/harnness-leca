@@ -43,10 +43,11 @@ O projeto ativo (`projects/.active`) é um estado global implícito que cerca de
 | [25.03](25.03-registro-artefatos.md) | Registro de artefatos com id estável e dono | P0 | 25.02, 17.01 |
 | [25.04](25.04-mover-copiar-artefatos.md) | Mover e copiar artefatos entre donos | P0 | 25.03 |
 | [25.05](25.05-launcher-sem-projeto.md) | Launcher com seletor de projeto e "Sem projeto" | P1 | 25.01, 25.02, 22.04 |
-| [25.06](25.06-funcionalidades-opcionais.md) | Chat, Canvas e mapa mental sem projeto | P1 | 25.03, 25.05 |
-| [25.07](25.07-atelie-prototipo-reatribuicao.md) | Ateliê sem projeto e reatribuição de protótipo | P2 | 25.04, 25.06 |
+| [25.06](25.06-funcionalidades-opcionais.md) | Janelas próprias de chat, mapa mental, quadro livre e diagramas, sem projeto | P1 | 25.03, 25.05 |
+| [25.07](25.07-atelie-prototipo-reatribuicao.md) | Reatribuição de protótipo entre projetos | P2 | 25.04, 25.10 |
 | [25.08](25.08-docker-primeira-execucao.md) | Empacotamento Docker e primeira execução guiada | P1 | 25.05 |
 | [25.09](25.09-abertura-repositorio.md) | Abertura do repositório: licença, créditos e doação | P1 | nenhuma |
+| [25.10](25.10-atelie-sem-projeto.md) | Ateliê com janela e rota próprias, sem projeto | P1 | 25.03, 25.05, 25.06 |
 
 ```mermaid
 flowchart LR
@@ -57,15 +58,21 @@ flowchart LR
   B --> E
   C --> F[25.06 funcionalidades opcionais]
   E --> F
-  D --> G[25.07 Ateliê e protótipo]
-  F --> G
+  D --> G[25.07 reatribuir protótipo]
+  F --> J[25.10 Ateliê sem projeto]
+  J --> G
   E --> H[25.08 Docker]
   I[25.09 abertura] --> H
 ```
 
+## Pendências de planejamento
+
+- **Retirar das telas de projeto e criar rotas próprias (histórias de correção ou novo épico), ainda não criado.** Ateliê, mapa mental, quadro livre e diagramas hoje nascem dentro do workspace de Design/Studio (`design-canvas-workspace.js`, `design-canvas-catalog.js`), que é amarrado a projeto, e o Scrum também deve ser revisado para ver se embute algum deles. Falta decidir, com o dono: se vira um conjunto de histórias de correção neste épico ou um épico novo; o que sai de dentro do Studio e do Scrum e o que apenas ganha uma segunda porta de entrada; e como ficam os links antigos. As rotas novas (`/quadro-livre`, `/mapa-mental`, `/diagramas`, `/atelie`) nascem nas histórias 25.06 e 25.10 sem remover nada; a retirada fica nesta pendência.
+- **Licença, créditos e doação (25.09):** adiada a pedido do dono em 2026-11-23.
+
 ## Aceite do épico
 
-- Chat, Canvas e mapa mental abrem e salvam sem projeto selecionado, e o artefato aparece no workspace pessoal.
+- Chat, Ateliê, mapa mental, quadro livre e diagramas abrem, cada um na sua rota, e salvam sem projeto selecionado; o artefato aparece no workspace pessoal.
 - Um mapa mental criado sem projeto vira do projeto 1 por "Mover para projeto", e um protótipo do projeto 2 vira cópia no projeto 3, ambos com confirmação, sem perda e com referências quebradas listadas antes de gravar.
 - `docker compose up` numa máquina limpa leva à primeira execução guiada em até 10 minutos, com o servidor ouvindo só em `127.0.0.1`.
 - O repositório tem licença escolhida pelo dono, `CREDITS.md` e instruções de doação.
