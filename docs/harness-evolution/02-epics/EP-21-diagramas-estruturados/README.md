@@ -59,6 +59,7 @@ Registradas no [ADR-014](../../03-decisions/ADR-014-diagramas-formato-nativo.md)
 | [21.11](21.11-vinculos.md) | Vínculos com histórias, épicos e agentes | P2 | 21.02 | S |
 | [21.12](21.12-mermaid-para-excalidraw.md) | Mermaid para Excalidraw como ação explícita | P2 | 21.04 | S |
 | [21.13](21.13-spike-bpmn-c4-plantuml.md) | Spike BPMN, C4, PlantUML, Graphviz | P2 | 21.04 | S |
+| [21.14](21.14-painel-acoes-mermaid.md) | Painel de ações do Mermaid (edição manual sem código; a IA e o painel executam, a pessoa valida) | P1 | 21.04 | L |
 
 Cada história: arquivos de 150 a 250 linhas (máx. 300), sem emojis, FontAwesome, mapa atualizado na mesma tarefa, worktree própria.
 
