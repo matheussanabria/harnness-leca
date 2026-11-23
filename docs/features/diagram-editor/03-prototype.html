@@ -6,6 +6,7 @@
 <title>Diagram Editor Prototype</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>window.mermaid || document.write('<script src="../../../node_modules/mermaid/dist/mermaid.min.js"><\/script>')</script>
 <!-- EP-21.04 prototype: the "Diagramas" tab of the Design workspace (ADR-014). Real Mermaid for the live preview; saving,
      conflict and export are simulated. Not production code. -->
 <style>
@@ -141,7 +142,8 @@ const cur = () => state.diagrams.find((d) => d.id === state.current);
 const typeOf = (src) => { const h = src.replace(/^---[\s\S]*?---\n/, "").split("\n").map((l) => l.trim()).find((l) => l && !l.startsWith("%%")) || ""; return /^(flowchart|graph)/.test(h) ? "flowchart" : /^sequenceDiagram/.test(h) ? "sequence" : /^classDiagram/.test(h) ? "class" : /^stateDiagram/.test(h) ? "state" : /^erDiagram/.test(h) ? "er" : /^gantt/.test(h) ? "gantt" : "?"; };
 
 function theme() { return document.documentElement.dataset.theme === "light" ? "default" : "dark"; }
-mermaid.initialize({ startOnLoad: false, securityLevel: "strict", htmlLabels: false, flowchart: { htmlLabels: false }, theme: theme(), logLevel: "fatal" });
+if (!window.mermaid) { document.addEventListener("DOMContentLoaded", () => { document.body.insertAdjacentHTML("afterbegin", '<div style="padding:10px;background:#7f1d1d;color:#fff;font:13px sans-serif">Mermaid nao carregou (CDN e copia local indisponiveis). Rode npm install na raiz ou abra com internet.</div>'); }); }
+window.mermaid && mermaid.initialize({ startOnLoad: false, securityLevel: "strict", htmlLabels: false, flowchart: { htmlLabels: false }, theme: theme(), logLevel: "fatal" });
 let renderId = 0;
 let renderSeq = 0;
 async function render() {
