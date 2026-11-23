@@ -47,7 +47,8 @@ Uma caixa só pode ser marcada com aceite e evidência registrados na história.
 | [EP-21](02-epics/EP-21-diagramas-estruturados/README.md) | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA | P1 | Em andamento; 21.01 e 21.02 concluidas, 21.03 a 21.13 planejadas | 2/13 |
 | [EP-22](02-epics/EP-22-navegacao-projetos/README.md) | Navegação de projetos: seletor pesquisável, aba Projetos, categorias e tags | P1 | Planejado; protótipo e spec prontos, histórias 22.01 a 22.06 detalhadas | 0/6 |
 | [EP-23](02-epics/EP-23-host-execucao-persistente/README.md) | Host de execução persistente: motores em processo separado, diário em SQLite, retomar e seletor de host | P0 | Em andamento; 23.01 a 23.04 aceitas, 23.05 a 23.07 implementadas | 4/7 |
-| [EP-24](02-epics/EP-24-motion-design/README.md) | Motion design no Atelier: timeline declarativa, player, tools do agente e exportação de vídeo (ADR-018) | P1 | Concluído; 24.01 a 24.06 aceitas em 2026-11-21 (inclui a correção do portão HTTP para PUT/DELETE de motion e do cabeçalho do Atelier) | 6/6 |
+| [EP-24](02-epics/EP-24-motion-design/README.md) | Motion design no Atelier: timeline declarativa, player, tools do agente e exportação de vídeo (ADR-018) |
+| [EP-25](02-epics/EP-25-escopos-artefatos-distribuicao/README.md) | Escopos de funcionalidade, posse de artefatos e distribuição aberta: uso sem projeto, mover e copiar artefatos, Docker e abertura do repositório (ADR-019, ADR-020) | P1 | Concluído; 24.01 a 24.06 aceitas em 2026-11-21 (inclui a correção do portão HTTP para PUT/DELETE de motion e do cabeçalho do Atelier) | 6/6 |
 
 ## 2. Dependências
 
@@ -295,6 +296,17 @@ Títulos ainda não detalhados de EP-02 a EP-11 permanecem provisórios até a c
 - [x] [24.04](02-epics/EP-24-motion-design/24.04-tools-agente-motion.md) Tools do agente para criar e ajustar a timeline
 - [x] [24.05](02-epics/EP-24-motion-design/24.05-exportacao-video.md) Exportação de vídeo (WebM, MP4, GIF) em job assíncrono
 - [x] [24.06](02-epics/EP-24-motion-design/24.06-painel-timeline-keyframes.md) Painel de timeline com faixas e keyframes editáveis
+
+### EP-25 Escopos, artefatos e distribuição aberta (0/9)
+- [ ] [25.01](02-epics/EP-25-escopos-artefatos-distribuicao/25.01-manifesto-funcionalidades-escopos.md) Manifesto de funcionalidades e escopos
+- [ ] [25.02](02-epics/EP-25-escopos-artefatos-distribuicao/25.02-contexto-escopo-workspace-pessoal.md) Contexto de escopo explícito e workspace pessoal
+- [ ] [25.03](02-epics/EP-25-escopos-artefatos-distribuicao/25.03-registro-artefatos.md) Registro de artefatos com id estável e dono
+- [ ] [25.04](02-epics/EP-25-escopos-artefatos-distribuicao/25.04-mover-copiar-artefatos.md) Mover e copiar artefatos entre donos
+- [ ] [25.05](02-epics/EP-25-escopos-artefatos-distribuicao/25.05-launcher-sem-projeto.md) Launcher com seletor de projeto e Sem projeto
+- [ ] [25.06](02-epics/EP-25-escopos-artefatos-distribuicao/25.06-funcionalidades-opcionais.md) Chat, Canvas e mapa mental sem projeto
+- [ ] [25.07](02-epics/EP-25-escopos-artefatos-distribuicao/25.07-atelie-prototipo-reatribuicao.md) Ateliê sem projeto e reatribuição de protótipo
+- [ ] [25.08](02-epics/EP-25-escopos-artefatos-distribuicao/25.08-docker-primeira-execucao.md) Empacotamento Docker e primeira execução guiada
+- [ ] [25.09](02-epics/EP-25-escopos-artefatos-distribuicao/25.09-abertura-repositorio.md) Abertura do repositório: licença, créditos e doação
 
 ## Trabalho disponível agora
 

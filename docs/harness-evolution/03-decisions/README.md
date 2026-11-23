@@ -23,3 +23,5 @@ Uma decisão vira ADR quando afeta mais de uma história ou é difícil de rever
 | [ADR-016](ADR-016-harness-gates-prototype-code-fidelity.md) | harness-gates: prototype x code fidelity gates owned by the Harness, runnable without it | proposta | transversal |
 | [ADR-017](ADR-017-project-config-pointer-not-copy.md) | Project configuration: the harness points at the project repo, never copies product artifacts | aceita | transversal |
 | [ADR-018](ADR-018-motion-timeline-format.md) | Motion design: declarative motion@1 timeline on Atelier screens, WAAPI runtime, export without ffmpeg | proposta | EP-24 |
+| [ADR-019](ADR-019-escopos-e-posse-de-artefatos.md) | Feature scopes, explicit context and artifact ownership | proposta | EP-25 |
+| [ADR-020](ADR-020-distribuicao-aberta-e-empacotamento.md) | Open self-hosted distribution, bring-your-own-keys and packaging order | proposta | 25.08, 25.09 |
