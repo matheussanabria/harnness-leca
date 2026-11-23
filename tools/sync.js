@@ -134,7 +134,13 @@ for (const [e, set] of Object.entries(unmatched)) {
   const list = [...set];
   console.log(`\n${e}: ${list.length} pasta(s) sem projeto correspondente (ignoradas): ${list.slice(0, 6).join(", ")}${list.length > 6 ? ", ..." : ""}`);
 }
-if (Object.keys(unmatched).length) console.log("Para associar uma delas a um projeto, adicione um apelido em projects/.sources.json.");
+if (Object.keys(unmatched).length) console.log("Para associar uma delas a um projeto, use \"Sessões sem projeto\" na visão geral ou adicione um apelido em projects/.sources.json.");
+
+// ---- lista de "sem projeto" para a interface: cada motor varrido substitui as próprias entradas (o Gemini não reporta)
+if (!DRY) {
+  const tracked = engines.filter((e) => ["claude", "opencode", "codex"].includes(e));
+  try { require("./lib/unmatched-store").record(Object.fromEntries(tracked.map((e) => [e, [...(unmatched[e] || [])]]))); } catch { /* informativo */ }
+}
 
 // ---- extração local (sem modelo) nos projetos que mudaram, e resumo do que falta analisar
 const changed = new Set(rows.filter((r) => r.nova + r.atualizada > 0).map((r) => r.slug));

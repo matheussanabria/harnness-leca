@@ -49,6 +49,20 @@
     </div>
   </div>
 
+  <div class="card sync-panel" id="unmatchedCard" hidden>
+    <div class="sec">
+      <h4>Sessões sem projeto <span class="tag" id="unmatchedCount">0</span></h4>
+      <p class="hint">O sync encontrou estas sessões, mas a pasta de trabalho delas não casa com nenhum projeto, então ainda não aparecem em nenhuma lista. Associe cada uma a um projeto e a próxima sincronização importa as conversas.</p>
+      <div class="table-wrap">
+        <table class="table-full">
+          <thead><tr><th scope="col">Motor</th><th scope="col">Pasta de trabalho</th><th scope="col">Projeto</th><th scope="col"><span class="sr-only">Ação</span></th></tr></thead>
+          <tbody id="unmatchedBody"></tbody>
+        </table>
+      </div>
+      <span class="row-msg" id="unmatchedMsg" role="status" aria-live="polite"></span>
+    </div>
+  </div>
+
   <h3 class="sech"><span>Projetos</span> <span id="pageInfo"></span></h3>
   <div class="card">
     <div id="ovState" class="ov-state loading" role="status" aria-live="polite">Carregando…</div>
@@ -86,6 +100,7 @@
 </main>
 <script src="/js/overview.js"></script>
 <script src="/js/overview-sync.js"></script>
+<script src="/js/overview-unmatched.js"></script>
 <script type="module" src="/js/shared/app-header.js"></script>
 </body>
 </html>

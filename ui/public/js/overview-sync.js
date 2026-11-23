@@ -135,6 +135,7 @@ async function runSyncAll() {
       logLine(`<span style="color:#ef4444"><i class="fa-solid fa-triangle-exclamation"></i> sincronização terminou com código ${fim.code}</span>`);
     }
     await loadOverview();
+    if (typeof loadUnmatched === "function") loadUnmatched(); // the run just refreshed the "sem projeto" list
   } catch (err) {
     $("syncDetails").open = true;
     setRunState("falhou, tente de novo", "err");
