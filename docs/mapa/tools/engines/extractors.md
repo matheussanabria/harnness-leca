@@ -24,7 +24,7 @@ updated: 2026-11-18
 | `tests/proc-manager-persist.test.js` | Re-adoption, stop of an adopted service, dead or reused PIDs and pruning (uses a temp `HARNESS_ROOT`). |
 | `tools/lib/export/managed-file.js` | Non-destructive export writes (EP-13.01): `harness:begin`/`harness:end` block, `harness:generated` rewrite, path validation. |
 | `tools/lib/export/claude.js`, `gemini.js`, `local.js` | Plan what export writes per target (Claude `MEMORY.md` pointer, two-phase Gemini Knowledge Item). |
-| `tools/lib/export/codex.js` | Codex target: managed block in `projects/<slug>/AGENTS.md` (instructions, memory index, working rules), capped at 24 KB. Codex reads it from the project cwd. |
+| `tools/lib/export/codex.js` | Codex and OpenCode target: managed block in `projects/<slug>/AGENTS.md` (instructions, memory index, working rules), capped at 24 KB. Codex reads it from the project cwd. |
 | `tools/lib/export/data.js` | Collects `memory.md`, `memory/` items, `instructions.md`, chat counts and resolves target dirs (env-overridable in tests). |
 | `tools/lib/export/housekeeping.js` | `--report` (bytes and tokens per target) and `--prune` (lists old files; removes only with `--yes`). |
 | `tools/lib/memory/item.js` | Memory item contract (EP-13.02): parse, deterministic serialization, normalization, hash, slug, frontmatter validation. |

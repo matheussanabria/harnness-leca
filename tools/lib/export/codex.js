@@ -1,6 +1,7 @@
 // @ts-check
-// Codex destination: a managed block in projects/<slug>/AGENTS.md. Codex reads AGENTS.md from its working directory
-// upward, and the Harness starts it with cwd = projects/<slug>, so the engine is born with the project context.
+// AGENTS.md destination (Codex and OpenCode): a managed block in projects/<slug>/AGENTS.md. Both engines read AGENTS.md
+// from the working directory upward, and the Harness starts them with cwd = projects/<slug>, so the engine is born
+// with the project context. Claude Code has its hook and Gemini its Knowledge Item; they do not use this file.
 // projects/* is git-ignored (local data); only the block between the harness markers is ever rewritten.
 
 const path = require("path");
