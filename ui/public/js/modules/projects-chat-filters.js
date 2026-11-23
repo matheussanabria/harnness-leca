@@ -129,8 +129,8 @@ export function filterAndSortChats(P) {
   list.sort((a, b) => {
     let vA, vB;
     if (state.chatSortField === "mtime") {
-      vA = a.mtime || 0;
-      vB = b.mtime || 0;
+      vA = a.conversationAt || a.mtime || 0;
+      vB = b.conversationAt || b.mtime || 0;
     } else if (state.chatSortField === "title") {
       vA = (a.title || a.name || "").toLowerCase();
       vB = (b.title || b.name || "").toLowerCase();
@@ -147,8 +147,8 @@ export function filterAndSortChats(P) {
       vA = a.turns || 0;
       vB = b.turns || 0;
     } else {
-      vA = a.mtime || 0;
-      vB = b.mtime || 0;
+      vA = a.conversationAt || a.mtime || 0;
+      vB = b.conversationAt || b.mtime || 0;
     }
     if (vA < vB) return state.chatSortAsc ? -1 : 1;
     if (vA > vB) return state.chatSortAsc ? 1 : -1;

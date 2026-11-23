@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// Atualiza ("refresh") as conversas dos 3 motores (Claude Code, Gemini/Antigravity e opencode) nos projetos
+// Atualiza ("refresh") as conversas dos 4 motores (Claude Code, Gemini/Antigravity, opencode e Codex) nos projetos
 // que já existem em projects/, e mostra o que ficou pendente de extração. Nunca cria projetos novos.
 //
 // Uso:
 //   node tools/sync.js                          todos os motores, todos os projetos
 //   node tools/sync.js --project dai            só um projeto
-//   node tools/sync.js --engine claude,opencode só alguns motores (claude | gemini | opencode)
+//   node tools/sync.js --engine claude,opencode só alguns motores (claude | gemini | opencode | codex)
 //   node tools/sync.js --dry-run                mostra o que mudaria, sem gravar
 //   node tools/sync.js --no-extract             não roda a extração local (sem modelo) nos projetos que mudaram
 //
@@ -31,7 +31,8 @@ const { flag, opt } = require("./lib/cli");
 const DRY = flag("dry-run");
 const fail = (m) => { console.error(m); process.exit(1); };
 
-const ENGINES = ["claude", "gemini", "opencode"];
+const { SYNC_ENGINES: ENGINES } = require("./lib/sync-core");
+const { CODEX_ROOT, codexSessionsBySlug, syncCodexFiles } = require("./lib/sync-codex");
 const engines = opt("engine") ? opt("engine").split(",").map((s) => s.trim().toLowerCase()) : ENGINES;
 if (engines.some((e) => !ENGINES.includes(e))) fail(`--engine inválido. Use: ${ENGINES.join(", ")}`);
 
@@ -105,7 +106,17 @@ function syncOpencode() {
   for (const [slug, ids] of bySlug) add("opencode", slug, call("./import-opencode-chats", ["--project", slug], { sessionIds: ids }));
 }
 
-const fns = { claude: syncClaude, gemini: syncGemini, opencode: syncOpencode };
+// ---- Codex: a pasta de trabalho (cwd) da sessão decide o projeto; sem cwd ou fora dos projetos, só é relatada
+function syncCodex() {
+  if (!fs.existsSync(CODEX_ROOT)) return "indisponível (sem ~/.codex/sessions)";
+  const { bySlug, unmatched } = codexSessionsBySlug(ms);
+  for (const name of unmatched) skip("codex", name);
+  for (const [slug, files] of bySlug) {
+    if (want(slug)) add("codex", slug, syncCodexFiles(slug, files, DRY));
+  }
+}
+
+const fns = { claude: syncClaude, gemini: syncGemini, opencode: syncOpencode, codex: syncCodex };
 console.log(`Sincronizando ${engines.join(", ")} em ${only || `${slugs.length} projeto(s)`}${DRY ? " [dry-run]" : ""}...\n`);
 for (const e of engines) {
   let msg;
