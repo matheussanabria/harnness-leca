@@ -9,6 +9,7 @@ Funcionalidade: Launcher das funcionalidades
     Dado o manifesto com funcionalidades de escopo opcional, de projeto e global
     Quando abro o launcher
     Entao vejo tres grupos e cada funcionalidade esta no grupo do seu escopo
+    E o grupo de criacao tem Chat, Atelie, mapa mental, quadro livre e diagramas
 
   @auto
   Cenario: CP-02 Sem projeto, funcionalidade de projeto fica desabilitada com a razao
@@ -17,10 +18,10 @@ Funcionalidade: Launcher das funcionalidades
     Entao ele esta desabilitado e diz "Escolha um projeto para usar esta funcionalidade"
 
   @auto
-  Cenario: CP-03 Sem projeto, o Chat abre em ate 3 cliques
+  Cenario: CP-03 Sem projeto, cada funcionalidade de criacao abre em ate 3 cliques
     Dado que a opcao "Sem projeto" esta selecionada
-    Quando abro o launcher e clico no cartao do Chat
-    Entao a janela do Chat abre com o escopo pessoal
+    Quando abro o launcher e clico no cartao de Chat, Atelie, mapa mental, quadro livre ou diagramas
+    Entao a janela correspondente abre com o escopo pessoal e o que eu criar fica no espaco pessoal
 
   @auto
   Cenario: CP-04 Escolher um projeto habilita as funcionalidades de projeto

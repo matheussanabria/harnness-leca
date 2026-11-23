@@ -104,6 +104,10 @@
 <script>
   const FEATURES = [
     { id:"chat", titulo:"Chat universal", escopo:"optional", icone:"fa-comments", desc:"Converse com os agentes, com ou sem projeto." },
+    { id:"atelie", titulo:"Ateliê", escopo:"optional", icone:"fa-wand-magic-sparkles", desc:"Crie e ajuste protótipos de tela com ajuda dos agentes." },
+    { id:"mapa-mental", titulo:"Mapa mental", escopo:"optional", icone:"fa-sitemap", desc:"Organize ideias em um mapa que você expande aos poucos." },
+    { id:"quadro-livre", titulo:"Quadro livre", escopo:"optional", icone:"fa-chalkboard", desc:"Tela livre para esboçar, colar imagens e anotar." },
+    { id:"diagramas", titulo:"Diagramas", escopo:"optional", icone:"fa-share-nodes", desc:"Fluxos, sequências e ER escritos em Mermaid, com preview." },
     { id:"diario", titulo:"Diário de atividade", escopo:"optional", icone:"fa-book", desc:"O que aconteceu e quando, por projeto ou geral." },
     { id:"scrum", titulo:"Scrum e sprints", escopo:"project", icone:"fa-list-check", desc:"Quadro, histórias e sprints do projeto." },
     { id:"studio", titulo:"Studio e preview", escopo:"project", icone:"fa-pen-ruler", desc:"Código, protótipos e preview do projeto." },
@@ -116,7 +120,7 @@
     { id:"catalogo", titulo:"Catálogo de skills e agentes", escopo:"global", icone:"fa-book-open", desc:"Skills, agentes e workflows disponíveis." },
   ];
   const GROUPS = [
-    { escopo:"optional", titulo:"Para começar", hint:"Funcionam sem projeto e ficam melhores com um." },
+    { escopo:"optional", titulo:"Criar e conversar", hint:"Funcionam sem projeto e ficam melhores com um. O que você cria sem projeto vai para o espaço pessoal e pode ser movido para um projeto depois." },
     { escopo:"project", titulo:"Do projeto", hint:"Precisam de um projeto escolhido." },
     { escopo:"global", titulo:"Geral", hint:"Sempre disponíveis." },
   ];
@@ -133,7 +137,7 @@
     $("selIcon").className = "fa-solid " + (S.project ? "fa-folder-open" : "fa-user");
     $("scopeLine").innerHTML = S.project
       ? `Trabalhando no projeto <span class="tag">${esc(S.project)}</span>`
-      : `Trabalhando <span class="tag"><i class="fa-solid fa-user"></i> Sem projeto</span> seus itens ficam no espaço pessoal.`;
+      : `Trabalhando <span class="tag"><i class="fa-solid fa-user"></i> Sem projeto</span> Ateliê, mapa mental, quadro livre, diagramas e chat já funcionam; o que você criar fica no espaço pessoal.`;
   }
 
   function card(f) {
