@@ -38,10 +38,33 @@
       <section id="kViewer" class="k-viewer" aria-live="polite"></section>
     </div>
   </div>
+  <section id="kLayers" class="ly" aria-labelledby="lyTitle">
+    <h2 id="lyTitle">Camadas por projeto</h2>
+    <p class="sub">O motor recebe o conjunto efetivo do projeto: o que está no projeto vence o global, que vence o DAI. Aqui você vê a origem de cada item e cria os do próprio projeto.</p>
+    <div class="k-toolbar">
+      <label class="ly-f">Projeto <select id="lyProject" class="k-search"></select></label>
+      <label class="ly-f">Tipo <select id="lyKind" class="k-search"><option value="">Todos</option><option value="skill">Skills</option><option value="agent">Agentes</option><option value="workflow">Workflows</option></select></label>
+      <span id="lySummary" class="ly-sum" role="status" aria-live="polite"></span>
+    </div>
+    <div class="table-wrap"><table class="ly-table">
+      <thead><tr><th scope="col">Tipo</th><th scope="col">Item</th><th scope="col">Camada</th><th scope="col">Observação</th><th scope="col"><span class="sr-only">Ação</span></th></tr></thead>
+      <tbody id="lyBody"></tbody>
+    </table></div>
+    <form id="lyForm" class="ly-form">
+      <h3>Criar na camada do projeto</h3>
+      <label class="ly-f">Tipo <select id="lyNewKind" class="k-search"><option value="skill">Skill</option><option value="agent">Agente</option><option value="workflow">Workflow</option></select></label>
+      <label class="ly-f">Id <input id="lyNewId" class="k-search" required pattern="[A-Za-z0-9][A-Za-z0-9_.\-]{0,63}" placeholder="meu-agente"></label>
+      <label class="ly-f ly-grow">Descrição <input id="lyNewDesc" class="k-search" maxlength="300" placeholder="Quando usar"></label>
+      <button type="submit" class="btn-row"><i class="fa-solid fa-plus" aria-hidden="true"></i> Criar</button>
+      <span id="lyMsg" class="ly-msg" role="status" aria-live="polite"></span>
+    </form>
+  </section>
 </main>
 <script type="module">
   import { startCatalogoPage } from "/js/catalogo/catalogo-page.js";
+  import { startLayersSection } from "/js/catalogo/catalogo-layers.js";
   startCatalogoPage();
+  startLayersSection();
 </script>
 <script type="module" src="/js/shared/app-header.js"></script>
 </body>

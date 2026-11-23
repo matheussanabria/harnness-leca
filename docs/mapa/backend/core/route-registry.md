@@ -3,7 +3,7 @@ domain: backend
 module: core
 feature: route-registry
 summary: Route table index (first match wins) and the per-domain route files split out of router.js, with its guard test.
-paths: [ui/server/routes/index.js, ui/server/routes/scrum.routes.js, ui/server/routes/source.routes.js, ui/server/routes/state.routes.js, ui/server/routes/orchestration-stream.routes.js, ui/server/routes/project.routes.js, ui/server/routes/project-skills.routes.js, ui/server/routes/project-services.routes.js, ui/server/routes/app.routes.js, ui/server/routes/chat.routes.js, ui/server/routes/permissions.routes.js, ui/server/routes/deploy.routes.js, ui/server/routes/hia.routes.js, tests/route-registry.test.js]
+paths: [ui/server/routes/index.js, ui/server/routes/scrum.routes.js, ui/server/routes/source.routes.js, ui/server/routes/state.routes.js, ui/server/routes/orchestration-stream.routes.js, ui/server/routes/project.routes.js, ui/server/routes/project-skills.routes.js, ui/server/routes/layers.routes.js, ui/server/controllers/layers.controller.js, tests/layers-write.test.js, ui/server/routes/project-services.routes.js, ui/server/routes/app.routes.js, ui/server/routes/chat.routes.js, ui/server/routes/permissions.routes.js, ui/server/routes/deploy.routes.js, ui/server/routes/hia.routes.js, tests/route-registry.test.js]
 keywords: [router, routes, registry, index, order, first-match, split, cat-04]
 updated: 2026-11-06
 ---
@@ -19,6 +19,8 @@ updated: 2026-11-06
 | `ui/server/routes/state.routes.js` | `/api/state`, active agents summary and the orchestration state, events and execution detail reads. |
 | `ui/server/routes/orchestration-stream.routes.js` | Orchestration SSE stream and operations; registered after the orchestration route group. |
 | `ui/server/routes/project.routes.js` | Engines, overview, sync, active project, project detail, memory review and chat groups. |
+| `ui/server/routes/layers.routes.js`, `ui/server/controllers/layers.controller.js` | Effective skills, agents and workflows of a project (`GET /api/project/:slug/layers`) and create/delete on the project layer (`POST .../layers`, `.../layers/delete` with `confirm: true`). |
+| `tests/layers-write.test.js` | Layer writer, the layers API, CLI create, the template tree and the catalog section. |
 | `ui/server/routes/project-skills.routes.js` | Project skills: list, templates, recognized, detail, save, install, import, delete. |
 | `ui/server/routes/project-services.routes.js` | Project dev services: status, start, stop, logs, config. |
 | `ui/server/routes/app.routes.js` | File read, DAI catalog, app ping and the remote info and PIN endpoints. |
