@@ -1,5 +1,5 @@
 // @ts-check
-const { slugs } = require("../../config");
+const { acceptsScope } = require("../../scope/resolve-scope");
 const {
   invalidBody,
   invalidData,
@@ -98,7 +98,7 @@ function resolveProject(queryProject, bodyProject) {
   const fromBody = typeof bodyProject === "string" ? bodyProject.trim() : "";
   const project = fromQuery || fromBody;
   if (!project) throw projectRequired();
-  if (!slugs().includes(project)) throw projectNotFound(project);
+  if (!acceptsScope(project)) throw projectNotFound(project); // a real project or the personal workspace (EP-25.06)
   return project;
 }
 
