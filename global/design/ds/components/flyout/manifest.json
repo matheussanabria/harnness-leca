@@ -1,0 +1,55 @@
+{
+  "id": "cn.flyout",
+  "version": "1.0.0",
+  "name": "Menu do usuário com submenu lateral",
+  "category": "Design System",
+  "description": "Menu da conta no header. No desktop, cada grupo abre um painel ao lado (à esquerda do menu) ao passar o mouse, ao clicar ou ao focar com o teclado, levando direto à rota final. No mobile vira acordeão. Os grupos dependem do perfil: Cliente, Vendedor, Financeiro e Administrador.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-flyout"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "flyout.html",
+      "files": [
+        "flyout.html",
+        "flyout.css",
+        "flyout.js"
+      ],
+      "styles": [
+        "flyout.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "flyout.angular.ts",
+      "files": [
+        "flyout.angular.ts"
+      ],
+      "styles": [
+        "flyout.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "flyout.react.jsx",
+      "files": [
+        "flyout.react.jsx"
+      ],
+      "styles": [
+        "flyout.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

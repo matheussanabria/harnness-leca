@@ -40,31 +40,100 @@ function getRegistryFilePath(projectDir, deps = { path }) {
 }
 
 /**
- * Carrega o registro de componentes de um projeto.
+ * Diretório global do harness. Mesma convenção de design-profile-resolver.
  * @param {string} projectDir
+ * @param {string} [globalDir]
  * @param {object} [deps]
- * @returns {{ schema: number, namespace: string, components: Record<string, any> }}
  */
-function loadRegistry(projectDir, deps = { fs, path }) {
-  const file = getRegistryFilePath(projectDir, deps);
-  if (!deps.fs.existsSync(file)) {
-    return { schema: 1, namespace: "ds", components: {} };
-  }
+function resolveGlobalDir(projectDir, globalDir = "", deps = { path }) {
+  return globalDir || deps.path.resolve(projectDir, "..", "..", "global");
+}
+
+/**
+ * Caminho do registry do Design System global (padrão de todos os projetos).
+ * @param {string} globalDir
+ * @param {object} [deps]
+ */
+function getGlobalRegistryFilePath(globalDir, deps = { path }) {
+  return deps.path.join(globalDir, "design", "ds", "registry.json");
+}
+
+/**
+ * Lê um registry do disco. Devolve null quando não existe ou está inválido,
+ * para o chamador distinguir "não tem" de "tem e está vazio".
+ * @param {string} file
+ * @param {object} [deps]
+ */
+function readRegistryFile(file, deps = { fs }) {
+  if (!deps.fs.existsSync(file)) return null;
   try {
-    const raw = deps.fs.readFileSync(file, "utf8");
-    const data = JSON.parse(raw);
+    const data = JSON.parse(deps.fs.readFileSync(file, "utf8").replace(/^﻿/, ""));
     return {
       schema: data.schema || 1,
       namespace: data.namespace || "ds",
       components: data.components || {},
     };
-  } catch (err) {
-    return { schema: 1, namespace: "ds", components: {} };
+  } catch {
+    return null;
   }
 }
 
 /**
- * Salva o registro de componentes do projeto no disco.
+ * Registry do próprio projeto, sem o global. É esta camada que se grava.
+ * @param {string} projectDir
+ * @param {object} [deps]
+ */
+function loadProjectRegistry(projectDir, deps = { fs, path }) {
+  return readRegistryFile(getRegistryFilePath(projectDir, deps), deps) || { schema: 1, namespace: "ds", components: {} };
+}
+
+/**
+ * Registry do Design System global.
+ * @param {string} globalDir
+ * @param {object} [deps]
+ */
+function loadGlobalRegistry(globalDir, deps = { fs, path }) {
+  return readRegistryFile(getGlobalRegistryFilePath(globalDir, deps), deps) || { schema: 1, namespace: "ds", components: {} };
+}
+
+const marcarOrigem = (components, origin) =>
+  Object.fromEntries(Object.entries(components || {}).map(([id, comp]) => [id, { ...comp, origin }]));
+
+/**
+ * Carrega o registro de componentes visível para um projeto:
+ * o Design System global por baixo, o do projeto por cima.
+ *
+ * Um projeto sem registry próprio enxerga o global inteiro; um projeto com
+ * registry próprio (Procempa, por exemplo) sobrescreve componente a componente,
+ * pelo id. Cada componente leva `origin: "global" | "projeto"`.
+ *
+ * @param {string} projectDir
+ * @param {object} [deps]
+ * @param {{ globalDir?: string, scope?: "merged" | "projeto" | "global" }} [options]
+ * @returns {{ schema: number, namespace: string, components: Record<string, any> }}
+ */
+function loadRegistry(projectDir, deps = { fs, path }, options = {}) {
+  const scope = options.scope || "merged";
+  const globalDir = resolveGlobalDir(projectDir, options.globalDir, deps);
+  if (scope === "projeto") return loadProjectRegistry(projectDir, deps);
+  if (scope === "global") return loadGlobalRegistry(globalDir, deps);
+
+  const global = loadGlobalRegistry(globalDir, deps);
+  const projeto = readRegistryFile(getRegistryFilePath(projectDir, deps), deps);
+  if (!projeto) {
+    return { schema: global.schema, namespace: global.namespace, components: marcarOrigem(global.components, "global") };
+  }
+  return {
+    schema: projeto.schema || global.schema,
+    // o namespace do projeto manda; sem ele, o do global
+    namespace: projeto.namespace || global.namespace,
+    components: { ...marcarOrigem(global.components, "global"), ...marcarOrigem(projeto.components, "projeto") },
+  };
+}
+
+/**
+ * Salva o registro do projeto. Nunca escreve no global: o Design System
+ * global só muda por quem o mantém, não por um projeto que o consome.
  * @param {string} projectDir
  * @param {object} registryData
  * @param {object} [deps]
@@ -75,18 +144,26 @@ function saveRegistry(projectDir, registryData, deps = { fs, path }) {
   if (!deps.fs.existsSync(dir)) {
     deps.fs.mkdirSync(dir, { recursive: true });
   }
+  const limpos = Object.fromEntries(
+    Object.entries(registryData.components || {}).map(([id, comp]) => {
+      const { origin, ...resto } = comp || {};
+      return [id, resto];
+    }),
+  );
   const payload = {
     schema: 1,
     namespace: registryData.namespace || "ds",
     updatedAt: new Date().toISOString(),
-    components: registryData.components || {},
+    components: limpos,
   };
   deps.fs.writeFileSync(file, JSON.stringify(payload, null, 2), "utf8");
   return payload;
 }
 
 /**
- * Registra ou atualiza um componente no Registry.
+ * Registra ou atualiza um componente no registry do projeto.
+ * Parte da camada do projeto, nunca da mesclada, senão o primeiro salvamento
+ * copiaria o Design System global inteiro para dentro do projeto.
  * @param {string} projectDir
  * @param {any} componentManifest
  * @param {object} [deps]
@@ -96,7 +173,7 @@ function registerComponent(projectDir, componentManifest, deps = { fs, path }) {
   if (!check.valid) {
     throw new Error(`Manifesto inválido: ${check.errors.join("; ")}`);
   }
-  const reg = loadRegistry(projectDir, deps);
+  const reg = loadProjectRegistry(projectDir, deps);
   const compId = componentManifest.id;
   const existing = reg.components[compId] || {};
 
@@ -127,29 +204,33 @@ function registerComponent(projectDir, componentManifest, deps = { fs, path }) {
 }
 
 /**
- * Busca um componente específico por ID no Registry.
+ * Busca um componente por ID, considerando o global e o projeto.
  * @param {string} projectDir
  * @param {string} componentId
  * @param {object} [deps]
+ * @param {{ globalDir?: string }} [options]
  */
-function getComponent(projectDir, componentId, deps = { fs, path }) {
-  const reg = loadRegistry(projectDir, deps);
+function getComponent(projectDir, componentId, deps = { fs, path }, options = {}) {
+  const reg = loadRegistry(projectDir, deps, options);
   return reg.components[componentId] || null;
 }
 
 /**
- * Lista todos os componentes do Registry com filtros opcionais.
+ * Lista os componentes visíveis para o projeto, com filtros opcionais.
  * @param {string} projectDir
  * @param {object} [filters]
  * @param {string} [filters.category]
  * @param {string} [filters.framework]
+ * @param {"global"|"projeto"} [filters.origin]
  * @param {object} [deps]
+ * @param {{ globalDir?: string }} [options]
  */
-function listRegistryComponents(projectDir, filters = {}, deps = { fs, path }) {
-  const reg = loadRegistry(projectDir, deps);
+function listRegistryComponents(projectDir, filters = {}, deps = { fs, path }, options = {}) {
+  const reg = loadRegistry(projectDir, deps, options);
   const list = Object.values(reg.components);
   return list.filter((comp) => {
     if (filters.category && comp.category !== filters.category) return false;
+    if (filters.origin && comp.origin !== filters.origin) return false;
     if (filters.framework) {
       const impl = comp.implementations?.[filters.framework];
       if (!impl || impl.status === "none") return false;
@@ -159,22 +240,29 @@ function listRegistryComponents(projectDir, filters = {}, deps = { fs, path }) {
 }
 
 /**
- * Registra ou atualiza uma implementação de framework em um componente existente.
+ * Registra uma implementação de framework. Em componente herdado do global,
+ * a gravação cria a sobrescrita local: o projeto passa a ter a sua versão.
  * @param {string} projectDir
  * @param {string} componentId
  * @param {'vanilla'|'angular'|'react'} framework
  * @param {object} implementationData
  * @param {object} [deps]
+ * @param {{ globalDir?: string }} [options]
  */
-function registerImplementation(projectDir, componentId, framework, implementationData, deps = { fs, path }) {
-  const reg = loadRegistry(projectDir, deps);
-  const comp = reg.components[componentId];
-  if (!comp) {
+function registerImplementation(projectDir, componentId, framework, implementationData, deps = { fs, path }, options = {}) {
+  const visivel = loadRegistry(projectDir, deps, options);
+  const base = visivel.components[componentId];
+  if (!base) {
     throw new Error(`Componente '${componentId}' não encontrado no Registry.`);
   }
   if (!["vanilla", "angular", "react"].includes(framework)) {
     throw new Error(`Framework '${framework}' não suportado.`);
   }
+
+  const reg = loadProjectRegistry(projectDir, deps);
+  if (!reg.namespace || reg.namespace === "ds") reg.namespace = visivel.namespace;
+  const { origin, ...semOrigem } = base;
+  const comp = reg.components[componentId] || semOrigem;
 
   comp.implementations = comp.implementations || { vanilla: null, angular: null, react: null };
   comp.implementations[framework] = {
@@ -188,6 +276,7 @@ function registerImplementation(projectDir, componentId, framework, implementati
   };
 
   comp.updatedAt = new Date().toISOString();
+  reg.components[componentId] = comp;
   saveRegistry(projectDir, reg, deps);
   return comp;
 }
@@ -195,7 +284,11 @@ function registerImplementation(projectDir, componentId, framework, implementati
 module.exports = {
   validateComponentManifest,
   getRegistryFilePath,
+  getGlobalRegistryFilePath,
+  resolveGlobalDir,
   loadRegistry,
+  loadProjectRegistry,
+  loadGlobalRegistry,
   saveRegistry,
   registerComponent,
   getComponent,

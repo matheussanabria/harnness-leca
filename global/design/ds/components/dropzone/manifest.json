@@ -1,0 +1,55 @@
+{
+  "id": "cn.dropzone",
+  "version": "1.0.0",
+  "name": "Área de transferência",
+  "category": "Design System",
+  "description": "Zona de arrastar e soltar para upload em lote, usada no Conversor de Relatórios. Mostra o arquivo selecionado acima da zona e permite removê-lo.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-dropzone"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "dropzone.html",
+      "files": [
+        "dropzone.html",
+        "dropzone.css",
+        "dropzone.js"
+      ],
+      "styles": [
+        "dropzone.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "dropzone.angular.ts",
+      "files": [
+        "dropzone.angular.ts"
+      ],
+      "styles": [
+        "dropzone.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "dropzone.react.jsx",
+      "files": [
+        "dropzone.react.jsx"
+      ],
+      "styles": [
+        "dropzone.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

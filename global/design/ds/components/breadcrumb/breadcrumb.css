@@ -1,0 +1,3 @@
+.breadcrumb{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}
+.breadcrumb li+li::before{content:"/";margin-right:8px;color:var(--neutral-base)}
+.breadcrumb [aria-current]{font-weight:700;color:var(--neutral-dark)}

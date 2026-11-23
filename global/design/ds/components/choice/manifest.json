@@ -1,0 +1,55 @@
+{
+  "id": "cn.choice",
+  "version": "1.0.0",
+  "name": "Checkbox e RadioGroup",
+  "category": "Design System",
+  "description": "Seleção múltipla (checkbox) e única (radio). Agrupe com fieldset e legend; a cor de seleção usa o token primário.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-choice"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "choice.html",
+      "files": [
+        "choice.html",
+        "choice.css",
+        "choice.js"
+      ],
+      "styles": [
+        "choice.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "choice.angular.ts",
+      "files": [
+        "choice.angular.ts"
+      ],
+      "styles": [
+        "choice.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "choice.react.jsx",
+      "files": [
+        "choice.react.jsx"
+      ],
+      "styles": [
+        "choice.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

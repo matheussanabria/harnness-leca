@@ -1,0 +1,3 @@
+.chart polyline{fill:none;stroke-width:2.5}
+.chart .in{stroke:var(--success-base)}
+.chart .out{stroke:var(--warning-base)}

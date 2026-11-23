@@ -1,0 +1,3 @@
+.card{border:1px solid var(--neutral-light);border-radius:14px;overflow:hidden;background:#fff}
+.card__head{width:100%;display:flex;justify-content:space-between;padding:14px 18px;border:0;background:var(--neutral-background);font-weight:700}
+.card__body{padding:18px}

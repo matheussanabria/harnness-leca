@@ -1,0 +1,55 @@
+{
+  "id": "cn.form",
+  "version": "1.0.0",
+  "name": "Form fields",
+  "category": "Design System",
+  "description": "Campos com rótulo acima e foco coral de 2px. Selects em cascata (marca, modelo, versão) liberam o próximo nível ao escolher o anterior.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-form"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "form.html",
+      "files": [
+        "form.html",
+        "form.css",
+        "form.js"
+      ],
+      "styles": [
+        "form.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "form.angular.ts",
+      "files": [
+        "form.angular.ts"
+      ],
+      "styles": [
+        "form.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "form.react.jsx",
+      "files": [
+        "form.react.jsx"
+      ],
+      "styles": [
+        "form.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

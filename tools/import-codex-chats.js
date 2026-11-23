@@ -19,6 +19,18 @@ function sessionFiles() {
   return fs.readdirSync(SESSIONS, { recursive: true }).filter((file) => file.endsWith(".jsonl")).map((file) => path.join(SESSIONS, file));
 }
 
+/** Working directory of a session, read from the first line only (session_meta) so listing stays cheap. */
+function sessionCwd(file) {
+  let fd;
+  try {
+    fd = fs.openSync(file, "r");
+    const chunk = Buffer.alloc(1 << 20);
+    const read = fs.readSync(fd, chunk, 0, chunk.length, 0);
+    const meta = JSON.parse(chunk.toString("utf8", 0, read).split(/\r?\n/, 1)[0]);
+    return meta?.payload?.cwd || meta?.cwd || "";
+  } catch { return ""; } finally { if (fd !== undefined) fs.closeSync(fd); }
+}
+
 function parseSession(file) {
   let raw;
   try { raw = fs.readFileSync(file, "utf8"); } catch { return null; }
@@ -53,7 +65,8 @@ function run(argv, io = console, options = {}) {
   if (!project) throw new CliError("Use --project <slug>.");
   const match = opt("from", argv) || project;
   const dryRun = flag("dry-run", argv);
-  const candidates = (options.files || sessionFiles()).filter((file) => file.toLowerCase().includes(match.toLowerCase()) || (parseSession(file)?.directory || "").toLowerCase().includes(match.toLowerCase()));
+  // Explicit file list (sync maps cwd to project through aliases): no substring filter.
+  const candidates = options.files ? options.files : sessionFiles().filter((file) => file.toLowerCase().includes(match.toLowerCase()) || (parseSession(file)?.directory || "").toLowerCase().includes(match.toLowerCase()));
   let nova = 0; let atualizada = 0; let igual = 0;
   for (const file of candidates) {
     const content = convert(file);
@@ -70,5 +83,5 @@ function run(argv, io = console, options = {}) {
   return { nova, atualizada, igual };
 }
 
-module.exports = { parseSession, convert, run };
+module.exports = { parseSession, convert, run, sessionFiles, sessionCwd };
 if (require.main === module) runAsScript(run);

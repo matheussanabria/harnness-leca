@@ -1,0 +1,55 @@
+{
+  "id": "cn.icon",
+  "version": "1.0.0",
+  "name": "Icon",
+  "category": "Design System",
+  "description": "SVG inline de traço 1.8px, herdando a cor com currentColor. Use aria-hidden quando decorativo e aria-label em botões só com ícone.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-icon"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "icon.html",
+      "files": [
+        "icon.html",
+        "icon.css",
+        "icon.js"
+      ],
+      "styles": [
+        "icon.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "icon.angular.ts",
+      "files": [
+        "icon.angular.ts"
+      ],
+      "styles": [
+        "icon.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "icon.react.jsx",
+      "files": [
+        "icon.react.jsx"
+      ],
+      "styles": [
+        "icon.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

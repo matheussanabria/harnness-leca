@@ -1,0 +1,3 @@
+.stepper{display:grid;grid-auto-flow:column;list-style:none;padding:0}
+.stepper button{width:28px;height:28px;border-radius:50%;border:2px solid var(--neutral-muted)}
+.stepper .is-done button{background:var(--primary-interactive);border-color:var(--primary-interactive);color:#fff}

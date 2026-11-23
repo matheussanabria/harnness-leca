@@ -1,0 +1,1 @@
+view = signal<'grid' | 'list'>('grid');

@@ -1,0 +1,3 @@
+.header{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px;padding:0 16px;background:var(--primary-interactive);color:#fff}
+.header__nav{display:flex;gap:18px;font-weight:600}
+@media (max-width:575px){.header__nav{display:none}}

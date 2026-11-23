@@ -1,0 +1,55 @@
+{
+  "id": "cn.textarea",
+  "version": "1.0.0",
+  "name": "TextAreaField",
+  "category": "Design System",
+  "description": "Campo de texto multilinha com contador de caracteres e redimensionamento vertical.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-textarea"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "textarea.html",
+      "files": [
+        "textarea.html",
+        "textarea.css",
+        "textarea.js"
+      ],
+      "styles": [
+        "textarea.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "textarea.angular.ts",
+      "files": [
+        "textarea.angular.ts"
+      ],
+      "styles": [
+        "textarea.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "textarea.react.jsx",
+      "files": [
+        "textarea.react.jsx"
+      ],
+      "styles": [
+        "textarea.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

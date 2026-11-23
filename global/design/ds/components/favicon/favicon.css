@@ -1,0 +1,2 @@
+.brand{display:inline-flex;align-items:center;gap:10px}
+.brand__mark{width:32px;height:32px;border-radius:8px;background:var(--primary-interactive)}

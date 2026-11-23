@@ -1,0 +1,55 @@
+{
+  "id": "cn.linechart",
+  "version": "1.0.0",
+  "name": "Gráficos",
+  "category": "Design System",
+  "description": "Gráficos em SVG. Linhas, barras e área mostram evolução no tempo: eixo Y em R$ com faixas de 10k e eixo X com a data como dia/mês. Pizza e rosca mostram composição; clicar numa fatia destaca o item e a rosca mostra o valor no centro. Use no máximo 5 categorias e sempre uma legenda com valor e percentual.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-linechart"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "linechart.html",
+      "files": [
+        "linechart.html",
+        "linechart.css",
+        "linechart.js"
+      ],
+      "styles": [
+        "linechart.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "linechart.angular.ts",
+      "files": [
+        "linechart.angular.ts"
+      ],
+      "styles": [
+        "linechart.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "linechart.react.jsx",
+      "files": [
+        "linechart.react.jsx"
+      ],
+      "styles": [
+        "linechart.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

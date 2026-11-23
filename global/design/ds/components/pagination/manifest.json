@@ -1,0 +1,55 @@
+{
+  "id": "cn.pagination",
+  "version": "1.0.0",
+  "name": "Pagination",
+  "category": "Design System",
+  "description": "Navegação entre páginas de listas e tabelas. A página atual usa aria-current e o fundo primário.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-pagination"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "pagination.html",
+      "files": [
+        "pagination.html",
+        "pagination.css",
+        "pagination.js"
+      ],
+      "styles": [
+        "pagination.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "pagination.angular.ts",
+      "files": [
+        "pagination.angular.ts"
+      ],
+      "styles": [
+        "pagination.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "pagination.react.jsx",
+      "files": [
+        "pagination.react.jsx"
+      ],
+      "styles": [
+        "pagination.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

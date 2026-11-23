@@ -1,0 +1,1 @@
+@if (items().length === 0) { <app-empty title="Nenhum depoimento pendente" /> }

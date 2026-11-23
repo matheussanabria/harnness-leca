@@ -1,0 +1,4 @@
+.pill{display:inline-block;padding:3px 12px;border-radius:999px;font-size:12px;font-weight:700}
+.pill--success{background:var(--success-background);color:var(--success-dark)}
+.pill--warning{background:var(--warning-background);color:var(--warning-dark)}
+.pill--danger{background:var(--danger-background);color:var(--danger-dark)}

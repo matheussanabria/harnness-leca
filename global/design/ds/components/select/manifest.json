@@ -1,0 +1,55 @@
+{
+  "id": "cn.select",
+  "version": "1.0.0",
+  "name": "SelectField",
+  "category": "Design System",
+  "description": "Lista suspensa nativa com rótulo acima e asterisco vermelho nos campos obrigatórios. Base dos selects em cascata.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-select"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "select.html",
+      "files": [
+        "select.html",
+        "select.css",
+        "select.js"
+      ],
+      "styles": [
+        "select.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "select.angular.ts",
+      "files": [
+        "select.angular.ts"
+      ],
+      "styles": [
+        "select.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "select.react.jsx",
+      "files": [
+        "select.react.jsx"
+      ],
+      "styles": [
+        "select.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

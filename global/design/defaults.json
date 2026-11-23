@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "designSystem": {
+    "ref": "codificadores",
     "provider": "none",
     "prefix": "ds-",
     "tokensCss": "design/tokens.css",
@@ -38,9 +39,21 @@
   },
   "prototypes": {
     "viewports": [
-      { "id": "desktop", "label": "Desktop", "width": 1280 },
-      { "id": "tablet", "label": "Tablet", "width": 768 },
-      { "id": "mobile", "label": "Celular", "width": 390 }
+      {
+        "id": "desktop",
+        "label": "Desktop",
+        "width": 1280
+      },
+      {
+        "id": "tablet",
+        "label": "Tablet",
+        "width": 768
+      },
+      {
+        "id": "mobile",
+        "label": "Celular",
+        "width": 390
+      }
     ]
   }
 }

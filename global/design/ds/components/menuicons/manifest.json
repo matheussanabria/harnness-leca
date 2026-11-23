@@ -1,0 +1,55 @@
+{
+  "id": "cn.menuicons",
+  "version": "1.0.0",
+  "name": "Ícones do menu",
+  "category": "Design System",
+  "description": "Conjunto Lucide usado nos submenus do menu do usuário, com o item de menu onde cada ícone aparece. Traço de 1.8px, herdando a cor com currentColor; nos títulos de grupo usam a cor primária.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-menuicons"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "menuicons.html",
+      "files": [
+        "menuicons.html",
+        "menuicons.css",
+        "menuicons.js"
+      ],
+      "styles": [
+        "menuicons.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "menuicons.angular.ts",
+      "files": [
+        "menuicons.angular.ts"
+      ],
+      "styles": [
+        "menuicons.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "menuicons.react.jsx",
+      "files": [
+        "menuicons.react.jsx"
+      ],
+      "styles": [
+        "menuicons.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}
