@@ -26,7 +26,7 @@ Reads a registry of sources (`catalog-sources.js`): user `~/.claude` (skills, ag
 | `ui/server/controllers/catalog.controller.js` | `GET /api/catalog`, `POST /api/catalog/area`, `GET /api/catalog/tree`, `GET /api/catalog/file` and `POST /api/catalog/file/save` (area change and save are loopback only). |
 | `ui/server/routes/catalog.routes.js` | Registers the five catalog routes. |
 | `ui/public/catalogo.html` | Page shell: Skills/Agentes/Workflows tabs, search, area chips, list and the file browser panel. |
-| `ui/public/js/catalogo/catalogo-layers.js` | "Camadas por projeto" section: effective set by layer for a project, origin and overrides, create and remove on the project layer. |
+| `ui/public/js/catalogo/catalogo-layers.js` | "Camadas por projeto" section: effective set by layer for a project, origin and overrides, create (form on top), edit the item files and remove on the project layer. |
 | `ui/public/css/catalogo.css` | Page styles (reuses `consumo.css` tokens) with workflow stage cards and navigable reference chips. |
 | `ui/public/js/catalogo/catalogo-model.js` | Pure filter, group-by-area and per-area counts. |
 | `ui/public/js/catalogo/catalogo-view.js` | Escaped HTML for chips, groups and cards including workflow badge and stage counts. |

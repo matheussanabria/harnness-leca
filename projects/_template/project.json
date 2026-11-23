@@ -1,4 +1,5 @@
 {
   "workspace": "",
+  "mirrorToWorkspace": false,
   "layers": { "disable": { "skills": [], "agents": [], "workflows": [] } }
 }

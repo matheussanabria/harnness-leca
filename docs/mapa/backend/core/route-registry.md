@@ -19,7 +19,7 @@ updated: 2026-11-06
 | `ui/server/routes/state.routes.js` | `/api/state`, active agents summary and the orchestration state, events and execution detail reads. |
 | `ui/server/routes/orchestration-stream.routes.js` | Orchestration SSE stream and operations; registered after the orchestration route group. |
 | `ui/server/routes/project.routes.js` | Engines, overview, sync, active project, project detail, memory review and chat groups. |
-| `ui/server/routes/layers.routes.js`, `ui/server/controllers/layers.controller.js` | Effective skills, agents and workflows of a project (`GET /api/project/:slug/layers`) and create/delete on the project layer (`POST .../layers`, `.../layers/delete` with `confirm: true`). |
+| `ui/server/routes/layers.routes.js`, `ui/server/controllers/layers.controller.js` | Effective skills, agents and workflows of a project (`GET /api/project/:slug/layers`) and create/delete on the project layer (`POST .../layers`, `.../layers/delete` with `confirm: true`) and content read/save of an item (`GET`/`POST .../layers/content`, known files only). |
 | `tests/layers-write.test.js` | Layer writer, the layers API, CLI create, the template tree and the catalog section. |
 | `ui/server/routes/project-skills.routes.js` | Project skills: list, templates, recognized, detail, save, install, import, delete. |
 | `ui/server/routes/project-services.routes.js` | Project dev services: status, start, stop, logs, config. |

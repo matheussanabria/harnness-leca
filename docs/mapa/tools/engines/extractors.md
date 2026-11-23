@@ -28,10 +28,11 @@ updated: 2026-11-18
 | `tools/lib/layers/scan.js`, `resolve.js` | Effective skills, agents and workflows per project from three layers (DAI, `global/`, `projects/<slug>/`); the most specific wins by id; `project.json` `layers.disable` switches off inherited items. |
 | `tools/lib/layers/writer.js` | Creates and removes items of the project layer (DAI formats: AGENT.md, SKILL.md, manifest.yaml + WORKFLOW.md); never overwrites, id validated, removal confined to the item folder. |
 | `projects/_template/project.json` | Template: `workspace` (where a project keeps its repo skills) and `layers.disable` lists (skills, agents, workflows inherited from the DAI or global that this project switches off). `skills/`, `agents/` and `workflows/` folders ship beside it. |
+| `tools/lib/layers/content.js` | Reads and saves the known text files of a project-layer item (SKILL.md, AGENT.md, manifest.yaml, WORKFLOW.md); 200 KB cap; the item must exist. |
 | `tools/layers.js` | `show <slug> [--kind k] [--json]`: effective set with origin and overrides. `create <slug> <kind> <id>`: new item on the project layer. |
 | `tools/lib/export/layers-block.js` | AGENTS.md section: project-layer items with description and path, inherited ones by id. |
 | `tests/layers.test.js` | Layer precedence, disable, 00- skip, CLI and the AGENTS.md section. |
-| `tools/lib/skill-mirror.js` | Mirrors a project's `.agents/skills` (or `projects/<slug>/skills`) into `.claude/skills` for Claude Code; sidecar `.harness-managed` marks copies, the user's own skills are never touched, orphan copies are removed. |
+| `tools/lib/skill-mirror.js` | Mirrors (only `projects/<slug>`, or the working repo when `project.json` has `mirrorToWorkspace: true`) a project's `.agents/skills` (or `projects/<slug>/skills`) into `.claude/skills` for Claude Code; sidecar `.harness-managed` marks copies, the user's own skills are never touched, orphan copies are removed. |
 | `tests/skill-mirror.test.js` | `project.json` workspace discovery, mirror create/update/skip/remove, dot-folder exclusion and the skills list in the AGENTS.md block. |
 | `tools/lib/export/data.js` | Collects `memory.md`, `memory/` items, `instructions.md`, chat counts and resolves target dirs (env-overridable in tests). |
 | `tools/lib/export/housekeeping.js` | `--report` (bytes and tokens per target) and `--prune` (lists old files; removes only with `--yes`). |
