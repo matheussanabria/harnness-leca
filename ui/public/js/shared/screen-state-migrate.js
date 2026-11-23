@@ -61,6 +61,7 @@ const TELAS = {
   routines: { escopo: "projeto", migraDe: [], regras: [] },
   "canvas-mindmap": { escopo: "projeto", migraDe: [], regras: [] },
   "canvas-board": { escopo: "projeto", migraDe: [], regras: [] },
+  "canvas-diagram": { escopo: "projeto", migraDe: [], regras: [] },
   overview: { escopo: "global", migraDe: [], regras: [] },
   office: {
     escopo: "global",

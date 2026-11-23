@@ -1,5 +1,6 @@
 // @ts-check
 // Canvas REST client for the Design workspace catalog (plain ES module, no bundler).
+import { diagramStarter, findDiagramTemplate } from "./design-canvas-diagram-templates.js";
 
 /** Error thrown for a non-OK canvas answer; keeps the HTTP status for conflict retries. */
 class CanvasApiError extends Error {
@@ -30,6 +31,7 @@ function starter(kind, title) {
       nodes: [{ id: rootId, text: title, children: [], collapsed: false }],
     };
   }
+  if (kind === "diagram") return diagramStarter(findDiagramTemplate());
   return { schema: "excalidraw@1", elements: [], appState: {}, files: {} };
 }
 
@@ -94,9 +96,10 @@ export function createCanvasApi(slug, fetcher = fetch) {
      * Create a board with its starter document; returns the created board.
      * @param {string} kind
      * @param {string} title
+     * @param {unknown} [data] initial payload; defaults to the kind's starter
      */
-    async create(kind, title) {
-      const body = JSON.stringify({ kind, title, data: starter(kind, title) });
+    async create(kind, title, data) {
+      const body = JSON.stringify({ kind, title, data: data || starter(kind, title) });
       return (await call(`${base}?${q}`, { method: "POST", body })).board;
     },
 

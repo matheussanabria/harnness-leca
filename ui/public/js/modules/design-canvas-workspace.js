@@ -10,10 +10,11 @@ import { setChatArtifact } from "./chat-scope.js";
 import { attachStudioSidebarToAtelier, parkStudioSidebar } from "./prototype-atelier-sidebar.js";
 import { initWorkspaceLayout } from "./prototype-workspace-layout.js";
 
-/** @type {Record<string, { kind: "mindmap" | "board", icon: string, rail: string, title: string }>} */
+/** @type {Record<string, { kind: "mindmap" | "board" | "diagram", icon: string, rail: string, title: string }>} */
 const VIEWS = {
   "canvas-mindmap": { kind: "mindmap", icon: "fa-sitemap", rail: "Mapas mentais", title: "Mapa mental" },
   "canvas-board": { kind: "board", icon: "fa-chalkboard", rail: "Quadros", title: "Quadro livre" },
+  "canvas-diagram": { kind: "diagram", icon: "fa-diagram-project", rail: "Diagramas", title: "Diagramas" },
 };
 
 /** Board open in each view, kept while the page lives so switching tabs returns to the same board. */
@@ -68,8 +69,9 @@ export async function renderCanvasWorkspace(container, view, slug) {
   const catalogHost = /** @type {HTMLElement} */ (container.querySelector("#canvasCatalogHost"));
   initWorkspaceLayout(root);
   attachStudioSidebarToAtelier();
-  // Both canvas kinds understand chat answers: <mindmap> outlines and <board> Mermaid diagrams.
-  setCanvasChatContext({ kind: info.kind, slug });
+  // Mind maps and boards understand chat answers (<mindmap> outlines, <board> Mermaid). Diagrams stay without a canvas
+  // chat mode until EP-21.05: the bridge would otherwise treat a diagram like a mind map.
+  setCanvasChatContext(info.kind === "diagram" ? null : { kind: info.kind, slug });
 
   const api = createCanvasApi(slug);
   const key = `${slug}:${view}`;
