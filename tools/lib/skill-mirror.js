@@ -6,7 +6,8 @@
 // never touched; a mirrored folder whose source skill disappeared is removed.
 const fs = require("fs");
 const path = require("path");
-const { findProjectTargets } = require("./skills/targets");
+const { findProjectTargets, readProjectConfig } = require("./skills/targets");
+const { ROOT } = require("./root");
 
 const MARK = ".harness-managed";
 const SOURCES = [[".agents", "skills"], ["skills"]];
@@ -81,11 +82,18 @@ function mirrorTarget({ targetPath, dryRun = false }) {
   return res;
 }
 
-/** Mirrors every skill target of a project. @param {string} slug @param {{ dryRun?: boolean }} [o] */
+/**
+ * Mirrors the skill targets of a project that the Harness owns: projects/<slug> always, and the working repositories
+ * (workspace, sub-repos) ONLY when project.json says "mirrorToWorkspace": true. The Harness never writes into a user
+ * repository on its own: an unmanaged .claude/ folder there shows up in that repository's git status.
+ * @param {string} slug @param {{ dryRun?: boolean }} [o]
+ */
 function mirrorProjectSkills(slug, o = {}) {
   const total = { created: 0, updated: 0, unchanged: 0, removed: 0, skipped: 0 };
+  const optedIn = readProjectConfig(path.join(ROOT, "projects", slug)).mirrorToWorkspace === true;
   for (const t of findProjectTargets(slug)) {
     if (!t.hasAgents) continue;
+    if (t.type !== "project" && !optedIn) continue;
     const r = mirrorTarget({ targetPath: t.path, dryRun: o.dryRun });
     for (const k of Object.keys(total)) total[k] += r[k].length;
   }

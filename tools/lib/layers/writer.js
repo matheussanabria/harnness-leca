@@ -60,4 +60,4 @@ function deleteItem({ slug, kind, id }) {
   return true;
 }
 
-module.exports = { createItem, deleteItem, scaffold };
+module.exports = { createItem, deleteItem, scaffold, itemDir };

@@ -113,3 +113,56 @@ test("the catalog page carries the layers section, accessibly, with no emojis", 
   assert.match(html, /startLayersSection/);
   assert.ok(!/[\u{1F300}-\u{1FAFF}]/u.test(fs.readFileSync(path.join(pub, "js", "catalogo", "catalogo-layers.js"), "utf8")));
 });
+
+test("content: read and save only the known files of an existing project-layer item", async () => {
+  createItem({ slug: "demo", kind: "workflow", id: "flow", description: "A flow." });
+  const got = await (await fetch(`${base}/api/project/demo/layers/content?kind=workflow&id=flow`)).json();
+  assert.deepEqual(got.files.map((f) => f.name), ["manifest.yaml", "WORKFLOW.md"]);
+
+  const save = (body) => post("/api/project/demo/layers/content", body);
+  assert.equal((await save({ kind: "workflow", id: "flow", file: "WORKFLOW.md", text: "# Edited\n" })).status, 200);
+  assert.equal(fs.readFileSync(path.join(proj, "workflows", "flow", "WORKFLOW.md"), "utf8"), "# Edited\n");
+
+  assert.equal((await save({ kind: "workflow", id: "flow", file: "../../instructions.md", text: "x" })).status, 400, "file outside the allowlist");
+  assert.equal((await save({ kind: "workflow", id: "flow", file: "notes.txt", text: "x" })).status, 400);
+  assert.equal((await save({ kind: "workflow", id: "ghost", file: "WORKFLOW.md", text: "x" })).status, 404, "never creates");
+  assert.equal((await save({ kind: "workflow", id: "flow", file: "WORKFLOW.md", text: "x".repeat(201 * 1024) })).status, 400, "size cap");
+  assert.equal((await fetch(`${base}/api/project/demo/layers/content?kind=agent&id=..`)).status, 400);
+  assert.equal(fs.readFileSync(path.join(proj, "workflows", "flow", "WORKFLOW.md"), "utf8"), "# Edited\n", "refusals change nothing");
+});
+
+test("GET /layers marks as editable only items that live in projects/<slug>/<kind>s/", async () => {
+  const repo = path.join(TMP, "work-repo");
+  fs.mkdirSync(path.join(repo, ".agents", "skills", "from-repo"), { recursive: true });
+  fs.writeFileSync(path.join(repo, ".agents", "skills", "from-repo", "SKILL.md"), "---\nname: from-repo\ndescription: In the repo.\n---\n");
+  fs.writeFileSync(path.join(proj, "mcp.json"), JSON.stringify({ repo }));
+  const list = await (await fetch(`${base}/api/project/demo/layers`)).json();
+  const byId = (id) => list.items.find((i) => i.id === id);
+  assert.equal(byId("flow").editable, true);
+  assert.equal(byId("from-repo").layer, "project", "mcp.json repo skills are read for every project, no project.json needed");
+  assert.equal(byId("from-repo").editable, false);
+  assert.equal((await post("/api/project/demo/layers/content", { kind: "skill", id: "from-repo", file: "SKILL.md", text: "x" })).status, 404);
+  fs.rmSync(path.join(proj, "mcp.json"));
+});
+
+test("the skill mirror writes into a working repository only when project.json opts in", () => {
+  const { mirrorProjectSkills } = require("../tools/lib/skill-mirror");
+  const repo = path.join(TMP, "mirror-repo");
+  fs.mkdirSync(path.join(repo, ".agents", "skills", "alpha"), { recursive: true });
+  fs.writeFileSync(path.join(repo, ".agents", "skills", "alpha", "SKILL.md"), "---\nname: alpha\ndescription: A.\n---\n");
+  fs.writeFileSync(path.join(proj, "mcp.json"), JSON.stringify({ repo }));
+  mirrorProjectSkills("demo");
+  assert.ok(!fs.existsSync(path.join(repo, ".claude")), "default: the user's repository is left alone");
+  fs.writeFileSync(path.join(proj, "project.json"), JSON.stringify({ mirrorToWorkspace: true }));
+  mirrorProjectSkills("demo");
+  assert.ok(fs.existsSync(path.join(repo, ".claude", "skills", "alpha", "SKILL.md")), "opt-in mirrors");
+  fs.rmSync(path.join(proj, "mcp.json"));
+  fs.rmSync(path.join(proj, "project.json"));
+});
+
+test("the catalog form comes before the filter toolbar and the editor is accessible", () => {
+  const html = fs.readFileSync(path.join(__dirname, "..", "ui", "public", "catalogo.html"), "utf8");
+  assert.ok(html.indexOf('id="lyForm"') < html.indexOf('id="lyKind"'), "creation form above the filter");
+  assert.match(html, /id="lyEdMsg"[^>]*aria-live="polite"/);
+  assert.match(html, /for="lyEdText"/);
+});

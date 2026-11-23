@@ -13,10 +13,29 @@ const PROJECTS = path.join(ROOT, "projects");
  * @param {string} projectDir @returns {string|null}
  */
 function readWorkspace(projectDir) {
+  const parsed = readProjectConfig(projectDir);
+  return typeof parsed.workspace === "string" && parsed.workspace.trim() ? path.resolve(ROOT, parsed.workspace) : null;
+}
+
+/** projects/<slug>/project.json as an object ({} when missing or unreadable). @param {string} projectDir @returns {any} */
+function readProjectConfig(projectDir) {
   try {
     const parsed = JSON.parse(cleanBOM(fs.readFileSync(path.join(projectDir, "project.json"), "utf8")));
-    return parsed && typeof parsed.workspace === "string" && parsed.workspace.trim() ? path.resolve(ROOT, parsed.workspace) : null;
-  } catch { return null; }
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch { return {}; }
+}
+
+/**
+ * The project's working repository: mcp.json "repo" (where the chat runs the engine) wins, project.json "workspace"
+ * fills the gap. Both findProjectTargets and the layer resolver read the same place.
+ * @param {string} projectDir @returns {string|null}
+ */
+function workspaceOf(projectDir) {
+  try {
+    const mcp = JSON.parse(cleanBOM(fs.readFileSync(path.join(projectDir, "mcp.json"), "utf8")));
+    if (mcp && typeof mcp.repo === "string" && mcp.repo.trim()) return path.resolve(mcp.repo);
+  } catch { /* no mcp.json */ }
+  return readWorkspace(projectDir);
 }
 
 /**
@@ -111,4 +130,4 @@ function findProjectTargets(slug) {
   return unique;
 }
 
-module.exports = { findProjectTargets, readWorkspace, PROJECTS };
+module.exports = { findProjectTargets, readWorkspace, readProjectConfig, workspaceOf, PROJECTS };

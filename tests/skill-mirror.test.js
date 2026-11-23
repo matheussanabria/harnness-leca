@@ -70,10 +70,13 @@ test("a mirrored skill whose source disappeared is removed; dry-run writes nothi
   assert.ok(fs.existsSync(mirrorOf("mine")), "user's skill survives");
 });
 
-test("mirrorProjectSkills walks the project targets", () => {
+test("mirrorProjectSkills leaves the working repository alone unless project.json opts in", () => {
+  const before = mirrorProjectSkills("demo");
+  assert.equal(before.created + before.updated + before.unchanged, 0, "no opt-in: repository untouched");
+  fs.writeFileSync(path.join(projDir, "project.json"), JSON.stringify({ workspace: "repo", mirrorToWorkspace: true }));
   const total = mirrorProjectSkills("demo");
   assert.equal(total.created, 0);
-  assert.ok(total.unchanged >= 1);
+  assert.ok(total.unchanged >= 1, "opt-in: the repository targets are mirrored");
 });
 
 test("AGENTS.md block lists the project skills and tells the engine when to open them", () => {

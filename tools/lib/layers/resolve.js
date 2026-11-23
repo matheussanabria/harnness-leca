@@ -11,7 +11,7 @@ const fs = require("fs");
 const path = require("path");
 const { ROOT } = require("../root");
 const { cleanBOM } = require("../skills/frontmatter");
-const { readWorkspace } = require("../skills/targets");
+const { workspaceOf } = require("../skills/targets");
 const { KINDS, scanKind } = require("./scan");
 
 const LAYERS = ["dai", "global", "project"];
@@ -20,7 +20,7 @@ const PLURAL = { skill: "skills", agent: "agents", workflow: "workflows" };
 /** Where each layer keeps each kind. @returns {Record<string, Record<string, string[]>>} */
 function roots(slug, daiPath) {
   const projectDir = path.join(ROOT, "projects", slug);
-  const workspace = readWorkspace(projectDir);
+  const workspace = workspaceOf(projectDir); // mcp.json repo, else project.json workspace
   return {
     dai: daiPath ? { skill: [path.join(daiPath, "skills")], agent: [path.join(daiPath, ".agents")], workflow: [path.join(daiPath, "workflows")] } : { skill: [], agent: [], workflow: [] },
     global: Object.fromEntries(KINDS.map((k) => [k, [path.join(ROOT, "global", PLURAL[k])]])),
