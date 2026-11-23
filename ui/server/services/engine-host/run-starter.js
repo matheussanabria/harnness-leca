@@ -4,7 +4,8 @@
 // EP-23.03: runs inside the engine host (ui/engine-host.js). The web server only uses it directly in the
 // legacy in-process mode (HARNESS_ENGINE_HOST=0).
 const crypto = require("crypto");
-const { slugs, MAX_CHATS } = require("../../config");
+const { MAX_CHATS } = require("../../config");
+const { acceptsScope } = require("../../scope/resolve-scope");
 const E = require("../../../../tools/lib/engines");
 const perms = require("../../../../tools/lib/permissions");
 const { handleChatWithHia } = require("../hia-chat-dispatcher.service");
@@ -46,7 +47,7 @@ function startChatRun(body, { permissionUrl }) {
   const { engine, prompt, slug, sessionId, history, model, effort, temperature, daiAgent } = body || {};
   const eff = E.safeEffort(effort || (temperature != null ? effortFromTemperature(temperature) : "medium"));
   if (typeof prompt !== "string" || !prompt || !slug) return { status: 400, error: "prompt e slug são obrigatórios" };
-  if (!slugs().includes(slug)) return { status: 404, error: "projeto não encontrado" };
+  if (!acceptsScope(slug)) return { status: 404, error: "projeto não encontrado" };
   if (MAX_CHATS > 0 && runningChats >= MAX_CHATS) {
     recordCapacityRejected({ slug, engine, running: runningChats, limit: MAX_CHATS, runId: crypto.randomUUID(), traceId: body.traceId });
     return { status: 429, error: `Já há ${MAX_CHATS} respostas em andamento. Aguarde uma terminar.` };

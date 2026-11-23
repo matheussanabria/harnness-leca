@@ -1,18 +1,14 @@
 // @ts-check
-// GET /api/features: the feature manifest with availability for the current scope (EP-25.01).
+// GET /api/features: the feature manifest with availability for the current scope (EP-25.01, EP-25.02).
 const { send } = require("../config");
 const { FEATURES, availability } = require("../features/manifest");
-
-/** Reads the project slug from the X-Harness-Project header; empty means "no project". */
-function scopeSlug(req) {
-  const raw = req && req.headers ? req.headers["x-harness-project"] : "";
-  const slug = typeof raw === "string" ? raw.trim().toLowerCase() : "";
-  return /^[a-z0-9][a-z0-9_-]*$/.test(slug) ? slug : null;
-}
+const { resolveScope } = require("../scope/resolve-scope");
 
 async function apiFeatures({ req, res }) {
-  const slug = scopeSlug(req);
-  return send(res, 200, { projeto: slug, funcionalidades: availability(FEATURES, slug) });
+  // No header means "no project" here: the manifest must not depend on the last used project.
+  const scope = resolveScope(req, { fallbackActive: false });
+  if (!scope.ok) return send(res, 404, { error: scope.error });
+  return send(res, 200, { projeto: scope.projectSlug, funcionalidades: availability(FEATURES, scope.projectSlug) });
 }
 
-module.exports = { apiFeatures, scopeSlug };
+module.exports = { apiFeatures };

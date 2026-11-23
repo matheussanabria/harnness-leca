@@ -2,7 +2,8 @@
 // Chat conversations API (EP-17.02 RF2). The server resolves a conversation's engine sessions; the browser keeps
 // only a cache. With HARNESS_CHAT_STORE=file (rollback) every route answers 503 and the browser falls back to
 // its local cache and the .md files.
-const { slugs, send, readJsonBody } = require("../config");
+const { send, readJsonBody } = require("../config");
+const { acceptsScope } = require("../scope/resolve-scope");
 const svc = require("../services/chat/conversation.service");
 
 const ID = "([0-9a-f-]{36})";
@@ -24,7 +25,7 @@ async function bodyOr400(req, res) {
   }
 }
 
-const knownProject = (/** @type {unknown} */ slug) => typeof slug === "string" && slugs().includes(slug);
+const knownProject = (/** @type {unknown} */ slug) => acceptsScope(slug);
 
 /** GET /api/chat/conversations?project=&file=&archived=1 */
 async function apiList({ res, url }) {

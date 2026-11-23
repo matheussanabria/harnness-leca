@@ -2,7 +2,8 @@
 // Chat routes. EP-23.03: the engines run in the engine host (ui/engine-host.js); POST /api/chat, the attach and
 // the stop are relayed to it with the same browser contract. HARNESS_ENGINE_HOST=0 keeps the legacy in-process
 // mode (the rollback), where this process starts the engines itself.
-const { slugs, send, readJsonBody, HEADERS } = require("../config");
+const { send, readJsonBody, HEADERS } = require("../config");
+const { acceptsScope } = require("../scope/resolve-scope");
 const E = require("../../../tools/lib/engines");
 const DAI = require("../../../tools/lib/dai");
 const { getRun } = require("../services/chat-run-registry.service");
@@ -119,7 +120,7 @@ async function apiChatSave({ req, res }) {
   }
   const { slug, engine, title, turns, sessionId } = body;
   if (!slug || !Array.isArray(turns)) return send(res, 400, { error: "slug e turnos são obrigatórios" });
-  if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });
+  if (!acceptsScope(slug)) return send(res, 404, { error: "projeto não encontrado" });
   try {
     const saved = E.saveChatToProject({ slug, engine, title, turns, sessionId });
     // EP-17.02: the same save is mirrored into the database (fails open: the .md file is already written).

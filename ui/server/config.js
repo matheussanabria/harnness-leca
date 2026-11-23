@@ -61,10 +61,12 @@ const read = (p) => {
   }
 };
 
+const { RESERVED_SLUGS } = require("./scope/reserved");
+
 const slugs = () => {
   try {
     return fs.readdirSync(getProjects(), { withFileTypes: true })
-      .filter((d) => d.isDirectory() && d.name !== "_template")
+      .filter((d) => d.isDirectory() && !RESERVED_SLUGS.includes(d.name))
       .map((d) => d.name);
   } catch {
     return [];

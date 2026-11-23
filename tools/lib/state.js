@@ -8,11 +8,12 @@ const crypto = require("crypto");
 const { ROOT } = require("./root");
 const { readMeta, hashBody, countTurns } = require("./chat-format");
 const { statusOf, renderTable } = require("./extraction");
+const { PERSONAL_SLUG } = require("../../ui/server/scope/reserved");
 const SLUG = /^[a-z0-9][a-z0-9_-]{0,59}$/;
 
 function paths(slug) {
-  if (!SLUG.test(slug || "") || slug === "_template") throw new Error("projeto inválido");
-  const proj = path.join(ROOT, "projects", slug);
+  if (!(SLUG.test(slug || "") || slug === PERSONAL_SLUG) || slug === "_template") throw new Error("projeto inválido");
+  const proj = path.join(process.env.HARNESS_PROJECTS_DIR ? path.resolve(process.env.HARNESS_PROJECTS_DIR) : path.join(ROOT, "projects"), slug);
   return {
     proj,
     chats: path.join(proj, "chats"),
