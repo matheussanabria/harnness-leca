@@ -44,8 +44,8 @@ function collectProjectData(slug) {
 
 /**
  * Diretórios de destino. Precedência: parâmetro, variável de ambiente, padrão.
- * Variáveis: HARNESS_EXPORT_CLAUDE_PROJECTS, HARNESS_EXPORT_GEMINI_HOME.
- * @param {{ claudeProjectsDir?: string, geminiHome?: string }} [o]
+ * Variáveis: HARNESS_EXPORT_CLAUDE_PROJECTS, HARNESS_EXPORT_GEMINI_HOME, HARNESS_EXPORT_CODEX_PROJECTS.
+ * @param {{ claudeProjectsDir?: string, geminiHome?: string, codexProjectsDir?: string }} [o]
  */
 function resolveTargets(o = {}) {
   const env = process.env;
@@ -55,6 +55,7 @@ function resolveTargets(o = {}) {
     claudeProjectsDir: o.claudeProjectsDir || env.HARNESS_EXPORT_CLAUDE_PROJECTS || path.join(home, ".claude", "projects"),
     geminiKnowledgeDir: path.join(geminiHome, "antigravity-ide", "knowledge"),
     geminiRulesDir: path.join(geminiHome, "config", "rules"),
+    codexProjectsDir: o.codexProjectsDir || env.HARNESS_EXPORT_CODEX_PROJECTS || path.join(ROOT, "projects"),
   };
 }
 
