@@ -3,7 +3,7 @@
 // Exporta a memória curada do Harness para o contexto nativo dos agentes:
 // 1. Claude Code: ~/.claude/projects/<pasta>/memory/MEMORY.md (só o bloco gerenciado)
 // 2. Gemini / Antigravity: Knowledge Item (memory.md) + regra global em ~/.gemini
-// 3. Pastas locais: .claude/context/ e .gemini/context/ no próprio harness-leca
+// 3. Codex: bloco gerenciado em projects/<slug>/AGENTS.md (o Codex lê a partir do cwd do projeto)
 //
 // Uso:
 //   node tools/export-context.js                    sincroniza todos os projetos
@@ -13,7 +13,7 @@
 //   node tools/export-context.js --prune [--yes]    lista arquivos antigos; só remove com --yes
 //
 // Destinos podem ser trocados por parâmetro (options) ou pelas variáveis
-// HARNESS_EXPORT_CLAUDE_PROJECTSe HARNESS_EXPORT_GEMINI_HOME.
+// HARNESS_EXPORT_CLAUDE_PROJECTS, HARNESS_EXPORT_GEMINI_HOME e HARNESS_EXPORT_CODEX_PROJECTS.
 
 const fs = require("fs");
 
@@ -23,6 +23,7 @@ const { collectProjectData, resolveTargets } = require("./lib/export/data");
 const { writeManagedBlock, writeGenerated, isInside } = require("./lib/export/managed-file");
 const { planClaude } = require("./lib/export/claude");
 const { planGeminiProject, planGeminiGlobal } = require("./lib/export/gemini");
+const { planCodex } = require("./lib/export/codex");
 const { reportRows, printReport, prune } = require("./lib/export/housekeeping");
 
 /** Mapeia pastas do Claude Code existentes em claudeProjectsDir por slug de projeto. */
@@ -85,8 +86,9 @@ function run(argv, io = console, options = {}) {
     const claude = planClaude(data, claudeDirsBySlug.get(slug) || [], targets);
     const gemini = planGeminiProject(data, targets);
     // As copias locais em .claude/context e .gemini/context nao tinham leitor e deixaram de ser geradas.
-    const plan = [...claude.writes, ...gemini.writes];
-    const legacy = [...claude.legacy, ...gemini.legacy];
+    const codex = planCodex(data, targets);
+    const plan = [...claude.writes, ...gemini.writes, ...codex.writes];
+    const legacy = [...claude.legacy, ...gemini.legacy, ...codex.legacy];
 
     const results = plan.map((w) => apply(w, dryRun, io));
     allLegacy.push(...legacy);
@@ -96,6 +98,7 @@ function run(argv, io = console, options = {}) {
     totalGeminiKIs++;
     io.log(`   [Claude] ${claude.folders} pasta(s) com bloco gerenciado em MEMORY.md`);
     io.log(`   [Gemini] Knowledge Item: ki-projeto-${slug}`);
+    io.log(`   [Codex] projects/${slug}/AGENTS.md (bloco gerenciado)`);
     overview.push({ slug, chatsCount: data.chatsCount });
   }
 
