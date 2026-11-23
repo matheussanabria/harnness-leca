@@ -26,15 +26,15 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-12 | 32/32 | **concluído (contrato); piloto e Studio pendentes** | F0 a F7 concluídas; Marcos M1, M2 e M3 homologados | Portão satisfeito |
 | EP-13 | 9/9 | **concluído** | 13.01 a 13.09 concluídas; memória declarativa atômica com frontmatter, índice gerado com teto, deduplicação trigram/hash, ferramenta save com recusa de segredos, revisão e colheita nativa, carregamento em duas fases e faxina periódica com lint | Portão satisfeito |
 | EP-14 | 12/12 | **concluído** | 14.01 a 14.12 concluídas; endpoints de estado e histórico das 13 telas, concorrência por `rev`, limite de 64 KB, migração de localStorage e cobertura total de testes | Portão satisfeito |
-| EP-17 | 1/13 | **em andamento** | 17.01 aceita em 2026-11-22; 17.02 implementada (faltam a conferência no navegador e o item de interface); as demais histórias estão planejadas | Aceitar a 17.02; depois 17.03 e 17.05 em paralelo |
+| EP-17 | 2/13 | **em andamento** | 17.01 aceita em 2026-11-22 e 17.02 em 2026-11-23 (conferência no navegador e o item de interface ficaram como pendências); as demais histórias estão planejadas | 17.03 e 17.05 em paralelo |
 | EP-19 | 9/9 | **concluído conforme histórias / complete per story records** | [19.01–19.09](../02-epics/EP-19-canvas/README.md): nove histórias com status concluida e referências de testes / nine completed stories with test references | Registro reconciliado; sem novo aceite / record reconciled; no new acceptance |
 | EP-20 | 0/1 | **em revisão** | Edição de código pelo celular implementada; aguarda validação visual dos breakpoints móveis | Validar em 320px, 375px e 768px e registrar aceite |
 | EP-21 | 2/14 | **em andamento** | Diagramas estruturados: Mermaid nativo, Flow (React Flow), ELK e modelos de IA; 14 histórias criadas, ADR-014 aceito (21.01 e 21.02 concluidas). |
 | EP-22 | 0/6 | **planejado** | Navegação de projetos: spec do BA/UX e histórias 22.01 a 22.06 criadas em 2026-11-16 | Definir a frente e abrir 22.01 e 22.03 em paralelo |
-| EP-23 | 4/7 | **em andamento** | 23.01 a 23.04 aceitas em 2026-11-22; 23.05 a 23.07 implementadas, aguardando aceite (faixa Reconectando no navegador, VPS de verdade e reinício do host) | Conferir a faixa Reconectando (23.05), a VPS (23.06) e reiniciar o host (23.07) |
+| EP-23 | 7/7 | **encerrado** | 23.01 a 23.04 aceitas em 2026-11-22; 23.05 a 23.07 aceitas em 2026-11-23 sem VPS (ainda não existe); conferências manuais ficaram como pendências nas histórias | Cadastrar a VPS no seletor quando ela existir (23.06) e conferir a faixa Reconectando (23.05) |
 | EP-24 | 6/6 | **concluído** | Motion design no Atelier: formato motion@1 e store (24.01), runtime no iframe (24.02), player (24.03), tools do agente com sonda em 3 modelos reais (24.04), exportação WebM/MP4/GIF sem ffmpeg (24.05) e painel de keyframes (24.06); aceito pelo usuário em 2026-11-21 após teste no Atelier | Encerrado |
 
-**Total: 152/186**
+**Total: 156/186**
 
 Reconciliação documental em 2026-11-16: adicionada a linha EP-19, já contabilizada no índice mestre e nas nove histórias concluídas. A tabela agora soma 141/166 em 19 épicos. Não representa percentual de usabilidade ou novo aceite.
 
