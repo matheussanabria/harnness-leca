@@ -48,6 +48,9 @@ O projeto ativo (`projects/.active`) é um estado global implícito que cerca de
 | [25.08](25.08-docker-primeira-execucao.md) | Empacotamento Docker e primeira execução guiada | P1 | 25.05 |
 | [25.09](25.09-abertura-repositorio.md) | Abertura do repositório: licença, créditos e doação | P1 | nenhuma |
 | [25.10](25.10-atelie-sem-projeto.md) | Ateliê com janela e rota próprias, sem projeto | P1 | 25.03, 25.05, 25.06 |
+| [25.11](25.11-servidor-aceita-espaco-pessoal.md) | Servidor aceita o espaço pessoal no Design, no estado das telas e na lista de projetos | P1 | 25.02 |
+| [25.12](25.12-spa-sem-projeto-e-rotas.md) | SPA com Sem projeto e rotas próprias de quadro livre, mapa mental e diagramas | P1 | 25.11, 25.05 |
+| [25.13](25.13-mover-copiar-no-catalogo.md) | Mover e copiar para projeto no catálogo do Canvas | P1 | 25.04, 25.12 |
 
 ```mermaid
 flowchart LR
@@ -69,6 +72,10 @@ flowchart LR
 
 - **Retirar das telas de projeto e criar rotas próprias (histórias de correção ou novo épico), ainda não criado.** Ateliê, mapa mental, quadro livre e diagramas hoje nascem dentro do workspace de Design/Studio (`design-canvas-workspace.js`, `design-canvas-catalog.js`), que é amarrado a projeto, e o Scrum também deve ser revisado para ver se embute algum deles. Falta decidir, com o dono: se vira um conjunto de histórias de correção neste épico ou um épico novo; o que sai de dentro do Studio e do Scrum e o que apenas ganha uma segunda porta de entrada; e como ficam os links antigos. As rotas novas (`/quadro-livre`, `/mapa-mental`, `/diagramas`, `/atelie`) nascem nas histórias 25.06 e 25.10 sem remover nada; a retirada fica nesta pendência.
 - **Licença, créditos e doação (25.09):** adiada a pedido do dono em 2026-11-23.
+
+## Divisão da 25.06
+
+A 25.06 foi fatiada depois de o código mostrar que a SPA trata projeto como obrigatório: 25.11 (servidor), 25.12 (SPA e rotas) e 25.13 (mover e copiar no catálogo). A 25.06 mantém o RF3 entregue e passa a ser a história guarda-chuva dessas fatias; a coluna da direita específica da rota nos três canvas não existe hoje e fica como decisão pendente do dono.
 
 ## Aceite do épico
 

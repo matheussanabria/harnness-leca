@@ -34,7 +34,7 @@ Status real do repositório. Só muda com evidência registrada na história. O 
 | EP-23 | 7/7 | **encerrado** | 23.01 a 23.04 aceitas em 2026-11-22; 23.05 a 23.07 aceitas em 2026-11-23 sem VPS (ainda não existe); conferências manuais ficaram como pendências nas histórias | Cadastrar a VPS no seletor quando ela existir (23.06) e conferir a faixa Reconectando (23.05) |
 | EP-24 | 6/6 | **concluído** | Motion design no Atelier: formato motion@1 e store (24.01), runtime no iframe (24.02), player (24.03), tools do agente com sonda em 3 modelos reais (24.04), exportação WebM/MP4/GIF sem ffmpeg (24.05) e painel de keyframes (24.06); aceito pelo usuário em 2026-11-21 após teste no Atelier | Encerrado |
 
-**Total: 156/196**
+**Total: 156/199**
 
 Reconciliação documental em 2026-11-16: adicionada a linha EP-19, já contabilizada no índice mestre e nas nove histórias concluídas. A tabela agora soma 141/166 em 19 épicos. Não representa percentual de usabilidade ou novo aceite.
 

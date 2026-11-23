@@ -3,6 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const { getRoot, getProjects, read, slugs, active, send, readJsonBody, inside } = require("../config");
 const { project, readProjectGroups } = require("../services/project.service");
+const { acceptsScope } = require("../scope/resolve-scope");
+const { PERSONAL_SLUG } = require("../scope/reserved");
 const { setActiveProject } = require("../services/project-selection.service");
 const suggest = require("../../../tools/lib/suggest");
 
@@ -10,6 +12,7 @@ const apiState = ({ res }) =>
   send(res, 200, {
     active: active(),
     projects: slugs(),
+    personal: { slug: PERSONAL_SLUG, titulo: "Sem projeto" },
     global: {
       instructions: read(path.join(getRoot(), "global", "instructions.md")),
       memory: read(path.join(getRoot(), "global", "memory.md")),
@@ -17,7 +20,7 @@ const apiState = ({ res }) =>
   });
 
 const apiProject = ({ res, params: [slug] }) =>
-  slugs().includes(slug) ? send(res, 200, project(slug)) : send(res, 404, { error: "projeto não encontrado" });
+  acceptsScope(slug) ? send(res, 200, project(slug)) : send(res, 404, { error: "projeto não encontrado" });
 
 const apiProjectGroupsGet = ({ res, params: [slug] }) => {
   if (!slugs().includes(slug)) return send(res, 404, { error: "projeto não encontrado" });

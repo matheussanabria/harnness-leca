@@ -2,6 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const { getProjects, send, postOk } = require("../config");
+const { scopeDirExists } = require("../scope/scope-dir");
 const { getProjectRepoInfo } = require("./inspect.controller");
 const { buildDesignIndex } = require("../services/design-index.service");
 const { getFeatureLayers, isInside, ALLOWED_DOC_EXTS, MAX_DOC_SIZE } = require("../services/design-layers.service");
@@ -50,7 +51,7 @@ function readJsonBody(req) {
 
 async function apiProjectDesignProfileGet({ res, params: [slug] }) {
   const projectDir = path.join(getProjects(), slug);
-  if (!fs.existsSync(projectDir)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
+  if (!scopeDirExists(slug, projectDir)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
   const { repo } = getProjectRepoInfo(slug);
   const context = getProjectDesignContext(slug, projectDir, repo || projectDir);
   return send(res, 200, { ok: true, profile: context.profile, allowedRepoDirs: context.allowedRepoDirs });
@@ -66,7 +67,7 @@ async function apiProjectDesignProfileDetect({ res, params: [slug] }) {
 async function apiProjectDesignProfileSave({ req, res, params: [slug] }) {
   if (!postOk(req)) return send(res, 403, { error: "Acesso negado: PIN ou localhost obrigatório." });
   const projectDir = path.join(getProjects(), slug);
-  if (!fs.existsSync(projectDir)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
+  if (!scopeDirExists(slug, projectDir)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
 
   try {
     const body = await readJsonBody(req);
@@ -87,7 +88,7 @@ async function apiProjectDesignProfileSave({ req, res, params: [slug] }) {
 
 async function apiProjectDesignIndex({ res, params: [slug] }) {
   const projectDir = path.join(getProjects(), slug);
-  if (!fs.existsSync(projectDir)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
+  if (!scopeDirExists(slug, projectDir)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
   const { repo, cwd } = getProjectRepoInfo(slug);
   const context = getProjectDesignContext(slug, projectDir, repo || projectDir);
   const result = buildDesignIndex(projectDir, repo || projectDir, { appCwd: cwd, profile: context.profile });
@@ -168,14 +169,14 @@ async function apiProjectDesignPrototype({ req, res, params: [slug, pathProtoId,
 
 async function apiProjectDesignScreens({ res, params: [slug] }) {
   const projectDir = path.join(getProjects(), slug);
-  if (!fs.existsSync(projectDir)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
+  if (!scopeDirExists(slug, projectDir)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
   const { repo } = getProjectRepoInfo(slug);
   return send(res, 200, getProjectScreens(slug, repo || projectDir, projectDir));
 }
 
 async function apiProjectDesignAudit({ res, params: [slug] }) {
   const projectDir = path.join(getProjects(), slug);
-  if (!fs.existsSync(projectDir)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
+  if (!scopeDirExists(slug, projectDir)) return send(res, 404, { error: `Projeto '${slug}' não encontrado.` });
   const { repo } = getProjectRepoInfo(slug);
   return send(res, 200, getProjectAudit(slug, repo || projectDir, projectDir));
 }

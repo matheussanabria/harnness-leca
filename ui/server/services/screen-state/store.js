@@ -1,7 +1,8 @@
 // @ts-check
 const fs = require("node:fs");
 const path = require("node:path");
-const { getProjects, getRoot, slugs } = require("../../config");
+const { getProjects, getRoot } = require("../../config");
+const { acceptsScope } = require("../../scope/resolve-scope");
 const {
   MAX_STATE_BYTES,
   ScreenStateError,
@@ -52,7 +53,7 @@ function projectOrThrow(project) {
   if (!slug) {
     throw new ScreenStoreError("O parâmetro project é obrigatório para telas de projeto.", "PROJECT_REQUIRED", 400);
   }
-  if (!slugs().includes(slug)) {
+  if (!acceptsScope(slug)) {
     throw new ScreenStoreError(`Projeto não encontrado: ${slug}`, "PROJECT_NOT_FOUND", 404);
   }
   return slug;
