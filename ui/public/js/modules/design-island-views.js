@@ -4,7 +4,7 @@
 import { getIslandLoader } from "../shared/island-loader.js";
 import { renderCanvasWorkspace } from "./design-canvas-workspace.js";
 
-export const ISLAND_DESIGN_VIEWS = Object.freeze(["canvas-mindmap", "canvas-board"]);
+export const ISLAND_DESIGN_VIEWS = Object.freeze(["canvas-mindmap", "canvas-board", "canvas-diagram"]);
 
 /** @param {string} view */
 export function isIslandView(view) {
