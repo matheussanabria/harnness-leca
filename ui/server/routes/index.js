@@ -23,6 +23,7 @@ const { orchestrationRoutes } = require("./orchestration.routes");
 const { orchestrationStreamRoutes } = require("./orchestration-stream.routes");
 const { projectRoutes } = require("./project.routes");
 const { projectSkillsRoutes } = require("./project-skills.routes");
+const { layersRoutes } = require("./layers.routes");
 const { projectServicesRoutes } = require("./project-services.routes");
 const { appRoutes } = require("./app.routes");
 const { chatRoutes } = require("./chat.routes");
@@ -57,6 +58,7 @@ const ROUTES = [
   ...orchestrationStreamRoutes,
   ...projectRoutes,
   ...projectSkillsRoutes,
+  ...layersRoutes,
   ...projectServicesRoutes,
   ...appRoutes,
   ...chatRoutes,

@@ -3,7 +3,7 @@ domain: tools
 module: engines
 feature: extractors
 summary: Network and process libs, managed export writers, declarative memory libs (item, harvest, lint) and the memory hook.
-paths: [tools/lib/network.js, tools/lib/ui-dev-guard.js, tests/ui-dev-guard.test.js, tools/lib/proc-manager.js, tools/lib/export/*.js, tools/lib/skill-mirror.js, tools/lib/layers/*.js, tools/layers.js, tests/layers.test.js, tests/skill-mirror.test.js, tools/lib/memory/**, .claude/hooks/load-project.ps1, tests/export-*.test.js, tests/memory-*.test.js, tests/remote*.test.js, tests/proc-manager-*.test.js, tools/lib/network-*.js, tools/lib/proc-manager-*.js, tools/lib/qrcode*.js, tools/lib/skills.js, tools/lib/skills/*.js, tools/import-gemini-chats.js, tools/lib/gemini-import/*.js]
+paths: [tools/lib/network.js, tools/lib/ui-dev-guard.js, tests/ui-dev-guard.test.js, tools/lib/proc-manager.js, tools/lib/export/*.js, tools/lib/skill-mirror.js, tools/lib/layers/*.js, projects/_template/project.json, tools/layers.js, tests/layers.test.js, tests/skill-mirror.test.js, tools/lib/memory/**, .claude/hooks/load-project.ps1, tests/export-*.test.js, tests/memory-*.test.js, tests/remote*.test.js, tests/proc-manager-*.test.js, tools/lib/network-*.js, tools/lib/proc-manager-*.js, tools/lib/qrcode*.js, tools/lib/skills.js, tools/lib/skills/*.js, tools/import-gemini-chats.js, tools/lib/gemini-import/*.js]
 keywords: [export, memory, harvest, lint, network, qr, proc-manager, envelope, hook, skills, qrcode, gemini-import]
 updated: 2026-11-18
 ---
@@ -26,7 +26,9 @@ updated: 2026-11-18
 | `tools/lib/export/claude.js`, `gemini.js`, `local.js` | Plan what export writes per target (Claude `MEMORY.md` pointer, two-phase Gemini Knowledge Item). |
 | `tools/lib/export/codex.js` | Codex and OpenCode target: managed block in `projects/<slug>/AGENTS.md` (instructions, memory index, working rules), capped at 24 KB. Codex reads it from the project cwd. |
 | `tools/lib/layers/scan.js`, `resolve.js` | Effective skills, agents and workflows per project from three layers (DAI, `global/`, `projects/<slug>/`); the most specific wins by id; `project.json` `layers.disable` switches off inherited items. |
-| `tools/layers.js` | `node tools/layers.js show <slug> [--kind k] [--json]`: effective set with the origin of each item and what it replaced. |
+| `tools/lib/layers/writer.js` | Creates and removes items of the project layer (DAI formats: AGENT.md, SKILL.md, manifest.yaml + WORKFLOW.md); never overwrites, id validated, removal confined to the item folder. |
+| `projects/_template/project.json` | Template: `workspace` (where a project keeps its repo skills) and `layers.disable` lists (skills, agents, workflows inherited from the DAI or global that this project switches off). `skills/`, `agents/` and `workflows/` folders ship beside it. |
+| `tools/layers.js` | `show <slug> [--kind k] [--json]`: effective set with origin and overrides. `create <slug> <kind> <id>`: new item on the project layer. |
 | `tools/lib/export/layers-block.js` | AGENTS.md section: project-layer items with description and path, inherited ones by id. |
 | `tests/layers.test.js` | Layer precedence, disable, 00- skip, CLI and the AGENTS.md section. |
 | `tools/lib/skill-mirror.js` | Mirrors a project's `.agents/skills` (or `projects/<slug>/skills`) into `.claude/skills` for Claude Code; sidecar `.harness-managed` marks copies, the user's own skills are never touched, orphan copies are removed. |

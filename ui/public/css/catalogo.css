@@ -77,3 +77,31 @@
 .k-ref-skill{border-color:rgba(52,211,153,.4);color:#a7f3d0}
 .k-ref-skill:hover{border-color:#34d399;color:#d1fae5}
 .k-muted-text{color:var(--mute);font-size:11.5px;font-style:italic}
+
+/* Layers per project section */
+.ly { margin-top: 36px; border-top: 1px solid var(--line); padding-top: 20px; }
+.ly h2 { font-family: Georgia, serif; font-weight: 500; font-size: 22px; margin: 0 0 4px; }
+.ly h3 { font-size: 14px; margin: 0 0 8px; width: 100%; }
+.ly-f { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--mute); }
+.ly-grow { flex: 1 1 220px; }
+.ly-sum { font-size: 12.5px; color: var(--mute); align-self: end; }
+.ly-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ly-table th, .ly-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.ly-desc { font-size: 12px; color: var(--mute); max-width: 560px; }
+.ly-over { font-size: 12px; color: var(--mute); }
+.ly-tag { font-size: 11px; border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; }
+.ly-project { color: var(--accent); border-color: var(--accent); }
+.ly-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin-top: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; }
+.ly-msg { font-size: 12.5px; color: var(--mute); }
+.ly-msg.ok { color: #3cb371; }
+.ly-msg.err { color: #e5534b; }
+@media (max-width: 640px) { .ly-table { display: block; overflow-x: auto; } }
+
+/* Confirmation dialog (js/shared/confirm-dialog.js has no stylesheet of its own). */
+dialog.confirm-dialog { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; max-width: min(420px, calc(100vw - 32px)); }
+dialog.confirm-dialog::backdrop { background: rgba(0, 0, 0, .55); }
+dialog.confirm-dialog h2 { margin: 0 0 8px; font-size: 16px; }
+dialog.confirm-dialog p { margin: 0 0 14px; color: var(--mute); font-size: 13.5px; }
+.unsaved-dialog-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.unsaved-dialog-btn { min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel2); color: var(--text); font: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.unsaved-dialog-btn.is-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
