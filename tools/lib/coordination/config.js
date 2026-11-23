@@ -4,17 +4,17 @@
 const PROVIDERS = {
   claude: {
     label: "Claude Code",
-    enabled: false,
+    enabled: true,
     autoDispatch: false,
     transport: "inbox",
-    reason: "Atuando em design e outras funcoes; atualmente inativo na fila.",
+    reason: "Motor principal; ativo na fila (politica do usuario, 2026-11-23).",
   },
   gemini: {
     label: "Gemini / Antigravity",
-    enabled: false,
+    enabled: true,
     autoDispatch: false,
     transport: "inbox",
-    reason: "Limite de cota/tokens estourado; temporariamente inativo.",
+    reason: "Ativo na fila (politica do usuario, 2026-11-23).",
   },
   "opencode/qualidade": {
     label: "OpenCode — Qualidade e Sessoes",
@@ -53,10 +53,10 @@ const PROVIDERS = {
   },
   codex: {
     label: "Codex",
-    enabled: false,
+    enabled: true,
     autoDispatch: false,
     transport: "inbox",
-    reason: "Limite de cota/tokens estourado; temporariamente inativo.",
+    reason: "Ativo na fila (politica do usuario, 2026-11-23).",
   },
 };
 
