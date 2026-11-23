@@ -29,6 +29,7 @@ const { chatRoutes } = require("./chat.routes");
 const { permissionsRoutes } = require("./permissions.routes");
 const { deployRoutes } = require("./deploy.routes");
 const { hiaRoutes } = require("./hia.routes");
+const { featuresRoutes } = require("./features.routes");
 const { projectDocsRoutes } = require("./project-docs.routes");
 const { dbRoutes } = require("./db.routes");
 const { hostsRoutes } = require("./hosts.routes");
@@ -61,6 +62,7 @@ const ROUTES = [
   ...permissionsRoutes,
   ...deployRoutes,
   ...hiaRoutes,
+  ...featuresRoutes,
   ...projectDocsRoutes,
   ...dbRoutes,
   ...hostsRoutes,
