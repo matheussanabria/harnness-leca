@@ -49,6 +49,8 @@ export function renderChatsTable(pageItems, totalFiltered) {
         ? '<span class="tag" style="color:#7ca5f5;border-color:#7ca5f544;font-weight:600">✦ Gemini</span>'
         : c.agent === "opencode"
         ? '<span class="tag" style="color:#7de2a3;border-color:#7de2a344;font-weight:600">◆ OpenCode</span>'
+        : c.agent === "codex"
+        ? '<span class="tag" style="color:#b79df0;border-color:#b79df044;font-weight:600">▣ Codex</span>'
         : '<span class="tag" style="color:#d97757;border-color:#d9775744;font-weight:600">✱ Claude</span>';
     const stClass = c.status === "ok" ? "status-ok" : c.status === "alterada" ? "status-alterada" : "status-nova";
     const stLabel = c.status === "ok" ? "✓ em dia" : c.status === "alterada" ? "↻ alterada" : "⏳ pendente";
@@ -112,6 +114,8 @@ export function renderChatsList(pageItems, totalFiltered) {
           ? '<span class="tag" style="margin-right:6px;color:#7ca5f5;border-color:#7ca5f544;font-weight:600">✦ Gemini</span>'
           : c.agent === "opencode"
           ? '<span class="tag" style="margin-right:6px;color:#7de2a3;border-color:#7de2a344;font-weight:600">◆ OpenCode</span>'
+          : c.agent === "codex"
+          ? '<span class="tag" style="margin-right:6px;color:#b79df0;border-color:#b79df044;font-weight:600">▣ Codex</span>'
           : '<span class="tag" style="margin-right:6px;color:#d97757;border-color:#d9775744;font-weight:600">✱ Claude</span>';
       const stClass = c.status === "ok" ? "status-ok" : c.status === "alterada" ? "status-alterada" : "status-nova";
       const stLabel = c.status === "ok" ? "✓ em dia" : c.status === "alterada" ? "↻ alterada" : "⏳ pendente";
