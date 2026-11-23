@@ -90,6 +90,13 @@ async function main() {
     await page.locator("[role=option]", { hasText: "Sem projeto" }).click();
     await page.waitForFunction(() => document.querySelector("#why-scrum") !== null);
     check(headers.at(-1) === "none", "CP-03 'Sem projeto' sends the 'none' header");
+    for (const [title, route] of [["Mapa mental", "/mapa-mental"], ["Quadro livre", "/quadro-livre"], ["Diagramas", "/diagramas"]]) {
+      await Promise.all([page.waitForURL((u) => u.pathname === route && u.searchParams.get("p") === "_pessoal"), card(title).click()]);
+      check(true, `EP-25.12 ${title} opens at ${route} in the personal scope`);
+      await page.goto(`${BASE}/funcionalidades`);
+      await page.waitForSelector(".launcher-group");
+    }
+    check((await card("Ateliê").getAttribute("aria-disabled")) === "true", "Ateliê stays 'Em breve' until story 25.10");
     await Promise.all([page.waitForURL(/\/escritorio/), card("Chat universal").click()]);
     check(page.url().includes("/escritorio#chat"), "CP-03 Chat opens in one click without a project");
 

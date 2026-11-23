@@ -43,3 +43,5 @@ updated: 2026-10-31
 | `ui/public/css/overview-sync.css` | Collapsed technical details of the sync panel and the confirmation dialog styles. |
 | `ui/public/css/overview-projects.css` | Cards/table switch at 1024px, card layout, list states and 44px touch targets below 1024px. |
 | `ui/public/js/shared/island-loader.js` | Legacy side JS that reads `/dist/islands.js`, injects CSS, mounts/unmounts React islands in `#islandHost`; shows a notice when the build is missing. |
+
+- EP-25.12: `project-selection.js` accepts the personal workspace (`personal` option, `isPersonal`) without syncing it to `projects/.active`; `router.js` maps `/quadro-livre`, `/mapa-mental` and `/diagramas` to the Canvas views (`CANVAS_PATHS`); `app.js` adds the "Sem projeto" option to the header selector. Tests: `tests/project-selection.test.js`, `tests/canvas-windows-routes.test.js`.

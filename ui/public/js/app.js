@@ -92,10 +92,12 @@ Object.assign(window, {
 
   const sel = /** @type {HTMLSelectElement} */ ($("sel"));
   if (sel) {
-    sel.innerHTML = S.projects.map((p) => `<option ${p === S.active ? "selected" : ""}>${esc(p)}</option>`).join("");
+    sel.innerHTML = S.projects.map((p) => `<option ${p === S.active ? "selected" : ""}>${esc(p)}</option>`).join("")
+      // EP-25.12: "Sem projeto" is the personal workspace, offered after the real projects.
+      + (S.personal ? `<option value="${esc(S.personal.slug)}">${esc(S.personal.titulo)}</option>` : "");
   }
 
-  if (!S.projects.length) {
+  if (!S.projects.length && !S.personal) {
     $("title").textContent = "Nenhum projeto ainda";
     $("meta").textContent = "veja o passo 4 do SETUP.md";
     $("chats").innerHTML =
@@ -104,7 +106,7 @@ Object.assign(window, {
   }
 
   // /?p=slug abre o projeto indicado; se não vier na URL, restaura do localStorage ou do ativo.
-  const start = await projectSelection.initialize({ projects: S.projects, serverActive: S.active });
+  const start = await projectSelection.initialize({ projects: S.projects, serverActive: S.active, personal: S.personal?.slug || "" });
   state.S.active = start;
   if (sel) {
     sel.value = start;

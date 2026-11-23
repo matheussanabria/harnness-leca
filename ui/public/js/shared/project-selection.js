@@ -36,6 +36,8 @@ export class ProjectSelectionStore {
     this.eventTarget = options.eventTarget || globalThis.window;
     this.unsavedChanges = options.unsavedChanges || unsavedChanges;
     this.projects = [];
+    /** Slug of the personal workspace ("Sem projeto"); empty when the server did not announce one (EP-25.12). */
+    this.personalSlug = "";
     this.activeProject = "";
     this.listeners = new Set();
   }
@@ -45,20 +47,28 @@ export class ProjectSelectionStore {
     return () => this.listeners.delete(listener);
   }
 
-  configure(projects) {
+  configure(projects, personal = "") {
     this.projects = normalizeProjectSlugs(projects);
+    this.personalSlug = typeof personal === "string" ? personal : "";
     return this.projects;
   }
 
-  async initialize({ projects, serverActive = "" }) {
-    this.configure(projects);
+  /** True when the slug is the personal workspace. */
+  isPersonal(slug) {
+    return Boolean(this.personalSlug) && slug === this.personalSlug;
+  }
+
+  #canonical(candidate) {
+    if (this.personalSlug && typeof candidate === "string" && candidate.trim().toLowerCase() === this.personalSlug.toLowerCase()) return this.personalSlug;
+    return canonicalProjectSlug(this.projects, candidate);
+  }
+
+  async initialize({ projects, serverActive = "", personal = "" }) {
+    this.configure(projects, personal);
     const serverSlug = canonicalProjectSlug(this.projects, serverActive);
-    const selected = resolveInitialProject({
-      projects: this.projects,
-      urlProject: this.#readUrlProject(),
-      storedProject: this.#readStoredProject(),
-      serverActive: serverSlug,
-    });
+    // The URL, then the remembered choice, may name a project or the personal workspace; the server default never does.
+    const chosen = [this.#readUrlProject(), this.#readStoredProject()].map((c) => this.#canonical(c)).find(Boolean);
+    const selected = chosen || resolveInitialProject({ projects: this.projects, serverActive: serverSlug });
     if (!selected) return "";
     try {
       return await this.select(selected, { syncBackend: selected !== serverSlug, notify: false });
@@ -69,8 +79,10 @@ export class ProjectSelectionStore {
   }
 
   async select(candidate, { syncBackend = true, notify = true, force = false } = {}) {
-    const slug = canonicalProjectSlug(this.projects, candidate);
+    const slug = this.#canonical(candidate);
     if (!slug) throw new Error("Projeto inválido ou não encontrado.");
+    // The backend keeps the last real project in projects/.active; the personal workspace never replaces it.
+    if (this.isPersonal(slug)) syncBackend = false;
     const previous = this.activeProject;
     if (!force && previous && previous !== slug) {
       this.unsavedChanges.assertCanTransition({ projectSlug: previous });

@@ -3,7 +3,7 @@ domain: frontend
 module: web
 feature: launcher
 summary: Launcher island at /funcionalidades: features grouped by scope, project picker with Sem projeto, e2e (EP-25.05).
-paths: [ui/public/launcher.html, ui/web/src/features/launcher/*.ts, ui/web/src/islands/launcher/*, scripts/e2e-launcher.js, tests/launcher-model.test.js]
+paths: [ui/public/launcher.html, ui/web/src/features/launcher/*.ts, ui/web/src/islands/launcher/*, scripts/e2e-launcher.js, tests/launcher-model.test.js, tests/canvas-windows-routes.test.js]
 keywords: [launcher, funcionalidades, features, manifest, escopo, scope, sem projeto, picker, island, ep-25]
 updated: 2026-11-23
 ---
@@ -24,7 +24,8 @@ Page `/funcionalidades` (nav item "Recursos") hosts the `launcher` island throug
 | `ui/web/src/islands/launcher/FeatureCard.tsx` | Card; blocked cards stay focusable (aria-disabled) with the reason and a link to pick a project. |
 | `ui/web/src/islands/launcher/launcher.css` | Styles on the shell variables; warning colour adapts to light and dark; bottom sheet under 600 px. |
 | `scripts/e2e-launcher.js` | Headless Edge run of CP-01 to CP-07 with screenshots at 1440, 768 and 390 px (`npm run e2e:launcher`). |
+| `tests/canvas-windows-routes.test.js` | Clean addresses map to the Canvas views, hash wins, static shell served, launcher URL carries the scope. |
 | `tests/launcher-model.test.js` | Model, client and storage unit tests (CP-01, CP-02, CP-04 to CP-06). |
 
 - The manifest, its validator and the route are mapped in `docs/mapa/backend/core/feature-manifest.md`.
-- Features with `estado: "planejada"` (Ateliê, mapa mental, quadro livre, diagramas) show "Em breve" until stories 25.06 and 25.10 flip them to `ativa`.
+- Features with `estado: "planejada"` (only the Ateliê now) show "Em breve" until story 25.10 flips it to `ativa`. Mind map, free board and diagrams are active and open `/mapa-mental`, `/quadro-livre` and `/diagramas` with `?p=<project or _pessoal>` (`escopoNaUrl`).

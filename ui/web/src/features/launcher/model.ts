@@ -13,6 +13,8 @@ export interface Feature {
   rota: string;
   janela: string;
   estado: "ativa" | "planejada";
+  /** The route needs ?p=<scope> so the SPA opens in the chosen project or in the personal workspace. */
+  escopoNaUrl?: boolean;
   disponivel: boolean;
   motivo: string;
 }
@@ -77,6 +79,12 @@ export function moveHighlight(index: number, delta: number, length: number): num
 /** Keeps a remembered project only while it still exists. */
 export function validStoredProject(stored: string | null, projects: readonly string[]): string | null {
   return stored && projects.includes(stored) ? stored : null;
+}
+
+/** Where a card leads: the route, with the scope in the URL when the page needs it. */
+export function openUrl(feature: Feature, project: string | null): string {
+  if (!feature.escopoNaUrl) return feature.rota;
+  return `${feature.rota}?p=${encodeURIComponent(project ?? "_pessoal")}`;
 }
 
 /** What a click on a card should do: open it, or explain why it cannot be opened. */

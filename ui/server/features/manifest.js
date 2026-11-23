@@ -1,7 +1,8 @@
 // @ts-check
 // Feature manifest (EP-25.01, ADR-019): one entry per user-navigable feature.
 // Routes are the real page paths (static.controller.js) or an office window id (window-registry.js).
-// estado "planejada": listed by the launcher as "em breve"; its route and window arrive with the story in `nota`.
+// estado "planejada": listed by the launcher as "em breve" until its story ships (Atelier: EP-25.10).
+// escopoNaUrl: the launcher appends ?p=<project or _pessoal> so the SPA opens in the chosen scope (EP-25.12).
 const { validateManifest } = require("./validate");
 
 /** @type {import("./validate").Feature[]} */
@@ -14,13 +15,13 @@ const FEATURES = [
     rota: "/atelie", janela: "atelie", artefatos: ["prototipo"], estado: "planejada", // EP-25.10
     descricao: "Crie e ajuste protótipos de tela com ajuda dos agentes." },
   { id: "mapa-mental", titulo: "Mapa mental", escopo: "optional", icone: "fa-solid fa-sitemap",
-    rota: "/mapa-mental", janela: "mapa-mental", artefatos: ["canvas.mindmap"], estado: "planejada", // EP-25.06
+    rota: "/mapa-mental", janela: "mapa-mental", artefatos: ["canvas.mindmap"], escopoNaUrl: true,
     descricao: "Organize ideias em um mapa que você expande aos poucos." },
   { id: "quadro-livre", titulo: "Quadro livre", escopo: "optional", icone: "fa-solid fa-chalkboard",
-    rota: "/quadro-livre", janela: "quadro-livre", artefatos: ["canvas.board"], estado: "planejada", // EP-25.06
+    rota: "/quadro-livre", janela: "quadro-livre", artefatos: ["canvas.board"], escopoNaUrl: true,
     descricao: "Tela livre para esboçar, colar imagens e anotar." },
   { id: "diagramas", titulo: "Diagramas", escopo: "optional", icone: "fa-solid fa-share-nodes",
-    rota: "/diagramas", janela: "diagramas", artefatos: ["canvas.diagram", "canvas.flow"], estado: "planejada", // EP-25.06
+    rota: "/diagramas", janela: "diagramas", artefatos: ["canvas.diagram", "canvas.flow"], escopoNaUrl: true,
     descricao: "Fluxos, sequências e ER escritos em Mermaid, com preview." },
   { id: "diario", titulo: "Diário de atividade", escopo: "optional", icone: "fa-solid fa-book",
     rota: "/diario", janela: "diario", artefatos: [],

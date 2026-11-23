@@ -3,7 +3,7 @@
 // the same project (they still read projects/.active).
 import { useEffect, useState } from "react";
 import { syncActiveProject } from "../../features/launcher/api.ts";
-import { cardAction, type Feature, groupFeatures } from "../../features/launcher/model.ts";
+import { cardAction, type Feature, groupFeatures, openUrl } from "../../features/launcher/model.ts";
 import type { IslandProps } from "../../shared/island";
 import { FeatureCard } from "./FeatureCard.tsx";
 import "./launcher.css";
@@ -39,7 +39,7 @@ export function LauncherIsland(_props: IslandProps) {
       return;
     }
     if (project) await syncActiveProject(project);
-    window.location.assign(action.rota);
+    window.location.assign(openUrl(feature, project));
   };
 
   const groups = groupFeatures(features);

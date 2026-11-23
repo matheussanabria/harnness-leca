@@ -9,7 +9,7 @@ const ID_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 // Emoji and pictographs are banned in titles and icons (project rule).
 const EMOJI_RE = /\p{Extended_Pictographic}/u;
 
-/** @typedef {{id:string,titulo:string,escopo:string,icone:string,rota:string,janela:string,artefatos:string[],descricao?:string,estado?:string}} Feature */
+/** @typedef {{id:string,titulo:string,escopo:string,icone:string,rota:string,janela:string,artefatos:string[],descricao?:string,estado?:string,escopoNaUrl?:boolean}} Feature */
 
 /**
  * @param {unknown} list
@@ -32,6 +32,7 @@ function validateManifest(list) {
       errors.push(`${at}: descricao must be text without emoji`);
     }
     if (!SCOPES.includes(f.escopo)) errors.push(`${at}: escopo must be one of ${SCOPES.join(", ")}`);
+    if (f.escopoNaUrl !== undefined && typeof f.escopoNaUrl !== "boolean") errors.push(`${at}: escopoNaUrl must be boolean`);
     if (f.estado !== undefined && !STATES.includes(f.estado)) errors.push(`${at}: estado must be one of ${STATES.join(", ")}`);
     if (typeof f.icone !== "string" || !ICON_RE.test(f.icone)) {
       errors.push(`${at}: icone must be a FontAwesome class like "fa-solid fa-comments"`);

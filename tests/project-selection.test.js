@@ -125,3 +125,35 @@ test("serviço grava slug canônico de forma atômica e preserva ativo em entrad
     fs.rmSync(tempRoot, { recursive: true, force: true });
   }
 });
+
+test("EP-25.12: Sem projeto e aceito, lembrado e nao troca o projeto ativo do backend", async () => {
+  const mocks = createBrowserMocks("http://localhost/");
+  const calls = [];
+  const store = new ProjectSelectionStore({
+    fetchImpl: async (url, init) => { calls.push([url, init?.body]); return { ok: true, json: async () => ({}) }; },
+    storage: mocks.storage, location: mocks.location, history: mocks.history, eventTarget: null,
+    unsavedChanges: new UnsavedChangesRegistry(),
+  });
+  assert.equal(await store.initialize({ projects: ["alfa"], serverActive: "alfa", personal: "_pessoal" }), "alfa");
+  assert.equal(await store.select("_pessoal"), "_pessoal");
+  assert.equal(store.isPersonal(store.activeProject), true);
+  assert.equal(mocks.values.get("harness_active_project"), "_pessoal");
+  assert.ok(mocks.location.href.includes("p=_pessoal"));
+  assert.equal(calls.filter(([, body]) => String(body).includes("_pessoal")).length, 0, "backend never receives the personal slug");
+
+  const again = new ProjectSelectionStore({
+    fetchImpl: async () => ({ ok: true, json: async () => ({}) }), storage: mocks.storage, location: mocks.location,
+    history: mocks.history, eventTarget: null, unsavedChanges: new UnsavedChangesRegistry(),
+  });
+  assert.equal(await again.initialize({ projects: ["alfa"], serverActive: "alfa", personal: "_pessoal" }), "_pessoal", "the URL and the remembered choice win");
+});
+
+test("EP-25.12: sem o servidor anunciar o espaco pessoal, _pessoal continua invalido", async () => {
+  const mocks = createBrowserMocks("http://localhost/");
+  const store = new ProjectSelectionStore({
+    fetchImpl: async () => ({ ok: true, json: async () => ({}) }), storage: mocks.storage, location: mocks.location,
+    history: mocks.history, eventTarget: null, unsavedChanges: new UnsavedChangesRegistry(),
+  });
+  await store.initialize({ projects: ["alfa"], serverActive: "alfa" });
+  await assert.rejects(() => store.select("_pessoal"), /inválido/);
+});

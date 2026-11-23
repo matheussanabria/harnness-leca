@@ -64,3 +64,10 @@ test("the Design endpoints answer 200 for the personal workspace", async () => {
   }
   assert.equal((await get("/api/project/nao-existe/design/profile")).status, 404);
 });
+
+test("the artifact listing answers 200 for the personal workspace and still 404 for unknown projects", async () => {
+  const personal = await get("/api/project/_pessoal/artifacts");
+  assert.equal(personal.status, 200, JSON.stringify(personal.json));
+  assert.equal((await get("/api/project/nao-existe/artifacts")).status, 404);
+  assert.ok([400, 404].includes((await get("/api/project/_template/artifacts")).status), "reserved slug is never listed");
+});

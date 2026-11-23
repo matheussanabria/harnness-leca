@@ -54,12 +54,16 @@ test("availability: project-scope features need a project, planned ones are \"em
   assert.ok(withProject.filter((f) => f.estado === "planejada").every((f) => !f.disponivel));
 });
 
-test("the creation features the owner asked for are listed, optional and planned until their story ships", () => {
+test("the creation features the owner asked for are listed and optional; only the Atelier is still planned", () => {
   const byId = Object.fromEntries(FEATURES.map((f) => [f.id, f]));
   for (const id of ["atelie", "mapa-mental", "quadro-livre", "diagramas"]) {
     assert.equal(byId[id].escopo, "optional", id);
-    assert.equal(byId[id].estado, "planejada", id);
     assert.ok(byId[id].descricao, id);
+  }
+  assert.equal(byId.atelie.estado, "planejada", "Atelier ships with EP-25.10");
+  for (const id of ["mapa-mental", "quadro-livre", "diagramas"]) {
+    assert.notEqual(byId[id].estado, "planejada", id);
+    assert.equal(byId[id].escopoNaUrl, true, id);
   }
 });
 

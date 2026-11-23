@@ -45,6 +45,9 @@ export function buildRoute(screen, params = []) {
   return `#/${[screen, ...safe].map(encodeURIComponent).join("/")}`;
 }
 
+/** Clean addresses of the Canvas windows (EP-25.12): the SPA opens straight on the matching view. */
+export const CANVAS_PATHS = Object.freeze({ "/quadro-livre": "canvas-board", "/mapa-mental": "canvas-mindmap", "/diagramas": "canvas-diagram" });
+
 /** Old links: ?view=scrum, ?module=design, ?module=studio. Returns null when there is nothing to map. */
 export function legacyRoute(search) {
   const query = new URLSearchParams(String(search || ""));
@@ -63,6 +66,8 @@ export function legacyRoute(search) {
  */
 export function routeFromLocation(location) {
   if (String(location.hash || "").startsWith("#/")) return parseRoute(location.hash || "");
+  const byPath = CANVAS_PATHS[String(location.pathname || "").replace(/\/+$/, "")];
+  if (byPath) return { screen: byPath, params: [] };
   return legacyRoute(location.search || "");
 }
 
