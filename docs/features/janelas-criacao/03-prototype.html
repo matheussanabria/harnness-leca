@@ -5,46 +5,70 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Janelas de criação Prototype</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-<!-- EP-25.06 and EP-25.10 prototype: the standalone windows of Quadro livre, Mapa mental, Diagramas and Ateliê, with the
-     owner filter and the "Mover para projeto" / "Copiar para projeto" actions (ADR-019, story 25.04 routes).
-     Loading, error, moving and undo are simulated. The Ateliê move preview shows the traceability choice that story 25.07 delivers. Not production code. -->
+<!-- EP-25.06 and EP-25.10 prototype (v2): the standalone windows of Quadro livre, Mapa mental, Diagramas and Ateliê in the real
+     workspace layout: catalog sidebar, chat sidebar, content, and a route-specific sidebar on the right. "Mover" and "Copiar para projeto"
+     live in each catalog item. Loading, error, moving and undo are simulated. The Ateliê traceability choice belongs to story 25.07. Not production code. -->
 <style>
-  :root { --bg:#0f172a; --panel:#111827; --panel2:#1e293b; --line:#334155; --mute:#94a3b8; --text:#e2e8f0; --accent:#818cf8; --ok:#34d399; --warn:#fbbf24; --err:#f87171; }
-  :root[data-theme="light"] { --bg:#f1f5f9; --panel:#ffffff; --panel2:#e2e8f0; --line:#cbd5e1; --mute:#475569; --text:#0f172a; --accent:#4f46e5; --ok:#047857; --warn:#92400e; --err:#b91c1c; }
+  :root { --bg:#1f1e1d; --panel:#262624; --panel2:#30302e; --line:#3a3937; --text:#f0eee6; --mute:#a09d94; --accent:#d97757; --ok:#34d399; --warn:#fbbf24; --err:#f87171; --canvas:#161615; }
+  :root[data-theme="light"] { --bg:#faf9f5; --panel:#ffffff; --panel2:#f0eee6; --line:#e3e0d5; --text:#1f1e1d; --mute:#5c5a52; --accent:#c4552f; --ok:#047857; --warn:#92400e; --err:#b91c1c; --canvas:#eceae1; }
   * { box-sizing:border-box; }
-  body { margin:0; font:14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); }
+  html, body { height:100%; }
+  body { margin:0; font:13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); display:flex; flex-direction:column; }
   :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-  button, select { font:inherit; color:inherit; cursor:pointer; }
-  .proto { border-bottom:1px dashed var(--line); padding:6px 16px; font-size:12px; color:var(--mute); display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  button, select, textarea { font:inherit; color:inherit; }
+  button { cursor:pointer; }
+  .proto { border-bottom:1px dashed var(--line); padding:5px 12px; font-size:12px; color:var(--mute); display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
   .proto b { color:var(--text); }
-  .chip { padding:3px 9px; border:1px solid var(--line); border-radius:99px; background:var(--panel2); font-size:12px; }
+  .chip { padding:2px 9px; border:1px solid var(--line); border-radius:99px; background:var(--panel2); font-size:12px; }
   .chip[aria-pressed="true"] { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
-  .btn { padding:7px 11px; background:var(--panel2); border:1px solid var(--line); border-radius:7px; display:inline-flex; gap:8px; align-items:center; }
+  .btn { padding:6px 10px; background:var(--panel2); border:1px solid var(--line); border-radius:7px; display:inline-flex; gap:7px; align-items:center; white-space:nowrap; }
   .btn:hover:not(:disabled) { border-color:var(--accent); }
   .btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
   .btn:disabled { opacity:.5; cursor:not-allowed; }
-  .win { max-width:1000px; margin:14px auto; border:1px solid var(--line); border-radius:10px; background:var(--panel); overflow:hidden; }
-  .titlebar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:9px 12px; background:var(--panel2); border-bottom:1px solid var(--line); }
-  .route { font:12px ui-monospace, Consolas, monospace; color:var(--mute); padding:2px 8px; border:1px solid var(--line); border-radius:6px; }
-  .grow { flex:1; }
-  .bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 12px; border-bottom:1px solid var(--line); }
-  .bar label { color:var(--mute); font-size:12px; }
-  select { background:var(--panel2); border:1px solid var(--line); border-radius:7px; padding:6px 8px; }
-  .list { padding:6px 12px 14px; display:grid; gap:8px; }
-  .row { display:flex; gap:10px; align-items:center; padding:10px; border:1px solid var(--line); border-radius:8px; background:var(--panel); }
-  .row .ico { width:34px; height:34px; display:grid; place-items:center; border-radius:8px; background:var(--panel2); color:var(--accent); }
-  .row .meta { color:var(--mute); font-size:12px; }
-  .badge { font-size:11px; padding:1px 8px; border-radius:99px; border:1px solid var(--line); background:var(--panel2); }
+  .btn.icon { padding:6px 8px; }
+  .grow { flex:1; min-width:0; }
+  .meta { color:var(--mute); font-size:12px; }
+  header.top { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:7px 12px; background:var(--panel); border-bottom:1px solid var(--line); }
+  .brand { color:var(--accent); font-weight:700; margin-right:4px; }
+  .nav { display:flex; gap:6px; flex-wrap:wrap; }
+  .nav span { padding:4px 9px; border:1px solid var(--line); border-radius:7px; color:var(--mute); }
+  select { background:var(--panel2); border:1px solid var(--line); border-radius:7px; padding:5px 8px; }
+  .shell { flex:1; min-height:0; display:grid; grid-template-columns:270px 300px minmax(0,1fr) 280px; position:relative; }
+  aside, .content { min-width:0; min-height:0; overflow:auto; background:var(--panel); }
+  aside.cat { border-right:1px solid var(--line); } aside.chat { border-right:1px solid var(--line); display:flex; flex-direction:column; } aside.cfg { border-left:1px solid var(--line); }
+  .sidehead { display:flex; align-items:center; gap:8px; padding:9px 11px; border-bottom:1px solid var(--line); font-weight:600; }
+  .sect { padding:9px 11px 4px; font-size:11px; letter-spacing:.05em; color:var(--mute); text-transform:uppercase; }
+  .citems { padding:6px 10px 14px; display:grid; gap:7px; }
+  .citem { position:relative; border:1px solid var(--line); border-radius:8px; padding:8px 34px 8px 9px; background:var(--panel2); cursor:pointer; text-align:left; }
+  .citem[aria-current="true"] { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+  .ctitle { font-weight:600; display:flex; gap:6px; align-items:center; }
+  .badge { font-size:11px; padding:0 7px; border-radius:99px; border:1px solid var(--line); background:var(--panel); }
   .badge.personal { color:var(--accent); border-color:var(--accent); }
-  .menuwrap { position:relative; }
-  .menu { position:absolute; right:0; top:calc(100% + 4px); min-width:210px; background:var(--panel); border:1px solid var(--line); border-radius:8px; box-shadow:0 12px 30px rgba(0,0,0,.4); padding:5px; z-index:5; }
-  .menu button { display:flex; gap:8px; align-items:center; width:100%; background:none; border:0; padding:7px 9px; border-radius:6px; text-align:left; }
+  .cmenu { position:absolute; right:5px; top:6px; background:none; border:0; padding:3px 6px; border-radius:5px; }
+  .cmenu:hover { background:var(--panel); }
+  .menu { position:absolute; right:4px; top:30px; min-width:200px; background:var(--panel); border:1px solid var(--line); border-radius:8px; box-shadow:0 12px 30px rgba(0,0,0,.4); padding:5px; z-index:6; }
+  .menu button { display:flex; gap:8px; align-items:center; width:100%; background:none; border:0; padding:6px 8px; border-radius:6px; text-align:left; }
   .menu button:hover, .menu button:focus-visible { background:var(--panel2); }
-  .state { margin:18px 12px; padding:26px; text-align:center; border:1px dashed var(--line); border-radius:10px; color:var(--mute); }
-  .state i { font-size:24px; display:block; margin-bottom:6px; }
-  .skel { height:58px; border-radius:8px; border:1px solid var(--line); background:linear-gradient(90deg, var(--panel) 25%, var(--panel2) 50%, var(--panel) 75%); background-size:200% 100%; animation:sh 1.2s infinite; }
+  .state { margin:12px; padding:20px; text-align:center; border:1px dashed var(--line); border-radius:10px; color:var(--mute); }
+  .state i { font-size:22px; display:block; margin-bottom:6px; }
+  .skel { height:54px; border-radius:8px; border:1px solid var(--line); background:linear-gradient(90deg, var(--panel) 25%, var(--panel2) 50%, var(--panel) 75%); background-size:200% 100%; animation:sh 1.2s infinite; }
   @keyframes sh { to { background-position:-200% 0; } }
   @media (prefers-reduced-motion: reduce) { .skel { animation:none; } }
+  .empty-chat { flex:1; display:grid; place-content:center; text-align:center; padding:16px; gap:8px; color:var(--mute); }
+  .sugg { display:grid; gap:6px; padding:0 12px 10px; }
+  .sugg span { border:1px solid var(--line); border-radius:7px; padding:6px 9px; background:var(--panel2); }
+  .composer { border-top:1px solid var(--line); padding:10px; display:grid; gap:6px; }
+  .composer textarea { width:100%; background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:8px; resize:none; }
+  .content { background:var(--bg); display:flex; flex-direction:column; }
+  .ctoolbar { display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:7px 10px; background:var(--panel); border-bottom:1px solid var(--line); }
+  .stage { flex:1; margin:12px; border:1px solid var(--line); border-radius:8px; background:var(--canvas); display:grid; place-items:center; min-height:260px; padding:12px; text-align:center; color:var(--mute); }
+  .mock { display:grid; gap:8px; width:min(480px,100%); }
+  .mock .bar { height:12px; border-radius:6px; background:var(--panel2); } .mock .box { height:70px; border:1px dashed var(--line); border-radius:8px; }
+  .tabs { display:flex; border-bottom:1px solid var(--line); } .tabs span { flex:1; text-align:center; padding:7px 4px; color:var(--mute); }
+  .tabs span.on { color:var(--text); box-shadow:inset 0 -2px 0 var(--accent); }
+  .cfgbody { padding:10px 12px; display:grid; gap:10px; align-content:start; }
+  .cfgbody label { display:grid; gap:4px; color:var(--mute); }
+  .tree { margin:0; padding-left:16px; } .tree li { margin:3px 0; }
   .overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); display:grid; place-items:center; padding:12px; z-index:20; }
   .overlay[hidden] { display:none; }
   .dlg { width:520px; max-width:100%; max-height:92vh; overflow:auto; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; display:grid; gap:12px; }
@@ -57,8 +81,16 @@
   .actions { display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
   .toast { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:var(--panel2); border:1px solid var(--accent); padding:9px 14px; border-radius:8px; display:flex; gap:12px; align-items:center; max-width:92vw; box-shadow:0 10px 30px rgba(0,0,0,.4); z-index:30; }
   .toast[hidden] { display:none; } .toast.err { border-color:var(--err); }
-  .link { background:none; border:0; color:var(--accent); text-decoration:underline; padding:0; }
-  @media (max-width:600px) { .dlg { width:100%; } .row { flex-wrap:wrap; } .route { display:none; } .btn { white-space:nowrap; } }
+  .link { background:none; border:0; color:inherit; text-decoration:underline; padding:0; }
+  .paneBtns { display:none; gap:6px; }
+  @media (max-width:1199px) {
+    .shell { grid-template-columns:minmax(0,1fr); }
+    .paneBtns { display:flex; }
+    aside.cat, aside.chat, aside.cfg { position:absolute; top:0; bottom:0; z-index:8; width:min(320px,92%); box-shadow:0 0 30px rgba(0,0,0,.45); display:none; }
+    aside.cat, aside.chat { left:0; } aside.cfg { right:0; }
+    .shell[data-open="cat"] aside.cat, .shell[data-open="chat"] aside.chat, .shell[data-open="cfg"] aside.cfg { display:flex; flex-direction:column; }
+  }
+  @media (max-width:600px) { .dlg { width:100%; } aside.cat, aside.chat, aside.cfg { width:100%; } .nav { display:none; } }
 </style>
 </head>
 <body>
@@ -77,85 +109,124 @@
   <span style="margin-left:auto"><button class="chip" id="theme" aria-label="Alternar tema"><i class="fa-solid fa-circle-half-stroke"></i></button></span>
 </div>
 
-<main class="win" aria-labelledby="winTitle">
-  <div class="titlebar">
-    <i id="winIcon" aria-hidden="true"></i><strong id="winTitle"></strong>
-    <span class="route" id="route"></span><span class="grow"></span>
-    <button class="btn primary" id="newBtn"><i class="fa-solid fa-plus" aria-hidden="true"></i> Novo</button>
-  </div>
-  <div class="bar">
-    <label for="scope">Escopo</label>
-    <select id="scope"><option value="_pessoal">Sem projeto (pessoal)</option><option value="meus-treinos">meus-treinos</option><option value="minha-agenda">minha-agenda</option></select>
-    <label for="owner">Mostrar</label>
-    <select id="owner"><option value="scope">Só o escopo atual</option><option value="all">Todos (pessoal e projetos)</option></select>
-    <span class="grow"></span><span class="meta" id="count" aria-live="polite"></span>
-  </div>
-  <div id="content"></div>
-</main>
+<header class="top">
+  <span class="brand">Harness</span>
+  <label class="meta" for="scope">Projeto</label>
+  <select id="scope" aria-label="Escopo"><option value="_pessoal">Sem projeto</option><option value="meus-treinos">meus-treinos</option><option value="minha-agenda">minha-agenda</option></select>
+  <nav class="nav" aria-label="Páginas"><span>Início</span><span>Recursos</span><span>Visão geral</span><span>Diário</span><span>Consumo</span><span>Catálogo</span><span>Deploy</span><span>Escritório</span></nav>
+  <span class="grow"></span>
+  <span class="paneBtns" role="group" aria-label="Painéis">
+    <button class="btn icon" data-pane="cat" aria-label="Catálogo"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></button>
+    <button class="btn icon" data-pane="chat" aria-label="Chat"><i class="fa-regular fa-comments" aria-hidden="true"></i></button>
+    <button class="btn icon" data-pane="cfg" aria-label="Configurações da rota"><i class="fa-solid fa-sliders" aria-hidden="true"></i></button>
+  </span>
+</header>
 
-<div class="overlay" id="overlay" hidden>
-  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgTitle" id="dlg"></div>
+<div class="shell" id="shell">
+  <aside class="cat" aria-label="Catálogo">
+    <div class="sidehead"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><span class="grow" id="catTitle">Catálogo</span><button class="btn icon" id="newBtn" aria-label="Novo"><i class="fa-solid fa-plus" aria-hidden="true"></i></button></div>
+    <div class="sect" id="catSect"></div>
+    <div style="padding:0 10px 4px"><label class="meta" for="owner">Mostrar</label> <select id="owner"><option value="scope">Só o escopo atual</option><option value="all">Todos (pessoal e projetos)</option></select></div>
+    <div id="catList"></div>
+  </aside>
+  <aside class="chat" aria-label="Chat">
+    <div class="sidehead"><i class="fa-solid fa-asterisk" style="color:var(--accent)" aria-hidden="true"></i><span class="grow">Claude Code</span><span class="badge" id="chatScope"></span></div>
+    <div class="empty-chat"><i class="fa-regular fa-comments" style="font-size:26px" aria-hidden="true"></i><strong id="chatHello"></strong><span>Instruções, memórias e agentes carregados e prontos para ajudar.</span></div>
+    <div class="sugg"><span>Organize isto em seções…</span><span>Revise e simplifique…</span><span>Explique o que está aqui…</span></div>
+    <div class="composer"><textarea rows="2" aria-label="Mensagem" placeholder="Peça alterações ou novas ideias… (Enter envia)"></textarea><span class="meta" id="chatNote"></span></div>
+  </aside>
+  <section class="content" aria-label="Conteúdo">
+    <div class="ctoolbar" id="ctoolbar"></div>
+    <div class="stage" id="stage"></div>
+  </section>
+  <aside class="cfg" aria-label="Configurações da rota"><div class="tabs" id="cfgTabs"></div><div class="cfgbody" id="cfgBody"></div></aside>
 </div>
+
+<div class="overlay" id="overlay" hidden><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgTitle" id="dlg"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script>
   const WINS = {
-    board: { titulo:"Quadro livre", icone:"fa-chalkboard", rota:"/quadro-livre", novo:"Novo quadro" },
-    mindmap: { titulo:"Mapa mental", icone:"fa-sitemap", rota:"/mapa-mental", novo:"Novo mapa" },
-    diagram: { titulo:"Diagramas", icone:"fa-share-nodes", rota:"/diagramas", novo:"Novo diagrama" },
-    atelie: { titulo:"Ateliê", icone:"fa-wand-magic-sparkles", rota:"/atelie", novo:"Novo protótipo" },
+    board: { titulo:"Quadro livre", icone:"fa-chalkboard", rota:"/quadro-livre", novo:"Novo quadro", sect:"QUADROS" },
+    mindmap: { titulo:"Mapa mental", icone:"fa-sitemap", rota:"/mapa-mental", novo:"Novo mapa", sect:"MAPAS" },
+    diagram: { titulo:"Diagramas", icone:"fa-share-nodes", rota:"/diagramas", novo:"Novo diagrama", sect:"DIAGRAMAS" },
+    atelie: { titulo:"Ateliê", icone:"fa-wand-magic-sparkles", rota:"/atelie", novo:"Novo protótipo", sect:"PROTÓTIPOS" },
   };
   const OWNERS = { "_pessoal":"Pessoal", "meus-treinos":"meus-treinos", "minha-agenda":"minha-agenda" };
   const ITEMS = [
-    { id:1, win:"board", owner:"_pessoal", title:"Ideias soltas", when:"há 2 h", assets:3 },
-    { id:2, win:"board", owner:"meus-treinos", title:"Plano de treino", when:"ontem", refs:["Quadro Semana 12"] },
-    { id:3, win:"board", owner:"_pessoal", title:"Quadro Semana 12", when:"3 dias", collideWith:"meus-treinos" },
-    { id:4, win:"mindmap", owner:"_pessoal", title:"Metas do ano", when:"há 1 h", derived:["Metas do ano (cópia em minha-agenda)"] },
-    { id:5, win:"mindmap", owner:"minha-agenda", title:"Rotina da semana", when:"ontem" },
-    { id:6, win:"diagram", owner:"_pessoal", title:"Fluxo de cadastro (Mermaid)", when:"há 4 h" },
-    { id:7, win:"atelie", owner:"_pessoal", title:"Tela de login", when:"ontem", assets:5 },
-    { id:8, win:"atelie", owner:"meus-treinos", title:"Painel de treinos", when:"2 dias", trace:["Story 14: Registrar treino (3 telas)", "Story 15: Histórico (2 telas)"] },
+    { id:1, win:"board", owner:"_pessoal", title:"Ideias soltas", ver:"v2", assets:3 },
+    { id:2, win:"board", owner:"meus-treinos", title:"Plano de treino", ver:"v1", refs:["Quadro Semana 12"] },
+    { id:3, win:"board", owner:"_pessoal", title:"Quadro Semana 12", ver:"v4", collideWith:"meus-treinos" },
+    { id:4, win:"mindmap", owner:"_pessoal", title:"Metas do ano", ver:"v3", derived:["Metas do ano (cópia em minha-agenda)"] },
+    { id:5, win:"mindmap", owner:"minha-agenda", title:"Rotina da semana", ver:"v1" },
+    { id:6, win:"diagram", owner:"_pessoal", title:"Fluxo de cadastro (Mermaid)", ver:"v5" },
+    { id:7, win:"atelie", owner:"_pessoal", title:"Tela de login", ver:"v2", assets:5 },
+    { id:8, win:"atelie", owner:"meus-treinos", title:"Painel de treinos", ver:"v8", trace:["Story 14: Registrar treino (3 telas)", "Story 15: Histórico (2 telas)"] },
   ];
-  const S = { win:"board", ui:"normal", scope:"_pessoal", owner:"scope", menu:null, last:null, next:100 };
+  const S = { win:"board", ui:"normal", scope:"_pessoal", owner:"scope", menu:null, last:null, next:100, sel:null, pane:null };
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
   const ownerName = (o) => OWNERS[o] || o;
+  const visible = () => ITEMS.filter((i) => i.win === S.win && (S.owner === "all" || i.owner === S.scope));
 
-  function visible() {
-    return ITEMS.filter((i) => i.win === S.win && (S.owner === "all" || i.owner === S.scope));
-  }
-  function render() {
-    const w = WINS[S.win];
-    $("winIcon").className = "fa-solid " + w.icone; $("winTitle").textContent = w.titulo; $("route").textContent = w.rota;
-    $("newBtn").innerHTML = `<i class="fa-solid fa-plus" aria-hidden="true"></i> ${w.novo}`;
-    const c = $("content"); const items = visible(); $("count").textContent = S.ui === "normal" ? `${items.length} item(ns)` : "";
-    if (S.ui === "loading") { c.innerHTML = `<div class="list" aria-busy="true">${'<div class="skel"></div>'.repeat(3)}</div>`; return; }
-    if (S.ui === "error") { c.innerHTML = `<div class="state" role="alert"><i class="fa-solid fa-triangle-exclamation" style="color:var(--err)"></i><p>Não foi possível carregar a lista.</p><button class="btn primary" data-ui="normal"><i class="fa-solid fa-rotate-right"></i> Tentar de novo</button></div>`; return; }
+  function renderCatalog() {
+    const w = WINS[S.win]; const items = visible(); const c = $("catList");
+    $("catTitle").textContent = "Catálogo"; $("newBtn").title = w.novo;
+    $("catSect").textContent = S.ui === "normal" ? `${w.sect} DO ESCOPO (${items.length})` : w.sect;
+    if (S.ui === "loading") { c.innerHTML = `<div class="citems" aria-busy="true">${'<div class="skel"></div>'.repeat(3)}</div>`; return; }
+    if (S.ui === "error") { c.innerHTML = `<div class="state" role="alert"><i class="fa-solid fa-triangle-exclamation" style="color:var(--err)"></i><p>Não foi possível carregar o catálogo.</p><button class="btn primary" data-ui="normal"><i class="fa-solid fa-rotate-right"></i> Tentar de novo</button></div>`; return; }
     if (S.ui === "empty" || !items.length) { c.innerHTML = `<div class="state"><i class="fa-solid ${w.icone}"></i><p>Nada aqui ainda ${S.scope === "_pessoal" ? "no espaço pessoal" : "em " + esc(S.scope)}.</p><button class="btn primary" data-new><i class="fa-solid fa-plus"></i> ${w.novo}</button></div>`; return; }
-    c.innerHTML = `<div class="list">${items.map(row).join("")}</div>`;
+    if (!items.some((i) => i.id === S.sel)) S.sel = items[0].id;
+    c.innerHTML = `<div class="citems">${items.map(card).join("")}</div>`;
   }
-  function row(i) {
+  function card(i) {
     const open = S.menu === i.id;
-    return `<div class="row"><span class="ico"><i class="fa-solid ${WINS[i.win].icone}" aria-hidden="true"></i></span>
-      <div class="grow"><strong>${esc(i.title)}</strong><div class="meta">${i.when} · <span class="badge ${i.owner === "_pessoal" ? "personal" : ""}">${esc(ownerName(i.owner))}</span>${i.copyOf ? ` <span class="badge" title="Criada a partir de ${esc(i.copyOf)}"><i class="fa-regular fa-copy" aria-hidden="true"></i> Cópia</span>` : ""}</div></div>
-      <button class="btn" data-open="${i.id}"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Abrir</button>
-      <div class="menuwrap"><button class="btn" data-menu="${i.id}" aria-haspopup="menu" aria-expanded="${open}" aria-label="Ações de ${esc(i.title)}"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></button>
-      ${open ? `<div class="menu" role="menu"><button role="menuitem" data-act="move" data-id="${i.id}"><i class="fa-solid fa-folder-tree" aria-hidden="true"></i> Mover para projeto…</button><button role="menuitem" data-act="copy" data-id="${i.id}"><i class="fa-regular fa-copy" aria-hidden="true"></i> Copiar para projeto…</button></div>` : ""}</div></div>`;
+    return `<div class="citem" role="button" tabindex="0" data-sel="${i.id}" aria-current="${i.id === S.sel}">
+      <div class="ctitle">${esc(i.title)} <span class="badge">${i.ver}</span></div>
+      <div class="meta"><i class="fa-solid ${WINS[i.win].icone}" aria-hidden="true"></i> <span class="badge ${i.owner === "_pessoal" ? "personal" : ""}">${esc(ownerName(i.owner))}</span>${i.copyOf ? ` <span class="badge" title="Criado a partir de ${esc(i.copyOf)}"><i class="fa-regular fa-copy" aria-hidden="true"></i> Cópia</span>` : ""}</div>
+      <button class="cmenu" data-menu="${i.id}" aria-haspopup="menu" aria-expanded="${open}" aria-label="Ações de ${esc(i.title)}"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></button>
+      ${open ? `<div class="menu" role="menu"><button role="menuitem" data-act="open" data-id="${i.id}"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Abrir</button><button role="menuitem" data-act="rename" data-id="${i.id}"><i class="fa-solid fa-pen" aria-hidden="true"></i> Renomear</button><button role="menuitem" data-act="move" data-id="${i.id}"><i class="fa-solid fa-folder-tree" aria-hidden="true"></i> Mover para projeto…</button><button role="menuitem" data-act="copy" data-id="${i.id}"><i class="fa-regular fa-copy" aria-hidden="true"></i> Copiar para projeto…</button><button role="menuitem" data-act="delete" data-id="${i.id}"><i class="fa-regular fa-trash-can" aria-hidden="true"></i> Excluir</button></div>` : ""}</div>`;
   }
 
-  function destinations(item) {
-    return Object.keys(OWNERS).filter((o) => o !== item.owner);
+  const TOOLBARS = {
+    board: `<span class="btn"><i class="fa-solid fa-arrow-pointer"></i></span><span class="btn"><i class="fa-regular fa-square"></i></span><span class="btn"><i class="fa-solid fa-font"></i></span><span class="grow"></span><span class="btn"><i class="fa-solid fa-clock-rotate-left"></i> Histórico</span><span class="btn"><i class="fa-solid fa-file-export"></i> Exportar</span>`,
+    mindmap: `<span class="btn"><i class="fa-solid fa-plus"></i> Filho</span><span class="btn"><i class="fa-solid fa-arrows-left-right"></i> Irmão</span><span class="btn"><i class="fa-solid fa-expand"></i> Ajustar</span><span class="grow"></span><span class="btn"><i class="fa-solid fa-file-export"></i> Exportar</span>`,
+    diagram: `<span class="btn"><i class="fa-solid fa-code"></i> Fonte</span><span class="btn"><i class="fa-regular fa-eye"></i> Preview</span><span class="grow"></span><span class="btn"><i class="fa-solid fa-file-export"></i> Exportar</span>`,
+    atelie: `<span class="btn primary">1280</span><span class="btn">768</span><span class="btn">390</span><span class="grow"></span><span class="btn"><i class="fa-solid fa-clock-rotate-left"></i> Histórico</span><span class="btn"><i class="fa-solid fa-magnifying-glass"></i> Inspetor</span><span class="btn"><i class="fa-solid fa-play"></i> Iniciar</span><span class="btn"><i class="fa-solid fa-file-export"></i> Exportar</span>`,
+  };
+  const STAGES = {
+    board: `<div class="mock"><div class="box"></div><div class="bar"></div><div class="box" style="width:60%"></div></div>`,
+    mindmap: `<div class="mock"><div class="bar" style="width:40%;margin:auto"></div><div style="display:flex;gap:8px;justify-content:center"><div class="box" style="width:30%;height:36px"></div><div class="box" style="width:30%;height:36px"></div><div class="box" style="width:30%;height:36px"></div></div></div>`,
+    diagram: `<div class="mock" style="grid-template-columns:1fr 1fr"><div class="box" style="height:160px"></div><div class="box" style="height:160px"></div></div>`,
+    atelie: `<div class="mock"><div class="bar" style="width:50%"></div><div class="box" style="height:110px"></div><div class="bar"></div></div>`,
+  };
+  const CFG = {
+    board: { tabs:["Propriedades"], body:() => `<label>Cor do traço<select><option>Padrão</option></select></label><label>Espessura<select><option>Média</option></select></label><span class="meta">Exportar como PNG, SVG ou JSON.</span>` },
+    mindmap: { tabs:["Estrutura","Agente"], body:() => `<ul class="tree"><li>Raiz<ul><li>Ideia A</li><li>Ideia B</li></ul></li></ul><span class="meta">O agente edita o mapa pelo chat.</span>` },
+    diagram: { tabs:["Tipo","Exportar"], body:() => `<label>Tipo de diagrama<select><option>Fluxo</option><option>Sequência</option><option>ER</option></select></label><span class="meta">PNG, SVG e texto Mermaid.</span>` },
+    atelie: { tabs:["Ambos","Camadas","Propriedades"], body:() => `<span class="meta">Estrutura &amp; Inspetor</span><ul class="tree"><li>div.root<ul><li>header</li><li>main<ul><li>toolbar</li><li>grid</li></ul></li></ul></li></ul>` },
+  };
+  function renderRest() {
+    const w = WINS[S.win]; const it = ITEMS.find((i) => i.id === S.sel && i.win === S.win);
+    $("ctoolbar").innerHTML = `<strong><i class="fa-solid ${w.icone}" aria-hidden="true"></i> ${w.titulo}</strong><span class="meta">${w.rota}</span>${it ? `<span class="badge">${esc(it.title)}</span>` : ""}<span class="grow"></span>` + TOOLBARS[S.win];
+    $("stage").innerHTML = it && S.ui === "normal" ? STAGES[S.win] + `<p>${esc(it.title)}: o editor real aparece aqui.</p>` : `<p>Escolha ou crie um item no catálogo.</p>`;
+    const cfg = CFG[S.win]; $("cfgTabs").innerHTML = cfg.tabs.map((t, i) => `<span class="${i === 0 ? "on" : ""}">${t}</span>`).join(""); $("cfgBody").innerHTML = cfg.body();
+    const personal = S.scope === "_pessoal";
+    $("chatScope").textContent = personal ? "Sem projeto" : S.scope;
+    $("chatHello").textContent = `Como posso ajudar em ${w.titulo.toLowerCase()}?`;
+    $("chatNote").textContent = personal ? "A conversa fica salva no espaço pessoal." : `A conversa fica salva no projeto ${S.scope}.`;
   }
+  const render = () => { renderCatalog(); renderRest(); $("shell").dataset.open = S.pane || ""; };
+
   function openDialog(act, id) {
     const item = ITEMS.find((i) => i.id === id); S.menu = null; render();
-    const isMove = act === "move"; const dests = destinations(item);
+    const isMove = act === "move"; const dests = Object.keys(OWNERS).filter((o) => o !== item.owner);
     $("dlg").innerHTML = `<h2 id="dlgTitle">${isMove ? "Mover" : "Copiar"} “${esc(item.title)}”</h2>
       <label for="dest">Destino</label><select id="dest">${dests.map((d) => `<option value="${d}">${d === "_pessoal" ? "Sem projeto (pessoal)" : esc(d)}</option>`).join("")}</select>
-      <div id="preview" aria-live="polite"><p class="meta"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Calculando prévia…</p></div>
+      <div id="preview" aria-live="polite"></div>
       <div class="actions"><button class="btn" data-close>Cancelar</button><button class="btn primary" id="go" disabled>${isMove ? "Mover" : "Copiar"}</button></div>`;
-    $("overlay").hidden = false; $("dest").focus();
-    const refresh = () => preview(item, isMove, $("dest").value);
-    $("dest").addEventListener("change", refresh); S.dlg = { item, isMove }; refresh();
+    $("overlay").hidden = false; $("dest").focus(); S.dlg = { item, isMove };
+    $("dest").addEventListener("change", () => preview(item, isMove, $("dest").value)); preview(item, isMove, $("dest").value);
   }
   function preview(item, isMove, dest) {
     $("go").disabled = true; $("preview").innerHTML = `<p class="meta"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Calculando prévia…</p>`;
@@ -168,8 +239,7 @@
       if (collide) parts.push(`<div class="sec bad" role="alert"><h3><i class="fa-solid fa-ban" aria-hidden="true"></i> Não é possível continuar</h3><p>O destino já tem um item com o mesmo nome de arquivo. Nada será sobrescrito.</p></div>`);
       if (isMove && !collide) parts.push(`<label class="sec"><span><input type="checkbox" id="ok"> Entendo que o item sai de <b>${esc(ownerName(item.owner))}</b></span></label>`);
       $("preview").innerHTML = parts.join("");
-      const go = $("go"); const ok = $("ok");
-      const sync = () => { go.disabled = collide || (isMove && !ok.checked); };
+      const go = $("go"); const ok = $("ok"); const sync = () => { go.disabled = collide || (isMove && !ok.checked); };
       if (ok) ok.addEventListener("change", sync); sync();
     }, 350);
   }
@@ -177,7 +247,7 @@
     const { item, isMove } = S.dlg; const dest = $("dest").value;
     if (S.ui === "movefail") { closeDialog(); toast("Não foi possível mover; nada foi alterado.", null, true); return; }
     if (isMove) { S.last = { id: item.id, from: item.owner }; item.owner = dest; closeDialog(); render(); toast(`Movido para ${ownerName(dest)}.`, "undo"); }
-    else { ITEMS.push({ ...item, id: S.next++, owner: dest, when: "agora", copyOf: item.title, collideWith: undefined, derived: undefined, refs: undefined }); closeDialog(); render(); toast(`Cópia criada em ${ownerName(dest)}.`); }
+    else { ITEMS.push({ ...item, id: S.next++, owner: dest, ver: "v1", copyOf: item.title, collideWith: undefined, derived: undefined, refs: undefined }); closeDialog(); render(); toast(`Cópia criada em ${ownerName(dest)}.`); }
   }
   function closeDialog() { $("overlay").hidden = true; S.dlg = null; }
   let tt; function toast(msg, kind, err) {
@@ -186,21 +256,23 @@
 
   document.addEventListener("click", (e) => {
     const t = e.target;
-    const win = t.closest("[data-win]"); if (win) { S.win = win.dataset.win; document.querySelectorAll("[data-win]").forEach((b) => b.setAttribute("aria-pressed", String(b === win))); S.menu = null; render(); return; }
+    const win = t.closest("[data-win]"); if (win) { S.win = win.dataset.win; S.sel = null; S.menu = null; document.querySelectorAll("[data-win]").forEach((b) => b.setAttribute("aria-pressed", String(b === win))); render(); return; }
     const ui = t.closest("[data-ui]"); if (ui) { S.ui = ui.dataset.ui; document.querySelectorAll(".chip[data-ui]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.ui === S.ui))); render(); return; }
     if (t.closest("#theme")) { document.documentElement.dataset.theme = document.documentElement.dataset.theme === "light" ? "dark" : "light"; return; }
-    const m = t.closest("[data-menu]"); if (m) { S.menu = S.menu === Number(m.dataset.menu) ? null : Number(m.dataset.menu); render(); return; }
-    const a = t.closest("[data-act]"); if (a) { openDialog(a.dataset.act, Number(a.dataset.id)); return; }
+    const pane = t.closest("[data-pane]"); if (pane) { S.pane = S.pane === pane.dataset.pane ? null : pane.dataset.pane; render(); return; }
+    const m = t.closest("[data-menu]"); if (m) { e.stopPropagation(); S.menu = S.menu === Number(m.dataset.menu) ? null : Number(m.dataset.menu); render(); return; }
+    const a = t.closest("[data-act]");
+    if (a) { const id = Number(a.dataset.id); if (a.dataset.act === "move" || a.dataset.act === "copy") openDialog(a.dataset.act, id); else { S.menu = null; render(); toast({ open:"Abriria o item no editor.", rename:"Abriria o campo de renomear.", delete:"Abriria a confirmação de exclusão." }[a.dataset.act]); } return; }
     if (t.closest("#go")) { apply(); return; }
     if (t.closest("[data-close]") || t.id === "overlay") { closeDialog(); return; }
     if (t.closest("[data-undo]")) { const it = ITEMS.find((i) => i.id === S.last.id); it.owner = S.last.from; S.last = null; render(); toast("Movimento desfeito."); return; }
     if (t.closest("#newBtn") || t.closest("[data-new]")) { toast(`Abriria ${WINS[S.win].novo.toLowerCase()} em ${ownerName(S.scope)}.`); return; }
-    const op = t.closest("[data-open]"); if (op) { toast("Abriria o item no editor."); return; }
-    if (S.menu !== null && !t.closest(".menuwrap")) { S.menu = null; render(); }
+    const sel = t.closest("[data-sel]"); if (sel) { S.sel = Number(sel.dataset.sel); S.menu = null; S.pane = null; render(); return; }
+    if (S.menu !== null) { S.menu = null; render(); }
   });
-  $("scope").addEventListener("change", (e) => { S.scope = e.target.value; render(); });
+  $("scope").addEventListener("change", (e) => { S.scope = e.target.value; S.sel = null; render(); });
   $("owner").addEventListener("change", (e) => { S.owner = e.target.value; render(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if (S.dlg) closeDialog(); else if (S.menu !== null) { S.menu = null; render(); } } });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if (S.dlg) closeDialog(); else if (S.menu !== null) { S.menu = null; render(); } else if (S.pane) { S.pane = null; render(); } } });
   render();
 </script>
 </body>
