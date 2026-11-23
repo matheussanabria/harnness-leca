@@ -6,6 +6,7 @@
 
 export const NAV_ITEMS = [
   { id: "home", href: "/", icon: "fa-house", label: "Início", title: "Projetos e conversas" },
+  { id: "launcher", href: "/funcionalidades", icon: "fa-table-cells-large", label: "Recursos", title: "Todas as funcionalidades, com ou sem projeto" },
   { id: "overview", href: "/overview", icon: "fa-chart-simple", label: "Visão geral", title: "Resumo de todos os projetos e ações do sistema" },
   { id: "diario", href: "/diario", icon: "fa-book", label: "Diário", title: "Diário de atividade: o que foi pedido e feito, dia a dia" },
   { id: "consumo", href: "/consumo", icon: "fa-gauge-high", label: "Consumo", title: "Cotas, 9Router por combo e OpenCode" },

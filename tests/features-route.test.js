@@ -39,7 +39,8 @@ test("the personal scope behaves like no project", async () => {
 test("with a known project everything is available", async () => {
   const { json } = await call({ "x-harness-project": "meus-treinos" });
   assert.equal(json.projeto, "meus-treinos");
-  assert.ok(json.funcionalidades.every((f) => f.disponivel));
+  assert.ok(json.funcionalidades.filter((f) => f.estado === "ativa").every((f) => f.disponivel));
+  assert.equal(json.funcionalidades.find((f) => f.id === "atelie").motivo, "Em breve.");
 });
 
 test("an unknown project is a 404, never a silent fallback", async () => {

@@ -36,16 +36,34 @@ test("the shipped manifest is valid and covers all three scopes", () => {
   }
 });
 
-test("availability: project-scope features need a project, others never do", () => {
+test("availability: project-scope features need a project, planned ones are \"em breve\", the rest never need one", () => {
   const without = availability(FEATURES, null);
   const withProject = availability(FEATURES, "meus-treinos");
   for (const f of without) {
-    if (f.escopo === "project") {
+    if (f.estado === "planejada") {
+      assert.equal(f.disponivel, false);
+      assert.equal(f.motivo, "Em breve.");
+    } else if (f.escopo === "project") {
       assert.equal(f.disponivel, false);
       assert.match(f.motivo, /projeto/i);
     } else {
       assert.equal(f.disponivel, true);
     }
   }
-  assert.ok(withProject.every((f) => f.disponivel));
+  assert.ok(withProject.filter((f) => f.estado === "ativa").every((f) => f.disponivel));
+  assert.ok(withProject.filter((f) => f.estado === "planejada").every((f) => !f.disponivel));
+});
+
+test("the creation features the owner asked for are listed, optional and planned until their story ships", () => {
+  const byId = Object.fromEntries(FEATURES.map((f) => [f.id, f]));
+  for (const id of ["atelie", "mapa-mental", "quadro-livre", "diagramas"]) {
+    assert.equal(byId[id].escopo, "optional", id);
+    assert.equal(byId[id].estado, "planejada", id);
+    assert.ok(byId[id].descricao, id);
+  }
+});
+
+test("rejects an unknown estado and a description with emoji", () => {
+  assert.ok(validateManifest([{ ...base, estado: "talvez" }]).some((e) => /estado must be/.test(e)));
+  assert.ok(validateManifest([{ ...base, descricao: "ok 😀" }]).some((e) => /descricao/.test(e)));
 });

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harness · Funcionalidades</title>
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/app-header.css">
+<style>main#launcherRoot { max-width: 1100px; }</style>
+</head>
+<body>
+<header data-app-header data-current="launcher">
+</header>
+<main id="launcherRoot" aria-live="polite"></main>
+<script type="module">
+  // The launcher is a React island (ADR-011) mounted into this page through the shared loader.
+  import { getIslandLoader } from "/js/shared/island-loader.js";
+  getIslandLoader().mount("launcher", { slug: "", params: [] }, document.getElementById("launcherRoot"));
+</script>
+<script type="module" src="/js/shared/app-header.js"></script>
+</body>
+</html>

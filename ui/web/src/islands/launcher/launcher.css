@@ -1,0 +1,297 @@
+/* Launcher island (EP-25.05). Uses the shell variables from css/base.css (dark by default, light by media query). */
+.launcher {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  color: var(--text);
+}
+.launcher h1 {
+  font-size: 22px;
+  margin: 0 0 4px;
+}
+.launcher__top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.launcher__scope {
+  color: var(--mute);
+  margin: 0 0 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.launcher-tag {
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 12px;
+}
+.launcher button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.launcher :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.launcher kbd {
+  font:
+    11px ui-monospace,
+    Consolas,
+    monospace;
+  padding: 1px 5px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--mute);
+}
+
+.launcher-btn {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 11px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.launcher-btn:hover {
+  border-color: var(--accent);
+}
+.launcher-btn.is-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+.launcher-btn__chev {
+  font-size: 11px;
+}
+
+.launcher-picker {
+  position: relative;
+}
+.launcher-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  width: 340px;
+  max-width: 92vw;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  z-index: 20;
+}
+.launcher-pop input {
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font: inherit;
+  border-radius: 10px 10px 0 0;
+}
+.launcher-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  max-height: 300px;
+  overflow: auto;
+}
+.launcher-opt {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.launcher-opt[aria-selected="true"] {
+  background: var(--panel2);
+  outline: 1px solid var(--accent);
+}
+.launcher-opt.is-current .launcher-opt__name {
+  font-weight: 700;
+}
+.launcher-opt__meta {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--mute);
+}
+.launcher-none {
+  padding: 12px;
+  color: var(--mute);
+}
+
+.launcher-group {
+  margin-top: 22px;
+}
+.launcher-group h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mute);
+  margin: 0 0 2px;
+}
+.launcher-group__hint {
+  margin: 0 0 10px;
+  color: var(--mute);
+  font-size: 12px;
+}
+.launcher-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.launcher-card-wrap {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.launcher-card {
+  text-align: left;
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  min-height: 104px;
+}
+.launcher-card:hover:not([aria-disabled="true"]) {
+  border-color: var(--accent);
+}
+.launcher-card[aria-disabled="true"] {
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+.launcher-card__ico {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--accent);
+}
+.launcher-card h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.launcher-card p {
+  margin: 0;
+  color: var(--mute);
+  font-size: 12.5px;
+}
+.launcher-why {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  color: var(--launcher-warn);
+  font-size: 12px;
+}
+.launcher-link {
+  background: none;
+  border: 0;
+  color: inherit;
+  text-decoration: underline;
+  padding: 0;
+  font-size: 12px;
+}
+
+.launcher-skel {
+  height: 104px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: linear-gradient(90deg, var(--panel) 25%, var(--panel2) 50%, var(--panel) 75%);
+  background-size: 200% 100%;
+  animation: launcher-shimmer 1.2s infinite;
+}
+@keyframes launcher-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .launcher-skel {
+    animation: none;
+  }
+}
+
+.launcher-state {
+  margin-top: 28px;
+  padding: 28px;
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  color: var(--mute);
+}
+.launcher-state i {
+  font-size: 26px;
+  display: block;
+  margin-bottom: 8px;
+}
+.launcher-state.is-error i {
+  color: #f87171;
+}
+.launcher-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  background: var(--panel2);
+  border: 1px solid var(--accent);
+  padding: 10px 14px;
+  border-radius: 8px;
+  max-width: 92vw;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+.launcher-toast[hidden] {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .launcher-pop {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    max-width: none;
+    border-radius: 14px 14px 0 0;
+  }
+  .launcher-pop input {
+    border-radius: 14px 14px 0 0;
+  }
+  .launcher-list {
+    max-height: 55vh;
+  }
+  .launcher-btn__label {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.launcher {
+  --launcher-warn: #fbbf24;
+}
+@media (prefers-color-scheme: light) {
+  .launcher {
+    --launcher-warn: #92400e;
+  }
+}

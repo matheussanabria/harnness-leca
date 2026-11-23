@@ -40,7 +40,8 @@
     "setup:hooks": "git config core.hooksPath .githooks",
     "routines": "node tools/run-scheduled.js",
     "routines:list": "node tools/run-scheduled.js --list",
-    "schedule:windows": "node tools/schedule-windows.js"
+    "schedule:windows": "node tools/schedule-windows.js",
+    "e2e:launcher": "node scripts/e2e-launcher.js"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.4",
