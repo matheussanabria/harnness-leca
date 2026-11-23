@@ -45,3 +45,15 @@ test("envelope: remove o contexto do harness e reconhece titulo contaminado", ()
   assert.equal(isEnvelopeTitle("- <contexto_do_harness> Aviso"), true);
   assert.equal(isEnvelopeTitle("Titulo normal"), false);
 });
+
+test("watchRoots covers the four engines, Codex included, and skips folders that do not exist", () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), "harness-watch-home-"));
+  try {
+    assert.deepEqual(auto.watchRoots(home), []);
+    const dirs = [[".claude", "projects"], [".gemini", "antigravity-ide", "brain"], [".local", "share", "opencode"], [".codex", "sessions"]];
+    for (const d of dirs) fs.mkdirSync(path.join(home, ...d), { recursive: true });
+    assert.deepEqual(auto.watchRoots(home), dirs.map((d) => path.join(home, ...d)));
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+});
