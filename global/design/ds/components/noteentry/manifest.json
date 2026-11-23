@@ -1,0 +1,55 @@
+{
+  "id": "cn.noteentry",
+  "version": "1.0.0",
+  "name": "NoteEntry",
+  "category": "Design System",
+  "description": "Registro de anotação com data, texto, autor e ação de excluir. Anotações com prazo de exibição ganham selo EXPIRADO e botão para liberar a visualização.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-noteentry"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "noteentry.html",
+      "files": [
+        "noteentry.html",
+        "noteentry.css",
+        "noteentry.js"
+      ],
+      "styles": [
+        "noteentry.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "noteentry.angular.ts",
+      "files": [
+        "noteentry.angular.ts"
+      ],
+      "styles": [
+        "noteentry.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "noteentry.react.jsx",
+      "files": [
+        "noteentry.react.jsx"
+      ],
+      "styles": [
+        "noteentry.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

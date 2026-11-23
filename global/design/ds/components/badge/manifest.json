@@ -1,0 +1,55 @@
+{
+  "id": "cn.badge",
+  "version": "1.0.0",
+  "name": "Badge / Pill",
+  "category": "Design System",
+  "description": "Rótulo arredondado para status e categorias. Fundo e texto vêm do par background/dark de cada status.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-badge"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "badge.html",
+      "files": [
+        "badge.html",
+        "badge.css",
+        "badge.js"
+      ],
+      "styles": [
+        "badge.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "badge.angular.ts",
+      "files": [
+        "badge.angular.ts"
+      ],
+      "styles": [
+        "badge.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "badge.react.jsx",
+      "files": [
+        "badge.react.jsx"
+      ],
+      "styles": [
+        "badge.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

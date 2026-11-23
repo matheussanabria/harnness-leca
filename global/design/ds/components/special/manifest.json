@@ -1,0 +1,55 @@
+{
+  "id": "cn.special",
+  "version": "1.0.0",
+  "name": "Campos especiais",
+  "category": "Design System",
+  "description": "Seletor de cor com código hex, callout de referência com ação e chips de perfil.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-special"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "special.html",
+      "files": [
+        "special.html",
+        "special.css",
+        "special.js"
+      ],
+      "styles": [
+        "special.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "special.angular.ts",
+      "files": [
+        "special.angular.ts"
+      ],
+      "styles": [
+        "special.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "special.react.jsx",
+      "files": [
+        "special.react.jsx"
+      ],
+      "styles": [
+        "special.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

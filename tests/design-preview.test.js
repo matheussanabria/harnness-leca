@@ -67,11 +67,28 @@ test("EP-12.11: Harness de Preview Isolado de Componentes", async (t) => {
     const registry = JSON.parse(fs.readFileSync(registryFile, "utf8"));
     registry.components["dis.button"].documentation = { prototypeId: "design-system-inspection", screenId: "c-button" };
     fs.writeFileSync(registryFile, JSON.stringify(registry));
+    // The redirect only happens when the inspection prototype exists in this project (a component inherited from the
+    // global Design System points at a prototype of the project where it was drawn).
+    const protoDir = path.join(projectDir, "design", "prototypes", "design-system-inspection");
+    fs.mkdirSync(protoDir, { recursive: true });
+    fs.writeFileSync(path.join(protoDir, "proto.json"), "{}");
     const req = { url: `http://localhost/api/project/${fixture.slug}/design/registry/dis.button/preview` };
     const res = responseCapture();
     await apiRegistryPreviewComponent({ req, res, params: [fixture.slug, "dis.button"] });
     assert.equal(res.statusCode, 302);
     assert.equal(res.headers.Location, `/api/project/${fixture.slug}/design/prototypes/design-system-inspection/render/c-button`);
+  });
+
+  await t.test("a component inherited from the global DS whose inspection prototype is not in this project gets the isolated preview, not a 404 redirect", async () => {
+    const registryFile = path.join(projectDir, "design", "ds", "registry.json");
+    const registry = JSON.parse(fs.readFileSync(registryFile, "utf8"));
+    registry.components["dis.button"].documentation = { prototypeId: "prototype-of-another-project", screenId: "c-button" };
+    fs.writeFileSync(registryFile, JSON.stringify(registry));
+    const req = { url: `http://localhost/api/project/${fixture.slug}/design/registry/dis.button/preview` };
+    const res = responseCapture();
+    await apiRegistryPreviewComponent({ req, res, params: [fixture.slug, "dis.button"] });
+    assert.equal(res.statusCode, 200);
+    assert.match(res.body, /Preview:/);
   });
 
   await t.test("invalid documentation linkage falls back to isolated preview", async () => {

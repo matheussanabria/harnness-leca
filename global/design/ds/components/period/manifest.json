@@ -1,0 +1,55 @@
+{
+  "id": "cn.period",
+  "version": "1.0.0",
+  "name": "Navegador de período",
+  "category": "Design System",
+  "description": "Controle para navegar entre meses em telas financeiras. Os botões têm aria-label descritivo.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-period"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "period.html",
+      "files": [
+        "period.html",
+        "period.css",
+        "period.js"
+      ],
+      "styles": [
+        "period.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "period.angular.ts",
+      "files": [
+        "period.angular.ts"
+      ],
+      "styles": [
+        "period.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "period.react.jsx",
+      "files": [
+        "period.react.jsx"
+      ],
+      "styles": [
+        "period.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

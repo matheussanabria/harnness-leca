@@ -1,0 +1,2 @@
+.footer__main{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;padding:20px;background:var(--primary-headings);color:#c7d1db}
+.footer__legal{padding:10px 20px;background:#050f22;color:var(--neutral-base);font-size:12px}

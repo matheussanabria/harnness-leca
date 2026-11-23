@@ -1,0 +1,55 @@
+{
+  "id": "cn.footer",
+  "version": "1.0.0",
+  "name": "Footer",
+  "category": "Design System",
+  "description": "Rodapé em duas partes: colunas de links e contato, e faixa de direitos autorais.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-footer"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "footer.html",
+      "files": [
+        "footer.html",
+        "footer.css",
+        "footer.js"
+      ],
+      "styles": [
+        "footer.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "footer.angular.ts",
+      "files": [
+        "footer.angular.ts"
+      ],
+      "styles": [
+        "footer.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "footer.react.jsx",
+      "files": [
+        "footer.react.jsx"
+      ],
+      "styles": [
+        "footer.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

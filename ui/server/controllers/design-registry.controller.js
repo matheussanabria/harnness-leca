@@ -1,5 +1,6 @@
 // @ts-check
 const path = require("path");
+const fs = require("fs");
 const { getProjects, send } = require("../config");
 const {
   loadRegistry,
@@ -43,7 +44,16 @@ async function apiRegistryPreviewComponent({ req, res, params: [slug, componentI
     const component = getComponent(projectDir, componentId);
     const documentation = component?.documentation;
     const safeId = /^[a-z0-9_-]{1,100}$/i;
-    if (safeId.test(documentation?.prototypeId || "") && safeId.test(documentation?.screenId || "")) {
+    // Componente herdado do Design System global aponta para o protótipo de inspeção
+    // do projeto onde foi desenhado; nos outros projetos esse protótipo não existe,
+    // então cai no preview genérico em vez de redirecionar para um 404.
+    const temPrototipo = (id) =>
+      Boolean(id) && fs.existsSync(path.join(projectDir, "design", "prototypes", id, "proto.json"));
+    if (
+      safeId.test(documentation?.prototypeId || "") &&
+      safeId.test(documentation?.screenId || "") &&
+      temPrototipo(documentation?.prototypeId)
+    ) {
       const location = `/api/project/${encodeURIComponent(slug)}/design/prototypes/${encodeURIComponent(documentation.prototypeId)}/render/${encodeURIComponent(documentation.screenId)}`;
       res.writeHead(302, { Location: location, "X-Content-Type-Options": "nosniff" });
       return res.end();

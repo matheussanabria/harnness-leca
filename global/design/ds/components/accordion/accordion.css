@@ -1,0 +1,4 @@
+.acc__head{width:100%;display:flex;justify-content:space-between;height:48px;padding:0 16px;border:0;background:#fff;font-weight:700}
+.acc__head:hover{background:var(--neutral-background)}
+.acc__head[aria-expanded=true] svg{transform:rotate(180deg)}
+.acc__body{padding:0 16px 16px;color:var(--neutral-dark)}

@@ -1,0 +1,55 @@
+{
+  "id": "cn.entityheader",
+  "version": "1.0.0",
+  "name": "EntityHeader",
+  "category": "Design System",
+  "description": "Cabeçalho do registro aberto (por exemplo, o veículo), com nome em destaque na cor primária, linha de metadados e opção \"ver mais\". Equivale ao PatientHeader da referência.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-entityheader"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "entityheader.html",
+      "files": [
+        "entityheader.html",
+        "entityheader.css",
+        "entityheader.js"
+      ],
+      "styles": [
+        "entityheader.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "entityheader.angular.ts",
+      "files": [
+        "entityheader.angular.ts"
+      ],
+      "styles": [
+        "entityheader.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "entityheader.react.jsx",
+      "files": [
+        "entityheader.react.jsx"
+      ],
+      "styles": [
+        "entityheader.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

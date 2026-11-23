@@ -1,0 +1,55 @@
+{
+  "id": "cn.appshell",
+  "version": "1.0.0",
+  "name": "AppShell",
+  "category": "Design System",
+  "description": "Estrutura completa da aplicação: faixa de ambiente, header, cabeçalho do registro, menu lateral e área de conteúdo. As telas de exemplo do protótipo usam este esqueleto.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-appshell"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "appshell.html",
+      "files": [
+        "appshell.html",
+        "appshell.css",
+        "appshell.js"
+      ],
+      "styles": [
+        "appshell.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "appshell.angular.ts",
+      "files": [
+        "appshell.angular.ts"
+      ],
+      "styles": [
+        "appshell.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "appshell.react.jsx",
+      "files": [
+        "appshell.react.jsx"
+      ],
+      "styles": [
+        "appshell.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "cn.gallery",
+  "version": "1.0.0",
+  "name": "Carrossel / Galeria",
+  "category": "Design System",
+  "description": "Um único componente reutilizável. A prop mode alterna entre slider (categorias, marcas, veículos) e coverflow (depoimentos). O card é o conteúdo (children), então qualquer card pode ser exibido: categoria, marca, veículo ou depoimento.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-gallery"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "gallery.html",
+      "files": [
+        "gallery.html",
+        "gallery.css",
+        "gallery.js"
+      ],
+      "styles": [
+        "gallery.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "gallery.angular.ts",
+      "files": [
+        "gallery.angular.ts"
+      ],
+      "styles": [
+        "gallery.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "gallery.react.jsx",
+      "files": [
+        "gallery.react.jsx"
+      ],
+      "styles": [
+        "gallery.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

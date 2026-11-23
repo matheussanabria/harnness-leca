@@ -1,0 +1,55 @@
+{
+  "id": "cn.tabs",
+  "version": "1.0.0",
+  "name": "Tabs",
+  "category": "Design System",
+  "description": "Navegação por abas. A aba ativa recebe sublinhado de 3px na cor primária. Usa role=\"tablist\" e aria-selected.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-tabs"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "tabs.html",
+      "files": [
+        "tabs.html",
+        "tabs.css",
+        "tabs.js"
+      ],
+      "styles": [
+        "tabs.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "tabs.angular.ts",
+      "files": [
+        "tabs.angular.ts"
+      ],
+      "styles": [
+        "tabs.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "tabs.react.jsx",
+      "files": [
+        "tabs.react.jsx"
+      ],
+      "styles": [
+        "tabs.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

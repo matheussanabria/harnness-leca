@@ -1,0 +1,2 @@
+.dropzone{border:2px dashed var(--neutral-base);border-radius:14px;padding:40px 24px;text-align:center;background:var(--neutral-background);cursor:pointer}
+.dropzone:hover,.dropzone.is-over{border-color:var(--primary-interactive);background:var(--primary-background)}

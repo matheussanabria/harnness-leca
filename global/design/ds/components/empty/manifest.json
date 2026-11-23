@@ -1,0 +1,55 @@
+{
+  "id": "cn.empty",
+  "version": "1.0.0",
+  "name": "Estado vazio",
+  "category": "Design System",
+  "description": "Mensagem quando não há registros: ícone, título, explicação e uma ação opcional.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-empty"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "empty.html",
+      "files": [
+        "empty.html",
+        "empty.css",
+        "empty.js"
+      ],
+      "styles": [
+        "empty.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "empty.angular.ts",
+      "files": [
+        "empty.angular.ts"
+      ],
+      "styles": [
+        "empty.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "empty.react.jsx",
+      "files": [
+        "empty.react.jsx"
+      ],
+      "styles": [
+        "empty.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

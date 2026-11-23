@@ -1,0 +1,1 @@
+cor = new FormControl('#4264cd', Validators.pattern(/^#[0-9a-f]{6}$/i));

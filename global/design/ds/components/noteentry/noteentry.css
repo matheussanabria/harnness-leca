@@ -1,0 +1,3 @@
+.note{padding:12px 0;border-bottom:1px solid var(--neutral-light)}
+.note header{display:flex;justify-content:space-between}
+.note small{color:var(--neutral-base)}

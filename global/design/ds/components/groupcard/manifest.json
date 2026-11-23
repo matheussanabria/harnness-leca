@@ -1,0 +1,55 @@
+{
+  "id": "cn.groupcard",
+  "version": "1.0.0",
+  "name": "GroupedList (ProgramGroup)",
+  "category": "Design System",
+  "description": "Grupo recolhível com título em caixa alta, selo de status e aviso de prazo. Dentro dele vai uma tabela. Usado para agrupar itens por programa, contrato ou financiamento.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-groupcard"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "groupcard.html",
+      "files": [
+        "groupcard.html",
+        "groupcard.css",
+        "groupcard.js"
+      ],
+      "styles": [
+        "groupcard.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "groupcard.angular.ts",
+      "files": [
+        "groupcard.angular.ts"
+      ],
+      "styles": [
+        "groupcard.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "groupcard.react.jsx",
+      "files": [
+        "groupcard.react.jsx"
+      ],
+      "styles": [
+        "groupcard.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

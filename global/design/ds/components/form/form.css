@@ -1,0 +1,4 @@
+.field{display:grid;gap:6px;font-size:13px;font-weight:700;color:var(--primary-dark)}
+.field input,.field select{height:44px;padding:0 12px;border:1px solid var(--neutral-muted);border-radius:8px;font-size:15px}
+.field :focus-visible{outline:2px solid var(--highlight-focus)}
+.field select:disabled{background:var(--neutral-background)}

@@ -1,0 +1,55 @@
+{
+  "id": "cn.infogrid",
+  "version": "1.0.0",
+  "name": "InfoGrid",
+  "category": "Design System",
+  "description": "Grade de pares rótulo/valor para resumos de registros. O rótulo usa o token primary-headings em negrito.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-infogrid"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "infogrid.html",
+      "files": [
+        "infogrid.html",
+        "infogrid.css",
+        "infogrid.js"
+      ],
+      "styles": [
+        "infogrid.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "infogrid.angular.ts",
+      "files": [
+        "infogrid.angular.ts"
+      ],
+      "styles": [
+        "infogrid.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "infogrid.react.jsx",
+      "files": [
+        "infogrid.react.jsx"
+      ],
+      "styles": [
+        "infogrid.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

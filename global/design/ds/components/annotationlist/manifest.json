@@ -1,0 +1,55 @@
+{
+  "id": "cn.annotationlist",
+  "version": "1.0.0",
+  "name": "AnnotationList",
+  "category": "Design System",
+  "description": "Lista de anotações em sanfona: o cabeçalho de cada item é a data e hora, e o corpo traz o texto e o autor.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-annotationlist"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "annotationlist.html",
+      "files": [
+        "annotationlist.html",
+        "annotationlist.css",
+        "annotationlist.js"
+      ],
+      "styles": [
+        "annotationlist.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "annotationlist.angular.ts",
+      "files": [
+        "annotationlist.angular.ts"
+      ],
+      "styles": [
+        "annotationlist.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "annotationlist.react.jsx",
+      "files": [
+        "annotationlist.react.jsx"
+      ],
+      "styles": [
+        "annotationlist.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

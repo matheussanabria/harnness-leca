@@ -1,0 +1,55 @@
+{
+  "id": "cn.accordion",
+  "version": "1.0.0",
+  "name": "Accordion",
+  "category": "Design System",
+  "description": "Lista de seções expansíveis. O gatilho é um button com aria-expanded; usado na hierarquia de categorias financeiras e no menu do usuário.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-accordion"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "accordion.html",
+      "files": [
+        "accordion.html",
+        "accordion.css",
+        "accordion.js"
+      ],
+      "styles": [
+        "accordion.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "accordion.angular.ts",
+      "files": [
+        "accordion.angular.ts"
+      ],
+      "styles": [
+        "accordion.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "accordion.react.jsx",
+      "files": [
+        "accordion.react.jsx"
+      ],
+      "styles": [
+        "accordion.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

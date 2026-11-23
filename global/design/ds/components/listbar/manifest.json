@@ -1,0 +1,55 @@
+{
+  "id": "cn.listbar",
+  "version": "1.0.0",
+  "name": "Barra de listagem",
+  "category": "Design System",
+  "description": "Barra acima de listas com a contagem de resultados, ordenação, itens por página e alternância entre grade e lista.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-listbar"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "listbar.html",
+      "files": [
+        "listbar.html",
+        "listbar.css",
+        "listbar.js"
+      ],
+      "styles": [
+        "listbar.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "listbar.angular.ts",
+      "files": [
+        "listbar.angular.ts"
+      ],
+      "styles": [
+        "listbar.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "listbar.react.jsx",
+      "files": [
+        "listbar.react.jsx"
+      ],
+      "styles": [
+        "listbar.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

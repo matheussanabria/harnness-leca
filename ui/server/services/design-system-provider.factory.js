@@ -19,22 +19,36 @@ class FsDesignSystemProvider {
     this.prefix = this.config.prefix || "ds-";
   }
 
-  async getTokens() {
-    const tokensRel = this.config.tokensCss || "";
-    if (!tokensRel || !this.repoRoot) return [];
-    const fullPath = this.deps.path.resolve(this.repoRoot, tokensRel);
+  /** Le um arquivo de tokens e devolve os pares na ordem em que aparecem. */
+  lerTokens(rel) {
+    if (!rel || !this.repoRoot) return [];
+    const fullPath = this.deps.path.resolve(this.repoRoot, rel);
     if (!this.deps.fs.existsSync(fullPath)) return [];
-
     try {
       const content = this.deps.fs.readFileSync(fullPath, "utf8");
       const varMatches = content.match(/--[a-zA-Z0-9_-]+:\s*[^;]+/g) || [];
       return varMatches.map((m) => {
-        const [name, val] = m.split(":");
-        return { name: name.trim(), value: (val || "").trim() };
+        const i = m.indexOf(":");
+        return { name: m.slice(0, i).trim(), value: m.slice(i + 1).trim() };
       });
     } catch {
       return [];
     }
+  }
+
+  /**
+   * Tokens visiveis para o projeto: os do Design System global por baixo, os do
+   * projeto por cima, token a token. Este leitor nao interpreta CSS, so extrai os
+   * pares, entao um @import no arquivo do projeto nao traria a base: a sobreposicao
+   * acontece aqui.
+   */
+  async getTokens() {
+    const base = this.lerTokens(this.config.baseTokensCss);
+    const proprios = this.lerTokens(this.config.tokensCss);
+    if (!base.length) return proprios;
+    const porNome = new Map(base.map((t) => [t.name, t]));
+    for (const t of proprios) porNome.set(t.name, t);
+    return [...porNome.values()];
   }
 
   async getComponents() {

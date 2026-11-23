@@ -1,0 +1,55 @@
+{
+  "id": "cn.button",
+  "version": "1.0.0",
+  "name": "Button",
+  "category": "Design System",
+  "description": "Ação do usuário. Ênfases primária, secundária, terciária e perigo, mais variante circular para ícones.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-button"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "button.html",
+      "files": [
+        "button.html",
+        "button.css",
+        "button.js"
+      ],
+      "styles": [
+        "button.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "button.angular.ts",
+      "files": [
+        "button.angular.ts"
+      ],
+      "styles": [
+        "button.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "button.react.jsx",
+      "files": [
+        "button.react.jsx"
+      ],
+      "styles": [
+        "button.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

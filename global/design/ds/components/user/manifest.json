@@ -1,0 +1,55 @@
+{
+  "id": "cn.user",
+  "version": "1.0.0",
+  "name": "User",
+  "category": "Design System",
+  "description": "Identificação do usuário no header. Deslogado, mostra o link de login. Logado, mostra avatar (imagem ou monograma), nome, perfil, ponto de notificação opcional e o menu de conta.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-user"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "user.html",
+      "files": [
+        "user.html",
+        "user.css",
+        "user.js"
+      ],
+      "styles": [
+        "user.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "user.angular.ts",
+      "files": [
+        "user.angular.ts"
+      ],
+      "styles": [
+        "user.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "user.react.jsx",
+      "files": [
+        "user.react.jsx"
+      ],
+      "styles": [
+        "user.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

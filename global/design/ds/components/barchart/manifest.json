@@ -1,0 +1,55 @@
+{
+  "id": "cn.barchart",
+  "version": "1.0.0",
+  "name": "Gráfico de barras",
+  "category": "Design System",
+  "description": "Compara valores entre períodos (barras verticais agrupadas) ou entre categorias (barras horizontais). Eixo Y em R$ e eixo X em dia/mês.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-barchart"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "barchart.html",
+      "files": [
+        "barchart.html",
+        "barchart.css",
+        "barchart.js"
+      ],
+      "styles": [
+        "barchart.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "barchart.angular.ts",
+      "files": [
+        "barchart.angular.ts"
+      ],
+      "styles": [
+        "barchart.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "barchart.react.jsx",
+      "files": [
+        "barchart.react.jsx"
+      ],
+      "styles": [
+        "barchart.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "cn.stepper",
+  "version": "1.0.0",
+  "name": "Stepper",
+  "category": "Design System",
+  "description": "Indicador de etapas de cadastro com botões Anterior e Próximo. A etapa atual leva aria-current=\"step\".",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-stepper"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "stepper.html",
+      "files": [
+        "stepper.html",
+        "stepper.css",
+        "stepper.js"
+      ],
+      "styles": [
+        "stepper.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "stepper.angular.ts",
+      "files": [
+        "stepper.angular.ts"
+      ],
+      "styles": [
+        "stepper.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "stepper.react.jsx",
+      "files": [
+        "stepper.react.jsx"
+      ],
+      "styles": [
+        "stepper.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

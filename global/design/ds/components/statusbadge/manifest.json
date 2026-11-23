@@ -1,0 +1,55 @@
+{
+  "id": "cn.statusbadge",
+  "version": "1.0.0",
+  "name": "StatusBadge e CountBadge",
+  "category": "Design System",
+  "description": "Status com marcador circular e contadores numéricos ao lado de rótulos de menu e abas.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-statusbadge"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "statusbadge.html",
+      "files": [
+        "statusbadge.html",
+        "statusbadge.css",
+        "statusbadge.js"
+      ],
+      "styles": [
+        "statusbadge.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "statusbadge.angular.ts",
+      "files": [
+        "statusbadge.angular.ts"
+      ],
+      "styles": [
+        "statusbadge.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "statusbadge.react.jsx",
+      "files": [
+        "statusbadge.react.jsx"
+      ],
+      "styles": [
+        "statusbadge.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

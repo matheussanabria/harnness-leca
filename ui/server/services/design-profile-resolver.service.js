@@ -87,12 +87,25 @@ function resolveProjectDesignProfile(projectDir, globalDir = "", deps = { fs, pa
 
   // Aplica overrides específicos de designSystem se declarados
   if (projectProfile.designSystem?.overrides) {
+    // Projeto que troca os tokens da marca: os tokens do DS (global) continuam sendo a base e o do projeto so
+    // redefine o que quiser (o provider carrega os dois, nessa ordem). Sem troca, nao ha base a carregar.
+    const baseTokens = merged.designSystem?.tokensCss;
+    const overrideTokens = projectProfile.designSystem.overrides.tokensCss;
     merged.designSystem = deepMerge(merged.designSystem, projectProfile.designSystem.overrides);
+    if (baseTokens && overrideTokens && baseTokens !== overrideTokens) merged.designSystem.baseTokensCss = baseTokens;
   }
 
   // Garante schema: 1 e integridade dos nós essenciais
   merged.schema = 1;
   merged.isGeneric = !projectProfile.designSystem && !sharedDs.designSystem;
+  // De onde veio o Design System: o do projeto manda; sem ele, o padrão global
+  // (defaults.designSystem.ref). "nenhum" só quando não há ref em lugar algum.
+  merged.designSystemRef = dsRef;
+  merged.designSystemOrigin = projectProfile.designSystem?.ref
+    ? "projeto"
+    : dsRef
+      ? "global"
+      : "nenhum";
   merged.hasProfileFile = Boolean(readJsonSafe(projectProfilePath, deps));
 
   return merged;

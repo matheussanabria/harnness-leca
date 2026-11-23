@@ -1,0 +1,1 @@
+@for (i of items(); track i.label) { <div><dt>{{ i.label }}</dt><dd>{{ i.value }}</dd></div> }
