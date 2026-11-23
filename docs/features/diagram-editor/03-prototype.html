@@ -6,6 +6,7 @@
 <title>Diagram Editor Prototype</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>window.mermaid || document.write('<script src="../../../node_modules/mermaid/dist/mermaid.min.js"><\/script>')</script>
 <!-- EP-21.04 prototype: the "Diagramas" tab of the Design workspace (ADR-014). Real Mermaid for the live preview; saving,
      conflict and export are simulated. Not production code. -->
 <style>
@@ -129,10 +130,9 @@ const TEMPLATES = {
   sequence: ["fa-arrows-left-right", "Sequência", "sequenceDiagram\n  Cliente->>Loja: Faz o pedido\n  Loja->>Estoque: Reserva itens\n  Estoque-->>Loja: Confirmado\n  Loja-->>Cliente: Pedido aceito"],
   class: ["fa-cubes", "Classes", "classDiagram\n  class Pedido {\n    +int id\n    +total() float\n  }\n  Pedido \"1\" --> \"*\" Item"],
   state: ["fa-circle-nodes", "Estados", "stateDiagram-v2\n  [*] --> Aberto\n  Aberto --> Pago\n  Pago --> Enviado\n  Enviado --> [*]"],
-  er: ["fa-table", "Entidade-relacionamento", "erDiagram\n  CLIENTE ||--o{ PEDIDO : faz\n  PEDIDO ||--|{ ITEM : contém"],
+  er: ["fa-table", "Entidade-relacionamento", "erDiagram\n  CLIENTE ||--o{ PEDIDO : faz\n  PEDIDO ||--|{ ITEM : \"contém\""],
   gantt: ["fa-chart-gantt", "Gantt", "gantt\n  title Entrega\n  dateFormat YYYY-MM-DD\n  section Loja\n  Separar :a1, 2025-01-01, 2d\n  Enviar :after a1, 3d"],
 };
-const BAD = "flowchart TD\n  A[Início] --> B{Pedido válido?}\n  B --x-- ?? C[Separar estoque]\n  C --> E[Enviar]";
 const state = { diagrams: [
   { id: 1, title: "Fluxo do pedido", type: "flowchart", src: TEMPLATES.flowchart[2], when: "agora" },
   { id: 2, title: "Pedido e cliente", type: "sequence", src: TEMPLATES.sequence[2], when: "há 2 h" },
@@ -142,7 +142,8 @@ const cur = () => state.diagrams.find((d) => d.id === state.current);
 const typeOf = (src) => { const h = src.replace(/^---[\s\S]*?---\n/, "").split("\n").map((l) => l.trim()).find((l) => l && !l.startsWith("%%")) || ""; return /^(flowchart|graph)/.test(h) ? "flowchart" : /^sequenceDiagram/.test(h) ? "sequence" : /^classDiagram/.test(h) ? "class" : /^stateDiagram/.test(h) ? "state" : /^erDiagram/.test(h) ? "er" : /^gantt/.test(h) ? "gantt" : "?"; };
 
 function theme() { return document.documentElement.dataset.theme === "light" ? "default" : "dark"; }
-mermaid.initialize({ startOnLoad: false, securityLevel: "strict", htmlLabels: false, flowchart: { htmlLabels: false }, theme: theme(), logLevel: "fatal" });
+if (!window.mermaid) { document.addEventListener("DOMContentLoaded", () => { document.body.insertAdjacentHTML("afterbegin", '<div style="padding:10px;background:#7f1d1d;color:#fff;font:13px sans-serif">Mermaid nao carregou (CDN e copia local indisponiveis). Rode npm install na raiz ou abra com internet.</div>'); }); }
+window.mermaid && mermaid.initialize({ startOnLoad: false, securityLevel: "strict", htmlLabels: false, flowchart: { htmlLabels: false }, theme: theme(), logLevel: "fatal" });
 let renderId = 0;
 let renderSeq = 0;
 async function render() {
@@ -181,6 +182,7 @@ function paintList() {
 }
 function open(id) {
   state.current = id; const d = cur(); $("title").value = d.title; $("src").value = d.src; $("typePill").textContent = d.type; state.lastGood = "";
+  $("canvas").innerHTML = ""; $("canvas").classList.remove("dim"); $("stale").hidden = true; // never show another diagram's preview
   $("conflict").hidden = true; paintList(); paintGutter(); setSave("ok");
   return render();
 }
@@ -213,7 +215,7 @@ document.querySelectorAll("[data-demo]").forEach((b) => b.onclick = () => {
   const k = b.dataset.demo;
   toggleMenu($("menuNew"), $("btnNew"), false); toggleMenu($("menuExport"), $("btnExport"), false);
   if (k === "normal") open(1);
-  if (k === "error") { open(1).then(() => { $("src").value = BAD; cur().src = BAD; paintGutter(); render(); }); }
+  if (k === "error") { open(3).then(() => { const bad = TEMPLATES.er[2].replace('"contém"', "contém"); $("src").value = bad; cur().src = bad; paintGutter(); render(); }); }
   if (k === "conflict") { open(1); $("conflict").hidden = false; setSave("error"); }
   if (k === "new") toggleMenu($("menuNew"), $("btnNew"), true);
   if (k === "export") toggleMenu($("menuExport"), $("btnExport"), true);
