@@ -1,0 +1,2757 @@
+{
+  "schema": 1,
+  "namespace": "cn",
+  "updatedAt": "2026-11-15T00:00:00.000Z",
+  "components": {
+    "cn.button": {
+      "id": "cn.button",
+      "version": "1.0.0",
+      "name": "Button",
+      "category": "Design System",
+      "description": "Ação do usuário. Ênfases primária, secundária, terciária e perigo, mais variante circular para ícones.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-button"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "button.html",
+          "files": [
+            "button.html",
+            "button.css",
+            "button.js"
+          ],
+          "styles": [
+            "button.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "button.angular.ts",
+          "files": [
+            "button.angular.ts"
+          ],
+          "styles": [
+            "button.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "button.react.jsx",
+          "files": [
+            "button.react.jsx"
+          ],
+          "styles": [
+            "button.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.icon": {
+      "id": "cn.icon",
+      "version": "1.0.0",
+      "name": "Icon",
+      "category": "Design System",
+      "description": "SVG inline de traço 1.8px, herdando a cor com currentColor. Use aria-hidden quando decorativo e aria-label em botões só com ícone.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-icon"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "icon.html",
+          "files": [
+            "icon.html",
+            "icon.css",
+            "icon.js"
+          ],
+          "styles": [
+            "icon.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "icon.angular.ts",
+          "files": [
+            "icon.angular.ts"
+          ],
+          "styles": [
+            "icon.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "icon.react.jsx",
+          "files": [
+            "icon.react.jsx"
+          ],
+          "styles": [
+            "icon.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.alert": {
+      "id": "cn.alert",
+      "version": "1.0.0",
+      "name": "Alert",
+      "category": "Design System",
+      "description": "Mensagem contextual com botão de fechar. Usa role=\"alert\" e os tokens de fundo, texto e borda de cada status.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-alert"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "alert.html",
+          "files": [
+            "alert.html",
+            "alert.css",
+            "alert.js"
+          ],
+          "styles": [
+            "alert.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "alert.angular.ts",
+          "files": [
+            "alert.angular.ts"
+          ],
+          "styles": [
+            "alert.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "alert.react.jsx",
+          "files": [
+            "alert.react.jsx"
+          ],
+          "styles": [
+            "alert.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.accordion": {
+      "id": "cn.accordion",
+      "version": "1.0.0",
+      "name": "Accordion",
+      "category": "Design System",
+      "description": "Lista de seções expansíveis. O gatilho é um button com aria-expanded; usado na hierarquia de categorias financeiras e no menu do usuário.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-accordion"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "accordion.html",
+          "files": [
+            "accordion.html",
+            "accordion.css",
+            "accordion.js"
+          ],
+          "styles": [
+            "accordion.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "accordion.angular.ts",
+          "files": [
+            "accordion.angular.ts"
+          ],
+          "styles": [
+            "accordion.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "accordion.react.jsx",
+          "files": [
+            "accordion.react.jsx"
+          ],
+          "styles": [
+            "accordion.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.header": {
+      "id": "cn.header",
+      "version": "1.0.0",
+      "name": "Header",
+      "category": "Design System",
+      "description": "Barra superior na cor primária com marca, navegação e o botão Entrar, que vira menu do usuário após o login.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-header"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "header.html",
+          "files": [
+            "header.html",
+            "header.css",
+            "header.js"
+          ],
+          "styles": [
+            "header.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "header.angular.ts",
+          "files": [
+            "header.angular.ts"
+          ],
+          "styles": [
+            "header.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "header.react.jsx",
+          "files": [
+            "header.react.jsx"
+          ],
+          "styles": [
+            "header.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.footer": {
+      "id": "cn.footer",
+      "version": "1.0.0",
+      "name": "Footer",
+      "category": "Design System",
+      "description": "Rodapé em duas partes: colunas de links e contato, e faixa de direitos autorais.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-footer"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "footer.html",
+          "files": [
+            "footer.html",
+            "footer.css",
+            "footer.js"
+          ],
+          "styles": [
+            "footer.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "footer.angular.ts",
+          "files": [
+            "footer.angular.ts"
+          ],
+          "styles": [
+            "footer.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "footer.react.jsx",
+          "files": [
+            "footer.react.jsx"
+          ],
+          "styles": [
+            "footer.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.badge": {
+      "id": "cn.badge",
+      "version": "1.0.0",
+      "name": "Badge / Pill",
+      "category": "Design System",
+      "description": "Rótulo arredondado para status e categorias. Fundo e texto vêm do par background/dark de cada status.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-badge"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "badge.html",
+          "files": [
+            "badge.html",
+            "badge.css",
+            "badge.js"
+          ],
+          "styles": [
+            "badge.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "badge.angular.ts",
+          "files": [
+            "badge.angular.ts"
+          ],
+          "styles": [
+            "badge.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "badge.react.jsx",
+          "files": [
+            "badge.react.jsx"
+          ],
+          "styles": [
+            "badge.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.table": {
+      "id": "cn.table",
+      "version": "1.0.0",
+      "name": "Table",
+      "category": "Design System",
+      "description": "Tabela padrão com cabeçalho cinza, colunas ordenáveis, valores à direita e status em pill. Filtros ficam recolhíveis acima.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-table"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "table.html",
+          "files": [
+            "table.html",
+            "table.css",
+            "table.js"
+          ],
+          "styles": [
+            "table.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "table.angular.ts",
+          "files": [
+            "table.angular.ts"
+          ],
+          "styles": [
+            "table.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "table.react.jsx",
+          "files": [
+            "table.react.jsx"
+          ],
+          "styles": [
+            "table.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.form": {
+      "id": "cn.form",
+      "version": "1.0.0",
+      "name": "Form fields",
+      "category": "Design System",
+      "description": "Campos com rótulo acima e foco coral de 2px. Selects em cascata (marca, modelo, versão) liberam o próximo nível ao escolher o anterior.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-form"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "form.html",
+          "files": [
+            "form.html",
+            "form.css",
+            "form.js"
+          ],
+          "styles": [
+            "form.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "form.angular.ts",
+          "files": [
+            "form.angular.ts"
+          ],
+          "styles": [
+            "form.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "form.react.jsx",
+          "files": [
+            "form.react.jsx"
+          ],
+          "styles": [
+            "form.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.modal": {
+      "id": "cn.modal",
+      "version": "1.0.0",
+      "name": "Modal",
+      "category": "Design System",
+      "description": "Diálogo sobre fundo escurecido, com título, conteúdo e ações alinhadas à direita. Usado em formulários de cadastro e confirmações de exclusão.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-modal"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "modal.html",
+          "files": [
+            "modal.html",
+            "modal.css",
+            "modal.js"
+          ],
+          "styles": [
+            "modal.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "modal.angular.ts",
+          "files": [
+            "modal.angular.ts"
+          ],
+          "styles": [
+            "modal.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "modal.react.jsx",
+          "files": [
+            "modal.react.jsx"
+          ],
+          "styles": [
+            "modal.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.gallery": {
+      "id": "cn.gallery",
+      "version": "1.0.0",
+      "name": "Carrossel / Galeria",
+      "category": "Design System",
+      "description": "Um único componente reutilizável. A prop mode alterna entre slider (categorias, marcas, veículos) e coverflow (depoimentos). O card é o conteúdo (children), então qualquer card pode ser exibido: categoria, marca, veículo ou depoimento.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-gallery"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "gallery.html",
+          "files": [
+            "gallery.html",
+            "gallery.css",
+            "gallery.js"
+          ],
+          "styles": [
+            "gallery.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "gallery.angular.ts",
+          "files": [
+            "gallery.angular.ts"
+          ],
+          "styles": [
+            "gallery.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "gallery.react.jsx",
+          "files": [
+            "gallery.react.jsx"
+          ],
+          "styles": [
+            "gallery.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.ambiente": {
+      "id": "cn.ambiente",
+      "version": "1.0.0",
+      "name": "Identificação de ambiente",
+      "category": "Design System",
+      "description": "Faixa fixa no topo, em toda a largura, que diferencia desenvolvimento e homologação de produção. Não deve cobrir elementos importantes.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-ambiente"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "ambiente.html",
+          "files": [
+            "ambiente.html",
+            "ambiente.css",
+            "ambiente.js"
+          ],
+          "styles": [
+            "ambiente.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "ambiente.angular.ts",
+          "files": [
+            "ambiente.angular.ts"
+          ],
+          "styles": [
+            "ambiente.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "ambiente.react.jsx",
+          "files": [
+            "ambiente.react.jsx"
+          ],
+          "styles": [
+            "ambiente.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.minimos": {
+      "id": "cn.minimos",
+      "version": "1.0.0",
+      "name": "Padrões mínimos",
+      "category": "Design System",
+      "description": "Elementos obrigatórios em toda aplicação: identificação do ambiente, cabeçalho (marca, menu e usuário), favicon legível em 16×16 px e rodapé com assinatura do desenvolvedor.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-minimos"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "minimos.html",
+          "files": [
+            "minimos.html",
+            "minimos.css",
+            "minimos.js"
+          ],
+          "styles": [
+            "minimos.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "minimos.angular.ts",
+          "files": [
+            "minimos.angular.ts"
+          ],
+          "styles": [
+            "minimos.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "minimos.react.jsx",
+          "files": [
+            "minimos.react.jsx"
+          ],
+          "styles": [
+            "minimos.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.favicon": {
+      "id": "cn.favicon",
+      "version": "1.0.0",
+      "name": "Favicon e logo",
+      "category": "Design System",
+      "description": "Ícone da aba, legível em 16×16 px. Use o símbolo da marca ou uma versão adaptada; prefira SVG, com PNG em tamanhos adequados.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-favicon"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "favicon.html",
+          "files": [
+            "favicon.html",
+            "favicon.css",
+            "favicon.js"
+          ],
+          "styles": [
+            "favicon.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "favicon.angular.ts",
+          "files": [
+            "favicon.angular.ts"
+          ],
+          "styles": [
+            "favicon.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "favicon.react.jsx",
+          "files": [
+            "favicon.react.jsx"
+          ],
+          "styles": [
+            "favicon.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.user": {
+      "id": "cn.user",
+      "version": "1.0.0",
+      "name": "User",
+      "category": "Design System",
+      "description": "Identificação do usuário no header. Deslogado, mostra o link de login. Logado, mostra avatar (imagem ou monograma), nome, perfil, ponto de notificação opcional e o menu de conta.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-user"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "user.html",
+          "files": [
+            "user.html",
+            "user.css",
+            "user.js"
+          ],
+          "styles": [
+            "user.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "user.angular.ts",
+          "files": [
+            "user.angular.ts"
+          ],
+          "styles": [
+            "user.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "user.react.jsx",
+          "files": [
+            "user.react.jsx"
+          ],
+          "styles": [
+            "user.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.search": {
+      "id": "cn.search",
+      "version": "1.0.0",
+      "name": "Search",
+      "category": "Design System",
+      "description": "Campo de pesquisa opcional do header. Pode ser um input simples ou um ícone que expande. Sempre com rótulo acessível.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-search"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "search.html",
+          "files": [
+            "search.html",
+            "search.css",
+            "search.js"
+          ],
+          "styles": [
+            "search.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "search.angular.ts",
+          "files": [
+            "search.angular.ts"
+          ],
+          "styles": [
+            "search.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "search.react.jsx",
+          "files": [
+            "search.react.jsx"
+          ],
+          "styles": [
+            "search.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.tabs": {
+      "id": "cn.tabs",
+      "version": "1.0.0",
+      "name": "Tabs",
+      "category": "Design System",
+      "description": "Navegação por abas. A aba ativa recebe sublinhado de 3px na cor primária. Usa role=\"tablist\" e aria-selected.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-tabs"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "tabs.html",
+          "files": [
+            "tabs.html",
+            "tabs.css",
+            "tabs.js"
+          ],
+          "styles": [
+            "tabs.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "tabs.angular.ts",
+          "files": [
+            "tabs.angular.ts"
+          ],
+          "styles": [
+            "tabs.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "tabs.react.jsx",
+          "files": [
+            "tabs.react.jsx"
+          ],
+          "styles": [
+            "tabs.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.breadcrumb": {
+      "id": "cn.breadcrumb",
+      "version": "1.0.0",
+      "name": "Breadcrumb",
+      "category": "Design System",
+      "description": "Trilha de navegação. O último item é a página atual (aria-current=\"page\") e não é link.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-breadcrumb"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "breadcrumb.html",
+          "files": [
+            "breadcrumb.html",
+            "breadcrumb.css",
+            "breadcrumb.js"
+          ],
+          "styles": [
+            "breadcrumb.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "breadcrumb.angular.ts",
+          "files": [
+            "breadcrumb.angular.ts"
+          ],
+          "styles": [
+            "breadcrumb.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "breadcrumb.react.jsx",
+          "files": [
+            "breadcrumb.react.jsx"
+          ],
+          "styles": [
+            "breadcrumb.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.sidenav": {
+      "id": "cn.sidenav",
+      "version": "1.0.0",
+      "name": "SideNav",
+      "category": "Design System",
+      "description": "Menu lateral do painel administrativo, recolhível, com ícone e rótulo por item. O item ativo usa o fundo primário suave.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-sidenav"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "sidenav.html",
+          "files": [
+            "sidenav.html",
+            "sidenav.css",
+            "sidenav.js"
+          ],
+          "styles": [
+            "sidenav.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "sidenav.angular.ts",
+          "files": [
+            "sidenav.angular.ts"
+          ],
+          "styles": [
+            "sidenav.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "sidenav.react.jsx",
+          "files": [
+            "sidenav.react.jsx"
+          ],
+          "styles": [
+            "sidenav.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.textfield": {
+      "id": "cn.textfield",
+      "version": "1.0.0",
+      "name": "TextField",
+      "category": "Design System",
+      "description": "Campo de texto com rótulo acima, texto de ajuda e mensagem de erro. Erro usa borda de 2px e aria-invalid.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-textfield"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "textfield.html",
+          "files": [
+            "textfield.html",
+            "textfield.css",
+            "textfield.js"
+          ],
+          "styles": [
+            "textfield.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "textfield.angular.ts",
+          "files": [
+            "textfield.angular.ts"
+          ],
+          "styles": [
+            "textfield.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "textfield.react.jsx",
+          "files": [
+            "textfield.react.jsx"
+          ],
+          "styles": [
+            "textfield.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.datefield": {
+      "id": "cn.datefield",
+      "version": "1.0.0",
+      "name": "DateField",
+      "category": "Design System",
+      "description": "Campo de data nativo (input type=\"date\"), usado em vencimentos e filtros por período. Formato exibido conforme o idioma do navegador.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-datefield"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "datefield.html",
+          "files": [
+            "datefield.html",
+            "datefield.css",
+            "datefield.js"
+          ],
+          "styles": [
+            "datefield.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "datefield.angular.ts",
+          "files": [
+            "datefield.angular.ts"
+          ],
+          "styles": [
+            "datefield.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "datefield.react.jsx",
+          "files": [
+            "datefield.react.jsx"
+          ],
+          "styles": [
+            "datefield.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.textarea": {
+      "id": "cn.textarea",
+      "version": "1.0.0",
+      "name": "TextAreaField",
+      "category": "Design System",
+      "description": "Campo de texto multilinha com contador de caracteres e redimensionamento vertical.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-textarea"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "textarea.html",
+          "files": [
+            "textarea.html",
+            "textarea.css",
+            "textarea.js"
+          ],
+          "styles": [
+            "textarea.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "textarea.angular.ts",
+          "files": [
+            "textarea.angular.ts"
+          ],
+          "styles": [
+            "textarea.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "textarea.react.jsx",
+          "files": [
+            "textarea.react.jsx"
+          ],
+          "styles": [
+            "textarea.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.choice": {
+      "id": "cn.choice",
+      "version": "1.0.0",
+      "name": "Checkbox e RadioGroup",
+      "category": "Design System",
+      "description": "Seleção múltipla (checkbox) e única (radio). Agrupe com fieldset e legend; a cor de seleção usa o token primário.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-choice"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "choice.html",
+          "files": [
+            "choice.html",
+            "choice.css",
+            "choice.js"
+          ],
+          "styles": [
+            "choice.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "choice.angular.ts",
+          "files": [
+            "choice.angular.ts"
+          ],
+          "styles": [
+            "choice.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "choice.react.jsx",
+          "files": [
+            "choice.react.jsx"
+          ],
+          "styles": [
+            "choice.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.statusbadge": {
+      "id": "cn.statusbadge",
+      "version": "1.0.0",
+      "name": "StatusBadge e CountBadge",
+      "category": "Design System",
+      "description": "Status com marcador circular e contadores numéricos ao lado de rótulos de menu e abas.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-statusbadge"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "statusbadge.html",
+          "files": [
+            "statusbadge.html",
+            "statusbadge.css",
+            "statusbadge.js"
+          ],
+          "styles": [
+            "statusbadge.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "statusbadge.angular.ts",
+          "files": [
+            "statusbadge.angular.ts"
+          ],
+          "styles": [
+            "statusbadge.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "statusbadge.react.jsx",
+          "files": [
+            "statusbadge.react.jsx"
+          ],
+          "styles": [
+            "statusbadge.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.collapsiblecard": {
+      "id": "cn.collapsiblecard",
+      "version": "1.0.0",
+      "name": "CollapsibleCard",
+      "category": "Design System",
+      "description": "Card recolhível para filtros e blocos secundários. O cabeçalho mostra o título e um contador de filtros ativos.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-collapsiblecard"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "collapsiblecard.html",
+          "files": [
+            "collapsiblecard.html",
+            "collapsiblecard.css",
+            "collapsiblecard.js"
+          ],
+          "styles": [
+            "collapsiblecard.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "collapsiblecard.angular.ts",
+          "files": [
+            "collapsiblecard.angular.ts"
+          ],
+          "styles": [
+            "collapsiblecard.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "collapsiblecard.react.jsx",
+          "files": [
+            "collapsiblecard.react.jsx"
+          ],
+          "styles": [
+            "collapsiblecard.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.pagination": {
+      "id": "cn.pagination",
+      "version": "1.0.0",
+      "name": "Pagination",
+      "category": "Design System",
+      "description": "Navegação entre páginas de listas e tabelas. A página atual usa aria-current e o fundo primário.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-pagination"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "pagination.html",
+          "files": [
+            "pagination.html",
+            "pagination.css",
+            "pagination.js"
+          ],
+          "styles": [
+            "pagination.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "pagination.angular.ts",
+          "files": [
+            "pagination.angular.ts"
+          ],
+          "styles": [
+            "pagination.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "pagination.react.jsx",
+          "files": [
+            "pagination.react.jsx"
+          ],
+          "styles": [
+            "pagination.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.select": {
+      "id": "cn.select",
+      "version": "1.0.0",
+      "name": "SelectField",
+      "category": "Design System",
+      "description": "Lista suspensa nativa com rótulo acima e asterisco vermelho nos campos obrigatórios. Base dos selects em cascata.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-select"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "select.html",
+          "files": [
+            "select.html",
+            "select.css",
+            "select.js"
+          ],
+          "styles": [
+            "select.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "select.angular.ts",
+          "files": [
+            "select.angular.ts"
+          ],
+          "styles": [
+            "select.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "select.react.jsx",
+          "files": [
+            "select.react.jsx"
+          ],
+          "styles": [
+            "select.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.infogrid": {
+      "id": "cn.infogrid",
+      "version": "1.0.0",
+      "name": "InfoGrid",
+      "category": "Design System",
+      "description": "Grade de pares rótulo/valor para resumos de registros. O rótulo usa o token primary-headings em negrito.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-infogrid"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "infogrid.html",
+          "files": [
+            "infogrid.html",
+            "infogrid.css",
+            "infogrid.js"
+          ],
+          "styles": [
+            "infogrid.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "infogrid.angular.ts",
+          "files": [
+            "infogrid.angular.ts"
+          ],
+          "styles": [
+            "infogrid.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "infogrid.react.jsx",
+          "files": [
+            "infogrid.react.jsx"
+          ],
+          "styles": [
+            "infogrid.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.entityheader": {
+      "id": "cn.entityheader",
+      "version": "1.0.0",
+      "name": "EntityHeader",
+      "category": "Design System",
+      "description": "Cabeçalho do registro aberto (por exemplo, o veículo), com nome em destaque na cor primária, linha de metadados e opção \"ver mais\". Equivale ao PatientHeader da referência.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-entityheader"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "entityheader.html",
+          "files": [
+            "entityheader.html",
+            "entityheader.css",
+            "entityheader.js"
+          ],
+          "styles": [
+            "entityheader.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "entityheader.angular.ts",
+          "files": [
+            "entityheader.angular.ts"
+          ],
+          "styles": [
+            "entityheader.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "entityheader.react.jsx",
+          "files": [
+            "entityheader.react.jsx"
+          ],
+          "styles": [
+            "entityheader.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.groupcard": {
+      "id": "cn.groupcard",
+      "version": "1.0.0",
+      "name": "GroupedList (ProgramGroup)",
+      "category": "Design System",
+      "description": "Grupo recolhível com título em caixa alta, selo de status e aviso de prazo. Dentro dele vai uma tabela. Usado para agrupar itens por programa, contrato ou financiamento.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-groupcard"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "groupcard.html",
+          "files": [
+            "groupcard.html",
+            "groupcard.css",
+            "groupcard.js"
+          ],
+          "styles": [
+            "groupcard.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "groupcard.angular.ts",
+          "files": [
+            "groupcard.angular.ts"
+          ],
+          "styles": [
+            "groupcard.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "groupcard.react.jsx",
+          "files": [
+            "groupcard.react.jsx"
+          ],
+          "styles": [
+            "groupcard.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.noteentry": {
+      "id": "cn.noteentry",
+      "version": "1.0.0",
+      "name": "NoteEntry",
+      "category": "Design System",
+      "description": "Registro de anotação com data, texto, autor e ação de excluir. Anotações com prazo de exibição ganham selo EXPIRADO e botão para liberar a visualização.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-noteentry"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "noteentry.html",
+          "files": [
+            "noteentry.html",
+            "noteentry.css",
+            "noteentry.js"
+          ],
+          "styles": [
+            "noteentry.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "noteentry.angular.ts",
+          "files": [
+            "noteentry.angular.ts"
+          ],
+          "styles": [
+            "noteentry.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "noteentry.react.jsx",
+          "files": [
+            "noteentry.react.jsx"
+          ],
+          "styles": [
+            "noteentry.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.annotationlist": {
+      "id": "cn.annotationlist",
+      "version": "1.0.0",
+      "name": "AnnotationList",
+      "category": "Design System",
+      "description": "Lista de anotações em sanfona: o cabeçalho de cada item é a data e hora, e o corpo traz o texto e o autor.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-annotationlist"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "annotationlist.html",
+          "files": [
+            "annotationlist.html",
+            "annotationlist.css",
+            "annotationlist.js"
+          ],
+          "styles": [
+            "annotationlist.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "annotationlist.angular.ts",
+          "files": [
+            "annotationlist.angular.ts"
+          ],
+          "styles": [
+            "annotationlist.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "annotationlist.react.jsx",
+          "files": [
+            "annotationlist.react.jsx"
+          ],
+          "styles": [
+            "annotationlist.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.calcitem": {
+      "id": "cn.calcitem",
+      "version": "1.0.0",
+      "name": "CalcItem (DispensationItem)",
+      "category": "Design System",
+      "description": "Bloco com resumo do item, campos de cálculo e resultados calculados. Equivale ao DispensationItem da referência; aqui aparece na proposta de venda.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-calcitem"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "calcitem.html",
+          "files": [
+            "calcitem.html",
+            "calcitem.css",
+            "calcitem.js"
+          ],
+          "styles": [
+            "calcitem.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "calcitem.angular.ts",
+          "files": [
+            "calcitem.angular.ts"
+          ],
+          "styles": [
+            "calcitem.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "calcitem.react.jsx",
+          "files": [
+            "calcitem.react.jsx"
+          ],
+          "styles": [
+            "calcitem.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.grid": {
+      "id": "cn.grid",
+      "version": "1.0.0",
+      "name": "Grid",
+      "category": "Design System",
+      "description": "Malha de 12 colunas em desktop, 8 em tablet retrato e 4 em smartphone. Containers fixos para sites e fluidos para sistemas.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-grid"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "grid.html",
+          "files": [
+            "grid.html",
+            "grid.css",
+            "grid.js"
+          ],
+          "styles": [
+            "grid.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "grid.angular.ts",
+          "files": [
+            "grid.angular.ts"
+          ],
+          "styles": [
+            "grid.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "grid.react.jsx",
+          "files": [
+            "grid.react.jsx"
+          ],
+          "styles": [
+            "grid.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.appshell": {
+      "id": "cn.appshell",
+      "version": "1.0.0",
+      "name": "AppShell",
+      "category": "Design System",
+      "description": "Estrutura completa da aplicação: faixa de ambiente, header, cabeçalho do registro, menu lateral e área de conteúdo. As telas de exemplo do protótipo usam este esqueleto.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-appshell"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "appshell.html",
+          "files": [
+            "appshell.html",
+            "appshell.css",
+            "appshell.js"
+          ],
+          "styles": [
+            "appshell.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "appshell.angular.ts",
+          "files": [
+            "appshell.angular.ts"
+          ],
+          "styles": [
+            "appshell.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "appshell.react.jsx",
+          "files": [
+            "appshell.react.jsx"
+          ],
+          "styles": [
+            "appshell.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.cards": {
+      "id": "cn.cards",
+      "version": "1.0.0",
+      "name": "Card",
+      "category": "Design System",
+      "description": "Contêiner de 14px de raio e borda neutra. Seis variações: indicador, lista de permissões, depoimento, produto (com foto e ação), banner e resumo chave–valor.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-cards"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "cards.html",
+          "files": [
+            "cards.html",
+            "cards.css",
+            "cards.js"
+          ],
+          "styles": [
+            "cards.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "cards.angular.ts",
+          "files": [
+            "cards.angular.ts"
+          ],
+          "styles": [
+            "cards.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "cards.react.jsx",
+          "files": [
+            "cards.react.jsx"
+          ],
+          "styles": [
+            "cards.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.dropzone": {
+      "id": "cn.dropzone",
+      "version": "1.0.0",
+      "name": "Área de transferência",
+      "category": "Design System",
+      "description": "Zona de arrastar e soltar para upload em lote, usada no Conversor de Relatórios. Mostra o arquivo selecionado acima da zona e permite removê-lo.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-dropzone"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "dropzone.html",
+          "files": [
+            "dropzone.html",
+            "dropzone.css",
+            "dropzone.js"
+          ],
+          "styles": [
+            "dropzone.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "dropzone.angular.ts",
+          "files": [
+            "dropzone.angular.ts"
+          ],
+          "styles": [
+            "dropzone.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "dropzone.react.jsx",
+          "files": [
+            "dropzone.react.jsx"
+          ],
+          "styles": [
+            "dropzone.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.filters": {
+      "id": "cn.filters",
+      "version": "1.0.0",
+      "name": "Filtros",
+      "category": "Design System",
+      "description": "Painel de filtros com grupos de checkbox, faixa de preço, select e ação de limpar. Fica recolhível no mobile.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-filters"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "filters.html",
+          "files": [
+            "filters.html",
+            "filters.css",
+            "filters.js"
+          ],
+          "styles": [
+            "filters.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "filters.angular.ts",
+          "files": [
+            "filters.angular.ts"
+          ],
+          "styles": [
+            "filters.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "filters.react.jsx",
+          "files": [
+            "filters.react.jsx"
+          ],
+          "styles": [
+            "filters.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.stepper": {
+      "id": "cn.stepper",
+      "version": "1.0.0",
+      "name": "Stepper",
+      "category": "Design System",
+      "description": "Indicador de etapas de cadastro com botões Anterior e Próximo. A etapa atual leva aria-current=\"step\".",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-stepper"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "stepper.html",
+          "files": [
+            "stepper.html",
+            "stepper.css",
+            "stepper.js"
+          ],
+          "styles": [
+            "stepper.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "stepper.angular.ts",
+          "files": [
+            "stepper.angular.ts"
+          ],
+          "styles": [
+            "stepper.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "stepper.react.jsx",
+          "files": [
+            "stepper.react.jsx"
+          ],
+          "styles": [
+            "stepper.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.selectcards": {
+      "id": "cn.selectcards",
+      "version": "1.0.0",
+      "name": "Seleção por cards e tiles",
+      "category": "Design System",
+      "description": "Cards com rádio para escolha única (tipo de veículo) e tiles com checkbox para itens de série e características.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-selectcards"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "selectcards.html",
+          "files": [
+            "selectcards.html",
+            "selectcards.css",
+            "selectcards.js"
+          ],
+          "styles": [
+            "selectcards.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "selectcards.angular.ts",
+          "files": [
+            "selectcards.angular.ts"
+          ],
+          "styles": [
+            "selectcards.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "selectcards.react.jsx",
+          "files": [
+            "selectcards.react.jsx"
+          ],
+          "styles": [
+            "selectcards.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.switch": {
+      "id": "cn.switch",
+      "version": "1.0.0",
+      "name": "Switch",
+      "category": "Design System",
+      "description": "Alterna um estado binário, como Ativo e Inativo em tabelas de cadastro. Usa role=\"switch\" e aria-checked.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-switch"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "switch.html",
+          "files": [
+            "switch.html",
+            "switch.css",
+            "switch.js"
+          ],
+          "styles": [
+            "switch.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "switch.angular.ts",
+          "files": [
+            "switch.angular.ts"
+          ],
+          "styles": [
+            "switch.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "switch.react.jsx",
+          "files": [
+            "switch.react.jsx"
+          ],
+          "styles": [
+            "switch.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.special": {
+      "id": "cn.special",
+      "version": "1.0.0",
+      "name": "Campos especiais",
+      "category": "Design System",
+      "description": "Seletor de cor com código hex, callout de referência com ação e chips de perfil.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-special"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "special.html",
+          "files": [
+            "special.html",
+            "special.css",
+            "special.js"
+          ],
+          "styles": [
+            "special.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "special.angular.ts",
+          "files": [
+            "special.angular.ts"
+          ],
+          "styles": [
+            "special.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "special.react.jsx",
+          "files": [
+            "special.react.jsx"
+          ],
+          "styles": [
+            "special.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.empty": {
+      "id": "cn.empty",
+      "version": "1.0.0",
+      "name": "Estado vazio",
+      "category": "Design System",
+      "description": "Mensagem quando não há registros: ícone, título, explicação e uma ação opcional.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-empty"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "empty.html",
+          "files": [
+            "empty.html",
+            "empty.css",
+            "empty.js"
+          ],
+          "styles": [
+            "empty.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "empty.angular.ts",
+          "files": [
+            "empty.angular.ts"
+          ],
+          "styles": [
+            "empty.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "empty.react.jsx",
+          "files": [
+            "empty.react.jsx"
+          ],
+          "styles": [
+            "empty.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.period": {
+      "id": "cn.period",
+      "version": "1.0.0",
+      "name": "Navegador de período",
+      "category": "Design System",
+      "description": "Controle para navegar entre meses em telas financeiras. Os botões têm aria-label descritivo.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-period"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "period.html",
+          "files": [
+            "period.html",
+            "period.css",
+            "period.js"
+          ],
+          "styles": [
+            "period.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "period.angular.ts",
+          "files": [
+            "period.angular.ts"
+          ],
+          "styles": [
+            "period.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "period.react.jsx",
+          "files": [
+            "period.react.jsx"
+          ],
+          "styles": [
+            "period.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.listbar": {
+      "id": "cn.listbar",
+      "version": "1.0.0",
+      "name": "Barra de listagem",
+      "category": "Design System",
+      "description": "Barra acima de listas com a contagem de resultados, ordenação, itens por página e alternância entre grade e lista.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-listbar"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "listbar.html",
+          "files": [
+            "listbar.html",
+            "listbar.css",
+            "listbar.js"
+          ],
+          "styles": [
+            "listbar.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "listbar.angular.ts",
+          "files": [
+            "listbar.angular.ts"
+          ],
+          "styles": [
+            "listbar.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "listbar.react.jsx",
+          "files": [
+            "listbar.react.jsx"
+          ],
+          "styles": [
+            "listbar.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.linechart": {
+      "id": "cn.linechart",
+      "version": "1.0.0",
+      "name": "Gráficos",
+      "category": "Design System",
+      "description": "Gráficos em SVG. Linhas, barras e área mostram evolução no tempo: eixo Y em R$ com faixas de 10k e eixo X com a data como dia/mês. Pizza e rosca mostram composição; clicar numa fatia destaca o item e a rosca mostra o valor no centro. Use no máximo 5 categorias e sempre uma legenda com valor e percentual.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-linechart"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "linechart.html",
+          "files": [
+            "linechart.html",
+            "linechart.css",
+            "linechart.js"
+          ],
+          "styles": [
+            "linechart.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "linechart.angular.ts",
+          "files": [
+            "linechart.angular.ts"
+          ],
+          "styles": [
+            "linechart.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "linechart.react.jsx",
+          "files": [
+            "linechart.react.jsx"
+          ],
+          "styles": [
+            "linechart.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.flyout": {
+      "id": "cn.flyout",
+      "version": "1.0.0",
+      "name": "Menu do usuário com submenu lateral",
+      "category": "Design System",
+      "description": "Menu da conta no header. No desktop, cada grupo abre um painel ao lado (à esquerda do menu) ao passar o mouse, ao clicar ou ao focar com o teclado, levando direto à rota final. No mobile vira acordeão. Os grupos dependem do perfil: Cliente, Vendedor, Financeiro e Administrador.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-flyout"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "flyout.html",
+          "files": [
+            "flyout.html",
+            "flyout.css",
+            "flyout.js"
+          ],
+          "styles": [
+            "flyout.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "flyout.angular.ts",
+          "files": [
+            "flyout.angular.ts"
+          ],
+          "styles": [
+            "flyout.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "flyout.react.jsx",
+          "files": [
+            "flyout.react.jsx"
+          ],
+          "styles": [
+            "flyout.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.menuicons": {
+      "id": "cn.menuicons",
+      "version": "1.0.0",
+      "name": "Ícones do menu",
+      "category": "Design System",
+      "description": "Conjunto Lucide usado nos submenus do menu do usuário, com o item de menu onde cada ícone aparece. Traço de 1.8px, herdando a cor com currentColor; nos títulos de grupo usam a cor primária.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-menuicons"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "menuicons.html",
+          "files": [
+            "menuicons.html",
+            "menuicons.css",
+            "menuicons.js"
+          ],
+          "styles": [
+            "menuicons.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "menuicons.angular.ts",
+          "files": [
+            "menuicons.angular.ts"
+          ],
+          "styles": [
+            "menuicons.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "menuicons.react.jsx",
+          "files": [
+            "menuicons.react.jsx"
+          ],
+          "styles": [
+            "menuicons.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.piechart": {
+      "id": "cn.piechart",
+      "version": "1.0.0",
+      "name": "Gráfico de pizza",
+      "category": "Design System",
+      "description": "Mostra a proporção de partes em um todo, como despesas por categoria. Duas variações: pizza e rosca com o total no centro.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-piechart"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "piechart.html",
+          "files": [
+            "piechart.html",
+            "piechart.css",
+            "piechart.js"
+          ],
+          "styles": [
+            "piechart.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "piechart.angular.ts",
+          "files": [
+            "piechart.angular.ts"
+          ],
+          "styles": [
+            "piechart.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "piechart.react.jsx",
+          "files": [
+            "piechart.react.jsx"
+          ],
+          "styles": [
+            "piechart.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    },
+    "cn.barchart": {
+      "id": "cn.barchart",
+      "version": "1.0.0",
+      "name": "Gráfico de barras",
+      "category": "Design System",
+      "description": "Compara valores entre períodos (barras verticais agrupadas) ou entre categorias (barras horizontais). Eixo Y em R$ e eixo X em dia/mês.",
+      "props": {},
+      "slots": {},
+      "events": {},
+      "dependencies": [],
+      "documentation": {
+        "prototypeId": "design-system-v2-inspecao",
+        "screenId": "c-barchart"
+      },
+      "implementations": {
+        "vanilla": {
+          "framework": "vanilla",
+          "entryFile": "barchart.html",
+          "files": [
+            "barchart.html",
+            "barchart.css",
+            "barchart.js"
+          ],
+          "styles": [
+            "barchart.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "angular": {
+          "framework": "angular",
+          "entryFile": "barchart.angular.ts",
+          "files": [
+            "barchart.angular.ts"
+          ],
+          "styles": [
+            "barchart.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        },
+        "react": {
+          "framework": "react",
+          "entryFile": "barchart.react.jsx",
+          "files": [
+            "barchart.react.jsx"
+          ],
+          "styles": [
+            "barchart.css"
+          ],
+          "dependencies": [],
+          "status": "available"
+        }
+      }
+    }
+  }
+}

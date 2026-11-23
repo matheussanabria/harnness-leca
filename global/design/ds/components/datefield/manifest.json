@@ -1,0 +1,55 @@
+{
+  "id": "cn.datefield",
+  "version": "1.0.0",
+  "name": "DateField",
+  "category": "Design System",
+  "description": "Campo de data nativo (input type=\"date\"), usado em vencimentos e filtros por período. Formato exibido conforme o idioma do navegador.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-datefield"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "datefield.html",
+      "files": [
+        "datefield.html",
+        "datefield.css",
+        "datefield.js"
+      ],
+      "styles": [
+        "datefield.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "datefield.angular.ts",
+      "files": [
+        "datefield.angular.ts"
+      ],
+      "styles": [
+        "datefield.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "datefield.react.jsx",
+      "files": [
+        "datefield.react.jsx"
+      ],
+      "styles": [
+        "datefield.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

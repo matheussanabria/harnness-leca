@@ -1,0 +1,4 @@
+.env{position:sticky;top:0;z-index:100;padding:6px;text-align:center;font:700 12px var(--font-sans);letter-spacing:.06em;color:#fff}
+.env--dev{background:var(--primary-headings)}
+.env--hml{background:var(--highlight-dark)}
+/* a faixa participa do fluxo (sticky), então não sobrepõe o header */

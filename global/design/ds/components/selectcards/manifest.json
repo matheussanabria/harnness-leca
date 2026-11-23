@@ -1,0 +1,55 @@
+{
+  "id": "cn.selectcards",
+  "version": "1.0.0",
+  "name": "Seleção por cards e tiles",
+  "category": "Design System",
+  "description": "Cards com rádio para escolha única (tipo de veículo) e tiles com checkbox para itens de série e características.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-selectcards"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "selectcards.html",
+      "files": [
+        "selectcards.html",
+        "selectcards.css",
+        "selectcards.js"
+      ],
+      "styles": [
+        "selectcards.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "selectcards.angular.ts",
+      "files": [
+        "selectcards.angular.ts"
+      ],
+      "styles": [
+        "selectcards.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "selectcards.react.jsx",
+      "files": [
+        "selectcards.react.jsx"
+      ],
+      "styles": [
+        "selectcards.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

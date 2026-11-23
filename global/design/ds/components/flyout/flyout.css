@@ -1,0 +1,36 @@
+/* Ancoragem: wrapper com a mesma largura do header para alinhar à direita do botão */
+.user-menu-anchor{position:absolute;left:0;right:0;top:100%;z-index:30}
+.user-menu-anchor__inner{max-width:1200px;margin:0 auto;position:relative;height:0}
+.user-menu{position:absolute;right:20px;top:6px;z-index:30;width:min(300px,calc(100% - 40px));
+  background:#fff;border:1px solid var(--neutral-light);border-radius:14px;
+  box-shadow:0 12px 32px rgba(9,30,66,.25);padding:8px;display:grid;gap:4px;overflow:visible}
+
+.um-group{position:relative}
+.um-group:hover,.um-group:focus-within{z-index:5}            /* grupo ativo acima dos vizinhos */
+.um-group__head{width:100%;height:38px;padding:0 10px;border:0;border-radius:8px;background:transparent;
+  display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:13px}
+.um-group:hover .um-group__head,.um-group.is-open .um-group__head{background:var(--neutral-background)}
+.um-group__head:focus-visible{outline:2px solid var(--highlight-focus)}
+
+/* Painel lateral: encosta no menu (padding-right) para o mouse não "cair" no vão */
+.um-flyout{display:none;position:absolute;right:100%;top:-9px;padding-right:12px;z-index:40}
+.um-group:hover .um-flyout,.um-group:focus-within .um-flyout,.um-group.is-open .um-flyout{display:block}
+.um-flyout__panel{min-width:220px;background:#fff;border:1px solid var(--neutral-light);border-radius:14px;
+  box-shadow:0 12px 32px rgba(9,30,66,.25);padding:8px;display:grid;gap:2px}
+.um-flyout__title{padding:6px 10px 8px;font:700 11px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--neutral-base)}
+.um-flyout a{display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;
+  font-weight:600;color:var(--primary-headings);white-space:nowrap}
+.um-flyout a:hover{background:var(--primary-background);color:var(--primary-dark)}
+.um-flyout a:focus-visible{outline:2px solid var(--highlight-focus)}
+
+/* O header precisa ficar acima do conteúdo (carrossel, cards) */
+.header{position:relative;z-index:50}
+
+/* Mobile: acordeão, sem hover */
+@media (max-width:991px){
+  .user-menu{max-height:70vh;overflow:auto}
+  .um-flyout{position:static;padding:0 0 0 10px;margin-left:10px;border-left:2px solid var(--neutral-light)}
+  .um-flyout__panel{min-width:0;border:0;box-shadow:none;padding:0;border-radius:0}
+  .um-group:hover .um-flyout,.um-group:focus-within .um-flyout{display:none}
+  .um-group.is-open .um-flyout{display:block}
+}

@@ -1,0 +1,55 @@
+{
+  "id": "cn.piechart",
+  "version": "1.0.0",
+  "name": "Gráfico de pizza",
+  "category": "Design System",
+  "description": "Mostra a proporção de partes em um todo, como despesas por categoria. Duas variações: pizza e rosca com o total no centro.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-piechart"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "piechart.html",
+      "files": [
+        "piechart.html",
+        "piechart.css",
+        "piechart.js"
+      ],
+      "styles": [
+        "piechart.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "piechart.angular.ts",
+      "files": [
+        "piechart.angular.ts"
+      ],
+      "styles": [
+        "piechart.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "piechart.react.jsx",
+      "files": [
+        "piechart.react.jsx"
+      ],
+      "styles": [
+        "piechart.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

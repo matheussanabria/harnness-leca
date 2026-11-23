@@ -1,0 +1,55 @@
+{
+  "id": "cn.favicon",
+  "version": "1.0.0",
+  "name": "Favicon e logo",
+  "category": "Design System",
+  "description": "Ícone da aba, legível em 16×16 px. Use o símbolo da marca ou uma versão adaptada; prefira SVG, com PNG em tamanhos adequados.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-favicon"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "favicon.html",
+      "files": [
+        "favicon.html",
+        "favicon.css",
+        "favicon.js"
+      ],
+      "styles": [
+        "favicon.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "favicon.angular.ts",
+      "files": [
+        "favicon.angular.ts"
+      ],
+      "styles": [
+        "favicon.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "favicon.react.jsx",
+      "files": [
+        "favicon.react.jsx"
+      ],
+      "styles": [
+        "favicon.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

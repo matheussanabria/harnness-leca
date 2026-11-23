@@ -1,0 +1,3 @@
+.app{min-height:100vh;display:grid;grid-template-rows:auto auto 1fr auto}
+.app__body{display:grid;grid-template-columns:240px 1fr}
+@media (max-width:991px){.app__body{grid-template-columns:64px 1fr}}

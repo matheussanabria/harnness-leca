@@ -1,0 +1,8 @@
+.btn{height:44px;padding:0 20px;border:0;border-radius:8px;font:700 15px var(--font-sans);cursor:pointer}
+.btn--primary{background:var(--primary-interactive);color:#fff}
+.btn--primary:hover{background:var(--primary-dark)}
+.btn--secondary{background:#fff;color:var(--primary-interactive);border:1px solid currentColor}
+.btn--danger{background:var(--danger-dark);color:#fff}
+.btn--circle{width:44px;padding:0;border-radius:50%}
+.btn:focus-visible{outline:2px solid var(--highlight-focus);outline-offset:2px}
+.btn[aria-disabled=true]{background:var(--neutral-light);color:var(--neutral-base)}

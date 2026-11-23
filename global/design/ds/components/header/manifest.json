@@ -1,0 +1,55 @@
+{
+  "id": "cn.header",
+  "version": "1.0.0",
+  "name": "Header",
+  "category": "Design System",
+  "description": "Barra superior na cor primária com marca, navegação e o botão Entrar, que vira menu do usuário após o login.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-header"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "header.html",
+      "files": [
+        "header.html",
+        "header.css",
+        "header.js"
+      ],
+      "styles": [
+        "header.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "header.angular.ts",
+      "files": [
+        "header.angular.ts"
+      ],
+      "styles": [
+        "header.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "header.react.jsx",
+      "files": [
+        "header.react.jsx"
+      ],
+      "styles": [
+        "header.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

@@ -1,0 +1,2 @@
+.choice{padding:16px;border:2px solid var(--neutral-light);border-radius:12px;background:#fff}
+.choice[aria-checked=true]{border-color:var(--primary-interactive);background:var(--primary-background)}

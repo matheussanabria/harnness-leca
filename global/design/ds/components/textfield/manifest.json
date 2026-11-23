@@ -1,0 +1,55 @@
+{
+  "id": "cn.textfield",
+  "version": "1.0.0",
+  "name": "TextField",
+  "category": "Design System",
+  "description": "Campo de texto com rótulo acima, texto de ajuda e mensagem de erro. Erro usa borda de 2px e aria-invalid.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-textfield"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "textfield.html",
+      "files": [
+        "textfield.html",
+        "textfield.css",
+        "textfield.js"
+      ],
+      "styles": [
+        "textfield.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "textfield.angular.ts",
+      "files": [
+        "textfield.angular.ts"
+      ],
+      "styles": [
+        "textfield.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "textfield.react.jsx",
+      "files": [
+        "textfield.react.jsx"
+      ],
+      "styles": [
+        "textfield.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

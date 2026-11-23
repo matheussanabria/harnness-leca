@@ -1,0 +1,55 @@
+{
+  "id": "cn.breadcrumb",
+  "version": "1.0.0",
+  "name": "Breadcrumb",
+  "category": "Design System",
+  "description": "Trilha de navegação. O último item é a página atual (aria-current=\"page\") e não é link.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-breadcrumb"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "breadcrumb.html",
+      "files": [
+        "breadcrumb.html",
+        "breadcrumb.css",
+        "breadcrumb.js"
+      ],
+      "styles": [
+        "breadcrumb.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "breadcrumb.angular.ts",
+      "files": [
+        "breadcrumb.angular.ts"
+      ],
+      "styles": [
+        "breadcrumb.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "breadcrumb.react.jsx",
+      "files": [
+        "breadcrumb.react.jsx"
+      ],
+      "styles": [
+        "breadcrumb.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "cn.minimos",
+  "version": "1.0.0",
+  "name": "Padrões mínimos",
+  "category": "Design System",
+  "description": "Elementos obrigatórios em toda aplicação: identificação do ambiente, cabeçalho (marca, menu e usuário), favicon legível em 16×16 px e rodapé com assinatura do desenvolvedor.",
+  "props": {},
+  "slots": {},
+  "events": {},
+  "dependencies": [],
+  "documentation": {
+    "prototypeId": "design-system-v2-inspecao",
+    "screenId": "c-minimos"
+  },
+  "implementations": {
+    "vanilla": {
+      "framework": "vanilla",
+      "entryFile": "minimos.html",
+      "files": [
+        "minimos.html",
+        "minimos.css",
+        "minimos.js"
+      ],
+      "styles": [
+        "minimos.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "angular": {
+      "framework": "angular",
+      "entryFile": "minimos.angular.ts",
+      "files": [
+        "minimos.angular.ts"
+      ],
+      "styles": [
+        "minimos.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    },
+    "react": {
+      "framework": "react",
+      "entryFile": "minimos.react.jsx",
+      "files": [
+        "minimos.react.jsx"
+      ],
+      "styles": [
+        "minimos.css"
+      ],
+      "dependencies": [],
+      "status": "available"
+    }
+  }
+}

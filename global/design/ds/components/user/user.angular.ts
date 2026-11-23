@@ -1,0 +1,1 @@
+initials = computed(() => this.user().name.split(' ').map(p => p[0]).slice(0, 2).join(''));
