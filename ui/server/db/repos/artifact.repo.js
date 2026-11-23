@@ -22,7 +22,7 @@ const toArtifact = (row) => ({
 /** @param {import("node:sqlite").DatabaseSync} db */
 function createArtifactRepo(db) {
   const base = createRepoBase(db);
-  const { prepare, transaction } = base;
+  const { prepare, transaction, toJson, fromJson } = base;
 
   /** @param {string} id @returns {Artifact|null} */
   function get(id) {
@@ -75,10 +75,48 @@ function createArtifactRepo(db) {
       .map((r) => ({ path: String(r.path), contentHash: r.content_hash ?? null }));
   }
 
+  /** @param {any} r */
+  const toLog = (r) => ({
+    id: Number(r.id), from: r.from_owner ?? null, to: String(r.to_owner), action: String(r.action),
+    at: String(r.at), actor: String(r.actor), undoOf: r.undo_of ?? null,
+    snapshot: r.snapshot ? fromJson(r.snapshot, []) : [],
+  });
+
   /** Ownership history, oldest first. @param {string} id */
   function history(id) {
-    return prepare("SELECT from_owner, to_owner, action, at, actor FROM artifact_ownership_log WHERE artifact_id = ? ORDER BY id").all(id)
-      .map((r) => ({ from: r.from_owner ?? null, to: String(r.to_owner), action: String(r.action), at: String(r.at), actor: String(r.actor) }));
+    return prepare("SELECT * FROM artifact_ownership_log WHERE artifact_id = ? ORDER BY id").all(id).map(toLog);
+  }
+
+  /** @param {number} logId */
+  function getLog(logId) {
+    const row = prepare("SELECT * FROM artifact_ownership_log WHERE id = ?").get(logId);
+    return row ? { artifactId: String(row.artifact_id), ...toLog(row) } : null;
+  }
+
+  /** The newest ownership entry of an artifact, or null. @param {string} id */
+  function lastLog(id) {
+    const row = prepare("SELECT * FROM artifact_ownership_log WHERE artifact_id = ? ORDER BY id DESC LIMIT 1").get(id);
+    return row ? toLog(row) : null;
+  }
+
+  /**
+   * Changes the owner, replaces the file list and the source key, and logs a move. Call inside transaction().
+   * @param {string} id @param {string} newOwner
+   * @param {{ files: ArtifactFile[], sourceKey?: string|null, actor?: string, undoOf?: number|null }} change
+   * @returns {number} the new log id
+   */
+  function setOwner(id, newOwner, { files, sourceKey = null, actor = "system", undoOf = null }) {
+    const current = get(id);
+    if (!current) throw new Error("artifact not found");
+    const now = new Date().toISOString();
+    prepare("UPDATE artifacts SET owner_slug = ?, source_key = ?, updated_at = ? WHERE id = ?").run(newOwner, sourceKey, now, id);
+    prepare("DELETE FROM artifact_files WHERE artifact_id = ?").run(id);
+    const insertFile = prepare("INSERT INTO artifact_files (artifact_id, path, content_hash) VALUES (?, ?, ?)");
+    for (const f of files) insertFile.run(id, f.path, f.contentHash ?? null);
+    const result = prepare(
+      "INSERT INTO artifact_ownership_log (artifact_id, from_owner, to_owner, action, at, actor, snapshot, undo_of) VALUES (?, ?, ?, 'move', ?, ?, ?, ?)"
+    ).run(id, current.owner, newOwner, now, actor, toJson(files.map((f) => ({ path: f.path, contentHash: f.contentHash ?? null }))), undoOf);
+    return Number(result.lastInsertRowid);
   }
 
   /**
@@ -93,7 +131,7 @@ function createArtifactRepo(db) {
     };
   }
 
-  return { transaction, get, getBySourceKey, register, listByOwner, filesOf, history, findReferences };
+  return { transaction, get, getBySourceKey, register, listByOwner, filesOf, history, getLog, lastLog, setOwner, findReferences };
 }
 
 module.exports = { createArtifactRepo };

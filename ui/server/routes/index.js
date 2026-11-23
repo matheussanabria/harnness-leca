@@ -30,6 +30,7 @@ const { permissionsRoutes } = require("./permissions.routes");
 const { deployRoutes } = require("./deploy.routes");
 const { hiaRoutes } = require("./hia.routes");
 const { featuresRoutes } = require("./features.routes");
+const { artifactOwnershipRoutes } = require("./artifact-ownership.routes");
 const { projectDocsRoutes } = require("./project-docs.routes");
 const { dbRoutes } = require("./db.routes");
 const { hostsRoutes } = require("./hosts.routes");
@@ -63,6 +64,7 @@ const ROUTES = [
   ...deployRoutes,
   ...hiaRoutes,
   ...featuresRoutes,
+  ...artifactOwnershipRoutes,
   ...projectDocsRoutes,
   ...dbRoutes,
   ...hostsRoutes,
