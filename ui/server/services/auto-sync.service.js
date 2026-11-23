@@ -1,5 +1,5 @@
 // @ts-check
-// Sincronizacao automatica das conversas: observa as pastas dos motores (Claude Code, Gemini, opencode) e roda
+// Sincronizacao automatica das conversas: observa as pastas dos motores (Claude Code, Gemini, opencode, Codex) e roda
 // tools/sync.js em processo filho, com debounce, intervalo minimo e uma unica execucao por vez.
 // HARNESS_AUTOSYNC=0 desliga; HARNESS_AUTOSYNC_INTERVAL_MS ajusta o ciclo de seguranca (padrao 5 min).
 const fs = require("fs");
@@ -23,12 +23,12 @@ function acquireManual() {
 function releaseManual() { manualBusy = false; }
 const isBusy = () => manualBusy || stats.running;
 
-function watchRoots() {
-  const home = os.homedir();
+function watchRoots(home = os.homedir()) {
   return [
     path.join(home, ".claude", "projects"),
     path.join(home, ".gemini", "antigravity-ide", "brain"),
     path.join(home, ".local", "share", "opencode"),
+    path.join(home, ".codex", "sessions"),
   ].filter((p) => fs.existsSync(p));
 }
 
@@ -84,4 +84,4 @@ function startAutoSync({ root, env = process.env, debounceMs = DEBOUNCE_MS }) {
 
 const getAutoSyncStats = () => ({ ...stats, busy: isBusy() });
 
-module.exports = { startAutoSync, getAutoSyncStats, acquireManual, releaseManual, isBusy };
+module.exports = { watchRoots, startAutoSync, getAutoSyncStats, acquireManual, releaseManual, isBusy };
