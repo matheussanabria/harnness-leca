@@ -3,7 +3,7 @@
 // Exporta a memória curada do Harness para o contexto nativo dos agentes:
 // 1. Claude Code: ~/.claude/projects/<pasta>/memory/MEMORY.md (só o bloco gerenciado)
 // 2. Gemini / Antigravity: Knowledge Item (memory.md) + regra global em ~/.gemini
-// 3. Codex: bloco gerenciado em projects/<slug>/AGENTS.md (o Codex lê a partir do cwd do projeto)
+// 3. Codex e OpenCode: bloco gerenciado em projects/<slug>/AGENTS.md (ambos leem a partir do cwd do projeto)
 //
 // Uso:
 //   node tools/export-context.js                    sincroniza todos os projetos
@@ -98,7 +98,7 @@ function run(argv, io = console, options = {}) {
     totalGeminiKIs++;
     io.log(`   [Claude] ${claude.folders} pasta(s) com bloco gerenciado em MEMORY.md`);
     io.log(`   [Gemini] Knowledge Item: ki-projeto-${slug}`);
-    io.log(`   [Codex] projects/${slug}/AGENTS.md (bloco gerenciado)`);
+    io.log(`   [Codex/OpenCode] projects/${slug}/AGENTS.md (bloco gerenciado)`);
     overview.push({ slug, chatsCount: data.chatsCount });
   }
 
